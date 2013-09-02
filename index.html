@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="./css/jQuery-rating.css" rel="stylesheet">
+
+    <style type="text/css">
+
+        body {
+            padding-top: 15px;
+        }
+        pre.prettyprint {
+            padding: 8px;
+            background-color: #F7F7F9;
+            border: 1px solid #E1E1E8;
+            margin-top: 0px;
+            margin-bottom: 18px;
+        }
+
+        h4 {
+            margin-bottom: 8px;
+        }
+
+        .hilite {
+            color: #FF8C00;
+        }
+
+    </style>
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+ </head>
+ <body>
+
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <h1>Slider demo page</h1>
+                <p>Demo page for bootstrap slider plugin, includes examples of various ways to use the slider component.</p>
+                <br>
+                <h3>Controlling slider</h3>
+                <p>The slider components can be controlled in various ways:</p>
+                <ul>
+                    <li>Dragging</li>
+                    <li>Mousewheel on the slider</li>
+                    <li>Mousewheel on the original input</li>
+                    <li>Keyup/keydown while the focus is in original input</li>
+                    <li>Manually entering value (automatically validated & snapped)</li>
+                </ul>
+
+                <p>See <a href="https://github.com/petkaantonov/jQuery-slider">project page</a> for documentation.</p>
+
+            </div>
+        </div>
+
+        <div class="row"><div class="span12"><hr></div></div>
+             <div class="row">
+                 <div class="span4">
+                     <h4>Basic example</h4>
+                     <p>Default settings are min=1, max=100, step=1</p>
+                     <div class="markup-container">
+                        <input data-rating type="text" data-tooltips='[1,2,3,4,5]'>
+                        <input data-rating type="text" data-rtl="true">
+                        <input data-rating type="text" value="2" readonly>
+                    </div>
+                 </div>
+                 <div class="span8">
+                     <h4>Markup</h4>
+                        <pre class="prettyprint"></pre>
+                 </div>
+             </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script type="text/javascript" src="./js/jQuery-rating.js"></script>
+
+    <script type="text/javascript">
+
+
+    </script>
+ </body>
+</html>
