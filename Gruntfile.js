@@ -1,6 +1,6 @@
 module.exports = function( grunt ) {
 
-    var SRC_DEST = './src/promise.js',
+    var SRC_DEST = './js/promise.js',
         TMP_DEST = './js/tmp.js',
         BUILD_DEST = './js/promise.js',
         MIN_DEST = './js/promise.min.js'
@@ -81,12 +81,21 @@ module.exports = function( grunt ) {
 
         dist: {
             src: [
-                "./src/promise.js"
+                "./src/prologue.js",
+                "./src/util.js",
+                "./src/caches.js",
+                "./src/async_call.js",
+                "./src/pending_promise.js",
+                "./src/promise.js",
+                "./src/promise_error.js",
+                "./src/cancellation_error.js",
+                "./src/error_handling.js",
+                "./src/epilogue.js"
             ],
 
             nonull: true,
 
-            dest: BUILD_DEST
+            dest: SRC_DEST
         }
 
     };
@@ -139,8 +148,8 @@ module.exports = function( grunt ) {
         });
     });
 
-    grunt.registerTask( "test", ["build", "jshint", "clean", "testrun"] );
-    grunt.registerTask( "default", ["build", "jshint", "clean"] );
-    grunt.registerTask( "production", ["build", "jshint", "closure-compiler", "clean"] );
+    grunt.registerTask( "test", ["concat", "build", "jshint", "clean", "testrun"] );
+    grunt.registerTask( "default", ["concat", "build", "jshint", "clean"] );
+    grunt.registerTask( "production", ["concat", "build", "jshint", "closure-compiler", "clean"] );
 
 };

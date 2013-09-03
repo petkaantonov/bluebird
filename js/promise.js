@@ -36,10 +36,44 @@
 
 
 
+var errorObj = {};
+var UNRESOLVED = {};
+var noop = function(){};
+
+function indexOf( array, value ) {
+    for( var i = 0, len = array.length; i < len; ++i ) {
+        if( value === array[i] ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+var isArray = Array.isArray || function( obj ) {
+    //yeah it won't work iframes
+    return obj instanceof Array;
+};
+
+//Try catch is not supported in optimizing
+//compiler, so it is isolated
+function tryCatch1( fn, receiver, arg ) {
+    try {
+        return fn.call( receiver, arg );
+    }
+    catch( e ) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
 function GetterCache(){}
 function FunctionCache(){}
 
-//TODO jsperf
 
 //If one uses sensible property names
 //then the dummy constructor will give
@@ -82,23 +116,6 @@ function getFunction( propertyName ) {
     getterCache[propertyName] = fn;
     return fn;
 }
-
-var noop = function(){};
-
-function indexOf( array, value ) {
-    for( var i = 0, len = array.length; i < len; ++i ) {
-        if( value === array[i] ) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-var isArray = Array.isArray || function( obj ) {
-    //yeah it won't work iframes
-    return obj instanceof Array;
-};
-
 //Ensure in-order async calling of functions
 //with minimal use of async functions like setTimeout
 var defer = (function() {
@@ -117,6 +134,7 @@ var defer = (function() {
             var copy = new Array(len);
             for( var i = 0, len = copy.length; i < len; ++i ) {
                 copy[i] = functionBuffer[i];
+                functionBuffer[i] = void 0;
             }
             reset();
             for( var i = 0; i < len; i += 3 ) {
@@ -154,6 +172,8 @@ var defer = (function() {
                 }
             ) ;
 
+
+
     return function( fn, receiver, arg ) {
         functionBuffer[ length + 0 ] = fn;
         functionBuffer[ length + 1 ] = receiver;
@@ -167,35 +187,48 @@ var defer = (function() {
 
 })();
 
-
-
 var bindDefer = function( fn, receiver ) {
     return function( arg ) {
         defer( fn, receiver, arg );
     };
 };
 
-var errorObj = {};
-var UNRESOLVED = {};
+var PendingPromise = (function() {
 
-//Try catch is not supported in optimizing
-//compiler, so it is isolated
-function tryCatch1( fn, receiver, arg ) {
-    try {
-        return fn.call( receiver, arg );
-    }
-    catch( e ) {
-        if( Promise.errorHandlingMode ===
-            Promise.ErrorHandlingMode.PROMISE_ONLY &&
-            !( e instanceof PromiseError ) ) {
-            throw e;
-        }
-        errorObj.e = e;
-        return errorObj;
-    }
+/**
+ * Deferred
+ *
+ *
+ */
+function PendingPromise( promise ) {
+    this.promise = promise;
+    this.fulfill = bindDefer( this.fulfill, this );
+    this.reject = bindDefer( this.reject, this );
+    this.update = bindDefer( this.update, this );
 }
+var method = PendingPromise.prototype;
+
+method.toString = function() {
+    return "[object PendingPromise]";
+};
+
+method.fulfill = function( value ) {
+    this.promise._fulfill( value );
+};
+
+method.reject = function( value ) {
+    this.promise._reject( value );
+};
+
+method.update = function( value ) {
+    this.promise._update( value );
+};
 
 
+
+
+return PendingPromise;})();
+var Promise = (function() {
 
 function Promise( resolver ) {
     this._isCompleted = false;
@@ -203,8 +236,20 @@ function Promise( resolver ) {
     this._isRejected = false;
     this._isCancellable = true;
 
-    this._callbacks = new Array( 5 );
+    //Since most promises only have 0-1 handlers
+    //store the first ones directly on the object
+    this._fulfill0 =
+    this._reject0 =
+    this._update0 =
+    this._promise0 =
+    this._receiver0 =
+        void 0;
+
+    //store rest on array
+    this._callbacks = null;
     this._callbacksLength = 0;
+
+    //reason for rejection or fulfilled value
     this._completionValue = UNRESOLVED;
 
     if( typeof resolver === "function" ) {
@@ -298,23 +343,28 @@ method._then = function( didFulfill, didReject, didUpdate, receiver ) {
 };
 
 method._callbackReceiverAt = function( index ) {
-    return this._callbacks[ ( index | 0 ) + 4 ];
+    if( index === 0 ) return this._receiver0;
+    return this._callbacks[ index + 4 - 5 ];
 };
 
 method._callbackPromiseAt = function( index ) {
-    return this._callbacks[ ( index | 0 ) + 3 ];
+    if( index === 0 ) return this._promise0;
+    return this._callbacks[ index + 3 - 5 ];
 };
 
 method._callbackFulfillAt = function( index ) {
-    return this._callbacks[ ( index | 0 ) + 0 ];
+    if( index === 0 ) return this._fulfill0;
+    return this._callbacks[ index + 0 - 5 ];
 };
 
 method._callbackRejectAt = function( index ) {
-    return this._callbacks[ ( index | 0 ) + 1 ];
+    if( index === 0 ) return this._reject0;
+    return this._callbacks[ index + 1 - 5 ];
 };
 
 method._callbackUpdateAt = function( index ) {
-    return this._callbacks[ ( index | 0 ) + 2 ];
+    if( index === 0 ) return this._update0;
+    return this._callbacks[ index + 2 - 5 ];
 };
 
 method._addCallbacks = function( fulfill, reject, update, promise, receiver ) {
@@ -322,17 +372,32 @@ method._addCallbacks = function( fulfill, reject, update, promise, receiver ) {
     reject = typeof reject === "function" ? reject : noop;
     update = typeof update === "function" ? update : noop;
     var index = this._callbacksLength | 0;
+
+    if( index === 0 ) {
+        this._fulfill0 = fulfill;
+        this._reject0  = reject;
+        this._update0 = update;
+        this._promise0 = promise;
+        this._receiver0 = receiver;
+        this._callbacksLength = index + 5;
+        return index;
+    }
+
     var callbacks = this._callbacks;
 
-    if( index >= callbacks.length ) {
+    if( callbacks === null ) {
+        callbacks = this._callbacks = new Array( 5 );
+    }
+
+    if( ( index + 5 ) >= callbacks.length ) {
         callbacks.length = callbacks.length + 5;
     }
 
-    callbacks[ index + 0 ] = fulfill;
-    callbacks[ index + 1 ] = reject;
-    callbacks[ index + 2 ] = update;
-    callbacks[ index + 3 ] = promise;
-    callbacks[ index + 4 ] = receiver;
+    callbacks[ index - 5 + 0 ] = fulfill;
+    callbacks[ index - 5 + 1 ] = reject;
+    callbacks[ index - 5 + 2 ] = update;
+    callbacks[ index - 5 + 3 ] = promise;
+    callbacks[ index - 5 + 4 ] = receiver;
     this._callbacksLength = index + 5;
     return index;
 };
@@ -383,10 +448,20 @@ method._completePromise = function( fn, receiver, value, promise2 ) {
         promise2._reject( errorObj.e );
     }
     else if( isPromise( ret ) ) {
-        ret.then(
-            bindDefer( promise2._fulfill, promise2 ),
-            bindDefer( promise2._reject, promise2 )
-        );
+        if( ret instanceof Promise ) {
+            ret._then(
+                promise2._fulfill,
+                promise2._reject,
+                void 0,
+                promise2
+            );
+        }
+        else {
+            ret.then(
+                bindDefer( promise2._fulfill, promise2 ),
+                bindDefer( promise2._reject, promise2 )
+            );
+        }
     }
     else {
         promise2._fulfill( ret );
@@ -521,62 +596,34 @@ Promise.pending = function() {
     return new PendingPromise( new Promise() );
 };
 
-var PendingPromise = (function() {
-    function PendingPromise( promise ) {
-        this.promise = promise;
-        this.fulfill = bindDefer( this.fulfill, this );
-        this.reject = bindDefer( this.reject, this );
-        this.update = bindDefer( this.update, this );
-    }
-    var method = PendingPromise.prototype;
-
-    method.toString = function() {
-        return "[object PendingPromise]";
-    };
-
-    method.fulfill = function( value ) {
-        this.promise._fulfill( value );
-    };
-
-    method.reject = function( value ) {
-        this.promise._reject( value );
-    };
-
-    method.update = function( value ) {
-        this.promise._update( value );
-    };
-
-    return PendingPromise;
-})();
-
+return Promise;})();
 var PromiseError = (function() {
-    PromiseError.prototype = new Error();
-    PromiseError.prototype.constructor = PromiseError;
 
-    function PromiseError( msg, data ) {
-        if( typeof Error.captureStackTrace !== "undefined" ) {
-            Error.captureStackTrace( this, this.constructor );
-        }
-        Error.apply( this, arguments );
-        this.message = msg;
-        this.data = data;
+PromiseError.prototype = new Error();
+PromiseError.prototype.constructor = PromiseError;
+
+function PromiseError( msg, data ) {
+    if( typeof Error.captureStackTrace !== "undefined" ) {
+        Error.captureStackTrace( this, this.constructor );
     }
+    Error.apply( this, arguments );
+    this.message = msg;
+    this.data = data;
+}
 
-    return PromiseError;
-})();
-
-
+return PromiseError; })();
 var CancellationError = (function() {
-    CancellationError.prototype = new PromiseError();
-    CancellationError.prototype.constructor = CancellationError;
 
-    function CancellationError() {
-        PromiseError.apply( this, arguments );
-        this.name = "cancel";
-    }
-    return CancellationError;
-})();
+CancellationError.prototype = new PromiseError();
+CancellationError.prototype.constructor = CancellationError;
 
+function CancellationError() {
+    PromiseError.apply( this, arguments );
+    this.name = "cancel";
+}
+
+
+return CancellationError; })();
 Promise.Error = PromiseError;
 Promise.CancellationError = CancellationError;
 
@@ -586,7 +633,6 @@ Promise.ErrorHandlingMode = {
 };
 
 Promise.errorHandlingMode = Promise.ErrorHandlingMode.ANY;
-
 if( typeof module !== "undefined" && module.exports ) {
     module.exports = Promise;
 }
