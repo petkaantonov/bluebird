@@ -7,9 +7,6 @@ var PendingPromise = (function() {
  */
 function PendingPromise( promise ) {
     this.promise = promise;
-    this.fulfill = bindDefer( this.fulfill, this );
-    this.reject = bindDefer( this.reject, this );
-    this.update = bindDefer( this.update, this );
 }
 var method = PendingPromise.prototype;
 
@@ -18,15 +15,15 @@ method.toString = function() {
 };
 
 method.fulfill = function( value ) {
-    this.promise._fulfill( value );
+    async.call( this.promise._fulfill, this.promise, value );
 };
 
 method.reject = function( value ) {
-    this.promise._reject( value );
+    async.call( this.promise._reject, this.promise, value );
 };
 
 method.update = function( value ) {
-    this.promise._update( value );
+    async.call( this.promise._update, this.promise, value );
 };
 
 

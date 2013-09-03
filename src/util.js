@@ -45,3 +45,9 @@ function tryCatch1( fn, receiver, arg ) {
         return errorObj;
     }
 }
+
+var create = Object.create || function( proto ) {
+    function F(){}
+    F.prototype = proto;
+    return new F();
+};

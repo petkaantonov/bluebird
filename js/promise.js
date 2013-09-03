@@ -71,6 +71,11 @@ function tryCatch1( fn, receiver, arg ) {
     }
 }
 
+var create = Object.create || function( proto ) {
+    function F(){}
+    F.prototype = proto;
+    return new F();
+};
 function GetterCache(){}
 function FunctionCache(){}
 
@@ -118,78 +123,103 @@ function getFunction( propertyName ) {
 }
 //Ensure in-order async calling of functions
 //with minimal use of async functions like setTimeout
-var defer = (function() {
 
-    var functionBuffer = new Array( 300 );
+//This whole file is about making a deferred function call
+//cost literally* nothing
+
+//*because the buffer is taking the space anyway
+var Async = (function() {
+var method = Async.prototype;
+
+function Async() {
+    this._isTickUsed = false;
+    this._length = 0;
+    var functionBuffer = this._functionBuffer = new Array( 300 );
+    this._deferFn = noop;
+    var self = this;
+    //Optimized around the fact that no arguments
+    //need to be passed
+    this.consumeFunctionBuffer = function() {
+        self._consumeFunctionBuffer();
+    };
+
     for( var i = 0, len = functionBuffer.length; i < len; ++i ) {
         functionBuffer[i] = void 0;
     }
+}
 
-    var length = 0;
-    var wasDeferred = false;
+method.setDeferFunction = function( deferFn ) {
+    this._deferFn = deferFn;
+};
 
-    function consumeFunctionBuffer() {
-        var len = length;
-        if( len > 0 ) {
-            var copy = new Array(len);
-            for( var i = 0, len = copy.length; i < len; ++i ) {
-                copy[i] = functionBuffer[i];
-                functionBuffer[i] = void 0;
-            }
-            reset();
-            for( var i = 0; i < len; i += 3 ) {
-                copy[ i + 0 ].call(
-                    copy[ i + 1 ],
-                    copy[ i + 2 ]
-                );
-            }
-        }
-        else reset();
-
+method.call = function( fn, receiver, arg ) {
+    var functionBuffer = this._functionBuffer,
+        length = this._length;
+    functionBuffer[ length + 0 ] = fn;
+    functionBuffer[ length + 1 ] = receiver;
+    functionBuffer[ length + 2 ] = arg;
+    this._length = length + 3;
+    if( !this._isTickUsed ) {
+        this._deferFn();
+        this._isTickUsed = true;
     }
+};
 
-    function reset() {
-        length = 0;
-        wasDeferred = false;
-    }
-
-    var deferFn = typeof process !== "undefined" ?
-            ( typeof global.setImmediate !== "undefined"
-                ? function(){
-                    global.setImmediate( consumeFunctionBuffer );
-                  }
-                : function() {
-                    process.nextTick( consumeFunctionBuffer );
-                }
-
-            ) :
-            ( typeof setTimeout !== "undefined"
-                ? function() {
-                    setTimeout( consumeFunctionBuffer, 4 );
-                }
-                : function() {
-                    consumeFunctionBuffer();
-                }
-            ) ;
-
-
-
-    return function( fn, receiver, arg ) {
-        functionBuffer[ length + 0 ] = fn;
-        functionBuffer[ length + 1 ] = receiver;
-        functionBuffer[ length + 2 ] = arg;
-        length += 3;
-        if( !wasDeferred ) {
-            deferFn();
-            wasDeferred = true;
+method._consumeFunctionBuffer = function() {
+    var len = this._length;
+    var functionBuffer = this._functionBuffer;
+    if( len > 0 ) {
+        var copy = new Array(len);
+        for( var i = 0, len = copy.length; i < len; ++i ) {
+            copy[i] = functionBuffer[i];
+            functionBuffer[i] = void 0;
         }
-    };
+        this._reset();
+        for( var i = 0; i < len; i += 3 ) {
+            copy[ i + 0 ].call(
+                copy[ i + 1 ],
+                copy[ i + 2 ]
+            );
+        }
+    }
+    else this._reset();
+};
 
-})();
+method._reset = function() {
+    this._isTickUsed = false;
+    this._length = 0;
+};
 
-var bindDefer = function( fn, receiver ) {
-    return function( arg ) {
-        defer( fn, receiver, arg );
+
+return Async;})();
+
+var async = new Async();
+
+var deferFn = typeof process !== "undefined" ?
+    ( typeof global.setImmediate !== "undefined"
+        ? function(){
+            global.setImmediate( async.consumeFunctionBuffer );
+          }
+        : function() {
+            process.nextTick( async.consumeFunctionBuffer );
+        }
+
+    ) :
+    ( typeof setTimeout !== "undefined"
+        ? function() {
+            setTimeout( async.consumeFunctionBuffer, 4 );
+        }
+        : function() {
+            async.consumeFunctionBuffer();
+        }
+    ) ;
+
+
+async.setDeferFunction( deferFn );
+
+var bindDefer = function bindDefer( fn, receiver ) {
+    return function deferBound( arg ) {
+        async.call( fn, receiver, arg );
     };
 };
 
@@ -202,9 +232,6 @@ var PendingPromise = (function() {
  */
 function PendingPromise( promise ) {
     this.promise = promise;
-    this.fulfill = bindDefer( this.fulfill, this );
-    this.reject = bindDefer( this.reject, this );
-    this.update = bindDefer( this.update, this );
 }
 var method = PendingPromise.prototype;
 
@@ -213,15 +240,15 @@ method.toString = function() {
 };
 
 method.fulfill = function( value ) {
-    this.promise._fulfill( value );
+    async.call( this.promise._fulfill, this.promise, value );
 };
 
 method.reject = function( value ) {
-    this.promise._reject( value );
+    async.call( this.promise._reject, this.promise, value );
 };
 
 method.update = function( value ) {
-    this.promise._update( value );
+    async.call( this.promise._update, this.promise, value );
 };
 
 
@@ -230,7 +257,7 @@ method.update = function( value ) {
 return PendingPromise;})();
 var Promise = (function() {
 
-function Promise( resolver ) {
+function Promise( resolver, onCancelled ) {
     this._isCompleted = false;
     this._isFulfilled = false;
     this._isRejected = false;
@@ -252,6 +279,11 @@ function Promise( resolver ) {
     //reason for rejection or fulfilled value
     this._completionValue = UNRESOLVED;
 
+    this._cancelParent = null;
+    this._onCancelled = typeof onCancelled === "function"
+        ? onCancelled
+        : noop;
+
     if( typeof resolver === "function" ) {
         var len = resolver.length;
         var fulfill, reject, update;
@@ -270,24 +302,47 @@ method.toString = function() {
 };
 
 method.fulfilled = function( fn, receiver ) {
-    return this._then( fn, void 0, void 0, receiver );
+    return this._then( fn, void 0, void 0, receiver, false );
 };
 
 method.rejected = function( fn, receiver ) {
-    return this._then( void 0, fn, void 0, receiver );
+    return this._then( void 0, fn, void 0, receiver, false );
 };
 
 method.updated = function( fn, receiver ) {
-    return this._then( void 0, void 0, fn, receiver );
+    return this._then( void 0, void 0, fn, receiver, false );
 };
 
 method.completed = function( fn, receiver ) {
-    return this._then( fn, fn, void 0, receiver );
+    return this._then( fn, fn, void 0, receiver, false );
 };
 
-method.cancel = function( message, data ) {
-    if( this.isCompleted() ) return;
-    this._reject( new CancellationError( message, data ) );
+
+//Hack to prevent cancellations from taking
+//2 event ticks to complete
+var SYNC_TOKEN = {};
+method.cancel = function( _token ) {
+    if( !this.isCancellable() ) return this;
+    var cancelTarget = this;
+    //Propagate to the last parent that is still pending
+    //Completed promises always have ._cancelParent === null
+    while( cancelTarget._cancelParent !== null ) {
+        cancelTarget = cancelTarget._cancelParent;
+    }
+    //Recursively the propagated parent or had no parents
+    if( cancelTarget === this ) {
+        if( _token === SYNC_TOKEN ) {
+            this._reject( new CancelException() );
+        }
+        else {
+            async.call( this._reject, this, new CancelException() );
+        }
+    }
+    else {
+        //Have pending parents, call cancel on the oldest
+        async.call( cancelTarget.cancel, cancelTarget, SYNC_TOKEN );
+    }
+    return this;
 };
 
 method.call = function( propertyName ) {
@@ -311,7 +366,7 @@ method.get = function( propertyName ) {
 };
 
 method.then = function( didFulfill, didReject, didUpdate ) {
-    return this._then( didFulfill, didReject, didUpdate, this );
+    return this._then( didFulfill, didReject, didUpdate, this, false );
 };
 
 method.isPending = function() {
@@ -330,13 +385,25 @@ method.isRejected = function() {
     return this._isRejected;
 };
 
-method._then = function( didFulfill, didReject, didUpdate, receiver ) {
+method.isCancellable = function() {
+    return !this._isCompleted && this._isCancellable;
+};
+
+method._then = function( didFulfill, didReject, didUpdate, receiver, sync ) {
     var ret = new Promise();
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didUpdate, ret, receiver );
 
     if( this.isCompleted() ) {
-        defer( this._completeLast, this, callbackIndex );
+        if( sync ) {
+            this._completeLast( callbackIndex );
+        }
+        else {
+            async.call( this._completeLast, this, callbackIndex );
+        }
+    }
+    else if( this.isCancellable() ) {
+        ret._cancelParent = this;
     }
 
     return ret;
@@ -427,15 +494,14 @@ method._completeLast = function( index ) {
 
     var obj = this._completionValue;
     var ret = obj;
-
     if( fn !== noop ) {
         this._completePromise( fn, receiver, obj, promise );
     }
     else if( this.isFulfilled() ) {
-        promise._fulfill( ret, false );
+        promise._fulfill( ret );
     }
     else {
-        promise._reject( ret, false );
+        promise._reject( ret );
     }
 };
 
@@ -449,12 +515,17 @@ method._completePromise = function( fn, receiver, value, promise2 ) {
     }
     else if( isPromise( ret ) ) {
         if( ret instanceof Promise ) {
+            if( ret.isCancellable() ) {
+                promise2._cancelParent = ret;
+            }
             ret._then(
                 promise2._fulfill,
                 promise2._reject,
-                void 0,
-                promise2
+                promise2._update,
+                promise2,
+                true
             );
+
         }
         else {
             ret.then(
@@ -506,11 +577,15 @@ method._completeReject = function( obj ) {
     }
 };
 
-
+method._cleanValues = function() {
+    this._cancelParent = null;
+    this._isCompleted = true;
+    this._onCancelled = noop;
+};
 
 method._fulfill = function( obj ) {
     if( this.isCompleted() ) return;
-    this._isCompleted = true;
+    this._cleanValues();
     this._isFulfilled = true;
     this._completionValue = obj;
     this._completeFulfill( obj );
@@ -518,7 +593,7 @@ method._fulfill = function( obj ) {
 
 method._reject = function( obj ) {
     if( this.isCompleted() ) return;
-    this._isCompleted = true;
+    this._cleanValues();
     this._isRejected = true;
     this._completionValue = obj;
     this._completeReject( obj );
@@ -597,35 +672,35 @@ Promise.pending = function() {
 };
 
 return Promise;})();
+
+
 var PromiseError = (function() {
 
-PromiseError.prototype = new Error();
+PromiseError.prototype = create(Error.prototype);
 PromiseError.prototype.constructor = PromiseError;
 
-function PromiseError( msg, data ) {
+function PromiseError() {
     if( typeof Error.captureStackTrace !== "undefined" ) {
         Error.captureStackTrace( this, this.constructor );
     }
     Error.apply( this, arguments );
-    this.message = msg;
-    this.data = data;
 }
 
 return PromiseError; })();
-var CancellationError = (function() {
+var CancelException = (function() {
 
-CancellationError.prototype = new PromiseError();
-CancellationError.prototype.constructor = CancellationError;
+CancelException.prototype = create(PromiseError.prototype);
+CancelException.prototype.constructor = CancelException;
 
-function CancellationError() {
+function CancelException() {
     PromiseError.apply( this, arguments );
-    this.name = "cancel";
+    this.name = "Cancel";
 }
 
 
-return CancellationError; })();
+return CancelException; })();
 Promise.Error = PromiseError;
-Promise.CancellationError = CancellationError;
+Promise.CancelException = CancelException;
 
 Promise.ErrorHandlingMode = {
     ANY: {},

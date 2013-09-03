@@ -88,7 +88,7 @@ module.exports = function( grunt ) {
                 "./src/pending_promise.js",
                 "./src/promise.js",
                 "./src/promise_error.js",
-                "./src/cancellation_error.js",
+                "./src/cancel_exception.js",
                 "./src/error_handling.js",
                 "./src/epilogue.js"
             ],

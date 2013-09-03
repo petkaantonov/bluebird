@@ -1,5 +1,5 @@
 Promise.Error = PromiseError;
-Promise.CancellationError = CancellationError;
+Promise.CancelException = CancelException;
 
 Promise.ErrorHandlingMode = {
     ANY: {},

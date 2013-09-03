@@ -1,6 +1,6 @@
 var Promise = (function() {
 
-function Promise( resolver ) {
+function Promise( resolver, onCancelled ) {
     this._isCompleted = false;
     this._isFulfilled = false;
     this._isRejected = false;
@@ -22,6 +22,11 @@ function Promise( resolver ) {
     //reason for rejection or fulfilled value
     this._completionValue = UNRESOLVED;
 
+    this._cancelParent = null;
+    this._onCancelled = typeof onCancelled === "function"
+        ? onCancelled
+        : noop;
+
     if( typeof resolver === "function" ) {
         var len = resolver.length;
         var fulfill, reject, update;
@@ -40,24 +45,47 @@ method.toString = function() {
 };
 
 method.fulfilled = function( fn, receiver ) {
-    return this._then( fn, void 0, void 0, receiver );
+    return this._then( fn, void 0, void 0, receiver, false );
 };
 
 method.rejected = function( fn, receiver ) {
-    return this._then( void 0, fn, void 0, receiver );
+    return this._then( void 0, fn, void 0, receiver, false );
 };
 
 method.updated = function( fn, receiver ) {
-    return this._then( void 0, void 0, fn, receiver );
+    return this._then( void 0, void 0, fn, receiver, false );
 };
 
 method.completed = function( fn, receiver ) {
-    return this._then( fn, fn, void 0, receiver );
+    return this._then( fn, fn, void 0, receiver, false );
 };
 
-method.cancel = function( message, data ) {
-    if( this.isCompleted() ) return;
-    this._reject( new CancellationError( message, data ) );
+
+//Hack to prevent cancellations from taking
+//2 event ticks to complete
+var SYNC_TOKEN = {};
+method.cancel = function( _token ) {
+    if( !this.isCancellable() ) return this;
+    var cancelTarget = this;
+    //Propagate to the last parent that is still pending
+    //Completed promises always have ._cancelParent === null
+    while( cancelTarget._cancelParent !== null ) {
+        cancelTarget = cancelTarget._cancelParent;
+    }
+    //Recursively the propagated parent or had no parents
+    if( cancelTarget === this ) {
+        if( _token === SYNC_TOKEN ) {
+            this._reject( new CancelException() );
+        }
+        else {
+            async.call( this._reject, this, new CancelException() );
+        }
+    }
+    else {
+        //Have pending parents, call cancel on the oldest
+        async.call( cancelTarget.cancel, cancelTarget, SYNC_TOKEN );
+    }
+    return this;
 };
 
 method.call = function( propertyName ) {
@@ -81,7 +109,7 @@ method.get = function( propertyName ) {
 };
 
 method.then = function( didFulfill, didReject, didUpdate ) {
-    return this._then( didFulfill, didReject, didUpdate, this );
+    return this._then( didFulfill, didReject, didUpdate, this, false );
 };
 
 method.isPending = function() {
@@ -100,13 +128,25 @@ method.isRejected = function() {
     return this._isRejected;
 };
 
-method._then = function( didFulfill, didReject, didUpdate, receiver ) {
+method.isCancellable = function() {
+    return !this._isCompleted && this._isCancellable;
+};
+
+method._then = function( didFulfill, didReject, didUpdate, receiver, sync ) {
     var ret = new Promise();
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didUpdate, ret, receiver );
 
     if( this.isCompleted() ) {
-        defer( this._completeLast, this, callbackIndex );
+        if( sync ) {
+            this._completeLast( callbackIndex );
+        }
+        else {
+            async.call( this._completeLast, this, callbackIndex );
+        }
+    }
+    else if( this.isCancellable() ) {
+        ret._cancelParent = this;
     }
 
     return ret;
@@ -197,15 +237,14 @@ method._completeLast = function( index ) {
 
     var obj = this._completionValue;
     var ret = obj;
-
     if( fn !== noop ) {
         this._completePromise( fn, receiver, obj, promise );
     }
     else if( this.isFulfilled() ) {
-        promise._fulfill( ret, false );
+        promise._fulfill( ret );
     }
     else {
-        promise._reject( ret, false );
+        promise._reject( ret );
     }
 };
 
@@ -219,12 +258,17 @@ method._completePromise = function( fn, receiver, value, promise2 ) {
     }
     else if( isPromise( ret ) ) {
         if( ret instanceof Promise ) {
+            if( ret.isCancellable() ) {
+                promise2._cancelParent = ret;
+            }
             ret._then(
                 promise2._fulfill,
                 promise2._reject,
-                void 0,
-                promise2
+                promise2._update,
+                promise2,
+                true
             );
+
         }
         else {
             ret.then(
@@ -276,11 +320,15 @@ method._completeReject = function( obj ) {
     }
 };
 
-
+method._cleanValues = function() {
+    this._cancelParent = null;
+    this._isCompleted = true;
+    this._onCancelled = noop;
+};
 
 method._fulfill = function( obj ) {
     if( this.isCompleted() ) return;
-    this._isCompleted = true;
+    this._cleanValues();
     this._isFulfilled = true;
     this._completionValue = obj;
     this._completeFulfill( obj );
@@ -288,7 +336,7 @@ method._fulfill = function( obj ) {
 
 method._reject = function( obj ) {
     if( this.isCompleted() ) return;
-    this._isCompleted = true;
+    this._cleanValues();
     this._isRejected = true;
     this._completionValue = obj;
     this._completeReject( obj );
@@ -367,3 +415,4 @@ Promise.pending = function() {
 };
 
 return Promise;})();
+
