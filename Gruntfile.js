@@ -13,7 +13,7 @@ module.exports = function( grunt ) {
         while( ( m = rconstant.exec(src) ) !== null ) {
 
             constants.push({
-                regex: new RegExp(m[1].replace(/\$/g, "\\$"), "g"),
+                regex: new RegExp("\\b" + m[1].replace(/\$/g, "\\$") + "\\b", "g"),
                 replace: m[2],
                 startIndex: rconstant.lastIndex - m[0].length,
                 endIndex: rconstant.lastIndex
