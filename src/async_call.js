@@ -36,6 +36,7 @@ method.call = function( fn, receiver, arg ) {
     functionBuffer[ length + RECEIVER_OFFSET ] = receiver;
     functionBuffer[ length + ARGUMENT_OFFSET ] = arg;
     this._length = length + FUNCTION_SIZE;
+
     if( !this._isTickUsed ) {
         this._deferFn();
         this._isTickUsed = true;
@@ -46,18 +47,17 @@ method._consumeFunctionBuffer = function() {
     var len = this._length;
     var functionBuffer = this._functionBuffer;
     if( len > 0 ) {
-        var copy = new Array(len);
-        for( var i = 0, len = copy.length; i < len; ++i ) {
-            copy[i] = functionBuffer[i];
+        for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
+            functionBuffer[ i + FUNCTION_OFFSET ].call(
+                functionBuffer[ i + RECEIVER_OFFSET ],
+                functionBuffer[ i + ARGUMENT_OFFSET ]
+            );
+        }
+        len = this._length;
+        for( var i = 0; i < len; ++i ) {
             functionBuffer[i] = void 0;
         }
         this._reset();
-        for( var i = 0; i < len; i += FUNCTION_SIZE ) {
-            copy[ i + FUNCTION_OFFSET ].call(
-                copy[ i + RECEIVER_OFFSET ],
-                copy[ i + ARGUMENT_OFFSET ]
-            );
-        }
     }
     else this._reset();
 };

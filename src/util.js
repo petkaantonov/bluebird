@@ -46,8 +46,18 @@ function tryCatch1( fn, receiver, arg ) {
     }
 }
 
+function isPromise( value ) {
+    if( value == null ) {
+        return false;
+    }
+    return ( typeof value === "object" ||
+            typeof value === "function" ) &&
+        typeof value.then === "function";
+}
+
 var create = Object.create || function( proto ) {
     function F(){}
     F.prototype = proto;
     return new F();
 };
+
