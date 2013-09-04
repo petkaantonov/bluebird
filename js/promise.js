@@ -36,6 +36,27 @@
 
 
 
+
+
+
+//Layout
+//00CF NY-- --LL LLLL LLLL LLLL LLLL LLLL
+//C = isCompleted
+//F = isFulfilled
+//N = isRejected
+//Y = isCancellable
+//L = Length, 22 bit unsigned
+//- = Reserved
+//0 = Always 0 (never used)
+
+
+
+
+
+
+
+
+
 var errorObj = {};
 var UNRESOLVED = {};
 var noop = function(){};
@@ -71,12 +92,55 @@ function tryCatch1( fn, receiver, arg ) {
     }
 }
 
-function isPromise( value ) {
+function tryCatch2( fn, receiver, arg, arg2 ) {
+    try {
+        console.log(fn,receiver,arg,arg2);
+        return fn.call( receiver, arg, arg2 );
+    }
+    catch( e ) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
+function isThenable( ret, ref ) {
+    try {
+        var then = ret.then;
+        if( typeof then === "function" ) {
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
+    catch(e) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        ref.ref = errorObj;
+        return true;
+    }
+}
+
+function isObject( value ) {
     if( value == null ) {
         return false;
     }
     return ( typeof value === "object" ||
-            typeof value === "function" ) &&
+            typeof value === "function" );
+}
+
+
+
+function isPromise( value ) {
+    return isObject(value) &&
         typeof value.then === "function";
 }
 
@@ -269,14 +333,18 @@ return PendingPromise;})();
 var Promise = (function() {
 
 //Fork, uncancellable
+/*
+bitfield + length
+clean up async
+all exception strings should be constant
+*/
 
-function Promise( resolver ) {
-    this._isCompleted = false;
-    this._isFulfilled = false;
-    this._isRejected = false;
-    this._isCancellable = true;
+//CancelException -> CancellationError
 
-    //Since most promises only have 0-1 handlers
+function Promise() {
+    //See layout in util.js
+    this._bitField = 0x4000000;
+    //Since most promises only have 0-1 parallel handlers
     //store the first ones directly on the object
     this._fulfill0 =
     this._reject0 =
@@ -284,27 +352,10 @@ function Promise( resolver ) {
     this._promise0 =
     this._receiver0 =
         void 0;
-
-    //store rest on array
-    this._callbacks = null;
-    this._callbacksLength = 0;
-
     //reason for rejection or fulfilled value
     this._completionValue = UNRESOLVED;
-
     //Used in cancel propagation
     this._cancellationParent = null;
-
-    if( typeof resolver === "function" ) {
-        var len = resolver.length;
-        var fulfill, reject, update;
-
-        if( len > 0 ) fulfill = bindDefer( this._fulfill, this );
-        if( len > 1 ) reject = bindDefer( this._reject, this );
-        if( len > 2 ) update = bindDefer( this._update, this );
-
-        resolver( fulfill, reject, update );
-    }
 }
 var method = Promise.prototype;
 
@@ -327,8 +378,6 @@ method.updated = function( fn, receiver ) {
 method.completed = function( fn, receiver ) {
     return this._then( fn, fn, void 0, receiver );
 };
-
-
 
 method.cancel = function() {
     if( !this.isCancellable() ) return this;
@@ -378,19 +427,20 @@ method.isPending = function() {
 };
 
 method.isCompleted = function() {
-    return this._isCompleted;
+    return ( this._bitField & 0x20000000 ) > 0;
 };
 
 method.isFulfilled = function() {
-    return this._isFulfilled;
+    return ( this._bitField & 0x10000000 ) > 0;
 };
 
 method.isRejected = function() {
-    return this._isRejected;
+    return ( this._bitField & 0x8000000 ) > 0;
 };
 
 method.isCancellable = function() {
-    return !this._isCompleted && this._isCancellable;
+    return !this.isCompleted() &&
+        ( this._bitField & 0x4000000 ) > 0;
 };
 
 method._then = function( didFulfill, didReject, didUpdate, receiver ) {
@@ -408,36 +458,60 @@ method._then = function( didFulfill, didReject, didUpdate, receiver ) {
     return ret;
 };
 
+method._length = function() {
+    return this._bitField & 0x3FFFFF;
+};
+
+method._setLength = function( len ) {
+    this._bitField = ( this._bitField & 0x3FC00000 ) | len;
+};
+
+method._setCompleted = function() {
+    this._bitField = this._bitField | 0x20000000;
+};
+
+method._setFulfilled = function() {
+    this._bitField = this._bitField | 0x10000000;
+};
+
+method._setRejected = function() {
+    this._bitField = this._bitField | 0x8000000;
+};
+
+method._setCancellable = function() {
+    this._bitField = this._bitField | 0x4000000;
+};
+
 method._callbackReceiverAt = function( index ) {
     if( index === 0 ) return this._receiver0;
-    return this._callbacks[ index + 4 - 5 ];
+    return this[ index + 4 - 5 ];
 };
 
 method._callbackPromiseAt = function( index ) {
     if( index === 0 ) return this._promise0;
-    return this._callbacks[ index + 3 - 5 ];
+    return this[ index + 3 - 5 ];
 };
 
 method._callbackFulfillAt = function( index ) {
     if( index === 0 ) return this._fulfill0;
-    return this._callbacks[ index + 0 - 5 ];
+    return this[ index + 0 - 5 ];
 };
 
 method._callbackRejectAt = function( index ) {
     if( index === 0 ) return this._reject0;
-    return this._callbacks[ index + 1 - 5 ];
+    return this[ index + 1 - 5 ];
 };
 
 method._callbackUpdateAt = function( index ) {
     if( index === 0 ) return this._update0;
-    return this._callbacks[ index + 2 - 5 ];
+    return this[ index + 2 - 5 ];
 };
 
 method._addCallbacks = function( fulfill, reject, update, promise, receiver ) {
     fulfill = typeof fulfill === "function" ? fulfill : noop;
     reject = typeof reject === "function" ? reject : noop;
     update = typeof update === "function" ? update : noop;
-    var index = this._callbacksLength | 0;
+    var index = this._length();
 
     if( index === 0 ) {
         this._fulfill0 = fulfill;
@@ -445,26 +519,17 @@ method._addCallbacks = function( fulfill, reject, update, promise, receiver ) {
         this._update0 = update;
         this._promise0 = promise;
         this._receiver0 = receiver;
-        this._callbacksLength = index + 5;
+        this._setLength( index + 5 );
         return index;
     }
 
-    var callbacks = this._callbacks;
+    this[ index - 5 + 0 ] = fulfill;
+    this[ index - 5 + 1 ] = reject;
+    this[ index - 5 + 2 ] = update;
+    this[ index - 5 + 3 ] = promise;
+    this[ index - 5 + 4 ] = receiver;
 
-    if( callbacks === null ) {
-        callbacks = this._callbacks = new Array( 5 );
-    }
-
-    if( ( index + 5 ) >= callbacks.length ) {
-        callbacks.length = callbacks.length + 5;
-    }
-
-    callbacks[ index - 5 + 0 ] = fulfill;
-    callbacks[ index - 5 + 1 ] = reject;
-    callbacks[ index - 5 + 2 ] = update;
-    callbacks[ index - 5 + 3 ] = promise;
-    callbacks[ index - 5 + 4 ] = receiver;
-    this._callbacksLength = index + 5;
+    this._setLength( index + 5 );
     return index;
 };
 
@@ -504,41 +569,76 @@ method._completeLast = function( index ) {
     }
 };
 
-method._completePromise = function( fn, receiver, value, promise2 ) {
+method._completePromise = function(
+    onFulfilledOrRejected, receiver, value, promise
+) {
     if( receiver === void 0 ) {
         receiver = this;
     }
-    var ret = tryCatch1( fn, receiver, value );
-    if( ret === errorObj ) {
-        async.call( this._reject, promise2, errorObj.e );
+    var x = tryCatch1( onFulfilledOrRejected, receiver, value );
+    if( x === errorObj ) {
+        async.call( promise._reject, promise, errorObj.e );
     }
-    else if( isPromise( ret ) ) {
-        if( ret instanceof Promise ) {
-            if( ret.isCancellable() ) {
-                promise2._cancellationParent = ret;
-            }
-            ret._then(
-                promise2._fulfill,
-                promise2._reject,
-                promise2._update,
-                promise2
-            );
-
-        }
-        else {
-            ret.then(
-                bindDefer( promise2._fulfill, promise2 ),
-                bindDefer( promise2._reject, promise2 )
-            );
-        }
+    else if( x === promise ) {
+        async.call(
+            promise._reject,
+            promise,
+            //1. If promise and x refer to the same object,
+            //reject promise with a TypeError as the reason.
+            new TypeError( "Circular thenable chain" )
+        );
     }
     else {
-        async.call( this._fulfill, promise2, ret );
+        var ref;
+        if( x instanceof Promise ) {
+            //2. If x is a promise, adopt its state
+            if( x.isCancellable() ) {
+                promise._cancellationParent = x;
+            }
+            x._then(
+                promise._fulfill,
+                promise._reject,
+                promise._update,
+                promise
+            );
+        }
+        //3. Otherwise, if x is an object or function,
+        else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
+            //3.2 If retrieving the property x.then
+            //results in a thrown exception e,
+            //reject promise with e as the reason.
+            if( ref.ref === errorObj ) {
+                async.call( promise._reject, promise, errorObj.e );
+            }
+            else {
+                //3.1. Let then be x.then
+                var then = ref.ref;
+                //3.3 If then is a function, call it with x as this,
+                //first argument resolvePromise, and
+                //second argument rejectPromise
+                var threw = tryCatch2(
+                        then,
+                        x,
+                        bindDefer( promise._fulfill, promise ),
+                        bindDefer( promise._reject, promise )
+                );
+                //3.3.4 If calling then throws an exception e,
+                if( threw === errorObj ) {
+                    //3.3.4.2 Otherwise, reject promise with e as the reason.
+                    async.call( promise._reject, promise, errorObj.e );
+                }
+            }
+        }
+        // 3.4 If then is not a function, fulfill promise with x.
+        // 4. If x is not an object or function, fulfill promise with x.
+        else {
+            async.call( promise._fulfill, promise, x );
+        }
     }
 };
 
 method._completeFulfill = function( obj ) {
-    var len = this._callbacksLength;
+    var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._callbackFulfillAt( i );
         var promise = this._callbackPromiseAt( i );
@@ -557,7 +657,7 @@ method._completeFulfill = function( obj ) {
 };
 
 method._completeReject = function( obj ) {
-    var len = this._callbacksLength;
+    var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._callbackRejectAt( i );
         var promise = this._callbackPromiseAt( i );
@@ -577,13 +677,13 @@ method._completeReject = function( obj ) {
 
 method._cleanValues = function() {
     this._cancellationParent = null;
-    this._isCompleted = true;
+    this._setCompleted();
 };
 
 method._fulfill = function( obj ) {
     if( this.isCompleted() ) return;
     this._cleanValues();
-    this._isFulfilled = true;
+    this._setFulfilled();
     this._completionValue = obj;
     this._completeFulfill( obj );
 
@@ -592,26 +692,26 @@ method._fulfill = function( obj ) {
 method._reject = function( obj ) {
     if( this.isCompleted() ) return;
     this._cleanValues();
-    this._isRejected = true;
+    this._setRejected();
     this._completionValue = obj;
     this._completeReject( obj );
 };
 
 method._update = function( obj ) {
     if( this.isCompleted() ) return;
-    var len = this._callbacksLength;
-    for( var i = 0; i < len; i+= 5 ) {
+    var len = this._length();
+    for( var i = 0; i < len; i += 5 ) {
         var fn = this._callbackUpdateAt( i );
         var promise = this._callbackPromiseAt( i );
         var ret = obj;
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._callbackReceiverAt( i ), obj );
             if( ret === errorObj ) {
-                this._reject( errorObj.e );
+                async.call( this._reject, this, errorObj.e );
                 return;
             }
         }
-        promise._update( ret );
+        async.call( this._update, promise, ret );
     }
 };
 

@@ -11,6 +11,27 @@
 %constant(CALLBACK_RECEIVER_OFFSET, 4);
 %constant(CALLBACK_SIZE, 5);
 
+%constant(TYPE_ERROR_INFINITE_CYCLE, "Circular thenable chain");
+%constant(TOO_MANY_PARALLEL_HANDLERS, "Too many parallel handlers");
+
+//Layout
+//00CF NY-- --LL LLLL LLLL LLLL LLLL LLLL
+//C = isCompleted
+//F = isFulfilled
+//N = isRejected
+//Y = isCancellable
+//L = Length, 22 bit unsigned
+//- = Reserved
+//0 = Always 0 (never used)
+%constant(IS_COMPLETED, 0x20000000);
+%constant(IS_FULFILLED, 0x10000000);
+%constant(IS_REJECTED, 0x8000000);
+%constant(IS_CANCELLABLE, 0x4000000);
+%constant(LENGTH_MASK, 0x3FFFFF);
+%constant(LENGTH_CLEAR_MASK, 0x3FC00000);
+%constant(MAX_LENGTH, 0x3FFFFF);
+
+
 var errorObj = {};
 var UNRESOLVED = {};
 var noop = function(){};
@@ -46,12 +67,55 @@ function tryCatch1( fn, receiver, arg ) {
     }
 }
 
-function isPromise( value ) {
+function tryCatch2( fn, receiver, arg, arg2 ) {
+    try {
+        console.log(fn,receiver,arg,arg2);
+        return fn.call( receiver, arg, arg2 );
+    }
+    catch( e ) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
+function isThenable( ret, ref ) {
+    try {
+        var then = ret.then;
+        if( typeof then === "function" ) {
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
+    catch(e) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        ref.ref = errorObj;
+        return true;
+    }
+}
+
+function isObject( value ) {
     if( value == null ) {
         return false;
     }
     return ( typeof value === "object" ||
-            typeof value === "function" ) &&
+            typeof value === "function" );
+}
+
+
+
+function isPromise( value ) {
+    return isObject(value) &&
         typeof value.then === "function";
 }
 
