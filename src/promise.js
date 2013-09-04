@@ -1,8 +1,42 @@
 var Promise = (function() {
 
+function isThenable( ret, ref ) {
+    try {
+        var then = ret.then;
+        if( typeof then === "function" ) {
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
+    catch(e) {
+        if( Promise.errorHandlingMode ===
+            Promise.ErrorHandlingMode.PROMISE_ONLY &&
+            !( e instanceof PromiseError ) ) {
+            throw e;
+        }
+        errorObj.e = e;
+        ref.ref = errorObj;
+        return true;
+    }
+}
+
+function isObject( value ) {
+    if( value == null ) {
+        return false;
+    }
+    return ( typeof value === "object" ||
+            typeof value === "function" );
+}
+
+function isPromise( value ) {
+    return isObject(value) &&
+        typeof value.then === "function";
+}
+
 //Fork, uncancellable
 /*
-bitfield + length
+tryCatch1/2
 clean up async
 all exception strings should be constant
 */

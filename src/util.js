@@ -83,42 +83,6 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
     }
 }
 
-function isThenable( ret, ref ) {
-    try {
-        var then = ret.then;
-        if( typeof then === "function" ) {
-            ref.ref = then;
-            return true;
-        }
-        return false;
-    }
-    catch(e) {
-        if( Promise.errorHandlingMode ===
-            Promise.ErrorHandlingMode.PROMISE_ONLY &&
-            !( e instanceof PromiseError ) ) {
-            throw e;
-        }
-        errorObj.e = e;
-        ref.ref = errorObj;
-        return true;
-    }
-}
-
-function isObject( value ) {
-    if( value == null ) {
-        return false;
-    }
-    return ( typeof value === "object" ||
-            typeof value === "function" );
-}
-
-
-
-function isPromise( value ) {
-    return isObject(value) &&
-        typeof value.then === "function";
-}
-
 var create = Object.create || function( proto ) {
     function F(){}
     F.prototype = proto;
