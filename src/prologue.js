@@ -21,4 +21,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-(function( global, Function, Array, Error ) { "use strict";
+(function( global, Function, Array, Error, Object ) { "use strict";

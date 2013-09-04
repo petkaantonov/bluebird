@@ -8,11 +8,31 @@
 var Async = (function() {
 var method = Async.prototype;
 
+
+var deferFn = typeof process !== "undefined" ?
+    ( typeof global.setImmediate !== "undefined"
+        ? function( fn ){
+            global.setImmediate( fn );
+          }
+        : function( fn ) {
+            process.nextTick( fn );
+        }
+
+    ) :
+    ( typeof setTimeout !== "undefined"
+        ? function( fn ) {
+            setTimeout( fn, 4 );
+        }
+        : function( fn ) {
+            fn();
+        }
+) ;
+
+
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    var functionBuffer = this._functionBuffer = new Array( 300 );
-    this._deferFn = noop;
+    var functionBuffer = this._functionBuffer = new Array( 5000 * FUNCTION_SIZE );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
@@ -25,20 +45,26 @@ function Async() {
     }
 }
 
-method.setDeferFunction = function( deferFn ) {
-    this._deferFn = deferFn;
-};
 
 method.call = function( fn, receiver, arg ) {
     var functionBuffer = this._functionBuffer,
+        len = functionBuffer.length,
         length = this._length;
-    functionBuffer[ length + FUNCTION_OFFSET ] = fn;
-    functionBuffer[ length + RECEIVER_OFFSET ] = receiver;
-    functionBuffer[ length + ARGUMENT_OFFSET ] = arg;
+
+    if( length === len ) {
+        //direct index modifications caused out of bounds
+        //accesses which caused deoptimizations
+        functionBuffer.push( fn, receiver, arg );
+    }
+    else {
+        functionBuffer[ length + FUNCTION_OFFSET ] = fn;
+        functionBuffer[ length + RECEIVER_OFFSET ] = receiver;
+        functionBuffer[ length + ARGUMENT_OFFSET ] = arg;
+    }
     this._length = length + FUNCTION_SIZE;
 
     if( !this._isTickUsed ) {
-        this._deferFn();
+        deferFn( this.consumeFunctionBuffer );
         this._isTickUsed = true;
     }
 };
@@ -52,10 +78,14 @@ method._consumeFunctionBuffer = function() {
                 functionBuffer[ i + RECEIVER_OFFSET ],
                 functionBuffer[ i + ARGUMENT_OFFSET ]
             );
-        }
-        len = this._length;
-        for( var i = 0; i < len; ++i ) {
-            functionBuffer[i] = void 0;
+            //Must clear functions immediately otherwise
+            //high promotion rate is caused with long
+            //sequence chains which leads to mass deoptimization
+            //in v8
+            functionBuffer[ i + FUNCTION_OFFSET ] =
+                functionBuffer[ i + RECEIVER_OFFSET ] =
+                functionBuffer[ i + ARGUMENT_OFFSET ] =
+                void 0;
         }
         this._reset();
     }
@@ -71,28 +101,6 @@ method._reset = function() {
 return Async;})();
 
 var async = new Async();
-
-var deferFn = typeof process !== "undefined" ?
-    ( typeof global.setImmediate !== "undefined"
-        ? function(){
-            global.setImmediate( async.consumeFunctionBuffer );
-          }
-        : function() {
-            process.nextTick( async.consumeFunctionBuffer );
-        }
-
-    ) :
-    ( typeof setTimeout !== "undefined"
-        ? function() {
-            setTimeout( async.consumeFunctionBuffer, 4 );
-        }
-        : function() {
-            async.consumeFunctionBuffer();
-        }
-    ) ;
-
-
-async.setDeferFunction( deferFn );
 
 var bindDefer = function bindDefer( fn, receiver ) {
     return function deferBound( arg ) {

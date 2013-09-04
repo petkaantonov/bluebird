@@ -9,4 +9,10 @@ else {
 }
 
 
-return Promise;})( new Function("return this")(), Function, Array, Error );
+return Promise;})(
+    new Function("return this")(),
+    Function,
+    Array,
+    Error,
+    Object
+);

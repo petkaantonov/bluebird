@@ -6,7 +6,7 @@
 
 %constant(CALLBACK_FULFILL_OFFSET, 0);
 %constant(CALLBACK_REJECT_OFFSET, 1);
-%constant(CALLBACK_UPDATE_OFFSET, 2);
+%constant(CALLBACK_PROGRESS_OFFSET, 2);
 %constant(CALLBACK_PROMISE_OFFSET, 3);
 %constant(CALLBACK_RECEIVER_OFFSET, 4);
 %constant(CALLBACK_SIZE, 5);
@@ -15,26 +15,38 @@
 %constant(TOO_MANY_PARALLEL_HANDLERS, "Too many parallel handlers");
 
 //Layout
-//00CF NY-- --LL LLLL LLLL LLLL LLLL LLLL
-//C = isCompleted
+//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//R = isResolved
 //F = isFulfilled
 //N = isRejected
-//Y = isCancellable
-//L = Length, 22 bit unsigned
+//C = isCancellable
+//L = Length, 26 bit unsigned
 //- = Reserved
 //0 = Always 0 (never used)
-%constant(IS_COMPLETED, 0x20000000);
+%constant(IS_RESOLVED, 0x20000000);
 %constant(IS_FULFILLED, 0x10000000);
 %constant(IS_REJECTED, 0x8000000);
 %constant(IS_CANCELLABLE, 0x4000000);
-%constant(LENGTH_MASK, 0x3FFFFF);
-%constant(LENGTH_CLEAR_MASK, 0x3FC00000);
-%constant(MAX_LENGTH, 0x3FFFFF);
+
+%constant(LENGTH_MASK, 0x3FFFFFF);
+%constant(LENGTH_CLEAR_MASK, 0x3C000000);
+%constant(MAX_LENGTH, 0x3FFFFFF);
 
 
 var errorObj = {};
 var UNRESOLVED = {};
 var noop = function(){};
+var rescape = /[\r\n\u2028\u2029']/g;
+
+var replacer = function( ch ) {
+        return "\\u" + (("0000") +
+            (ch.charCodeAt(0).toString(16))).slice(-4);
+};
+
+
+function safeToEmbedString( str ) {
+    return str.replace( rescape, replacer );
+}
 
 function indexOf( array, value ) {
     for( var i = 0, len = array.length; i < len; ++i ) {
@@ -57,11 +69,6 @@ function tryCatch1( fn, receiver, arg ) {
         return fn.call( receiver, arg );
     }
     catch( e ) {
-        if( Promise.errorHandlingMode ===
-            Promise.ErrorHandlingMode.PROMISE_ONLY &&
-            !( e instanceof PromiseError ) ) {
-            throw e;
-        }
         errorObj.e = e;
         return errorObj;
     }
@@ -69,15 +76,9 @@ function tryCatch1( fn, receiver, arg ) {
 
 function tryCatch2( fn, receiver, arg, arg2 ) {
     try {
-        console.log(fn,receiver,arg,arg2);
         return fn.call( receiver, arg, arg2 );
     }
     catch( e ) {
-        if( Promise.errorHandlingMode ===
-            Promise.ErrorHandlingMode.PROMISE_ONLY &&
-            !( e instanceof PromiseError ) ) {
-            throw e;
-        }
         errorObj.e = e;
         return errorObj;
     }

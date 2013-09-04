@@ -66,7 +66,7 @@ module.exports = function( grunt ) {
             maxBuffer: 8192,
             options: {
                 compilation_level: 'SIMPLE_OPTIMIZATIONS',
-                language_in: 'ECMASCRIPT5',
+                language_in: 'ECMASCRIPT5_STRICT',
                 charset: "UTF-8",
                 debug: false
             },
@@ -83,13 +83,11 @@ module.exports = function( grunt ) {
             src: [
                 "./src/prologue.js",
                 "./src/util.js",
+                "./src/errors.js",
                 "./src/caches.js",
                 "./src/async_call.js",
-                "./src/pending_promise.js",
+                "./src/promise_resolver.js",
                 "./src/promise.js",
-                "./src/promise_error.js",
-                "./src/cancel_exception.js",
-                "./src/error_handling.js",
                 "./src/epilogue.js"
             ],
 
@@ -118,6 +116,17 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+
+    grunt.registerTask("closure-compiler-fix-strict", function() {
+        var fs = require("fs");
+        //Fix global strict mode inserted by closure compiler
+        var useStrict = "'use strict';";
+        var firstFunctionHeaderAfter = '){';
+        var src = fs.readFileSync( MIN_DEST, "utf8" );
+        src = src.replace(useStrict, "");
+        src = src.replace(firstFunctionHeaderAfter, firstFunctionHeaderAfter + '"use strict";' );
+        fs.writeFileSync( MIN_DEST, src );
+    });
 
     grunt.registerTask( "build", function() {
         var fs = require("fs");
@@ -150,6 +159,6 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( "test", ["concat", "build", "jshint", "clean", "testrun"] );
     grunt.registerTask( "default", ["concat", "build", "jshint", "clean"] );
-    grunt.registerTask( "production", ["concat", "build", "jshint", "closure-compiler", "clean"] );
+    grunt.registerTask( "production", ["concat", "build", "jshint", "closure-compiler", "closure-compiler-fix-strict","clean"] );
 
 };
