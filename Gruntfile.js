@@ -237,6 +237,7 @@ module.exports = function( grunt ) {
         var adapter = global.adapter = require(BUILD_DEST);
 
         if( testOption === "aplus" ) {
+            grunt.log.writeln("Running Promises/A+ conformance tests");
             require("promises-aplus-tests")(adapter, function(err){
                 if( err ) throw new Error(err + " tests failed");
                 else done();
@@ -249,9 +250,11 @@ module.exports = function( grunt ) {
             ? fs.readdirSync('test')
             : [testOption + ".js" ];
 
-        files.filter(function(fileName){
+        files = files.filter(function(fileName){
             return /\.js$/.test(fileName);
-        }).forEach(function(fileName) {
+        });
+
+        files.forEach(function(fileName) {
             var a = new Mocha(mochaOpts);
             a.addFile( path.join('test', fileName ));
             mochas.push( a );
@@ -262,6 +265,7 @@ module.exports = function( grunt ) {
 
             if( i >= mochas.length ) {
                 if( testOption === "all" || testOption === "aplus" ) {
+                    grunt.log.writeln("Running Promises/A+ conformance tests");
                     require("promises-aplus-tests")(adapter, function(err){
                         if( err ) throw new Error(err + " tests failed");
                         else done();
@@ -269,6 +273,7 @@ module.exports = function( grunt ) {
                 }
             }
             else {
+                grunt.log.writeln("Running test " + files[i] );
                 mochas[i].run(function(err){
                     if( err ) throw new Error(err + " tests failed");
                     setTimeout(function(){
@@ -300,6 +305,7 @@ module.exports = function( grunt ) {
                 done();
             }
             else {
+                grunt.log.writeln("Running benchmark " + files[i] );
                 require(files[i])(function(){
                     runner(files, i + 1 );
                 });
@@ -325,7 +331,7 @@ module.exports = function( grunt ) {
         testRun.call( this, testOption );
     });
 
-    grunt.registerTask( "bench", function(){
+    grunt.registerTask( "benchrun", function(){
         var benchmarkOption = grunt.option("run");
         if( !benchmarkOption ) benchmarkOption = "all";
         else {
@@ -336,6 +342,7 @@ module.exports = function( grunt ) {
         benchmarkRun.call( this, benchmarkOption );
     });
 
+    grunt.registerTask( "bench", ["concat", "build", "jshint", "benchrun"] );
     grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );
     grunt.registerTask( "default", ["concat", "build", "jshint"] );
     grunt.registerTask( "production", ["concat", "build-with-minify", "jshint"] );
