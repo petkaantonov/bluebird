@@ -155,27 +155,52 @@ function FunctionCache(){}
 //for 1-8 properties that have identifier names
 var getterCache = new GetterCache(),
     functionCache = new FunctionCache(),
+    rjsident = /^[a-zA-Z$_][a-zA-Z0-9$_]*$/,
+    rkeyword = new RegExp(
+        "^(?:__proto__|undefined|NaN|Infinity|this|false|true|null|eval|" +
+        "arguments|break|case|catch|continue|debugger|default|delete|do|" +
+        "else|finally|for|function|if|in|instanceof|new|return|switch|th" +
+        "row|try|typeof|var|void|while|with|class|enum|export|extends|im" +
+        "port|super|implements|interface|let|package|private|protected|pu" +
+        "blic|static|yield)$"
+    ),
     hasProp = {}.hasOwnProperty;
+
+
+
+function isJsIdentifier( val ) {
+    return rjsident.test(val) &&
+        !rkeyword.test(val);
+}
+
+function formatPropertyRead( val ) {
+    if( isJsIdentifier(val) ) {
+        return "." + val;
+    }
+    else {
+        return "['"+safeToEmbedString(val)+"']";
+    }
+}
 
 function getGetter( propertyName ) {
     if( hasProp.call( getterCache, propertyName ) ) {
         return getterCache[propertyName];
     }
-    //The cache is intentionally broken for silly properties
-    //that contain newlines or quotes or such
-    propertyName = safeToEmbedString(""+propertyName);
-    var fn = new Function("obj", "return obj['"+propertyName+"'];");
+    var fn = new Function("obj", "return obj"+
+        formatPropertyRead(""+propertyName)
+    +";");
     getterCache[propertyName] = fn;
     return fn;
 }
 
 function getFunction( propertyName ) {
-    if( hasProp.call( getterCache, propertyName ) ) {
+    if( hasProp.call( functionCache, propertyName ) ) {
         return functionCache[propertyName];
     }
-    propertyName = (""+propertyName).replace( rescape, replacer );
-    var fn = new Function("obj", "return obj['"+propertyName+"']();");
-    getterCache[propertyName] = fn;
+    var fn = new Function("obj", "return obj"+
+        formatPropertyRead(""+propertyName)
+    +"();");
+    functionCache[propertyName] = fn;
     return fn;
 }
 var Async = (function() {
@@ -283,6 +308,7 @@ var bindDefer = function bindDefer( fn, receiver ) {
 
 var PromiseInspection = (function() {
 
+
 //Based on
 //https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
 
@@ -290,13 +316,10 @@ var PromiseInspection = (function() {
 //whereas calls to short functions don't have any penalty and are just
 //easier to use than properties (error on mistyping for example).
 function PromiseInspection( promise ) {
-    this._isResolved = promise.isResolved();
-    this._isFulfilled = promise.isFulfilled();
-    this._isRejected = promise.isRejected();
-
+    this._bitField = promise._bitField;
     this._resolvedValue = promise.isResolved()
         ? promise._resolvedValue
-        //Don't reference values that will never be
+        //Don't keep a reference to something that will never be
         //used
         : void 0;
 }
@@ -309,7 +332,7 @@ var method = PromiseInspection.prototype;
  * @return {boolean}
  */
 method.isFulfilled = function() {
-    return this._isFulfilled;
+    return ( this._bitField & 0x10000000 ) > 0;
 };
 
 /**
@@ -319,7 +342,7 @@ method.isFulfilled = function() {
  * @return {boolean}
  */
 method.isRejected = function() {
-    return this._isRejected;
+    return ( this._bitField & 0x8000000 ) > 0;
 };
 
 /**
@@ -362,35 +385,71 @@ return PromiseInspection;})();
 var PromiseResolver = (function() {
 
 /**
- * Deferred
+ * Wraps a promise object and can be used to control
+ * the fate of that promise. Give .promise to clients
+ * and keep the resolver to yourself.
  *
+ * Something like a "Deferred".
  *
+ * @constructor
  */
 function PromiseResolver( promise ) {
+    //(TODO) Make this a method and use a custom adapter to pass tests
     this.promise = promise;
 }
 var method = PromiseResolver.prototype;
 
+/**
+ * @return {string}
+ */
 method.toString = function() {
     return "[object PromiseResolver]";
 };
 
+/**
+ * Resolve the promise by fulfilling it with the
+ * given value.
+ *
+ * @param {dynamic} value The value to fulfill the promise with.
+ *
+ */
 method.fulfill = function( value ) {
     async.invoke( this.promise._fulfill, this.promise, value );
 };
 
-method.reject = function( value ) {
-    async.invoke( this.promise._reject, this.promise, value );
+/**
+ * Resolve the promise by rejecting it with the
+ * given reason.
+ *
+ * @param {dynamic} reason The reason why the promise was rejected.
+ *
+ */
+method.reject = function( reason ) {
+    async.invoke( this.promise._reject, this.promise, reason );
 };
 
+/**
+ * Notify the listeners of the promise of progress.
+ *
+ * @param {dynamic} value The reason why the promise was rejected.
+ *
+ */
 method.progress = function( value ) {
     async.invoke( this.promise._progress, this.promise, value );
 };
 
+/**
+ * Cancel the promise.
+ *
+ */
 method.cancel = function() {
     async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
+/**
+ * Resolves the promise by rejecting it with the reason
+ * TimeoutError
+ */
 method.timeout = function() {
     async.invoke(
         this.promise._reject,
@@ -399,6 +458,11 @@ method.timeout = function() {
     );
 };
 
+/**
+ * See if the promise is resolved.
+ *
+ * @return {boolean}
+ */
 method.isResolved = function() {
     return this._promise.isResolved();
 };
@@ -475,63 +539,88 @@ function Promise( resolver ) {
 var method = Promise.prototype;
 
 /**
- * Description.
- *
- *
+ * @return {string}
  */
 method.toString = function() {
     return "[object Promise]";
 };
 
 /**
- * Description.
+ * Convenience method for .then( fn, null, null );
  *
- *
+ * @param {Function} fn The callback to call if this promise is fulfilled
+ * @return {Promise}
  */
-method.fulfilled = function( fn, receiver ) {
-    return this._then( fn, void 0, void 0, receiver );
+method.fulfilled = function( fn ) {
+    return this._then( fn, void 0, void 0 );
 };
 
 /**
- * Description.
+ * Convenience method for .then( null, fn, null );
  *
- *
+ * @param {Function} fn The callback to call if this promise is rejected
+ * @return {Promise}
  */
-method.rejected = function( fn, receiver ) {
-    return this._then( void 0, fn, void 0, receiver );
+method.rejected = function( fn ) {
+    return this._then( void 0, fn, void 0 );
 };
 
 /**
- * Description.
+ * Convenience method for .then( null, null, fn );
  *
- *
+ * @param {Function} fn The callback to call if this promise is progressed
+ * @return {Promise}
  */
-method.progressed = function( fn, receiver ) {
-    return this._then( void 0, void 0, fn, receiver );
+method.progressed = function( fn ) {
+    return this._then( void 0, void 0, fn );
 };
 
 /**
- * Description.
+ * Convenience method for .then( fn, fn );
  *
- *
+ * @param {Function} fn The callback to call when this promise is
+ * either fulfilled or rejected
+ * @return {Promise}
  */
-method.resolved = function( fn, receiver ) {
-    return this._then( fn, fn, void 0, receiver );
+method.resolved = function( fn ) {
+    return this._then( fn, fn, void 0 );
 };
 
 /**
- * Description.
+ * Synchronously inspect the state of this promise. Returns
+ * A snapshot reflecting this promise's state exactly at the time of
+ * call.
  *
+ * If this promise is resolved, the inspection can be used to gain
+ * access to this promise's rejection reason or fulfillment value
+ * synchronously.
  *
+ * (TODO) Based on inspection spec
+ *
+ * @return {PromiseInspection}
  */
 method.inspect = function() {
     return new PromiseInspection( this );
 };
 
 /**
- * Description.
+ * Cancel this promise. The cancellation will propagate
+ * to farthest parent promise which is still pending.
  *
+ * That parent will then be rejected with a CancellationError
+ * object as the rejection reason.
  *
+ * In a promise rejection handler you may check for a cancellation
+ * by seeing if the reason object has `.name === "Cancel"`.
+ *
+ * Promises are by default cancellable. If you want to restrict
+ * the cancellability of a promise before handing it out to a
+ * client, call `.uncancellable()` which returns an uncancellable
+ * promise.
+ *
+ * (TODO) Based on cancellation spec.
+ *
+ * @return {Promise}
  */
 method.cancel = function() {
     if( !this.isCancellable() ) return this;
@@ -553,8 +642,42 @@ method.cancel = function() {
 };
 
 /**
- * Description.
+ * Create an uncancellable promise based on this promise
  *
+ * @return {Promise}
+ */
+method.uncancellable = function() {
+    var ret = new Promise();
+
+    ret._unsetCancellable();
+    this._then(
+        ret._fulfill,
+        ret._reject,
+        ret._progress,
+        ret
+    );
+    return ret;
+};
+
+/**
+ * Chain this promise with a handler that will
+ * call the given `propertyName` as a method on the
+ * returned fulfillment value and return the result of the call.
+ *
+ * If more arguments are passed, those will be used as
+ * respective arguments for the method call.
+ *
+ * Convenience method for:
+ *
+ * promise.then(function(value) {
+ *     return value[propertyName]()
+ * });
+ *
+ * If propertyName is a valid JS identifier and no arguments are
+ * given, the call is optimized.
+ *
+ * @param {string} propertyName The property to call as a function.
+ * @return {Promise}
  *
  */
 method.call = function( propertyName ) {
@@ -574,8 +697,21 @@ method.call = function( propertyName ) {
 };
 
 /**
- * Description.
+ * Chain this promise with a handler that will
+ * read given `propertyName` on the
+ * return fulfillment value.
  *
+ * Convenience method for:
+ *
+ * promise.then(function(value) {
+ *     return value[propertyName]
+ * });
+ *
+ * If propertyName is a valid JS identifier
+ * the property read is optimized.
+ *
+ * @param {string} propertyName The property to retrieve.
+ * @return {Promise}
  *
  */
 method.get = function( propertyName ) {
@@ -583,54 +719,63 @@ method.get = function( propertyName ) {
 };
 
 /**
- * Description.
  *
+ * (TODO promises/A+ .then())
+ *
+ * @param {=Function} didFulfill The callback to call if this promise
+ *  is fulfilled.
+ * @param {=Function} didReject The callback to call if this promise
+ *  is rejected.
+ * @param {=Function} didProgress The callback to call if this promise is
+ *  notified of progress.
+ * @return {Promise}
  *
  */
 method.then = function( didFulfill, didReject, didProgress ) {
-    return this._then( didFulfill, didReject, didProgress, this );
+    return this._then( didFulfill, didReject, didProgress, void 0 );
 };
 
-/**
- * Description.
- *
- *
- */
-method.isPending = function() {
-    return !this.isResolved();
-};
 
 /**
- * Description.
+ * See if this promise is fulfilled.
  *
- *
- */
-method.isResolved = function() {
-    return ( this._bitField & 0x20000000 ) > 0;
-};
-
-/**
- * Description.
- *
- *
+ * @return {boolean}
  */
 method.isFulfilled = function() {
     return ( this._bitField & 0x10000000 ) > 0;
 };
 
 /**
- * Description.
+ * See if this promise is rejected.
  *
- *
+ * @return {boolean}
  */
 method.isRejected = function() {
     return ( this._bitField & 0x8000000 ) > 0;
 };
 
 /**
- * Description.
+ * See if this promise is pending (not rejected and not fulfilled).
  *
+ * @return {boolean}
+ */
+method.isPending = function() {
+    return !this.isResolved();
+};
+
+/**
+ * See if this promise is resolved (rejected or fulfilled).
  *
+ * @return {boolean}
+ */
+method.isResolved = function() {
+    return ( this._bitField & 0x20000000 ) > 0;
+};
+
+/**
+ * See if this promise can be cancelled.
+ *
+ * @return {boolean}
  */
 method.isCancellable = function() {
     return !this.isResolved() &&
@@ -675,6 +820,10 @@ method._setRejected = function() {
 
 method._setCancellable = function() {
     this._bitField = this._bitField | 0x4000000;
+};
+
+method._unsetCancellable = function() {
+    this._bitField = this._bitField & ( ~0x4000000 );
 };
 
 method._receiverAt = function( index ) {
@@ -735,6 +884,7 @@ method._addCallbacks = function(
 };
 
 method._callFast = function( propertyName ) {
+    console.log(getFunction( propertyName ) );
     return this.then( getFunction( propertyName ) );
 };
 

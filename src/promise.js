@@ -68,63 +68,88 @@ function Promise( resolver ) {
 var method = Promise.prototype;
 
 /**
- * Description.
- *
- *
+ * @return {string}
  */
 method.toString = function() {
     return "[object Promise]";
 };
 
 /**
- * Description.
+ * Convenience method for .then( fn, null, null );
  *
- *
+ * @param {Function} fn The callback to call if this promise is fulfilled
+ * @return {Promise}
  */
-method.fulfilled = function( fn, receiver ) {
-    return this._then( fn, void 0, void 0, receiver );
+method.fulfilled = function( fn ) {
+    return this._then( fn, void 0, void 0 );
 };
 
 /**
- * Description.
+ * Convenience method for .then( null, fn, null );
  *
- *
+ * @param {Function} fn The callback to call if this promise is rejected
+ * @return {Promise}
  */
-method.rejected = function( fn, receiver ) {
-    return this._then( void 0, fn, void 0, receiver );
+method.rejected = function( fn ) {
+    return this._then( void 0, fn, void 0 );
 };
 
 /**
- * Description.
+ * Convenience method for .then( null, null, fn );
  *
- *
+ * @param {Function} fn The callback to call if this promise is progressed
+ * @return {Promise}
  */
-method.progressed = function( fn, receiver ) {
-    return this._then( void 0, void 0, fn, receiver );
+method.progressed = function( fn ) {
+    return this._then( void 0, void 0, fn );
 };
 
 /**
- * Description.
+ * Convenience method for .then( fn, fn );
  *
- *
+ * @param {Function} fn The callback to call when this promise is
+ * either fulfilled or rejected
+ * @return {Promise}
  */
-method.resolved = function( fn, receiver ) {
-    return this._then( fn, fn, void 0, receiver );
+method.resolved = function( fn ) {
+    return this._then( fn, fn, void 0 );
 };
 
 /**
- * Description.
+ * Synchronously inspect the state of this promise. Returns
+ * A snapshot reflecting this promise's state exactly at the time of
+ * call.
  *
+ * If this promise is resolved, the inspection can be used to gain
+ * access to this promise's rejection reason or fulfillment value
+ * synchronously.
  *
+ * (TODO) Based on inspection spec
+ *
+ * @return {PromiseInspection}
  */
 method.inspect = function() {
     return new PromiseInspection( this );
 };
 
 /**
- * Description.
+ * Cancel this promise. The cancellation will propagate
+ * to farthest parent promise which is still pending.
  *
+ * That parent will then be rejected with a CancellationError
+ * object as the rejection reason.
  *
+ * In a promise rejection handler you may check for a cancellation
+ * by seeing if the reason object has `.name === "Cancel"`.
+ *
+ * Promises are by default cancellable. If you want to restrict
+ * the cancellability of a promise before handing it out to a
+ * client, call `.uncancellable()` which returns an uncancellable
+ * promise.
+ *
+ * (TODO) Based on cancellation spec.
+ *
+ * @return {Promise}
  */
 method.cancel = function() {
     if( !this.isCancellable() ) return this;
@@ -146,8 +171,42 @@ method.cancel = function() {
 };
 
 /**
- * Description.
+ * Create an uncancellable promise based on this promise
  *
+ * @return {Promise}
+ */
+method.uncancellable = function() {
+    var ret = new Promise();
+
+    ret._unsetCancellable();
+    this._then(
+        ret._fulfill,
+        ret._reject,
+        ret._progress,
+        ret
+    );
+    return ret;
+};
+
+/**
+ * Chain this promise with a handler that will
+ * call the given `propertyName` as a method on the
+ * returned fulfillment value and return the result of the call.
+ *
+ * If more arguments are passed, those will be used as
+ * respective arguments for the method call.
+ *
+ * Convenience method for:
+ *
+ * promise.then(function(value) {
+ *     return value[propertyName]()
+ * });
+ *
+ * If propertyName is a valid JS identifier and no arguments are
+ * given, the call is optimized.
+ *
+ * @param {string} propertyName The property to call as a function.
+ * @return {Promise}
  *
  */
 method.call = function( propertyName ) {
@@ -167,8 +226,21 @@ method.call = function( propertyName ) {
 };
 
 /**
- * Description.
+ * Chain this promise with a handler that will
+ * read given `propertyName` on the
+ * return fulfillment value.
  *
+ * Convenience method for:
+ *
+ * promise.then(function(value) {
+ *     return value[propertyName]
+ * });
+ *
+ * If propertyName is a valid JS identifier
+ * the property read is optimized.
+ *
+ * @param {string} propertyName The property to retrieve.
+ * @return {Promise}
  *
  */
 method.get = function( propertyName ) {
@@ -176,54 +248,63 @@ method.get = function( propertyName ) {
 };
 
 /**
- * Description.
  *
+ * (TODO promises/A+ .then())
+ *
+ * @param {=Function} didFulfill The callback to call if this promise
+ *  is fulfilled.
+ * @param {=Function} didReject The callback to call if this promise
+ *  is rejected.
+ * @param {=Function} didProgress The callback to call if this promise is
+ *  notified of progress.
+ * @return {Promise}
  *
  */
 method.then = function( didFulfill, didReject, didProgress ) {
-    return this._then( didFulfill, didReject, didProgress, this );
+    return this._then( didFulfill, didReject, didProgress, void 0 );
 };
 
-/**
- * Description.
- *
- *
- */
-method.isPending = function() {
-    return !this.isResolved();
-};
 
 /**
- * Description.
+ * See if this promise is fulfilled.
  *
- *
- */
-method.isResolved = function() {
-    return ( this._bitField & IS_RESOLVED ) > 0;
-};
-
-/**
- * Description.
- *
- *
+ * @return {boolean}
  */
 method.isFulfilled = function() {
     return ( this._bitField & IS_FULFILLED ) > 0;
 };
 
 /**
- * Description.
+ * See if this promise is rejected.
  *
- *
+ * @return {boolean}
  */
 method.isRejected = function() {
     return ( this._bitField & IS_REJECTED ) > 0;
 };
 
 /**
- * Description.
+ * See if this promise is pending (not rejected and not fulfilled).
  *
+ * @return {boolean}
+ */
+method.isPending = function() {
+    return !this.isResolved();
+};
+
+/**
+ * See if this promise is resolved (rejected or fulfilled).
  *
+ * @return {boolean}
+ */
+method.isResolved = function() {
+    return ( this._bitField & IS_RESOLVED ) > 0;
+};
+
+/**
+ * See if this promise can be cancelled.
+ *
+ * @return {boolean}
  */
 method.isCancellable = function() {
     return !this.isResolved() &&
@@ -268,6 +349,10 @@ method._setRejected = function() {
 
 method._setCancellable = function() {
     this._bitField = this._bitField | IS_CANCELLABLE;
+};
+
+method._unsetCancellable = function() {
+    this._bitField = this._bitField & ( ~IS_CANCELLABLE );
 };
 
 method._receiverAt = function( index ) {
@@ -328,6 +413,7 @@ method._addCallbacks = function(
 };
 
 method._callFast = function( propertyName ) {
+    console.log(getFunction( propertyName ) );
     return this.then( getFunction( propertyName ) );
 };
 
