@@ -25,7 +25,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    var functionBuffer = this._functionBuffer = new Array( 5000 * FUNCTION_SIZE );
+    var functionBuffer = this._functionBuffer = new Array( 25000 * FUNCTION_SIZE );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed

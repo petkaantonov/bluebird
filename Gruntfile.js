@@ -222,6 +222,62 @@ module.exports = function( grunt ) {
         }
     }
 
+    function testRun( testOption ) {
+        var Mocha = require("mocha");
+        var mochas = [];
+        var mochaOpts = {
+            reporter: "spec",
+            timeout: 200,
+            slow: Infinity
+        };
+
+        var fs = require("fs");
+        var path = require("path");
+        var done = this.async();
+        var adapter = global.adapter = require(BUILD_DEST);
+
+        if( testOption === "aplus" ) {
+            require("promises-aplus-tests")(adapter, function(err){
+                if( err ) throw err;
+                else done();
+            });
+            return;
+        }
+
+
+        var files = testOption === "all"
+            ? fs.readdirSync('test')
+            : [testOption + ".js" ];
+
+        files.filter(function(fileName){
+            return /\.js$/.test(fileName);
+        }).forEach(function(fileName) {
+            var a = new Mocha(mochaOpts);
+            a.addFile( path.join('test', fileName ));
+            mochas.push( a );
+        });
+
+
+        (function runner(mochas, i){
+
+            if( i >= mochas.length ) {
+                if( testOption === "all" || testOption === "aplus" ) {
+                    require("promises-aplus-tests")(adapter, function(err){
+                        if( err ) throw err;
+                        else done();
+                    });
+                }
+            }
+            else {
+                mochas[i].run(function(failures){
+                    if( failures && failures.length ) throw failures;
+                    runner( mochas, i + 1 );
+                });
+            }
+
+
+        })(mochas, 0);
+    }
 
     grunt.registerTask( "build-with-minify", function() {
         return build.call( this, true );
@@ -230,12 +286,17 @@ module.exports = function( grunt ) {
         return build.call( this, false );
     });
 
-    grunt.registerTask( "testrun", function() {
-        var done = this.async();
-        require("promises-aplus-tests")(require(BUILD_DEST), function(err){
-            if( err ) throw err;
-            else done();
-        });
+
+
+    grunt.registerTask( "testrun", function(){
+        var testOption = grunt.option("run");
+        if( !testOption ) testOption = "all";
+        else {
+            testOption = testOption
+                .replace( /\.js$/, "" )
+                .replace( /[^a-zA-Z0-9_-]/g, "" );
+        }
+        testRun.call( this, testOption );
     });
 
     grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );

@@ -32,8 +32,7 @@
 %constant(LENGTH_CLEAR_MASK, 0x3C000000);
 %constant(MAX_LENGTH, 0x3FFFFFF);
 
-
-var errorObj = {};
+var errorObj = {e: {}};
 var UNRESOLVED = {};
 var noop = function(){};
 var rescape = /[\r\n\u2028\u2029']/g;
@@ -84,9 +83,9 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
     }
 }
 
+
 var create = Object.create || function( proto ) {
     function F(){}
     F.prototype = proto;
     return new F();
 };
-
