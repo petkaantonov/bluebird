@@ -238,7 +238,7 @@ module.exports = function( grunt ) {
 
         if( testOption === "aplus" ) {
             require("promises-aplus-tests")(adapter, function(err){
-                if( err ) throw err;
+                if( err ) throw new Error(err + " tests failed");
                 else done();
             });
             return;
@@ -263,20 +263,48 @@ module.exports = function( grunt ) {
             if( i >= mochas.length ) {
                 if( testOption === "all" || testOption === "aplus" ) {
                     require("promises-aplus-tests")(adapter, function(err){
-                        if( err ) throw err;
+                        if( err ) throw new Error(err + " tests failed");
                         else done();
                     });
                 }
             }
             else {
-                mochas[i].run(function(failures){
-                    if( failures && failures.length ) throw failures;
-                    runner( mochas, i + 1 );
+                mochas[i].run(function(err){
+                    if( err ) throw new Error(err + " tests failed");
+                    setTimeout(function(){
+                        runner( mochas, i + 1 );
+                    }, 500);
                 });
             }
 
 
         })(mochas, 0);
+    }
+
+    function benchmarkRun( benchmarkOption ) {
+        var fs = require("fs");
+        var path = require("path");
+        var done = this.async();
+        var files = benchmarkOption === "all"
+            ? fs.readdirSync('benchmark')
+            : [benchmarkOption + ".js"];
+
+        files = files.filter(function( fileName ){
+            return /\.js$/.test(fileName);
+        }).map(function(fileName){
+            return "./" + path.join( "benchmark", fileName );
+        });
+
+        (function runner(files, i){
+            if( i >= files.length ) {
+                done();
+            }
+            else {
+                require(files[i])(function(){
+                    runner(files, i + 1 );
+                });
+            }
+        })(files, 0);
     }
 
     grunt.registerTask( "build-with-minify", function() {
@@ -285,8 +313,6 @@ module.exports = function( grunt ) {
     grunt.registerTask( "build", function() {
         return build.call( this, false );
     });
-
-
 
     grunt.registerTask( "testrun", function(){
         var testOption = grunt.option("run");
@@ -297,6 +323,17 @@ module.exports = function( grunt ) {
                 .replace( /[^a-zA-Z0-9_-]/g, "" );
         }
         testRun.call( this, testOption );
+    });
+
+    grunt.registerTask( "bench", function(){
+        var benchmarkOption = grunt.option("run");
+        if( !benchmarkOption ) benchmarkOption = "all";
+        else {
+            benchmarkOption = benchmarkOption
+                .replace( /\.js$/, "" )
+                .replace( /[^a-zA-Z0-9_-]/g, "" );
+        }
+        benchmarkRun.call( this, benchmarkOption );
     });
 
     grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );

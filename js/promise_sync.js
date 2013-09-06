@@ -57,8 +57,7 @@
 
 
 
-
-var errorObj = {};
+var errorObj = {e: {}};
 var UNRESOLVED = {};
 var noop = function(){};
 var rescape = /[\r\n\u2028\u2029']/g;
@@ -109,12 +108,12 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
     }
 }
 
+
 var create = Object.create || function( proto ) {
     function F(){}
     F.prototype = proto;
     return new F();
 };
-
 
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
@@ -230,7 +229,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    var functionBuffer = this._functionBuffer = new Array( 5000 * 3 );
+    var functionBuffer = this._functionBuffer = new Array( 25000 * 3 );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
@@ -499,6 +498,23 @@ function isObject( value ) {
             typeof value === "function" );
 }
 
+var possiblyUnhandledRejection = function( reason ) {
+    if( typeof console === "object" ) {
+        var stack = reason.stack;
+        var message = "Possibly unhandled " + ( stack
+            ? stack
+            : reason.name + ". " +
+              reason.message );
+
+        if( typeof console.error === "function" ) {
+            console.error( message );
+        }
+        else if( typeof console.log === "function" ) {
+            console.log( message );
+        }
+    }
+};
+
 /**
  * Description.
  *
@@ -652,6 +668,25 @@ method.uncancellable = function() {
         ret._progress,
         ret
     );
+    return ret;
+};
+
+/**
+ * Like .then, but cancellation of the the returned promise
+ * or any of its descendant will not propagate cancellation
+ * to this promise or this promise's ancestors.
+ *
+ * @param {=Function} didFulfill The callback to call if this promise
+ *  is fulfilled.
+ * @param {=Function} didReject The callback to call if this promise
+ *  is rejected.
+ * @param {=Function} didProgress The callback to call if this promise is
+ *  notified of progress.
+ * @return {Promise}
+ */
+method.fork = function( didFulfill, didReject, didProgress ) {
+    var ret = this.then( didFulfill, didReject, didProgress );
+    ret._cancellationParent = null;
     return ret;
 };
 
@@ -880,7 +915,6 @@ method._addCallbacks = function(
 };
 
 method._callFast = function( propertyName ) {
-    console.log(getFunction( propertyName ) );
     return this.then( getFunction( propertyName ) );
 };
 
@@ -919,9 +953,10 @@ method._resolveLast = function( index ) {
 method._resolvePromise = function(
     onFulfilledOrRejected, receiver, value, promise
 ) {
-    if( receiver === void 0 ) {
-        receiver = this;
+    if( value instanceof Error ) {
+        value.__handled = true;
     }
+
     var x = tryCatch1( onFulfilledOrRejected, receiver, value );
     if( x === errorObj ) {
         promise._reject(errorObj.e);
@@ -978,7 +1013,7 @@ method._resolvePromise = function(
     }
 };
 
-method._resolveFulfill = function( obj ) {
+method._resolveFulfill = function( value ) {
     var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._fulfillAt( i );
@@ -987,32 +1022,60 @@ method._resolveFulfill = function( obj ) {
             this._resolvePromise(
                 fn,
                 this._receiverAt( i ),
-                obj,
+                value,
                 promise
             );
         }
         else {
-            promise._fulfill(obj);
+            promise._fulfill(value);
         }
     }
 };
 
-method._resolveReject = function( obj ) {
+method._resolveReject = function( reason ) {
     var len = this._length();
+    var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
         if( fn !== noop ) {
+            rejectionWasHandled = true;
             this._resolvePromise(
                 fn,
                 this._receiverAt( i ),
-                obj,
+                reason,
                 promise
             );
         }
         else {
-            promise._reject(obj);
+            if( !rejectionWasHandled )
+                rejectionWasHandled = promise._length() > 0;
+            promise._reject(reason);
         }
+    }
+    if( !rejectionWasHandled &&
+        reason instanceof Error &&
+        possiblyUnhandledRejection !== noop
+    ) {
+        //If the prop is not there, reading it
+        //will cause deoptimization most likely
+        //so do it at last possible moment
+        if( reason.__handled !== true ) {
+            reason.__handled = false;
+            this._unhandledRejection(reason);
+        }
+    }
+
+};
+
+method._unhandledRejection = function( reason ) {
+    if( !reason.__handled ) {
+        setTimeout(function() {
+            if( !reason.__handled ) {
+                reason.__handled = true;
+                possiblyUnhandledRejection( reason );
+            }
+        }, 100 );
     }
 };
 
@@ -1126,6 +1189,20 @@ Promise.rejected = function( value ) {
  */
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.onPossiblyUnhandledRejection = function( fn ) {
+    if( typeof fn === "function" ) {
+        possiblyUnhandledRejection = fn;
+    }
+    else {
+        possiblyUnhandledRejection = noop;
+    }
 };
 
 /**

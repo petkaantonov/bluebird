@@ -33,7 +33,20 @@ function isObject( value ) {
 }
 
 var possiblyUnhandledRejection = function( reason ) {
-    console.log("Unhandled rejection:", reason, "source", reason.stack );
+    if( typeof console === "object" ) {
+        var stack = reason.stack;
+        var message = "Possibly unhandled " + ( stack
+            ? stack
+            : reason.name + ". " +
+              reason.message );
+
+        if( typeof console.error === "function" ) {
+            console.error( message );
+        }
+        else if( typeof console.log === "function" ) {
+            console.log( message );
+        }
+    }
 };
 
 /**
