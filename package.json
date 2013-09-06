@@ -1,12 +1,22 @@
 {
-  "name": "Promise",
-  "version": "0.2.0",
-  "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.6.4",
-    "grunt-closure-compiler": "0.0.21",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-concat": "~0.3.0",
-    "promises-aplus-tests": "~1.3.2"
-  }
+    "name": "Promise",
+    "description": "Exceptionally fast and full featured Promises/A+ implementation",
+    "version": "0.2.0",
+    "keywords": ["promise", "performance", "fast", "Promises/A+", "async"],
+    "author": {
+        "name": "Petka Antonov"
+    },
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-jshint": "~0.6.4",
+        "grunt-contrib-watch": "~0.5.3",
+        "grunt-contrib-concat": "~0.3.0",
+        "promises-aplus-tests": "~1.3.2",
+        "acorn": "~0.3.1",
+        "closure-compiler": "~0.2.1"
+    },
+    "readmeFilename": "README.md",
+
+    "main": "./js/promise.js"
+
 }

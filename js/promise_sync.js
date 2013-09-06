@@ -1,3 +1,328 @@
+/* jshint -W014, -W116 */
+/* global process, unreachable */
+/**
+ * @preserve Copyright (c) 2013 Petka Antonov
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:</p>
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+(function( global, Function, Array, Error, Object ) { "use strict";
+
+//This is the only way to have efficient constants
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Layout
+//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//R = isResolved
+//F = isFulfilled
+//N = isRejected
+//C = isCancellable
+//L = Length, 26 bit unsigned
+//- = Reserved
+//0 = Always 0 (never used)
+
+
+
+
+
+
+
+
+
+
+var errorObj = {};
+var UNRESOLVED = {};
+var noop = function(){};
+var rescape = /[\r\n\u2028\u2029']/g;
+
+var replacer = function( ch ) {
+        return "\\u" + (("0000") +
+            (ch.charCodeAt(0).toString(16))).slice(-4);
+};
+
+
+function safeToEmbedString( str ) {
+    return str.replace( rescape, replacer );
+}
+
+function indexOf( array, value ) {
+    for( var i = 0, len = array.length; i < len; ++i ) {
+        if( value === array[i] ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+var isArray = Array.isArray || function( obj ) {
+    //yeah it won't work iframes
+    return obj instanceof Array;
+};
+
+//Try catch is not supported in optimizing
+//compiler, so it is isolated
+function tryCatch1( fn, receiver, arg ) {
+    try {
+        return fn.call( receiver, arg );
+    }
+    catch( e ) {
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
+function tryCatch2( fn, receiver, arg, arg2 ) {
+    try {
+        return fn.call( receiver, arg, arg2 );
+    }
+    catch( e ) {
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
+var create = Object.create || function( proto ) {
+    function F(){}
+    F.prototype = proto;
+    return new F();
+};
+
+
+function subError( constructorName, nameProperty, defaultMessage ) {
+    defaultMessage = safeToEmbedString("" + defaultMessage );
+    nameProperty = safeToEmbedString("" + nameProperty );
+
+    return new Function("create", "\n" +
+         constructorName + ".prototype = create(Error.prototype);" +
+         constructorName + ".prototype.constructor = "+constructorName+";" +
+        "function "+constructorName+"(msg){" +
+        "if( Error.captureStackTrace ) {" +
+        "Error.captureStackTrace(this, this.constructor);" +
+        "}" +
+        "Error.call(this, msg);" +
+        "this.message = typeof msg === 'string'" +
+        "? msg" +
+        ": '"+defaultMessage+"';" +
+        "this.name = '"+nameProperty+"';" +
+        "} return "+constructorName+";")(create);
+}
+
+var TypeError = subError( "TypeError", "Type" );
+var CancellationError = subError( "CancellationError", "Cancel" );
+var TimeoutError = subError( "TimeoutError", "Timeout" );
+
+
+
+function GetterCache(){}
+function FunctionCache(){}
+
+
+//If one uses sensible property names
+//then the dummy constructor will give
+//currently 8 more inobject properteis than
+//EMPTY object literal in V8
+
+//In other words, Promise.prototype.get
+//is optimized for applications that use it
+//for 1-8 properties that have identifier names
+var getterCache = new GetterCache(),
+    functionCache = new FunctionCache(),
+    hasProp = {}.hasOwnProperty;
+
+function getGetter( propertyName ) {
+    if( hasProp.call( getterCache, propertyName ) ) {
+        return getterCache[propertyName];
+    }
+    //The cache is intentionally broken for silly properties
+    //that contain newlines or quotes or such
+    propertyName = safeToEmbedString(""+propertyName);
+    var fn = new Function("obj", "return obj['"+propertyName+"'];");
+    getterCache[propertyName] = fn;
+    return fn;
+}
+
+function getFunction( propertyName ) {
+    if( hasProp.call( getterCache, propertyName ) ) {
+        return functionCache[propertyName];
+    }
+    propertyName = (""+propertyName).replace( rescape, replacer );
+    var fn = new Function("obj", "return obj['"+propertyName+"']();");
+    getterCache[propertyName] = fn;
+    return fn;
+}
+var Async = (function() {
+var method = Async.prototype;
+
+
+var deferFn = typeof process !== "undefined" ?
+    ( typeof global.setImmediate !== "undefined"
+        ? function( fn ){
+            global.setImmediate( fn );
+          }
+        : function( fn ) {
+            process.nextTick( fn );
+        }
+
+    ) :
+    ( typeof setTimeout !== "undefined"
+        ? function( fn ) {
+            setTimeout( fn, 4 );
+        }
+        : function( fn ) {
+            fn();
+        }
+) ;
+
+
+function Async() {
+    this._isTickUsed = false;
+    this._length = 0;
+    var functionBuffer = this._functionBuffer = new Array( 5000 * 3 );
+    var self = this;
+    //Optimized around the fact that no arguments
+    //need to be passed
+    this.consumeFunctionBuffer = function() {
+        self._consumeFunctionBuffer();
+    };
+
+    for( var i = 0, len = functionBuffer.length; i < len; ++i ) {
+        functionBuffer[i] = void 0;
+    }
+}
+
+
+method.invoke = function( fn, receiver, arg ) {
+    var functionBuffer = this._functionBuffer,
+        len = functionBuffer.length,
+        length = this._length;
+
+    if( length === len ) {
+        //direct index modifications caused out of bounds
+        //accesses which caused deoptimizations
+        functionBuffer.push( fn, receiver, arg );
+    }
+    else {
+        functionBuffer[ length + 0 ] = fn;
+        functionBuffer[ length + 1 ] = receiver;
+        functionBuffer[ length + 2 ] = arg;
+    }
+    this._length = length + 3;
+
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
+    }
+};
+
+method._consumeFunctionBuffer = function() {
+    var len = this._length;
+    var functionBuffer = this._functionBuffer;
+    if( len > 0 ) {
+        for( var i = 0; i < this._length; i += 3 ) {
+            functionBuffer[ i + 0 ].call(
+                functionBuffer[ i + 1 ],
+                functionBuffer[ i + 2 ]
+            );
+            //Must clear functions immediately otherwise
+            //high promotion rate is caused with long
+            //sequence chains which leads to mass deoptimization
+            //in v8
+            functionBuffer[ i + 0 ] =
+                functionBuffer[ i + 1 ] =
+                functionBuffer[ i + 2 ] =
+                void 0;
+        }
+        this._reset();
+    }
+    else this._reset();
+};
+
+method._reset = function() {
+    this._isTickUsed = false;
+    this._length = 0;
+};
+
+
+return Async;})();
+
+var async = new Async();
+
+var bindDefer = function bindDefer( fn, receiver ) {
+    return function deferBound( arg ) {
+        fn.call(receiver, arg);
+    };
+};
+
+var PromiseResolver = (function() {
+
+/**
+ * Deferred
+ *
+ *
+ */
+function PromiseResolver( promise ) {
+    this.promise = promise;
+}
+var method = PromiseResolver.prototype;
+
+method.toString = function() {
+    return "[object PromiseResolver]";
+};
+
+method.fulfill = function( value ) {
+    this.promise._fulfill(value);
+};
+
+method.reject = function( value ) {
+    this.promise._reject(value);
+};
+
+method.progress = function( value ) {
+    this.promise._progress(value);
+};
+
+method.cancel = function() {
+    this.promise.cancel((void 0));
+};
+
+method.timeout = function() {
+    this.promise._reject(new TimeoutError("timeout"));
+};
+
+method.isResolved = function() {
+    return this._promise.isResolved();
+};
+
+
+return PromiseResolver;})();
 var Promise = (function() {
 
 function isThenable( ret, ref ) {
@@ -35,7 +360,7 @@ function Promise( resolver ) {
     if( typeof resolver === "function" )
         resolver( new PromiseResolver( this ) );
     //See layout in util.js
-    this._bitField = IS_CANCELLABLE;
+    this._bitField = 0x4000000;
     //Since most promises only have 0-1 parallel handlers
     //store the first ones directly on the object
     //This optimizes for exactly 1 parallel handler I.E. 99%
@@ -82,11 +407,11 @@ method.cancel = function() {
     }
     //Recursively the propagated parent or had no parents
     if( cancelTarget === this ) {
-        async.invoke( this._reject, this, new CancellationError() );
+        this._reject(new CancellationError());
     }
     else {
         //Have pending parents, call cancel on the oldest
-        async.invoke( cancelTarget.cancel, cancelTarget, void 0);
+        cancelTarget.cancel((void 0));
     }
     return this;
 };
@@ -120,20 +445,20 @@ method.isPending = function() {
 };
 
 method.isResolved = function() {
-    return ( this._bitField & IS_RESOLVED ) > 0;
+    return ( this._bitField & 0x20000000 ) > 0;
 };
 
 method.isFulfilled = function() {
-    return ( this._bitField & IS_FULFILLED ) > 0;
+    return ( this._bitField & 0x10000000 ) > 0;
 };
 
 method.isRejected = function() {
-    return ( this._bitField & IS_REJECTED ) > 0;
+    return ( this._bitField & 0x8000000 ) > 0;
 };
 
 method.isCancellable = function() {
     return !this.isResolved() &&
-        ( this._bitField & IS_CANCELLABLE ) > 0;
+        ( this._bitField & 0x4000000 ) > 0;
 };
 
 method._then = function( didFulfill, didReject, didProgress, receiver ) {
@@ -142,7 +467,7 @@ method._then = function( didFulfill, didReject, didProgress, receiver ) {
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
     if( this.isResolved() ) {
-        async.invoke( this._resolveLast, this, callbackIndex );
+        this._resolveLast(callbackIndex);
     }
     else if( this.isCancellable() ) {
         ret._cancellationParent = this;
@@ -152,53 +477,53 @@ method._then = function( didFulfill, didReject, didProgress, receiver ) {
 };
 
 method._length = function() {
-    return this._bitField & LENGTH_MASK;
+    return this._bitField & 0x3FFFFFF;
 };
 
 method._setLength = function( len ) {
-    this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
-        ( len & LENGTH_MASK ) ;
+    this._bitField = ( this._bitField & 0x3C000000 ) |
+        ( len & 0x3FFFFFF ) ;
 };
 
 method._setResolved = function() {
-    this._bitField = this._bitField | IS_RESOLVED;
+    this._bitField = this._bitField | 0x20000000;
 };
 
 method._setFulfilled = function() {
-    this._bitField = this._bitField | IS_FULFILLED;
+    this._bitField = this._bitField | 0x10000000;
 };
 
 method._setRejected = function() {
-    this._bitField = this._bitField | IS_REJECTED;
+    this._bitField = this._bitField | 0x8000000;
 };
 
 method._setCancellable = function() {
-    this._bitField = this._bitField | IS_CANCELLABLE;
+    this._bitField = this._bitField | 0x4000000;
 };
 
 method._receiverAt = function( index ) {
     if( index === 0 ) return this._receiver0;
-    return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
+    return this[ index + 4 - 5 ];
 };
 
 method._promiseAt = function( index ) {
     if( index === 0 ) return this._promise0;
-    return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
+    return this[ index + 3 - 5 ];
 };
 
 method._fulfillAt = function( index ) {
     if( index === 0 ) return this._fulfill0;
-    return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
+    return this[ index + 0 - 5 ];
 };
 
 method._rejectAt = function( index ) {
     if( index === 0 ) return this._reject0;
-    return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
+    return this[ index + 1 - 5 ];
 };
 
 method._progressAt = function( index ) {
     if( index === 0 ) return this._progress0;
-    return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
+    return this[ index + 2 - 5 ];
 };
 
 method._addCallbacks = function(
@@ -219,17 +544,17 @@ method._addCallbacks = function(
         this._progress0 = progress;
         this._promise0 = promise;
         this._receiver0 = receiver;
-        this._setLength( index + CALLBACK_SIZE );
+        this._setLength( index + 5 );
         return index;
     }
 
-    this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] = fulfill;
-    this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] = reject;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] = progress;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] = promise;
-    this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = receiver;
+    this[ index - 5 + 0 ] = fulfill;
+    this[ index - 5 + 1 ] = reject;
+    this[ index - 5 + 2 ] = progress;
+    this[ index - 5 + 3 ] = promise;
+    this[ index - 5 + 4 ] = receiver;
 
-    this._setLength( index + CALLBACK_SIZE );
+    this._setLength( index + 5 );
     return index;
 };
 
@@ -277,16 +602,10 @@ method._resolvePromise = function(
     }
     var x = tryCatch1( onFulfilledOrRejected, receiver, value );
     if( x === errorObj ) {
-        async.invoke( promise._reject, promise, errorObj.e );
+        promise._reject(errorObj.e);
     }
     else if( x === promise ) {
-        async.invoke(
-            promise._reject,
-            promise,
-            //1. If promise and x refer to the same object,
-            //reject promise with a TypeError as the reason.
-            new TypeError( TYPE_ERROR_INFINITE_CYCLE )
-        );
+        promise._reject(new TypeError("Circular thenable chain"));
     }
     else {
         var ref;
@@ -308,7 +627,7 @@ method._resolvePromise = function(
             //results in a thrown exception e,
             //reject promise with e as the reason.
             if( ref.ref === errorObj ) {
-                async.invoke( promise._reject, promise, errorObj.e );
+                promise._reject(errorObj.e);
             }
             else {
                 //3.1. Let then be x.then
@@ -325,21 +644,21 @@ method._resolvePromise = function(
                 //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
                     //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    async.invoke( promise._reject, promise, errorObj.e );
+                    promise._reject(errorObj.e);
                 }
             }
         }
         // 3.4 If then is not a function, fulfill promise with x.
         // 4. If x is not an object or function, fulfill promise with x.
         else {
-            async.invoke( promise._fulfill, promise, x );
+            promise._fulfill(x);
         }
     }
 };
 
 method._resolveFulfill = function( obj ) {
     var len = this._length();
-    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
+    for( var i = 0; i < len; i+= 5 ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
         if( fn !== noop ) {
@@ -351,14 +670,14 @@ method._resolveFulfill = function( obj ) {
             );
         }
         else {
-            async.invoke( promise._fulfill, promise, obj );
+            promise._fulfill(obj);
         }
     }
 };
 
 method._resolveReject = function( obj ) {
     var len = this._length();
-    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
+    for( var i = 0; i < len; i+= 5 ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
         if( fn !== noop ) {
@@ -370,7 +689,7 @@ method._resolveReject = function( obj ) {
             );
         }
         else {
-            async.invoke( promise._reject, promise, obj );
+            promise._reject(obj);
         }
     }
 };
@@ -400,18 +719,18 @@ method._reject = function( obj ) {
 method._progress = function( obj ) {
     if( this.isResolved() ) return;
     var len = this._length();
-    for( var i = 0; i < len; i += CALLBACK_SIZE ) {
+    for( var i = 0; i < len; i += 5 ) {
         var fn = this._progressAt( i );
         var promise = this._promiseAt( i );
         var ret = obj;
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._receiverAt( i ), obj );
             if( ret === errorObj ) {
-                async.invoke( this._reject, this, errorObj.e );
+                this._reject(errorObj.e);
                 return;
             }
         }
-        async.invoke( promise._progress, promise, ret );
+        promise._progress(ret);
     }
 };
 
@@ -482,3 +801,22 @@ Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
 
 return Promise;})();
 
+
+if( typeof module !== "undefined" && module.exports ) {
+    module.exports = Promise;
+}
+else if( typeof define === "function" && define.amd ) {
+    define( "Promise", [], function(){return Promise;});
+}
+else {
+    global.Promise = Promise;
+}
+
+
+return Promise;})(
+    new Function("return this")(),
+    Function,
+    Array,
+    Error,
+    Object
+);

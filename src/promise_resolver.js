@@ -15,23 +15,23 @@ method.toString = function() {
 };
 
 method.fulfill = function( value ) {
-    async.call( this.promise._fulfill, this.promise, value );
+    async.invoke( this.promise._fulfill, this.promise, value );
 };
 
 method.reject = function( value ) {
-    async.call( this.promise._reject, this.promise, value );
+    async.invoke( this.promise._reject, this.promise, value );
 };
 
 method.progress = function( value ) {
-    async.call( this.promise._progress, this.promise, value );
+    async.invoke( this.promise._progress, this.promise, value );
 };
 
 method.cancel = function() {
-    async.call( this.promise.cancel, this.promise, void 0 );
+    async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
 method.timeout = function() {
-    async.call(
+    async.invoke(
         this.promise._reject,
         this.promise,
         new TimeoutError( "timeout" )

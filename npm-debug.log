@@ -1,0 +1,32 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'c:\\Program Files\\nodejs\\node.exe',
+1 verbose cli   'c:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'version',
+1 verbose cli   'minor' ]
+2 info using npm@1.2.24
+3 info using node@v0.10.9
+4 error Error: Git working directory not clean.
+4 error M Gruntfile.js
+4 error M js/promise.js
+4 error M js/promise.min.js
+4 error M package.json
+4 error D src/async_call.js
+4 error M src/promise.js
+4 error M src/promise_resolver.js
+4 error     at c:\Program Files\nodejs\node_modules\npm\lib\version.js:97:35
+4 error     at ChildProcess.exithandler (child_process.js:635:7)
+4 error     at ChildProcess.EventEmitter.emit (events.js:98:17)
+4 error     at maybeClose (child_process.js:735:16)
+4 error     at Socket.<anonymous> (child_process.js:948:11)
+4 error     at Socket.EventEmitter.emit (events.js:95:17)
+4 error     at Pipe.close (net.js:451:12)
+5 error If you need help, you may report this log at:
+5 error     <http://github.com/isaacs/npm/issues>
+5 error or email it to:
+5 error     <npm-@googlegroups.com>
+6 error System Windows_NT 6.1.7601
+7 error command "c:\\Program Files\\nodejs\\node.exe" "c:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "version" "minor"
+8 error cwd c:\Users\Petka Antonov\promise
+9 error node -v v0.10.9
+10 error npm -v 1.2.24
+11 verbose exit [ 1, true ]

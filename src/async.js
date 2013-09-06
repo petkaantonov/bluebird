@@ -1,10 +1,3 @@
-//Ensure in-order async calling of functions
-//with minimal use of async functions like setTimeout
-
-//This whole file is about making a deferred function call
-//cost literally* nothing
-
-//*because the buffer is taking the space anyway
 var Async = (function() {
 var method = Async.prototype;
 
@@ -46,7 +39,7 @@ function Async() {
 }
 
 
-method.call = function( fn, receiver, arg ) {
+method.invoke = function( fn, receiver, arg ) {
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
@@ -104,6 +97,6 @@ var async = new Async();
 
 var bindDefer = function bindDefer( fn, receiver ) {
     return function deferBound( arg ) {
-        async.call( fn, receiver, arg );
+        async.invoke( fn, receiver, arg );
     };
 };

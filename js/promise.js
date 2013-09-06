@@ -178,13 +178,6 @@ function getFunction( propertyName ) {
     getterCache[propertyName] = fn;
     return fn;
 }
-//Ensure in-order async calling of functions
-//with minimal use of async functions like setTimeout
-
-//This whole file is about making a deferred function call
-//cost literally* nothing
-
-//*because the buffer is taking the space anyway
 var Async = (function() {
 var method = Async.prototype;
 
@@ -226,12 +219,14 @@ function Async() {
 }
 
 
-method.call = function( fn, receiver, arg ) {
+method.invoke = function( fn, receiver, arg ) {
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
 
     if( length === len ) {
+        //direct index modifications caused out of bounds
+        //accesses which caused deoptimizations
         functionBuffer.push( fn, receiver, arg );
     }
     else {
@@ -282,7 +277,7 @@ var async = new Async();
 
 var bindDefer = function bindDefer( fn, receiver ) {
     return function deferBound( arg ) {
-        async.call( fn, receiver, arg );
+        async.invoke( fn, receiver, arg );
     };
 };
 
@@ -303,23 +298,23 @@ method.toString = function() {
 };
 
 method.fulfill = function( value ) {
-    async.call( this.promise._fulfill, this.promise, value );
+    async.invoke( this.promise._fulfill, this.promise, value );
 };
 
 method.reject = function( value ) {
-    async.call( this.promise._reject, this.promise, value );
+    async.invoke( this.promise._reject, this.promise, value );
 };
 
 method.progress = function( value ) {
-    async.call( this.promise._progress, this.promise, value );
+    async.invoke( this.promise._progress, this.promise, value );
 };
 
 method.cancel = function() {
-    async.call( this.promise.cancel, this.promise, void 0 );
+    async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
 method.timeout = function() {
-    async.call(
+    async.invoke(
         this.promise._reject,
         this.promise,
         new TimeoutError( "timeout" )
@@ -416,11 +411,11 @@ method.cancel = function() {
     }
     //Recursively the propagated parent or had no parents
     if( cancelTarget === this ) {
-        async.call( this._reject, this, new CancellationError() );
+        async.invoke( this._reject, this, new CancellationError() );
     }
     else {
         //Have pending parents, call cancel on the oldest
-        async.call( cancelTarget.cancel, cancelTarget, void 0);
+        async.invoke( cancelTarget.cancel, cancelTarget, void 0);
     }
     return this;
 };
@@ -476,7 +471,7 @@ method._then = function( didFulfill, didReject, didProgress, receiver ) {
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
     if( this.isResolved() ) {
-        async.call( this._resolveLast, this, callbackIndex );
+        async.invoke( this._resolveLast, this, callbackIndex );
     }
     else if( this.isCancellable() ) {
         ret._cancellationParent = this;
@@ -611,10 +606,10 @@ method._resolvePromise = function(
     }
     var x = tryCatch1( onFulfilledOrRejected, receiver, value );
     if( x === errorObj ) {
-        async.call( promise._reject, promise, errorObj.e );
+        async.invoke( promise._reject, promise, errorObj.e );
     }
     else if( x === promise ) {
-        async.call(
+        async.invoke(
             promise._reject,
             promise,
             //1. If promise and x refer to the same object,
@@ -642,7 +637,7 @@ method._resolvePromise = function(
             //results in a thrown exception e,
             //reject promise with e as the reason.
             if( ref.ref === errorObj ) {
-                async.call( promise._reject, promise, errorObj.e );
+                async.invoke( promise._reject, promise, errorObj.e );
             }
             else {
                 //3.1. Let then be x.then
@@ -659,14 +654,14 @@ method._resolvePromise = function(
                 //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
                     //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    async.call( promise._reject, promise, errorObj.e );
+                    async.invoke( promise._reject, promise, errorObj.e );
                 }
             }
         }
         // 3.4 If then is not a function, fulfill promise with x.
         // 4. If x is not an object or function, fulfill promise with x.
         else {
-            async.call( promise._fulfill, promise, x );
+            async.invoke( promise._fulfill, promise, x );
         }
     }
 };
@@ -685,7 +680,7 @@ method._resolveFulfill = function( obj ) {
             );
         }
         else {
-            async.call( this._fulfill, promise, obj );
+            async.invoke( promise._fulfill, promise, obj );
         }
     }
 };
@@ -704,7 +699,7 @@ method._resolveReject = function( obj ) {
             );
         }
         else {
-            async.call( this._reject, promise, obj );
+            async.invoke( promise._reject, promise, obj );
         }
     }
 };
@@ -741,11 +736,11 @@ method._progress = function( obj ) {
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._receiverAt( i ), obj );
             if( ret === errorObj ) {
-                async.call( this._reject, this, errorObj.e );
+                async.invoke( this._reject, this, errorObj.e );
                 return;
             }
         }
-        async.call( this._progress, promise, ret );
+        async.invoke( promise._progress, promise, ret );
     }
 };
 
@@ -792,6 +787,26 @@ Promise.rejected = function( value ) {
 
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
+};
+
+Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
+    //Default descriptor is node style callbacks
+
+    //Optimize for 0-5 args
+    return function() {
+        var resolver = Promise.pending();
+        var args = [].slice.call(arguments);
+        args.push(function( err, value ) {
+            if( err ) {
+                resolver.reject( err );
+            }
+            else {
+                resolver.fulfill( value );
+            }
+        });
+        callback.apply( receiver, args );
+        return resolver.promise;
+    };
 };
 
 return Promise;})();
