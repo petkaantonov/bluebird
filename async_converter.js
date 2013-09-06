@@ -1,3 +1,6 @@
+//This file converts all async invocations into sync
+//Used to generate the build where async guarantees are not given
+//(violating A+ spec)
 var jsp = require("acorn");
 var walk = require("acorn/util/walk.js");
 var rnonIdentMember = /[.\-_$a-zA-Z0-9]/g;
@@ -93,6 +96,7 @@ DirectCall.prototype.toString = function() {
         "(" + nodeToString(this.arg) + ")"
 };
 
+//Find all objName.fnProp(arg1, arg2, arg3)
 module.exports = function( src, objName, fnProp ) {
     var ast = jsp.parse(src);
     var results = [];

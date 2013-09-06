@@ -106,6 +106,7 @@ module.exports = function( grunt ) {
                 "./src/errors.js",
                 "./src/caches.js",
                 "./src/async.js",
+                "./src/promise_inspection.js",
                 "./src/promise_resolver.js",
                 "./src/promise.js",
                 "./src/epilogue.js"
@@ -123,7 +124,7 @@ module.exports = function( grunt ) {
             files: [
                 "./src/**/*"
             ],
-            tasks: ["concat", "build", "clean"],
+            tasks: ["concat", "build"],
             options: {
               interrupt: true,
               debounceDelay: 2500
@@ -131,10 +132,27 @@ module.exports = function( grunt ) {
         }
     };
 
+    gruntConfig.bump = {
+      options: {
+        files: ['package.json'],
+        updateConfigs: [],
+        commit: true,
+        commitMessage: 'Release v%VERSION%',
+        commitFiles: ['package.json'], // '-a' for all files
+        createTag: true,
+        tagName: 'v%VERSION%',
+        tagMessage: 'Version %VERSION%',
+        push: true,
+        pushTo: 'master',
+        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d' // options to use with '$ git describe'
+      }
+    };
+
     grunt.initConfig(gruntConfig);
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-bump');
 
     function fixStrict( code ) {
         //Fix global strict mode inserted by closure compiler
@@ -149,12 +167,6 @@ module.exports = function( grunt ) {
     function build( shouldMinify ) {
         var fs = require("fs");
 
-        function ccCompleted() {
-            runsDone++;
-            if( runsDone >= totalCCRuns ) {
-                done();
-            }
-        }
 
         var src = fs.readFileSync( SRC_DEST, "utf8" );
 
@@ -169,12 +181,21 @@ module.exports = function( grunt ) {
             outputMin: MIN_SYNC_DEST
         }];
 
+        function ccCompleted() {
+            runsDone++;
+            if( runsDone >= totalCCRuns ) {
+                done();
+            }
+        }
+
         var totalCCRuns = transformations.length;
         var runsDone = 0;
 
         if( shouldMinify ) {
             var done = this.async();
         }
+
+
         for( var i = 0, len = transformations.length; i < len; ++i ) {
             var transformation = transformations[i];
             var srcTransformations = transformation.srcTransformations;
@@ -207,12 +228,6 @@ module.exports = function( grunt ) {
     });
     grunt.registerTask( "build", function() {
         return build.call( this, false );
-    });
-
-    grunt.registerTask( "clean", function() {
-        var fs = require("fs");
-        fs.unlink( TMP_DEST );
-
     });
 
     grunt.registerTask( "testrun", function() {
