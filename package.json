@@ -1,7 +1,7 @@
 {
   "name": "Promise",
   "description": "Exceptionally fast and full featured Promises/A+ implementation",
-  "version": "0.3.0",
+  "version": "0.3.0-1",
   "keywords": [
     "promise",
     "performance",
