@@ -72,19 +72,13 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
-function indexOf( array, value ) {
-    for( var i = 0, len = array.length; i < len; ++i ) {
-        if( value === array[i] ) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 var isArray = Array.isArray || function( obj ) {
     //yeah it won't work iframes
     return obj instanceof Array;
 };
+
+
 
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
@@ -203,8 +197,6 @@ function getFunction( propertyName ) {
     return fn;
 }
 var Async = (function() {
-var method = Async.prototype;
-
 
 var deferFn = typeof process !== "undefined" ?
     ( typeof global.setImmediate !== "undefined"
@@ -241,6 +233,7 @@ function Async() {
         functionBuffer[i] = void 0;
     }
 }
+var method = Async.prototype;
 
 
 method.invoke = function( fn, receiver, arg ) {
@@ -269,16 +262,15 @@ method.invoke = function( fn, receiver, arg ) {
 method._consumeFunctionBuffer = function() {
     var len = this._length;
     var functionBuffer = this._functionBuffer;
-    if( len > 0 ) {
+    if( len > 0 ) {       //Must not cache the length
         for( var i = 0; i < this._length; i += 3 ) {
             functionBuffer[ i + 0 ].call(
                 functionBuffer[ i + 1 ],
                 functionBuffer[ i + 2 ]
             );
-            //Must clear functions immediately otherwise
+            //Must clear garbage immediately otherwise
             //high promotion rate is caused with long
             //sequence chains which leads to mass deoptimization
-            //in v8
             functionBuffer[ i + 0 ] =
                 functionBuffer[ i + 1 ] =
                 functionBuffer[ i + 2 ] =
@@ -304,6 +296,79 @@ var bindDefer = function bindDefer( fn, receiver ) {
         fn.call(receiver, arg);
     };
 };
+
+var PromiseArray = (function() {
+    var method = PromiseArray.prototype;
+
+
+    /**
+     * Description.
+     *
+     *
+     */
+    function PromiseArray( values ) {
+        this._values = values;
+        this._resolver = Promise.pending();
+        this._length = values.length;
+        this._totalResolved = 0;
+        //keep the constructor body short
+        this._init();
+    }
+
+    method.promise = function() {
+        return this._resolver.promise;
+    };
+
+    method._init = function() {
+        var values = this._values;
+        for( var i = 0, len = values.length; i < len; ++i ) {
+            var promise = values[i];
+            if( !(promise instanceof Promise) ) {
+                promise = Promise.fulfilled( promise );
+            }
+            promise._then(
+                this._promiseFulfilled,
+                this._promiseRejected,
+
+                void 0,
+                this,
+                i //Smuggle the index as internal data
+                  //to avoid creating closures in this loop
+
+                  //Will not chain so creating one
+                  //would be a waste anyway
+
+            );
+        }
+    };
+
+    method._fulfill = function( value ) {
+        this._resolver.fulfill( value );
+    };
+
+    method._reject = function( reason ) {
+        this._resolver.reject( reason );
+    };
+
+    method._promiseFulfilled = function( value, index ) {
+        if( this.promise().isResolved() ) return;
+        //(TODO) could fire a progress when a promise is completed
+        this._values[ index ] = value;
+        var totalResolved = this._totalResolved;
+        if( totalResolved >= this._length - 1 ) {
+            this._fulfill( this._values );
+        }
+        this._totalResolved = totalResolved + 1;
+    };
+
+    method._promiseRejected = function( reason ) {
+        if( this.promise().isResolved() ) return;
+        this._totalResolved++;
+        this._reject( reason );
+    };
+
+    return PromiseArray;
+})();
 
 var PromiseInspection = (function() {
 
@@ -579,7 +644,7 @@ method.toString = function() {
  * @return {Promise}
  */
 method.fulfilled = function( fn ) {
-    return this._then( fn, void 0, void 0 );
+    return this._then( fn, void 0, void 0, void 0, void 0 );
 };
 
 /**
@@ -589,7 +654,7 @@ method.fulfilled = function( fn ) {
  * @return {Promise}
  */
 method.rejected = function( fn ) {
-    return this._then( void 0, fn, void 0 );
+    return this._then( void 0, fn, void 0, void 0, void 0 );
 };
 
 /**
@@ -599,7 +664,7 @@ method.rejected = function( fn ) {
  * @return {Promise}
  */
 method.progressed = function( fn ) {
-    return this._then( void 0, void 0, fn );
+    return this._then( void 0, void 0, fn, void 0, void 0 );
 };
 
 /**
@@ -681,7 +746,8 @@ method.uncancellable = function() {
         ret._fulfill,
         ret._reject,
         ret._progress,
-        ret
+        ret,
+        void 0
     );
     return ret;
 };
@@ -778,7 +844,7 @@ method.get = function( propertyName ) {
  *
  */
 method.then = function( didFulfill, didReject, didProgress ) {
-    return this._then( didFulfill, didReject, didProgress, void 0 );
+    return this._then( didFulfill, didReject, didProgress, void 0, void 0 );
 };
 
 
@@ -828,8 +894,11 @@ method.isCancellable = function() {
         ( this._bitField & 0x4000000 ) > 0;
 };
 
-method._then = function( didFulfill, didReject, didProgress, receiver ) {
-    var ret = new Promise();
+method._then = function( didFulfill, didReject, didProgress, receiver,
+    __data ) {
+    var ret = __data === void 0
+        ? new Promise()
+        : __data;
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
@@ -980,6 +1049,12 @@ method._resolvePromise = function(
         value.__handled = true;
     }
 
+    //if promise is not instanceof Promise
+    //it is internally smuggled data
+    if( !(promise instanceof Promise) ) {
+        return onFulfilledOrRejected.call( receiver, value, promise );
+    }
+
     var x = tryCatch1( onFulfilledOrRejected, receiver, value );
     if( x === errorObj ) {
         promise._reject(errorObj.e);
@@ -998,7 +1073,8 @@ method._resolvePromise = function(
                 promise._fulfill,
                 promise._reject,
                 promise._progress,
-                promise
+                promise,
+                void 0
             );
         }
         //3. Otherwise, if x is an object or function,
@@ -1036,7 +1112,7 @@ method._resolvePromise = function(
     }
 };
 
-
+//(TODO) this possibly needs to be done in _fulfill
 method._tryAssumeStateOf = function( value ) {
     if( !( value instanceof Promise ) ) return false;
     if( value.isPending() ) {
@@ -1044,7 +1120,8 @@ method._tryAssumeStateOf = function( value ) {
             this._fulfill,
             this._reject,
             this._progress,
-            this
+            this,
+            void 0
         );
     }
     else if( value.isFulfilled() ) {
@@ -1183,7 +1260,7 @@ method._progress = function( progressValue ) {
                 //2.2.3 If the promise is rejected, the rejection reason
                 //should be treated as if it was thrown by the callback
                 //directly.
-                ret._then(promise._progress, null, null, promise);
+                ret._then(promise._progress, null, null, promise, void 0);
             }
             else {
                 promise._progress(ret);
@@ -1211,34 +1288,67 @@ Promise.is = function( obj ) {
  *
  *
  */
-Promise.when = function( promises ) {
+Promise.all = function( promises ) {
+    var ret;
     if( !isArray( promises ) ) {
-        promises = [].slice.call( arguments );
-    }
-    var ret = Promise.pending();
-    var len = promises.length;
-    var values = new Array( promises.length );
-    var total = 0;
-    function fulfill( val ) {
-        values[ indexOf( promises, this ) ] = val;
-        total++;
-        if( total === len ) {
-            ret.fulfill( values );
+        //If the code were somehow be run under non-strict mode
+        //passing away arguments to another function would not
+        //be too good for perf
+        var values = new Array( arguments.length );
+        for( var i = 0, len = values.length; i < len; ++i ) {
+            values[i] = arguments[i];
         }
+        ret = new PromiseArray( values );
     }
-    function reject( reason ) {
-        ret.reject( reason );
+    else {
+        ret = new PromiseArray( promises );
     }
-    for( var i = 0; i < len; ++i ) {
-        var promise = promises[i];
-        if( !(promise instanceof Promise) ) {
-            promise = Promise.fulfilled( promise );
-        }
-        promise.fulfilled( fulfill );
-        promise.rejected( reject );
+    return ret.promise();
+};
 
-    }
-    return ret.promise;
+/**
+ * Description.
+ *
+ *
+ */
+Promise.map = function( promises, fn ) {
+    if( typeof fn !== "function" )
+        throw new TypeError( "fn is not a function");
+    return Promise.all( promises ).then( function( fulfilleds ) {
+        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+            fulfilleds[i] = fn(fulfilleds[i]);
+        }
+        return fulfilleds;
+    });
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.reduce = function( promises, fn, initialValue ) {
+    if( typeof fn !== "function" )
+        throw new TypeError( "fn is not a function");
+
+    return Promise.all( promises ).then( function( fulfilleds ) {
+        var len = fulfilleds.length;
+        var accum;
+        var startIndex = 0;
+        //Yeah, don't pass undefined explicitly
+        if( initialValue !== void 0 ) {
+            accum = initialValue;
+            startIndex = 0;
+        }
+        else {
+            accum = len > 0 ? fulfilleds[0] : void 0;
+            startIndex = 1;
+        }
+        for( var i = startIndex; i < len; ++i ) {
+            accum = fn( accum, fulfilleds[i], i, len );
+        }
+        return accum;
+    });
 };
 
 /**

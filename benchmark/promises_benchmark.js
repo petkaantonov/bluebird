@@ -34,7 +34,6 @@ module.exports = function run( done ) {
             }
 
             node.on('exit', exit );
-            node.on('close', exit );
 
         }
     })(files, 0);

@@ -1,0 +1,57 @@
+{
+  "name": "when",
+  "version": "1.8.1",
+  "description": "A lightweight Promise and when() implementation, plus other async goodies.",
+  "keywords": [
+    "promise",
+    "promises",
+    "deferred",
+    "deferreds",
+    "when",
+    "async",
+    "asynchronous",
+    "cujo"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/cujojs/when"
+    }
+  ],
+  "bugs": "https://github.com/cujojs/when/issues",
+  "maintainers": [
+    {
+      "name": "Brian Cavalier",
+      "url": "http://hovercraftstudios.com"
+    },
+    {
+      "name": "John Hann",
+      "url": "http://unscriptable.com"
+    }
+  ],
+  "devDependencies": {
+    "buster": "~0.6",
+    "jshint": "~1.0",
+    "promise-tests": "*"
+  },
+  "main": "when",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jshint *.js && buster test -e node && promise-tests promises-a test/when-adapter.js",
+    "test-all": "jshint *.js && buster test -e node && promise-tests all test/when-adapter.js",
+    "start": "buster server",
+    "test-browser": "jshint *.js && buster test -e browser"
+  },
+  "readme": "# when.js [![Build Status](https://secure.travis-ci.org/cujojs/when.png)](http://travis-ci.org/cujojs/when)\n\nWhen.js is cujojs's lightweight [CommonJS](http://wiki.commonjs.org/wiki/Promises) [Promises/A](http://wiki.commonjs.org/wiki/Promises/A) and `when()` implementation, derived from the async core of [wire.js](https://github.com/cujojs/wire), cujojs's IOC Container.  It also provides several other useful Promise-related concepts, such as joining multiple promises, mapping and reducing collections of promises, timed promises, and has a robust [unit test suite](#running-the-unit-tests).\n\nIt passes the [Promises/A Test Suite](https://github.com/domenic/promise-tests), is [frighteningly fast](https://github.com/cujojs/promise-perf-tests#test-results), and is **around 1.4k** when compiled with Google Closure (w/advanced optimizations) and gzipped, and has no external dependencies.\n\n# What's New?\n\n### 1.8.1\n\n* Last 1.x.x release before 2.0.0 barring critical fixes.\n\t* To prepare for 2.0.0, [test your code against the dev-200 branch](https://github.com/cujojs/when/tree/dev-200). It is fully API compatible, but has fully asynchronous resolutions.\n* Performance improvements for [when/function](docs/api.md#synchronous-functions).\n* [Documentation](docs/api.md) updates and fixes. Thanks, [@unscriptable](https://github.com/unscriptable)!\n* **DEPRECATED:** `deferred.progress` and `deferred.resolver.progress`. Use [`deferred.notify`](docs/api.md#progress-events) and [`deferred.resolver.notify`](docs/api.md#progress-events) instead.\n* **DEPRECATED:** [`when.chain`](docs/api.md#whenchain). Use [`resolver.resolve(promise)`](docs/api.md#resolver) or `resolver.resolve(promise.yield)` ([see `promise.yield`](docs/api.md#yield)) instead.\n* **DEPRECATED:** `when/timed` module.  Use [`when/delay`](docs/api.md#whendelay) and [`when/timeout`](docs/api.md#whentimeout) modules instead.\n\n### 1.8.0\n\n* New [when/function](docs/api.md#synchronous-functions), [when/node/function](docs/api.md#node-style-asynchronous-functions), and [when/callbacks](docs/api.md#asynchronous-functions) with functional programming goodness, and adapters for turning callback-based APIs into promise-based APIs. Kudos [@riccieri](https://github.com/riccieri)!\n* New [when/unfold](docs/api.md#whenunfold), and [when/unfold/list](docs/api.md#whenunfoldlist) promise-aware anamorphic unfolds that can be used to generate and/or process unbounded lists.\n* New [when/poll](docs/api.md#whenpoll) promise-based periodic polling and task execution. Kudos [@scothis](https://github.com/scothis)!\n\n### 1.7.1\n\n* Removed leftover internal usages of `deferred.then`.\n* [when/debug](https://github.com/cujojs/when/wiki/when-debug) allows configuring the set of \"fatal\" error types that will be rethrown to the host env.\n\n### 1.7.0\n\n* **DEPRECATED:** `deferred.then` [is deprecated](docs/api.md#deferred) and will be removed in an upcoming release.  Use `deferred.promise.then` instead.\n* [promise.yield](docs/api.md#yield)(promiseOrValue) convenience API for substituting a new value into a promise chain.\n* [promise.spread](docs/api.md#spread)(variadicFunction) convenience API for spreading an array onto a fulfill handler that accepts variadic arguments. [Mmmm, buttery](http://s.shld.net/is/image/Sears/033W048977110001_20100422100331516?hei=1600&wid=1600&op_sharpen=1&resMode=sharp&op_usm=0.9,0.5,0,0)\n* Doc improvements:\n\t* [when()](docs/api.md#when) and [promise.then()](docs/api.md#main-promise-api) have more info about callbacks and chaining behavior.\n\t* More info and clarifications about the roles of [Deferred](docs/api.md#deferred) and [Resolver](docs/api.md#resolver)\n\t* Several minor clarifications for various APIs\n* Internal improvements to assimilation and interoperability with other promise implementations.\n\n[Full Changelog](CHANGES.md)\n\n# Docs & Examples\n\n[API docs](docs/api.md#api)\n\n[More info on the wiki](https://github.com/cujojs/when/wiki)\n\n[Examples](https://github.com/cujojs/when/wiki/Examples)\n\nQuick Start\n===========\n\n### AMD\n\n1. `git clone https://github.com/cujojs/when` or `git submodule add https://github.com/cujojs/when`\n1. Configure your loader with a package:\n\n\t```javascript\n\tpackages: [\n\t\t{ name: 'when', location: 'path/to/when/', main: 'when' },\n\t\t// ... other packages ...\n\t]\n\t```\n\n1. `define(['when', ...], function(when, ...) { ... });` or `require(['when', ...], function(when, ...) { ... });`\n\n### Script Tag\n\n1. `git clone https://github.com/cujojs/when` or `git submodule add https://github.com/cujojs/when`\n1. `<script src=\"path/to/when/when.js\"></script>`\n1. `when` will be available as `window.when`\n\n### Node\n\n1. `npm install when`\n1. `var when = require('when');`\n\n### RingoJS\n\n1. `ringo-admin install cujojs/when`\n1. `var when = require('when');`\n\n# Running the Unit Tests\n\n## Node\n\nNote that when.js includes @domenic's [Promises/A Test Suite](https://github.com/domenic/promise-tests).  Running unit tests in Node will run both when.js's own test suite, and the Promises/A Test Suite.\n\n1. `npm install`\n1. `npm test`\n\n## Browsers\n\n1. `npm install`\n1. `npm start` - starts buster server & prints a url\n1. Point browsers at <buster server url>/capture, e.g. `localhost:1111/capture`\n1. `npm run-script test-browser`\n\nReferences\n----------\n\nMuch of this code was inspired by @[unscriptable](https://github.com/unscriptable)'s [tiny promises](https://github.com/unscriptable/promises), the async innards of [wire.js](https://github.com/cujojs/wire), and some gists [here](https://gist.github.com/870729), [here](https://gist.github.com/892345), [here](https://gist.github.com/894356), and [here](https://gist.github.com/894360)\n\nSome of the code has been influenced by the great work in [Q](https://github.com/kriskowal/q), [Dojo's Deferred](https://github.com/dojo/dojo), and [uber.js](https://github.com/phiggins42/uber.js).\n",
+  "readmeFilename": "README.md",
+  "_id": "when@1.8.1",
+  "_from": "when@1.8.1"
+}

@@ -1,0 +1,23 @@
+-- Avg Diffs in milliseconds
+
+loops,deferred-0.6.3
+10,0.61
+100,0.43
+500,0.35
+1000,0.32
+
+-- Total Time in milliseconds
+
+loops,deferred-0.6.3
+10,4.55
+100,21.65
+500,87.26
+1000,164.37
+
+-- Avg Mem % from initial - !!! Only reliable when a single test is run
+
+loops,deferred-0.6.3
+10,49
+100,163.8
+500,265.15
+1000,353.77

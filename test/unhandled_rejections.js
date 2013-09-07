@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert");
-var Promise = require("../js/promise.js");
+var Promise = require("../js/bluebird.js");
 var adapter = global.adapter;
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;

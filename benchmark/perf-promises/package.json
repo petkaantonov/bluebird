@@ -1,0 +1,21 @@
+{
+  "name": "perf-promises",
+  "private": true,
+  "description": "Promises performance on multiple chains",
+  "version": "0.0.1",
+  "homepage": "",
+  "dependencies": {
+    "async": "~0.2.7",
+    "node-promise": "~0.5.6",
+    "rsvp": "~1.2.0",
+    "deferred": "~0.6.3",
+    "express": "~3.2.6",
+    "mongoose": "~3.6.11",
+    "profy": "0.0.5",
+    "lodash": "~1.2.1",
+    "q": "~0.9.5",
+    "when": "~2.1.0",
+    "promise": "~3.0.1"
+  },
+  "devDependencies": {}
+}

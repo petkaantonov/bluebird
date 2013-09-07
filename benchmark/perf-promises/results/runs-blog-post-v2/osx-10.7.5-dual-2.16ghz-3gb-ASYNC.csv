@@ -1,0 +1,11 @@
+-- Avg Diffs in milliseconds
+loops,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,22.42,8.48,58.18,241.8,18.09,93.68
+
+-- Total Time in milliseconds
+loops,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,35.7,50.63,90.52,337.82,105.87,107.01
+
+-- Avg Mem % from initial - !!! Only reliable when a single test is run
+loops,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,100.51,293.59,391.69,202.41,431.36,339.34

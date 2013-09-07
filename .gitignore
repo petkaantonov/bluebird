@@ -3,3 +3,4 @@ todo.txt
 npm-debug.log
 benchmark/promises-benchmark/node_modules/*
 benchmark/promises-benchmark/fixtures/*
+benchmark/perf-promises/node_modules/*

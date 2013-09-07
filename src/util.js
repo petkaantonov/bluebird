@@ -47,19 +47,13 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
-function indexOf( array, value ) {
-    for( var i = 0, len = array.length; i < len; ++i ) {
-        if( value === array[i] ) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 var isArray = Array.isArray || function( obj ) {
     //yeah it won't work iframes
     return obj instanceof Array;
 };
+
+
 
 //Try catch is not supported in optimizing
 //compiler, so it is isolated

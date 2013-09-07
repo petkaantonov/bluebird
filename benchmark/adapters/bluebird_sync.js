@@ -16,3 +16,5 @@ exports.createNormal = function() {
 
 exports.fulfilled = Promise.fulfilled;
 exports.rejected = Promise.rejected;
+exports.map = Promise.map;
+exports.reduce = Promise.reduce;

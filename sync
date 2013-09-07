@@ -1,0 +1,11 @@
+-- Avg Diffs in milliseconds
+loops,bluebird,bluebird sync build,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,1.9,0.05,NaN,NaN,27.2,58.85,0.1,26.4
+
+-- Total Time in milliseconds
+loops,bluebird,bluebird sync build,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,17.75,17.15,2.15,20.55,67.75,130.81,53.7,41.25
+
+-- Avg Mem % from initial - !!! Only reliable when a single test is run
+loops,bluebird,bluebird sync build,async,when-1.8.1,when-2.1.0,Q-0.9.5,deferred-0.6.3,Promise-3.0.1
+500,86.56,84.19,86.35,164.17,502,47.86,373.52,410.31

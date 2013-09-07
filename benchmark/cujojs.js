@@ -3,20 +3,37 @@ module.exports = function run( done ) {
     var files = fs.readdirSync( "./benchmark/cujotests").filter(function(file){
         return /\.js$/.test(file);
     });
-
-    var sys = require('sys');
-    var exec = require('child_process').exec;
-
+        var fs = require("fs");
+        var sys = require('sys');
+    var spawn = require('child_process').spawn;
 
     (function runner( files, i){
+
         if( i >= files.length ) done();
         else {
-            var command = "node ./benchmark/cujotests/" + files[i];
-            var child = exec(command, function( error, stdout, stderr ){
-                if( stdout )process.stdout.write(stdout);
-                if( error ) throw error
-                else runner( files, i + 1 );
+            var node = spawn('node', ["./benchmark/cujotests/" + files[i]]);
+            node.stdout.on('data', function( data ) {
+                process.stdout.write(data);
             });
+
+            node.stderr.on('data', function( data ) {
+                process.stderr.write(data);
+            });
+
+            function exit( code ) {
+                if( code !== 0 ) {
+                    throw new Error("process didn't exit normally");
+                }
+                else {
+
+                    runner( files, i + 1 );
+                }
+            }
+
+            node.on('exit', exit );
         }
     })(files, 0);
 };
+
+
+
