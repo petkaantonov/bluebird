@@ -12,11 +12,11 @@ var ccOptions = {
 module.exports = function( grunt ) {
 
 
-    var SRC_DEST = './js/promise.js',
-        BUILD_DEST = './js/promise.js',
-        BUILD_SYNC_DEST = './js/promise_sync.js',
-        MIN_SYNC_DEST = './js/promise_sync.min.js',
-        MIN_DEST = './js/promise.min.js'
+    var SRC_DEST = './js/bluebird.js',
+        BUILD_DEST = './js/bluebird.js',
+        BUILD_SYNC_DEST = './js/bluebird_sync.js',
+        MIN_SYNC_DEST = './js/bluebird_sync.min.js',
+        MIN_DEST = './js/bluebird.min.js'
 
     function writeFile( dest, content ) {
         grunt.file.write( dest, content );

@@ -1,0 +1,834 @@
+* Node 0.10.2
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 34.81 ops/sec ±3.42% (44 runs sampled)
+›› Async x 31.27 ops/sec ±2.65% (54 runs sampled)
+›› Pinky x 17.78 ops/sec ±6.27% (38 runs sampled)
+›› Pinky (synchronous) x 49.69 ops/sec ±4.30% (64 runs sampled)
+›› Q x 19.97 ops/sec ±8.76% (51 runs sampled)
+›› When x 26.91 ops/sec ±7.42% (47 runs sampled)
+›› Deferred x 31.60 ops/sec ±10.25% (54 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Pinky
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 33.49 ops/sec ±6.85% (30 runs sampled)
+›› Async x 31.23 ops/sec ±3.27% (52 runs sampled)
+›› Pinky x 21.47 ops/sec ±10.18% (42 runs sampled)
+›› Pinky (synchronous) x 45.00 ops/sec ±4.74% (72 runs sampled)
+›› Q x 19.45 ops/sec ±6.73% (51 runs sampled)
+›› When x 25.71 ops/sec ±7.55% (46 runs sampled)
+›› Deferred x 30.31 ops/sec ±8.67% (53 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q, Pinky
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 33.25 ops/sec ±2.29% (56 runs sampled)
+›› Async x 32.50 ops/sec ±4.76% (43 runs sampled)
+›› Pinky x 25.08 ops/sec ±6.38% (54 runs sampled)
+›› Pinky (synchronous) x 40.97 ops/sec ±4.92% (68 runs sampled)
+›› Q x 18.40 ops/sec ±6.46% (48 runs sampled)
+›› When x 24.73 ops/sec ±6.19% (44 runs sampled)
+›› Deferred x 27.50 ops/sec ±8.24% (48 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 32.64 ops/sec ±1.79% (38 runs sampled)
+›› Async x 31.15 ops/sec ±3.15% (53 runs sampled)
+›› Pinky x 20.67 ops/sec ±5.25% (54 runs sampled)
+›› Pinky (synchronous) x 32.08 ops/sec ±3.48% (74 runs sampled)
+›› Q x 12.56 ops/sec ±6.31% (40 runs sampled)
+›› When x 23.77 ops/sec ±6.85% (42 runs sampled)
+›› Deferred x 25.27 ops/sec ±5.00% (64 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Pinky (synchronous), Async 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 126 ops/sec ±6.91% (58 runs sampled)
+›› Async x 135 ops/sec ±7.32% (60 runs sampled)
+›› Pinky x 128 ops/sec ±5.03% (70 runs sampled)
+›› Pinky (synchronous) x 127 ops/sec ±4.89% (70 runs sampled)
+›› Q x 101 ops/sec ±4.55% (64 runs sampled)
+›› When x 120 ops/sec ±4.75% (66 runs sampled)
+›› Deferred x 114 ops/sec ±3.95% (70 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline) 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 115 ops/sec ±7.37% (59 runs sampled)
+›› Async x 120 ops/sec ±6.71% (61 runs sampled)
+›› Pinky x 123 ops/sec ±6.31% (66 runs sampled)
+›› Pinky (synchronous) x 120 ops/sec ±5.45% (68 runs sampled)
+›› Q x 107 ops/sec ±5.23% (65 runs sampled)
+›› When x 123 ops/sec ±5.89% (61 runs sampled)
+›› Deferred x 121 ops/sec ±4.48% (66 runs sampled)
+--- 
+Fastest: When, Deferred, Pinky, Pinky (synchronous), Async, Callbacks (baseline) 
+Slowest: Q, Callbacks (baseline)
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 165 ops/sec ±3.05% (60 runs sampled)
+›› Async x 162 ops/sec ±3.65% (52 runs sampled)
+›› Pinky x 127 ops/sec ±5.47% (53 runs sampled)
+›› Pinky (synchronous) x 127 ops/sec ±5.45% (51 runs sampled)
+›› Q x 131 ops/sec ±6.42% (60 runs sampled)
+›› When x 154 ops/sec ±5.86% (52 runs sampled)
+›› Deferred x 127 ops/sec ±6.74% (56 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Deferred, Pinky, Pinky (synchronous), Q
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 555 ops/sec ±1.99% (70 runs sampled)
+›› Async x 527 ops/sec ±1.72% (54 runs sampled)
+›› Pinky x 221 ops/sec ±3.08% (47 runs sampled)
+›› Pinky (synchronous) x 245 ops/sec ±2.55% (64 runs sampled)
+›› Q x 159 ops/sec ±5.07% (55 runs sampled)
+›› When x 291 ops/sec ±4.29% (62 runs sampled)
+›› Deferred x 189 ops/sec ±4.81% (61 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q
+
+* Node 0.10.12
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 32.77 ops/sec ±1.80% (44 runs sampled)
+›› Async x 31.42 ops/sec ±3.50% (41 runs sampled)
+›› Pinky x 19.83 ops/sec ±11.34% (37 runs sampled)
+›› Pinky (synchronous) x 47.29 ops/sec ±5.37% (63 runs sampled)
+›› Q x 19.66 ops/sec ±10.58% (40 runs sampled)
+›› When x 25.91 ops/sec ±7.45% (45 runs sampled)
+›› Deferred x 27.54 ops/sec ±10.99% (48 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q, Pinky
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 33.21 ops/sec ±2.97% (51 runs sampled)
+›› Async x 31.24 ops/sec ±3.07% (52 runs sampled)
+›› Pinky x 19.83 ops/sec ±9.74% (41 runs sampled)
+›› Pinky (synchronous) x 43.05 ops/sec ±4.18% (72 runs sampled)
+›› Q x 20.06 ops/sec ±6.49% (52 runs sampled)
+›› When x 25.35 ops/sec ±8.08% (44 runs sampled)
+›› Deferred x 28.32 ops/sec ±9.73% (48 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Pinky, Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 32.68 ops/sec ±2.28% (43 runs sampled)
+›› Async x 31.27 ops/sec ±3.72% (42 runs sampled)
+›› Pinky x 26.24 ops/sec ±6.39% (46 runs sampled)
+›› Pinky (synchronous) x 40.99 ops/sec ±4.00% (68 runs sampled)
+›› Q x 18.02 ops/sec ±5.31% (47 runs sampled)
+›› When x 24.46 ops/sec ±6.19% (44 runs sampled)
+›› Deferred x 27.18 ops/sec ±9.98% (47 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 32.98 ops/sec ±1.87% (56 runs sampled)
+›› Async x 33.63 ops/sec ±6.68% (51 runs sampled)
+›› Pinky x 21.63 ops/sec ±5.07% (55 runs sampled)
+›› Pinky (synchronous) x 31.55 ops/sec ±3.56% (77 runs sampled)
+›› Q x 12.66 ops/sec ±6.92% (49 runs sampled)
+›› When x 25.59 ops/sec ±5.93% (50 runs sampled)
+›› Deferred x 24.09 ops/sec ±5.37% (60 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Pinky (synchronous) 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 121 ops/sec ±7.37% (56 runs sampled)
+›› Async x 119 ops/sec ±6.93% (61 runs sampled)
+›› Pinky x 123 ops/sec ±3.93% (70 runs sampled)
+›› Pinky (synchronous) x 123 ops/sec ±4.97% (69 runs sampled)
+›› Q x 108 ops/sec ±4.09% (68 runs sampled)
+›› When x 119 ops/sec ±5.27% (66 runs sampled)
+›› Deferred x 114 ops/sec ±3.43% (71 runs sampled)
+--- 
+Fastest: Pinky, Pinky (synchronous), When, Callbacks (baseline), Async 
+Slowest: Q, Deferred
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 118 ops/sec ±6.69% (60 runs sampled)
+›› Async x 122 ops/sec ±6.11% (61 runs sampled)
+›› Pinky x 126 ops/sec ±5.32% (64 runs sampled)
+›› Pinky (synchronous) x 124 ops/sec ±5.01% (65 runs sampled)
+›› Q x 109 ops/sec ±4.25% (63 runs sampled)
+›› When x 125 ops/sec ±5.30% (66 runs sampled)
+›› Deferred x 116 ops/sec ±4.49% (67 runs sampled)
+--- 
+Fastest: Pinky, When, Pinky (synchronous), Async, Callbacks (baseline) 
+Slowest: Q, Callbacks (baseline)
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 163 ops/sec ±3.60% (56 runs sampled)
+›› Async x 163 ops/sec ±4.42% (55 runs sampled)
+›› Pinky x 132 ops/sec ±7.51% (52 runs sampled)
+›› Pinky (synchronous) x 126 ops/sec ±5.67% (50 runs sampled)
+›› Q x 115 ops/sec ±7.22% (54 runs sampled)
+›› When x 155 ops/sec ±5.92% (38 runs sampled)
+›› Deferred x 122 ops/sec ±7.08% (55 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, When 
+Slowest: Q, Deferred, Pinky (synchronous)
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 544 ops/sec ±1.47% (65 runs sampled)
+›› Async x 508 ops/sec ±1.59% (64 runs sampled)
+›› Pinky x 223 ops/sec ±1.76% (66 runs sampled)
+›› Pinky (synchronous) x 249 ops/sec ±2.45% (60 runs sampled)
+›› Q x 159 ops/sec ±4.67% (58 runs sampled)
+›› When x 293 ops/sec ±3.66% (61 runs sampled)
+›› Deferred x 180 ops/sec ±4.01% (61 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q
+
+* Node 0.11.0
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 34.32 ops/sec ±1.93% (37 runs sampled)
+›› Async x 31.89 ops/sec ±2.94% (55 runs sampled)
+›› Pinky x 18.97 ops/sec ±13.21% (34 runs sampled)
+›› Pinky (synchronous) x 41.16 ops/sec ±4.39% (68 runs sampled)
+›› Q x 19.67 ops/sec ±7.49% (51 runs sampled)
+›› When x 25.53 ops/sec ±6.94% (45 runs sampled)
+›› Deferred x 25.41 ops/sec ±9.87% (45 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Pinky, Q
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 33.80 ops/sec ±1.67% (82 runs sampled)
+›› Async x 32.54 ops/sec ±2.87% (55 runs sampled)
+›› Pinky x 23.61 ops/sec ±9.79% (41 runs sampled)
+›› Pinky (synchronous) x 38.31 ops/sec ±4.18% (64 runs sampled)
+›› Q x 18.27 ops/sec ±7.36% (47 runs sampled)
+›› When x 24.85 ops/sec ±7.03% (43 runs sampled)
+›› Deferred x 25.98 ops/sec ±10.50% (46 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 34.01 ops/sec ±1.76% (82 runs sampled)
+›› Async x 33.10 ops/sec ±2.19% (53 runs sampled)
+›› Pinky x 21.70 ops/sec ±6.34% (55 runs sampled)
+›› Pinky (synchronous) x 35.14 ops/sec ±4.03% (59 runs sampled)
+›› Q x 16.93 ops/sec ±6.53% (46 runs sampled)
+›› When x 25.39 ops/sec ±6.86% (45 runs sampled)
+›› Deferred x 28.06 ops/sec ±6.74% (49 runs sampled)
+--- 
+Fastest: Pinky (synchronous) 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 34.71 ops/sec ±1.94% (46 runs sampled)
+›› Async x 32.25 ops/sec ±2.21% (55 runs sampled)
+›› Pinky x 17.79 ops/sec ±5.74% (47 runs sampled)
+›› Pinky (synchronous) x 25.74 ops/sec ±3.77% (64 runs sampled)
+›› Q x 11.76 ops/sec ±7.20% (47 runs sampled)
+›› When x 23.37 ops/sec ±6.63% (43 runs sampled)
+›› Deferred x 22.61 ops/sec ±5.83% (57 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 128 ops/sec ±8.02% (58 runs sampled)
+›› Async x 116 ops/sec ±6.89% (54 runs sampled)
+›› Pinky x 126 ops/sec ±4.35% (70 runs sampled)
+›› Pinky (synchronous) x 122 ops/sec ±4.50% (68 runs sampled)
+›› Q x 98.94 ops/sec ±4.40% (65 runs sampled)
+›› When x 116 ops/sec ±5.63% (62 runs sampled)
+›› Deferred x 112 ops/sec ±4.17% (69 runs sampled)
+--- 
+Fastest: Pinky, Callbacks (baseline), Pinky (synchronous), Async 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 130 ops/sec ±7.96% (59 runs sampled)
+›› Async x 120 ops/sec ±7.09% (61 runs sampled)
+›› Pinky x 123 ops/sec ±5.42% (67 runs sampled)
+›› Pinky (synchronous) x 128 ops/sec ±4.54% (71 runs sampled)
+›› Q x 100 ops/sec ±4.92% (64 runs sampled)
+›› When x 121 ops/sec ±6.19% (61 runs sampled)
+›› Deferred x 114 ops/sec ±4.68% (65 runs sampled)
+--- 
+Fastest: Pinky (synchronous), Callbacks (baseline), Pinky, When, Async 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 168 ops/sec ±3.42% (57 runs sampled)
+›› Async x 167 ops/sec ±3.71% (58 runs sampled)
+›› Pinky x 127 ops/sec ±7.71% (55 runs sampled)
+›› Pinky (synchronous) x 128 ops/sec ±7.19% (58 runs sampled)
+›› Q x 117 ops/sec ±6.99% (54 runs sampled)
+›› When x 155 ops/sec ±4.57% (60 runs sampled)
+›› Deferred x 121 ops/sec ±6.84% (62 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q, Deferred, Pinky, Pinky (synchronous)
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 555 ops/sec ±1.16% (85 runs sampled)
+›› Async x 508 ops/sec ±2.75% (76 runs sampled)
+›› Pinky x 185 ops/sec ±4.04% (46 runs sampled)
+›› Pinky (synchronous) x 192 ops/sec ±2.57% (63 runs sampled)
+›› Q x 159 ops/sec ±5.22% (55 runs sampled)
+›› When x 289 ops/sec ±4.95% (62 runs sampled)
+›› Deferred x 155 ops/sec ±6.38% (60 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Deferred, Q
+
+* Node 0.11.1
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.72 ops/sec ±3.85% (46 runs sampled)
+›› Async x 38.70 ops/sec ±9.02% (35 runs sampled)
+›› Pinky x 24.19 ops/sec ±7.72% (61 runs sampled)
+›› Pinky (synchronous) x 30.77 ops/sec ±4.86% (53 runs sampled)
+›› Q x 20.97 ops/sec ±7.36% (53 runs sampled)
+›› When x 25.87 ops/sec ±7.87% (46 runs sampled)
+›› Deferred x 28.37 ops/sec ±11.79% (49 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline), Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 36.77 ops/sec ±5.11% (39 runs sampled)
+›› Async x 35.02 ops/sec ±5.81% (38 runs sampled)
+›› Pinky x 21.62 ops/sec ±6.22% (55 runs sampled)
+›› Pinky (synchronous) x 25.84 ops/sec ±4.59% (51 runs sampled)
+›› Q x 18.75 ops/sec ±6.35% (49 runs sampled)
+›› When x 24.81 ops/sec ±7.03% (45 runs sampled)
+›› Deferred x 25.34 ops/sec ±10.58% (45 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.33 ops/sec ±3.62% (50 runs sampled)
+›› Async x 36.16 ops/sec ±7.56% (32 runs sampled)
+›› Pinky x 20.18 ops/sec ±5.45% (52 runs sampled)
+›› Pinky (synchronous) x 24.66 ops/sec ±4.25% (62 runs sampled)
+›› Q x 16.15 ops/sec ±7.05% (43 runs sampled)
+›› When x 25.89 ops/sec ±7.02% (46 runs sampled)
+›› Deferred x 28.11 ops/sec ±8.37% (51 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.60 ops/sec ±3.02% (61 runs sampled)
+›› Async x 35.04 ops/sec ±4.39% (46 runs sampled)
+›› Pinky x 13.20 ops/sec ±6.72% (52 runs sampled)
+›› Pinky (synchronous) x 16.47 ops/sec ±3.36% (44 runs sampled)
+›› Q x 11.65 ops/sec ±6.77% (59 runs sampled)
+›› When x 23.05 ops/sec ±6.46% (48 runs sampled)
+›› Deferred x 24.87 ops/sec ±6.00% (63 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 122 ops/sec ±7.68% (48 runs sampled)
+›› Async x 124 ops/sec ±8.04% (55 runs sampled)
+›› Pinky x 113 ops/sec ±4.91% (63 runs sampled)
+›› Pinky (synchronous) x 118 ops/sec ±4.12% (66 runs sampled)
+›› Q x 100 ops/sec ±5.45% (64 runs sampled)
+›› When x 115 ops/sec ±6.28% (59 runs sampled)
+›› Deferred x 117 ops/sec ±5.36% (66 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline), Pinky (synchronous), Deferred, When, Pinky 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 121 ops/sec ±7.72% (50 runs sampled)
+›› Async x 115 ops/sec ±7.02% (53 runs sampled)
+›› Pinky x 115 ops/sec ±4.69% (64 runs sampled)
+›› Pinky (synchronous) x 113 ops/sec ±5.86% (63 runs sampled)
+›› Q x 103 ops/sec ±5.29% (61 runs sampled)
+›› When x 121 ops/sec ±6.35% (57 runs sampled)
+›› Deferred x 123 ops/sec ±4.90% (69 runs sampled)
+--- 
+Fastest: Deferred, When, Callbacks (baseline), Pinky, Pinky (synchronous), Async 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 190 ops/sec ±3.21% (63 runs sampled)
+›› Async x 183 ops/sec ±2.97% (58 runs sampled)
+›› Pinky x 123 ops/sec ±7.86% (53 runs sampled)
+›› Pinky (synchronous) x 124 ops/sec ±7.64% (49 runs sampled)
+›› Q x 125 ops/sec ±6.29% (54 runs sampled)
+›› When x 162 ops/sec ±4.20% (59 runs sampled)
+›› Deferred x 132 ops/sec ±6.61% (56 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Pinky, Pinky (synchronous), Q, Deferred
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 525 ops/sec ±2.34% (75 runs sampled)
+›› Async x 480 ops/sec ±3.07% (77 runs sampled)
+›› Pinky x 152 ops/sec ±5.24% (52 runs sampled)
+›› Pinky (synchronous) x 154 ops/sec ±4.52% (61 runs sampled)
+›› Q x 146 ops/sec ±5.66% (55 runs sampled)
+›› When x 281 ops/sec ±4.76% (68 runs sampled)
+›› Deferred x 160 ops/sec ±5.70% (49 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q, Pinky, Pinky (synchronous)
+
+* Node 0.11.2
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.56 ops/sec ±3.59% (46 runs sampled)
+›› Async x 34.06 ops/sec ±4.25% (44 runs sampled)
+›› Pinky x 22.01 ops/sec ±7.88% (55 runs sampled)
+›› Pinky (synchronous) x 30.81 ops/sec ±5.02% (54 runs sampled)
+›› Q x 21.20 ops/sec ±7.88% (55 runs sampled)
+›› When x 27.40 ops/sec ±7.23% (47 runs sampled)
+›› Deferred x 30.65 ops/sec ±11.40% (54 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Deferred 
+Slowest: Q, Pinky
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.97 ops/sec ±2.86% (58 runs sampled)
+›› Async x 34.99 ops/sec ±4.26% (46 runs sampled)
+›› Pinky x 22.04 ops/sec ±6.52% (56 runs sampled)
+›› Pinky (synchronous) x 26.39 ops/sec ±4.27% (66 runs sampled)
+›› Q x 18.35 ops/sec ±6.70% (48 runs sampled)
+›› When x 25.94 ops/sec ±8.81% (45 runs sampled)
+›› Deferred x 31.04 ops/sec ±11.75% (52 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 36.15 ops/sec ±2.99% (47 runs sampled)
+›› Async x 36.66 ops/sec ±4.30% (45 runs sampled)
+›› Pinky x 19.95 ops/sec ±5.87% (51 runs sampled)
+›› Pinky (synchronous) x 23.33 ops/sec ±4.17% (60 runs sampled)
+›› Q x 17.28 ops/sec ±6.52% (47 runs sampled)
+›› When x 25.22 ops/sec ±8.93% (45 runs sampled)
+›› Deferred x 29.64 ops/sec ±8.31% (52 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline) 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 36.26 ops/sec ±4.15% (46 runs sampled)
+›› Async x 35.11 ops/sec ±5.62% (47 runs sampled)
+›› Pinky x 13.37 ops/sec ±5.46% (67 runs sampled)
+›› Pinky (synchronous) x 16.07 ops/sec ±3.18% (43 runs sampled)
+›› Q x 11.41 ops/sec ±5.47% (58 runs sampled)
+›› When x 25.71 ops/sec ±6.65% (64 runs sampled)
+›› Deferred x 25.36 ops/sec ±5.70% (63 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 121 ops/sec ±7.97% (57 runs sampled)
+›› Async x 125 ops/sec ±8.33% (58 runs sampled)
+›› Pinky x 112 ops/sec ±5.02% (65 runs sampled)
+›› Pinky (synchronous) x 117 ops/sec ±4.31% (65 runs sampled)
+›› Q x 97.26 ops/sec ±5.24% (62 runs sampled)
+›› When x 117 ops/sec ±6.30% (61 runs sampled)
+›› Deferred x 120 ops/sec ±4.08% (70 runs sampled)
+--- 
+Fastest: Deferred, Async, Pinky (synchronous), Callbacks (baseline), When, Pinky 
+Slowest: Q
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 118 ops/sec ±7.91% (47 runs sampled)
+›› Async x 112 ops/sec ±7.01% (57 runs sampled)
+›› Pinky x 112 ops/sec ±5.67% (64 runs sampled)
+›› Pinky (synchronous) x 116 ops/sec ±4.77% (65 runs sampled)
+›› Q x 99.62 ops/sec ±4.56% (62 runs sampled)
+›› When x 121 ops/sec ±6.36% (58 runs sampled)
+›› Deferred x 119 ops/sec ±5.73% (60 runs sampled)
+--- 
+Fastest: When, Deferred, Pinky (synchronous), Callbacks (baseline), Pinky, Async 
+Slowest: Q, Async
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 181 ops/sec ±2.03% (39 runs sampled)
+›› Async x 179 ops/sec ±3.07% (59 runs sampled)
+›› Pinky x 127 ops/sec ±7.67% (59 runs sampled)
+›› Pinky (synchronous) x 123 ops/sec ±8.12% (52 runs sampled)
+›› Q x 118 ops/sec ±5.77% (60 runs sampled)
+›› When x 160 ops/sec ±5.68% (55 runs sampled)
+›› Deferred x 129 ops/sec ±7.57% (58 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q, Pinky (synchronous)
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 531 ops/sec ±2.78% (41 runs sampled)
+›› Async x 468 ops/sec ±3.49% (80 runs sampled)
+›› Pinky x 145 ops/sec ±6.14% (54 runs sampled)
+›› Pinky (synchronous) x 159 ops/sec ±4.81% (54 runs sampled)
+›› Q x 152 ops/sec ±6.54% (52 runs sampled)
+›› When x 274 ops/sec ±5.21% (68 runs sampled)
+›› Deferred x 159 ops/sec ±7.07% (54 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Pinky, Q
+
+
+* Node 0.11.2 - Harmony
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark-harmony
+node --harmony-generators scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Co x 28.82 ops/sec ±6.27% (39 runs sampled)
+›› Callbacks (baseline) x 36.76 ops/sec ±3.48% (40 runs sampled)
+›› Async x 36.84 ops/sec ±6.29% (34 runs sampled)
+›› Pinky x 24.12 ops/sec ±7.52% (63 runs sampled)
+›› Pinky (synchronous) x 30.37 ops/sec ±4.43% (53 runs sampled)
+›› Q x 21.49 ops/sec ±8.63% (56 runs sampled)
+›› When x 27.46 ops/sec ±8.65% (45 runs sampled)
+›› Deferred x 32.06 ops/sec ±10.38% (55 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Co x 27.04 ops/sec ±4.16% (53 runs sampled)
+›› Callbacks (baseline) x 35.79 ops/sec ±2.68% (60 runs sampled)
+›› Async x 34.45 ops/sec ±3.55% (58 runs sampled)
+›› Pinky x 21.99 ops/sec ±5.85% (56 runs sampled)
+›› Pinky (synchronous) x 25.40 ops/sec ±5.49% (63 runs sampled)
+›› Q x 17.70 ops/sec ±7.11% (46 runs sampled)
+›› When x 25.32 ops/sec ±8.11% (45 runs sampled)
+›› Deferred x 29.44 ops/sec ±8.77% (51 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Co x 27.05 ops/sec ±5.42% (42 runs sampled)
+›› Callbacks (baseline) x 38.08 ops/sec ±4.86% (41 runs sampled)
+›› Async x 34.56 ops/sec ±3.57% (43 runs sampled)
+›› Pinky x 19.64 ops/sec ±5.88% (51 runs sampled)
+›› Pinky (synchronous) x 23.96 ops/sec ±4.32% (61 runs sampled)
+›› Q x 16.83 ops/sec ±5.56% (45 runs sampled)
+›› When x 28.98 ops/sec ±6.94% (50 runs sampled)
+›› Deferred x 26.63 ops/sec ±9.56% (50 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Co x 35.02 ops/sec ±9.74% (47 runs sampled)
+›› Callbacks (baseline) x 34.85 ops/sec ±3.03% (63 runs sampled)
+›› Async x 35.70 ops/sec ±4.56% (46 runs sampled)
+›› Pinky x 14.13 ops/sec ±3.34% (39 runs sampled)
+›› Pinky (synchronous) x 16.68 ops/sec ±2.79% (44 runs sampled)
+›› Q x 12.12 ops/sec ±5.18% (61 runs sampled)
+›› When x 24.08 ops/sec ±7.19% (55 runs sampled)
+›› Deferred x 24.78 ops/sec ±5.88% (60 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline), Co 
+Slowest: Q
+node --harmony-generators scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Co x 114 ops/sec ±4.75% (66 runs sampled)
+›› Callbacks (baseline) x 119 ops/sec ±7.83% (55 runs sampled)
+›› Async x 118 ops/sec ±8.43% (47 runs sampled)
+›› Pinky x 108 ops/sec ±4.72% (65 runs sampled)
+›› Pinky (synchronous) x 110 ops/sec ±4.90% (67 runs sampled)
+›› Q x 102 ops/sec ±4.62% (64 runs sampled)
+›› When x 122 ops/sec ±6.43% (61 runs sampled)
+›› Deferred x 121 ops/sec ±4.79% (67 runs sampled)
+--- 
+Fastest: Deferred, When, Callbacks (baseline), Co, Async 
+Slowest: Q, Pinky
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Co x 121 ops/sec ±4.43% (66 runs sampled)
+›› Callbacks (baseline) x 112 ops/sec ±7.13% (50 runs sampled)
+›› Async x 120 ops/sec ±7.62% (49 runs sampled)
+›› Pinky x 111 ops/sec ±4.97% (63 runs sampled)
+›› Pinky (synchronous) x 113 ops/sec ±5.28% (64 runs sampled)
+›› Q x 104 ops/sec ±4.67% (65 runs sampled)
+›› When x 130 ops/sec ±6.76% (65 runs sampled)
+›› Deferred x 117 ops/sec ±4.61% (65 runs sampled)
+--- 
+Fastest: When, Async 
+Slowest: Q, Callbacks (baseline)
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Co x 131 ops/sec ±5.54% (52 runs sampled)
+›› Callbacks (baseline) x 182 ops/sec ±3.20% (61 runs sampled)
+›› Async x 178 ops/sec ±2.63% (51 runs sampled)
+›› Pinky x 125 ops/sec ±6.87% (58 runs sampled)
+›› Pinky (synchronous) x 113 ops/sec ±8.16% (52 runs sampled)
+›› Q x 118 ops/sec ±4.50% (60 runs sampled)
+›› When x 164 ops/sec ±5.13% (53 runs sampled)
+›› Deferred x 128 ops/sec ±6.83% (62 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Pinky (synchronous), Q, Pinky
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Co x 247 ops/sec ±3.42% (52 runs sampled)
+›› Callbacks (baseline) x 540 ops/sec ±1.94% (69 runs sampled)
+›› Async x 479 ops/sec ±2.88% (77 runs sampled)
+›› Pinky x 148 ops/sec ±5.38% (56 runs sampled)
+›› Pinky (synchronous) x 163 ops/sec ±5.27% (58 runs sampled)
+›› Q x 145 ops/sec ±5.94% (59 runs sampled)
+›› When x 279 ops/sec ±5.01% (64 runs sampled)
+›› Deferred x 156 ops/sec ±6.75% (60 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Q, Pinky, Deferred
+
+* Node 0.11.3
+queen at Monn in ~/hacks/etc/promises-benchmark on default at master?
+$ make benchmark
+node scenarios/serial/index.js
+
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.35 ops/sec ±2.50% (46 runs sampled)
+›› Async x 36.70 ops/sec ±5.47% (40 runs sampled)
+›› Pinky x 30.62 ops/sec ±5.70% (55 runs sampled)
+›› Pinky (synchronous) x 37.88 ops/sec ±3.78% (64 runs sampled)
+›› Q x 22.67 ops/sec ±7.08% (41 runs sampled)
+›› When x 28.10 ops/sec ±7.69% (48 runs sampled)
+›› Deferred x 35.22 ops/sec ±7.89% (60 runs sampled)
+--- 
+Fastest: Pinky (synchronous), Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 37.36 ops/sec ±3.45% (40 runs sampled)
+›› Async x 36.58 ops/sec ±3.63% (48 runs sampled)
+›› Pinky x 28.46 ops/sec ±5.33% (72 runs sampled)
+›› Pinky (synchronous) x 34.78 ops/sec ±3.79% (61 runs sampled)
+›› Q x 22.10 ops/sec ±5.03% (59 runs sampled)
+›› When x 29.92 ops/sec ±7.49% (41 runs sampled)
+›› Deferred x 34.99 ops/sec ±7.67% (60 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Pinky (synchronous), Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 36.73 ops/sec ±2.76% (47 runs sampled)
+›› Async x 36.68 ops/sec ±2.92% (58 runs sampled)
+›› Pinky x 24.30 ops/sec ±4.95% (61 runs sampled)
+›› Pinky (synchronous) x 30.07 ops/sec ±3.06% (74 runs sampled)
+›› Q x 18.67 ops/sec ±4.29% (51 runs sampled)
+›› When x 30.83 ops/sec ±7.47% (54 runs sampled)
+›› Deferred x 34.04 ops/sec ±5.62% (59 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Deferred 
+Slowest: Q
+
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 35.48 ops/sec ±1.95% (57 runs sampled)
+›› Async x 35.65 ops/sec ±2.41% (60 runs sampled)
+›› Pinky x 18.45 ops/sec ±4.78% (48 runs sampled)
+›› Pinky (synchronous) x 23.51 ops/sec ±2.74% (59 runs sampled)
+›› Q x 13.34 ops/sec ±5.18% (38 runs sampled)
+›› When x 28.19 ops/sec ±6.10% (52 runs sampled)
+›› Deferred x 30.18 ops/sec ±4.44% (55 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline) 
+Slowest: Q
+node scenarios/parallel/index.js
+
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 144 ops/sec ±6.71% (61 runs sampled)
+›› Async x 166 ops/sec ±5.83% (60 runs sampled)
+›› Pinky x 115 ops/sec ±5.60% (64 runs sampled)
+›› Pinky (synchronous) x 121 ops/sec ±4.93% (68 runs sampled)
+›› Q x 133 ops/sec ±4.83% (67 runs sampled)
+›› When x 165 ops/sec ±3.42% (65 runs sampled)
+›› Deferred x 156 ops/sec ±3.85% (77 runs sampled)
+--- 
+Fastest: When, Async, Deferred 
+Slowest: Pinky, Pinky (synchronous)
+
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 165 ops/sec ±5.98% (65 runs sampled)
+›› Async x 160 ops/sec ±5.29% (61 runs sampled)
+›› Pinky x 124 ops/sec ±5.35% (62 runs sampled)
+›› Pinky (synchronous) x 129 ops/sec ±5.70% (66 runs sampled)
+›› Q x 131 ops/sec ±4.48% (67 runs sampled)
+›› When x 171 ops/sec ±4.31% (67 runs sampled)
+›› Deferred x 165 ops/sec ±3.52% (75 runs sampled)
+--- 
+Fastest: When, Deferred, Callbacks (baseline), Async 
+Slowest: Pinky, Pinky (synchronous), Q
+
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 200 ops/sec ±2.92% (63 runs sampled)
+›› Async x 197 ops/sec ±2.80% (62 runs sampled)
+›› Pinky x 132 ops/sec ±8.01% (56 runs sampled)
+›› Pinky (synchronous) x 133 ops/sec ±7.79% (54 runs sampled)
+›› Q x 172 ops/sec ±4.35% (67 runs sampled)
+›› When x 218 ops/sec ±4.41% (56 runs sampled)
+›› Deferred x 204 ops/sec ±4.33% (66 runs sampled)
+--- 
+Fastest: When, Deferred 
+Slowest: Pinky, Pinky (synchronous)
+
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.
+---
+›› Callbacks (baseline) x 614 ops/sec ±2.08% (40 runs sampled)
+›› Async x 581 ops/sec ±1.84% (82 runs sampled)
+›› Pinky x 163 ops/sec ±4.11% (49 runs sampled)
+›› Pinky (synchronous) x 179 ops/sec ±3.45% (57 runs sampled)
+›› Q x 249 ops/sec ±3.24% (59 runs sampled)
+›› When x 402 ops/sec ±3.49% (59 runs sampled)
+›› Deferred x 349 ops/sec ±2.15% (74 runs sampled)
+--- 
+Fastest: Callbacks (baseline) 
+Slowest: Pinky

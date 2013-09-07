@@ -1,6 +1,4 @@
 var Async = (function() {
-var method = Async.prototype;
-
 
 var deferFn = typeof process !== "undefined" ?
     ( typeof global.setImmediate !== "undefined"
@@ -37,6 +35,7 @@ function Async() {
         functionBuffer[i] = void 0;
     }
 }
+var method = Async.prototype;
 
 
 method.invoke = function( fn, receiver, arg ) {
@@ -65,16 +64,15 @@ method.invoke = function( fn, receiver, arg ) {
 method._consumeFunctionBuffer = function() {
     var len = this._length;
     var functionBuffer = this._functionBuffer;
-    if( len > 0 ) {
+    if( len > 0 ) {       //Must not cache the length
         for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
             functionBuffer[ i + FUNCTION_OFFSET ].call(
                 functionBuffer[ i + RECEIVER_OFFSET ],
                 functionBuffer[ i + ARGUMENT_OFFSET ]
             );
-            //Must clear functions immediately otherwise
+            //Must clear garbage immediately otherwise
             //high promotion rate is caused with long
             //sequence chains which leads to mass deoptimization
-            //in v8
             functionBuffer[ i + FUNCTION_OFFSET ] =
                 functionBuffer[ i + RECEIVER_OFFSET ] =
                 functionBuffer[ i + ARGUMENT_OFFSET ] =

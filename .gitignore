@@ -1,3 +1,5 @@
 node_modules/*
 todo.txt
 npm-debug.log
+benchmark/promises-benchmark/node_modules/*
+benchmark/promises-benchmark/fixtures/*

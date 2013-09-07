@@ -1,0 +1,529 @@
+[4mRunning "concat:dist" (concat) task[24m
+File "./js/bluebird.js" created.
+
+[4mRunning "build" task[24m
+File "./js/bluebird.js" created.
+File "./js/bluebird_sync.js" created.
+
+[4mRunning "jshint:all" (jshint) task[24m
+[32m>> [39m1 file lint free.
+
+[4mRunning "benchrun" task[24m
+Running benchmark ./benchmark\cujojs.js
+
+
+==========================================================
+Test: defer-fulfill x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird        5   0.0005        -
+bluebird sync build        5   0.0005        -
+when           56   0.0056  1020.00
+q             186   0.0186  3620.00
+deferred      245   0.0245  4800.00
+
+==========================================================
+Test: defer-reject x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird        3   0.0003        -
+bluebird sync build        5   0.0005    66.67
+when           55   0.0055  1733.33
+q             179   0.0179  5866.67
+deferred      331   0.0331 10933.33
+
+==========================================================
+Test: defer-sequence x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird sync build       13   0.0013        -
+bluebird       16   0.0016    23.08
+when           92   0.0092   607.69
+deferred      121   0.0121   830.77
+q             225   0.0225  1630.77
+
+==========================================================
+Test: map x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+deferred       20   0.0020        -
+when          199   0.0199   895.00
+
+==========================================================
+Test: promise-fulfill x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird sync build        1   0.0001        -
+bluebird        2   0.0002   100.00
+deferred        7   0.0007   600.00
+when           15   0.0015  1400.00
+q              38   0.0038  3700.00
+
+==========================================================
+Test: promise-reject x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird sync build        2   0.0002        -
+bluebird       11   0.0011   450.00
+q              38   0.0038  1800.00
+when           42   0.0042  2000.00
+deferred       70   0.0070  3400.00
+
+==========================================================
+Test: promise-sequence-smart-client x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird sync build       11   0.0011        -
+deferred       13   0.0013    18.18
+bluebird       16   0.0016    45.45
+when           55   0.0055   400.00
+q             173   0.0173  1472.73
+
+==========================================================
+Test: promise-sequence x 10000
+----------------------------------------------------------
+Name      Time ms   Avg ms   Diff %
+bluebird sync build       10   0.0010        -
+bluebird       12   0.0012    20.00
+deferred       17   0.0017    70.00
+when           59   0.0059   490.00
+q             176   0.0176  1660.00
+Running benchmark ./benchmark\promises_benchmark.js
+[0;36m
+:: Benchmarks for: Serial (no noise)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 57.05 ops/sec ±7.74% (68 runs sampled)
+›› Async x 65.51 ops/sec ±4.72% (77 runs sampled)
+›› Pinky x 0.00 ops/sec ±196.00% (54 runs sampled)
+›› Pinky (synchronous) x 39.92 ops/sec ±2.96% (57 runs sampled)
+›› Q x 28.14 ops/sec ±3.08% (49 runs sampled)
+›› When x 42.51 ops/sec ±3.92% (53 runs sampled)
+›› Deferred x 36.11 ops/sec ±2.98% (56 runs sampled)
+›› Bluebird x 61.01 ops/sec ±4.59% (75 runs sampled)
+›› Bluebird sync build x 63.78 ops/sec ±3.96% (78 runs sampled)
+--- 
+Fastest: Async, Callbacks (baseline) 
+Slowest: Pinky
+[0;36m
+:: Benchmarks for: Serial (some noise)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 65.57 ops/sec ±4.47% (65 runs sampled)
+›› Async x 61.98 ops/sec ±6.36% (73 runs sampled)
+›› Pinky x 33.81 ops/sec ±2.79% (54 runs sampled)
+›› Pinky (synchronous) x 34.64 ops/sec ±2.76% (53 runs sampled)
+›› Q x 25.46 ops/sec ±4.96% (60 runs sampled)
+›› When x 39.21 ops/sec ±4.75% (60 runs sampled)
+›› Deferred x 34.67 ops/sec ±2.89% (54 runs sampled)
+›› Bluebird x 58.04 ops/sec ±5.03% (72 runs sampled)
+›› Bluebird sync build x 60.98 ops/sec ±4.74% (75 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Serial (noisy)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 63.62 ops/sec ±5.47% (63 runs sampled)
+›› Async x 54.87 ops/sec ±7.70% (66 runs sampled)
+›› Pinky x 33.83 ops/sec ±2.09% (55 runs sampled)
+›› Pinky (synchronous) x 34.18 ops/sec ±3.29% (53 runs sampled)
+›› Q x 23.98 ops/sec ±3.10% (59 runs sampled)
+›› When x 37.15 ops/sec ±4.62% (59 runs sampled)
+›› Deferred x 35.83 ops/sec ±2.99% (56 runs sampled)
+›› Bluebird x 57.41 ops/sec ±5.17% (72 runs sampled)
+›› Bluebird sync build x 62.83 ops/sec ±3.66% (64 runs sampled)
+--- 
+Fastest: Bluebird sync build, Bluebird, Async 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Serial (mostly noise)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 51.25 ops/sec ±8.60% (52 runs sampled)
+›› Async x 51.47 ops/sec ±8.28% (56 runs sampled)
+›› Pinky x 31.02 ops/sec ±2.73% (76 runs sampled)
+›› Pinky (synchronous) x 33.86 ops/sec ±2.98% (62 runs sampled)
+›› Q x 16.52 ops/sec ±2.97% (42 runs sampled)
+›› When x 30.68 ops/sec ±2.26% (50 runs sampled)
+›› Deferred x 33.03 ops/sec ±3.68% (53 runs sampled)
+›› Bluebird x 48.32 ops/sec ±4.53% (61 runs sampled)
+›› Bluebird sync build x 57.01 ops/sec ±4.31% (70 runs sampled)
+--- 
+Fastest: Bluebird sync build, Async, Callbacks (baseline) 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (no noise)
+[0;36m
+:: Benchmarks for: Lightweight serial (no noise)
+   Sit back, this can take a while.[0m
+---
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 67.98 ops/sec ±1.65% (44 runs sampled)
+›› Callbacks (baseline) x 67.63 ops/sec ±1.95% (44 runs sampled)
+›› Async x 70.64 ops/sec ±0.53% (50 runs sampled)
+›› Async x 70.59 ops/sec ±0.55% (50 runs sampled)
+›› Pinky x 63.16 ops/sec ±3.14% (77 runs sampled)
+›› Pinky x 60.44 ops/sec ±3.15% (75 runs sampled)
+›› Pinky (synchronous) x 66.01 ops/sec ±2.35% (80 runs sampled)
+›› Pinky (synchronous) x 67.20 ops/sec ±2.01% (81 runs sampled)
+›› Q x 33.52 ops/sec ±3.05% (53 runs sampled)
+›› Q x 33.24 ops/sec ±3.30% (53 runs sampled)
+›› When x 58.15 ops/sec ±2.99% (57 runs sampled)
+›› When x 58.97 ops/sec ±3.16% (69 runs sampled)
+›› Deferred x 61.41 ops/sec ±3.63% (73 runs sampled)
+›› Deferred x 62.69 ops/sec ±3.94% (76 runs sampled)
+›› Bluebird x 50.70 ops/sec ±9.56% (49 runs sampled)
+›› Bluebird x 52.35 ops/sec ±9.05% (61 runs sampled)
+›› Bluebird sync build x 70.62 ops/sec ±4.19% (69 runs sampled)
+--- 
+Fastest: Async, Bluebird 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (some noise)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 71.63 ops/sec ±4.11% (80 runs sampled)
+--- 
+Fastest: Async, Bluebird 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (some noise)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 69.23 ops/sec ±0.78% (44 runs sampled)
+›› Callbacks (baseline) x 69.46 ops/sec ±0.93% (45 runs sampled)
+›› Async x 72.78 ops/sec ±1.40% (68 runs sampled)
+›› Async x 69.31 ops/sec ±0.74% (44 runs sampled)
+›› Pinky x 42.71 ops/sec ±3.33% (53 runs sampled)
+›› Pinky x 41.96 ops/sec ±2.68% (63 runs sampled)
+›› Pinky (synchronous) x 63.02 ops/sec ±3.32% (77 runs sampled)
+›› Pinky (synchronous) x 61.77 ops/sec ±3.40% (77 runs sampled)
+›› Q x 29.35 ops/sec ±1.73% (48 runs sampled)
+›› Q x 29.29 ops/sec ±1.86% (48 runs sampled)
+›› When x 52.25 ops/sec ±3.42% (52 runs sampled)
+›› When x 53.21 ops/sec ±3.49% (53 runs sampled)
+›› Deferred x 55.20 ops/sec ±4.95% (67 runs sampled)
+›› Deferred x 56.29 ops/sec ±4.46% (67 runs sampled)
+›› Bluebird x 69.24 ops/sec ±0.93% (50 runs sampled)
+›› Bluebird x 69.69 ops/sec ±0.62% (50 runs sampled)
+›› Bluebird sync build x 69.76 ops/sec ±0.64% (50 runs sampled)
+--- 
+Fastest: Bluebird sync build, Callbacks (baseline), Bluebird 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (noisy)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 69.87 ops/sec ±0.65% (50 runs sampled)
+--- 
+Fastest: Async 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (noisy)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 66.40 ops/sec ±2.49% (39 runs sampled)
+›› Callbacks (baseline) x 66.25 ops/sec ±3.02% (43 runs sampled)
+›› Async x 68.40 ops/sec ±3.48% (65 runs sampled)
+›› Async x 65.94 ops/sec ±3.67% (43 runs sampled)
+›› Pinky x 36.51 ops/sec ±1.15% (45 runs sampled)
+›› Pinky x 38.29 ops/sec ±1.05% (58 runs sampled)
+›› Pinky (synchronous) x 49.30 ops/sec ±3.74% (61 runs sampled)
+›› Pinky (synchronous) x 47.33 ops/sec ±3.22% (58 runs sampled)
+›› Q x 26.53 ops/sec ±1.98% (45 runs sampled)
+›› Q x 27.15 ops/sec ±2.37% (45 runs sampled)
+›› When x 48.98 ops/sec ±1.90% (49 runs sampled)
+›› When x 48.87 ops/sec ±2.58% (49 runs sampled)
+›› Deferred x 51.46 ops/sec ±4.69% (63 runs sampled)
+›› Deferred x 54.17 ops/sec ±4.62% (55 runs sampled)
+›› Bluebird x 70.11 ops/sec ±0.98% (57 runs sampled)
+›› Bluebird x 69.88 ops/sec ±1.09% (57 runs sampled)
+›› Bluebird sync build x 69.93 ops/sec ±0.34% (50 runs sampled)
+--- 
+Fastest: Bluebird sync build 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (mostly noise)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 69.78 ops/sec ±0.49% (50 runs sampled)
+--- 
+Fastest: Bluebird sync build 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Lightweight serial (mostly noise)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 69.62 ops/sec ±0.67% (45 runs sampled)
+›› Callbacks (baseline) x 68.95 ops/sec ±0.51% (40 runs sampled)
+›› Async x 69.41 ops/sec ±0.58% (44 runs sampled)
+›› Async x 69.89 ops/sec ±0.51% (41 runs sampled)
+›› Pinky x 36.26 ops/sec ±2.30% (81 runs sampled)
+›› Pinky x 36.40 ops/sec ±1.50% (82 runs sampled)
+›› Pinky (synchronous) x 36.74 ops/sec ±1.17% (57 runs sampled)
+›› Pinky (synchronous) x 36.81 ops/sec ±1.32% (57 runs sampled)
+›› Q x 18.64 ops/sec ±2.23% (47 runs sampled)
+›› Q x 19.22 ops/sec ±1.70% (48 runs sampled)
+›› When x 39.89 ops/sec ±2.14% (50 runs sampled)
+›› When x 40.21 ops/sec ±2.24% (51 runs sampled)
+›› Deferred x 38.22 ops/sec ±2.74% (47 runs sampled)
+›› Deferred x 39.08 ops/sec ±2.76% (60 runs sampled)
+›› Bluebird x 66.19 ops/sec ±3.44% (55 runs sampled)
+›› Bluebird x 67.20 ops/sec ±4.16% (80 runs sampled)
+›› Bluebird sync build x 69.59 ops/sec ±1.23% (57 runs sampled)
+--- 
+Fastest: Async, Bluebird sync build, Bluebird 
+Slowest: Q
+›› Bluebird sync build x 69.59 ops/sec ±1.31% (57 runs sampled)
+--- 
+Fastest: Callbacks (baseline), Async, Bluebird sync build 
+Slowest: Q
+[0;36m
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.[0m
+---
+[0;36m
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.[0m
+---
+[0;36m
+:: Benchmarks for: Parallelism (no cache)
+[0;36m
+:: Benchmarks for: Parallelism (no cache)
+   Sit back, this can take a while.[0m
+---
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 70.82 ops/sec ±0.44% (40 runs sampled)
+›› Callbacks (baseline) x 71.13 ops/sec ±0.38% (40 runs sampled)
+›› Callbacks (baseline) x 69.10 ops/sec ±0.39% (31 runs sampled)
+›› Callbacks (baseline) x 73.44 ops/sec ±0.64% (51 runs sampled)
+›› Async x 70.33 ops/sec ±0.39% (37 runs sampled)
+›› Async x 69.86 ops/sec ±0.26% (34 runs sampled)
+›› Async x 69.74 ops/sec ±0.52% (37 runs sampled)
+›› Async x 67.85 ops/sec ±0.41% (26 runs sampled)
+›› Pinky x 71.10 ops/sec ±0.49% (45 runs sampled)
+›› Pinky x 72.96 ops/sec ±0.64% (51 runs sampled)
+›› Pinky x 73.71 ops/sec ±0.70% (58 runs sampled)
+›› Pinky x 71.07 ops/sec ±0.56% (45 runs sampled)
+›› Pinky (synchronous) x 69.59 ops/sec ±0.49% (36 runs sampled)
+›› Pinky (synchronous) x 69.71 ops/sec ±0.47% (40 runs sampled)
+›› Pinky (synchronous) x 68.95 ops/sec ±0.49% (34 runs sampled)
+›› Pinky (synchronous) x 68.81 ops/sec ±0.50% (34 runs sampled)
+›› Q x 71.10 ops/sec ±1.94% (56 runs sampled)
+›› Q x 67.23 ops/sec ±2.07% (43 runs sampled)
+›› Q x 68.68 ops/sec ±1.87% (49 runs sampled)
+›› Q x 70.06 ops/sec ±1.98% (56 runs sampled)
+›› When x 69.93 ops/sec ±0.55% (37 runs sampled)
+›› When x 69.06 ops/sec ±0.59% (34 runs sampled)
+›› When x 71.28 ops/sec ±0.67% (45 runs sampled)
+›› When x 76.73 ops/sec ±0.78% (70 runs sampled)
+›› Deferred x 69.70 ops/sec ±0.61% (40 runs sampled)
+›› Deferred x 71.70 ops/sec ±0.85% (50 runs sampled)
+›› Deferred x 70.97 ops/sec ±0.56% (45 runs sampled)
+›› Deferred x 71.39 ops/sec ±0.74% (51 runs sampled)
+›› Bluebird x 70.86 ops/sec ±0.50% (40 runs sampled)
+›› Bluebird x 70.58 ops/sec ±0.46% (40 runs sampled)
+›› Bluebird x 70.80 ops/sec ±0.42% (40 runs sampled)
+›› Bluebird x 71.91 ops/sec ±0.47% (45 runs sampled)
+›› Bluebird sync build x 70.21 ops/sec ±0.39% (37 runs sampled)
+--- 
+Fastest: Pinky, Callbacks (baseline) 
+Slowest: Q, Deferred, Async, Pinky (synchronous), When, Bluebird sync build
+[0;36m
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 71.91 ops/sec ±0.52% (45 runs sampled)
+--- 
+Fastest: Bluebird sync build, Deferred 
+Slowest: Q, Async, Bluebird, Callbacks (baseline), Pinky
+[0;36m
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 71.02 ops/sec ±0.48% (40 runs sampled)
+--- 
+Fastest: Callbacks (baseline), When, Bluebird sync build, Pinky, Deferred, Q 
+Slowest: Async
+[0;36m
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 68.90 ops/sec ±0.43% (34 runs sampled)
+--- 
+Fastest: When 
+Slowest: Bluebird sync build, Callbacks (baseline)
+[0;36m
+:: Benchmarks for: Parallelism (small cache)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 68.86 ops/sec ±0.39% (29 runs sampled)
+›› Callbacks (baseline) x 69.78 ops/sec ±0.32% (34 runs sampled)
+›› Callbacks (baseline) x 69.86 ops/sec ±0.28% (34 runs sampled)
+›› Callbacks (baseline) x 69.26 ops/sec ±0.28% (31 runs sampled)
+›› Async x 69.66 ops/sec ±0.25% (34 runs sampled)
+›› Async x 68.07 ops/sec ±0.41% (26 runs sampled)
+›› Async x 69.69 ops/sec ±0.36% (34 runs sampled)
+›› Async x 67.95 ops/sec ±0.27% (25 runs sampled)
+›› Pinky x 68.24 ops/sec ±0.47% (29 runs sampled)
+›› Pinky x 67.98 ops/sec ±0.35% (27 runs sampled)
+›› Pinky x 68.39 ops/sec ±0.36% (29 runs sampled)
+›› Pinky x 71.05 ops/sec ±0.42% (40 runs sampled)
+›› Pinky (synchronous) x 68.52 ops/sec ±0.34% (29 runs sampled)
+›› Pinky (synchronous) x 68.04 ops/sec ±0.44% (27 runs sampled)
+›› Pinky (synchronous) x 67.91 ops/sec ±0.38% (26 runs sampled)
+›› Pinky (synchronous) x 68.89 ops/sec ±0.45% (31 runs sampled)
+›› Q x 65.91 ops/sec ±1.81% (35 runs sampled)
+›› Q x 66.66 ops/sec ±1.71% (39 runs sampled)
+›› Q x 69.07 ops/sec ±1.58% (43 runs sampled)
+›› Q x 67.33 ops/sec ±1.69% (36 runs sampled)
+›› When x 77.62 ops/sec ±0.97% (68 runs sampled)
+›› When x 76.44 ops/sec ±0.92% (69 runs sampled)
+›› When x 69.48 ops/sec ±0.39% (34 runs sampled)
+›› When x 69.73 ops/sec ±0.48% (34 runs sampled)
+›› Deferred x 69.40 ops/sec ±0.98% (40 runs sampled)
+›› Deferred x 68.91 ops/sec ±0.77% (34 runs sampled)
+›› Deferred x 70.64 ops/sec ±0.68% (45 runs sampled)
+›› Deferred x 73.13 ops/sec ±0.96% (58 runs sampled)
+›› Bluebird x 69.09 ops/sec ±0.44% (31 runs sampled)
+›› Bluebird x 69.95 ops/sec ±0.40% (34 runs sampled)
+›› Bluebird x 70.41 ops/sec ±0.41% (37 runs sampled)
+›› Bluebird x 77.94 ops/sec ±0.59% (69 runs sampled)
+›› Bluebird sync build x 71.19 ops/sec ±0.43% (40 runs sampled)
+--- 
+Fastest: When 
+Slowest: Q, Pinky, Pinky (synchronous)
+[0;36m
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 69.41 ops/sec ±0.28% (31 runs sampled)
+--- 
+Fastest: When 
+Slowest: Q, Pinky, Pinky (synchronous)
+[0;36m
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 68.75 ops/sec ±0.41% (29 runs sampled)
+--- 
+Fastest: Deferred, Bluebird 
+Slowest: Q, Pinky (synchronous), Async, Pinky, Bluebird sync build, Callbacks (baseline)
+[0;36m
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 69.76 ops/sec ±0.41% (34 runs sampled)
+--- 
+Fastest: Bluebird 
+Slowest: Async
+[0;36m
+:: Benchmarks for: Parallelism (big cache)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 66.76 ops/sec ±0.37% (19 runs sampled)
+›› Callbacks (baseline) x 66.99 ops/sec ±0.28% (21 runs sampled)
+›› Callbacks (baseline) x 65.92 ops/sec ±0.25% (14 runs sampled)
+›› Callbacks (baseline) x 66.11 ops/sec ±0.21% (16 runs sampled)
+›› Async x 67.62 ops/sec ±0.36% (23 runs sampled)
+›› Async x 69.10 ops/sec ±0.45% (31 runs sampled)
+›› Async x 67.91 ops/sec ±0.32% (25 runs sampled)
+›› Async x 67.70 ops/sec ±0.36% (23 runs sampled)
+›› Pinky x 67.63 ops/sec ±0.26% (22 runs sampled)
+›› Pinky x 70.70 ops/sec ±0.36% (36 runs sampled)
+›› Pinky x 74.21 ops/sec ±0.52% (50 runs sampled)
+›› Pinky x 71.41 ops/sec ±0.51% (40 runs sampled)
+›› Pinky (synchronous) x 67.10 ops/sec ±0.23% (20 runs sampled)
+›› Pinky (synchronous) x 66.44 ops/sec ±0.33% (16 runs sampled)
+›› Pinky (synchronous) x 66.81 ops/sec ±0.27% (18 runs sampled)
+›› Pinky (synchronous) x 66.36 ops/sec ±0.30% (17 runs sampled)
+›› Q x 67.11 ops/sec ±0.91% (21 runs sampled)
+›› Q x 68.04 ops/sec ±0.92% (27 runs sampled)
+›› Q x 66.93 ops/sec ±0.88% (22 runs sampled)
+›› Q x 66.52 ops/sec ±1.07% (20 runs sampled)
+›› When x 69.74 ops/sec ±0.42% (31 runs sampled)
+›› When x 66.88 ops/sec ±0.30% (17 runs sampled)
+›› When x 67.84 ops/sec ±0.32% (22 runs sampled)
+›› When x 69.78 ops/sec ±0.37% (31 runs sampled)
+›› Deferred x 67.62 ops/sec ±0.40% (22 runs sampled)
+›› Deferred x 72.58 ops/sec ±0.35% (44 runs sampled)
+›› Deferred x 67.22 ops/sec ±0.35% (21 runs sampled)
+›› Deferred x 67.51 ops/sec ±0.28% (22 runs sampled)
+›› Bluebird x 67.42 ops/sec ±0.31% (22 runs sampled)
+›› Bluebird x 66.58 ops/sec ±0.33% (18 runs sampled)
+›› Bluebird x 67.06 ops/sec ±0.32% (21 runs sampled)
+›› Bluebird x 65.92 ops/sec ±0.29% (15 runs sampled)
+›› Bluebird sync build x 67.73 ops/sec ±0.42% (23 runs sampled)
+--- 
+Fastest: Pinky, Bluebird sync build, Async, Q 
+Slowest: Bluebird, Callbacks (baseline), When
+[0;36m
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 67.66 ops/sec ±0.30% (23 runs sampled)
+--- 
+Fastest: Pinky 
+Slowest: Bluebird, Callbacks (baseline)
+[0;36m
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 67.93 ops/sec ±0.42% (25 runs sampled)
+--- 
+Fastest: Pinky 
+Slowest: Q, Bluebird
+[0;36m
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.[0m
+---
+›› Bluebird sync build x 65.92 ops/sec ±0.24% (15 runs sampled)
+--- 
+Fastest: Deferred 
+Slowest: Bluebird sync build
+[0;36m
+:: Benchmarks for: Parallelism (fully cached)
+   Sit back, this can take a while.[0m
+---
+›› Callbacks (baseline) x 68.37 ops/sec ±0.23% (22 runs sampled)
+›› Callbacks (baseline) x 65.16 ops/sec ±0.12% (9 runs sampled)
+›› Callbacks (baseline) x 65.02 ops/sec ±0.09% (8 runs sampled)
+›› Callbacks (baseline) x 64.98 ops/sec ±0.08% (8 runs sampled)
+›› Async x 64.82 ops/sec ±0.08% (8 runs sampled)
+›› Async x 65.00 ops/sec ±0.08% (8 runs sampled)
+›› Async x 65.03 ops/sec ±0.09% (9 runs sampled)
+›› Async x 64.95 ops/sec ±0.06% (8 runs sampled)
+›› Pinky x 66.83 ops/sec ±0.20% (16 runs sampled)
+›› Pinky x 66.83 ops/sec ±0.28% (16 runs sampled)
+›› Pinky x 67.75 ops/sec ±0.31% (20 runs sampled)
+›› Pinky x 66.88 ops/sec ±0.20% (16 runs sampled)
+›› Pinky (synchronous) x 66.30 ops/sec ±0.14% (14 runs sampled)
+›› Pinky (synchronous) x 66.34 ops/sec ±0.22% (14 runs sampled)
+›› Pinky (synchronous) x 65.16 ops/sec ±0.10% (9 runs sampled)
+›› Pinky (synchronous) x 66.28 ops/sec ±0.16% (14 runs sampled)
+›› Q x 66.07 ops/sec ±1.38% (22 runs sampled)
+›› Q x 66.69 ops/sec ±1.30% (22 runs sampled)
+›› Q x 66.31 ops/sec ±1.43% (23 runs sampled)
+›› Q x 64.52 ops/sec ±1.24% (13 runs sampled)
+›› When x 65.85 ops/sec ±0.80% (12 runs sampled)
+›› When x 65.73 ops/sec ±0.17% (11 runs sampled)
+›› When x 65.95 ops/sec ±0.26% (12 runs sampled)
+›› When x 65.76 ops/sec ±0.70% (13 runs sampled)
+›› Deferred x 67.64 ops/sec ±0.42% (21 runs sampled)
+›› Deferred x 69.63 ops/sec ±0.33% (28 runs sampled)
+›› Deferred x 67.77 ops/sec ±0.45% (21 runs sampled)
+›› Deferred x 67.95 ops/sec ±0.27% (21 runs sampled)
+›› Bluebird x 65.38 ops/sec ±0.09% (10 runs sampled)
+›› Bluebird x 65.50 ops/sec ±0.10% (10 runs sampled)
+›› Bluebird x 65.47 ops/sec ±0.09% (10 runs sampled)
+›› Bluebird x 65.27 ops/sec ±0.11% (10 runs sampled)
+›› Bluebird sync build x 65.20 ops/sec ±0.10% (9 runs sampled)
+--- 
+Fastest: Deferred 
+Slowest: Async, Q
+
+[32mDone, without errors.[39m
