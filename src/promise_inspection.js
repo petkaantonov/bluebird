@@ -38,6 +38,16 @@ method.isRejected = function() {
 };
 
 /**
+ * See if the underlying promise was pending at the creation time of this
+ * inspection object.
+ *
+ * @return {boolean}
+ */
+method.isPending = function() {
+    return ( this._bitField & IS_RESOLVED ) === 0;
+};
+
+/**
  * Get the fulfillment value of the underlying promise. Throws
  * if the promise wasn't fulfilled at the creation time of this
  * inspection object.

@@ -83,8 +83,7 @@ describe("inspect", function () {
 
     it("for a pending, unresolved promise", function () {
         var pending = Q.defer().promise;
-        assert.equal(pending.inspect().isFulfilled(), false);
-        assert.equal(pending.inspect().isRejected(), false);
+        assert.equal(pending.inspect().isPending(), true);
     });
 
     it("for a promise resolved to a rejected promise", function () {
@@ -112,8 +111,7 @@ describe("inspect", function () {
         var b = Q.defer();
         a.resolve(b.promise);
 
-        assert.equal(a.promise.inspect().isFulfilled(), false);
-        assert.equal(a.promise.inspect().isRejected(), false);
+        assert.equal(a.promise.inspect().isPending(), true);
     });
 
 });
