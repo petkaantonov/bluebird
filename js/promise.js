@@ -134,10 +134,10 @@ function subError( constructorName, nameProperty, defaultMessage ) {
         "} return "+constructorName+";")(create);
 }
 
-var TypeError = subError( "TypeError", "Type" );
-var CancellationError = subError( "CancellationError", "Cancel" );
-var TimeoutError = subError( "TimeoutError", "Timeout" );
-
+var TypeError = subError( "TypeError", "TypeError" );
+var CancellationError = subError( "CancellationError",
+    "Cancel", "cancellation error" );
+var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
 
 
 function GetterCache(){}
@@ -352,7 +352,7 @@ method.isRejected = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.fulfillmentValue = function() {
+method.value = function() {
     if( !this.isFulfilled() ) {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
@@ -368,7 +368,7 @@ method.fulfillmentValue = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.rejectionReason = function() {
+method.error = function() {
     if( !this.isRejected() ) {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");
@@ -413,6 +413,9 @@ method.toString = function() {
  *
  */
 method.fulfill = function( value ) {
+    if( this.promise._tryAssumeStateOf( value ) ) {
+        return;
+    }
     async.invoke( this.promise._fulfill, this.promise, value );
 };
 
@@ -505,10 +508,11 @@ function isObject( value ) {
 var possiblyUnhandledRejection = function( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
+
         var message = "Possibly unhandled " + ( stack
+            //The name and message will be in stack trace if it's there
             ? stack
-            : reason.name + ". " +
-              reason.message );
+            : reason.name + ". " + reason.message );
 
         if( typeof console.error === "function" ) {
             console.error( message );
@@ -518,6 +522,7 @@ var possiblyUnhandledRejection = function( reason ) {
         }
     }
 };
+
 
 /**
  * Description.
@@ -536,7 +541,7 @@ var possiblyUnhandledRejection = function( reason ) {
 //0 = Always 0 (must be never used)
 function Promise( resolver ) {
     if( typeof resolver === "function" )
-        resolver( new PromiseResolver( this ) );
+        this._resolveResolver( resolver );
     this._bitField = 0x4000000;
     //Since most promises only have 0-1 parallel handlers
     //store the first ones directly on the object
@@ -621,9 +626,9 @@ method.inspect = function() {
 
 /**
  * Cancel this promise. The cancellation will propagate
- * to farthest parent promise which is still pending.
+ * to farthest ancestor promise which is still pending.
  *
- * That parent will then be rejected with a CancellationError
+ * That ancestor will then be rejected with a CancellationError
  * object as the rejection reason.
  *
  * In a promise rejection handler you may check for a cancellation
@@ -646,13 +651,13 @@ method.cancel = function() {
     while( cancelTarget._cancellationParent !== null ) {
         cancelTarget = cancelTarget._cancellationParent;
     }
-    //Recursively the propagated parent or had no parents
+    //The propagated parent or original and had no parents
     if( cancelTarget === this ) {
         async.invoke( this._reject, this, new CancellationError() );
     }
     else {
         //Have pending parents, call cancel on the oldest
-        async.invoke( cancelTarget.cancel, cancelTarget, void 0);
+        async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
     }
     return this;
 };
@@ -886,6 +891,14 @@ method._progressAt = function( index ) {
     return this[ index + 2 - 5 ];
 };
 
+method._resolveResolver = function( resolver ) {
+    var p = new PromiseResolver( this );
+    var r = tryCatch1( resolver, this, p );
+    if( r === errorObj ) {
+        p.reject( r.e );
+    }
+};
+
 method._addCallbacks = function(
     fulfill,
     reject,
@@ -1023,6 +1036,26 @@ method._resolvePromise = function(
     }
 };
 
+
+method._tryAssumeStateOf = function( value ) {
+    if( !( value instanceof Promise ) ) return false;
+    if( value.isPending() ) {
+        value._then(
+            this._fulfill,
+            this._reject,
+            this._progress,
+            this
+        );
+    }
+    else if( value.isFulfilled() ) {
+        this._fulfill( value._resolvedValue );
+    }
+    else {
+        this._reject( value._resolvedValue );
+    }
+    return true;
+};
+
 method._resolveFulfill = function( value ) {
     var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
@@ -1098,45 +1131,80 @@ method._cleanValues = function() {
     this._setResolved();
 };
 
-method._fulfill = function( obj ) {
+method._fulfill = function( value ) {
     if( this.isResolved() ) return;
     this._cleanValues();
     this._setFulfilled();
-    this._resolvedValue = obj;
-    this._resolveFulfill( obj );
+    this._resolvedValue = value;
+    this._resolveFulfill( value );
 
 };
 
-method._reject = function( obj ) {
+method._reject = function( reason ) {
     if( this.isResolved() ) return;
     this._cleanValues();
     this._setRejected();
-    this._resolvedValue = obj;
-    this._resolveReject( obj );
+    this._resolvedValue = reason;
+    this._resolveReject( reason );
 };
 
-method._progress = function( obj ) {
+method._progress = function( progressValue ) {
+    //2.5 onProgress is never called once a promise
+    //has already been fulfilled or rejected.
+
     if( this.isResolved() ) return;
     var len = this._length();
     for( var i = 0; i < len; i += 5 ) {
         var fn = this._progressAt( i );
         var promise = this._promiseAt( i );
-        var ret = obj;
+        var ret = progressValue;
         if( fn !== noop ) {
-            ret = tryCatch1( fn, this._receiverAt( i ), obj );
+            ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
             if( ret === errorObj ) {
-                async.invoke( this._reject, this, errorObj.e );
-                return;
+                //2.4 if the onProgress callback throws an exception
+                //with a name property equal to 'StopProgressPropagation',
+                //then the error is silenced.
+                if( ret.e != null &&
+                    ret.e.name === "StopProgressPropagation" ) {
+                    ret.e.__handled = true;
+                }
+                else {
+                    //2.3 Unless the onProgress callback throws an exception
+                    //with a name property equal to 'StopProgressPropagation',
+                    // the result of the function is used as the progress
+                    //value to propagate.
+                    async.invoke( promise._progress, promise, errorObj.e );
+                }
+            }
+            //2.2 The onProgress callback may return a promise.
+            else if( ret instanceof Promise ) {
+                //2.2.1 The callback is not considered complete
+                //until the promise is fulfilled.
+
+                //2.2.2 The fulfillment value of the promise is the value
+                //to be propagated.
+
+                //2.2.3 If the promise is rejected, the rejection reason
+                //should be treated as if it was thrown by the callback
+                //directly.
+                ret._then(promise._progress, null, null, promise);
+            }
+            else {
+                async.invoke( promise._progress, promise, ret );
             }
         }
-        async.invoke( promise._progress, promise, ret );
+        else {
+            async.invoke( promise._progress, promise, ret );
+        }
     }
 };
 
 /**
- * Description.
+ * See if obj is a promise from this library. Same
+ * as calling `obj instanceof Promise`.
  *
- *
+ * @param {dynamic} obj The object to check.
+ * @return {boolean}
  */
 Promise.is = function( obj ) {
     return obj instanceof Promise;
@@ -1167,6 +1235,9 @@ Promise.when = function( promises ) {
     }
     for( var i = 0; i < len; ++i ) {
         var promise = promises[i];
+        if( !(promise instanceof Promise) ) {
+            promise = Promise.fulfilled( promise );
+        }
         promise.fulfilled( fulfill );
         promise.rejected( reject );
 
@@ -1175,9 +1246,14 @@ Promise.when = function( promises ) {
 };
 
 /**
- * Description.
+ * Create a promise that is already fulfilled with the given
+ * value.
  *
+ * Note that the promise will be in fulfilled state right away -
+ * not on the next event tick.
  *
+ * @param {dynamic} value The value the promise is fulfilled with.
+ * @return {Promise}
  */
 Promise.fulfilled = function( value ) {
     var ret = new Promise();
@@ -1186,28 +1262,60 @@ Promise.fulfilled = function( value ) {
 };
 
 /**
- * Description.
+ * Create a promise that is already rejected with the given
+ * reason.
  *
+ * Note that the promise will be in rejected state right away -
+ * not on the next event tick.
  *
+ * @param {dynamic} reason The reason the promise is rejected.
+ * @return {Promise}
  */
-Promise.rejected = function( value ) {
+Promise.rejected = function( reason ) {
     var ret = new Promise();
-    ret._reject( value );
+    ret._reject( reason );
     return ret;
 };
 
 /**
- * Description.
+ * Create a pending promise and a resolver for the promise.
  *
- *
+ * @return {PromiseResolver}
  */
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
 };
 
 /**
- * Description.
+ * If `fn` is a function, will set that function as a callback to call
+ * when an possibly unhandled rejection happens. Passing anything other
+ * than a function will have the effect of removing any callback
+ * and possible errors can be lost forever.
  *
+ * If a promise is rejected with a Javascript Error and is not handled
+ * in a timely fashion, that promise's rejection is then possibly
+ * unhandled. This can happen for example due to buggy code causing
+ * a runtime Javascript error.
+ *
+ * The rejection system implemented must swallow all errors
+ * thrown. However, if some promise doesn't have, or will not have,
+ * a rejection handler anywhere in its chain, then this implies that
+ * the error would be silently lost.
+ *
+ * By default, all such errors are reported on console but you may
+ * use this function to override that behavior with your own handler.
+ *
+ * Example:
+ *
+ *     Promise.onPossiblyUnhandledRejection(function( err ) {
+ *         throw err;
+ *     });
+ *
+ * The above will throw any unhandled rejection and for example
+ * crash a node process.
+ *
+ * @param {Function|dynamic} fn The callback function. If fn is not
+ * a function, no rejections will be reported as possibly unhandled.
  *
  */
 Promise.onPossiblyUnhandledRejection = function( fn ) {

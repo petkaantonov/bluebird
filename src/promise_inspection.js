@@ -45,7 +45,7 @@ method.isRejected = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.fulfillmentValue = function() {
+method.value = function() {
     if( !this.isFulfilled() ) {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
@@ -61,7 +61,7 @@ method.fulfillmentValue = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.rejectionReason = function() {
+method.error = function() {
     if( !this.isRejected() ) {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");

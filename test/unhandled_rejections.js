@@ -91,8 +91,6 @@ describe("Will report rejections that are not handled in time", function() {
     });
 });
 
-//Handled but then fails in the middle
-//Cancel
 describe("Will report rejections that are code errors", function() {
     specify("Already fulfilled handled with erroneous code", function(done) {
         onUnhandledSucceed(done);

@@ -17,8 +17,8 @@ function subError( constructorName, nameProperty, defaultMessage ) {
         "} return "+constructorName+";")(create);
 }
 
-var TypeError = subError( "TypeError", "Type" );
-var CancellationError = subError( "CancellationError", "Cancel" );
-var TimeoutError = subError( "TimeoutError", "Timeout" );
-
+var TypeError = subError( "TypeError", "TypeError" );
+var CancellationError = subError( "CancellationError",
+    "Cancel", "cancellation error" );
+var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
 
