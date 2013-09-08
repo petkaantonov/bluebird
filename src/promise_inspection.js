@@ -44,7 +44,7 @@ method.isRejected = function() {
  * @return {boolean}
  */
 method.isPending = function() {
-    return ( this._bitField & IS_RESOLVED ) === 0;
+    return ( this._bitField & IS_REJECTED_OR_FULFILLED ) === 0;
 };
 
 /**

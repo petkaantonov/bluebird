@@ -1,5 +1,5 @@
 {
-  "name": "Promise",
+  "name": "bluebird",
   "description": "Full featured Promises/A+ implementation with exceptionally good performance",
   "version": "0.5.3-0",
   "keywords": [
@@ -9,13 +9,18 @@
     "promises-aplus",
     "async"
   ],
-  "homepage": "gitrepo",
+
+  "scripts": {
+      "test": "grunt test"
+  },
+
+  "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
     "type": "git",
-    "url": "git://github.com/petkaantonov/???.git"
+    "url": "git://github.com/petkaantonov/bluebird.git"
   },
   "bugs": {
-    "url": "http://github.com/petkaantonov/???/issues"
+    "url": "http://github.com/petkaantonov/bluebird/issues"
   },
   "license": "MIT",
   "author": {

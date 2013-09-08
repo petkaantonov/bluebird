@@ -36,12 +36,9 @@
 
 
 
-
-
-
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//R = isResolved
+//R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
@@ -109,6 +106,47 @@ var create = Object.create || function( proto ) {
     return new F();
 };
 
+function makeNodePromisified( callback, receiver ) {
+
+    function getCall(count) {
+        var args = new Array(count);
+        for( var i = 0, len = args.length; i < len; ++i ) {
+            args[i] = "a" + (i+1);
+        }
+        var comma = count > 0 ? "," : "";
+        return ( receiver === void 0
+            ? "callback("+args.join(",")+ comma +" fn);"
+            : "callback.call(receiver, "+args.join(",") + comma + " fn);" ) +
+        "break;";
+    }
+
+    return new Function("Promise", "callback", "receiver",
+        "return function promisifed( a1, a2, a3, a4, a5 ) {" +
+        "var len = arguments.length;" +
+        "var resolver = Promise.pending();" +
+        "" +
+        "var fn = function( err, value ) {" +
+        "if( err ) {" +
+        "resolver.reject( err );" +
+        "}" +
+        "else {" +
+        "resolver.fulfill( value );" +
+        "}" +
+        "};" +
+        "switch( len ) {" +
+        "case 5:" + getCall(5) +
+        "case 4:" + getCall(4) +
+        "case 3:" + getCall(3) +
+        "case 2:" + getCall(2) +
+        "case 1:" + getCall(1) +
+        "case 0:" + getCall(0) +
+        "default: callback.apply(receiver, arguments); break;" +
+        "}" +
+        "return resolver.promise;" +
+        "" +
+        "};"
+    )(Promise, callback, receiver);
+}
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
@@ -298,77 +336,72 @@ var bindDefer = function bindDefer( fn, receiver ) {
 };
 
 var PromiseArray = (function() {
-    var method = PromiseArray.prototype;
 
+function PromiseArray( values ) {
+    this._values = values;
+    this._resolver = Promise.pending();
+    this._length = values.length;
+    this._totalResolved = 0;
+    this._init();
+}
+var method = PromiseArray.prototype;
 
-    /**
-     * Description.
-     *
-     *
-     */
-    function PromiseArray( values ) {
-        this._values = values;
-        this._resolver = Promise.pending();
-        this._length = values.length;
-        this._totalResolved = 0;
-        //keep the constructor body short
-        this._init();
+method.promise = function() {
+    return this._resolver.promise;
+};
+
+method._init = function() {
+    var values = this._values;
+    for( var i = 0, len = values.length; i < len; ++i ) {
+        var promise = values[i];
+        if( !(promise instanceof Promise) ) {
+            promise = Promise.fulfilled( promise );
+        }
+        promise._then(
+            this._promiseFulfilled,
+            this._promiseRejected,
+
+            void 0,
+            this,
+            i //Smuggle the index as internal data
+              //to avoid creating closures in this loop
+
+              //Will not chain so creating a Promise from
+              //the ._then() would be a waste anyway
+
+        );
     }
+};
 
-    method.promise = function() {
-        return this._resolver.promise;
-    };
+method._fulfill = function( value ) {
+    this._values = null;
+    this._resolver.fulfill( value );
+};
 
-    method._init = function() {
-        var values = this._values;
-        for( var i = 0, len = values.length; i < len; ++i ) {
-            var promise = values[i];
-            if( !(promise instanceof Promise) ) {
-                promise = Promise.fulfilled( promise );
-            }
-            promise._then(
-                this._promiseFulfilled,
-                this._promiseRejected,
+method._reject = function( reason ) {
+    this._values = null;
+    this._resolver.reject( reason );
+};
 
-                void 0,
-                this,
-                i //Smuggle the index as internal data
-                  //to avoid creating closures in this loop
+method._promiseFulfilled = function( value, index ) {
+    if( this.promise().isResolved() ) return;
+    //(TODO) could fire a progress when a promise is completed
+    this._values[ index ] = value;
+    var totalResolved = ++this._totalResolved;
+    if( totalResolved >= this._length ) {
+        this._fulfill( this._values );
+    }
+};
 
-                  //Will not chain so creating one
-                  //would be a waste anyway
+method._promiseRejected = function( reason ) {
+    if( this.promise().isResolved() ) return;
+    this._totalResolved++;
+    this._reject( reason );
+};
 
-            );
-        }
-    };
 
-    method._fulfill = function( value ) {
-        this._resolver.fulfill( value );
-    };
 
-    method._reject = function( reason ) {
-        this._resolver.reject( reason );
-    };
-
-    method._promiseFulfilled = function( value, index ) {
-        if( this.promise().isResolved() ) return;
-        //(TODO) could fire a progress when a promise is completed
-        this._values[ index ] = value;
-        var totalResolved = this._totalResolved;
-        if( totalResolved >= this._length - 1 ) {
-            this._fulfill( this._values );
-        }
-        this._totalResolved = totalResolved + 1;
-    };
-
-    method._promiseRejected = function( reason ) {
-        if( this.promise().isResolved() ) return;
-        this._totalResolved++;
-        this._reject( reason );
-    };
-
-    return PromiseArray;
-})();
+return PromiseArray;})();
 
 var PromiseInspection = (function() {
 
@@ -416,7 +449,7 @@ method.isRejected = function() {
  * @return {boolean}
  */
 method.isPending = function() {
-    return ( this._bitField & 0x20000000 ) === 0;
+    return ( this._bitField & 0x18000000 ) === 0;
 };
 
 /**
@@ -607,13 +640,13 @@ var possiblyUnhandledRejection = function( reason ) {
 
 //Bitfield Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//R = isResolved
+//0 = Always 0 (must be never used)
+//R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-//0 = Always 0 (must be never used)
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
@@ -885,7 +918,7 @@ method.isPending = function() {
  * @return {boolean}
  */
 method.isResolved = function() {
-    return ( this._bitField & 0x20000000 ) > 0;
+    return ( this._bitField & 0x18000000 ) > 0;
 };
 
 /**
@@ -923,10 +956,6 @@ method._length = function() {
 method._setLength = function( len ) {
     this._bitField = ( this._bitField & 0x3C000000 ) |
         ( len & 0x3FFFFFF ) ;
-};
-
-method._setResolved = function() {
-    this._bitField = this._bitField | 0x20000000;
 };
 
 method._setFulfilled = function() {
@@ -1215,7 +1244,6 @@ method._unhandledRejection = function( reason ) {
 
 method._cleanValues = function() {
     this._cancellationParent = null;
-    this._setResolved();
 };
 
 method._fulfill = function( value ) {
@@ -1453,23 +1481,7 @@ Promise.onPossiblyUnhandledRejection = function( fn ) {
  *
  */
 Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
-    //Default descriptor is node style callbacks
-
-    //Optimize for 0-5 args
-    return function() {
-        var resolver = Promise.pending();
-        var args = [].slice.call(arguments);
-        args.push(function( err, value ) {
-            if( err ) {
-                resolver.reject( err );
-            }
-            else {
-                resolver.fulfill( value );
-            }
-        });
-        callback.apply( receiver, args );
-        return resolver.promise;
-    };
+    return makeNodePromisified( callback, receiver );
 };
 
 return Promise;})();

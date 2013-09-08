@@ -11,21 +11,18 @@
 %constant(CALLBACK_RECEIVER_OFFSET, 4);
 %constant(CALLBACK_SIZE, 5);
 
-%constant(TYPE_ERROR_INFINITE_CYCLE, "Circular thenable chain");
-%constant(TOO_MANY_PARALLEL_HANDLERS, "Too many parallel handlers");
-
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//R = isResolved
+//R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
 //0 = Always 0 (never used)
-%constant(IS_RESOLVED, 0x20000000);
 %constant(IS_FULFILLED, 0x10000000);
 %constant(IS_REJECTED, 0x8000000);
+%constant(IS_REJECTED_OR_FULFILLED, 0x18000000);
 %constant(IS_CANCELLABLE, 0x4000000);
 
 %constant(LENGTH_MASK, 0x3FFFFFF);
@@ -83,3 +80,45 @@ var create = Object.create || function( proto ) {
     F.prototype = proto;
     return new F();
 };
+
+function makeNodePromisified( callback, receiver ) {
+
+    function getCall(count) {
+        var args = new Array(count);
+        for( var i = 0, len = args.length; i < len; ++i ) {
+            args[i] = "a" + (i+1);
+        }
+        var comma = count > 0 ? "," : "";
+        return ( receiver === void 0
+            ? "callback("+args.join(",")+ comma +" fn);"
+            : "callback.call(receiver, "+args.join(",") + comma + " fn);" ) +
+        "break;";
+    }
+
+    return new Function("Promise", "callback", "receiver",
+        "return function promisifed( a1, a2, a3, a4, a5 ) {" +
+        "var len = arguments.length;" +
+        "var resolver = Promise.pending();" +
+        "" +
+        "var fn = function( err, value ) {" +
+        "if( err ) {" +
+        "resolver.reject( err );" +
+        "}" +
+        "else {" +
+        "resolver.fulfill( value );" +
+        "}" +
+        "};" +
+        "switch( len ) {" +
+        "case 5:" + getCall(5) +
+        "case 4:" + getCall(4) +
+        "case 3:" + getCall(3) +
+        "case 2:" + getCall(2) +
+        "case 1:" + getCall(1) +
+        "case 0:" + getCall(0) +
+        "default: callback.apply(receiver, arguments); break;" +
+        "}" +
+        "return resolver.promise;" +
+        "" +
+        "};"
+    )(Promise, callback, receiver);
+}

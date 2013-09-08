@@ -59,13 +59,13 @@ var possiblyUnhandledRejection = function( reason ) {
 
 //Bitfield Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//R = isResolved
+//0 = Always 0 (must be never used)
+//R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-//0 = Always 0 (must be never used)
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
@@ -337,7 +337,7 @@ method.isPending = function() {
  * @return {boolean}
  */
 method.isResolved = function() {
-    return ( this._bitField & IS_RESOLVED ) > 0;
+    return ( this._bitField & IS_REJECTED_OR_FULFILLED ) > 0;
 };
 
 /**
@@ -375,10 +375,6 @@ method._length = function() {
 method._setLength = function( len ) {
     this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
         ( len & LENGTH_MASK ) ;
-};
-
-method._setResolved = function() {
-    this._bitField = this._bitField | IS_RESOLVED;
 };
 
 method._setFulfilled = function() {
@@ -521,7 +517,7 @@ method._resolvePromise = function(
             promise,
             //1. If promise and x refer to the same object,
             //reject promise with a TypeError as the reason.
-            new TypeError( TYPE_ERROR_INFINITE_CYCLE )
+            new TypeError( "Circular thenable chain" )
         );
     }
     else {
@@ -667,7 +663,6 @@ method._unhandledRejection = function( reason ) {
 
 method._cleanValues = function() {
     this._cancellationParent = null;
-    this._setResolved();
 };
 
 method._fulfill = function( value ) {
@@ -905,23 +900,7 @@ Promise.onPossiblyUnhandledRejection = function( fn ) {
  *
  */
 Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
-    //Default descriptor is node style callbacks
-
-    //Optimize for 0-5 args
-    return function() {
-        var resolver = Promise.pending();
-        var args = [].slice.call(arguments);
-        args.push(function( err, value ) {
-            if( err ) {
-                resolver.reject( err );
-            }
-            else {
-                resolver.fulfill( value );
-            }
-        });
-        callback.apply( receiver, args );
-        return resolver.promise;
-    };
+    return makeNodePromisified( callback, receiver );
 };
 
 return Promise;})();
