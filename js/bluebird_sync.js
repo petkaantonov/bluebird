@@ -335,246 +335,6 @@ var bindDefer = function bindDefer( fn, receiver ) {
     };
 };
 
-var PromiseArray = (function() {
-
-function PromiseArray( values ) {
-    this._values = values;
-    this._resolver = Promise.pending();
-    this._length = values.length;
-    this._totalResolved = 0;
-    this._init();
-}
-var method = PromiseArray.prototype;
-
-method.promise = function() {
-    return this._resolver.promise;
-};
-
-method._init = function() {
-    var values = this._values;
-    for( var i = 0, len = values.length; i < len; ++i ) {
-        var promise = values[i];
-        if( !(promise instanceof Promise) ) {
-            promise = Promise.fulfilled( promise );
-        }
-        promise._then(
-            this._promiseFulfilled,
-            this._promiseRejected,
-
-            void 0,
-            this,
-            i //Smuggle the index as internal data
-              //to avoid creating closures in this loop
-
-              //Will not chain so creating a Promise from
-              //the ._then() would be a waste anyway
-
-        );
-    }
-};
-
-method._fulfill = function( value ) {
-    this._values = null;
-    this._resolver.fulfill( value );
-};
-
-method._reject = function( reason ) {
-    this._values = null;
-    this._resolver.reject( reason );
-};
-
-method._promiseFulfilled = function( value, index ) {
-    if( this.promise().isResolved() ) return;
-    //(TODO) could fire a progress when a promise is completed
-    this._values[ index ] = value;
-    var totalResolved = ++this._totalResolved;
-    if( totalResolved >= this._length ) {
-        this._fulfill( this._values );
-    }
-};
-
-method._promiseRejected = function( reason ) {
-    if( this.promise().isResolved() ) return;
-    this._totalResolved++;
-    this._reject( reason );
-};
-
-
-
-return PromiseArray;})();
-
-var PromiseInspection = (function() {
-
-
-//Based on
-//https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
-
-//Not exactly like that spec because optional properties are like kryptonite
-//whereas calls to short functions don't have any penalty and are just
-//easier to use than properties (error on mistyping for example).
-function PromiseInspection( promise ) {
-    this._bitField = promise._bitField;
-    this._resolvedValue = promise.isResolved()
-        ? promise._resolvedValue
-        //Don't keep a reference to something that will never be
-        //used
-        : void 0;
-}
-var method = PromiseInspection.prototype;
-
-/**
- * See if the underlying promise was fulfilled at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
-method.isFulfilled = function() {
-    return ( this._bitField & 0x10000000 ) > 0;
-};
-
-/**
- * See if the underlying promise was rejected at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
-method.isRejected = function() {
-    return ( this._bitField & 0x8000000 ) > 0;
-};
-
-/**
- * See if the underlying promise was pending at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
-method.isPending = function() {
-    return ( this._bitField & 0x18000000 ) === 0;
-};
-
-/**
- * Get the fulfillment value of the underlying promise. Throws
- * if the promise wasn't fulfilled at the creation time of this
- * inspection object.
- *
- * @return {dynamic}
- * @throws {TypeError}
- */
-method.value = function() {
-    if( !this.isFulfilled() ) {
-        throw new TypeError(
-            "cannot get fulfillment value of a non-fulfilled promise");
-    }
-    return this._resolvedValue;
-};
-
-/**
- * Get the rejection reason for the underlying promise. Throws
- * if the promise wasn't rejected at the creation time of this
- * inspection object.
- *
- * @return {dynamic}
- * @throws {TypeError}
- */
-method.error = function() {
-    if( !this.isRejected() ) {
-        throw new TypeError(
-            "cannot get rejection reason of a non-rejected promise");
-    }
-    return this._resolvedValue;
-};
-
-
-
-
-return PromiseInspection;})();
-
-var PromiseResolver = (function() {
-
-/**
- * Wraps a promise object and can be used to control
- * the fate of that promise. Give .promise to clients
- * and keep the resolver to yourself.
- *
- * Something like a "Deferred".
- *
- * @constructor
- */
-function PromiseResolver( promise ) {
-    //(TODO) Make this a method and use a custom adapter to pass tests
-    this.promise = promise;
-}
-var method = PromiseResolver.prototype;
-
-/**
- * @return {string}
- */
-method.toString = function() {
-    return "[object PromiseResolver]";
-};
-
-/**
- * Resolve the promise by fulfilling it with the
- * given value.
- *
- * @param {dynamic} value The value to fulfill the promise with.
- *
- */
-method.fulfill = function( value ) {
-    if( this.promise._tryAssumeStateOf( value ) ) {
-        return;
-    }
-    this.promise._fulfill(value);
-};
-
-/**
- * Resolve the promise by rejecting it with the
- * given reason.
- *
- * @param {dynamic} reason The reason why the promise was rejected.
- *
- */
-method.reject = function( reason ) {
-    this.promise._reject(reason);
-};
-
-/**
- * Notify the listeners of the promise of progress.
- *
- * @param {dynamic} value The reason why the promise was rejected.
- *
- */
-method.progress = function( value ) {
-    this.promise._progress(value);
-};
-
-/**
- * Cancel the promise.
- *
- */
-method.cancel = function() {
-    this.promise.cancel((void 0));
-};
-
-/**
- * Resolves the promise by rejecting it with the reason
- * TimeoutError
- */
-method.timeout = function() {
-    this.promise._reject(new TimeoutError("timeout"));
-};
-
-/**
- * See if the promise is resolved.
- *
- * @return {boolean}
- */
-method.isResolved = function() {
-    return this._promise.isResolved();
-};
-
-
-return PromiseResolver;})();
 var Promise = (function() {
 
 function isThenable( ret, ref ) {
@@ -1311,27 +1071,30 @@ Promise.is = function( obj ) {
     return obj instanceof Promise;
 };
 
+function all( promises, useSettledArray ) {
+    var ret;
+    if( promises instanceof Promise ||
+        isArray( promises )
+    ) {
+        ret = useSettledArray
+            ? new SettledPromiseArray( promises )
+            : new PromiseArray( promises );
+        return ret.promise();
+    }
+    throw new TypeError("execting an array or a promise");
+}
+
+Promise.settle = function( promises ) {
+    return all( promises, true );
+};
+
 /**
  * Description.
  *
  *
  */
 Promise.all = function( promises ) {
-    var ret;
-    if( !isArray( promises ) ) {
-        //If the code were somehow be run under non-strict mode
-        //passing away arguments to another function would not
-        //be too good for perf
-        var values = new Array( arguments.length );
-        for( var i = 0, len = values.length; i < len; ++i ) {
-            values[i] = arguments[i];
-        }
-        ret = new PromiseArray( values );
-    }
-    else {
-        ret = new PromiseArray( promises );
-    }
-    return ret.promise();
+    return all( promises, false );
 };
 
 /**
@@ -1473,6 +1236,326 @@ Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
 return Promise;})();
 
 
+var PromiseArray = (function() {
+
+function PromiseArray( values ) {
+    this._values = values;
+    this._resolver = Promise.pending();
+    this._length = values.length;
+    this._totalResolved = 0;
+    this._init();
+}
+var method = PromiseArray.prototype;
+
+method.promise = function() {
+    return this._resolver.promise;
+};
+
+method._init = function() {
+    var values = this._values;
+    if( values instanceof Promise ) {
+        //Expect the promise to be a promise
+        //for an array
+        if( values.isPending() ) {
+            values._then(
+                this._init,
+                this._reject,
+                void 0,
+                this,
+                null //No need to smuggle this
+                    //but it avoids creating a promise
+            );
+            return;
+        }
+        else if( values.isRejected() ) {
+            this._reject( values._resolvedValue );
+            return;
+        }
+        else {
+            //Fulfilled promise with hopefully
+            //an array as a resolution value
+            values = values._resolvedValue;
+            if( !isArray( values ) ) {
+                values = [ values ];
+            }
+            this._values = values;
+        }
+
+    }
+    for( var i = 0, len = values.length; i < len; ++i ) {
+        var promise = values[i];
+        if( !(promise instanceof Promise) ) {
+            promise = Promise.fulfilled( promise );
+        }
+        promise._then(
+            this._promiseFulfilled,
+            this._promiseRejected,
+
+            void 0,
+            this,
+            i //Smuggle the index as internal data
+              //to avoid creating closures in this loop
+
+              //Will not chain so creating a Promise from
+              //the ._then() would be a waste anyway
+
+        );
+    }
+};
+
+method._fulfill = function( value ) {
+    this._values = null;
+    this._resolver.fulfill( value );
+};
+
+method._reject = function( reason ) {
+    this._values = null;
+    this._resolver.reject( reason );
+};
+
+method._promiseFulfilled = function( value, index ) {
+    if( this.promise().isResolved() ) return;
+    //(TODO) could fire a progress when a promise is completed
+    this._values[ index ] = value;
+    var totalResolved = ++this._totalResolved;
+    if( totalResolved >= this._length ) {
+        this._fulfill( this._values );
+    }
+};
+
+method._promiseRejected = function( reason ) {
+    if( this.promise().isResolved() ) return;
+    this._totalResolved++;
+    this._reject( reason );
+};
+
+
+
+return PromiseArray;})();
+
+var SettledPromiseArray = (function() {
+
+//Special case of PromiseArray that is used for .settle
+//which behaves a bit differently in that it will wait
+//for all promises
+function SettledPromiseArray( values ) {
+    this.$constructor( values );
+}
+var _super = PromiseArray.prototype,
+    method = SettledPromiseArray.prototype = create( _super );
+
+method.constructor = SettledPromiseArray;
+method.$constructor = _super.constructor;
+
+var throwawayPromise = new Promise();
+
+method._promiseResolved = function( index, inspection ) {
+    this._values[ index ] = inspection;
+    var totalResolved = ++this._totalResolved;
+    if( totalResolved >= this._length ) {
+        this._fulfill( this._values );
+    }
+};
+//override
+method._promiseFulfilled = function( value, index ) {
+    if( this.promise().isResolved() ) return;
+    //Pretty ugly hack
+    //but keeps the PromiseInspection constructor
+    //simple
+    var ret = new PromiseInspection( throwawayPromise );
+    ret._bitField = 0x10000000;
+    ret._resolvedValue = value;
+    this._promiseResolved( index, ret );
+
+};
+//override
+method._promiseRejected = function( reason, index ) {
+    if( this.promise().isResolved() ) return;
+    //Pretty ugly hack
+    //but keeps the PromiseInspection constructor
+    //simple
+    var ret = new PromiseInspection( throwawayPromise );
+    ret._bitField = 0x8000000;
+    ret._resolvedValue = reason;
+    this._promiseResolved( index, ret );
+
+};
+
+
+return SettledPromiseArray;})();
+
+var PromiseInspection = (function() {
+
+
+//Based on
+//https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
+
+//Not exactly like that spec because optional properties are like kryptonite
+//whereas calls to short functions don't have any penalty and are just
+//easier to use than properties (error on mistyping for example).
+function PromiseInspection( promise ) {
+    this._bitField = promise._bitField;
+    this._resolvedValue = promise.isResolved()
+        ? promise._resolvedValue
+        //Don't keep a reference to something that will never be
+        //used
+        : void 0;
+}
+var method = PromiseInspection.prototype;
+
+/**
+ * See if the underlying promise was fulfilled at the creation time of this
+ * inspection object.
+ *
+ * @return {boolean}
+ */
+method.isFulfilled = function() {
+    return ( this._bitField & 0x10000000 ) > 0;
+};
+
+/**
+ * See if the underlying promise was rejected at the creation time of this
+ * inspection object.
+ *
+ * @return {boolean}
+ */
+method.isRejected = function() {
+    return ( this._bitField & 0x8000000 ) > 0;
+};
+
+/**
+ * See if the underlying promise was pending at the creation time of this
+ * inspection object.
+ *
+ * @return {boolean}
+ */
+method.isPending = function() {
+    return ( this._bitField & 0x18000000 ) === 0;
+};
+
+/**
+ * Get the fulfillment value of the underlying promise. Throws
+ * if the promise wasn't fulfilled at the creation time of this
+ * inspection object.
+ *
+ * @return {dynamic}
+ * @throws {TypeError}
+ */
+method.value = function() {
+    if( !this.isFulfilled() ) {
+        throw new TypeError(
+            "cannot get fulfillment value of a non-fulfilled promise");
+    }
+    return this._resolvedValue;
+};
+
+/**
+ * Get the rejection reason for the underlying promise. Throws
+ * if the promise wasn't rejected at the creation time of this
+ * inspection object.
+ *
+ * @return {dynamic}
+ * @throws {TypeError}
+ */
+method.error = function() {
+    if( !this.isRejected() ) {
+        throw new TypeError(
+            "cannot get rejection reason of a non-rejected promise");
+    }
+    return this._resolvedValue;
+};
+
+
+
+
+return PromiseInspection;})();
+
+var PromiseResolver = (function() {
+
+/**
+ * Wraps a promise object and can be used to control
+ * the fate of that promise. Give .promise to clients
+ * and keep the resolver to yourself.
+ *
+ * Something like a "Deferred".
+ *
+ * @constructor
+ */
+function PromiseResolver( promise ) {
+    //(TODO) Make this a method and use a custom adapter to pass tests
+    this.promise = promise;
+}
+var method = PromiseResolver.prototype;
+
+/**
+ * @return {string}
+ */
+method.toString = function() {
+    return "[object PromiseResolver]";
+};
+
+/**
+ * Resolve the promise by fulfilling it with the
+ * given value.
+ *
+ * @param {dynamic} value The value to fulfill the promise with.
+ *
+ */
+method.fulfill = function( value ) {
+    if( this.promise._tryAssumeStateOf( value ) ) {
+        return;
+    }
+    this.promise._fulfill(value);
+};
+
+/**
+ * Resolve the promise by rejecting it with the
+ * given reason.
+ *
+ * @param {dynamic} reason The reason why the promise was rejected.
+ *
+ */
+method.reject = function( reason ) {
+    this.promise._reject(reason);
+};
+
+/**
+ * Notify the listeners of the promise of progress.
+ *
+ * @param {dynamic} value The reason why the promise was rejected.
+ *
+ */
+method.progress = function( value ) {
+    this.promise._progress(value);
+};
+
+/**
+ * Cancel the promise.
+ *
+ */
+method.cancel = function() {
+    this.promise.cancel((void 0));
+};
+
+/**
+ * Resolves the promise by rejecting it with the reason
+ * TimeoutError
+ */
+method.timeout = function() {
+    this.promise._reject(new TimeoutError("timeout"));
+};
+
+/**
+ * See if the promise is resolved.
+ *
+ * @return {boolean}
+ */
+method.isResolved = function() {
+    return this._promise.isResolved();
+};
+
+
+return PromiseResolver;})();
 if( typeof module !== "undefined" && module.exports ) {
     module.exports = Promise;
 }

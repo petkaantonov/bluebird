@@ -744,27 +744,30 @@ Promise.is = function( obj ) {
     return obj instanceof Promise;
 };
 
+function all( promises, useSettledArray ) {
+    var ret;
+    if( promises instanceof Promise ||
+        isArray( promises )
+    ) {
+        ret = useSettledArray
+            ? new SettledPromiseArray( promises )
+            : new PromiseArray( promises );
+        return ret.promise();
+    }
+    throw new TypeError("execting an array or a promise");
+}
+
+Promise.settle = function( promises ) {
+    return all( promises, true );
+};
+
 /**
  * Description.
  *
  *
  */
 Promise.all = function( promises ) {
-    var ret;
-    if( !isArray( promises ) ) {
-        //If the code were somehow be run under non-strict mode
-        //passing away arguments to another function would not
-        //be too good for perf
-        var values = new Array( arguments.length );
-        for( var i = 0, len = values.length; i < len; ++i ) {
-            values[i] = arguments[i];
-        }
-        ret = new PromiseArray( values );
-    }
-    else {
-        ret = new PromiseArray( promises );
-    }
-    return ret.promise();
+    return all( promises, false );
 };
 
 /**

@@ -15,6 +15,35 @@ method.promise = function() {
 
 method._init = function() {
     var values = this._values;
+    if( values instanceof Promise ) {
+        //Expect the promise to be a promise
+        //for an array
+        if( values.isPending() ) {
+            values._then(
+                this._init,
+                this._reject,
+                void 0,
+                this,
+                null //No need to smuggle this
+                    //but it avoids creating a promise
+            );
+            return;
+        }
+        else if( values.isRejected() ) {
+            this._reject( values._resolvedValue );
+            return;
+        }
+        else {
+            //Fulfilled promise with hopefully
+            //an array as a resolution value
+            values = values._resolvedValue;
+            if( !isArray( values ) ) {
+                values = [ values ];
+            }
+            this._values = values;
+        }
+
+    }
     for( var i = 0, len = values.length; i < len; ++i ) {
         var promise = values[i];
         if( !(promise instanceof Promise) ) {

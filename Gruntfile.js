@@ -106,10 +106,11 @@ module.exports = function( grunt ) {
                 "./src/errors.js",
                 "./src/caches.js",
                 "./src/async.js",
+                "./src/promise.js",
                 "./src/promise_array.js",
+                "./src/settled_promise_array.js",
                 "./src/promise_inspection.js",
                 "./src/promise_resolver.js",
-                "./src/promise.js",
                 "./src/epilogue.js"
             ],
 
