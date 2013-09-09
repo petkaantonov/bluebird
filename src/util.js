@@ -13,13 +13,13 @@
 
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//0 = Always 0 (never used)
 //R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-//0 = Always 0 (never used)
 %constant(IS_FULFILLED, 0x10000000);
 %constant(IS_REJECTED, 0x8000000);
 %constant(IS_REJECTED_OR_FULFILLED, 0x18000000);

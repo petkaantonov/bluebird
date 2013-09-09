@@ -1,19 +1,41 @@
 var PromiseArray = (function() {
 
+//Because undefined cannot be smuggled
+//we smuggle null instead and convert back to undefined
+//when calling
+//breaks down if null needs to be smuggled but so far doesn't
+function nullToUndefined( val ) {
+    return val === null
+        ? void 0
+        : val;
+}
+
+var hasOwn = {}.hasOwnProperty;
+var empty = [];
+
 function PromiseArray( values ) {
     this._values = values;
     this._resolver = Promise.pending();
-    this._length = values.length;
+    this._length = 0;
     this._totalResolved = 0;
-    this._init();
+    this._init( void 0, empty );
 }
 var method = PromiseArray.prototype;
+
+method.length = function() {
+    return this._length;
+};
 
 method.promise = function() {
     return this._resolver.promise;
 };
-
-method._init = function() {
+                        //when.some resolves to [] when empty
+                        //but when.any resolved to void 0 when empty :<
+method._init = function( _, fulfillValueIfEmpty ) {
+            //_ must be intentionally empty because smuggled
+            //data is always the second argument
+            //all of this is due to when vs some having different semantics on
+            //empty arrays
     var values = this._values;
     if( values instanceof Promise ) {
         //Expect the promise to be a promise
@@ -24,8 +46,7 @@ method._init = function() {
                 this._reject,
                 void 0,
                 this,
-                null //No need to smuggle this
-                    //but it avoids creating a promise
+                fulfillValueIfEmpty
             );
             return;
         }
@@ -38,22 +59,37 @@ method._init = function() {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                values = [ values ];
+                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                return;
             }
             this._values = values;
         }
 
     }
-    for( var i = 0, len = values.length; i < len; ++i ) {
+    if( !values.length ) {
+        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        return;
+    }
+    var len = values.length;
+    var newLen = len;
+    var newValues = new Array( len );
+    for( var i = 0; i < len; ++i ) {
         var promise = values[i];
+
+        //checking for undefined first (1 cycle instruction) in order not to
+        //punish reasonable non-sparse arrays
+        if( promise === void 0 && !hasOwn.call( values, i ) ) {
+            newLen--;
+            continue;
+        }
         if( !(promise instanceof Promise) ) {
             promise = Promise.fulfilled( promise );
         }
         promise._then(
             this._promiseFulfilled,
             this._promiseRejected,
+            this._promiseProgressed,
 
-            void 0,
             this,
             i //Smuggle the index as internal data
               //to avoid creating closures in this loop
@@ -62,7 +98,14 @@ method._init = function() {
               //the ._then() would be a waste anyway
 
         );
+        newValues[i] = promise;
     }
+    this._values = newValues;
+    this._length = newLen;
+};
+
+method._isResolved = function() {
+    return this._values === null;
 };
 
 method._fulfill = function( value ) {
@@ -75,8 +118,13 @@ method._reject = function( reason ) {
     this._resolver.reject( reason );
 };
 
+method._promiseProgressed = function( progressValue ) {
+    if( this._isResolved() ) return;
+    this._resolver.progress( progressValue );
+};
+
 method._promiseFulfilled = function( value, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //(TODO) could fire a progress when a promise is completed
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
@@ -86,7 +134,7 @@ method._promiseFulfilled = function( value, index ) {
 };
 
 method._promiseRejected = function( reason ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     this._totalResolved++;
     this._reject( reason );
 };
@@ -94,3 +142,15 @@ method._promiseRejected = function( reason ) {
 
 
 return PromiseArray;})();
+
+function subPromiseArray( constructorName ) {
+    return new Function("create", "PromiseArray", "\n" +
+        "var _super = PromiseArray.prototype; " +
+         constructorName + ".prototype = create(_super);" +
+         "var method = " + constructorName + ".prototype;" +
+         "method.constructor = "+constructorName+";" +
+         "method.$constructor = _super.constructor;" +
+        "function "+constructorName+"( values ){" +
+        "this.$constructor( values );" +
+        "} return "+constructorName+";")(create, PromiseArray);
+}

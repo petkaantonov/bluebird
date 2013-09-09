@@ -691,6 +691,12 @@ method._progress = function( progressValue ) {
     for( var i = 0; i < len; i += CALLBACK_SIZE ) {
         var fn = this._progressAt( i );
         var promise = this._promiseAt( i );
+        //if promise is not instanceof Promise
+        //it is internally smuggled data
+        if( !(promise instanceof Promise) ) {
+            fn.call( this._receiverAt( i ), progressValue, promise );
+            continue;
+        }
         var ret = progressValue;
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
@@ -744,21 +750,22 @@ Promise.is = function( obj ) {
     return obj instanceof Promise;
 };
 
-function all( promises, useSettledArray ) {
-    var ret;
+function all( promises, PromiseArray ) {
     if( promises instanceof Promise ||
-        isArray( promises )
-    ) {
-        ret = useSettledArray
-            ? new SettledPromiseArray( promises )
-            : new PromiseArray( promises );
-        return ret.promise();
+        isArray( promises ) ) {
+        return new PromiseArray( promises );
     }
-    throw new TypeError("execting an array or a promise");
+    throw new TypeError("expecting an array or a promise");
 }
 
+/**
+ * Description.
+ *
+ *
+ */
 Promise.settle = function( promises ) {
-    return all( promises, true );
+    var ret = all( promises, SettledPromiseArray );
+    return ret.promise();
 };
 
 /**
@@ -767,7 +774,34 @@ Promise.settle = function( promises ) {
  *
  */
 Promise.all = function( promises ) {
-    return all( promises, false );
+    var ret = all( promises, PromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.any = function( promises ) {
+    var ret = all( promises, AnyPromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.some = function( promises, howMany ) {
+    var ret = all( promises, SomePromiseArray );
+    if( ( howMany | 0 ) !== howMany ) {
+        throw new TypeError("howMany must be an integer");
+    }
+    var len = ret.length();
+    howMany = Math.max(0, Math.min( howMany, len ) );
+    ret._howMany = howMany;
+    return ret.promise();
 };
 
 /**
@@ -777,12 +811,17 @@ Promise.all = function( promises ) {
  */
 Promise.map = function( promises, fn ) {
     if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function");
+        throw new TypeError( "fn is not a function" );
     return Promise.all( promises ).then( function( fulfilleds ) {
+        var shouldDefer = false;
         for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            fulfilleds[i] = fn(fulfilleds[i]);
+            var fulfill = fulfilleds[i] = fn(fulfilleds[i]);
+            if( fulfill instanceof Promise ) {
+                shouldDefer = true;
+            }
         }
-        return fulfilleds;
+
+        return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
     });
 };
 

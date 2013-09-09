@@ -1,17 +1,7 @@
 var SettledPromiseArray = (function() {
-
-//Special case of PromiseArray that is used for .settle
-//which behaves a bit differently in that it will wait
-//for all promises
-function SettledPromiseArray( values ) {
-    this.$constructor( values );
-}
-var _super = PromiseArray.prototype,
-    method = SettledPromiseArray.prototype = create( _super );
-
-method.constructor = SettledPromiseArray;
-method.$constructor = _super.constructor;
-
+// the PromiseArray to use with Promise.settle method
+var SettledPromiseArray = subPromiseArray( "SettledPromiseArray" );
+var method = SettledPromiseArray.prototype;
 var throwawayPromise = new Promise();
 
 method._promiseResolved = function( index, inspection ) {
@@ -23,7 +13,7 @@ method._promiseResolved = function( index, inspection ) {
 };
 //override
 method._promiseFulfilled = function( value, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
@@ -35,7 +25,7 @@ method._promiseFulfilled = function( value, index ) {
 };
 //override
 method._promiseRejected = function( reason, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
@@ -45,6 +35,5 @@ method._promiseRejected = function( reason, index ) {
     this._promiseResolved( index, ret );
 
 };
-
 
 return SettledPromiseArray;})();

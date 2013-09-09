@@ -44,7 +44,7 @@ method.invoke = function( fn, receiver, arg ) {
         length = this._length;
 
     if( length === len ) {
-        //direct index modifications caused out of bounds
+        //direct index modifications past .length caused out of bounds
         //accesses which caused deoptimizations
         functionBuffer.push( fn, receiver, arg );
     }

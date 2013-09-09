@@ -109,6 +109,8 @@ module.exports = function( grunt ) {
                 "./src/promise.js",
                 "./src/promise_array.js",
                 "./src/settled_promise_array.js",
+                "./src/any_promise_array.js",
+                "./src/some_promise_array.js",
                 "./src/promise_inspection.js",
                 "./src/promise_resolver.js",
                 "./src/epilogue.js"
@@ -155,6 +157,31 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-bump');
+
+    function runIndependent( file, cb ) {
+    var fs = require("fs");
+    var sys = require('sys');
+    var spawn = require('child_process').spawn;
+    var node = spawn('node', ["./"+file]);
+    node.stdout.on('data', function( data ) {
+        process.stdout.write(data);
+    });
+
+    node.stderr.on('data', function( data ) {
+        process.stderr.write(data);
+    });
+
+    function exit( code ) {
+        if( code !== 0 ) {
+            cb(new Error("process didn't exit normally"));
+        }
+        else {
+            cb(null);
+        }
+    }
+
+    node.on('exit', exit );
+    }
 
     function fixStrict( code ) {
         //Fix global strict mode inserted by closure compiler
@@ -277,10 +304,23 @@ module.exports = function( grunt ) {
             else {
                 grunt.log.writeln("Running test " + files[i] );
                 mochas[i].run(function(err){
+
                     if( err ) throw new Error(err + " tests failed");
-                    setTimeout(function(){
-                        runner( mochas, i + 1 );
-                    }, 500);
+                    var suite = mochas[i].suite;
+                    if( suite.suites.length === 0 &&
+                        suite.tests.length === 0 ) {
+                        runIndependent(mochas[i].files[0], function(err) {
+                            if( err ) throw err;
+                            setTimeout(function(){
+                                runner( mochas, i + 1 );
+                            }, 500);
+                        });
+                    }
+                    else {
+                        setTimeout(function(){
+                            runner( mochas, i + 1 );
+                        }, 500);
+                    }
                 });
             }
 

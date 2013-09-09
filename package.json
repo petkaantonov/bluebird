@@ -9,11 +9,9 @@
     "promises-aplus",
     "async"
   ],
-
   "scripts": {
-      "test": "grunt test"
+    "test": "grunt test"
   },
-
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
     "type": "git",
@@ -40,7 +38,8 @@
     "mocha": "~1.12.1",
     "q": "~0.9.7",
     "when": "~2.4.0",
-    "deferred": "~0.6.5"
+    "deferred": "~0.6.5",
+    "buster": "~0.6.12"
   },
   "readmeFilename": "README.md",
   "main": "./js/promise.js"

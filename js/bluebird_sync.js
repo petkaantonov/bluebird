@@ -38,13 +38,13 @@
 
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//0 = Always 0 (never used)
 //R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-//0 = Always 0 (never used)
 
 
 
@@ -280,7 +280,7 @@ method.invoke = function( fn, receiver, arg ) {
         length = this._length;
 
     if( length === len ) {
-        //direct index modifications caused out of bounds
+        //direct index modifications past .length caused out of bounds
         //accesses which caused deoptimizations
         functionBuffer.push( fn, receiver, arg );
     }
@@ -1018,6 +1018,12 @@ method._progress = function( progressValue ) {
     for( var i = 0; i < len; i += 5 ) {
         var fn = this._progressAt( i );
         var promise = this._promiseAt( i );
+        //if promise is not instanceof Promise
+        //it is internally smuggled data
+        if( !(promise instanceof Promise) ) {
+            fn.call( this._receiverAt( i ), progressValue, promise );
+            continue;
+        }
         var ret = progressValue;
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
@@ -1071,21 +1077,22 @@ Promise.is = function( obj ) {
     return obj instanceof Promise;
 };
 
-function all( promises, useSettledArray ) {
-    var ret;
+function all( promises, PromiseArray ) {
     if( promises instanceof Promise ||
-        isArray( promises )
-    ) {
-        ret = useSettledArray
-            ? new SettledPromiseArray( promises )
-            : new PromiseArray( promises );
-        return ret.promise();
+        isArray( promises ) ) {
+        return new PromiseArray( promises );
     }
-    throw new TypeError("execting an array or a promise");
+    throw new TypeError("expecting an array or a promise");
 }
 
+/**
+ * Description.
+ *
+ *
+ */
 Promise.settle = function( promises ) {
-    return all( promises, true );
+    var ret = all( promises, SettledPromiseArray );
+    return ret.promise();
 };
 
 /**
@@ -1094,7 +1101,34 @@ Promise.settle = function( promises ) {
  *
  */
 Promise.all = function( promises ) {
-    return all( promises, false );
+    var ret = all( promises, PromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.any = function( promises ) {
+    var ret = all( promises, AnyPromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.some = function( promises, howMany ) {
+    var ret = all( promises, SomePromiseArray );
+    if( ( howMany | 0 ) !== howMany ) {
+        throw new TypeError("howMany must be an integer");
+    }
+    var len = ret.length();
+    howMany = Math.max(0, Math.min( howMany, len ) );
+    ret._howMany = howMany;
+    return ret.promise();
 };
 
 /**
@@ -1104,12 +1138,17 @@ Promise.all = function( promises ) {
  */
 Promise.map = function( promises, fn ) {
     if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function");
+        throw new TypeError( "fn is not a function" );
     return Promise.all( promises ).then( function( fulfilleds ) {
+        var shouldDefer = false;
         for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            fulfilleds[i] = fn(fulfilleds[i]);
+            var fulfill = fulfilleds[i] = fn(fulfilleds[i]);
+            if( fulfill instanceof Promise ) {
+                shouldDefer = true;
+            }
         }
-        return fulfilleds;
+
+        return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
     });
 };
 
@@ -1238,20 +1277,42 @@ return Promise;})();
 
 var PromiseArray = (function() {
 
+//Because undefined cannot be smuggled
+//we smuggle null instead and convert back to undefined
+//when calling
+//breaks down if null needs to be smuggled but so far doesn't
+function nullToUndefined( val ) {
+    return val === null
+        ? void 0
+        : val;
+}
+
+var hasOwn = {}.hasOwnProperty;
+var empty = [];
+
 function PromiseArray( values ) {
     this._values = values;
     this._resolver = Promise.pending();
-    this._length = values.length;
+    this._length = 0;
     this._totalResolved = 0;
-    this._init();
+    this._init( void 0, empty );
 }
 var method = PromiseArray.prototype;
+
+method.length = function() {
+    return this._length;
+};
 
 method.promise = function() {
     return this._resolver.promise;
 };
-
-method._init = function() {
+                        //when.some resolves to [] when empty
+                        //but when.any resolved to void 0 when empty :<
+method._init = function( _, fulfillValueIfEmpty ) {
+            //_ must be intentionally empty because smuggled
+            //data is always the second argument
+            //all of this is due to when vs some having different semantics on
+            //empty arrays
     var values = this._values;
     if( values instanceof Promise ) {
         //Expect the promise to be a promise
@@ -1262,8 +1323,7 @@ method._init = function() {
                 this._reject,
                 void 0,
                 this,
-                null //No need to smuggle this
-                    //but it avoids creating a promise
+                fulfillValueIfEmpty
             );
             return;
         }
@@ -1276,22 +1336,37 @@ method._init = function() {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                values = [ values ];
+                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                return;
             }
             this._values = values;
         }
 
     }
-    for( var i = 0, len = values.length; i < len; ++i ) {
+    if( !values.length ) {
+        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        return;
+    }
+    var len = values.length;
+    var newLen = len;
+    var newValues = new Array( len );
+    for( var i = 0; i < len; ++i ) {
         var promise = values[i];
+
+        //checking for undefined first (1 cycle instruction) in order not to
+        //punish reasonable non-sparse arrays
+        if( promise === void 0 && !hasOwn.call( values, i ) ) {
+            newLen--;
+            continue;
+        }
         if( !(promise instanceof Promise) ) {
             promise = Promise.fulfilled( promise );
         }
         promise._then(
             this._promiseFulfilled,
             this._promiseRejected,
+            this._promiseProgressed,
 
-            void 0,
             this,
             i //Smuggle the index as internal data
               //to avoid creating closures in this loop
@@ -1300,7 +1375,14 @@ method._init = function() {
               //the ._then() would be a waste anyway
 
         );
+        newValues[i] = promise;
     }
+    this._values = newValues;
+    this._length = newLen;
+};
+
+method._isResolved = function() {
+    return this._values === null;
 };
 
 method._fulfill = function( value ) {
@@ -1313,8 +1395,13 @@ method._reject = function( reason ) {
     this._resolver.reject( reason );
 };
 
+method._promiseProgressed = function( progressValue ) {
+    if( this._isResolved() ) return;
+    this._resolver.progress( progressValue );
+};
+
 method._promiseFulfilled = function( value, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //(TODO) could fire a progress when a promise is completed
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
@@ -1324,7 +1411,7 @@ method._promiseFulfilled = function( value, index ) {
 };
 
 method._promiseRejected = function( reason ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     this._totalResolved++;
     this._reject( reason );
 };
@@ -1333,20 +1420,22 @@ method._promiseRejected = function( reason ) {
 
 return PromiseArray;})();
 
-var SettledPromiseArray = (function() {
-
-//Special case of PromiseArray that is used for .settle
-//which behaves a bit differently in that it will wait
-//for all promises
-function SettledPromiseArray( values ) {
-    this.$constructor( values );
+function subPromiseArray( constructorName ) {
+    return new Function("create", "PromiseArray", "\n" +
+        "var _super = PromiseArray.prototype; " +
+         constructorName + ".prototype = create(_super);" +
+         "var method = " + constructorName + ".prototype;" +
+         "method.constructor = "+constructorName+";" +
+         "method.$constructor = _super.constructor;" +
+        "function "+constructorName+"( values ){" +
+        "this.$constructor( values );" +
+        "} return "+constructorName+";")(create, PromiseArray);
 }
-var _super = PromiseArray.prototype,
-    method = SettledPromiseArray.prototype = create( _super );
 
-method.constructor = SettledPromiseArray;
-method.$constructor = _super.constructor;
-
+var SettledPromiseArray = (function() {
+// the PromiseArray to use with Promise.settle method
+var SettledPromiseArray = subPromiseArray( "SettledPromiseArray" );
+var method = SettledPromiseArray.prototype;
 var throwawayPromise = new Promise();
 
 method._promiseResolved = function( index, inspection ) {
@@ -1358,7 +1447,7 @@ method._promiseResolved = function( index, inspection ) {
 };
 //override
 method._promiseFulfilled = function( value, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
@@ -1370,7 +1459,7 @@ method._promiseFulfilled = function( value, index ) {
 };
 //override
 method._promiseRejected = function( reason, index ) {
-    if( this.promise().isResolved() ) return;
+    if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
@@ -1381,9 +1470,96 @@ method._promiseRejected = function( reason, index ) {
 
 };
 
-
 return SettledPromiseArray;})();
+var AnyPromiseArray = (function() {
+// the PromiseArray to use with Promise.any method
+var AnyPromiseArray = subPromiseArray( "AnyPromiseArray" );
+var method = AnyPromiseArray.prototype;
 
+method._$init = method._init;
+
+method._init = function() {
+    //.any must resolve to undefined in case of empty array
+    this._$init( void 0, null );
+};
+
+//override
+method._promiseFulfilled = function( value ) {
+    if( this._isResolved() ) return;
+    ++this._totalResolved;
+    this._fulfill( value );
+
+};
+//override
+method._promiseRejected = function( reason, index ) {
+    if( this._isResolved() ) return;
+    var totalResolved = ++this._totalResolved;
+    this._values[ index ] = reason;
+    if( totalResolved >= this._length ) {
+        this._reject( this._values );
+    }
+
+};
+
+return AnyPromiseArray;})();
+var SomePromiseArray = (function() {
+// the PromiseArray to use with Promise.some method
+var SomePromiseArray = subPromiseArray( "SomePromiseArray" );
+var method = SomePromiseArray.prototype;
+
+method._$init = method._init;
+method._init = function() {
+    this._$init( void 0, [] );
+    this._howMany = 0;
+    this._rejected = 0;
+    this._rejectionValues = new Array( this.length() );
+    this._resolutionValues = new Array( this.length() );
+    if( this._isResolved() ) return;
+    var canPossiblyFulfillCount =
+        this._totalResolved - this._rejected + //fulfilled already
+        ( this.length() - this._totalResolved ); //could fulfill
+    if( this._howMany > canPossiblyFulfillCount ) {
+        this._reject( [] );
+    }
+};
+
+//override
+method._promiseFulfilled = function( value ) {
+    if( this._isResolved() ) return;
+
+    var totalResolved = this._totalResolved;
+    this._resolutionValues[ totalResolved ] = value;
+    this._totalResolved = totalResolved + 1;
+    if( totalResolved + 1 === this._howMany ) {
+        this._resolutionValues.length = this._howMany;
+        this._fulfill( this._resolutionValues );
+        this._resolutionValues =
+            this._rejectionValues = null;
+    }
+
+};
+//override
+method._promiseRejected = function( reason ) {
+    if( this._isResolved() ) return;
+
+    this._rejectionValues[ this._rejected ] = reason;
+    this._rejected++;
+    this._totalResolved++;
+
+
+    var canPossiblyFulfillCount =
+        this._totalResolved - this._rejected + //fulfilled already
+        ( this.length() - this._totalResolved ); //could fulfill
+
+    if( this._howMany > canPossiblyFulfillCount ) {
+        this._rejectionValues.length = this._rejected;
+        this._reject( this._rejectionValues );
+        this._resolutionValues =
+            this._rejectionValues = null;
+    }
+};
+
+return SomePromiseArray;})();
 var PromiseInspection = (function() {
 
 
