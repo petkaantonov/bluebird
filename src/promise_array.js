@@ -98,9 +98,10 @@ method._init = function( _, fulfillValueIfEmpty ) {
               //the ._then() would be a waste anyway
 
               //The integer is wrapped because raw integers cause
-              //deoptimizations (this gave 20% boost in gorgikosev's benchmark)
+              //circular deoptimizations - this gives 20% boost in gorgikosev's benchmarks
+              //The other deopts in that benchmark are not circular
 
-              //256 first integers from 0 are cached like in Java
+
 
 
         );
@@ -152,7 +153,7 @@ function Integer( value ) {
 Integer.prototype.valueOf = function() {
     return this._value;
 };
-
+//256 first integers from 0 are cached
 Integer.get = function( i ) {
     if( i < 256 ) {
         return ints[i];
