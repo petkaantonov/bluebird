@@ -23,7 +23,7 @@ method._promiseFulfilled = function( value ) {
 method._promiseRejected = function( reason, index ) {
     if( this._isResolved() ) return;
     var totalResolved = ++this._totalResolved;
-    this._values[ index ] = reason;
+    this._values[ index.valueOf() ] = reason;
     if( totalResolved >= this._length ) {
         this._reject( this._values );
     }

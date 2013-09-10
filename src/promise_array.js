@@ -91,15 +91,16 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseProgressed,
 
             this,
-            i //Smuggle the index as internal data
+            Integer.get( i ) //Smuggle the index as internal data
               //to avoid creating closures in this loop
 
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
-              //(TODO) this caused deoptimizations in gorgikosev's
-              //benchmark due to being SMIs
-              //investigate if wrapping has too much penatly
+              //The integer is wrapped because raw integers cause
+              //deoptimizations (this gave 20% boost in gorgikosev's benchmark)
+
+              //256 first integers from 0 are cached like in Java
 
 
         );
@@ -131,7 +132,7 @@ method._promiseProgressed = function( progressValue ) {
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
     //(TODO) could fire a progress when a promise is completed
-    this._values[ index ] = value;
+    this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
@@ -143,6 +144,28 @@ method._promiseRejected = function( reason ) {
     this._totalResolved++;
     this._reject( reason );
 };
+
+function Integer( value ) {
+    this._value = value;
+}
+
+Integer.prototype.valueOf = function() {
+    return this._value;
+};
+
+Integer.get = function( i ) {
+    if( i < 256 ) {
+        return ints[i];
+    }
+    return new Integer(i);
+};
+
+var ints = [];
+for( var i = 0; i < 256; ++i ) {
+    ints.push( new Integer(i) );
+}
+
+
 
 
 
