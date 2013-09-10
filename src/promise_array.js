@@ -90,16 +90,16 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this,
+            this, //Smuggle receiver - .bind avoided round 1
             Integer.get( i ) //Smuggle the index as internal data
-              //to avoid creating closures in this loop
+              //to avoid creating closures in this loop - .bind avoided round 2
 
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
-              //The integer is wrapped because raw integers cause
-              //circular deoptimizations - this gives 20% boost in gorgikosev's benchmarks
-              //The other deopts in that benchmark are not circular
+              //The integer is wrapped because raw integers currently cause
+              //circular deoptimizations - this gives 20% boost in
+              //gorgikosev's benchmarks
 
 
 

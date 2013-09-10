@@ -1390,17 +1390,18 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this,
+            this, //Smuggle receiver - .bind avoided round 1
             Integer.get( i ) //Smuggle the index as internal data
-              //to avoid creating closures in this loop
+              //to avoid creating closures in this loop - .bind avoided round 2
 
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
-              //The integer is wrapped because raw integers cause
-              //deoptimizations (this gave 20% boost in gorgikosev's benchmark)
+              //The integer is wrapped because raw integers currently cause
+              //circular deoptimizations - this gives 20% boost in
+              //gorgikosev's benchmarks
 
-              //256 first integers from 0 are cached like in Java
+
 
 
         );
@@ -1452,7 +1453,7 @@ function Integer( value ) {
 Integer.prototype.valueOf = function() {
     return this._value;
 };
-
+//256 first integers from 0 are cached
 Integer.get = function( i ) {
     if( i < 256 ) {
         return ints[i];
