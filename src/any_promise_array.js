@@ -1,13 +1,15 @@
 var AnyPromiseArray = (function() {
 // the PromiseArray to use with Promise.any method
-var AnyPromiseArray = subPromiseArray( "AnyPromiseArray" );
-var method = AnyPromiseArray.prototype;
 
-method._$init = method._init;
+function AnyPromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( AnyPromiseArray, PromiseArray );
+
 
 method._init = function() {
     //.any must resolve to undefined in case of empty array
-    this._$init( void 0, null );
+    this._init$( void 0, null );
 };
 
 //override

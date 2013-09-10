@@ -122,3 +122,25 @@ function makeNodePromisified( callback, receiver ) {
         "};"
     )(Promise, callback, receiver);
 }
+
+
+//Un-magical enough that using this doesn't prevent
+//extending classes from outside using any convention
+var inherits = function( Child, Parent ) {
+    var hasProp = {}.hasOwnProperty;
+
+    function T() {
+        this.constructor = Child;
+        this.constructor$ = Parent;
+        for (var propertyName in Parent.prototype) {
+            if (hasProp.call( Parent.prototype, propertyName) &&
+                propertyName.charAt(propertyName.length-1) !== "$"
+            ) {
+                this[ propertyName + "$"] = Parent.prototype[propertyName];
+            }
+        }
+    }
+    T.prototype = Parent.prototype;
+    Child.prototype = new T();
+    return Child.prototype;
+};

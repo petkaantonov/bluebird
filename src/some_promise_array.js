@@ -1,11 +1,13 @@
 var SomePromiseArray = (function() {
 // the PromiseArray to use with Promise.some method
-var SomePromiseArray = subPromiseArray( "SomePromiseArray" );
-var method = SomePromiseArray.prototype;
 
-method._$init = method._init;
+function SomePromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( SomePromiseArray, PromiseArray );
+
 method._init = function() {
-    this._$init( void 0, [] );
+    this._init$( void 0, [] );
     this._howMany = 0;
     this._rejected = 0;
     this._rejectionValues = new Array( this.length() );

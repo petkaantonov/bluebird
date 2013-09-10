@@ -97,6 +97,11 @@ method._init = function( _, fulfillValueIfEmpty ) {
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
+              //(TODO) this caused deoptimizations in gorgikosev's
+              //benchmark due to being SMIs
+              //investigate if wrapping has too much penatly
+
+
         );
         newValues[i] = promise;
     }
@@ -142,15 +147,3 @@ method._promiseRejected = function( reason ) {
 
 
 return PromiseArray;})();
-
-function subPromiseArray( constructorName ) {
-    return new Function("create", "PromiseArray", "\n" +
-        "var _super = PromiseArray.prototype; " +
-         constructorName + ".prototype = create(_super);" +
-         "var method = " + constructorName + ".prototype;" +
-         "method.constructor = "+constructorName+";" +
-         "method.$constructor = _super.constructor;" +
-        "function "+constructorName+"( values ){" +
-        "this.$constructor( values );" +
-        "} return "+constructorName+";")(create, PromiseArray);
-}

@@ -1,8 +1,10 @@
 var SettledPromiseArray = (function() {
 // the PromiseArray to use with Promise.settle method
-var SettledPromiseArray = subPromiseArray( "SettledPromiseArray" );
-var method = SettledPromiseArray.prototype;
-var throwawayPromise = new Promise();
+
+function SettledPromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
     this._values[ index ] = inspection;
@@ -12,6 +14,7 @@ method._promiseResolved = function( index, inspection ) {
     }
 };
 //override
+var throwawayPromise = new Promise();
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack

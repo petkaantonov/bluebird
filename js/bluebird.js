@@ -147,11 +147,34 @@ function makeNodePromisified( callback, receiver ) {
         "};"
     )(Promise, callback, receiver);
 }
+
+
+//Un-magical enough that using this doesn't prevent
+//extending classes from outside using any convention
+var inherits = function( Child, Parent ) {
+    var hasProp = {}.hasOwnProperty;
+
+    function T() {
+        this.constructor = Child;
+        this.constructor$ = Parent;
+        for (var propertyName in Parent.prototype) {
+            if (hasProp.call( Parent.prototype, propertyName) &&
+                propertyName.charAt(propertyName.length-1) !== "$"
+            ) {
+                this[ propertyName + "$"] = Parent.prototype[propertyName];
+            }
+        }
+    }
+    T.prototype = Parent.prototype;
+    Child.prototype = new T();
+    return Child.prototype;
+};
+
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
 
-    return new Function("create", "\n" +
+    return new Function("create", "'use strict';\n" +
          constructorName + ".prototype = create(Error.prototype);" +
          constructorName + ".prototype.constructor = "+constructorName+";" +
         "function "+constructorName+"(msg){" +
@@ -1384,6 +1407,11 @@ method._init = function( _, fulfillValueIfEmpty ) {
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
+              //(TODO) this caused deoptimizations in gorgikosev's
+              //benchmark due to being SMIs
+              //investigate if wrapping has too much penatly
+
+
         );
         newValues[i] = promise;
     }
@@ -1429,24 +1457,13 @@ method._promiseRejected = function( reason ) {
 
 
 return PromiseArray;})();
-
-function subPromiseArray( constructorName ) {
-    return new Function("create", "PromiseArray", "\n" +
-        "var _super = PromiseArray.prototype; " +
-         constructorName + ".prototype = create(_super);" +
-         "var method = " + constructorName + ".prototype;" +
-         "method.constructor = "+constructorName+";" +
-         "method.$constructor = _super.constructor;" +
-        "function "+constructorName+"( values ){" +
-        "this.$constructor( values );" +
-        "} return "+constructorName+";")(create, PromiseArray);
-}
-
 var SettledPromiseArray = (function() {
 // the PromiseArray to use with Promise.settle method
-var SettledPromiseArray = subPromiseArray( "SettledPromiseArray" );
-var method = SettledPromiseArray.prototype;
-var throwawayPromise = new Promise();
+
+function SettledPromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
     this._values[ index ] = inspection;
@@ -1456,6 +1473,7 @@ method._promiseResolved = function( index, inspection ) {
     }
 };
 //override
+var throwawayPromise = new Promise();
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack
@@ -1483,14 +1501,16 @@ method._promiseRejected = function( reason, index ) {
 return SettledPromiseArray;})();
 var AnyPromiseArray = (function() {
 // the PromiseArray to use with Promise.any method
-var AnyPromiseArray = subPromiseArray( "AnyPromiseArray" );
-var method = AnyPromiseArray.prototype;
 
-method._$init = method._init;
+function AnyPromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( AnyPromiseArray, PromiseArray );
+
 
 method._init = function() {
     //.any must resolve to undefined in case of empty array
-    this._$init( void 0, null );
+    this._init$( void 0, null );
 };
 
 //override
@@ -1514,12 +1534,14 @@ method._promiseRejected = function( reason, index ) {
 return AnyPromiseArray;})();
 var SomePromiseArray = (function() {
 // the PromiseArray to use with Promise.some method
-var SomePromiseArray = subPromiseArray( "SomePromiseArray" );
-var method = SomePromiseArray.prototype;
 
-method._$init = method._init;
+function SomePromiseArray( values ) {
+    this.constructor$( values );
+}
+var method = inherits( SomePromiseArray, PromiseArray );
+
 method._init = function() {
-    this._$init( void 0, [] );
+    this._init$( void 0, [] );
     this._howMany = 0;
     this._rejected = 0;
     this._rejectionValues = new Array( this.length() );

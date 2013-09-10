@@ -2,7 +2,7 @@ function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
 
-    return new Function("create", "\n" +
+    return new Function("create", "'use strict';\n" +
          constructorName + ".prototype = create(Error.prototype);" +
          constructorName + ".prototype.constructor = "+constructorName+";" +
         "function "+constructorName+"(msg){" +
