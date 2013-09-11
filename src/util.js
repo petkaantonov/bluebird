@@ -30,9 +30,6 @@
 %constant(MAX_LENGTH, 0x3FFFFFF);
 
 var errorObj = {e: {}};
-var APPLY = {};
-var UNRESOLVED = {};
-var noop = function(){};
 var rescape = /[\r\n\u2028\u2029']/g;
 
 var replacer = function( ch ) {
@@ -40,20 +37,9 @@ var replacer = function( ch ) {
             (ch.charCodeAt(0).toString(16))).slice(-4);
 };
 
-
 function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
-
-
-var isArray = Array.isArray || function( obj ) {
-    //yeah it won't work iframes
-    return obj instanceof Array;
-};
-
-
-
-
 
 //Try catch is not supported in optimizing
 //compiler, so it is isolated

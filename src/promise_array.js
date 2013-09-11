@@ -13,6 +13,16 @@ function nullToUndefined( val ) {
 var hasOwn = {}.hasOwnProperty;
 var empty = [];
 
+function isPromise( obj ) {
+    if( typeof obj !== "object" ) return false;
+    return obj instanceof Promise;
+}
+
+var Arr = Array;
+var isArray = Arr.isArray || function( obj ) {
+    return obj instanceof Arr;
+};
+
 function PromiseArray( values ) {
     this._values = values;
     this._resolver = Promise.pending();
@@ -37,7 +47,7 @@ method._init = function( _, fulfillValueIfEmpty ) {
             //all of this is due to when vs some having different semantics on
             //empty arrays
     var values = this._values;
-    if( values instanceof Promise ) {
+    if( isPromise( values ) ) {
         //Expect the promise to be a promise
         //for an array
         if( values.isPending() ) {
@@ -82,7 +92,7 @@ method._init = function( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        if( !(promise instanceof Promise) ) {
+        if( !isPromise( promise ) ) {
             promise = Promise.fulfilled( promise );
         }
         promise._then(

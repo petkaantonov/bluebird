@@ -1,6 +1,8 @@
 var Promise = (function() {
 
 function isThenable( ret, ref ) {
+    //Do try catching since retrieving non-existent
+    //properties slows down anyway
     try {
         //Retrieving the property may throw
         var then = ret.then;
@@ -23,15 +25,6 @@ function isThenable( ret, ref ) {
     }
 }
 
-function isObject( value ) {
-    //no need to check for undefined twice
-    if( value === null ) {
-        return false;
-    }
-    return ( typeof value === "object" ||
-            typeof value === "function" );
-}
-
 var possiblyUnhandledRejection = function( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
@@ -49,6 +42,36 @@ var possiblyUnhandledRejection = function( reason ) {
         }
     }
 };
+
+function isObject( value ) {
+    //no need to check for undefined twice
+    if( value === null ) {
+        return false;
+    }
+    return ( typeof value === "object" ||
+            typeof value === "function" );
+}
+
+function isPromise( obj ) {
+    if( typeof obj !== "object" ) return false;
+    return obj instanceof Promise;
+}
+
+var Err = Error;
+function isError( obj ) {
+    if( typeof obj !== "object" ) return false;
+    return obj instanceof Err;
+}
+
+var Arr = Array;
+var isArray = Arr.isArray || function( obj ) {
+    return obj instanceof Arr;
+};
+
+
+var APPLY = {};
+var UNRESOLVED = {};
+var noop = function(){};
 
 
 /**
@@ -530,13 +553,13 @@ method._spreadSlowCase = function( targetFn, promise, values ) {
 method._resolvePromise = function(
     onFulfilledOrRejected, receiver, value, promise
 ) {
-    if( value instanceof Error ) {
+    if( isError( value ) ) {
         value.__handled = true;
     }
 
     //if promise is not instanceof Promise
     //it is internally smuggled data
-    if( !(promise instanceof Promise) ) {
+    if( !isPromise( promise ) ) {
         return onFulfilledOrRejected.call( receiver, value, promise );
     }
 
@@ -551,7 +574,7 @@ method._resolvePromise = function(
             //since the spread target callback will have
             //a formal parameter for each item in the array
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( value[i] instanceof Promise ) {
+                if( isPromise( value[i] ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
@@ -588,7 +611,7 @@ method._resolvePromise = function(
     }
     else {
         var ref;
-        if( promise._tryAssumeStateOf( x, false ) ) {
+        if( promise._tryAssumeStateOf( x, true ) ) {
             //2. If x is a promise, adopt its state
             return;
         }
@@ -658,7 +681,7 @@ method._assumeStateOf = function( promise, mustAsync ) {
 
 //(TODO) this possibly needs to be done in _fulfill
 method._tryAssumeStateOf = function( value, mustAsync ) {
-    if( !( value instanceof Promise ) ) return false;
+    if( !isPromise( value ) ) return false;
     this._assumeStateOf( value, mustAsync );
     return true;
 };
@@ -706,7 +729,7 @@ method._resolveReject = function( reason ) {
         }
     }
     if( !rejectionWasHandled &&
-        reason instanceof Error &&
+        isError( reason ) &&
         possiblyUnhandledRejection !== noop
     ) {
         //If the prop is not there, reading it
@@ -767,7 +790,7 @@ method._progress = function( progressValue ) {
         var promise = this._promiseAt( i );
         //if promise is not instanceof Promise
         //it is internally smuggled data
-        if( !(promise instanceof Promise) ) {
+        if( !isPromise( promise ) ) {
             fn.call( this._receiverAt( i ), progressValue, promise );
             continue;
         }
@@ -791,7 +814,7 @@ method._progress = function( progressValue ) {
                 }
             }
             //2.2 The onProgress callback may return a promise.
-            else if( ret instanceof Promise ) {
+            else if( isPromise( ret ) ) {
                 //2.2.1 The callback is not considered complete
                 //until the promise is fulfilled.
 
@@ -820,12 +843,10 @@ method._progress = function( progressValue ) {
  * @param {dynamic} obj The object to check.
  * @return {boolean}
  */
-Promise.is = function( obj ) {
-    return obj instanceof Promise;
-};
+Promise.is = isPromise;
 
 function all( promises, PromiseArray ) {
-    if( promises instanceof Promise ||
+    if( isPromise( promises ) ||
         isArray( promises ) ) {
         return new PromiseArray( promises );
     }
@@ -890,7 +911,7 @@ Promise.map = function( promises, fn ) {
         var shouldDefer = false;
         for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
             var fulfill = fulfilleds[i] = fn(fulfilleds[i]);
-            if( fulfill instanceof Promise ) {
+            if( isPromise( fulfill ) ) {
                 shouldDefer = true;
             }
         }
