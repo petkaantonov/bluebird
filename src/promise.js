@@ -329,9 +329,7 @@ method.then = function( didFulfill, didReject, didProgress ) {
  *
  */
 method.spread = function( didFulfill ) {
-    return this
-        .then( this._spreader )
-        ._then( didFulfill, void 0, void 0, APPLY, void 0 );
+    return this._then( didFulfill, void 0, void 0, APPLY, void 0 );
 };
 /**
  * See if this promise is fulfilled.
@@ -376,27 +374,9 @@ method.isResolved = function() {
  */
 method.isCancellable = function() {
     return !this.isResolved() &&
-        ( this._bitField & IS_CANCELLABLE ) > 0;
+        this._cancellable();
 };
 
-method._spreader = function spreader( values ) {
-
-    if( values instanceof Promise ) {
-        return values.then( spreader );
-    }
-
-    //Shouldnt be many items to loop through
-    //since the spread target callback will have
-    //a formal parameter for each item in the array
-    for( var i = 0, len = values.length; i < len; ++i ) {
-        if( values[i] instanceof Promise ) {
-            return Promise.all( values );
-        }
-    }
-    //The common and fast case
-    //e.g. Promise.all([a, b, c]).spread(...)
-    return values;
-};
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
     __data ) {
@@ -423,6 +403,10 @@ method._length = function() {
 method._setLength = function( len ) {
     this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
         ( len & LENGTH_MASK ) ;
+};
+
+method._cancellable = function() {
+    return ( this._bitField & IS_CANCELLABLE ) > 0;
 };
 
 method._setFulfilled = function() {
@@ -542,6 +526,12 @@ method._resolveLast = function( index ) {
     }
 };
 
+method._spreadSlowCase = function( targetFn, promise, values ) {
+    promise._assumeStateOf(
+        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0)
+    );
+};
+
 method._resolvePromise = function(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -556,12 +546,39 @@ method._resolvePromise = function(
     }
 
     var x;
+    //Special receiver that means we are .applying an array of arguments
+    //(for .spread() at the moment)
     if( receiver === APPLY ) {
-        x = tryCatchApply( onFulfilledOrRejected, value );
+        //Array of non-promise values is fast case
+        //.spread has a bit convoluted semantics otherwise
+        if( isArray( value ) ) {
+            //Shouldnt be many items to loop through
+            //since the spread target callback will have
+            //a formal parameter for each item in the array
+            for( var i = 0, len = value.length; i < len; ++i ) {
+                if( value[i] instanceof Promise ) {
+                    this._spreadSlowCase(
+                        onFulfilledOrRejected,
+                        promise,
+                        value
+                    );
+                    return;
+                }
+            }
+            x = tryCatchApply( onFulfilledOrRejected, value );
+        }
+        else {
+            //(TODO) Spreading a promise that eventually returns
+            //an array could be a common usage
+            this._spreadSlowCase( onFulfilledOrRejected, promise, value );
+            return;
+        }
+
     }
     else {
         x = tryCatch1( onFulfilledOrRejected, receiver, value );
     }
+
     if( x === errorObj ) {
         async.invoke( promise._reject, promise, errorObj.e );
     }
@@ -581,6 +598,8 @@ method._resolvePromise = function(
             if( x.isCancellable() ) {
                 promise._cancellationParent = x;
             }
+            //TODO test this after spread working
+            //promise._assumeStateOf( x );
             x._then(
                 promise._fulfill,
                 promise._reject,
@@ -626,11 +645,12 @@ method._resolvePromise = function(
     }
 };
 
-//(TODO) this possibly needs to be done in _fulfill
-method._tryAssumeStateOf = function( value ) {
-    if( !( value instanceof Promise ) ) return false;
-    if( value.isPending() ) {
-        value._then(
+method._assumeStateOf = function( promise ) {
+    if( promise.isPending() ) {
+        if( promise._cancellable()  ) {
+            this._cancellationParent = promise;
+        }
+        promise._then(
             this._fulfill,
             this._reject,
             this._progress,
@@ -638,12 +658,18 @@ method._tryAssumeStateOf = function( value ) {
             void 0
         );
     }
-    else if( value.isFulfilled() ) {
-        this._fulfill( value._resolvedValue );
+    else if( promise.isFulfilled() ) {
+        this._fulfill( promise._resolvedValue );
     }
     else {
-        this._reject( value._resolvedValue );
+        this._reject( promise._resolvedValue );
     }
+};
+
+//(TODO) this possibly needs to be done in _fulfill
+method._tryAssumeStateOf = function( value ) {
+    if( !( value instanceof Promise ) ) return false;
+    this._assumeStateOf( value );
     return true;
 };
 
