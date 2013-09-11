@@ -30,7 +30,7 @@ method.toString = function() {
  *
  */
 method.fulfill = function( value ) {
-    if( this.promise._tryAssumeStateOf( value ) ) {
+    if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
     async.invoke( this.promise._fulfill, this.promise, value );

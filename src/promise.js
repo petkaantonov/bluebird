@@ -133,7 +133,7 @@ method.progressed = function( fn ) {
  * @return {Promise}
  */
 method.resolved = function( fn ) {
-    return this._then( fn, fn, void 0 );
+    return this._then( fn, fn, void 0, void 0, void 0 );
 };
 
 /**
@@ -200,13 +200,7 @@ method.uncancellable = function() {
     var ret = new Promise();
 
     ret._unsetCancellable();
-    this._then(
-        ret._fulfill,
-        ret._reject,
-        ret._progress,
-        ret,
-        void 0
-    );
+    ret._assumeStateOf( this, true );
     return ret;
 };
 
@@ -528,7 +522,8 @@ method._resolveLast = function( index ) {
 
 method._spreadSlowCase = function( targetFn, promise, values ) {
     promise._assumeStateOf(
-        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0)
+        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0),
+        false
     );
 };
 
@@ -593,20 +588,9 @@ method._resolvePromise = function(
     }
     else {
         var ref;
-        if( x instanceof Promise ) {
+        if( promise._tryAssumeStateOf( x, false ) ) {
             //2. If x is a promise, adopt its state
-            if( x.isCancellable() ) {
-                promise._cancellationParent = x;
-            }
-            //TODO test this after spread working
-            //promise._assumeStateOf( x );
-            x._then(
-                promise._fulfill,
-                promise._reject,
-                promise._progress,
-                promise,
-                void 0
-            );
+            return;
         }
         //3. Otherwise, if x is an object or function,
                         //(TODO) isThenable is far more thorough
@@ -645,7 +629,7 @@ method._resolvePromise = function(
     }
 };
 
-method._assumeStateOf = function( promise ) {
+method._assumeStateOf = function( promise, mustAsync ) {
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -659,17 +643,23 @@ method._assumeStateOf = function( promise ) {
         );
     }
     else if( promise.isFulfilled() ) {
-        this._fulfill( promise._resolvedValue );
+        if( mustAsync )
+            async.invoke( this._fulfill, this, promise._resolvedValue );
+        else
+            this._fulfill( promise._resolvedValue );
     }
     else {
-        this._reject( promise._resolvedValue );
+        if( mustAsync )
+            async.invoke( this._reject, this, promise._resolvedValue );
+        else
+            this._reject( promise._resolvedValue );
     }
 };
 
 //(TODO) this possibly needs to be done in _fulfill
-method._tryAssumeStateOf = function( value ) {
+method._tryAssumeStateOf = function( value, mustAsync ) {
     if( !( value instanceof Promise ) ) return false;
-    this._assumeStateOf( value );
+    this._assumeStateOf( value, mustAsync );
     return true;
 };
 
