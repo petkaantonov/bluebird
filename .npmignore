@@ -1,11 +1,8 @@
 node_modules/*
 todo.txt
 npm-debug.log
+test/*
 benchmark/*
-benchmark/async-compare/node_modules/*
-benchmark/promises-benchmark/node_modules/*
-benchmark/promises-benchmark/fixtures/*
-benchmark/perf-promises/node_modules/*
 async
 sync
 mixed
