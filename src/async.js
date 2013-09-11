@@ -38,6 +38,7 @@ function Async() {
 var method = Async.prototype;
 
 
+
 method.invoke = function( fn, receiver, arg ) {
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
@@ -68,8 +69,8 @@ method._consumeFunctionBuffer = function() {
         for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
             functionBuffer[ i + FUNCTION_OFFSET ].call(
                 functionBuffer[ i + RECEIVER_OFFSET ],
-                functionBuffer[ i + ARGUMENT_OFFSET ]
-            );
+                functionBuffer[ i + ARGUMENT_OFFSET ] );
+
             //Must clear garbage immediately otherwise
             //high promotion rate is caused with long
             //sequence chains which leads to mass deoptimization

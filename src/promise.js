@@ -70,9 +70,11 @@ function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
     this._bitField = IS_CANCELLABLE;
-    //Since most promises only have 0-1 parallel handlers
+    //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
-    //This optimizes for exactly 1 parallel handler I.E. 99%
+    //The rest (if needed) are stored on the object's
+    //elements array (this[0], this[1]...etc)
+    //which has less indirection than when using external array
     this._fulfill0 =
     this._reject0 =
     this._progress0 =
@@ -303,7 +305,34 @@ method.then = function( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress, void 0, void 0 );
 };
 
-
+/**
+ *
+ * like .then but the callback argument is assumed to be an array and
+ * applied as parameters.
+ *
+ * Example using then vs spread:
+ *
+ * Promise.all([file, db, network]).then(function( results ) {
+ *     results[0] //file result
+ *     results[1] //db result
+ *     results[2] //network result
+ * });
+ *
+ * Promise.all([file, db, network]).spread(function( file, db, network ) {
+ *     file //file result
+ *     db //db result
+ *     network //network result
+ * });
+ *
+ * @param {=Function} didFulfill The callback to call if this promise
+ *  is fulfilled.
+ *
+ */
+method.spread = function( didFulfill ) {
+    return this
+        .then( this._spreader )
+        ._then( didFulfill, void 0, void 0, APPLY, void 0 );
+};
 /**
  * See if this promise is fulfilled.
  *
@@ -348,6 +377,25 @@ method.isResolved = function() {
 method.isCancellable = function() {
     return !this.isResolved() &&
         ( this._bitField & IS_CANCELLABLE ) > 0;
+};
+
+method._spreader = function spreader( values ) {
+
+    if( values instanceof Promise ) {
+        return values.then( spreader );
+    }
+
+    //Shouldnt be many items to loop through
+    //since the spread target callback will have
+    //a formal parameter for each item in the array
+    for( var i = 0, len = values.length; i < len; ++i ) {
+        if( values[i] instanceof Promise ) {
+            return Promise.all( values );
+        }
+    }
+    //The common and fast case
+    //e.g. Promise.all([a, b, c]).spread(...)
+    return values;
 };
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
@@ -507,7 +555,13 @@ method._resolvePromise = function(
         return onFulfilledOrRejected.call( receiver, value, promise );
     }
 
-    var x = tryCatch1( onFulfilledOrRejected, receiver, value );
+    var x;
+    if( receiver === APPLY ) {
+        x = tryCatchApply( onFulfilledOrRejected, value );
+    }
+    else {
+        x = tryCatch1( onFulfilledOrRejected, receiver, value );
+    }
     if( x === errorObj ) {
         async.invoke( promise._reject, promise, errorObj.e );
     }
@@ -536,6 +590,8 @@ method._resolvePromise = function(
             );
         }
         //3. Otherwise, if x is an object or function,
+                        //(TODO) isThenable is far more thorough
+                        //than other libraries?
         else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
             //3.2 If retrieving the property x.then
             //results in a thrown exception e,
@@ -596,13 +652,15 @@ method._resolveFulfill = function( value ) {
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
+        var receiver = this._receiverAt( i );
         if( fn !== noop ) {
             this._resolvePromise(
                 fn,
-                this._receiverAt( i ),
+                receiver,
                 value,
                 promise
             );
+
         }
         else {
             async.invoke( promise._fulfill, promise, value );

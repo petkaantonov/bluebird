@@ -30,6 +30,7 @@
 %constant(MAX_LENGTH, 0x3FFFFFF);
 
 var errorObj = {e: {}};
+var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
 var rescape = /[\r\n\u2028\u2029']/g;
@@ -49,6 +50,8 @@ var isArray = Array.isArray || function( obj ) {
     //yeah it won't work iframes
     return obj instanceof Array;
 };
+
+
 
 
 
@@ -74,6 +77,15 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
     }
 }
 
+function tryCatchApply( fn, args ) {
+    try {
+        return fn.apply( void 0, args );
+    }
+    catch( e ) {
+        errorObj.e = e;
+        return errorObj;
+    }
+}
 
 var create = Object.create || function( proto ) {
     function F(){}
