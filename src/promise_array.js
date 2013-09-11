@@ -39,6 +39,8 @@ method.length = function() {
 method.promise = function() {
     return this._resolver.promise;
 };
+
+
                         //when.some resolves to [] when empty
                         //but when.any resolved to void 0 when empty :<
 method._init = function( _, fulfillValueIfEmpty ) {

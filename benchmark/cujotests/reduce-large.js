@@ -35,16 +35,29 @@ test.run(Object.keys(libs).filter(function(name) {
 }));
 
 function runTest(name, lib) {
-    var start = Date.now();
-        return lib.reduce(array, function(current, next) {
+    //It actually makes no sense to use the promises' .reduce
+    //if you are going to reduce a bunch of integers... there is
+    //[].reduce for that
+    var a = array.map(function(v){
+        return lib.fulfilled(v);
+    });
+    var last = a[a.length-1];
+    var ret = lib.pending();
+    last.then(function(){
+        var start = Date.now();
+        lib.reduce(a, function(current, next) {
             return lib.fulfilled(current + next);
         }, lib.fulfilled(0))
             .then(
                 function(result) {
                     test.addResult(name, Date.now() - start);
+                    ret.fulfill( result );
                 },
                 function(e) {
                     test.addError(name, e);
+                    ret.reject( result );
                 }
         );
+    });
+    return ret.promise;
 }

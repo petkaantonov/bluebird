@@ -25,11 +25,24 @@ test.run(Object.keys(libs).filter(function(name) {
 }));
 
 function runTest(name, lib) {
-    var start = Date.now();
-    return lib.map(array, function(value) {
-        return lib.fulfilled(value * 2);
-    })
-    .then(function() {
-        test.addResult(name, Date.now() - start);
+    //It actually makes no sense to use the promises' .map
+    //if you are going to map a bunch of integers... there is
+    //[].map for that
+    var a = array.map(function(v){
+        return lib.fulfilled(v);
     });
+    var last = a[a.length-1];
+    var ret = lib.pending();
+    last.then(function(){
+        var start = Date.now();
+
+        lib.map(a, function(value) {
+            return lib.fulfilled(value * 2);
+        })
+        .then(function(a) {
+            test.addResult(name, Date.now() - start);
+            ret.fulfill(a);
+        });
+    });
+    return ret.promise;
 }

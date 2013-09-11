@@ -396,10 +396,10 @@ method.isCancellable = function() {
 
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
-    __data ) {
-    var ret = __data === void 0
+    internalData ) {
+    var ret = internalData === void 0
         ? new Promise()
-        : __data;
+        : internalData;
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
@@ -899,6 +899,25 @@ Promise.some = function( promises, howMany ) {
     return ret.promise();
 };
 
+
+function mapper( fulfilleds ) {
+    var fn = this;
+    var shouldDefer = false;
+    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+        var fulfill = fn(fulfilleds[i]);
+        if( !shouldDefer && isPromise( fulfill ) ) {
+            if( fulfill.isFulfilled() ) {
+                fulfilleds[i] = fulfill._resolvedValue;
+                continue;
+            }
+            else {
+                shouldDefer = true;
+            }
+        }
+        fulfilleds[i] = fulfill;
+    }
+    return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
+}
 /**
  * Description.
  *
@@ -907,17 +926,13 @@ Promise.some = function( promises, howMany ) {
 Promise.map = function( promises, fn ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function" );
-    return Promise.all( promises ).then( function( fulfilleds ) {
-        var shouldDefer = false;
-        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            var fulfill = fulfilleds[i] = fn(fulfilleds[i]);
-            if( isPromise( fulfill ) ) {
-                shouldDefer = true;
-            }
-        }
-
-        return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
-    });
+    return Promise.all( promises )._then(
+        mapper,
+        void 0,
+        void 0,
+        fn,
+        void 0
+    );
 };
 
 /**
