@@ -1,0 +1,15 @@
+node_modules/*
+todo.txt
+npm-debug.log
+benchmark/*
+benchmark/async-compare/node_modules/*
+benchmark/promises-benchmark/node_modules/*
+benchmark/promises-benchmark/fixtures/*
+benchmark/perf-promises/node_modules/*
+async
+sync
+mixed
+bench.json
+js/bluebird.min.js
+js/bluebird_sync.js
+js/bluebird_sync.min.js

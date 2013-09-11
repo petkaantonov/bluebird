@@ -13,8 +13,9 @@ method._promiseResolved = function( index, inspection ) {
         this._fulfill( this._values );
     }
 };
-//override
+
 var throwawayPromise = new Promise();
+//override
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack
@@ -24,7 +25,6 @@ method._promiseFulfilled = function( value, index ) {
     ret._bitField = IS_FULFILLED;
     ret._resolvedValue = value;
     this._promiseResolved( index.valueOf(), ret );
-
 };
 //override
 method._promiseRejected = function( reason, index ) {
@@ -36,7 +36,6 @@ method._promiseRejected = function( reason, index ) {
     ret._bitField = IS_REJECTED;
     ret._resolvedValue = reason;
     this._promiseResolved( index.valueOf(), ret );
-
 };
 
 return SettledPromiseArray;})();

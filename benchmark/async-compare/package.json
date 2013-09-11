@@ -1,0 +1,39 @@
+{
+  "name": "async-compare",
+  "version": "0.1.0",
+  "description": "Compare the performance and code of multiple async patterns",
+  "main": "perf.js",
+  "dependencies": {
+    "optimist": "~0.6.0",
+    "when": "~2.2.1",
+    "esprima": "~1.0.3",
+    "async": "~0.2.9",
+    "text-table": "~0.1.1",
+    "streamline": "~0.6.0",
+    "long-stack-traces": "~0.1.2",
+    "q": "~0.9.6",
+    "suspend": "~0.3.0",
+    "gens": "~0.2.5",
+    "co": "~1.5.1",
+    "rx": "~2.1.10",
+    "source-map-support": "~0.2.3",
+    "traceur": "0.0.4",
+    "genny": "~0.5.0",
+    "stratifiedjs": "~0.14.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "generators",
+    "fibers",
+    "promises",
+    "callbacks",
+    "comparison",
+    "compare",
+    "async"
+  ],
+  "author": "spion",
+  "license": "MIT"
+}

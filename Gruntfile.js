@@ -158,29 +158,29 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-bump');
 
-    function runIndependent( file, cb ) {
-    var fs = require("fs");
-    var sys = require('sys');
-    var spawn = require('child_process').spawn;
-    var node = spawn('node', ["./"+file]);
-    node.stdout.on('data', function( data ) {
-        process.stdout.write(data);
-    });
+    function runIndependentTest( file, cb ) {
+        var fs = require("fs");
+        var sys = require('sys');
+        var spawn = require('child_process').spawn;
+        var node = spawn('node', ["./"+file]);
+        node.stdout.on('data', function( data ) {
+            process.stdout.write(data);
+        });
 
-    node.stderr.on('data', function( data ) {
-        process.stderr.write(data);
-    });
+        node.stderr.on('data', function( data ) {
+            process.stderr.write(data);
+        });
 
-    function exit( code ) {
-        if( code !== 0 ) {
-            cb(new Error("process didn't exit normally"));
+        function exit( code ) {
+            if( code !== 0 ) {
+                throw new Error("process didn't exit normally");
+            }
+            else {
+                cb(null);
+            }
         }
-        else {
-            cb(null);
-        }
-    }
 
-    node.on('exit', exit );
+        node.on('exit', exit );
     }
 
     function fixStrict( code ) {
@@ -309,7 +309,7 @@ module.exports = function( grunt ) {
                     var suite = mochas[i].suite;
                     if( suite.suites.length === 0 &&
                         suite.tests.length === 0 ) {
-                        runIndependent(mochas[i].files[0], function(err) {
+                        runIndependentTest(mochas[i].files[0], function(err) {
                             if( err ) throw err;
                             setTimeout(function(){
                                 runner( mochas, i + 1 );
@@ -347,10 +347,17 @@ module.exports = function( grunt ) {
                 done();
             }
             else {
-                grunt.log.writeln("Running benchmark " + files[i] );
-                require(files[i])(function(){
+                var file = files[i];
+                grunt.log.writeln("Running benchmark " + file );
+                if( file.indexOf( "matcha" ) !== -1 ) {
+                    grunt.log.writeln("Run matcha benchmarks with match");
                     runner(files, i + 1 );
-                });
+                }
+                else {
+                    require(file)(function(){
+                        runner(files, i + 1 );
+                    });
+                }
             }
         })(files, 0);
     }
