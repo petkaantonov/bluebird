@@ -384,6 +384,23 @@ function isThenable( ret, ref ) {
     }
 }
 
+function trimTrace( current, earlierStack ) {
+    earlierStack = earlierStack.substr( earlierStack.indexOf("\n") + 1 );
+    var combined = current + "\n" + earlierStack;
+    var lines = combined.split("\n");
+    var ret = [];
+    var rignore = new RegExp(
+        "\\b(?:Promise\\.method|tryCatch(?:1|2|Apply)|setTimeout" +
+        "|processImmediate|nextTick|_?consumeFunctionBuffer)\\b"
+    );
+    for( var i = 0, len = lines.length; i < len; ++i ) {
+        if( !rignore.test( lines[i] ) ) {
+            ret.push( lines[i] );
+        }
+    }
+    return ret.join("\n");
+}
+
 var possiblyUnhandledRejection = function( reason, earlierStack ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
@@ -394,7 +411,7 @@ var possiblyUnhandledRejection = function( reason, earlierStack ) {
             : reason.name + ". " + reason.message );
 
         if( earlierStack !== void 0 ) {
-            message += "\nEarlier: " + earlierStack;
+            message = trimTrace( message, earlierStack );
         }
 
         if( typeof console.error === "function" ) {
@@ -773,9 +790,7 @@ method._then = function( didFulfill, didReject, didProgress, receiver,
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
-    Error.stackTraceLimit = 3;
     ret._trace = new CapturedTrace();
-    Error.stackTraceLimit = 10;
 
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
@@ -1120,6 +1135,12 @@ method._resolveReject = function( reason ) {
                 reason
             );
         }
+        else {
+            this._cleanTrace();
+        }
+    }
+    else {
+        this._cleanTrace();
     }
 
 };
@@ -1129,7 +1150,7 @@ method._unhandledRejection = function( reason ) {
         var stack = void 0;
         if( this._trace !== null ) {
             stack = this._trace.stack;
-            this._trace = null;
+            this._cleanTrace();
         }
         setTimeout(function() {
             if( !reason.__handled ) {
@@ -1140,20 +1161,24 @@ method._unhandledRejection = function( reason ) {
     }
 };
 
-method._cleanValues = function() {
+method._cleanTrace = function() {
     if( this._trace !== null ) {
         this._trace.stack = null;
         this._trace = null;
     }
+};
+
+method._cleanValues = function() {
     this._cancellationParent = null;
 };
 
 method._fulfill = function( value ) {
     if( this.isResolved() ) return;
+    this._cleanValues();
+    this._cleanTrace();
     this._setFulfilled();
     this._resolvedValue = value;
     this._resolveFulfill( value );
-    this._cleanValues();
 
 };
 
