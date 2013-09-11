@@ -756,16 +756,16 @@ method.isCancellable = function() {
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
     internalData ) {
-    var ret = internalData === void 0
-        ? new Promise()
-        : internalData;
+    var haveInternalData = internalData !== void 0;
+    var ret = haveInternalData ? internalData : new Promise();
+
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
     if( this.isResolved() ) {
         async.invoke( this._resolveLast, this, callbackIndex );
     }
-    else if( this.isCancellable() ) {
+    else if( !haveInternalData && this.isCancellable() ) {
         ret._cancellationParent = this;
     }
 
@@ -1294,6 +1294,33 @@ Promise.map = function( promises, fn ) {
     );
 };
 
+function reducer( fulfilleds, initialValue ) {
+    var fn = this;
+    var len = fulfilleds.length;
+    var accum;
+    var startIndex = 0;
+
+    if( initialValue !== void 0 ) {
+        accum = initialValue;
+        startIndex = 0;
+    }
+    else {
+        accum = len > 0 ? fulfilleds[0] : void 0;
+        startIndex = 1;
+    }
+    for( var i = startIndex; i < len; ++i ) {
+        accum = fn( accum, fulfilleds[i], i, len );
+    }
+    return accum;
+}
+
+function slowReduce( promises, fn, initialValue ) {
+    return Promise.all( promises ).then( function( fulfilleds ) {
+        return reducer.call( fn, fulfilleds, initialValue );
+    });
+}
+
+
 /**
  * Description.
  *
@@ -1302,25 +1329,16 @@ Promise.map = function( promises, fn ) {
 Promise.reduce = function( promises, fn, initialValue ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function");
-
-    return Promise.all( promises ).then( function( fulfilleds ) {
-        var len = fulfilleds.length;
-        var accum;
-        var startIndex = 0;
-        //Yeah, don't pass undefined explicitly
-        if( initialValue !== void 0 ) {
-            accum = initialValue;
-            startIndex = 0;
-        }
-        else {
-            accum = len > 0 ? fulfilleds[0] : void 0;
-            startIndex = 1;
-        }
-        for( var i = startIndex; i < len; ++i ) {
-            accum = fn( accum, fulfilleds[i], i, len );
-        }
-        return accum;
-    });
+    if( initialValue !== void 0 ) {
+        return slowReduce( promises, fn, initialValue );
+    }
+    return Promise
+        .all( promises ) //Currently smuggling internal data has a limitation
+                        //in that no promises can be chained after it.
+                        //One needs to be able to chain to get at
+                        //the reduced results, so fast case is only possible
+                        //when there is no initialValue.
+        ._then( reducer, void 0, void 0, fn, void 0 );
 };
 
 /**
