@@ -384,7 +384,7 @@ function isThenable( ret, ref ) {
     }
 }
 
-var possiblyUnhandledRejection = function( reason ) {
+var possiblyUnhandledRejection = function( reason, earlierStack ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
 
@@ -392,6 +392,10 @@ var possiblyUnhandledRejection = function( reason ) {
             //The name and message will be in stack trace if it's there
             ? stack
             : reason.name + ". " + reason.message );
+
+        if( earlierStack !== void 0 ) {
+            message += "\nEarlier: " + earlierStack;
+        }
 
         if( typeof console.error === "function" ) {
             console.error( message );
@@ -1122,10 +1126,15 @@ method._resolveReject = function( reason ) {
 
 method._unhandledRejection = function( reason ) {
     if( !reason.__handled ) {
+        var stack = void 0;
+        if( this._trace !== null ) {
+            stack = this._trace.stack;
+            this._trace = null;
+        }
         setTimeout(function() {
             if( !reason.__handled ) {
                 reason.__handled = true;
-                possiblyUnhandledRejection( reason );
+                possiblyUnhandledRejection( reason, stack );
             }
         }, 100 );
     }
@@ -1141,19 +1150,19 @@ method._cleanValues = function() {
 
 method._fulfill = function( value ) {
     if( this.isResolved() ) return;
-    this._cleanValues();
     this._setFulfilled();
     this._resolvedValue = value;
     this._resolveFulfill( value );
+    this._cleanValues();
 
 };
 
 method._reject = function( reason ) {
     if( this.isResolved() ) return;
-    this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
     this._resolveReject( reason );
+    this._cleanValues();
 };
 
 method._progress = function( progressValue ) {
