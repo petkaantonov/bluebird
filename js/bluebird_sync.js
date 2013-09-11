@@ -467,6 +467,8 @@ function Promise( resolver ) {
     this._resolvedValue = UNRESOLVED;
     //Used in cancel propagation
     this._cancellationParent = null;
+
+    this._trace = null;
 }
 var method = Promise.prototype;
 
@@ -753,11 +755,23 @@ method.isCancellable = function() {
         this._cancellable();
 };
 
+function CapturedTrace() {
+    Error.captureStackTrace( this, this.constructor );
+}
+CapturedTrace.prototype = new Error();
+CapturedTrace.prototype.constructor = CapturedTrace;
+CapturedTrace.prototype.toString = function() {
+    return "RejectionError";
+};
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
     internalData ) {
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
+
+    Error.stackTraceLimit = 3;
+    ret._trace = new CapturedTrace();
+    Error.stackTraceLimit = 10;
 
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
@@ -1108,6 +1122,10 @@ method._unhandledRejection = function( reason ) {
 };
 
 method._cleanValues = function() {
+    if( this._trace !== null ) {
+        this._trace.stack = null;
+        this._trace = null;
+    }
     this._cancellationParent = null;
 };
 
