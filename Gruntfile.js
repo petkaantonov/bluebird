@@ -56,6 +56,9 @@ var assertionErrorCode = function() {
                 if( Error.captureStackTrace ) {
                     Error.captureStackTrace( ret, assert );
                 }
+                if( console && console.error ) {
+                    console.error( ret.stack + "" );
+                }
                 throw ret;
             }
         };

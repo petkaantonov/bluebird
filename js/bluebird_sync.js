@@ -24,18 +24,6 @@
 (function( global, Function, Array, Error, Object ) { "use strict";
 
 //This is the only way to have efficient constants
-
-
-
-
-
-
-
-
-
-
-
-
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
 //0 = Always 0 (never used)
@@ -45,15 +33,6 @@
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-
-
-
-
-
-
-
-
-
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -320,25 +299,22 @@ method.invoke = function( fn, receiver, arg ) {
 };
 
 method._consumeFunctionBuffer = function() {
-    var len = this._length;
     var functionBuffer = this._functionBuffer;
-    if( len > 0 ) {       //Must not cache the length
-        for( var i = 0; i < this._length; i += 3 ) {
-            functionBuffer[ i + 0 ].call(
-                functionBuffer[ i + 1 ],
-                functionBuffer[ i + 2 ] );
+    //Must not cache the length
+    for( var i = 0; i < this._length; i += 3 ) {
+        functionBuffer[ i + 0 ].call(
+            functionBuffer[ i + 1 ],
+            functionBuffer[ i + 2 ] );
 
-            //Must clear garbage immediately otherwise
-            //high promotion rate is caused with long
-            //sequence chains which leads to mass deoptimization
-            functionBuffer[ i + 0 ] =
-                functionBuffer[ i + 1 ] =
-                functionBuffer[ i + 2 ] =
-                void 0;
-        }
-        this._reset();
+        //Must clear garbage immediately otherwise
+        //high promotion rate is caused with long
+        //sequence chains which leads to mass deoptimization
+        functionBuffer[ i + 0 ] =
+            functionBuffer[ i + 1 ] =
+            functionBuffer[ i + 2 ] =
+            void 0;
     }
-    else this._reset();
+    this._reset();
 };
 
 method._reset = function() {
@@ -1686,7 +1662,6 @@ function SettledPromiseArray( values ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
-    
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {

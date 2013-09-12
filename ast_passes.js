@@ -117,6 +117,9 @@ Empty.prototype.toString = function() {
     return "";
 };
 
+var rlineterm = /[\r\n\u2028\u2029]/;
+var rhorizontalws = /[ \t]/;
+
 var astPasses = module.exports = {
 
     constants: function( src ) {
@@ -156,8 +159,12 @@ var astPasses = module.exports = {
                     }
 
                     var args = node.arguments;
+                    var e = end + 1;
+                    var s = start - 1;
 
-                    results.push( new Empty( start, end ) );
+                    while(rhorizontalws.test(src.charAt(s--)));
+                    while(rlineterm.test(src.charAt(e++)));
+                    results.push( new Empty( s + 2, e - 1 ) );
 
                     var name = args[0];
                     var nameStr = name.name;
@@ -213,7 +220,12 @@ var astPasses = module.exports = {
                             src.substring(start, end)
                         );
                     }
-                    results.push( new Empty( start, end) );
+                    var e = end + 1;
+                    var s = start - 1;
+
+                    while(rhorizontalws.test(src.charAt(s--)));
+                    while(rlineterm.test(src.charAt(e++)));
+                    results.push( new Empty( s + 2, e - 1) );
                 }
             }
         });

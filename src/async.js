@@ -23,7 +23,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    var functionBuffer = this._functionBuffer = new Array( 25000 * FUNCTION_SIZE );
+    var functionBuffer = this._functionBuffer = new Array( 1000 * FUNCTION_SIZE );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
@@ -40,6 +40,8 @@ var method = Async.prototype;
 
 
 method.invoke = function( fn, receiver, arg ) {
+    ASSERT( typeof fn, "function" );
+    ASSERT( arguments.length, 3 );
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
@@ -50,6 +52,7 @@ method.invoke = function( fn, receiver, arg ) {
         functionBuffer.push( fn, receiver, arg );
     }
     else {
+        ASSERT( length < len );
         functionBuffer[ length + FUNCTION_OFFSET ] = fn;
         functionBuffer[ length + RECEIVER_OFFSET ] = receiver;
         functionBuffer[ length + ARGUMENT_OFFSET ] = arg;
@@ -63,25 +66,24 @@ method.invoke = function( fn, receiver, arg ) {
 };
 
 method._consumeFunctionBuffer = function() {
-    var len = this._length;
     var functionBuffer = this._functionBuffer;
-    if( len > 0 ) {       //Must not cache the length
-        for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
-            functionBuffer[ i + FUNCTION_OFFSET ].call(
-                functionBuffer[ i + RECEIVER_OFFSET ],
-                functionBuffer[ i + ARGUMENT_OFFSET ] );
+    ASSERT( this._length > 0 );
+    ASSERT( this._isTickUsed );
+    //Must not cache the length
+    for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
+        functionBuffer[ i + FUNCTION_OFFSET ].call(
+            functionBuffer[ i + RECEIVER_OFFSET ],
+            functionBuffer[ i + ARGUMENT_OFFSET ] );
 
-            //Must clear garbage immediately otherwise
-            //high promotion rate is caused with long
-            //sequence chains which leads to mass deoptimization
-            functionBuffer[ i + FUNCTION_OFFSET ] =
-                functionBuffer[ i + RECEIVER_OFFSET ] =
-                functionBuffer[ i + ARGUMENT_OFFSET ] =
-                void 0;
-        }
-        this._reset();
+        //Must clear garbage immediately otherwise
+        //high promotion rate is caused with long
+        //sequence chains which leads to mass deoptimization
+        functionBuffer[ i + FUNCTION_OFFSET ] =
+            functionBuffer[ i + RECEIVER_OFFSET ] =
+            functionBuffer[ i + ARGUMENT_OFFSET ] =
+            void 0;
     }
-    else this._reset();
+    this._reset();
 };
 
 method._reset = function() {
