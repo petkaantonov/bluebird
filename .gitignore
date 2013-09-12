@@ -9,4 +9,3 @@ async
 sync
 mixed
 bench.json
-js/bluebird_debug.js
