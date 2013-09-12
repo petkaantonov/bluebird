@@ -99,22 +99,6 @@ DirectCall.prototype.toString = function() {
 };
 
 
-function Assertation(left, right, start, end) {
-    this.start = start;
-    this.end = end;
-    this.left = left;
-    this.right = right;
-}
-
-Assertation.prototype.toString = function() {
-    if( this.right === void 0 ) {
-        return "assert("+nodeToString(this.left)+")";
-    }
-    else {
-        return "assert("+nodeToString(this.left)+" === "+nodeToString(this.right)+")";
-    }
-};
-
 function ConstantReplacement( value, start, end ) {
     this.value = value;
     this.start = start;
@@ -133,7 +117,7 @@ Empty.prototype.toString = function() {
     return "";
 };
 
-module.exports = {
+var astPasses = module.exports = {
 
     constants: function( src ) {
         var constants = {};
@@ -182,10 +166,10 @@ module.exports = {
 
         }
 
-        return results;
+        return astPasses.convertSrc( src, results );
     },
 
-    asserts: function( src, enabled ) {
+    removeAsserts: function( src ) {
         var ast = jsp.parse(src);
         var results = [];
         walk.simple(ast, {
@@ -195,25 +179,11 @@ module.exports = {
                 var callee = node.callee;
                 if( callee.type === "Identifier" &&
                     callee.name === "ASSERT" ) {
-                    if( !enabled ) {
-                        results.push( new Empty( start, end + 1 ) );
-                        return;
-                    }
-                    var args = node.arguments;
-
-                    if( args.length === 2 ) {
-                        results.push( new Assertation( args[0], args[1], start, end ) );
-                    }
-                    else if( args.length === 1 ) {
-                        results.push( new Assertation( args[0], void 0, start, end ) );
-                    }
-                    else {
-                        throw new Error("Invalid ASSERT");
-                    }
+                    results.push( new Empty( start, end + 1 ) );
                 }
             }
         });
-        return results;
+        return astPasses.convertSrc( src, results );
     },
 
     asyncConvert: function( src, objName, fnProp ) {
@@ -255,7 +225,7 @@ module.exports = {
                 }
             }
         });
-        return results;
+        return astPasses.convertSrc( src, results );
     },
 
     convertSrc: function( src, results ) {

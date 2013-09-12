@@ -61,7 +61,7 @@ define('when.some-test', function (require) {
 
     var when, resolved, rejected;
 
-    when = require('../js/bluebird.js');
+    when = require('../js/bluebird_debug.js');
 
     resolved = when.fulfilled;
     rejected = when.rejected;

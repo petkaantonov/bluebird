@@ -9,10 +9,71 @@ var ccOptions = {
     jar: '../closure_compiler/build/compiler.jar'
 };
 
+
+var assertionErrorCode = function() {
+    var ASSERT = (function(){
+        var AssertionError = (function() {
+            function AssertionError( a ) {
+                this.constructor$( a );
+                this.message = a;
+                this.name = "AssertionError";
+            }
+            AssertionError.prototype = new Error();
+            AssertionError.prototype.constructor = AssertionError;
+            AssertionError.prototype.constructor$ = Error;
+            return AssertionError;
+        })();
+
+        function format(type) {
+            switch( typeof type ) {
+            case "string":
+            case "number":
+            case "boolean":
+            case "object":
+                return JSON.stringify( type );
+            case "undefined":
+                return "undefined";
+            case "function":
+                return type.name
+                    ? "function " + type.name + "() {}"
+                    : "function anonymous() {}";
+            }
+        }
+
+        return function assert( val1, val2 ) {
+            var message = "";
+            if( arguments.length === 2 ) {
+                if( val1 !== val2 ) {
+                    message = "Expected " + format(val1) + " to equal " +
+                        format(val2);
+                }
+            }
+            else if( val1 !== true ) {
+                message = "Expected " + format(val1) + " to equal true";
+            }
+            if( message !== "" ) {
+                var ret = new AssertionError( message );
+                if( Error.captureStackTrace ) {
+                    Error.captureStackTrace( ret, assert );
+                }
+                throw ret;
+            }
+        };
+    })();
+
+}.toString()
+.replace(/^\s*function\s*\(\s*\)\s\{/, "")
+.replace(/}\s*$/, "")
+//:D
+.replace('(function(){', '(function(){/* jshint -W014, -W116 */');
+
 module.exports = function( grunt ) {
 
 
+
+
     var SRC_DEST = './js/bluebird.js',
+        BUILD_DEBUG_DEST = './js/bluebird_debug.js',
         BUILD_DEST = './js/bluebird.js',
         BUILD_SYNC_DEST = './js/bluebird_sync.js',
         MIN_SYNC_DEST = './js/bluebird_sync.min.js',
@@ -35,7 +96,8 @@ module.exports = function( grunt ) {
 
             files: {
                 src: [
-                    BUILD_DEST
+                    BUILD_DEST,
+                    BUILD_DEBUG_DEST
                 ]
             }
         }
@@ -143,6 +205,7 @@ module.exports = function( grunt ) {
     function build( shouldMinify ) {
         var fs = require("fs");
         var src = fs.readFileSync( SRC_DEST, "utf8" );
+
         function ccCompleted() {
             runsDone++;
             if( runsDone >= totalCCRuns ) {
@@ -157,17 +220,16 @@ module.exports = function( grunt ) {
             var done = this.async();
         }
 
-        var passResults = [];
-        passResults = passResults.concat( astPasses.constants( src ) );
-        passResults = passResults.concat( astPasses.asserts( src, false ) );
+        var debugSrc, asyncSrc, syncSrc;
 
-        var asyncSrc = astPasses.convertSrc( src, passResults );
+        debugSrc = src = astPasses.constants( src );
+        debugSrc = assertionErrorCode + debugSrc;
+        asyncSrc = src = astPasses.removeAsserts( src );
+        syncSrc = astPasses.asyncConvert( src, "async", "invoke");
 
-        passResults = passResults.concat( astPasses.asyncConvert( src, "async", "invoke") );
-
-        var syncSrc = astPasses.convertSrc( src, passResults );
         writeFile( BUILD_DEST, asyncSrc );
         writeFile( BUILD_SYNC_DEST, syncSrc );
+        writeFile( BUILD_DEBUG_DEST, debugSrc );
 
         if( shouldMinify ) {
             var ccDone = function( location, err, code ) {
@@ -194,7 +256,7 @@ module.exports = function( grunt ) {
         var fs = require("fs");
         var path = require("path");
         var done = this.async();
-        var adapter = global.adapter = require(BUILD_DEST);
+        var adapter = global.adapter = require(BUILD_DEBUG_DEST);
 
         if( testOption === "aplus" ) {
             grunt.log.writeln("Running Promises/A+ conformance tests");
@@ -293,10 +355,12 @@ module.exports = function( grunt ) {
         })(files, 0);
     }
 
+
     grunt.registerTask( "build-with-minify", function() {
         return build.call( this, true );
     });
     grunt.registerTask( "build", function() {
+        var debug = !!grunt.option("debug");
         return build.call( this, false );
     });
 

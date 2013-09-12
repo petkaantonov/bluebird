@@ -34,7 +34,7 @@ sentinel = {};
 define('when.map-test', function (require) {
 
     var when, delay, resolved, reject;
-    when = require('../js/bluebird.js');
+    when = require('../js/bluebird_debug.js');
 
 
     when.resolve = when.fulfilled;

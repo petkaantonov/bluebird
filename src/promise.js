@@ -877,6 +877,23 @@ Promise.all = function( promises ) {
 };
 
 /**
+ * Like Promise.all but instead of having to pass an array,
+ * the array is generated from the passed variadic arguments.
+ *
+ * Promise.all([a, b, c]) <--> Promise.join(a, b, c);
+ *
+ * @return {Promise}
+ *
+ */
+Promise.join = function() {
+    var ret = new Array( arguments.length );
+    for( var i = 0, len = ret.length; i < len; ++i ) {
+        ret[i] = arguments[i];
+    }
+    return Promise.all( ret );
+};
+
+/**
  * Description.
  *
  *
@@ -1025,6 +1042,7 @@ Promise.rejected = function( reason ) {
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
 };
+
 
 /**
  * Casts the object to a trusted Promise. If the

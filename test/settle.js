@@ -43,7 +43,7 @@ function assertRejected(s, reason) {
 
 define('when/settle-test', function (require) {
 
-    when = require('../js/bluebird.js');
+    when = require('../js/bluebird_debug.js');
 
 
     when.resolve = when.fulfilled;
