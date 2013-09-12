@@ -125,21 +125,48 @@ var astPasses = module.exports = {
         var identifiers = [];
         var ast = jsp.parse(src);
         walk.simple(ast, {
-            CallExpression: function( node ) {
+            ExpressionStatement: function( node ) {
+
+                if( node.expression.type !== 'CallExpression' ) {
+                    return;
+                }
+
                 var start = node.start;
                 var end = node.end;
+                node = node.expression;
                 var callee = node.callee;
-                if( callee.type === "Identifier" &&
-                    node.arguments.length === 2 &&
-                    node.arguments[0].type === "Identifier" &&
-                    callee.name === "CONSTANT" ) {
+                if( callee.name === "CONSTANT" ) {
+
+                    if( callee.type !== "Identifier" ) {
+                        throw new Error( "CONSTANT must be identifier\n" +
+                            src.substring(start, end)
+                        );
+                    }
+                    if( node.arguments.length !== 2 ) {
+                        throw new Error( "Exactly 2 arguments must be passed to CONSTANT\n" +
+                            src.substring(start, end)
+                        );
+                    }
+
+                    if( node.arguments[0].type !== "Identifier" ) {
+                        throw new Error( "Can only define identifier as a constant\n" +
+                            src.substring(start, end)
+                        );
+                    }
+                    if( node.arguments[1].type !== "Literal" ) {
+                        throw new Error( "Only a literal can be a constant " +
+                            src.substring(start, end)
+                        );
+                    }
+
                     var args = node.arguments;
 
-                    results.push( new Empty( start, end + 1 ) );
+                    results.push( new Empty( start, end ) );
 
                     var name = args[0];
                     var nameStr = name.name;
                     var expr = args[1];
+
                     constants[nameStr] = {
                         identifier: name,
                         value: expr
@@ -173,13 +200,24 @@ var astPasses = module.exports = {
         var ast = jsp.parse(src);
         var results = [];
         walk.simple(ast, {
-            CallExpression: function( node ) {
+            ExpressionStatement: function( node ) {
+                if( node.expression.type !== 'CallExpression' ) {
+                    return;
+                }
                 var start = node.start;
                 var end = node.end;
+                node = node.expression;
                 var callee = node.callee;
+
                 if( callee.type === "Identifier" &&
                     callee.name === "ASSERT" ) {
-                    results.push( new Empty( start, end + 1 ) );
+                    if( node.arguments.length !== 1 &&
+                        node.arguments.length !== 2 ) {
+                        throw new Error( "Invalid amount of arguments to ASSERT" +
+                            src.substring(start, end)
+                        );
+                    }
+                    results.push( new Empty( start, end) );
                 }
             }
         });
