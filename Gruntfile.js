@@ -1,4 +1,4 @@
-var asyncConverter = require("./async_converter.js");
+var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 
 var ccOptions = {
@@ -22,59 +22,6 @@ module.exports = function( grunt ) {
         grunt.file.write( dest, content );
         grunt.log.writeln('File "' + dest + '" created.');
     }
-
-    function asyncConvert( src ) {
-        var results = asyncConverter( src, "async", "invoke" );
-        if( results.length ) {
-            var ret = "";
-            var start = 0;
-            for( var i = 0, len = results.length; i < len; ++i ) {
-                var item = results[i];
-                ret += src.substring( start, item.start );
-                ret += item.toString();
-                start = item.end;
-            }
-            ret += src.substring( start );
-            return ret;
-        }
-        return src;
-    }
-
-    function replaceConstants( src ) {
-        var rconstant = /%constant\s*\(\s*([a-zA-Z0-9$_]+)\s*,\s*(.+)\s*\)\s*;/ig;
-        var constants = [];
-        var m;
-
-        while( ( m = rconstant.exec(src) ) !== null ) {
-
-            constants.push({
-                regex: new RegExp("\\b" + m[1].replace(/\$/g, "\\$") + "\\b", "g"),
-                replace: m[2],
-                startIndex: rconstant.lastIndex - m[0].length,
-                endIndex: rconstant.lastIndex
-            });
-        }
-
-        if( constants.length ) {
-
-            var ret = "";
-            var start = 0;
-            for( var i = 0, len = constants.length; i < len; ++i ) {
-                var constant = constants[i];
-                ret += src.substring( start, constant.startIndex );
-                start = constant.endIndex;
-            }
-            ret += src.substring( start );
-            for( var i = 0, len = constants.length; i < len; ++i ) {
-                ret = ret.replace( constants[i].regex, constants[i].replace );
-            }
-
-            return ret;
-        }
-        return src;
-    }
-
-
 
     var gruntConfig = {};
 
@@ -195,21 +142,7 @@ module.exports = function( grunt ) {
 
     function build( shouldMinify ) {
         var fs = require("fs");
-
-
         var src = fs.readFileSync( SRC_DEST, "utf8" );
-
-        var transformations = [{
-            srcTransformations: [replaceConstants],
-            output: BUILD_DEST,
-            outputMin: MIN_DEST
-        }, {
-            continuePrevTransformation: true,
-            srcTransformations: [asyncConvert],
-            output: BUILD_SYNC_DEST,
-            outputMin: MIN_SYNC_DEST
-        }];
-
         function ccCompleted() {
             runsDone++;
             if( runsDone >= totalCCRuns ) {
@@ -217,38 +150,36 @@ module.exports = function( grunt ) {
             }
         }
 
-        var totalCCRuns = transformations.length;
+        var totalCCRuns = 2;
         var runsDone = 0;
 
         if( shouldMinify ) {
             var done = this.async();
         }
 
+        var passResults = [];
+        passResults = passResults.concat( astPasses.constants( src ) );
+        passResults = passResults.concat( astPasses.asserts( src, false ) );
 
-        for( var i = 0, len = transformations.length; i < len; ++i ) {
-            var transformation = transformations[i];
-            var srcTransformations = transformation.srcTransformations;
-            var prevSrc = transformation.continuePrevTransformation && i > 0 ? prevSrc : src;
-            srcTransformations.forEach(function( fn ) {
-                prevSrc = fn(prevSrc);
-            });
-            var output = transformation.output;
-            var outputMin = transformation.outputMin;
-            writeFile( output, prevSrc );
+        var asyncSrc = astPasses.convertSrc( src, passResults );
 
-            if( shouldMinify ) {
-                cc.compile( prevSrc, ccOptions, (function( location ){
+        passResults = passResults.concat( astPasses.asyncConvert( src, "async", "invoke") );
 
-                    return function( err, code ) {
-                        if( err ) throw err;
-                        code = fixStrict(code);
-                        writeFile( location, code );
-                        ccCompleted();
-                    };
+        var syncSrc = astPasses.convertSrc( src, passResults );
+        writeFile( BUILD_DEST, asyncSrc );
+        writeFile( BUILD_SYNC_DEST, syncSrc );
 
-                })(outputMin));
-            }
+        if( shouldMinify ) {
+            var ccDone = function( location, err, code ) {
+                if( err ) throw err;
+                code = fixStrict(code);
+                writeFile( location, code );
+                ccCompleted();
+            };
+            cc.compile( asyncSrc, ccOptions, ccDone.bind(0, MIN_DEST) );
+            cc.compile( syncSrc, ccOptions, ccDone.bind(0, MIN_SYNC_DEST ) );
         }
+
     }
 
     function testRun( testOption ) {

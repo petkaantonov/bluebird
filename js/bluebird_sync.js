@@ -1619,7 +1619,8 @@ function SettledPromiseArray( values ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
-    this._values[ index.valueOf() ] = inspection;
+    
+    this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
