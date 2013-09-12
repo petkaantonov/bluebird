@@ -20,6 +20,7 @@ function equals( a, b ) {
             unhandled();
         }
     }
+    return false;
 }
 
 function getReceiver( expr ) {

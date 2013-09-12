@@ -28,11 +28,13 @@ function isThenable( ret, ref ) {
 var possiblyUnhandledRejection = function( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
-
-        var message = "Possibly unhandled " + ( stack
-            //The name and message will be in stack trace if it's there
-            ? stack
-            : reason.name + ". " + reason.message );
+        var message = "Possibly unhandled ";
+        if( typeof stack === "string" ) {
+            message += stack;
+        }
+        else {
+            message += reason.name + ". " + reason.message;
+        }
 
         if( typeof console.error === "function" ) {
             console.error( message );
@@ -731,6 +733,7 @@ method._resolveReject = function( reason ) {
     if( !rejectionWasHandled &&
         isError( reason ) &&
         possiblyUnhandledRejection !== noop
+
     ) {
         //If the prop is not there, reading it
         //will cause deoptimization most likely
@@ -1021,6 +1024,52 @@ Promise.rejected = function( reason ) {
  */
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
+};
+
+/**
+ * Casts the object to a trusted Promise. If the
+ * object is a "thenable", then the trusted promise will
+ * assimilate it. Otherwise the trusted promise is immediately
+ * fulfilled with obj as the fulfillment value.
+ *
+ * It is recommended to use just one promise library at a time,
+ * so you don't have to call this method.
+ *
+ * Example: ($ is jQuery)
+ *
+ * Promise.cast($.get("http://www.google.com")).catch(function(){
+ *     //will catch to same-origin policy error here..
+ *     //... unless you are running this on google website
+ * });
+ *
+ * Note that if you return an untrusted promise inside a then e.g.:
+ *
+ * somePromise.then(function(url) {
+ *     return $.get(url);
+ * });
+ *
+ * Then the returned untrusted promise is autocast per Promises/A+
+ * specification. In any other situation, you will need to use
+ * explicit casting through Promise.cast
+ *
+ * @param {dynamic} obj The object to cast to a trusted Promise
+ * @return {Promise}
+ *
+ */
+Promise.cast = function( obj ) {
+    if( isObject( obj ) ) {
+        var ref = {ref: null};
+        if( isThenable( obj, ref ) ) {
+            var resolver = Promise.pending();
+            ref.ref.call(obj, function( a ) {
+                resolver.fulfill( a );
+            }, function( a ) {
+                resolver.reject( a );
+            });
+            return resolver.promise;
+        }
+    }
+    return Promise.fulfilled( obj );
 };
 
 /**
