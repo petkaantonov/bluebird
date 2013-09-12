@@ -135,13 +135,9 @@ var astPasses = module.exports = {
                 var end = node.end;
                 node = node.expression;
                 var callee = node.callee;
-                if( callee.name === "CONSTANT" ) {
+                if( callee.name === "CONSTANT" &&
+                    callee.type === "Identifier" ) {
 
-                    if( callee.type !== "Identifier" ) {
-                        throw new Error( "CONSTANT must be identifier\n" +
-                            src.substring(start, end)
-                        );
-                    }
                     if( node.arguments.length !== 2 ) {
                         throw new Error( "Exactly 2 arguments must be passed to CONSTANT\n" +
                             src.substring(start, end)
