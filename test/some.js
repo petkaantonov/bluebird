@@ -29,6 +29,21 @@ var assert, fail;
 assert = buster.assert;
 fail = buster.assertions.fail;
 
+function throwOnError(e) {
+    var stack = e.error.stack;
+    var message = "";
+    if( stack ) {
+        message = stack;
+    }
+    else {
+        message = e.error.name + " in '" + e.name + "' " + e.error.message;
+    }
+    console.error(message);
+    process.exit(-1);
+}
+buster.eventEmitter.on( "test:failure", throwOnError);
+buster.eventEmitter.on( "test:timeout", throwOnError);
+
 function contains(array, value) {
     for(var i = array.length-1; i >= 0; i--) {
         if(array[i] === value) {

@@ -29,6 +29,22 @@ var assert, fail, sentinel;
 assert = buster.assert;
 fail = buster.assertions.fail;
 
+function throwOnError(e) {
+    var stack = e.error.stack;
+    var message = "";
+    if( stack ) {
+        message = stack;
+    }
+    else {
+        message = e.error.name + " in '" + e.name + "' " + e.error.message;
+    }
+    console.error(message);
+    process.exit(-1);
+}
+buster.eventEmitter.on( "test:failure", throwOnError);
+buster.eventEmitter.on( "test:timeout", throwOnError);
+
+
 sentinel = {};
 
 define('when.map-test', function (require) {
@@ -60,7 +76,7 @@ define('when.map-test', function (require) {
         return delay(mapper(val), Math.random()*10);
     }
 
-    buster.testCase('when.map', {
+    var ret = buster.testCase('when.map', {
 
         'should map input values array': function(done) {
             var input = [1, 2, 3];

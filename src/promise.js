@@ -120,15 +120,6 @@ method.toString = function() {
     return "[object Promise]";
 };
 
-/**
- * Convenience method for .then( fn, null, null );
- *
- * @param {Function} fn The callback to call if this promise is fulfilled
- * @return {Promise}
- */
-method.fulfilled = function( fn ) {
-    return this._then( fn, void 0, void 0, void 0, void 0 );
-};
 
 /**
  * Convenience method for .then( null, fn, null );
@@ -136,7 +127,7 @@ method.fulfilled = function( fn ) {
  * @param {Function} fn The callback to call if this promise is rejected
  * @return {Promise}
  */
-method.rejected = function( fn ) {
+method.caught = method["catch"] = function( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0 );
 };
 
@@ -752,6 +743,7 @@ Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
     internalData ) {
+    ASSERT( arguments.length, 5 );
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 

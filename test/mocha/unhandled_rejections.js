@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert");
-var Promise = require("../js/bluebird_debug.js");
-var adapter = global.adapter;
+var Promise = require("../../js/bluebird_debug.js");
+var adapter = require("../../js/bluebird_debug.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
@@ -68,7 +68,7 @@ describe("Will report rejections that are not handled in time", function() {
         onUnhandledSucceed(done);
         var promise = rejected(e());
         setTimeout( function() {
-            promise.rejected(function(){});
+            promise.caught(function(){});
         }, 120 );
     });
     specify("Immediately rejected handled too late", function(done) {
@@ -76,7 +76,7 @@ describe("Will report rejections that are not handled in time", function() {
         var promise = pending();
         promise.reject(e());
         setTimeout( function() {
-            promise.promise.rejected(function(){});
+            promise.promise.caught(function(){});
         }, 120 );
     });
     specify("Eventually rejected handled too late", function(done) {
@@ -86,7 +86,7 @@ describe("Will report rejections that are not handled in time", function() {
             promise.reject(e());
         }, 20);
         setTimeout( function() {
-            promise.promise.rejected(function(){});
+            promise.promise.caught(function(){});
         }, 160 );
     });
 });
@@ -126,7 +126,7 @@ describe("Will report rejections that are code errors", function() {
         var promise = fulfilled(null);
         promise.then(function(itsNull){
             itsNull.will.fail.for.sure();
-        }).rejected(function(e){
+        }).caught(function(e){
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
         }).then(function(){
@@ -144,7 +144,7 @@ describe("Will report rejections that are code errors", function() {
         deferred.fulfill(null);
         promise.then(function(itsNull){
             itsNull.will.fail.for.sure();
-        }).rejected(function(e){
+        }).caught(function(e){
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
             //Handling the type error here
@@ -163,7 +163,7 @@ describe("Will report rejections that are code errors", function() {
 
         promise.then(function(itsNull){
             itsNull.will.fail.for.sure();
-        }).rejected(function(e){
+        }).caught(function(e){
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
             //Handling the type error here
@@ -184,12 +184,12 @@ describe("Will report rejections that are code errors", function() {
         var promise = fulfilled(null);
         promise.then(function(itsNull){
             itsNull.will.fail.for.sure();
-        }).rejected(function(e){
+        }).caught(function(e){
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
         });
 
-        promise.rejected(function(e) {
+        promise.caught(function(e) {
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
             //Handling the type error here
@@ -215,7 +215,7 @@ describe("Will report rejections that are code errors", function() {
         });
         var promise = fulfilled(null);
 
-        promise.rejected(function(e) {
+        promise.caught(function(e) {
             if( haveTypeErrors )
                 assert.ok( e instanceof TypeError )
             //Handling the type error here
@@ -281,14 +281,14 @@ describe("Will not report rejections that are handled in time", function() {
 
         var failed = rejected(e());
 
-        failed.rejected(function(){
+        failed.caught(function(){
 
         });
 
         var failed2 = rejected(e());
 
         setTimeout(function(){
-            failed2.rejected(function(){
+            failed2.caught(function(){
 
             });
         }, 40);
@@ -301,14 +301,14 @@ describe("Will not report rejections that are handled in time", function() {
 
         var failed = pending();
 
-        failed.promise.rejected(function(){
+        failed.promise.caught(function(){
 
         });
 
         var failed2 = pending();
 
         setTimeout(function(){
-            failed2.promise.rejected(function(){
+            failed2.promise.caught(function(){
 
             });
         }, 40);
@@ -327,14 +327,14 @@ describe("Will not report rejections that are handled in time", function() {
 
         var failed = pending();
 
-        failed.promise.rejected(function(){
+        failed.promise.caught(function(){
 
         });
 
         var failed2 = pending();
 
         setTimeout(function(){
-            failed2.promise.rejected(function(){
+            failed2.promise.caught(function(){
 
             });
         }, 40);
@@ -361,7 +361,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .rejected(function(){
+            .caught(function(){
             });
 
         var failed2 = rejected(e());
@@ -372,7 +372,7 @@ describe("Will not report rejections that are handled in time", function() {
                 .then(function(){}, null, function(){})
                 .then()
                 .then(function(){})
-                .rejected(function(){
+                .caught(function(){
                 });
         }, 40);
 
@@ -388,7 +388,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .rejected(function(){
+            .caught(function(){
 
         });
 
@@ -400,7 +400,7 @@ describe("Will not report rejections that are handled in time", function() {
                 .then(function(){}, null, function(){})
                 .then()
                 .then(function(){})
-                .rejected(function(){
+                .caught(function(){
 
             });
         }, 40);
@@ -424,7 +424,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .rejected(function(){
+            .caught(function(){
 
         });
 
@@ -436,7 +436,7 @@ describe("Will not report rejections that are handled in time", function() {
                 .then(function(){}, null, function(){})
                 .then()
                 .then(function(){})
-                .rejected(function(){
+                .caught(function(){
             });
         }, 40);
 
@@ -464,7 +464,7 @@ describe("Will not report rejections that are handled in time", function() {
         failed
             .then(function(){})
             .then(function(){}, null, function(){})
-            .rejected(function(){
+            .caught(function(){
             });
 
         failed
@@ -485,7 +485,7 @@ describe("Will not report rejections that are handled in time", function() {
             failed2
                 .then(function(){})
                 .then(function(){}, null, function(){})
-                .rejected(function(){
+                .caught(function(){
 
                 });
 
@@ -513,7 +513,7 @@ describe("Will not report rejections that are handled in time", function() {
         failed.promise
             .then(function(){})
             .then(function(){}, null, function(){})
-            .rejected(function(){
+            .caught(function(){
             });
 
         failed.promise
@@ -534,7 +534,7 @@ describe("Will not report rejections that are handled in time", function() {
             failed2.promise
                 .then(function(){})
                 .then(function(){}, null, function(){})
-                .rejected(function(){
+                .caught(function(){
                 });
 
             failed2.promise
@@ -568,7 +568,7 @@ describe("Will not report rejections that are handled in time", function() {
         failed.promise
             .then(function(){})
             .then(function(){}, null, function(){})
-            .rejected(function(){
+            .caught(function(){
             });
 
         failed.promise
@@ -589,7 +589,7 @@ describe("Will not report rejections that are handled in time", function() {
             failed2.promise
                 .then(function(){})
                 .then(function(){}, null, function(){})
-                .rejected(function(){
+                .caught(function(){
                 });
 
             failed2.promise

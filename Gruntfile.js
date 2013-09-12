@@ -172,9 +172,17 @@ module.exports = function( grunt ) {
 
     function runIndependentTest( file, cb ) {
         var fs = require("fs");
+        var path = require("path");
         var sys = require('sys');
         var spawn = require('child_process').spawn;
-        var node = spawn('node', ["./"+file]);
+        var p = path.join(process.cwd(), "test");
+        if( file.indexOf( "mocha/") > -1 ) {
+            var node = spawn('node', ["../mocharun.js", file], {cwd: p});
+        }
+        else {
+            var node = spawn('node', ["./"+file], {cwd: p});
+        }
+
         node.stdout.on('data', function( data ) {
             process.stdout.write(data);
         });
@@ -248,18 +256,19 @@ module.exports = function( grunt ) {
     }
 
     function testRun( testOption ) {
-        var Mocha = require("mocha");
-        var mochas = [];
-        var mochaOpts = {
-            reporter: "spec",
-            timeout: 200,
-            slow: Infinity
-        };
-
         var fs = require("fs");
         var path = require("path");
         var done = this.async();
         var adapter = global.adapter = require(BUILD_DEBUG_DEST);
+
+        var totalTests = 0;
+        var testsDone = 0;
+        function testDone() {
+            testsDone++;
+            if( testsDone >= totalTests ) {
+                done();
+            }
+        }
 
         if( testOption === "aplus" ) {
             grunt.log.writeln("Running Promises/A+ conformance tests");
@@ -271,57 +280,41 @@ module.exports = function( grunt ) {
         }
 
 
+
+
         var files = testOption === "all"
             ? fs.readdirSync('test')
+                .concat(fs.readdirSync('test/mocha')
+                    .map(function(fileName){
+                        return "mocha/" + fileName
+                    })
+                )
             : [testOption + ".js" ];
 
         files = files.filter(function(fileName){
             return /\.js$/.test(fileName);
         });
 
-        files.forEach(function(fileName) {
-            var a = new Mocha(mochaOpts);
-            a.addFile( path.join('test', fileName ));
-            mochas.push( a );
-        });
-
-
-        (function runner(mochas, i){
-
-            if( i >= mochas.length ) {
-                if( testOption === "all" || testOption === "aplus" ) {
-                    grunt.log.writeln("Running Promises/A+ conformance tests");
-                    require("promises-aplus-tests")(adapter, function(err){
-                        if( err ) throw new Error(err + " tests failed");
-                        else done();
-                    });
-                }
-            }
-            else {
+        for( var i = 0, len = files.length; i < len; ++i ) {
+            (function(file, i) {
+                totalTests++;
                 grunt.log.writeln("Running test " + files[i] );
-                mochas[i].run(function(err){
-
-                    if( err ) throw new Error(err + " tests failed");
-                    var suite = mochas[i].suite;
-                    if( suite.suites.length === 0 &&
-                        suite.tests.length === 0 ) {
-                        runIndependentTest(mochas[i].files[0], function(err) {
-                            if( err ) throw err;
-                            setTimeout(function(){
-                                runner( mochas, i + 1 );
-                            }, 500);
-                        });
-                    }
-                    else {
-                        setTimeout(function(){
-                            runner( mochas, i + 1 );
-                        }, 500);
-                    }
+                runIndependentTest(file, function(err) {
+                    if( err ) throw new Error(err + " " + file + " failed");
+                    testDone();
                 });
-            }
+            })(files[i], i);
+        }
 
+        if( testOption === "all" || testOption === "aplus" ) {
+            grunt.log.writeln("Running Promises/A+ conformance tests");
+            require("promises-aplus-tests")(adapter, function(err){
+                if( err ) throw new Error(err + " tests failed");
+                else testDone();
+            });
+            totalTests++;
+        }
 
-        })(mochas, 0);
     }
 
     function benchmarkRun( benchmarkOption ) {

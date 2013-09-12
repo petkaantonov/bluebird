@@ -30,6 +30,20 @@ assert = buster.assert;
 refute = buster.refute;
 fail = buster.assertions.fail;
 
+function throwOnError(e) {
+    var stack = e.error.stack;
+    var message = "";
+    if( stack ) {
+        message = stack;
+    }
+    else {
+        message = e.error.name + " in '" + e.name + "' " + e.error.message;
+    }
+    console.error(message);
+    process.exit(-1);
+}
+buster.eventEmitter.on( "test:failure", throwOnError);
+buster.eventEmitter.on( "test:timeout", throwOnError);
 
 
 define('when.any-test', function (require) {

@@ -128,22 +128,27 @@ method._isResolved = function() {
 };
 
 method._fulfill = function( value ) {
+    ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.fulfill( value );
 };
 
 method._reject = function( reason ) {
+    ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.reject( reason );
 };
 
 method._promiseProgressed = function( progressValue ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
     this._resolver.progress( progressValue );
 };
 
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
+    ASSERT( index instanceof Integer );
     //(TODO) could fire a progress when a promise is completed
     this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
@@ -154,6 +159,7 @@ method._promiseFulfilled = function( value, index ) {
 
 method._promiseRejected = function( reason ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
     this._totalResolved++;
     this._reject( reason );
 };
