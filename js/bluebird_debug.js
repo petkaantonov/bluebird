@@ -438,6 +438,18 @@ function isThenable( ret, ref ) {
 }
 
 function combineTraces( current, prev ) {
+    var curLast = current.length - 1;
+    //Eliminate common roots
+    for( var i = prev.length - 1; i >= 0; --i ) {
+        var line = prev[i];
+        if( current[ curLast ] === line ) {
+            current.pop();
+            curLast--;
+        }
+        else {
+            break;
+        }
+    }
     var lines = current.concat( prev );
     var ret = [];
     var rignore = new RegExp(
@@ -446,7 +458,8 @@ function combineTraces( current, prev ) {
         "|_?consumeFunctionBuffer)\\b"
     );
     var rtrace = /^\s*at\s*/;
-
+    //Eliminate library internal stuff and async callers
+    //that nobody cares about
     for( var i = 0, len = lines.length; i < len; ++i ) {
         if( rignore.test( lines[i] ) ||
             ( i > 0 && !rtrace.test( lines[i] ) )
@@ -1588,10 +1601,11 @@ method._attachExtraTrace = function( error ) {
             stack = combineTraces( stack, promise._trace.stack.split("\n") );
             promise = promise._traceParent;
         }
-        var max = Error.stackTraceLimit;
+        //Merge roots
+        var max = Error.stackTraceLimit + 1;
         var len = stack.length;
-        if( len - 1 > max ) {
-            stack.length = max + 1;
+        if( len  > max ) {
+            stack.length = max;
         }
         error.stack = stack.join("\n");
     }
