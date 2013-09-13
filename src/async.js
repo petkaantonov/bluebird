@@ -23,6 +23,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
+    this._backupBuffer = [];
     var functionBuffer = this._functionBuffer = new Array( 1000 * FUNCTION_SIZE );
     var self = this;
     //Optimized around the fact that no arguments
@@ -37,7 +38,17 @@ function Async() {
 }
 var method = Async.prototype;
 
-
+//When the fn absolutely needs to be called after
+//the queue has been completely flushed
+method.invokeLater = function( fn, receiver, arg ) {
+    ASSERT( typeof fn, "function" );
+    ASSERT( arguments.length, 3 );
+    if( !this._isTickUsed ) {
+        this.invoke( fn, receiver, arg );
+        return;
+    }
+    this._backupBuffer.push( fn, receiver, arg );
+};
 
 method.invoke = function( fn, receiver, arg ) {
     ASSERT( typeof fn, "function" );
@@ -84,6 +95,13 @@ method._consumeFunctionBuffer = function() {
             void 0;
     }
     this._reset();
+    if( this._backupBuffer.length ) {
+        var buffer = this._backupBuffer;
+        for( var i = 0, len = buffer.length; i < len; i+= 3 ) {
+            buffer[ i ].call( buffer[ i + 1 ] , buffer[ i + 2 ] );
+        }
+        buffer.length = 0;
+    }
 };
 
 method._reset = function() {

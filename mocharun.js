@@ -15,4 +15,9 @@ var mochaOpts = {
 
 var mocha = new Mocha(mochaOpts);
 mocha.addFile(process.argv[2]);
-mocha.run(process.exit);
+mocha.run(function(err){
+
+}).on( "fail", function( test, err ) {
+    process.stderr.write(test.title + "\n" + err.stack + "\n");
+    process.exit(-1);
+});

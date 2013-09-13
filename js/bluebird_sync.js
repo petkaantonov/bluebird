@@ -259,6 +259,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
+    this._backupBuffer = [];
     var functionBuffer = this._functionBuffer = new Array( 1000 * 3 );
     var self = this;
     //Optimized around the fact that no arguments
@@ -273,7 +274,15 @@ function Async() {
 }
 var method = Async.prototype;
 
-
+//When the fn absolutely needs to be called after
+//the queue has been completely flushed
+method.invokeLater = function( fn, receiver, arg ) {
+    if( !this._isTickUsed ) {
+        this.invoke( fn, receiver, arg );
+        return;
+    }
+    this._backupBuffer.push( fn, receiver, arg );
+};
 
 method.invoke = function( fn, receiver, arg ) {
     var functionBuffer = this._functionBuffer,
@@ -315,6 +324,13 @@ method._consumeFunctionBuffer = function() {
             void 0;
     }
     this._reset();
+    if( this._backupBuffer.length ) {
+        var buffer = this._backupBuffer;
+        for( var i = 0, len = buffer.length; i < len; i+= 3 ) {
+            buffer[ i ].call( buffer[ i + 1 ] , buffer[ i + 2 ] );
+        }
+        buffer.length = 0;
+    }
 };
 
 method._reset = function() {
@@ -358,6 +374,40 @@ function isThenable( ret, ref ) {
         //caller code is currently layed out..
         return true;
     }
+}
+
+function combineTraces( current, prev ) {
+    var curLast = current.length - 1;
+    //Eliminate common roots
+    for( var i = prev.length - 1; i >= 0; --i ) {
+        var line = prev[i];
+        if( current[ curLast ] === line ) {
+            current.pop();
+            curLast--;
+        }
+        else {
+            break;
+        }
+    }
+    var lines = current.concat( prev );
+    var ret = [];
+    var rignore = new RegExp(
+        "\\b(?:Promise\\.method|tryCatch(?:1|2|Apply)|setTimeout" +
+        "|makeNodePromisified|processImmediate|nextTick" +
+        "|_?consumeFunctionBuffer)\\b"
+    );
+    var rtrace = /^\s*at\s*/;
+    //Eliminate library internal stuff and async callers
+    //that nobody cares about
+    for( var i = 0, len = lines.length; i < len; ++i ) {
+        if( rignore.test( lines[i] ) ||
+            ( i > 0 && !rtrace.test( lines[i] ) )
+        ) {
+            continue;
+        }
+        ret.push( lines[i] );
+    }
+    return ret;
 }
 
 var possiblyUnhandledRejection = function( reason ) {
@@ -410,6 +460,15 @@ var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
 
+function CapturedTrace() {
+    var e = Error.stackTraceLimit;
+    //To account for calls from this library that
+    //will be removed from the traces anyway
+    Error.stackTraceLimit = e + 7;
+    Error.captureStackTrace( this, this.constructor );
+    Error.stackTraceLimit = e;
+}
+inherits( CapturedTrace, Error );
 
 /**
  * Description.
@@ -425,16 +484,17 @@ var noop = function(){};
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
-//- = Reserved
+
+//Since most promises have exactly 1 parallel handler
+//store the first ones directly on the object
+//The rest (if needed) are stored on the object's
+//elements array (this[0], this[1]...etc)
+//which has less indirection than when using external array
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
     this._bitField = 0x4000000;
-    //Since most promises have exactly 1 parallel handler
-    //store the first ones directly on the object
-    //The rest (if needed) are stored on the object's
-    //elements array (this[0], this[1]...etc)
-    //which has less indirection than when using external array
+
     this._fulfill0 =
     this._reject0 =
     this._progress0 =
@@ -447,6 +507,11 @@ function Promise( resolver ) {
     this._cancellationParent = null;
 }
 var method = Promise.prototype;
+
+var longStackTraces = false;
+Promise.longStackTraces = function() {
+    longStackTraces = true;
+};
 
 /**
  * @return {string}
@@ -1081,6 +1146,11 @@ method._then = function( didFulfill, didReject, didProgress, receiver,
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
+    if( longStackTraces ) {
+        ret._trace = new CapturedTrace();
+        ret._traceParent = this;
+    }
+
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
@@ -1279,7 +1349,8 @@ method._resolvePromise = function(
     }
 
     if( x === errorObj ) {
-        promise._reject(errorObj.e);
+        promise._attachExtraTrace( x.e );
+        promise._reject(x.e);
     }
     else if( x === promise ) {
         promise._reject(new TypeError("Circular thenable chain"));
@@ -1298,7 +1369,8 @@ method._resolvePromise = function(
             //results in a thrown exception e,
             //reject promise with e as the reason.
             if( ref.ref === errorObj ) {
-                promise._reject(errorObj.e);
+                promise._attachExtraTrace( ref.ref.e );
+                promise._reject(ref.ref.e);
             }
             else {
                 //3.1. Let then be x.then
@@ -1314,8 +1386,9 @@ method._resolvePromise = function(
                 );
                 //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
+                    promise._attachExtraTrace( threw.e );
                     //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    promise._reject(errorObj.e);
+                    promise._reject(threw.e);
                 }
             }
         }
@@ -1418,14 +1491,36 @@ method._resolveReject = function( reason ) {
 
 };
 
+method._attachExtraTrace = function( error ) {
+    if( longStackTraces &&
+        isError( error ) ) {
+        var promise = this;
+        var stack = error.stack.split("\n");
+        while( promise != null &&
+            promise._trace != null ) {
+            stack = combineTraces( stack, promise._trace.stack.split("\n") );
+            promise = promise._traceParent;
+        }
+        //Merge roots
+        var max = Error.stackTraceLimit + 1;
+        var len = stack.length;
+        if( len  > max ) {
+            stack.length = max;
+        }
+        error.stack = stack.join("\n");
+    }
+};
+
+method._notifyUnhandledRejection = function( reason ) {
+    if( !reason.__handled ) {
+        reason.__handled = true;
+        possiblyUnhandledRejection( reason );
+    }
+};
+
 method._unhandledRejection = function( reason ) {
     if( !reason.__handled ) {
-        setTimeout(function() {
-            if( !reason.__handled ) {
-                reason.__handled = true;
-                possiblyUnhandledRejection( reason );
-            }
-        }, 100 );
+        async.invokeLater( this._notifyUnhandledRejection, this, reason );
     }
 };
 
@@ -1444,10 +1539,10 @@ method._fulfill = function( value ) {
 
 method._reject = function( reason ) {
     if( this.isResolved() ) return;
-    this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
     this._resolveReject( reason );
+    this._cleanValues();
 };
 
 method._progress = function( progressValue ) {
@@ -1481,7 +1576,8 @@ method._progress = function( progressValue ) {
                     //with a name property equal to 'StopProgressPropagation',
                     // the result of the function is used as the progress
                     //value to propagate.
-                    promise._progress(errorObj.e);
+                    promise._attachExtraTrace( ret.e );
+                    promise._progress(ret.e);
                 }
             }
             //2.2 The onProgress callback may return a promise.
