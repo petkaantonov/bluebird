@@ -236,7 +236,8 @@ module.exports = function( grunt ) {
         var debugSrc, asyncSrc, syncSrc;
 
         debugSrc = src = astPasses.constants( src );
-        debugSrc = assertionErrorCode + debugSrc;
+        debugSrc = assertionErrorCode + debugSrc.replace( /__DEBUG__/g, 'true');
+        src = src.replace( /__DEBUG__/g, 'false')
         asyncSrc = src = astPasses.removeAsserts( src );
         syncSrc = astPasses.asyncConvert( src, "async", "invoke");
 

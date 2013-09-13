@@ -122,7 +122,7 @@ define('when.some-test', function (require) {
                     done();
                 },
                 fail
-            ).ensure(done);
+            );
         },
 
         'should reject with all rejected input values if resolving howMany becomes impossible': function(done) {

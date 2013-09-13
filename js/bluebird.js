@@ -432,6 +432,10 @@ var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
 
+function CapturedTrace() {
+    Error.captureStackTrace( this, this.constructor );
+}
+inherits( CapturedTrace, Error );
 
 /**
  * Description.
@@ -467,10 +471,10 @@ function Promise( resolver ) {
     this._resolvedValue = UNRESOLVED;
     //Used in cancel propagation
     this._cancellationParent = null;
-
-    this._trace = null;
 }
 var method = Promise.prototype;
+
+Promise.longStackTraces = false;
 
 /**
  * @return {string}
@@ -1100,21 +1104,14 @@ Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
     return makeNodePromisified( callback, receiver );
 };
 
-function CapturedTrace() {
-    Error.captureStackTrace( this, this.constructor );
-}
-CapturedTrace.prototype = new Error();
-CapturedTrace.prototype.constructor = CapturedTrace;
-CapturedTrace.prototype.toString = function() {
-    return "RejectionError";
-};
-
 method._then = function( didFulfill, didReject, didProgress, receiver,
     internalData ) {
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
-    ret._trace = new CapturedTrace();
+    if( Promise.longStackTraces ) {
+        ret._trace = new CapturedTrace();
+    }
 
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
@@ -1472,7 +1469,7 @@ method._resolveReject = function( reason ) {
 method._unhandledRejection = function( reason ) {
     if( !reason.__handled ) {
         var stack = void 0;
-        if( this._trace !== null ) {
+        if( Promise.longStackTraces && this._trace != null ) {
             stack = this._trace.stack;
             this._cleanTrace();
         }
@@ -1486,7 +1483,8 @@ method._unhandledRejection = function( reason ) {
 };
 
 method._cleanTrace = function() {
-    if( this._trace !== null ) {
+    if( !Promise.longStackTraces ) return;
+    if( this._trace != null ) {
         this._trace.stack = null;
         this._trace = null;
     }
