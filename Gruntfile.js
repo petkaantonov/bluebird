@@ -1,4 +1,4 @@
-var asyncConverter = require("./async_converter.js");
+var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 
 var ccOptions = {
@@ -9,10 +9,74 @@ var ccOptions = {
     jar: '../closure_compiler/build/compiler.jar'
 };
 
+
+var assertionErrorCode = function() {
+    var ASSERT = (function(){
+        var AssertionError = (function() {
+            function AssertionError( a ) {
+                this.constructor$( a );
+                this.message = a;
+                this.name = "AssertionError";
+            }
+            AssertionError.prototype = new Error();
+            AssertionError.prototype.constructor = AssertionError;
+            AssertionError.prototype.constructor$ = Error;
+            return AssertionError;
+        })();
+
+        function format(type) {
+            switch( typeof type ) {
+            case "string":
+            case "number":
+            case "boolean":
+            case "object":
+                return JSON.stringify( type );
+            case "undefined":
+                return "undefined";
+            case "function":
+                return type.name
+                    ? "function " + type.name + "() {}"
+                    : "function anonymous() {}";
+            }
+        }
+
+        return function assert( val1, val2 ) {
+            var message = "";
+            if( arguments.length === 2 ) {
+                if( val1 !== val2 ) {
+                    message = "Expected " + format(val1) + " to equal " +
+                        format(val2);
+                }
+            }
+            else if( val1 !== true ) {
+                message = "Expected " + format(val1) + " to equal true";
+            }
+            if( message !== "" ) {
+                var ret = new AssertionError( message );
+                if( Error.captureStackTrace ) {
+                    Error.captureStackTrace( ret, assert );
+                }
+                if( console && console.error ) {
+                    console.error( ret.stack + "" );
+                }
+                throw ret;
+            }
+        };
+    })();
+
+}.toString()
+.replace(/^\s*function\s*\(\s*\)\s\{/, "")
+.replace(/}\s*$/, "")
+//:D
+.replace('(function(){', '(function(){/* jshint -W014, -W116 */');
+
 module.exports = function( grunt ) {
 
 
+
+
     var SRC_DEST = './js/bluebird.js',
+        BUILD_DEBUG_DEST = './js/bluebird_debug.js',
         BUILD_DEST = './js/bluebird.js',
         BUILD_SYNC_DEST = './js/bluebird_sync.js',
         MIN_SYNC_DEST = './js/bluebird_sync.min.js',
@@ -22,59 +86,6 @@ module.exports = function( grunt ) {
         grunt.file.write( dest, content );
         grunt.log.writeln('File "' + dest + '" created.');
     }
-
-    function asyncConvert( src ) {
-        var results = asyncConverter( src, "async", "invoke" );
-        if( results.length ) {
-            var ret = "";
-            var start = 0;
-            for( var i = 0, len = results.length; i < len; ++i ) {
-                var item = results[i];
-                ret += src.substring( start, item.start );
-                ret += item.toString();
-                start = item.end;
-            }
-            ret += src.substring( start );
-            return ret;
-        }
-        return src;
-    }
-
-    function replaceConstants( src ) {
-        var rconstant = /%constant\s*\(\s*([a-zA-Z0-9$_]+)\s*,\s*(.+)\s*\)\s*;/ig;
-        var constants = [];
-        var m;
-
-        while( ( m = rconstant.exec(src) ) !== null ) {
-
-            constants.push({
-                regex: new RegExp("\\b" + m[1].replace(/\$/g, "\\$") + "\\b", "g"),
-                replace: m[2],
-                startIndex: rconstant.lastIndex - m[0].length,
-                endIndex: rconstant.lastIndex
-            });
-        }
-
-        if( constants.length ) {
-
-            var ret = "";
-            var start = 0;
-            for( var i = 0, len = constants.length; i < len; ++i ) {
-                var constant = constants[i];
-                ret += src.substring( start, constant.startIndex );
-                start = constant.endIndex;
-            }
-            ret += src.substring( start );
-            for( var i = 0, len = constants.length; i < len; ++i ) {
-                ret = ret.replace( constants[i].regex, constants[i].replace );
-            }
-
-            return ret;
-        }
-        return src;
-    }
-
-
 
     var gruntConfig = {};
 
@@ -88,7 +99,8 @@ module.exports = function( grunt ) {
 
             files: {
                 src: [
-                    BUILD_DEST
+                    BUILD_DEST,
+                    BUILD_DEBUG_DEST
                 ]
             }
         }
@@ -160,12 +172,22 @@ module.exports = function( grunt ) {
 
     function runIndependentTest( file, cb ) {
         var fs = require("fs");
+        var path = require("path");
         var sys = require('sys');
         var spawn = require('child_process').spawn;
-        var node = spawn('node', ["./"+file]);
-        node.stdout.on('data', function( data ) {
-            process.stdout.write(data);
-        });
+        var p = path.join(process.cwd(), "test");
+        if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
+            var node = spawn('node', ["../mocharun.js", file], {cwd: p});
+        }
+        else {
+            var node = spawn('node', ["./"+file], {cwd: p});
+        }
+
+        if( grunt.option("verbose") ) {
+            node.stdout.on('data', function( data ) {
+                process.stdout.write(data);
+            });
+        }
 
         node.stderr.on('data', function( data ) {
             process.stderr.write(data);
@@ -195,20 +217,7 @@ module.exports = function( grunt ) {
 
     function build( shouldMinify ) {
         var fs = require("fs");
-
-
         var src = fs.readFileSync( SRC_DEST, "utf8" );
-
-        var transformations = [{
-            srcTransformations: [replaceConstants],
-            output: BUILD_DEST,
-            outputMin: MIN_DEST
-        }, {
-            continuePrevTransformation: true,
-            srcTransformations: [asyncConvert],
-            output: BUILD_SYNC_DEST,
-            outputMin: MIN_SYNC_DEST
-        }];
 
         function ccCompleted() {
             runsDone++;
@@ -217,115 +226,78 @@ module.exports = function( grunt ) {
             }
         }
 
-        var totalCCRuns = transformations.length;
+        var totalCCRuns = 2;
         var runsDone = 0;
 
         if( shouldMinify ) {
             var done = this.async();
         }
 
+        var debugSrc, asyncSrc, syncSrc;
 
-        for( var i = 0, len = transformations.length; i < len; ++i ) {
-            var transformation = transformations[i];
-            var srcTransformations = transformation.srcTransformations;
-            var prevSrc = transformation.continuePrevTransformation && i > 0 ? prevSrc : src;
-            srcTransformations.forEach(function( fn ) {
-                prevSrc = fn(prevSrc);
-            });
-            var output = transformation.output;
-            var outputMin = transformation.outputMin;
-            writeFile( output, prevSrc );
+        debugSrc = src = astPasses.constants( src );
+        debugSrc = assertionErrorCode + debugSrc;
+        asyncSrc = src = astPasses.removeAsserts( src );
+        syncSrc = astPasses.asyncConvert( src, "async", "invoke");
 
-            if( shouldMinify ) {
-                cc.compile( prevSrc, ccOptions, (function( location ){
+        writeFile( BUILD_DEST, asyncSrc );
+        writeFile( BUILD_SYNC_DEST, syncSrc );
+        writeFile( BUILD_DEBUG_DEST, debugSrc );
 
-                    return function( err, code ) {
-                        if( err ) throw err;
-                        code = fixStrict(code);
-                        writeFile( location, code );
-                        ccCompleted();
-                    };
-
-                })(outputMin));
-            }
+        if( shouldMinify ) {
+            var ccDone = function( location, err, code ) {
+                if( err ) throw err;
+                code = fixStrict(code);
+                writeFile( location, code );
+                ccCompleted();
+            };
+            cc.compile( asyncSrc, ccOptions, ccDone.bind(0, MIN_DEST) );
+            cc.compile( syncSrc, ccOptions, ccDone.bind(0, MIN_SYNC_DEST ) );
         }
+
     }
 
     function testRun( testOption ) {
-        var Mocha = require("mocha");
-        var mochas = [];
-        var mochaOpts = {
-            reporter: "spec",
-            timeout: 200,
-            slow: Infinity
-        };
-
         var fs = require("fs");
         var path = require("path");
         var done = this.async();
-        var adapter = global.adapter = require(BUILD_DEST);
+        var adapter = global.adapter = require(BUILD_DEBUG_DEST);
 
-        if( testOption === "aplus" ) {
-            grunt.log.writeln("Running Promises/A+ conformance tests");
-            require("promises-aplus-tests")(adapter, function(err){
-                if( err ) throw new Error(err + " tests failed");
-                else done();
-            });
-            return;
+        var totalTests = 0;
+        var testsDone = 0;
+        function testDone() {
+            testsDone++;
+            if( testsDone >= totalTests ) {
+                done();
+            }
         }
-
 
         var files = testOption === "all"
             ? fs.readdirSync('test')
+                .concat( "aplus.js" )
+                .concat(fs.readdirSync('test/mocha')
+                    .map(function(fileName){
+                        return "mocha/" + fileName
+                    })
+                )
             : [testOption + ".js" ];
 
         files = files.filter(function(fileName){
             return /\.js$/.test(fileName);
         });
 
-        files.forEach(function(fileName) {
-            var a = new Mocha(mochaOpts);
-            a.addFile( path.join('test', fileName ));
-            mochas.push( a );
-        });
-
-
-        (function runner(mochas, i){
-
-            if( i >= mochas.length ) {
-                if( testOption === "all" || testOption === "aplus" ) {
-                    grunt.log.writeln("Running Promises/A+ conformance tests");
-                    require("promises-aplus-tests")(adapter, function(err){
-                        if( err ) throw new Error(err + " tests failed");
-                        else done();
-                    });
-                }
-            }
-            else {
+        for( var i = 0, len = files.length; i < len; ++i ) {
+            (function(file, i) {
+                totalTests++;
                 grunt.log.writeln("Running test " + files[i] );
-                mochas[i].run(function(err){
-
-                    if( err ) throw new Error(err + " tests failed");
-                    var suite = mochas[i].suite;
-                    if( suite.suites.length === 0 &&
-                        suite.tests.length === 0 ) {
-                        runIndependentTest(mochas[i].files[0], function(err) {
-                            if( err ) throw err;
-                            setTimeout(function(){
-                                runner( mochas, i + 1 );
-                            }, 500);
-                        });
-                    }
-                    else {
-                        setTimeout(function(){
-                            runner( mochas, i + 1 );
-                        }, 500);
-                    }
+                runIndependentTest(file, function(err) {
+                    if( err ) throw new Error(err + " " + file + " failed");
+                    grunt.log.writeln("Test " + files[i] + " succeeded");
+                    testDone();
                 });
-            }
+            })(files[i], i);
+        }
 
-
-        })(mochas, 0);
     }
 
     function benchmarkRun( benchmarkOption ) {
@@ -362,10 +334,12 @@ module.exports = function( grunt ) {
         })(files, 0);
     }
 
+
     grunt.registerTask( "build-with-minify", function() {
         return build.call( this, true );
     });
     grunt.registerTask( "build", function() {
+        var debug = !!grunt.option("debug");
         return build.call( this, false );
     });
 

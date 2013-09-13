@@ -31,6 +31,21 @@ fail = buster.assertions.fail;
 
 sentinel = {};
 
+function throwOnError(e) {
+    var stack = e.error.stack;
+    var message = "";
+    if( stack ) {
+        message = stack;
+    }
+    else {
+        message = e.error.name + " in '" + e.name + "' " + e.error.message;
+    }
+    console.error(message);
+    process.exit(-1);
+}
+buster.eventEmitter.on( "test:failure", throwOnError);
+buster.eventEmitter.on( "test:timeout", throwOnError);
+
 function assertFulfilled(s, value) {
     assert.equals(s.isFulfilled(), true);
     assert.same(s.value(), value);
@@ -43,7 +58,7 @@ function assertRejected(s, reason) {
 
 define('when/settle-test', function (require) {
 
-    when = require('../js/bluebird.js');
+    when = require('../js/bluebird_debug.js');
 
 
     when.resolve = when.fulfilled;

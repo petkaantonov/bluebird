@@ -24,18 +24,6 @@
 (function( global, Function, Array, Error, Object ) { "use strict";
 
 //This is the only way to have efficient constants
-
-
-
-
-
-
-
-
-
-
-
-
 //Layout
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
 //0 = Always 0 (never used)
@@ -45,15 +33,6 @@
 //C = isCancellable
 //L = Length, 26 bit unsigned
 //- = Reserved
-
-
-
-
-
-
-
-
-
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -280,7 +259,7 @@ var deferFn = typeof process !== "undefined" ?
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    var functionBuffer = this._functionBuffer = new Array( 25000 * 3 );
+    var functionBuffer = this._functionBuffer = new Array( 1000 * 3 );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
@@ -320,25 +299,22 @@ method.invoke = function( fn, receiver, arg ) {
 };
 
 method._consumeFunctionBuffer = function() {
-    var len = this._length;
     var functionBuffer = this._functionBuffer;
-    if( len > 0 ) {       //Must not cache the length
-        for( var i = 0; i < this._length; i += 3 ) {
-            functionBuffer[ i + 0 ].call(
-                functionBuffer[ i + 1 ],
-                functionBuffer[ i + 2 ] );
+    //Must not cache the length
+    for( var i = 0; i < this._length; i += 3 ) {
+        functionBuffer[ i + 0 ].call(
+            functionBuffer[ i + 1 ],
+            functionBuffer[ i + 2 ] );
 
-            //Must clear garbage immediately otherwise
-            //high promotion rate is caused with long
-            //sequence chains which leads to mass deoptimization
-            functionBuffer[ i + 0 ] =
-                functionBuffer[ i + 1 ] =
-                functionBuffer[ i + 2 ] =
-                void 0;
-        }
-        this._reset();
+        //Must clear garbage immediately otherwise
+        //high promotion rate is caused with long
+        //sequence chains which leads to mass deoptimization
+        functionBuffer[ i + 0 ] =
+            functionBuffer[ i + 1 ] =
+            functionBuffer[ i + 2 ] =
+            void 0;
     }
-    else this._reset();
+    this._reset();
 };
 
 method._reset = function() {
@@ -384,6 +360,7 @@ function isThenable( ret, ref ) {
     }
 }
 
+//Trims the pretty much useless async call stack
 function trimTrace( current, earlierStack ) {
     earlierStack = earlierStack.substr( earlierStack.indexOf("\n") + 1 );
     var combined = current + "\n" + earlierStack;
@@ -404,11 +381,13 @@ function trimTrace( current, earlierStack ) {
 var possiblyUnhandledRejection = function( reason, earlierStack ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
-
-        var message = "Possibly unhandled " + ( stack
-            //The name and message will be in stack trace if it's there
-            ? stack
-            : reason.name + ". " + reason.message );
+        var message = "Possibly unhandled ";
+        if( typeof stack === "string" ) {
+            message += stack;
+        }
+        else {
+            message += reason.name + ". " + reason.message;
+        }
 
         if( earlierStack !== void 0 ) {
             message = trimTrace( message, earlierStack );
@@ -500,15 +479,6 @@ method.toString = function() {
     return "[object Promise]";
 };
 
-/**
- * Convenience method for .then( fn, null, null );
- *
- * @param {Function} fn The callback to call if this promise is fulfilled
- * @return {Promise}
- */
-method.fulfilled = function( fn ) {
-    return this._then( fn, void 0, void 0, void 0, void 0 );
-};
 
 /**
  * Convenience method for .then( null, fn, null );
@@ -516,7 +486,7 @@ method.fulfilled = function( fn ) {
  * @param {Function} fn The callback to call if this promise is rejected
  * @return {Promise}
  */
-method.rejected = function( fn ) {
+method.caught = method["catch"] = function( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0 );
 };
 
@@ -603,7 +573,6 @@ method.cancel = function() {
  */
 method.uncancellable = function() {
     var ret = new Promise();
-
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -774,6 +743,361 @@ method.isResolved = function() {
 method.isCancellable = function() {
     return !this.isResolved() &&
         this._cancellable();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.map = function( fn ) {
+    return Promise.map( this, fn );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.all = function() {
+    return Promise.all( this );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.any = function() {
+    return Promise.any( this );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.settle = function() {
+    return Promise.settle( this );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.some = function( count ) {
+    return Promise.some( this, count );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+method.reduce = function( fn, initialValue ) {
+    return Promise.reduce( this, fn, initialValue );
+};
+
+/**
+ * See if obj is a promise from this library. Same
+ * as calling `obj instanceof Promise`.
+ *
+ * @param {dynamic} obj The object to check.
+ * @return {boolean}
+ */
+Promise.is = isPromise;
+
+function all( promises, PromiseArray ) {
+    if( isPromise( promises ) ||
+        isArray( promises ) ) {
+        return new PromiseArray( promises );
+    }
+    throw new TypeError("expecting an array or a promise");
+}
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.settle = function( promises ) {
+    var ret = all( promises, SettledPromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.all = function( promises ) {
+    var ret = all( promises, PromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Like Promise.all but instead of having to pass an array,
+ * the array is generated from the passed variadic arguments.
+ *
+ * Promise.all([a, b, c]) <--> Promise.join(a, b, c);
+ *
+ * @return {Promise}
+ *
+ */
+Promise.join = function() {
+    var ret = new Array( arguments.length );
+    for( var i = 0, len = ret.length; i < len; ++i ) {
+        ret[i] = arguments[i];
+    }
+    return Promise.all( ret );
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.any = function( promises ) {
+    var ret = all( promises, AnyPromiseArray );
+    return ret.promise();
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.some = function( promises, howMany ) {
+    var ret = all( promises, SomePromiseArray );
+    if( ( howMany | 0 ) !== howMany ) {
+        throw new TypeError("howMany must be an integer");
+    }
+    var len = ret.length();
+    howMany = Math.max(0, Math.min( howMany, len ) );
+    ret._howMany = howMany;
+    return ret.promise();
+};
+
+
+function mapper( fulfilleds ) {
+    var fn = this;
+    var shouldDefer = false;
+    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+        var fulfill = fn(fulfilleds[i]);
+        if( !shouldDefer && isPromise( fulfill ) ) {
+            if( fulfill.isFulfilled() ) {
+                fulfilleds[i] = fulfill._resolvedValue;
+                continue;
+            }
+            else {
+                shouldDefer = true;
+            }
+        }
+        fulfilleds[i] = fulfill;
+    }
+    return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
+}
+/**
+ * Description.
+ *
+ *
+ */
+Promise.map = function( promises, fn ) {
+    if( typeof fn !== "function" )
+        throw new TypeError( "fn is not a function" );
+    return Promise.all( promises )._then(
+        mapper,
+        void 0,
+        void 0,
+        fn,
+        void 0
+    );
+};
+
+function reducer( fulfilleds, initialValue ) {
+    var fn = this;
+    var len = fulfilleds.length;
+    var accum;
+    var startIndex = 0;
+
+    if( initialValue !== void 0 ) {
+        accum = initialValue;
+        startIndex = 0;
+    }
+    else {
+        accum = len > 0 ? fulfilleds[0] : void 0;
+        startIndex = 1;
+    }
+    for( var i = startIndex; i < len; ++i ) {
+        accum = fn( accum, fulfilleds[i], i, len );
+    }
+    return accum;
+}
+
+function slowReduce( promises, fn, initialValue ) {
+    return Promise.all( promises ).then( function( fulfilleds ) {
+        return reducer.call( fn, fulfilleds, initialValue );
+    });
+}
+
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.reduce = function( promises, fn, initialValue ) {
+    if( typeof fn !== "function" )
+        throw new TypeError( "fn is not a function");
+    if( initialValue !== void 0 ) {
+        return slowReduce( promises, fn, initialValue );
+    }
+    return Promise
+        .all( promises ) //Currently smuggling internal data has a limitation
+                        //in that no promises can be chained after it.
+                        //One needs to be able to chain to get at
+                        //the reduced results, so fast case is only possible
+                        //when there is no initialValue.
+        ._then( reducer, void 0, void 0, fn, void 0 );
+};
+
+/**
+ * Create a promise that is already fulfilled with the given
+ * value.
+ *
+ * Note that the promise will be in fulfilled state right away -
+ * not on the next event tick.
+ *
+ * @param {dynamic} value The value the promise is fulfilled with.
+ * @return {Promise}
+ */
+Promise.fulfilled = function( value ) {
+    var ret = new Promise();
+    ret._fulfill( value );
+    return ret;
+};
+
+/**
+ * Create a promise that is already rejected with the given
+ * reason.
+ *
+ * Note that the promise will be in rejected state right away -
+ * not on the next event tick.
+ *
+ * @param {dynamic} reason The reason the promise is rejected.
+ * @return {Promise}
+ */
+Promise.rejected = function( reason ) {
+    var ret = new Promise();
+    ret._reject( reason );
+    return ret;
+};
+
+/**
+ * Create a pending promise and a resolver for the promise.
+ *
+ * @return {PromiseResolver}
+ */
+Promise.pending = function() {
+    return new PromiseResolver( new Promise() );
+};
+
+
+/**
+ * Casts the object to a trusted Promise. If the
+ * object is a "thenable", then the trusted promise will
+ * assimilate it. Otherwise the trusted promise is immediately
+ * fulfilled with obj as the fulfillment value.
+ *
+ * It is recommended to use just one promise library at a time,
+ * so you don't have to call this method.
+ *
+ * Example: ($ is jQuery)
+ *
+ * Promise.cast($.get("http://www.google.com")).catch(function(){
+ *     //will catch to same-origin policy error here..
+ *     //... unless you are running this on google website
+ * });
+ *
+ * Note that if you return an untrusted promise inside a then e.g.:
+ *
+ * somePromise.then(function(url) {
+ *     return $.get(url);
+ * });
+ *
+ * Then the returned untrusted promise is autocast per Promises/A+
+ * specification. In any other situation, you will need to use
+ * explicit casting through Promise.cast
+ *
+ * @param {dynamic} obj The object to cast to a trusted Promise
+ * @return {Promise}
+ *
+ */
+Promise.cast = function( obj ) {
+    if( isObject( obj ) ) {
+        var ref = {ref: null};
+        if( isThenable( obj, ref ) ) {
+            var resolver = Promise.pending();
+            ref.ref.call(obj, function( a ) {
+                resolver.fulfill( a );
+            }, function( a ) {
+                resolver.reject( a );
+            });
+            return resolver.promise;
+        }
+    }
+    return Promise.fulfilled( obj );
+};
+
+/**
+ * If `fn` is a function, will set that function as a callback to call
+ * when an possibly unhandled rejection happens. Passing anything other
+ * than a function will have the effect of removing any callback
+ * and possible errors can be lost forever.
+ *
+ * If a promise is rejected with a Javascript Error and is not handled
+ * in a timely fashion, that promise's rejection is then possibly
+ * unhandled. This can happen for example due to buggy code causing
+ * a runtime Javascript error.
+ *
+ * The rejection system implemented must swallow all errors
+ * thrown. However, if some promise doesn't have, or will not have,
+ * a rejection handler anywhere in its chain, then this implies that
+ * the error would be silently lost.
+ *
+ * By default, all such errors are reported on console but you may
+ * use this function to override that behavior with your own handler.
+ *
+ * Example:
+ *
+ *     Promise.onPossiblyUnhandledRejection(function( err ) {
+ *         throw err;
+ *     });
+ *
+ * The above will throw any unhandled rejection and for example
+ * crash a node process.
+ *
+ * @param {Function|dynamic} fn The callback function. If fn is not
+ * a function, no rejections will be reported as possibly unhandled.
+ *
+ */
+Promise.onPossiblyUnhandledRejection = function( fn ) {
+    if( typeof fn === "function" ) {
+        possiblyUnhandledRejection = fn;
+    }
+    else {
+        possiblyUnhandledRejection = noop;
+    }
+};
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
+    return makeNodePromisified( callback, receiver );
 };
 
 function CapturedTrace() {
@@ -1071,7 +1395,6 @@ method._assumeStateOf = function( promise, mustAsync ) {
     }
 };
 
-//(TODO) this possibly needs to be done in _fulfill
 method._tryAssumeStateOf = function( value, mustAsync ) {
     if( !isPromise( value ) ) return false;
     this._assumeStateOf( value, mustAsync );
@@ -1123,6 +1446,7 @@ method._resolveReject = function( reason ) {
     if( !rejectionWasHandled &&
         isError( reason ) &&
         possiblyUnhandledRejection !== noop
+
     ) {
         //If the prop is not there, reading it
         //will cause deoptimization most likely
@@ -1245,243 +1569,6 @@ method._progress = function( progressValue ) {
             async.invoke( promise._progress, promise, ret );
         }
     }
-};
-
-/**
- * See if obj is a promise from this library. Same
- * as calling `obj instanceof Promise`.
- *
- * @param {dynamic} obj The object to check.
- * @return {boolean}
- */
-Promise.is = isPromise;
-
-function all( promises, PromiseArray ) {
-    if( isPromise( promises ) ||
-        isArray( promises ) ) {
-        return new PromiseArray( promises );
-    }
-    throw new TypeError("expecting an array or a promise");
-}
-
-/**
- * Description.
- *
- *
- */
-Promise.settle = function( promises ) {
-    var ret = all( promises, SettledPromiseArray );
-    return ret.promise();
-};
-
-/**
- * Description.
- *
- *
- */
-Promise.all = function( promises ) {
-    var ret = all( promises, PromiseArray );
-    return ret.promise();
-};
-
-/**
- * Description.
- *
- *
- */
-Promise.any = function( promises ) {
-    var ret = all( promises, AnyPromiseArray );
-    return ret.promise();
-};
-
-/**
- * Description.
- *
- *
- */
-Promise.some = function( promises, howMany ) {
-    var ret = all( promises, SomePromiseArray );
-    if( ( howMany | 0 ) !== howMany ) {
-        throw new TypeError("howMany must be an integer");
-    }
-    var len = ret.length();
-    howMany = Math.max(0, Math.min( howMany, len ) );
-    ret._howMany = howMany;
-    return ret.promise();
-};
-
-
-function mapper( fulfilleds ) {
-    var fn = this;
-    var shouldDefer = false;
-    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-        var fulfill = fn(fulfilleds[i]);
-        if( !shouldDefer && isPromise( fulfill ) ) {
-            if( fulfill.isFulfilled() ) {
-                fulfilleds[i] = fulfill._resolvedValue;
-                continue;
-            }
-            else {
-                shouldDefer = true;
-            }
-        }
-        fulfilleds[i] = fulfill;
-    }
-    return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
-}
-/**
- * Description.
- *
- *
- */
-Promise.map = function( promises, fn ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function" );
-    return Promise.all( promises )._then(
-        mapper,
-        void 0,
-        void 0,
-        fn,
-        void 0
-    );
-};
-
-function reducer( fulfilleds, initialValue ) {
-    var fn = this;
-    var len = fulfilleds.length;
-    var accum;
-    var startIndex = 0;
-
-    if( initialValue !== void 0 ) {
-        accum = initialValue;
-        startIndex = 0;
-    }
-    else {
-        accum = len > 0 ? fulfilleds[0] : void 0;
-        startIndex = 1;
-    }
-    for( var i = startIndex; i < len; ++i ) {
-        accum = fn( accum, fulfilleds[i], i, len );
-    }
-    return accum;
-}
-
-function slowReduce( promises, fn, initialValue ) {
-    return Promise.all( promises ).then( function( fulfilleds ) {
-        return reducer.call( fn, fulfilleds, initialValue );
-    });
-}
-
-
-/**
- * Description.
- *
- *
- */
-Promise.reduce = function( promises, fn, initialValue ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function");
-    if( initialValue !== void 0 ) {
-        return slowReduce( promises, fn, initialValue );
-    }
-    return Promise
-        .all( promises ) //Currently smuggling internal data has a limitation
-                        //in that no promises can be chained after it.
-                        //One needs to be able to chain to get at
-                        //the reduced results, so fast case is only possible
-                        //when there is no initialValue.
-        ._then( reducer, void 0, void 0, fn, void 0 );
-};
-
-/**
- * Create a promise that is already fulfilled with the given
- * value.
- *
- * Note that the promise will be in fulfilled state right away -
- * not on the next event tick.
- *
- * @param {dynamic} value The value the promise is fulfilled with.
- * @return {Promise}
- */
-Promise.fulfilled = function( value ) {
-    var ret = new Promise();
-    ret._fulfill( value );
-    return ret;
-};
-
-/**
- * Create a promise that is already rejected with the given
- * reason.
- *
- * Note that the promise will be in rejected state right away -
- * not on the next event tick.
- *
- * @param {dynamic} reason The reason the promise is rejected.
- * @return {Promise}
- */
-Promise.rejected = function( reason ) {
-    var ret = new Promise();
-    ret._reject( reason );
-    return ret;
-};
-
-/**
- * Create a pending promise and a resolver for the promise.
- *
- * @return {PromiseResolver}
- */
-Promise.pending = function() {
-    return new PromiseResolver( new Promise() );
-};
-
-/**
- * If `fn` is a function, will set that function as a callback to call
- * when an possibly unhandled rejection happens. Passing anything other
- * than a function will have the effect of removing any callback
- * and possible errors can be lost forever.
- *
- * If a promise is rejected with a Javascript Error and is not handled
- * in a timely fashion, that promise's rejection is then possibly
- * unhandled. This can happen for example due to buggy code causing
- * a runtime Javascript error.
- *
- * The rejection system implemented must swallow all errors
- * thrown. However, if some promise doesn't have, or will not have,
- * a rejection handler anywhere in its chain, then this implies that
- * the error would be silently lost.
- *
- * By default, all such errors are reported on console but you may
- * use this function to override that behavior with your own handler.
- *
- * Example:
- *
- *     Promise.onPossiblyUnhandledRejection(function( err ) {
- *         throw err;
- *     });
- *
- * The above will throw any unhandled rejection and for example
- * crash a node process.
- *
- * @param {Function|dynamic} fn The callback function. If fn is not
- * a function, no rejections will be reported as possibly unhandled.
- *
- */
-Promise.onPossiblyUnhandledRejection = function( fn ) {
-    if( typeof fn === "function" ) {
-        possiblyUnhandledRejection = fn;
-    }
-    else {
-        possiblyUnhandledRejection = noop;
-    }
-};
-
-/**
- * Description.
- *
- *
- */
-Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
-    return makeNodePromisified( callback, receiver );
 };
 
 return Promise;})();
@@ -1681,7 +1768,7 @@ function SettledPromiseArray( values ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
-    this._values[ index.valueOf() ] = inspection;
+    this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );

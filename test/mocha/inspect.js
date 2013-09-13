@@ -1,6 +1,6 @@
 var assert = require("assert");
 
-var adapter = global.adapter;
+var adapter = require("../../js/bluebird_debug.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
@@ -78,7 +78,7 @@ describe("inspect", function () {
         var ret = rejected(e);
         assert.equal(ret.inspect().error(), e);
         assert.equal(ret.inspect().isRejected(), true );
-        ret.rejected(function(){})
+        ret.caught(function(){})
     });
 
     it("for a pending, unresolved promise", function () {
@@ -94,7 +94,7 @@ describe("inspect", function () {
 
         assert.equal( deferred.promise.inspect().isRejected(), true );
         assert.equal( deferred.promise.inspect().error(), error );
-        reject.rejected(function(){})
+        reject.caught(function(){})
     });
 
     it("for a promise resolved to a fulfilled promise", function () {

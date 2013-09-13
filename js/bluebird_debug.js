@@ -1,3 +1,57 @@
+
+    var ASSERT = (function(){/* jshint -W014, -W116 */
+        var AssertionError = (function() {
+            function AssertionError( a ) {
+                this.constructor$( a );
+                this.message = a;
+                this.name = "AssertionError";
+            }
+            AssertionError.prototype = new Error();
+            AssertionError.prototype.constructor = AssertionError;
+            AssertionError.prototype.constructor$ = Error;
+            return AssertionError;
+        })();
+
+        function format(type) {
+            switch( typeof type ) {
+            case "string":
+            case "number":
+            case "boolean":
+            case "object":
+                return JSON.stringify( type );
+            case "undefined":
+                return "undefined";
+            case "function":
+                return type.name
+                    ? "function " + type.name + "() {}"
+                    : "function anonymous() {}";
+            }
+        }
+
+        return function assert( val1, val2 ) {
+            var message = "";
+            if( arguments.length === 2 ) {
+                if( val1 !== val2 ) {
+                    message = "Expected " + format(val1) + " to equal " +
+                        format(val2);
+                }
+            }
+            else if( val1 !== true ) {
+                message = "Expected " + format(val1) + " to equal true";
+            }
+            if( message !== "" ) {
+                var ret = new AssertionError( message );
+                if( Error.captureStackTrace ) {
+                    Error.captureStackTrace( ret, assert );
+                }
+                if( console && console.error ) {
+                    console.error( ret.stack + "" );
+                }
+                throw ret;
+            }
+        };
+    })();
+
 /* jshint -W014, -W116 */
 /* global process, unreachable */
 /**
@@ -276,6 +330,8 @@ var method = Async.prototype;
 
 
 method.invoke = function( fn, receiver, arg ) {
+    ASSERT( typeof fn, "function" );
+    ASSERT( arguments.length, 3 );
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
@@ -286,6 +342,7 @@ method.invoke = function( fn, receiver, arg ) {
         functionBuffer.push( fn, receiver, arg );
     }
     else {
+        ASSERT( length < len );
         functionBuffer[ length + 0 ] = fn;
         functionBuffer[ length + 1 ] = receiver;
         functionBuffer[ length + 2 ] = arg;
@@ -300,6 +357,8 @@ method.invoke = function( fn, receiver, arg ) {
 
 method._consumeFunctionBuffer = function() {
     var functionBuffer = this._functionBuffer;
+    ASSERT( this._length > 0 );
+    ASSERT( this._isTickUsed );
     //Must not cache the length
     for( var i = 0; i < this._length; i += 3 ) {
         functionBuffer[ i + 0 ].call(
@@ -329,7 +388,7 @@ var async = new Async();
 
 var bindDefer = function bindDefer( fn, receiver ) {
     return function deferBound( arg ) {
-        fn.call(receiver, arg);
+        async.invoke( fn, receiver, arg );
     };
 };
 
@@ -557,11 +616,11 @@ method.cancel = function() {
     }
     //The propagated parent or original and had no parents
     if( cancelTarget === this ) {
-        this._reject(new CancellationError());
+        async.invoke( this._reject, this, new CancellationError() );
     }
     else {
         //Have pending parents, call cancel on the oldest
-        cancelTarget.cancel((void 0));
+        async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
     }
     return this;
 };
@@ -1111,6 +1170,7 @@ CapturedTrace.prototype.toString = function() {
 
 method._then = function( didFulfill, didReject, didProgress, receiver,
     internalData ) {
+    ASSERT( arguments.length, 5 );
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
@@ -1120,7 +1180,7 @@ method._then = function( didFulfill, didReject, didProgress, receiver,
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
     if( this.isResolved() ) {
-        this._resolveLast(callbackIndex);
+        async.invoke( this._resolveLast, this, callbackIndex );
     }
     else if( !haveInternalData && this.isCancellable() ) {
         ret._cancellationParent = this;
@@ -1159,31 +1219,52 @@ method._unsetCancellable = function() {
 };
 
 method._receiverAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % 5, 0 );
     if( index === 0 ) return this._receiver0;
     return this[ index + 4 - 5 ];
 };
 
 method._promiseAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % 5, 0 );
     if( index === 0 ) return this._promise0;
     return this[ index + 3 - 5 ];
 };
 
 method._fulfillAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % 5, 0 );
     if( index === 0 ) return this._fulfill0;
     return this[ index + 0 - 5 ];
 };
 
 method._rejectAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % 5, 0 );
     if( index === 0 ) return this._reject0;
     return this[ index + 1 - 5 ];
 };
 
 method._progressAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % 5, 0 );
     if( index === 0 ) return this._progress0;
     return this[ index + 2 - 5 ];
 };
 
 method._resolveResolver = function( resolver ) {
+    ASSERT( typeof resolver, "function" );
     var p = new PromiseResolver( this );
     var r = tryCatch1( resolver, this, p );
     if( r === errorObj ) {
@@ -1228,12 +1309,17 @@ method._callFast = function( propertyName ) {
 };
 
 method._callSlow = function( propertyName, args ) {
+    ASSERT( isArray( args ) );
+    ASSERT( args.length > 0 );
     return this.then( function( obj ) {
         return obj[propertyName].apply( obj, args );
     });
 };
 
 method._resolveLast = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
     var promise = this._promiseAt( index );
     var receiver = this._receiverAt( index );
     var fn;
@@ -1314,10 +1400,16 @@ method._resolvePromise = function(
     }
 
     if( x === errorObj ) {
-        promise._reject(errorObj.e);
+        async.invoke( promise._reject, promise, errorObj.e );
     }
     else if( x === promise ) {
-        promise._reject(new TypeError("Circular thenable chain"));
+        async.invoke(
+            promise._reject,
+            promise,
+            //1. If promise and x refer to the same object,
+            //reject promise with a TypeError as the reason.
+            new TypeError( "Circular thenable chain" )
+        );
     }
     else {
         var ref;
@@ -1333,7 +1425,7 @@ method._resolvePromise = function(
             //results in a thrown exception e,
             //reject promise with e as the reason.
             if( ref.ref === errorObj ) {
-                promise._reject(errorObj.e);
+                async.invoke( promise._reject, promise, errorObj.e );
             }
             else {
                 //3.1. Let then be x.then
@@ -1350,19 +1442,21 @@ method._resolvePromise = function(
                 //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
                     //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    promise._reject(errorObj.e);
+                    async.invoke( promise._reject, promise, errorObj.e );
                 }
             }
         }
         // 3.4 If then is not a function, fulfill promise with x.
         // 4. If x is not an object or function, fulfill promise with x.
         else {
-            promise._fulfill(x);
+            async.invoke( promise._fulfill, promise, x );
         }
     }
 };
 
 method._assumeStateOf = function( promise, mustAsync ) {
+    ASSERT( isPromise( promise ) );
+    ASSERT( typeof mustAsync, "boolean" );
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -1377,13 +1471,13 @@ method._assumeStateOf = function( promise, mustAsync ) {
     }
     else if( promise.isFulfilled() ) {
         if( mustAsync )
-            this._fulfill(promise._resolvedValue);
+            async.invoke( this._fulfill, this, promise._resolvedValue );
         else
             this._fulfill( promise._resolvedValue );
     }
     else {
         if( mustAsync )
-            this._reject(promise._resolvedValue);
+            async.invoke( this._reject, this, promise._resolvedValue );
         else
             this._reject( promise._resolvedValue );
     }
@@ -1411,7 +1505,7 @@ method._resolveFulfill = function( value ) {
 
         }
         else {
-            promise._fulfill(value);
+            async.invoke( promise._fulfill, promise, value );
         }
     }
 };
@@ -1434,7 +1528,7 @@ method._resolveReject = function( reason ) {
         else {
             if( !rejectionWasHandled )
                 rejectionWasHandled = promise._length() > 0;
-            promise._reject(reason);
+            async.invoke( promise._reject, promise, reason );
         }
     }
     if( !rejectionWasHandled &&
@@ -1447,7 +1541,11 @@ method._resolveReject = function( reason ) {
         //so do it at last possible moment
         if( reason.__handled !== true ) {
             reason.__handled = false;
-            this._unhandledRejection(reason);
+            async.invoke(
+                this._unhandledRejection,
+                this,
+                reason
+            );
         }
         else {
             this._cleanTrace();
@@ -1535,7 +1633,7 @@ method._progress = function( progressValue ) {
                     //with a name property equal to 'StopProgressPropagation',
                     // the result of the function is used as the progress
                     //value to propagate.
-                    promise._progress(errorObj.e);
+                    async.invoke( promise._progress, promise, errorObj.e );
                 }
             }
             //2.2 The onProgress callback may return a promise.
@@ -1552,11 +1650,11 @@ method._progress = function( progressValue ) {
                 ret._then(promise._progress, null, null, promise, void 0);
             }
             else {
-                promise._progress(ret);
+                async.invoke( promise._progress, promise, ret );
             }
         }
         else {
-            promise._progress(ret);
+            async.invoke( promise._progress, promise, ret );
         }
     }
 };
@@ -1694,22 +1792,27 @@ method._isResolved = function() {
 };
 
 method._fulfill = function( value ) {
+    ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.fulfill( value );
 };
 
 method._reject = function( reason ) {
+    ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.reject( reason );
 };
 
 method._promiseProgressed = function( progressValue ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
     this._resolver.progress( progressValue );
 };
 
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
+    ASSERT( index instanceof Integer );
     //(TODO) could fire a progress when a promise is completed
     this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
@@ -1720,6 +1823,7 @@ method._promiseFulfilled = function( value, index ) {
 
 method._promiseRejected = function( reason ) {
     if( this._isResolved() ) return;
+    ASSERT( isArray( this._values ) );
     this._totalResolved++;
     this._reject( reason );
 };
@@ -1758,6 +1862,7 @@ function SettledPromiseArray( values ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
+    ASSERT(typeof index, "number");
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
@@ -2004,7 +2109,7 @@ method.fulfill = function( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
-    this.promise._fulfill(value);
+    async.invoke( this.promise._fulfill, this.promise, value );
 };
 
 /**
@@ -2015,7 +2120,7 @@ method.fulfill = function( value ) {
  *
  */
 method.reject = function( reason ) {
-    this.promise._reject(reason);
+    async.invoke( this.promise._reject, this.promise, reason );
 };
 
 /**
@@ -2025,7 +2130,7 @@ method.reject = function( reason ) {
  *
  */
 method.progress = function( value ) {
-    this.promise._progress(value);
+    async.invoke( this.promise._progress, this.promise, value );
 };
 
 /**
@@ -2033,7 +2138,7 @@ method.progress = function( value ) {
  *
  */
 method.cancel = function() {
-    this.promise.cancel((void 0));
+    async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
 /**
@@ -2041,7 +2146,11 @@ method.cancel = function() {
  * TimeoutError
  */
 method.timeout = function() {
-    this.promise._reject(new TimeoutError("timeout"));
+    async.invoke(
+        this.promise._reject,
+        this.promise,
+        new TimeoutError( "timeout" )
+    );
 };
 
 /**

@@ -4,7 +4,7 @@
 
 var assert = require("assert");
 
-var adapter = global.adapter;
+var adapter = require("../../js/bluebird_debug.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;

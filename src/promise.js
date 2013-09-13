@@ -46,11 +46,13 @@ function trimTrace( current, earlierStack ) {
 var possiblyUnhandledRejection = function( reason, earlierStack ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
-
-        var message = "Possibly unhandled " + ( stack
-            //The name and message will be in stack trace if it's there
-            ? stack
-            : reason.name + ". " + reason.message );
+        var message = "Possibly unhandled ";
+        if( typeof stack === "string" ) {
+            message += stack;
+        }
+        else {
+            message += reason.name + ". " + reason.message;
+        }
 
         if( earlierStack !== void 0 ) {
             message = trimTrace( message, earlierStack );
@@ -142,15 +144,6 @@ method.toString = function() {
     return "[object Promise]";
 };
 
-/**
- * Convenience method for .then( fn, null, null );
- *
- * @param {Function} fn The callback to call if this promise is fulfilled
- * @return {Promise}
- */
-method.fulfilled = function( fn ) {
-    return this._then( fn, void 0, void 0, void 0, void 0 );
-};
 
 /**
  * Convenience method for .then( null, fn, null );
@@ -158,7 +151,7 @@ method.fulfilled = function( fn ) {
  * @param {Function} fn The callback to call if this promise is rejected
  * @return {Promise}
  */
-method.rejected = function( fn ) {
+method.caught = method["catch"] = function( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0 );
 };
 
@@ -245,7 +238,6 @@ method.cancel = function() {
  */
 method.uncancellable = function() {
     var ret = new Promise();
-
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -418,475 +410,58 @@ method.isCancellable = function() {
         this._cancellable();
 };
 
-function CapturedTrace() {
-    Error.captureStackTrace( this, this.constructor );
-}
-CapturedTrace.prototype = new Error();
-CapturedTrace.prototype.constructor = CapturedTrace;
-CapturedTrace.prototype.toString = function() {
-    return "RejectionError";
+/**
+ * Description.
+ *
+ *
+ */
+method.map = function( fn ) {
+    return Promise.map( this, fn );
 };
 
-method._then = function( didFulfill, didReject, didProgress, receiver,
-    internalData ) {
-    var haveInternalData = internalData !== void 0;
-    var ret = haveInternalData ? internalData : new Promise();
-
-    ret._trace = new CapturedTrace();
-
-    var callbackIndex =
-        this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
-
-    if( this.isResolved() ) {
-        async.invoke( this._resolveLast, this, callbackIndex );
-    }
-    else if( !haveInternalData && this.isCancellable() ) {
-        ret._cancellationParent = this;
-    }
-
-    return ret;
+/**
+ * Description.
+ *
+ *
+ */
+method.all = function() {
+    return Promise.all( this );
 };
 
-method._length = function() {
-    return this._bitField & LENGTH_MASK;
+/**
+ * Description.
+ *
+ *
+ */
+method.any = function() {
+    return Promise.any( this );
 };
 
-method._setLength = function( len ) {
-    this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
-        ( len & LENGTH_MASK ) ;
+/**
+ * Description.
+ *
+ *
+ */
+method.settle = function() {
+    return Promise.settle( this );
 };
 
-method._cancellable = function() {
-    return ( this._bitField & IS_CANCELLABLE ) > 0;
+/**
+ * Description.
+ *
+ *
+ */
+method.some = function( count ) {
+    return Promise.some( this, count );
 };
 
-method._setFulfilled = function() {
-    this._bitField = this._bitField | IS_FULFILLED;
-};
-
-method._setRejected = function() {
-    this._bitField = this._bitField | IS_REJECTED;
-};
-
-method._setCancellable = function() {
-    this._bitField = this._bitField | IS_CANCELLABLE;
-};
-
-method._unsetCancellable = function() {
-    this._bitField = this._bitField & ( ~IS_CANCELLABLE );
-};
-
-method._receiverAt = function( index ) {
-    if( index === 0 ) return this._receiver0;
-    return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
-};
-
-method._promiseAt = function( index ) {
-    if( index === 0 ) return this._promise0;
-    return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
-};
-
-method._fulfillAt = function( index ) {
-    if( index === 0 ) return this._fulfill0;
-    return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
-};
-
-method._rejectAt = function( index ) {
-    if( index === 0 ) return this._reject0;
-    return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
-};
-
-method._progressAt = function( index ) {
-    if( index === 0 ) return this._progress0;
-    return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
-};
-
-method._resolveResolver = function( resolver ) {
-    var p = new PromiseResolver( this );
-    var r = tryCatch1( resolver, this, p );
-    if( r === errorObj ) {
-        p.reject( r.e );
-    }
-};
-
-method._addCallbacks = function(
-    fulfill,
-    reject,
-    progress,
-    promise,
-    receiver
-) {
-    fulfill = typeof fulfill === "function" ? fulfill : noop;
-    reject = typeof reject === "function" ? reject : noop;
-    progress = typeof progress === "function" ? progress : noop;
-    var index = this._length();
-
-    if( index === 0 ) {
-        this._fulfill0 = fulfill;
-        this._reject0  = reject;
-        this._progress0 = progress;
-        this._promise0 = promise;
-        this._receiver0 = receiver;
-        this._setLength( index + CALLBACK_SIZE );
-        return index;
-    }
-
-    this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] = fulfill;
-    this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] = reject;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] = progress;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] = promise;
-    this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = receiver;
-
-    this._setLength( index + CALLBACK_SIZE );
-    return index;
-};
-
-method._callFast = function( propertyName ) {
-    return this.then( getFunction( propertyName ) );
-};
-
-method._callSlow = function( propertyName, args ) {
-    return this.then( function( obj ) {
-        return obj[propertyName].apply( obj, args );
-    });
-};
-
-method._resolveLast = function( index ) {
-    var promise = this._promiseAt( index );
-    var receiver = this._receiverAt( index );
-    var fn;
-
-    if( this.isFulfilled() ) {
-        fn = this._fulfillAt( index );
-    }
-    else if( this.isRejected() ) {
-        fn = this._rejectAt( index );
-    }
-    else unreachable();
-
-    var obj = this._resolvedValue;
-    var ret = obj;
-    if( fn !== noop ) {
-        this._resolvePromise( fn, receiver, obj, promise );
-    }
-    else if( this.isFulfilled() ) {
-        promise._fulfill( ret );
-    }
-    else {
-        promise._reject( ret );
-    }
-};
-
-method._spreadSlowCase = function( targetFn, promise, values ) {
-    promise._assumeStateOf(
-        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0),
-        false
-    );
-};
-
-method._resolvePromise = function(
-    onFulfilledOrRejected, receiver, value, promise
-) {
-    if( isError( value ) ) {
-        value.__handled = true;
-    }
-
-    //if promise is not instanceof Promise
-    //it is internally smuggled data
-    if( !isPromise( promise ) ) {
-        return onFulfilledOrRejected.call( receiver, value, promise );
-    }
-
-    var x;
-    //Special receiver that means we are .applying an array of arguments
-    //(for .spread() at the moment)
-    if( receiver === APPLY ) {
-        //Array of non-promise values is fast case
-        //.spread has a bit convoluted semantics otherwise
-        if( isArray( value ) ) {
-            //Shouldnt be many items to loop through
-            //since the spread target callback will have
-            //a formal parameter for each item in the array
-            for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
-                    this._spreadSlowCase(
-                        onFulfilledOrRejected,
-                        promise,
-                        value
-                    );
-                    return;
-                }
-            }
-            x = tryCatchApply( onFulfilledOrRejected, value );
-        }
-        else {
-            //(TODO) Spreading a promise that eventually returns
-            //an array could be a common usage
-            this._spreadSlowCase( onFulfilledOrRejected, promise, value );
-            return;
-        }
-
-    }
-    else {
-        x = tryCatch1( onFulfilledOrRejected, receiver, value );
-    }
-
-    if( x === errorObj ) {
-        async.invoke( promise._reject, promise, errorObj.e );
-    }
-    else if( x === promise ) {
-        async.invoke(
-            promise._reject,
-            promise,
-            //1. If promise and x refer to the same object,
-            //reject promise with a TypeError as the reason.
-            new TypeError( "Circular thenable chain" )
-        );
-    }
-    else {
-        var ref;
-        if( promise._tryAssumeStateOf( x, true ) ) {
-            //2. If x is a promise, adopt its state
-            return;
-        }
-        //3. Otherwise, if x is an object or function,
-                        //(TODO) isThenable is far more thorough
-                        //than other libraries?
-        else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
-            //3.2 If retrieving the property x.then
-            //results in a thrown exception e,
-            //reject promise with e as the reason.
-            if( ref.ref === errorObj ) {
-                async.invoke( promise._reject, promise, errorObj.e );
-            }
-            else {
-                //3.1. Let then be x.then
-                var then = ref.ref;
-                //3.3 If then is a function, call it with x as this,
-                //first argument resolvePromise, and
-                //second argument rejectPromise
-                var threw = tryCatch2(
-                        then,
-                        x,
-                        bindDefer( promise._fulfill, promise ),
-                        bindDefer( promise._reject, promise )
-                );
-                //3.3.4 If calling then throws an exception e,
-                if( threw === errorObj ) {
-                    //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    async.invoke( promise._reject, promise, errorObj.e );
-                }
-            }
-        }
-        // 3.4 If then is not a function, fulfill promise with x.
-        // 4. If x is not an object or function, fulfill promise with x.
-        else {
-            async.invoke( promise._fulfill, promise, x );
-        }
-    }
-};
-
-method._assumeStateOf = function( promise, mustAsync ) {
-    if( promise.isPending() ) {
-        if( promise._cancellable()  ) {
-            this._cancellationParent = promise;
-        }
-        promise._then(
-            this._fulfill,
-            this._reject,
-            this._progress,
-            this,
-            void 0
-        );
-    }
-    else if( promise.isFulfilled() ) {
-        if( mustAsync )
-            async.invoke( this._fulfill, this, promise._resolvedValue );
-        else
-            this._fulfill( promise._resolvedValue );
-    }
-    else {
-        if( mustAsync )
-            async.invoke( this._reject, this, promise._resolvedValue );
-        else
-            this._reject( promise._resolvedValue );
-    }
-};
-
-//(TODO) this possibly needs to be done in _fulfill
-method._tryAssumeStateOf = function( value, mustAsync ) {
-    if( !isPromise( value ) ) return false;
-    this._assumeStateOf( value, mustAsync );
-    return true;
-};
-
-method._resolveFulfill = function( value ) {
-    var len = this._length();
-    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
-        var fn = this._fulfillAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        if( fn !== noop ) {
-            this._resolvePromise(
-                fn,
-                receiver,
-                value,
-                promise
-            );
-
-        }
-        else {
-            async.invoke( promise._fulfill, promise, value );
-        }
-    }
-};
-
-method._resolveReject = function( reason ) {
-    var len = this._length();
-    var rejectionWasHandled = false;
-    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
-        var fn = this._rejectAt( i );
-        var promise = this._promiseAt( i );
-        if( fn !== noop ) {
-            rejectionWasHandled = true;
-            this._resolvePromise(
-                fn,
-                this._receiverAt( i ),
-                reason,
-                promise
-            );
-        }
-        else {
-            if( !rejectionWasHandled )
-                rejectionWasHandled = promise._length() > 0;
-            async.invoke( promise._reject, promise, reason );
-        }
-    }
-    if( !rejectionWasHandled &&
-        isError( reason ) &&
-        possiblyUnhandledRejection !== noop
-    ) {
-        //If the prop is not there, reading it
-        //will cause deoptimization most likely
-        //so do it at last possible moment
-        if( reason.__handled !== true ) {
-            reason.__handled = false;
-            async.invoke(
-                this._unhandledRejection,
-                this,
-                reason
-            );
-        }
-        else {
-            this._cleanTrace();
-        }
-    }
-    else {
-        this._cleanTrace();
-    }
-
-};
-
-method._unhandledRejection = function( reason ) {
-    if( !reason.__handled ) {
-        var stack = void 0;
-        if( this._trace !== null ) {
-            stack = this._trace.stack;
-            this._cleanTrace();
-        }
-        setTimeout(function() {
-            if( !reason.__handled ) {
-                reason.__handled = true;
-                possiblyUnhandledRejection( reason, stack );
-            }
-        }, 100 );
-    }
-};
-
-method._cleanTrace = function() {
-    if( this._trace !== null ) {
-        this._trace.stack = null;
-        this._trace = null;
-    }
-};
-
-method._cleanValues = function() {
-    this._cancellationParent = null;
-};
-
-method._fulfill = function( value ) {
-    if( this.isResolved() ) return;
-    this._cleanValues();
-    this._cleanTrace();
-    this._setFulfilled();
-    this._resolvedValue = value;
-    this._resolveFulfill( value );
-
-};
-
-method._reject = function( reason ) {
-    if( this.isResolved() ) return;
-    this._setRejected();
-    this._resolvedValue = reason;
-    this._resolveReject( reason );
-    this._cleanValues();
-};
-
-method._progress = function( progressValue ) {
-    //2.5 onProgress is never called once a promise
-    //has already been fulfilled or rejected.
-
-    if( this.isResolved() ) return;
-    var len = this._length();
-    for( var i = 0; i < len; i += CALLBACK_SIZE ) {
-        var fn = this._progressAt( i );
-        var promise = this._promiseAt( i );
-        //if promise is not instanceof Promise
-        //it is internally smuggled data
-        if( !isPromise( promise ) ) {
-            fn.call( this._receiverAt( i ), progressValue, promise );
-            continue;
-        }
-        var ret = progressValue;
-        if( fn !== noop ) {
-            ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-            if( ret === errorObj ) {
-                //2.4 if the onProgress callback throws an exception
-                //with a name property equal to 'StopProgressPropagation',
-                //then the error is silenced.
-                if( ret.e != null &&
-                    ret.e.name === "StopProgressPropagation" ) {
-                    ret.e.__handled = true;
-                }
-                else {
-                    //2.3 Unless the onProgress callback throws an exception
-                    //with a name property equal to 'StopProgressPropagation',
-                    // the result of the function is used as the progress
-                    //value to propagate.
-                    async.invoke( promise._progress, promise, errorObj.e );
-                }
-            }
-            //2.2 The onProgress callback may return a promise.
-            else if( isPromise( ret ) ) {
-                //2.2.1 The callback is not considered complete
-                //until the promise is fulfilled.
-
-                //2.2.2 The fulfillment value of the promise is the value
-                //to be propagated.
-
-                //2.2.3 If the promise is rejected, the rejection reason
-                //should be treated as if it was thrown by the callback
-                //directly.
-                ret._then(promise._progress, null, null, promise, void 0);
-            }
-            else {
-                async.invoke( promise._progress, promise, ret );
-            }
-        }
-        else {
-            async.invoke( promise._progress, promise, ret );
-        }
-    }
+/**
+ * Description.
+ *
+ *
+ */
+method.reduce = function( fn, initialValue ) {
+    return Promise.reduce( this, fn, initialValue );
 };
 
 /**
@@ -924,6 +499,23 @@ Promise.settle = function( promises ) {
 Promise.all = function( promises ) {
     var ret = all( promises, PromiseArray );
     return ret.promise();
+};
+
+/**
+ * Like Promise.all but instead of having to pass an array,
+ * the array is generated from the passed variadic arguments.
+ *
+ * Promise.all([a, b, c]) <--> Promise.join(a, b, c);
+ *
+ * @return {Promise}
+ *
+ */
+Promise.join = function() {
+    var ret = new Array( arguments.length );
+    for( var i = 0, len = ret.length; i < len; ++i ) {
+        ret[i] = arguments[i];
+    }
+    return Promise.all( ret );
 };
 
 /**
@@ -1076,6 +668,53 @@ Promise.pending = function() {
     return new PromiseResolver( new Promise() );
 };
 
+
+/**
+ * Casts the object to a trusted Promise. If the
+ * object is a "thenable", then the trusted promise will
+ * assimilate it. Otherwise the trusted promise is immediately
+ * fulfilled with obj as the fulfillment value.
+ *
+ * It is recommended to use just one promise library at a time,
+ * so you don't have to call this method.
+ *
+ * Example: ($ is jQuery)
+ *
+ * Promise.cast($.get("http://www.google.com")).catch(function(){
+ *     //will catch to same-origin policy error here..
+ *     //... unless you are running this on google website
+ * });
+ *
+ * Note that if you return an untrusted promise inside a then e.g.:
+ *
+ * somePromise.then(function(url) {
+ *     return $.get(url);
+ * });
+ *
+ * Then the returned untrusted promise is autocast per Promises/A+
+ * specification. In any other situation, you will need to use
+ * explicit casting through Promise.cast
+ *
+ * @param {dynamic} obj The object to cast to a trusted Promise
+ * @return {Promise}
+ *
+ */
+Promise.cast = function( obj ) {
+    if( isObject( obj ) ) {
+        var ref = {ref: null};
+        if( isThenable( obj, ref ) ) {
+            var resolver = Promise.pending();
+            ref.ref.call(obj, function( a ) {
+                resolver.fulfill( a );
+            }, function( a ) {
+                resolver.reject( a );
+            });
+            return resolver.promise;
+        }
+    }
+    return Promise.fulfilled( obj );
+};
+
 /**
  * If `fn` is a function, will set that function as a callback to call
  * when an possibly unhandled rejection happens. Passing anything other
@@ -1124,6 +763,506 @@ Promise.onPossiblyUnhandledRejection = function( fn ) {
  */
 Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
     return makeNodePromisified( callback, receiver );
+};
+
+function CapturedTrace() {
+    Error.captureStackTrace( this, this.constructor );
+}
+CapturedTrace.prototype = new Error();
+CapturedTrace.prototype.constructor = CapturedTrace;
+CapturedTrace.prototype.toString = function() {
+    return "RejectionError";
+};
+
+method._then = function( didFulfill, didReject, didProgress, receiver,
+    internalData ) {
+    ASSERT( arguments.length, 5 );
+    var haveInternalData = internalData !== void 0;
+    var ret = haveInternalData ? internalData : new Promise();
+
+    ret._trace = new CapturedTrace();
+
+    var callbackIndex =
+        this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
+
+    if( this.isResolved() ) {
+        async.invoke( this._resolveLast, this, callbackIndex );
+    }
+    else if( !haveInternalData && this.isCancellable() ) {
+        ret._cancellationParent = this;
+    }
+
+    return ret;
+};
+
+method._length = function() {
+    return this._bitField & LENGTH_MASK;
+};
+
+method._setLength = function( len ) {
+    this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
+        ( len & LENGTH_MASK ) ;
+};
+
+method._cancellable = function() {
+    return ( this._bitField & IS_CANCELLABLE ) > 0;
+};
+
+method._setFulfilled = function() {
+    this._bitField = this._bitField | IS_FULFILLED;
+};
+
+method._setRejected = function() {
+    this._bitField = this._bitField | IS_REJECTED;
+};
+
+method._setCancellable = function() {
+    this._bitField = this._bitField | IS_CANCELLABLE;
+};
+
+method._unsetCancellable = function() {
+    this._bitField = this._bitField & ( ~IS_CANCELLABLE );
+};
+
+method._receiverAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE, 0 );
+    if( index === 0 ) return this._receiver0;
+    return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
+};
+
+method._promiseAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE, 0 );
+    if( index === 0 ) return this._promise0;
+    return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
+};
+
+method._fulfillAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE, 0 );
+    if( index === 0 ) return this._fulfill0;
+    return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
+};
+
+method._rejectAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE, 0 );
+    if( index === 0 ) return this._reject0;
+    return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
+};
+
+method._progressAt = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE, 0 );
+    if( index === 0 ) return this._progress0;
+    return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
+};
+
+method._resolveResolver = function( resolver ) {
+    ASSERT( typeof resolver, "function" );
+    var p = new PromiseResolver( this );
+    var r = tryCatch1( resolver, this, p );
+    if( r === errorObj ) {
+        p.reject( r.e );
+    }
+};
+
+method._addCallbacks = function(
+    fulfill,
+    reject,
+    progress,
+    promise,
+    receiver
+) {
+    fulfill = typeof fulfill === "function" ? fulfill : noop;
+    reject = typeof reject === "function" ? reject : noop;
+    progress = typeof progress === "function" ? progress : noop;
+    var index = this._length();
+
+    if( index === 0 ) {
+        this._fulfill0 = fulfill;
+        this._reject0  = reject;
+        this._progress0 = progress;
+        this._promise0 = promise;
+        this._receiver0 = receiver;
+        this._setLength( index + CALLBACK_SIZE );
+        return index;
+    }
+
+    this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] = fulfill;
+    this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] = reject;
+    this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] = progress;
+    this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] = promise;
+    this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = receiver;
+
+    this._setLength( index + CALLBACK_SIZE );
+    return index;
+};
+
+method._callFast = function( propertyName ) {
+    return this.then( getFunction( propertyName ) );
+};
+
+method._callSlow = function( propertyName, args ) {
+    ASSERT( isArray( args ) );
+    ASSERT( args.length > 0 );
+    return this.then( function( obj ) {
+        return obj[propertyName].apply( obj, args );
+    });
+};
+
+method._resolveLast = function( index ) {
+    ASSERT( typeof index, "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    var promise = this._promiseAt( index );
+    var receiver = this._receiverAt( index );
+    var fn;
+
+    if( this.isFulfilled() ) {
+        fn = this._fulfillAt( index );
+    }
+    else if( this.isRejected() ) {
+        fn = this._rejectAt( index );
+    }
+    else unreachable();
+
+    var obj = this._resolvedValue;
+    var ret = obj;
+    if( fn !== noop ) {
+        this._resolvePromise( fn, receiver, obj, promise );
+    }
+    else if( this.isFulfilled() ) {
+        promise._fulfill( ret );
+    }
+    else {
+        promise._reject( ret );
+    }
+};
+
+method._spreadSlowCase = function( targetFn, promise, values ) {
+    promise._assumeStateOf(
+        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0),
+        false
+    );
+};
+
+method._resolvePromise = function(
+    onFulfilledOrRejected, receiver, value, promise
+) {
+    if( isError( value ) ) {
+        value.__handled = true;
+    }
+
+    //if promise is not instanceof Promise
+    //it is internally smuggled data
+    if( !isPromise( promise ) ) {
+        return onFulfilledOrRejected.call( receiver, value, promise );
+    }
+
+    var x;
+    //Special receiver that means we are .applying an array of arguments
+    //(for .spread() at the moment)
+    if( receiver === APPLY ) {
+        //Array of non-promise values is fast case
+        //.spread has a bit convoluted semantics otherwise
+        if( isArray( value ) ) {
+            //Shouldnt be many items to loop through
+            //since the spread target callback will have
+            //a formal parameter for each item in the array
+            for( var i = 0, len = value.length; i < len; ++i ) {
+                if( isPromise( value[i] ) ) {
+                    this._spreadSlowCase(
+                        onFulfilledOrRejected,
+                        promise,
+                        value
+                    );
+                    return;
+                }
+            }
+            x = tryCatchApply( onFulfilledOrRejected, value );
+        }
+        else {
+            //(TODO) Spreading a promise that eventually returns
+            //an array could be a common usage
+            this._spreadSlowCase( onFulfilledOrRejected, promise, value );
+            return;
+        }
+
+    }
+    else {
+        x = tryCatch1( onFulfilledOrRejected, receiver, value );
+    }
+
+    if( x === errorObj ) {
+        async.invoke( promise._reject, promise, errorObj.e );
+    }
+    else if( x === promise ) {
+        async.invoke(
+            promise._reject,
+            promise,
+            //1. If promise and x refer to the same object,
+            //reject promise with a TypeError as the reason.
+            new TypeError( "Circular thenable chain" )
+        );
+    }
+    else {
+        var ref;
+        if( promise._tryAssumeStateOf( x, true ) ) {
+            //2. If x is a promise, adopt its state
+            return;
+        }
+        //3. Otherwise, if x is an object or function,
+                        //(TODO) isThenable is far more thorough
+                        //than other libraries?
+        else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
+            //3.2 If retrieving the property x.then
+            //results in a thrown exception e,
+            //reject promise with e as the reason.
+            if( ref.ref === errorObj ) {
+                async.invoke( promise._reject, promise, errorObj.e );
+            }
+            else {
+                //3.1. Let then be x.then
+                var then = ref.ref;
+                //3.3 If then is a function, call it with x as this,
+                //first argument resolvePromise, and
+                //second argument rejectPromise
+                var threw = tryCatch2(
+                        then,
+                        x,
+                        bindDefer( promise._fulfill, promise ),
+                        bindDefer( promise._reject, promise )
+                );
+                //3.3.4 If calling then throws an exception e,
+                if( threw === errorObj ) {
+                    //3.3.4.2 Otherwise, reject promise with e as the reason.
+                    async.invoke( promise._reject, promise, errorObj.e );
+                }
+            }
+        }
+        // 3.4 If then is not a function, fulfill promise with x.
+        // 4. If x is not an object or function, fulfill promise with x.
+        else {
+            async.invoke( promise._fulfill, promise, x );
+        }
+    }
+};
+
+method._assumeStateOf = function( promise, mustAsync ) {
+    ASSERT( isPromise( promise ) );
+    ASSERT( typeof mustAsync, "boolean" );
+    if( promise.isPending() ) {
+        if( promise._cancellable()  ) {
+            this._cancellationParent = promise;
+        }
+        promise._then(
+            this._fulfill,
+            this._reject,
+            this._progress,
+            this,
+            void 0
+        );
+    }
+    else if( promise.isFulfilled() ) {
+        if( mustAsync )
+            async.invoke( this._fulfill, this, promise._resolvedValue );
+        else
+            this._fulfill( promise._resolvedValue );
+    }
+    else {
+        if( mustAsync )
+            async.invoke( this._reject, this, promise._resolvedValue );
+        else
+            this._reject( promise._resolvedValue );
+    }
+};
+
+method._tryAssumeStateOf = function( value, mustAsync ) {
+    if( !isPromise( value ) ) return false;
+    this._assumeStateOf( value, mustAsync );
+    return true;
+};
+
+method._resolveFulfill = function( value ) {
+    var len = this._length();
+    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
+        var fn = this._fulfillAt( i );
+        var promise = this._promiseAt( i );
+        var receiver = this._receiverAt( i );
+        if( fn !== noop ) {
+            this._resolvePromise(
+                fn,
+                receiver,
+                value,
+                promise
+            );
+
+        }
+        else {
+            async.invoke( promise._fulfill, promise, value );
+        }
+    }
+};
+
+method._resolveReject = function( reason ) {
+    var len = this._length();
+    var rejectionWasHandled = false;
+    for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
+        var fn = this._rejectAt( i );
+        var promise = this._promiseAt( i );
+        if( fn !== noop ) {
+            rejectionWasHandled = true;
+            this._resolvePromise(
+                fn,
+                this._receiverAt( i ),
+                reason,
+                promise
+            );
+        }
+        else {
+            if( !rejectionWasHandled )
+                rejectionWasHandled = promise._length() > 0;
+            async.invoke( promise._reject, promise, reason );
+        }
+    }
+    if( !rejectionWasHandled &&
+        isError( reason ) &&
+        possiblyUnhandledRejection !== noop
+
+    ) {
+        //If the prop is not there, reading it
+        //will cause deoptimization most likely
+        //so do it at last possible moment
+        if( reason.__handled !== true ) {
+            reason.__handled = false;
+            async.invoke(
+                this._unhandledRejection,
+                this,
+                reason
+            );
+        }
+        else {
+            this._cleanTrace();
+        }
+    }
+    else {
+        this._cleanTrace();
+    }
+
+};
+
+method._unhandledRejection = function( reason ) {
+    if( !reason.__handled ) {
+        var stack = void 0;
+        if( this._trace !== null ) {
+            stack = this._trace.stack;
+            this._cleanTrace();
+        }
+        setTimeout(function() {
+            if( !reason.__handled ) {
+                reason.__handled = true;
+                possiblyUnhandledRejection( reason, stack );
+            }
+        }, 100 );
+    }
+};
+
+method._cleanTrace = function() {
+    if( this._trace !== null ) {
+        this._trace.stack = null;
+        this._trace = null;
+    }
+};
+
+method._cleanValues = function() {
+    this._cancellationParent = null;
+};
+
+method._fulfill = function( value ) {
+    if( this.isResolved() ) return;
+    this._cleanValues();
+    this._cleanTrace();
+    this._setFulfilled();
+    this._resolvedValue = value;
+    this._resolveFulfill( value );
+
+};
+
+method._reject = function( reason ) {
+    if( this.isResolved() ) return;
+    this._setRejected();
+    this._resolvedValue = reason;
+    this._resolveReject( reason );
+    this._cleanValues();
+};
+
+method._progress = function( progressValue ) {
+    //2.5 onProgress is never called once a promise
+    //has already been fulfilled or rejected.
+
+    if( this.isResolved() ) return;
+    var len = this._length();
+    for( var i = 0; i < len; i += CALLBACK_SIZE ) {
+        var fn = this._progressAt( i );
+        var promise = this._promiseAt( i );
+        //if promise is not instanceof Promise
+        //it is internally smuggled data
+        if( !isPromise( promise ) ) {
+            fn.call( this._receiverAt( i ), progressValue, promise );
+            continue;
+        }
+        var ret = progressValue;
+        if( fn !== noop ) {
+            ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
+            if( ret === errorObj ) {
+                //2.4 if the onProgress callback throws an exception
+                //with a name property equal to 'StopProgressPropagation',
+                //then the error is silenced.
+                if( ret.e != null &&
+                    ret.e.name === "StopProgressPropagation" ) {
+                    ret.e.__handled = true;
+                }
+                else {
+                    //2.3 Unless the onProgress callback throws an exception
+                    //with a name property equal to 'StopProgressPropagation',
+                    // the result of the function is used as the progress
+                    //value to propagate.
+                    async.invoke( promise._progress, promise, errorObj.e );
+                }
+            }
+            //2.2 The onProgress callback may return a promise.
+            else if( isPromise( ret ) ) {
+                //2.2.1 The callback is not considered complete
+                //until the promise is fulfilled.
+
+                //2.2.2 The fulfillment value of the promise is the value
+                //to be propagated.
+
+                //2.2.3 If the promise is rejected, the rejection reason
+                //should be treated as if it was thrown by the callback
+                //directly.
+                ret._then(promise._progress, null, null, promise, void 0);
+            }
+            else {
+                async.invoke( promise._progress, promise, ret );
+            }
+        }
+        else {
+            async.invoke( promise._progress, promise, ret );
+        }
+    }
 };
 
 return Promise;})();
