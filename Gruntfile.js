@@ -176,16 +176,18 @@ module.exports = function( grunt ) {
         var sys = require('sys');
         var spawn = require('child_process').spawn;
         var p = path.join(process.cwd(), "test");
-        if( file.indexOf( "mocha/") > -1 ) {
+        if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
             var node = spawn('node', ["../mocharun.js", file], {cwd: p});
         }
         else {
             var node = spawn('node', ["./"+file], {cwd: p});
         }
 
-        node.stdout.on('data', function( data ) {
-            process.stdout.write(data);
-        });
+        if( grunt.option("verbose") ) {
+            node.stdout.on('data', function( data ) {
+                process.stdout.write(data);
+            });
+        }
 
         node.stderr.on('data', function( data ) {
             process.stderr.write(data);
@@ -270,20 +272,9 @@ module.exports = function( grunt ) {
             }
         }
 
-        if( testOption === "aplus" ) {
-            grunt.log.writeln("Running Promises/A+ conformance tests");
-            require("promises-aplus-tests")(adapter, function(err){
-                if( err ) throw new Error(err + " tests failed");
-                else done();
-            });
-            return;
-        }
-
-
-
-
         var files = testOption === "all"
             ? fs.readdirSync('test')
+                .concat( "aplus.js" )
                 .concat(fs.readdirSync('test/mocha')
                     .map(function(fileName){
                         return "mocha/" + fileName
@@ -301,18 +292,10 @@ module.exports = function( grunt ) {
                 grunt.log.writeln("Running test " + files[i] );
                 runIndependentTest(file, function(err) {
                     if( err ) throw new Error(err + " " + file + " failed");
+                    grunt.log.writeln("Test " + files[i] + " succeeded");
                     testDone();
                 });
             })(files[i], i);
-        }
-
-        if( testOption === "all" || testOption === "aplus" ) {
-            grunt.log.writeln("Running Promises/A+ conformance tests");
-            require("promises-aplus-tests")(adapter, function(err){
-                if( err ) throw new Error(err + " tests failed");
-                else testDone();
-            });
-            totalTests++;
         }
 
     }
