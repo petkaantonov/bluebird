@@ -285,14 +285,6 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        var failed2 = rejected(e());
-
-        setTimeout(function(){
-            failed2.caught(function(){
-
-            });
-        }, 40);
-
         setTimeout( onDone(done), 175 );
     });
 
@@ -305,17 +297,7 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise.caught(function(){
-
-            });
-        }, 40);
-
-
         failed.reject(e());
-        failed2.reject(e());
 
         setTimeout( onDone(done), 175 );
 
@@ -331,17 +313,8 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise.caught(function(){
-
-            });
-        }, 40);
-
         setTimeout(function(){
             failed.reject(e());
-            failed2.reject(e());
         }, 80 );
 
         setTimeout( onDone(done), 175 );
@@ -364,17 +337,6 @@ describe("Will not report rejections that are handled in time", function() {
             .caught(function(){
             });
 
-        var failed2 = rejected(e());
-
-        setTimeout(function(){
-            failed2
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){})
-                .caught(function(){
-                });
-        }, 40);
 
         setTimeout( onDone(done), 175 );
     });
@@ -392,23 +354,8 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){})
-                .caught(function(){
-
-            });
-        }, 40);
-
-
 
         failed.reject(e());
-        failed2.reject(e());
 
         setTimeout( onDone(done), 175 );
 
@@ -428,21 +375,9 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){})
-                .caught(function(){
-            });
-        }, 40);
 
         setTimeout(function(){
             failed.reject(e());
-            failed2.reject(e());
         }, 80 );
 
         setTimeout( onDone(done), 175 );
@@ -473,28 +408,6 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){});
 
-        var failed2 = rejected(e());
-
-        setTimeout(function(){
-            failed2
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-
-            failed2
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .caught(function(){
-
-                });
-
-            failed2
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-        }, 40);
 
         setTimeout( onDone(done), 175 );
     });
@@ -522,32 +435,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){});
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .caught(function(){
-                });
-
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-        }, 40);
-
-
-
         failed.reject(e());
-        failed2.reject(e());
 
         setTimeout( onDone(done), 175 );
 
@@ -577,31 +465,9 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){});
 
-        var failed2 = pending();
-
-        setTimeout(function(){
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .caught(function(){
-                });
-
-            failed2.promise
-                .then(function(){})
-                .then(function(){}, null, function(){})
-                .then()
-                .then(function(){});
-        }, 40);
 
         setTimeout(function(){
             failed.reject(e());
-            failed2.reject(e());
         }, 80 );
 
         setTimeout( onDone(done), 175 );

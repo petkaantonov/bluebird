@@ -283,6 +283,11 @@ module.exports = function( grunt ) {
                 )
             : [testOption + ".js" ];
 
+        if( testOption !== "all" &&
+            !fs.existsSync( "./test/" + files[0] ) ) {
+            files[0] = "mocha/" + files[0];
+        }
+
         files = files.filter(function(fileName){
             return /\.js$/.test(fileName);
         });
