@@ -437,9 +437,8 @@ function isThenable( ret, ref ) {
     }
 }
 
-function combineTraces( current, earlierStack ) {
-    var combined = current + "\n" + earlierStack;
-    var lines = combined.split("\n");
+function combineTraces( current, prev ) {
+    var lines = current.concat( prev );
     var ret = [];
     var rignore = new RegExp(
         "\\b(?:Promise\\.method|tryCatch(?:1|2|Apply)|setTimeout" +
@@ -456,10 +455,10 @@ function combineTraces( current, earlierStack ) {
         }
         ret.push( lines[i] );
     }
-    return ret.join("\n");
+    return ret;
 }
 
-var possiblyUnhandledRejection = function( reason, earlierStack ) {
+var possiblyUnhandledRejection = function( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
         var message = "Possibly unhandled ";
@@ -468,10 +467,6 @@ var possiblyUnhandledRejection = function( reason, earlierStack ) {
         }
         else {
             message += reason.name + ". " + reason.message;
-        }
-
-        if( earlierStack !== void 0 ) {
-            message = combineTraces( message, earlierStack );
         }
 
         if( typeof console.error === "function" ) {
@@ -514,7 +509,12 @@ var UNRESOLVED = {};
 var noop = function(){};
 
 function CapturedTrace() {
+    var e = Error.stackTraceLimit;
+    //To account for calls from this library that
+    //will be removed from the traces anyway
+    Error.stackTraceLimit = e + 7;
     Error.captureStackTrace( this, this.constructor );
+    Error.stackTraceLimit = e;
 }
 inherits( CapturedTrace, Error );
 
@@ -1582,13 +1582,18 @@ method._attachExtraTrace = function( error ) {
     if( longStackTraces &&
         isError( error ) ) {
         var promise = this;
-        var stack = error.stack;
+        var stack = error.stack.split("\n");
         while( promise != null &&
             promise._trace != null ) {
-            stack = combineTraces( stack, promise._trace.stack );
+            stack = combineTraces( stack, promise._trace.stack.split("\n") );
             promise = promise._traceParent;
         }
-        error.stack = stack;
+        var max = Error.stackTraceLimit;
+        var len = stack.length;
+        if( len - 1 > max ) {
+            stack.length = max + 1;
+        }
+        error.stack = stack.join("\n");
     }
 };
 
