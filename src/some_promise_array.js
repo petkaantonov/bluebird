@@ -13,12 +13,17 @@ method._init = function() {
     this._rejectionValues = new Array( this.length() );
     this._resolutionValues = new Array( this.length() );
     if( this._isResolved() ) return;
-    var canPossiblyFulfillCount =
-        this._totalResolved - this._rejected + //fulfilled already
-        ( this.length() - this._totalResolved ); //could fulfill
-    if( this._howMany > canPossiblyFulfillCount ) {
+
+    if( this._howMany > this._canPossiblyFulfill()  ) {
         this._reject( [] );
     }
+};
+
+method._canPossiblyFulfill = function() {
+            //fulfilled already
+    return this._totalResolved - this._rejected +
+        //could fulfill
+        ( this.length() - this._totalResolved );
 };
 
 //override
@@ -44,12 +49,7 @@ method._promiseRejected = function( reason ) {
     this._rejected++;
     this._totalResolved++;
 
-
-    var canPossiblyFulfillCount =
-        this._totalResolved - this._rejected + //fulfilled already
-        ( this.length() - this._totalResolved ); //could fulfill
-
-    if( this._howMany > canPossiblyFulfillCount ) {
+    if( this._howMany > this._canPossiblyFulfill() ) {
         this._rejectionValues.length = this._rejected;
         this._reject( this._rejectionValues );
         this._resolutionValues =

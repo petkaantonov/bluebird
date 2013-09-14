@@ -23,16 +23,6 @@
  */
 (function( global, Function, Array, Error, Object ) { "use strict";
 
-//This is the only way to have efficient constants
-//Layout
-//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//0 = Always 0 (never used)
-//R = [Reserved]
-//F = isFulfilled
-//N = isRejected
-//C = isCancellable
-//L = Length, 26 bit unsigned
-//- = Reserved
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -45,8 +35,6 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
-//Try catch is not supported in optimizing
-//compiler, so it is isolated
 function tryCatch1( fn, receiver, arg ) {
     try {
         return fn.call( receiver, arg );
@@ -126,8 +114,6 @@ function makeNodePromisified( callback, receiver ) {
 }
 
 
-//Un-magical enough that using this doesn't prevent
-//extending classes from outside using any convention
 var inherits = function( Child, Parent ) {
     var hasProp = {}.hasOwnProperty;
 
@@ -176,14 +162,6 @@ function GetterCache(){}
 function FunctionCache(){}
 
 
-//If one uses sensible property names
-//then the dummy constructor will give
-//currently 8 more inobject properteis than
-//EMPTY object literal in V8
-
-//In other words, Promise.prototype.get
-//is optimized for applications that use it
-//for 1-8 properties that have identifier names
 var getterCache = new GetterCache(),
     functionCache = new FunctionCache(),
     rjsident = /^[a-zA-Z$_][a-zA-Z0-9$_]*$/,
@@ -262,8 +240,6 @@ function Async() {
     this._backupBuffer = [];
     var functionBuffer = this._functionBuffer = new Array( 1000 * 3 );
     var self = this;
-    //Optimized around the fact that no arguments
-    //need to be passed
     this.consumeFunctionBuffer = function() {
         self._consumeFunctionBuffer();
     };
@@ -274,8 +250,6 @@ function Async() {
 }
 var method = Async.prototype;
 
-//When the fn absolutely needs to be called after
-//the queue has been completely flushed
 method.invokeLater = function( fn, receiver, arg ) {
     if( !this._isTickUsed ) {
         this.invoke( fn, receiver, arg );
@@ -290,8 +264,6 @@ method.invoke = function( fn, receiver, arg ) {
         length = this._length;
 
     if( length === len ) {
-        //direct index modifications past .length caused out of bounds
-        //accesses which caused deoptimizations
         functionBuffer.push( fn, receiver, arg );
     }
     else {
@@ -309,15 +281,11 @@ method.invoke = function( fn, receiver, arg ) {
 
 method._consumeFunctionBuffer = function() {
     var functionBuffer = this._functionBuffer;
-    //Must not cache the length
     for( var i = 0; i < this._length; i += 3 ) {
         functionBuffer[ i + 0 ].call(
             functionBuffer[ i + 1 ],
             functionBuffer[ i + 2 ] );
 
-        //Must clear garbage immediately otherwise
-        //high promotion rate is caused with long
-        //sequence chains which leads to mass deoptimization
         functionBuffer[ i + 0 ] =
             functionBuffer[ i + 1 ] =
             functionBuffer[ i + 2 ] =
@@ -352,16 +320,9 @@ var bindDefer = function bindDefer( fn, receiver ) {
 var Promise = (function() {
 
 function isThenable( ret, ref ) {
-    //Do try catching since retrieving non-existent
-    //properties slows down anyway
     try {
-        //Retrieving the property may throw
         var then = ret.then;
         if( typeof then === "function" ) {
-            //Faking a reference so that the
-            //caller may read the retrieved value
-            //since reading .then again might
-            //return something different
             ref.ref = then;
             return true;
         }
@@ -370,15 +331,12 @@ function isThenable( ret, ref ) {
     catch(e) {
         errorObj.e = e;
         ref.ref = errorObj;
-        //This idiosyncrasy is because of how the
-        //caller code is currently layed out..
         return true;
     }
 }
 
 function combineTraces( current, prev ) {
     var curLast = current.length - 1;
-    //Eliminate common roots
     for( var i = prev.length - 1; i >= 0; --i ) {
         var line = prev[i];
         if( current[ curLast ] === line ) {
@@ -397,8 +355,6 @@ function combineTraces( current, prev ) {
         "|_?consumeFunctionBuffer)\\b"
     );
     var rtrace = /^\s*at\s*/;
-    //Eliminate library internal stuff and async callers
-    //that nobody cares about
     for( var i = 0, len = lines.length; i < len; ++i ) {
         if( rignore.test( lines[i] ) ||
             ( i > 0 && !rtrace.test( lines[i] ) )
@@ -431,7 +387,6 @@ var possiblyUnhandledRejection = function( reason ) {
 };
 
 function isObject( value ) {
-    //no need to check for undefined twice
     if( value === null ) {
         return false;
     }
@@ -462,34 +417,12 @@ var noop = function(){};
 
 function CapturedTrace() {
     var e = Error.stackTraceLimit;
-    //To account for calls from this library that
-    //will be removed from the traces anyway
     Error.stackTraceLimit = e + 7;
     Error.captureStackTrace( this, this.constructor );
     Error.stackTraceLimit = e;
 }
 inherits( CapturedTrace, Error );
 
-/**
- * Description.
- *
- *
- */
-
-//Bitfield Layout
-//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//0 = Always 0 (must be never used)
-//R = [Reserved]
-//F = isFulfilled
-//N = isRejected
-//C = isCancellable
-//L = Length, 26 bit unsigned
-
-//Since most promises have exactly 1 parallel handler
-//store the first ones directly on the object
-//The rest (if needed) are stored on the object's
-//elements array (this[0], this[1]...etc)
-//which has less indirection than when using external array
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
@@ -501,9 +434,7 @@ function Promise( resolver ) {
     this._promise0 =
     this._receiver0 =
         void 0;
-    //reason for rejection or fulfilled value
     this._resolvedValue = UNRESOLVED;
-    //Used in cancel propagation
     this._cancellationParent = null;
 }
 var method = Promise.prototype;
@@ -513,105 +444,42 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
-/**
- * @return {string}
- */
 method.toString = function() {
     return "[object Promise]";
 };
 
 
-/**
- * Convenience method for .then( null, fn, null );
- *
- * @param {Function} fn The callback to call if this promise is rejected
- * @return {Promise}
- */
 method.caught = method["catch"] = function( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0 );
 };
 
-/**
- * Convenience method for .then( null, null, fn );
- *
- * @param {Function} fn The callback to call if this promise is progressed
- * @return {Promise}
- */
 method.progressed = function( fn ) {
     return this._then( void 0, void 0, fn, void 0, void 0 );
 };
 
-/**
- * Convenience method for .then( fn, fn );
- *
- * @param {Function} fn The callback to call when this promise is
- * either fulfilled or rejected
- * @return {Promise}
- */
 method.resolved = function( fn ) {
     return this._then( fn, fn, void 0, void 0, void 0 );
 };
 
-/**
- * Synchronously inspect the state of this promise. Returns
- * A snapshot reflecting this promise's state exactly at the time of
- * call.
- *
- * If this promise is resolved, the inspection can be used to gain
- * access to this promise's rejection reason or fulfillment value
- * synchronously.
- *
- * (TODO) Based on inspection spec
- *
- * @return {PromiseInspection}
- */
 method.inspect = function() {
     return new PromiseInspection( this );
 };
 
-/**
- * Cancel this promise. The cancellation will propagate
- * to farthest ancestor promise which is still pending.
- *
- * That ancestor will then be rejected with a CancellationError
- * object as the rejection reason.
- *
- * In a promise rejection handler you may check for a cancellation
- * by seeing if the reason object has `.name === "Cancel"`.
- *
- * Promises are by default cancellable. If you want to restrict
- * the cancellability of a promise before handing it out to a
- * client, call `.uncancellable()` which returns an uncancellable
- * promise.
- *
- * (TODO) Based on cancellation spec.
- *
- * @return {Promise}
- */
 method.cancel = function() {
     if( !this.isCancellable() ) return this;
     var cancelTarget = this;
-    //Propagate to the last parent that is still pending
-    //Resolved promises always have ._cancellationParent === null
     while( cancelTarget._cancellationParent !== null ) {
         cancelTarget = cancelTarget._cancellationParent;
     }
-    //The propagated parent or original and had no parents
     if( cancelTarget === this ) {
         async.invoke( this._reject, this, new CancellationError() );
     }
     else {
-        //Have pending parents, call cancel on the oldest
         async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
     }
     return this;
 };
 
-/**
- * Create an uncancellable promise based on this promise
- *
- * @return {Promise}
- */
 method.uncancellable = function() {
     var ret = new Promise();
     ret._unsetCancellable();
@@ -619,46 +487,12 @@ method.uncancellable = function() {
     return ret;
 };
 
-/**
- * Like .then, but cancellation of the the returned promise
- * or any of its descendant will not propagate cancellation
- * to this promise or this promise's ancestors.
- *
- * @param {=Function} didFulfill The callback to call if this promise
- *  is fulfilled.
- * @param {=Function} didReject The callback to call if this promise
- *  is rejected.
- * @param {=Function} didProgress The callback to call if this promise is
- *  notified of progress.
- * @return {Promise}
- */
 method.fork = function( didFulfill, didReject, didProgress ) {
     var ret = this.then( didFulfill, didReject, didProgress );
     ret._cancellationParent = null;
     return ret;
 };
 
-/**
- * Chain this promise with a handler that will
- * call the given `propertyName` as a method on the
- * returned fulfillment value and return the result of the call.
- *
- * If more arguments are passed, those will be used as
- * respective arguments for the method call.
- *
- * Convenience method for:
- *
- * promise.then(function(value) {
- *     return value[propertyName]()
- * });
- *
- * If propertyName is a valid JS identifier and no arguments are
- * given, the call is optimized.
- *
- * @param {string} propertyName The property to call as a function.
- * @return {Promise}
- *
- */
 method.call = function( propertyName ) {
     var len = arguments.length;
 
@@ -675,178 +509,62 @@ method.call = function( propertyName ) {
 
 };
 
-/**
- * Chain this promise with a handler that will
- * read given `propertyName` on the
- * return fulfillment value.
- *
- * Convenience method for:
- *
- * promise.then(function(value) {
- *     return value[propertyName]
- * });
- *
- * If propertyName is a valid JS identifier
- * the property read is optimized.
- *
- * @param {string} propertyName The property to retrieve.
- * @return {Promise}
- *
- */
 method.get = function( propertyName ) {
     return this.then( getGetter( propertyName ) );
 };
 
-/**
- *
- * (TODO promises/A+ .then())
- *
- * @param {=Function} didFulfill The callback to call if this promise
- *  is fulfilled.
- * @param {=Function} didReject The callback to call if this promise
- *  is rejected.
- * @param {=Function} didProgress The callback to call if this promise is
- *  notified of progress.
- * @return {Promise}
- *
- */
 method.then = function( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress, void 0, void 0 );
 };
 
-/**
- *
- * like .then but the callback argument is assumed to be an array and
- * applied as parameters.
- *
- * Example using then vs spread:
- *
- * Promise.all([file, db, network]).then(function( results ) {
- *     results[0] //file result
- *     results[1] //db result
- *     results[2] //network result
- * });
- *
- * Promise.all([file, db, network]).spread(function( file, db, network ) {
- *     file //file result
- *     db //db result
- *     network //network result
- * });
- *
- * @param {=Function} didFulfill The callback to call if this promise
- *  is fulfilled.
- *
- */
 method.spread = function( didFulfill ) {
     return this._then( didFulfill, void 0, void 0, APPLY, void 0 );
 };
-/**
- * See if this promise is fulfilled.
- *
- * @return {boolean}
- */
 method.isFulfilled = function() {
     return ( this._bitField & 0x10000000 ) > 0;
 };
 
-/**
- * See if this promise is rejected.
- *
- * @return {boolean}
- */
 method.isRejected = function() {
     return ( this._bitField & 0x8000000 ) > 0;
 };
 
-/**
- * See if this promise is pending (not rejected and not fulfilled).
- *
- * @return {boolean}
- */
 method.isPending = function() {
     return !this.isResolved();
 };
 
-/**
- * See if this promise is resolved (rejected or fulfilled).
- *
- * @return {boolean}
- */
 method.isResolved = function() {
     return ( this._bitField & 0x18000000 ) > 0;
 };
 
-/**
- * See if this promise can be cancelled.
- *
- * @return {boolean}
- */
 method.isCancellable = function() {
     return !this.isResolved() &&
         this._cancellable();
 };
 
-/**
- * Description.
- *
- *
- */
 method.map = function( fn ) {
     return Promise.map( this, fn );
 };
 
-/**
- * Description.
- *
- *
- */
 method.all = function() {
     return Promise.all( this );
 };
 
-/**
- * Description.
- *
- *
- */
 method.any = function() {
     return Promise.any( this );
 };
 
-/**
- * Description.
- *
- *
- */
 method.settle = function() {
     return Promise.settle( this );
 };
 
-/**
- * Description.
- *
- *
- */
 method.some = function( count ) {
     return Promise.some( this, count );
 };
 
-/**
- * Description.
- *
- *
- */
 method.reduce = function( fn, initialValue ) {
     return Promise.reduce( this, fn, initialValue );
 };
 
-/**
- * See if obj is a promise from this library. Same
- * as calling `obj instanceof Promise`.
- *
- * @param {dynamic} obj The object to check.
- * @return {boolean}
- */
 Promise.is = isPromise;
 
 function all( promises, PromiseArray ) {
@@ -857,35 +575,16 @@ function all( promises, PromiseArray ) {
     throw new TypeError("expecting an array or a promise");
 }
 
-/**
- * Description.
- *
- *
- */
 Promise.settle = function( promises ) {
     var ret = all( promises, SettledPromiseArray );
     return ret.promise();
 };
 
-/**
- * Description.
- *
- *
- */
 Promise.all = function( promises ) {
     var ret = all( promises, PromiseArray );
     return ret.promise();
 };
 
-/**
- * Like Promise.all but instead of having to pass an array,
- * the array is generated from the passed variadic arguments.
- *
- * Promise.all([a, b, c]) <--> Promise.join(a, b, c);
- *
- * @return {Promise}
- *
- */
 Promise.join = function() {
     var ret = new Array( arguments.length );
     for( var i = 0, len = ret.length; i < len; ++i ) {
@@ -894,21 +593,11 @@ Promise.join = function() {
     return Promise.all( ret );
 };
 
-/**
- * Description.
- *
- *
- */
 Promise.any = function( promises ) {
     var ret = all( promises, AnyPromiseArray );
     return ret.promise();
 };
 
-/**
- * Description.
- *
- *
- */
 Promise.some = function( promises, howMany ) {
     var ret = all( promises, SomePromiseArray );
     if( ( howMany | 0 ) !== howMany ) {
@@ -939,11 +628,6 @@ function mapper( fulfilleds ) {
     }
     return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
 }
-/**
- * Description.
- *
- *
- */
 Promise.map = function( promises, fn ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function" );
@@ -983,11 +667,6 @@ function slowReduce( promises, fn, initialValue ) {
 }
 
 
-/**
- * Description.
- *
- *
- */
 Promise.reduce = function( promises, fn, initialValue ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function");
@@ -995,86 +674,26 @@ Promise.reduce = function( promises, fn, initialValue ) {
         return slowReduce( promises, fn, initialValue );
     }
     return Promise
-        .all( promises ) //Currently smuggling internal data has a limitation
-                        //in that no promises can be chained after it.
-                        //One needs to be able to chain to get at
-                        //the reduced results, so fast case is only possible
-                        //when there is no initialValue.
-        ._then( reducer, void 0, void 0, fn, void 0 );
+        .all( promises )        ._then( reducer, void 0, void 0, fn, void 0 );
 };
 
-/**
- * Create a promise that is already fulfilled with the given
- * value.
- *
- * Note that the promise will be in fulfilled state right away -
- * not on the next event tick.
- *
- * @param {dynamic} value The value the promise is fulfilled with.
- * @return {Promise}
- */
 Promise.fulfilled = function( value ) {
     var ret = new Promise();
     ret._fulfill( value );
     return ret;
 };
 
-/**
- * Create a promise that is already rejected with the given
- * reason.
- *
- * Note that the promise will be in rejected state right away -
- * not on the next event tick.
- *
- * @param {dynamic} reason The reason the promise is rejected.
- * @return {Promise}
- */
 Promise.rejected = function( reason ) {
     var ret = new Promise();
     ret._reject( reason );
     return ret;
 };
 
-/**
- * Create a pending promise and a resolver for the promise.
- *
- * @return {PromiseResolver}
- */
 Promise.pending = function() {
     return new PromiseResolver( new Promise() );
 };
 
 
-/**
- * Casts the object to a trusted Promise. If the
- * object is a "thenable", then the trusted promise will
- * assimilate it. Otherwise the trusted promise is immediately
- * fulfilled with obj as the fulfillment value.
- *
- * It is recommended to use just one promise library at a time,
- * so you don't have to call this method.
- *
- * Example: ($ is jQuery)
- *
- * Promise.cast($.get("http://www.google.com")).catch(function(){
- *     //will catch to same-origin policy error here..
- *     //... unless you are running this on google website
- * });
- *
- * Note that if you return an untrusted promise inside a then e.g.:
- *
- * somePromise.then(function(url) {
- *     return $.get(url);
- * });
- *
- * Then the returned untrusted promise is autocast per Promises/A+
- * specification. In any other situation, you will need to use
- * explicit casting through Promise.cast
- *
- * @param {dynamic} obj The object to cast to a trusted Promise
- * @return {Promise}
- *
- */
 Promise.cast = function( obj ) {
     if( isObject( obj ) ) {
         var ref = {ref: null};
@@ -1091,38 +710,6 @@ Promise.cast = function( obj ) {
     return Promise.fulfilled( obj );
 };
 
-/**
- * If `fn` is a function, will set that function as a callback to call
- * when an possibly unhandled rejection happens. Passing anything other
- * than a function will have the effect of removing any callback
- * and possible errors can be lost forever.
- *
- * If a promise is rejected with a Javascript Error and is not handled
- * in a timely fashion, that promise's rejection is then possibly
- * unhandled. This can happen for example due to buggy code causing
- * a runtime Javascript error.
- *
- * The rejection system implemented must swallow all errors
- * thrown. However, if some promise doesn't have, or will not have,
- * a rejection handler anywhere in its chain, then this implies that
- * the error would be silently lost.
- *
- * By default, all such errors are reported on console but you may
- * use this function to override that behavior with your own handler.
- *
- * Example:
- *
- *     Promise.onPossiblyUnhandledRejection(function( err ) {
- *         throw err;
- *     });
- *
- * The above will throw any unhandled rejection and for example
- * crash a node process.
- *
- * @param {Function|dynamic} fn The callback function. If fn is not
- * a function, no rejections will be reported as possibly unhandled.
- *
- */
 Promise.onPossiblyUnhandledRejection = function( fn ) {
     if( typeof fn === "function" ) {
         possiblyUnhandledRejection = fn;
@@ -1132,12 +719,7 @@ Promise.onPossiblyUnhandledRejection = function( fn ) {
     }
 };
 
-/**
- * Description.
- *
- *
- */
-Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
+Promise.promisify = function( callback, receiver) {
     return makeNodePromisified( callback, receiver );
 };
 
@@ -1308,22 +890,13 @@ method._resolvePromise = function(
         value.__handled = true;
     }
 
-    //if promise is not instanceof Promise
-    //it is internally smuggled data
     if( !isPromise( promise ) ) {
         return onFulfilledOrRejected.call( receiver, value, promise );
     }
 
     var x;
-    //Special receiver that means we are .applying an array of arguments
-    //(for .spread() at the moment)
     if( receiver === APPLY ) {
-        //Array of non-promise values is fast case
-        //.spread has a bit convoluted semantics otherwise
         if( isArray( value ) ) {
-            //Shouldnt be many items to loop through
-            //since the spread target callback will have
-            //a formal parameter for each item in the array
             for( var i = 0, len = value.length; i < len; ++i ) {
                 if( isPromise( value[i] ) ) {
                     this._spreadSlowCase(
@@ -1337,8 +910,6 @@ method._resolvePromise = function(
             x = tryCatchApply( onFulfilledOrRejected, value );
         }
         else {
-            //(TODO) Spreading a promise that eventually returns
-            //an array could be a common usage
             this._spreadSlowCase( onFulfilledOrRejected, promise, value );
             return;
         }
@@ -1356,50 +927,33 @@ method._resolvePromise = function(
         async.invoke(
             promise._reject,
             promise,
-            //1. If promise and x refer to the same object,
-            //reject promise with a TypeError as the reason.
             new TypeError( "Circular thenable chain" )
         );
     }
     else {
         var ref;
         if( promise._tryAssumeStateOf( x, true ) ) {
-            //2. If x is a promise, adopt its state
             return;
         }
-        //3. Otherwise, if x is an object or function,
-                        //(TODO) isThenable is far more thorough
-                        //than other libraries?
         else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
-            //3.2 If retrieving the property x.then
-            //results in a thrown exception e,
-            //reject promise with e as the reason.
             if( ref.ref === errorObj ) {
                 promise._attachExtraTrace( ref.ref.e );
                 async.invoke( promise._reject, promise, ref.ref.e );
             }
             else {
-                //3.1. Let then be x.then
                 var then = ref.ref;
-                //3.3 If then is a function, call it with x as this,
-                //first argument resolvePromise, and
-                //second argument rejectPromise
                 var threw = tryCatch2(
                         then,
                         x,
                         bindDefer( promise._fulfill, promise ),
                         bindDefer( promise._reject, promise )
                 );
-                //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
                     promise._attachExtraTrace( threw.e );
-                    //3.3.4.2 Otherwise, reject promise with e as the reason.
                     async.invoke( promise._reject, promise, threw.e );
                 }
             }
         }
-        // 3.4 If then is not a function, fulfill promise with x.
-        // 4. If x is not an object or function, fulfill promise with x.
         else {
             async.invoke( promise._fulfill, promise, x );
         }
@@ -1486,9 +1040,6 @@ method._resolveReject = function( reason ) {
         possiblyUnhandledRejection !== noop
 
     ) {
-        //If the prop is not there, reading it
-        //will cause deoptimization most likely
-        //so do it at last possible moment
         if( reason.__handled !== true ) {
             reason.__handled = false;
             async.invoke(
@@ -1511,7 +1062,6 @@ method._attachExtraTrace = function( error ) {
             stack = combineTraces( stack, promise._trace.stack.split("\n") );
             promise = promise._traceParent;
         }
-        //Merge roots
         var max = Error.stackTraceLimit + 1;
         var len = stack.length;
         if( len  > max ) {
@@ -1556,16 +1106,11 @@ method._reject = function( reason ) {
 };
 
 method._progress = function( progressValue ) {
-    //2.5 onProgress is never called once a promise
-    //has already been fulfilled or rejected.
-
     if( this.isResolved() ) return;
     var len = this._length();
     for( var i = 0; i < len; i += 5 ) {
         var fn = this._progressAt( i );
         var promise = this._promiseAt( i );
-        //if promise is not instanceof Promise
-        //it is internally smuggled data
         if( !isPromise( promise ) ) {
             fn.call( this._receiverAt( i ), progressValue, promise );
             continue;
@@ -1574,33 +1119,16 @@ method._progress = function( progressValue ) {
         if( fn !== noop ) {
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
             if( ret === errorObj ) {
-                //2.4 if the onProgress callback throws an exception
-                //with a name property equal to 'StopProgressPropagation',
-                //then the error is silenced.
                 if( ret.e != null &&
                     ret.e.name === "StopProgressPropagation" ) {
                     ret.e.__handled = true;
                 }
                 else {
-                    //2.3 Unless the onProgress callback throws an exception
-                    //with a name property equal to 'StopProgressPropagation',
-                    // the result of the function is used as the progress
-                    //value to propagate.
                     promise._attachExtraTrace( ret.e );
                     async.invoke( promise._progress, promise, ret.e );
                 }
             }
-            //2.2 The onProgress callback may return a promise.
             else if( isPromise( ret ) ) {
-                //2.2.1 The callback is not considered complete
-                //until the promise is fulfilled.
-
-                //2.2.2 The fulfillment value of the promise is the value
-                //to be propagated.
-
-                //2.2.3 If the promise is rejected, the rejection reason
-                //should be treated as if it was thrown by the callback
-                //directly.
                 ret._then(promise._progress, null, null, promise, void 0);
             }
             else {
@@ -1618,10 +1146,6 @@ return Promise;})();
 
 var PromiseArray = (function() {
 
-//Because undefined cannot be smuggled
-//we smuggle null instead and convert back to undefined
-//when calling
-//breaks down if null needs to be smuggled but so far doesn't
 function nullToUndefined( val ) {
     return val === null
         ? void 0
@@ -1659,17 +1183,9 @@ method.promise = function() {
 };
 
 
-                        //when.some resolves to [] when empty
-                        //but when.any resolved to void 0 when empty :<
 method._init = function( _, fulfillValueIfEmpty ) {
-            //_ must be intentionally empty because smuggled
-            //data is always the second argument
-            //all of this is due to when vs some having different semantics on
-            //empty arrays
     var values = this._values;
     if( isPromise( values ) ) {
-        //Expect the promise to be a promise
-        //for an array
         if( values.isPending() ) {
             values._then(
                 this._init,
@@ -1685,8 +1201,6 @@ method._init = function( _, fulfillValueIfEmpty ) {
             return;
         }
         else {
-            //Fulfilled promise with hopefully
-            //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
                 this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
@@ -1706,8 +1220,6 @@ method._init = function( _, fulfillValueIfEmpty ) {
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
 
-        //checking for undefined first (1 cycle instruction) in order not to
-        //punish reasonable non-sparse arrays
         if( promise === void 0 && !hasOwn.call( values, i ) ) {
             newLen--;
             continue;
@@ -1720,21 +1232,7 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this, //Smuggle receiver - .bind avoided round 1
-            Integer.get( i ) //Smuggle the index as internal data
-              //to avoid creating closures in this loop - .bind avoided round 2
-
-              //Will not chain so creating a Promise from
-              //the ._then() would be a waste anyway
-
-              //The integer is wrapped because raw integers currently cause
-              //circular deoptimizations - this gives 20% boost in
-              //gorgikosev's benchmarks
-
-
-
-
-        );
+            this,            Integer.get( i )        );
         newValues[i] = promise;
     }
     this._values = newValues;
@@ -1762,7 +1260,6 @@ method._promiseProgressed = function( progressValue ) {
 
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
-    //(TODO) could fire a progress when a promise is completed
     this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
@@ -1783,7 +1280,6 @@ function Integer( value ) {
 Integer.prototype.valueOf = function() {
     return this._value;
 };
-//256 first integers from 0 are cached
 Integer.get = function( i ) {
     if( i < 256 ) {
         return ints[i];
@@ -1802,8 +1298,6 @@ for( var i = 0; i < 256; ++i ) {
 
 return PromiseArray;})();
 var SettledPromiseArray = (function() {
-// the PromiseArray to use with Promise.settle method
-
 function SettledPromiseArray( values ) {
     this.constructor$( values );
 }
@@ -1818,23 +1312,15 @@ method._promiseResolved = function( index, inspection ) {
 };
 
 var throwawayPromise = new Promise();
-//override
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
-    //Pretty ugly hack
-    //but keeps the PromiseInspection constructor
-    //simple
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 0x10000000;
     ret._resolvedValue = value;
     this._promiseResolved( index.valueOf(), ret );
 };
-//override
 method._promiseRejected = function( reason, index ) {
     if( this._isResolved() ) return;
-    //Pretty ugly hack
-    //but keeps the PromiseInspection constructor
-    //simple
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 0x8000000;
     ret._resolvedValue = reason;
@@ -1843,8 +1329,6 @@ method._promiseRejected = function( reason, index ) {
 
 return SettledPromiseArray;})();
 var AnyPromiseArray = (function() {
-// the PromiseArray to use with Promise.any method
-
 function AnyPromiseArray( values ) {
     this.constructor$( values );
 }
@@ -1852,18 +1336,15 @@ var method = inherits( AnyPromiseArray, PromiseArray );
 
 
 method._init = function() {
-    //.any must resolve to undefined in case of empty array
     this._init$( void 0, null );
 };
 
-//override
 method._promiseFulfilled = function( value ) {
     if( this._isResolved() ) return;
     ++this._totalResolved;
     this._fulfill( value );
 
 };
-//override
 method._promiseRejected = function( reason, index ) {
     if( this._isResolved() ) return;
     var totalResolved = ++this._totalResolved;
@@ -1876,8 +1357,6 @@ method._promiseRejected = function( reason, index ) {
 
 return AnyPromiseArray;})();
 var SomePromiseArray = (function() {
-// the PromiseArray to use with Promise.some method
-
 function SomePromiseArray( values ) {
     this.constructor$( values );
 }
@@ -1890,15 +1369,17 @@ method._init = function() {
     this._rejectionValues = new Array( this.length() );
     this._resolutionValues = new Array( this.length() );
     if( this._isResolved() ) return;
-    var canPossiblyFulfillCount =
-        this._totalResolved - this._rejected + //fulfilled already
-        ( this.length() - this._totalResolved ); //could fulfill
-    if( this._howMany > canPossiblyFulfillCount ) {
+
+    if( this._howMany > this._canPossiblyFulfill()  ) {
         this._reject( [] );
     }
 };
 
-//override
+method._canPossiblyFulfill = function() {
+    return this._totalResolved - this._rejected +
+        ( this.length() - this._totalResolved );
+};
+
 method._promiseFulfilled = function( value ) {
     if( this._isResolved() ) return;
 
@@ -1913,7 +1394,6 @@ method._promiseFulfilled = function( value ) {
     }
 
 };
-//override
 method._promiseRejected = function( reason ) {
     if( this._isResolved() ) return;
 
@@ -1921,12 +1401,7 @@ method._promiseRejected = function( reason ) {
     this._rejected++;
     this._totalResolved++;
 
-
-    var canPossiblyFulfillCount =
-        this._totalResolved - this._rejected + //fulfilled already
-        ( this.length() - this._totalResolved ); //could fulfill
-
-    if( this._howMany > canPossiblyFulfillCount ) {
+    if( this._howMany > this._canPossiblyFulfill() ) {
         this._rejectionValues.length = this._rejected;
         this._reject( this._rejectionValues );
         this._resolutionValues =
@@ -1938,60 +1413,26 @@ return SomePromiseArray;})();
 var PromiseInspection = (function() {
 
 
-//Based on
-//https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
-
-//Not exactly like that spec because optional properties are like kryptonite
-//whereas calls to short functions don't have any penalty and are just
-//easier to use than properties (error on mistyping for example).
 function PromiseInspection( promise ) {
     this._bitField = promise._bitField;
     this._resolvedValue = promise.isResolved()
         ? promise._resolvedValue
-        //Don't keep a reference to something that will never be
-        //used
         : void 0;
 }
 var method = PromiseInspection.prototype;
 
-/**
- * See if the underlying promise was fulfilled at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
 method.isFulfilled = function() {
     return ( this._bitField & 0x10000000 ) > 0;
 };
 
-/**
- * See if the underlying promise was rejected at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
 method.isRejected = function() {
     return ( this._bitField & 0x8000000 ) > 0;
 };
 
-/**
- * See if the underlying promise was pending at the creation time of this
- * inspection object.
- *
- * @return {boolean}
- */
 method.isPending = function() {
     return ( this._bitField & 0x18000000 ) === 0;
 };
 
-/**
- * Get the fulfillment value of the underlying promise. Throws
- * if the promise wasn't fulfilled at the creation time of this
- * inspection object.
- *
- * @return {dynamic}
- * @throws {TypeError}
- */
 method.value = function() {
     if( !this.isFulfilled() ) {
         throw new TypeError(
@@ -2000,14 +1441,6 @@ method.value = function() {
     return this._resolvedValue;
 };
 
-/**
- * Get the rejection reason for the underlying promise. Throws
- * if the promise wasn't rejected at the creation time of this
- * inspection object.
- *
- * @return {dynamic}
- * @throws {TypeError}
- */
 method.error = function() {
     if( !this.isRejected() ) {
         throw new TypeError(
@@ -2023,35 +1456,15 @@ return PromiseInspection;})();
 
 var PromiseResolver = (function() {
 
-/**
- * Wraps a promise object and can be used to control
- * the fate of that promise. Give .promise to clients
- * and keep the resolver to yourself.
- *
- * Something like a "Deferred".
- *
- * @constructor
- */
 function PromiseResolver( promise ) {
-    //(TODO) Make this a method and use a custom adapter to pass tests
     this.promise = promise;
 }
 var method = PromiseResolver.prototype;
 
-/**
- * @return {string}
- */
 method.toString = function() {
     return "[object PromiseResolver]";
 };
 
-/**
- * Resolve the promise by fulfilling it with the
- * given value.
- *
- * @param {dynamic} value The value to fulfill the promise with.
- *
- */
 method.fulfill = function( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
@@ -2059,39 +1472,18 @@ method.fulfill = function( value ) {
     async.invoke( this.promise._fulfill, this.promise, value );
 };
 
-/**
- * Resolve the promise by rejecting it with the
- * given reason.
- *
- * @param {dynamic} reason The reason why the promise was rejected.
- *
- */
 method.reject = function( reason ) {
     async.invoke( this.promise._reject, this.promise, reason );
 };
 
-/**
- * Notify the listeners of the promise of progress.
- *
- * @param {dynamic} value The reason why the promise was rejected.
- *
- */
 method.progress = function( value ) {
     async.invoke( this.promise._progress, this.promise, value );
 };
 
-/**
- * Cancel the promise.
- *
- */
 method.cancel = function() {
     async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
-/**
- * Resolves the promise by rejecting it with the reason
- * TimeoutError
- */
 method.timeout = function() {
     async.invoke(
         this.promise._reject,
@@ -2100,11 +1492,6 @@ method.timeout = function() {
     );
 };
 
-/**
- * See if the promise is resolved.
- *
- * @return {boolean}
- */
 method.isResolved = function() {
     return this._promise.isResolved();
 };

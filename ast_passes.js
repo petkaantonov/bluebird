@@ -117,12 +117,72 @@ Empty.prototype.toString = function() {
     return "";
 };
 
+var opts = {
+    ecmaVersion: 5,
+    strictSemicolons: false,
+    allowTrailingCommas: true,
+    forbidReserved: false,
+    locations: false,
+    onComment: null,
+    ranges: false,
+    program: null,
+    sourceFile: null
+};
+
 var rlineterm = /[\r\n\u2028\u2029]/;
 var rhorizontalws = /[ \t]/;
 
+var convertSrc = function( src, results ) {
+    if( results.length ) {
+        results.sort(function(a, b){
+            var ret = a.start - b.start;
+            if( ret === 0 ) {
+                ret = a.end - b.end;
+            }
+            return ret;
+        });
+        //Remove duplicates - due to a bug in acorn there might be some
+        for( var i = 1; i < results.length; ++i ) {
+            var item = results[i];
+            if( item.start === results[i-1].start &&
+                item.end === results[i-1].end ) {
+                results.splice(i++, 1);
+            }
+        }
+        var ret = "";
+        var start = 0;
+        for( var i = 0, len = results.length; i < len; ++i ) {
+            var item = results[i];
+            ret += src.substring( start, item.start );
+            ret += item.toString();
+            start = item.end;
+        }
+        ret += src.substring( start );
+        return ret;
+    }
+    return src;
+};
+
 var astPasses = module.exports = {
 
-    constants: function( src ) {
+    removeComments: function( src ) {
+        var results = [];
+        var rnoremove = /^[*\s\/]*(?:@preserve|jshint|global)/;
+        opts.onComment = function( block, text, start, end ) {
+            if( rnoremove.test(text) ) {
+                return;
+            }
+            var e = end + 1;
+            var s = start - 1;
+            while(rhorizontalws.test(src.charAt(s--)));
+            while(rlineterm.test(src.charAt(e++)));
+            results.push( new Empty( s + 2, e - 1 ) );
+        };
+        var ast = jsp.parse(src, opts);
+        return convertSrc( src, results );
+    },
+
+    expandConstants: function( src ) {
         var constants = {};
         var results = [];
         var identifiers = [];
@@ -196,7 +256,7 @@ var astPasses = module.exports = {
 
         }
 
-        return astPasses.convertSrc( src, results );
+        return convertSrc( src, results );
     },
 
     removeAsserts: function( src ) {
@@ -229,7 +289,7 @@ var astPasses = module.exports = {
                 }
             }
         });
-        return astPasses.convertSrc( src, results );
+        return convertSrc( src, results );
     },
 
     asyncConvert: function( src, objName, fnProp ) {
@@ -271,29 +331,6 @@ var astPasses = module.exports = {
                 }
             }
         });
-        return astPasses.convertSrc( src, results );
-    },
-
-    convertSrc: function( src, results ) {
-        if( results.length ) {
-            results.sort(function(a, b){
-                var ret = a.start - b.start;
-                if( ret === 0 ) {
-                    ret = a.end - b.end;
-                }
-                return ret;
-            });
-            var ret = "";
-            var start = 0;
-            for( var i = 0, len = results.length; i < len; ++i ) {
-                var item = results[i];
-                ret += src.substring( start, item.start );
-                ret += item.toString();
-                start = item.end;
-            }
-            ret += src.substring( start );
-            return ret;
-        }
-        return src;
+        return convertSrc( src, results );
     }
 };
