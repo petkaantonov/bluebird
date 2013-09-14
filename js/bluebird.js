@@ -86,11 +86,11 @@ function makeNodePromisified( callback, receiver ) {
     }
 
     return new Function("Promise", "callback", "receiver",
-        "return function promisifed( a1, a2, a3, a4, a5 ) {" +
+        "return function promisified( a1, a2, a3, a4, a5 ) {" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending();" +
+        "var resolver = Promise.pending( promisified );" +
         "" +
-        "var fn = function( err, value ) {" +
+        "var fn = function fn( err, value ) {" +
         "if( err ) {" +
         "resolver.reject( err );" +
         "}" +
@@ -352,9 +352,10 @@ function combineTraces( current, prev ) {
         }
     }
     var lines = current.concat( prev );
+
     var ret = [];
     var rignore = new RegExp(
-        "\\b(?:Promise\\.method|tryCatch(?:1|2|Apply)|setTimeout" +
+        "\\b(?:Promise\\.method\\._\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
         "|makeNodePromisified|processImmediate|nextTick" +
         "|_?consumeFunctionBuffer)\\b"
     );
@@ -419,11 +420,8 @@ var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
 
-function CapturedTrace() {
-    var e = Error.stackTraceLimit;
-    Error.stackTraceLimit = e + 7;
-    Error.captureStackTrace( this, this.constructor );
-    Error.stackTraceLimit = e;
+function CapturedTrace( ignoreUntil ) {
+    Error.captureStackTrace( this, ignoreUntil );
 }
 inherits( CapturedTrace, Error );
 
@@ -431,7 +429,6 @@ function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
     this._bitField = 0x4000000;
-
     this._fulfill0 =
     this._reject0 =
     this._progress0 =
@@ -441,15 +438,29 @@ function Promise( resolver ) {
     this._resolvedValue = UNRESOLVED;
     this._cancellationParent = null;
 }
+
 var method = Promise.prototype;
 
 var longStackTraces = false;
 Promise.longStackTraces = function() {
-    if( async.haveItemsQueued() ) {
+    if( async.haveItemsQueued() &&
+        longStackTraces === false
+    ) {
         throw new Error("Cannot enable long stack traces " +
         "after promises have been created");
     }
     longStackTraces = true;
+};
+
+method._setTrace = function _setTrace( fn ) {
+    if( longStackTraces ) {
+        this._trace = new CapturedTrace(
+            typeof fn === "function"
+            ? fn
+            : _setTrace
+        );
+    }
+    return this;
 };
 
 method.toString = function() {
@@ -458,15 +469,15 @@ method.toString = function() {
 
 
 method.caught = method["catch"] = function( fn ) {
-    return this._then( void 0, fn, void 0, void 0, void 0 );
+    return this._then( void 0, fn, void 0, void 0, void 0, void 0 );
 };
 
 method.progressed = function( fn ) {
-    return this._then( void 0, void 0, fn, void 0, void 0 );
+    return this._then( void 0, void 0, fn, void 0, void 0, void 0 );
 };
 
 method.resolved = function( fn ) {
-    return this._then( fn, fn, void 0, void 0, void 0 );
+    return this._then( fn, fn, void 0, void 0, void 0, void 0 );
 };
 
 method.inspect = function() {
@@ -480,7 +491,9 @@ method.cancel = function() {
         cancelTarget = cancelTarget._cancellationParent;
     }
     if( cancelTarget === this ) {
-        async.invoke( this._reject, this, new CancellationError() );
+        var err = new CancellationError();
+        this._attachExtraTrace( err );
+        async.invoke( this._reject, this, err );
     }
     else {
         async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
@@ -490,6 +503,7 @@ method.cancel = function() {
 
 method.uncancellable = function() {
     var ret = new Promise();
+    ret._setTrace();
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -522,11 +536,12 @@ method.get = function( propertyName ) {
 };
 
 method.then = function( didFulfill, didReject, didProgress ) {
-    return this._then( didFulfill, didReject, didProgress, void 0, void 0 );
+    return this._then( didFulfill, didReject, didProgress,
+        void 0, void 0, void 0 );
 };
 
 method.spread = function( didFulfill ) {
-    return this._then( didFulfill, void 0, void 0, APPLY, void 0 );
+    return this._then( didFulfill, void 0, void 0, APPLY, void 0, void 0 );
 };
 method.isFulfilled = function() {
     return ( this._bitField & 0x10000000 ) > 0;
@@ -575,21 +590,13 @@ method.reduce = function( fn, initialValue ) {
 
 Promise.is = isPromise;
 
-function all( promises, PromiseArray ) {
-    if( isPromise( promises ) ||
-        isArray( promises ) ) {
-        return new PromiseArray( promises );
-    }
-    throw new TypeError("expecting an array or a promise");
-}
-
 Promise.settle = function( promises ) {
-    var ret = all( promises, SettledPromiseArray );
+    var ret = Promise._all( promises, SettledPromiseArray );
     return ret.promise();
 };
 
 Promise.all = function( promises ) {
-    var ret = all( promises, PromiseArray );
+    var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
 
@@ -598,16 +605,16 @@ Promise.join = function() {
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
     }
-    return Promise.all( ret );
+    return Promise._all( ret, PromiseArray ).promise();
 };
 
 Promise.any = function( promises ) {
-    var ret = all( promises, AnyPromiseArray );
+    var ret = Promise._all( promises, AnyPromiseArray );
     return ret.promise();
 };
 
 Promise.some = function( promises, howMany ) {
-    var ret = all( promises, SomePromiseArray );
+    var ret = Promise._all( promises, SomePromiseArray );
     if( ( howMany | 0 ) !== howMany ) {
         throw new TypeError("howMany must be an integer");
     }
@@ -636,7 +643,7 @@ function mapper( fulfilleds ) {
     }
     return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
 }
-Promise.map = function( promises, fn ) {
+Promise.map = function ( promises, fn ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function" );
     return Promise.all( promises )._then(
@@ -644,7 +651,8 @@ Promise.map = function( promises, fn ) {
         void 0,
         void 0,
         fn,
-        void 0
+        void 0,
+        Promise.all
     );
 };
 
@@ -669,9 +677,10 @@ function reducer( fulfilleds, initialValue ) {
 }
 
 function slowReduce( promises, fn, initialValue ) {
-    return Promise.all( promises ).then( function( fulfilleds ) {
-        return reducer.call( fn, fulfilleds, initialValue );
-    });
+    return Promise._all( promises, PromiseArray, slowReduce )
+        .then( function( fulfilleds ) {
+            return reducer.call( fn, fulfilleds, initialValue );
+        });
 }
 
 
@@ -682,23 +691,28 @@ Promise.reduce = function( promises, fn, initialValue ) {
         return slowReduce( promises, fn, initialValue );
     }
     return Promise
-        .all( promises )        ._then( reducer, void 0, void 0, fn, void 0 );
+        .all( promises )
+        ._then( reducer, void 0, void 0, fn, void 0, Promise.all );
 };
 
 Promise.fulfilled = function( value ) {
     var ret = new Promise();
+    ret._setTrace();
     ret._fulfill( value );
     return ret;
 };
 
 Promise.rejected = function( reason ) {
     var ret = new Promise();
+    ret._setTrace();
     ret._reject( reason );
     return ret;
 };
 
-Promise.pending = function() {
-    return new PromiseResolver( new Promise() );
+Promise.pending = function( caller ) {
+    var promise = new Promise();
+    promise._setTrace( caller );
+    return new PromiseResolver( promise );
 };
 
 
@@ -731,14 +745,14 @@ Promise.promisify = function( callback, receiver) {
     return makeNodePromisified( callback, receiver );
 };
 
-method._then = function( didFulfill, didReject, didProgress, receiver,
-    internalData ) {
+method._then = function _then( didFulfill, didReject, didProgress, receiver,
+    internalData, caller ) {
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
-    if( longStackTraces ) {
-        ret._trace = new CapturedTrace();
+    if( longStackTraces && !haveInternalData ) {
         ret._traceParent = this;
+        ret._setTrace( typeof caller === "function" ? caller : _then );
     }
 
     var callbackIndex =
@@ -808,7 +822,8 @@ method._progressAt = function( index ) {
     return this[ index + 2 - 5 ];
 };
 
-method._resolveResolver = function( resolver ) {
+method._resolveResolver = function _resolveResolver( resolver ) {
+    this._setTrace( _resolveResolver );
     var p = new PromiseResolver( this );
     var r = tryCatch1( resolver, this, p );
     if( r === errorObj ) {
@@ -884,9 +899,10 @@ method._resolveLast = function( index ) {
     }
 };
 
-method._spreadSlowCase = function( targetFn, promise, values ) {
+method._spreadSlowCase = function spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
-        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0),
+        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
+            spreadSlowCase ),
         false
     );
 };
@@ -978,7 +994,8 @@ method._assumeStateOf = function( promise, mustAsync ) {
             this._reject,
             this._progress,
             this,
-            void 0
+            void 0,
+            this._tryAssumeStateOf
         );
     }
     else if( promise.isFulfilled() ) {
@@ -1062,10 +1079,10 @@ method._resolveReject = function( reason ) {
 
 method._attachExtraTrace = function( error ) {
     if( longStackTraces &&
-        error !== null && typeof error === "object" ) {
+        isError( error ) ) {
         var promise = this;
-        var stack = isError( error ) ? error.stack.split("\n") : [];
-        var uselessLineCount = isError( error ) ? 1 : 0;
+        var stack = error.stack.split("\n");
+        var headerLineCount = 1;
 
         while( promise != null &&
             promise._trace != null ) {
@@ -1073,12 +1090,12 @@ method._attachExtraTrace = function( error ) {
             promise = promise._traceParent;
         }
 
-        var max = Error.stackTraceLimit + uselessLineCount;
+        var max = Error.stackTraceLimit + headerLineCount;
         var len = stack.length;
         if( len  > max ) {
             stack.length = max;
         }
-        if( stack.length <= uselessLineCount ) {
+        if( stack.length <= headerLineCount ) {
             error.stack = "(No stack trace)";
         }
         else {
@@ -1145,7 +1162,8 @@ method._progress = function( progressValue ) {
                 }
             }
             else if( isPromise( ret ) ) {
-                ret._then(promise._progress, null, null, promise, void 0);
+                ret._then( promise._progress, null, null, promise, void 0,
+                    this._progress );
             }
             else {
                 async.invoke( promise._progress, promise, ret );
@@ -1155,6 +1173,19 @@ method._progress = function( progressValue ) {
             async.invoke( promise._progress, promise, ret );
         }
     }
+};
+
+Promise._all = function _all( promises, PromiseArray, caller ) {
+    if( isPromise( promises ) ||
+        isArray( promises ) ) {
+
+        return new PromiseArray( promises,
+            typeof caller === "function"
+            ? caller
+            : _all
+        );
+    }
+    throw new TypeError("expecting an array or a promise");
 };
 
 
@@ -1190,9 +1221,9 @@ var isArray = Arr.isArray || function( obj ) {
     return obj instanceof Arr;
 };
 
-function PromiseArray( values ) {
+function PromiseArray( values, caller ) {
     this._values = values;
-    this._resolver = Promise.pending();
+    this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
     this._init( void 0, empty );
@@ -1208,7 +1239,7 @@ method.promise = function() {
 };
 
 
-method._init = function( _, fulfillValueIfEmpty ) {
+method._init = function _init( _, fulfillValueIfEmpty ) {
     var values = this._values;
     if( isPromise( values ) ) {
         if( values.isPending() ) {
@@ -1217,7 +1248,8 @@ method._init = function( _, fulfillValueIfEmpty ) {
                 this._reject,
                 void 0,
                 this,
-                fulfillValueIfEmpty
+                fulfillValueIfEmpty,
+                this.constructor
             );
             return;
         }
@@ -1257,7 +1289,11 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this,            Integer.get( i )        );
+            this,            Integer.get( i ),             this.constructor
+
+
+
+        );
         newValues[i] = promise;
     }
     this._values = newValues;
@@ -1323,8 +1359,8 @@ for( var i = 0; i < 256; ++i ) {
 
 return PromiseArray;})();
 var SettledPromiseArray = (function() {
-function SettledPromiseArray( values ) {
-    this.constructor$( values );
+function SettledPromiseArray( values, caller ) {
+    this.constructor$( values, caller );
 }
 var method = inherits( SettledPromiseArray, PromiseArray );
 
@@ -1336,7 +1372,7 @@ method._promiseResolved = function( index, inspection ) {
     }
 };
 
-var throwawayPromise = new Promise();
+var throwawayPromise = new Promise()._setTrace();
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection( throwawayPromise );
@@ -1354,8 +1390,8 @@ method._promiseRejected = function( reason, index ) {
 
 return SettledPromiseArray;})();
 var AnyPromiseArray = (function() {
-function AnyPromiseArray( values ) {
-    this.constructor$( values );
+function AnyPromiseArray( values, caller ) {
+    this.constructor$( values, caller );
 }
 var method = inherits( AnyPromiseArray, PromiseArray );
 
@@ -1382,8 +1418,8 @@ method._promiseRejected = function( reason, index ) {
 
 return AnyPromiseArray;})();
 var SomePromiseArray = (function() {
-function SomePromiseArray( values ) {
-    this.constructor$( values );
+function SomePromiseArray( values, caller ) {
+    this.constructor$( values, caller );
 }
 var method = inherits( SomePromiseArray, PromiseArray );
 
@@ -1498,6 +1534,7 @@ method.fulfill = function( value ) {
 };
 
 method.reject = function( reason ) {
+    this.promise._attachExtraTrace( reason );
     async.invoke( this.promise._reject, this.promise, reason );
 };
 
@@ -1510,11 +1547,7 @@ method.cancel = function() {
 };
 
 method.timeout = function() {
-    async.invoke(
-        this.promise._reject,
-        this.promise,
-        new TimeoutError( "timeout" )
-    );
+    this.reject( new TimeoutError( "timeout" ) );
 };
 
 method.isResolved = function() {

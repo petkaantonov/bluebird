@@ -94,11 +94,11 @@ function makeNodePromisified( callback, receiver ) {
     }
 
     return new Function("Promise", "callback", "receiver",
-        "return function promisifed( a1, a2, a3, a4, a5 ) {" +
+        "return function promisified( a1, a2, a3, a4, a5 ) {" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending();" +
+        "var resolver = Promise.pending( promisified );" +
         "" +
-        "var fn = function( err, value ) {" +
+        "var fn = function fn( err, value ) {" +
         "if( err ) {" +
         "resolver.reject( err );" +
         "}" +

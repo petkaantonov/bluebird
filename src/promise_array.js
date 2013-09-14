@@ -23,9 +23,9 @@ var isArray = Arr.isArray || function( obj ) {
     return obj instanceof Arr;
 };
 
-function PromiseArray( values ) {
+function PromiseArray( values, caller ) {
     this._values = values;
-    this._resolver = Promise.pending();
+    this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
     this._init( void 0, empty );
@@ -43,7 +43,7 @@ method.promise = function() {
 
                         //when.some resolves to [] when empty
                         //but when.any resolved to void 0 when empty :<
-method._init = function( _, fulfillValueIfEmpty ) {
+method._init = function _init( _, fulfillValueIfEmpty ) {
             //_ must be intentionally empty because smuggled
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
@@ -58,7 +58,8 @@ method._init = function( _, fulfillValueIfEmpty ) {
                 this._reject,
                 void 0,
                 this,
-                fulfillValueIfEmpty
+                fulfillValueIfEmpty,
+                this.constructor
             );
             return;
         }
@@ -103,7 +104,7 @@ method._init = function( _, fulfillValueIfEmpty ) {
             this._promiseProgressed,
 
             this, //Smuggle receiver - .bind avoided round 1
-            Integer.get( i ) //Smuggle the index as internal data
+            Integer.get( i ), //Smuggle the index as internal data
               //to avoid creating closures in this loop - .bind avoided round 2
 
               //Will not chain so creating a Promise from
@@ -112,7 +113,7 @@ method._init = function( _, fulfillValueIfEmpty ) {
               //The integer is wrapped because raw integers currently cause
               //circular deoptimizations - this gives 20% boost in
               //gorgikosev's benchmarks
-
+             this.constructor
 
 
 

@@ -65,6 +65,19 @@ function nodeToString( expr ) {
         }
         return tmp.join(", ");
     }
+    else if( expr.type === "FunctionExpression" ) {
+        var params = [];
+        for( var i = 0, len = expr.params.length; i < len; ++i ) {
+            params.push( nodeToString(expr.params[i]) );
+        }
+    }
+    else if( expr.type === "BlockStatement" ) {
+        var tmp  = [];
+        for( var i = 0, len = expr.body.length; i < len; ++i ) {
+            tmp.push( nodeToString(expr.body[i]) );
+        }
+        return tmp.join(";\n");
+    }
     else {
         console.log( "nodeToString", expr );
         unhandled()

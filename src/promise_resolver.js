@@ -44,6 +44,7 @@ method.fulfill = function( value ) {
  *
  */
 method.reject = function( reason ) {
+    this.promise._attachExtraTrace( reason );
     async.invoke( this.promise._reject, this.promise, reason );
 };
 
@@ -70,11 +71,7 @@ method.cancel = function() {
  * TimeoutError
  */
 method.timeout = function() {
-    async.invoke(
-        this.promise._reject,
-        this.promise,
-        new TimeoutError( "timeout" )
-    );
+    this.reject( new TimeoutError( "timeout" ) );
 };
 
 /**

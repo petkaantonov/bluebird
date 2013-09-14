@@ -1,8 +1,8 @@
 var SomePromiseArray = (function() {
 // the PromiseArray to use with Promise.some method
 
-function SomePromiseArray( values ) {
-    this.constructor$( values );
+function SomePromiseArray( values, caller ) {
+    this.constructor$( values, caller );
 }
 var method = inherits( SomePromiseArray, PromiseArray );
 

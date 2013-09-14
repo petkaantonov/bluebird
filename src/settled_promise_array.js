@@ -1,8 +1,8 @@
 var SettledPromiseArray = (function() {
 // the PromiseArray to use with Promise.settle method
 
-function SettledPromiseArray( values ) {
-    this.constructor$( values );
+function SettledPromiseArray( values, caller ) {
+    this.constructor$( values, caller );
 }
 var method = inherits( SettledPromiseArray, PromiseArray );
 
@@ -15,7 +15,7 @@ method._promiseResolved = function( index, inspection ) {
     }
 };
 
-var throwawayPromise = new Promise();
+var throwawayPromise = new Promise()._setTrace();
 //override
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;

@@ -17,7 +17,7 @@
     "unused": true,
     "strict": false,
     "trailing": true,
-    "maxparams": 5,
+    "maxparams": 6,
     "maxlen": 80,
 
     "asi": false,
