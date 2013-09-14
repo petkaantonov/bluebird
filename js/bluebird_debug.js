@@ -12,43 +12,18 @@
             return AssertionError;
         })();
 
-        function format(type) {
-            switch( typeof type ) {
-            case "string":
-            case "number":
-            case "boolean":
-            case "object":
-                return JSON.stringify( type );
-            case "undefined":
-                return "undefined";
-            case "function":
-                return type.name
-                    ? "function " + type.name + "() {}"
-                    : "function anonymous() {}";
-            }
-        }
+        return function assert( boolExpr, message ) {
+            if( boolExpr === true ) return;
 
-        return function assert( val1, val2 ) {
-            var message = "";
-            if( arguments.length === 2 ) {
-                if( val1 !== val2 ) {
-                    message = "Expected " + format(val1) + " to equal " +
-                        format(val2);
-                }
+            var ret = new AssertionError( message );
+            if( Error.captureStackTrace ) {
+                Error.captureStackTrace( ret, assert );
             }
-            else if( val1 !== true ) {
-                message = "Expected " + format(val1) + " to equal true";
+            if( console && console.error ) {
+                console.error( ret.stack + "" );
             }
-            if( message !== "" ) {
-                var ret = new AssertionError( message );
-                if( Error.captureStackTrace ) {
-                    Error.captureStackTrace( ret, assert );
-                }
-                if( console && console.error ) {
-                    console.error( ret.stack + "" );
-                }
-                throw ret;
-            }
+            throw ret;
+
         };
     })();
 
@@ -305,8 +280,10 @@ function Async() {
 var method = Async.prototype;
 
 method.invokeLater = function( fn, receiver, arg ) {
-    ASSERT( typeof fn, "function" );
-    ASSERT( arguments.length, 3 );
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+    ASSERT((arguments.length === 3),
+    "arguments.length === 3");
     if( !this._isTickUsed ) {
         this.invoke( fn, receiver, arg );
         return;
@@ -315,8 +292,10 @@ method.invokeLater = function( fn, receiver, arg ) {
 };
 
 method.invoke = function( fn, receiver, arg ) {
-    ASSERT( typeof fn, "function" );
-    ASSERT( arguments.length, 3 );
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+    ASSERT((arguments.length === 3),
+    "arguments.length === 3");
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
@@ -325,7 +304,8 @@ method.invoke = function( fn, receiver, arg ) {
         functionBuffer.push( fn, receiver, arg );
     }
     else {
-        ASSERT( length < len );
+        ASSERT((length < len),
+    "length < len");
         functionBuffer[ length + 0 ] = fn;
         functionBuffer[ length + 1 ] = receiver;
         functionBuffer[ length + 2 ] = arg;
@@ -340,8 +320,10 @@ method.invoke = function( fn, receiver, arg ) {
 
 method._consumeFunctionBuffer = function() {
     var functionBuffer = this._functionBuffer;
-    ASSERT( this._length > 0 );
-    ASSERT( this._isTickUsed );
+    ASSERT((this._length > 0),
+    "this._length > 0");
+    ASSERT(this._isTickUsed,
+    "this._isTickUsed");
     for( var i = 0; i < this._length; i += 3 ) {
         functionBuffer[ i + 0 ].call(
             functionBuffer[ i + 1 ],
@@ -482,7 +464,8 @@ var UNRESOLVED = {};
 var noop = function(){};
 
 function CapturedTrace( ignoreUntil ) {
-    ASSERT( typeof ignoreUntil, "function" );
+    ASSERT(((typeof ignoreUntil) === "function"),
+    "typeof ignoreUntil === \u0022function\u0022");
     Error.captureStackTrace( this, ignoreUntil );
 }
 inherits( CapturedTrace, Error );
@@ -515,7 +498,8 @@ Promise.longStackTraces = function() {
 };
 
 method._setTrace = function _setTrace( fn ) {
-    ASSERT( this._trace == null );
+    ASSERT((this._trace == null),
+    "this._trace == null");
     if( longStackTraces ) {
         this._trace = new CapturedTrace(
             typeof fn === "function"
@@ -810,7 +794,8 @@ Promise.promisify = function( callback, receiver) {
 
 method._then = function _then( didFulfill, didReject, didProgress, receiver,
     internalData, caller ) {
-    ASSERT( arguments.length, 6 );
+    ASSERT((arguments.length === 6),
+    "arguments.length === 6");
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
@@ -862,52 +847,73 @@ method._unsetCancellable = function() {
 };
 
 method._receiverAt = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
-    ASSERT( index % 5, 0 );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    ASSERT(((index % 5) === 0),
+    "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._receiver0;
     return this[ index + 4 - 5 ];
 };
 
 method._promiseAt = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
-    ASSERT( index % 5, 0 );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    ASSERT(((index % 5) === 0),
+    "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._promise0;
     return this[ index + 3 - 5 ];
 };
 
 method._fulfillAt = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
-    ASSERT( index % 5, 0 );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    ASSERT(((index % 5) === 0),
+    "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._fulfill0;
     return this[ index + 0 - 5 ];
 };
 
 method._rejectAt = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
-    ASSERT( index % 5, 0 );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    ASSERT(((index % 5) === 0),
+    "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._reject0;
     return this[ index + 1 - 5 ];
 };
 
 method._progressAt = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
-    ASSERT( index % 5, 0 );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    ASSERT(((index % 5) === 0),
+    "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._progress0;
     return this[ index + 2 - 5 ];
 };
 
 method._resolveResolver = function _resolveResolver( resolver ) {
-    ASSERT( typeof resolver, "function" );
+    ASSERT(((typeof resolver) === "function"),
+    "typeof resolver === \u0022function\u0022");
     this._setTrace( _resolveResolver );
     var p = new PromiseResolver( this );
     var r = tryCatch1( resolver, this, p );
@@ -953,17 +959,22 @@ method._callFast = function( propertyName ) {
 };
 
 method._callSlow = function( propertyName, args ) {
-    ASSERT( isArray( args ) );
-    ASSERT( args.length > 0 );
+    ASSERT(isArray(args),
+    "isArray( args )");
+    ASSERT((args.length > 0),
+    "args.length > 0");
     return this.then( function( obj ) {
         return obj[propertyName].apply( obj, args );
     });
 };
 
 method._resolveLast = function( index ) {
-    ASSERT( typeof index, "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
     var promise = this._promiseAt( index );
     var receiver = this._receiverAt( index );
     var fn;
@@ -1075,8 +1086,10 @@ method._resolvePromise = function(
 };
 
 method._assumeStateOf = function( promise, mustAsync ) {
-    ASSERT( isPromise( promise ) );
-    ASSERT( typeof mustAsync, "boolean" );
+    ASSERT(isPromise(promise),
+    "isPromise( promise )");
+    ASSERT(((typeof mustAsync) === "boolean"),
+    "typeof mustAsync === \u0022boolean\u0022");
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -1268,7 +1281,8 @@ method._progress = function( progressValue ) {
 };
 
 Promise._all = function _all( promises, PromiseArray, caller ) {
-    ASSERT( typeof PromiseArray, "function" );
+    ASSERT(((typeof PromiseArray) === "function"),
+    "typeof PromiseArray === \u0022function\u0022");
     if( isPromise( promises ) ||
         isArray( promises ) ) {
 
@@ -1398,27 +1412,32 @@ method._isResolved = function() {
 };
 
 method._fulfill = function( value ) {
-    ASSERT( !this._isResolved() );
+    ASSERT((! this._isResolved()),
+    "!this._isResolved()");
     this._values = null;
     this._resolver.fulfill( value );
 };
 
 method._reject = function( reason ) {
-    ASSERT( !this._isResolved() );
+    ASSERT((! this._isResolved()),
+    "!this._isResolved()");
     this._values = null;
     this._resolver.reject( reason );
 };
 
 method._promiseProgressed = function( progressValue ) {
     if( this._isResolved() ) return;
-    ASSERT( isArray( this._values ) );
+    ASSERT(isArray(this._values),
+    "isArray( this._values )");
     this._resolver.progress( progressValue );
 };
 
 method._promiseFulfilled = function( value, index ) {
     if( this._isResolved() ) return;
-    ASSERT( isArray( this._values ) );
-    ASSERT( index instanceof Integer );
+    ASSERT(isArray(this._values),
+    "isArray( this._values )");
+    ASSERT((index instanceof Integer),
+    "index instanceof Integer");
     this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
@@ -1428,7 +1447,8 @@ method._promiseFulfilled = function( value, index ) {
 
 method._promiseRejected = function( reason ) {
     if( this._isResolved() ) return;
-    ASSERT( isArray( this._values ) );
+    ASSERT(isArray(this._values),
+    "isArray( this._values )");
     this._totalResolved++;
     this._reject( reason );
 };
@@ -1464,7 +1484,8 @@ function SettledPromiseArray( values, caller ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
-    ASSERT(typeof index, "number");
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {

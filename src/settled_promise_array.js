@@ -7,7 +7,7 @@ function SettledPromiseArray( values, caller ) {
 var method = inherits( SettledPromiseArray, PromiseArray );
 
 method._promiseResolved = function( index, inspection ) {
-    ASSERT(typeof index, "number");
+    ASSERT(typeof index === "number");
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {

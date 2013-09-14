@@ -24,43 +24,18 @@ var assertionErrorCode = function() {
             return AssertionError;
         })();
 
-        function format(type) {
-            switch( typeof type ) {
-            case "string":
-            case "number":
-            case "boolean":
-            case "object":
-                return JSON.stringify( type );
-            case "undefined":
-                return "undefined";
-            case "function":
-                return type.name
-                    ? "function " + type.name + "() {}"
-                    : "function anonymous() {}";
-            }
-        }
+        return function assert( boolExpr, message ) {
+            if( boolExpr === true ) return;
 
-        return function assert( val1, val2 ) {
-            var message = "";
-            if( arguments.length === 2 ) {
-                if( val1 !== val2 ) {
-                    message = "Expected " + format(val1) + " to equal " +
-                        format(val2);
-                }
+            var ret = new AssertionError( message );
+            if( Error.captureStackTrace ) {
+                Error.captureStackTrace( ret, assert );
             }
-            else if( val1 !== true ) {
-                message = "Expected " + format(val1) + " to equal true";
+            if( console && console.error ) {
+                console.error( ret.stack + "" );
             }
-            if( message !== "" ) {
-                var ret = new AssertionError( message );
-                if( Error.captureStackTrace ) {
-                    Error.captureStackTrace( ret, assert );
-                }
-                if( console && console.error ) {
-                    console.error( ret.stack + "" );
-                }
-                throw ret;
-            }
+            throw ret;
+
         };
     })();
 
@@ -236,10 +211,12 @@ module.exports = function( grunt ) {
         var debugSrc, asyncSrc, syncSrc;
 
         src = astPasses.removeComments( src );
-        debugSrc = src = astPasses.expandConstants( src );
-        debugSrc = assertionErrorCode + debugSrc.replace( /__DEBUG__/g, 'true');
-        src = src.replace( /__DEBUG__/g, 'false')
-        asyncSrc = src = astPasses.removeAsserts( src );
+        debugSrc = assertionErrorCode + (astPasses.expandConstants( astPasses.expandAsserts( src ) )
+            .replace( /__DEBUG__/g, 'true'));
+        src = astPasses.expandConstants( astPasses.removeAsserts( src ) )
+            .replace( /__DEBUG__/g, 'false');
+
+        asyncSrc = src;
         syncSrc = astPasses.asyncConvert( src, "async", "invoke");
 
         writeFile( BUILD_DEST, asyncSrc );

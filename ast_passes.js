@@ -78,6 +78,13 @@ function nodeToString( expr ) {
         }
         return tmp.join(";\n");
     }
+    else if( expr.type === "CallExpression" ) {
+        var args = [];
+        for( var i = 0, len = expr.arguments.length; i < len; ++i ) {
+            args.push( nodeToString(expr.arguments[i]) );
+        }
+        return nodeToString( expr.callee ) + "("+args.join(",")+")";
+    }
     else {
         console.log( "nodeToString", expr );
         unhandled()
@@ -130,6 +137,16 @@ Empty.prototype.toString = function() {
     return "";
 };
 
+function Assertion( expr, exprStr, start, end ) {
+    this.expr = expr;
+    this.exprStr = exprStr;
+    this.start = start;
+    this.end = end;
+}
+Assertion.prototype.toString = function() {
+    return 'ASSERT('+nodeToString(this.expr)+',\n    '+this.exprStr+')';
+};
+
 var opts = {
     ecmaVersion: 5,
     strictSemicolons: false,
@@ -175,6 +192,17 @@ var convertSrc = function( src, results ) {
     }
     return src;
 };
+
+var rescape = /[\r\n\u2028\u2029"]/g;
+
+var replacer = function( ch ) {
+        return "\\u" + (("0000") +
+            (ch.charCodeAt(0).toString(16))).slice(-4);
+};
+
+function safeToEmbedString( str ) {
+    return str.replace( rescape, replacer );
+}
 
 var astPasses = module.exports = {
 
@@ -272,6 +300,36 @@ var astPasses = module.exports = {
         return convertSrc( src, results );
     },
 
+    expandAsserts: function( src ) {
+        var ast = jsp.parse(src);
+        var results = [];
+        walk.simple(ast, {
+            CallExpression: function( node ) {
+
+                var start = node.start;
+                var end = node.end;
+                var callee = node.callee;
+
+                if( callee.type === "Identifier" &&
+                    callee.name === "ASSERT" ) {
+                    if( node.arguments.length !== 1 ) {
+                        throw new Error( "Invalid amount of arguments to ASSERT" +
+                            src.substring(start, end)
+                        );
+                    }
+
+                    var expr = node.arguments[0];
+                    var str = src.substring(expr.start, expr.end);
+                    str = '"' + safeToEmbedString(str) + '"'
+                    var assertion = new Assertion( expr, str, start, end );
+
+                    results.push( assertion );
+                }
+            }
+        });
+        return convertSrc( src, results );
+    },
+
     removeAsserts: function( src ) {
         var ast = jsp.parse(src);
         var results = [];
@@ -287,8 +345,7 @@ var astPasses = module.exports = {
 
                 if( callee.type === "Identifier" &&
                     callee.name === "ASSERT" ) {
-                    if( node.arguments.length !== 1 &&
-                        node.arguments.length !== 2 ) {
+                    if( node.arguments.length !== 1 ) {
                         throw new Error( "Invalid amount of arguments to ASSERT" +
                             src.substring(start, end)
                         );

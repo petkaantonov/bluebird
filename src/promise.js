@@ -111,7 +111,7 @@ var UNRESOLVED = {};
 var noop = function(){};
 
 function CapturedTrace( ignoreUntil ) {
-    ASSERT( typeof ignoreUntil, "function" );
+    ASSERT( typeof ignoreUntil === "function" );
     Error.captureStackTrace( this, ignoreUntil );
 }
 inherits( CapturedTrace, Error );
@@ -808,7 +808,7 @@ Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
 
 method._then = function _then( didFulfill, didReject, didProgress, receiver,
     internalData, caller ) {
-    ASSERT( arguments.length, 6 );
+    ASSERT( arguments.length === 6 );
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
@@ -860,52 +860,52 @@ method._unsetCancellable = function() {
 };
 
 method._receiverAt = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
-    ASSERT( index % CALLBACK_SIZE, 0 );
+    ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._receiver0;
     return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
 };
 
 method._promiseAt = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
-    ASSERT( index % CALLBACK_SIZE, 0 );
+    ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._promise0;
     return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
 };
 
 method._fulfillAt = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
-    ASSERT( index % CALLBACK_SIZE, 0 );
+    ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._fulfill0;
     return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
 };
 
 method._rejectAt = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
-    ASSERT( index % CALLBACK_SIZE, 0 );
+    ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._reject0;
     return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
 };
 
 method._progressAt = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
-    ASSERT( index % CALLBACK_SIZE, 0 );
+    ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._progress0;
     return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
 };
 
 method._resolveResolver = function _resolveResolver( resolver ) {
-    ASSERT( typeof resolver, "function" );
+    ASSERT( typeof resolver === "function" );
     this._setTrace( _resolveResolver );
     var p = new PromiseResolver( this );
     var r = tryCatch1( resolver, this, p );
@@ -959,7 +959,7 @@ method._callSlow = function( propertyName, args ) {
 };
 
 method._resolveLast = function( index ) {
-    ASSERT( typeof index, "number" );
+    ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
     var promise = this._promiseAt( index );
@@ -1102,7 +1102,7 @@ method._resolvePromise = function(
 
 method._assumeStateOf = function( promise, mustAsync ) {
     ASSERT( isPromise( promise ) );
-    ASSERT( typeof mustAsync, "boolean" );
+    ASSERT( typeof mustAsync === "boolean" );
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -1319,7 +1319,7 @@ method._progress = function( progressValue ) {
 };
 
 Promise._all = function _all( promises, PromiseArray, caller ) {
-    ASSERT( typeof PromiseArray, "function" );
+    ASSERT( typeof PromiseArray === "function" );
     if( isPromise( promises ) ||
         isArray( promises ) ) {
 

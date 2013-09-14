@@ -41,8 +41,8 @@ var method = Async.prototype;
 //When the fn absolutely needs to be called after
 //the queue has been completely flushed
 method.invokeLater = function( fn, receiver, arg ) {
-    ASSERT( typeof fn, "function" );
-    ASSERT( arguments.length, 3 );
+    ASSERT( typeof fn === "function" );
+    ASSERT( arguments.length === 3 );
     if( !this._isTickUsed ) {
         this.invoke( fn, receiver, arg );
         return;
@@ -51,8 +51,8 @@ method.invokeLater = function( fn, receiver, arg ) {
 };
 
 method.invoke = function( fn, receiver, arg ) {
-    ASSERT( typeof fn, "function" );
-    ASSERT( arguments.length, 3 );
+    ASSERT( typeof fn === "function" );
+    ASSERT( arguments.length === 3 );
     var functionBuffer = this._functionBuffer,
         len = functionBuffer.length,
         length = this._length;
