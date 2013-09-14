@@ -367,6 +367,10 @@ method._reset = function() {
     this._length = 0;
 };
 
+method.haveItemsQueued = function() {
+    return this._length > 0;
+};
+
 
 return Async;})();
 
@@ -502,6 +506,10 @@ var method = Promise.prototype;
 
 var longStackTraces = true;
 Promise.longStackTraces = function() {
+    if( async.haveItemsQueued() ) {
+        throw new Error("Cannot enable long stack traces " +
+        "after promises have been created");
+    }
     longStackTraces = true;
 };
 
@@ -1144,20 +1152,28 @@ method._resolveReject = function( reason ) {
 
 method._attachExtraTrace = function( error ) {
     if( longStackTraces &&
-        isError( error ) ) {
+        error !== null && typeof error === "object" ) {
         var promise = this;
-        var stack = error.stack.split("\n");
+        var stack = isError( error ) ? error.stack.split("\n") : [];
+        var uselessLineCount = isError( error ) ? 1 : 0;
+
         while( promise != null &&
             promise._trace != null ) {
             stack = combineTraces( stack, promise._trace.stack.split("\n") );
             promise = promise._traceParent;
         }
-        var max = Error.stackTraceLimit + 1;
+
+        var max = Error.stackTraceLimit + uselessLineCount;
         var len = stack.length;
         if( len  > max ) {
             stack.length = max;
         }
-        error.stack = stack.join("\n");
+        if( stack.length <= uselessLineCount ) {
+            error.stack = "(No stack trace)";
+        }
+        else {
+            error.stack = stack.join("\n");
+        }
     }
 };
 
@@ -1230,6 +1246,15 @@ method._progress = function( progressValue ) {
         }
     }
 };
+
+
+if( typeof Error.stackTraceLimit !== "number" ||
+    typeof Error.captureStackTrace !== "function" ) {
+    Promise.longStackTraces = noop;
+    possiblyUnhandledRejection = noop;
+    Promise.onPossiblyUnhandledRejection = noop;
+    longStackTraces = false;
+}
 
 return Promise;})();
 

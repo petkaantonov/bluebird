@@ -109,6 +109,10 @@ method._reset = function() {
     this._length = 0;
 };
 
+method.haveItemsQueued = function() {
+    return this._length > 0;
+};
+
 
 return Async;})();
 
