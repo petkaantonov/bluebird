@@ -90,6 +90,7 @@ module.exports = function( grunt ) {
         dist: {
             src: [
                 "./src/prologue.js",
+                "./src/context_stack.js",
                 "./src/util.js",
                 "./src/errors.js",
                 "./src/captured_trace.js",

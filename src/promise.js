@@ -55,6 +55,29 @@ var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
 
+CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
+CONSTANT(CALLBACK_REJECT_OFFSET, 1);
+CONSTANT(CALLBACK_PROGRESS_OFFSET, 2);
+CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
+CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
+CONSTANT(CALLBACK_SIZE, 5);
+
+//Layout
+//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//0 = Always 0 (never used)
+//R = [Reserved]
+//F = isFulfilled
+//N = isRejected
+//C = isCancellable
+//L = Length, 26 bit unsigned
+//- = Reserved
+CONSTANT(IS_FULFILLED, 0x10000000);
+CONSTANT(IS_REJECTED, 0x8000000);
+CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000);
+CONSTANT(IS_CANCELLABLE, 0x4000000);
+CONSTANT(LENGTH_MASK, 0x3FFFFFF);
+CONSTANT(LENGTH_CLEAR_MASK, 0x3C000000);
+CONSTANT(MAX_LENGTH, 0x3FFFFFF);
 /**
  * Description.
  *
@@ -63,14 +86,6 @@ var noop = function(){};
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
-    //Bitfield Layout
-    //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-    //0 = Always 0 (must be never used)
-    //R = [Reserved]
-    //F = isFulfilled
-    //N = isRejected
-    //C = isCancellable
-    //L = Length, 26 bit unsigned
     this._bitField = IS_CANCELLABLE;
     //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
@@ -87,6 +102,7 @@ function Promise( resolver ) {
     this._resolvedValue = UNRESOLVED;
     //Used in cancel propagation
     this._cancellationParent = null;
+    this._traceParent = contextStack.context();
 }
 
 var method = Promise.prototype;
@@ -100,6 +116,7 @@ Promise.longStackTraces = function() {
         "after promises have been created");
     }
     longStackTraces = true;
+    contextStack.setLongStackTraces( true );
 };
 
 method._setTrace = function _setTrace( fn ) {
@@ -129,7 +146,7 @@ method.toString = function Promise$toString() {
  * @return {Promise}
  */
 method.caught = method["catch"] = function Promise$catch( fn ) {
-    return this._then( void 0, fn, void 0, void 0, void 0, void 0 );
+    return this._then( void 0, fn, void 0, void 0, void 0, this.caught );
 };
 
 /**
@@ -139,7 +156,7 @@ method.caught = method["catch"] = function Promise$catch( fn ) {
  * @return {Promise}
  */
 method.progressed = function Promise$progressed( fn ) {
-    return this._then( void 0, void 0, fn, void 0, void 0, void 0 );
+    return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
 };
 
 /**
@@ -150,7 +167,7 @@ method.progressed = function Promise$progressed( fn ) {
  * @return {Promise}
  */
 method.resolved = function Promise$resolved( fn ) {
-    return this._then( fn, fn, void 0, void 0, void 0, void 0 );
+    return this._then( fn, fn, void 0, void 0, void 0, this.resolved );
 };
 
 /**
@@ -237,7 +254,8 @@ method.uncancellable = function Promise$uncancellable() {
  * @return {Promise}
  */
 method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
-    var ret = this.then( didFulfill, didReject, didProgress );
+    var ret = this._then( didFulfill, didReject, didProgress,
+        void 0, void 0, this.fork );
     ret._cancellationParent = null;
     return ret;
 };
@@ -298,7 +316,14 @@ method.call = function Promise$call( propertyName ) {
  *
  */
 method.get = function Promise$get( propertyName ) {
-    return this.then( getGetter( propertyName ) );
+    return this._then(
+        getGetter( propertyName ),
+        void 0,
+        void 0,
+        void 0,
+        void 0,
+        this.get
+    );
 };
 
 /**
@@ -316,7 +341,7 @@ method.get = function Promise$get( propertyName ) {
  */
 method.then = function Promise$then( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress,
-        void 0, void 0, void 0 );
+        void 0, void 0, this.then );
 };
 
 /**
@@ -343,7 +368,7 @@ method.then = function Promise$then( didFulfill, didReject, didProgress ) {
  *
  */
 method.spread = function Promise$spread( didFulfill ) {
-    return this._then( didFulfill, void 0, void 0, APPLY, void 0, void 0 );
+    return this._then( didFulfill, void 0, void 0, APPLY, void 0, this.spread );
 };
 /**
  * See if this promise is fulfilled.
@@ -856,7 +881,9 @@ method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
     this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
+    this._push();
     var r = tryCatch1( resolver, this, p );
+    this._pop();
     if( r === errorObj ) {
         p.reject( r.e );
     }
@@ -895,15 +922,28 @@ method._addCallbacks = function Promise$_addCallbacks(
 };
 
 method._callFast = function Promise$_callFast( propertyName ) {
-    return this.then( getFunction( propertyName ) );
+    return this._then(
+        getFunction( propertyName ),
+        void 0,
+        void 0,
+        void 0,
+        void 0,
+        this.call
+    );
 };
 
 method._callSlow = function Promise$_callSlow( propertyName, args ) {
     ASSERT( isArray( args ) );
     ASSERT( args.length > 0 );
-    return this.then( function( obj ) {
+    return this._then( function( obj ) {
         return obj[propertyName].apply( obj, args );
-    });
+    },
+        void 0,
+        void 0,
+        void 0,
+        void 0,
+        this.call
+    );
 };
 
 method._resolveLast = function Promise$_resolveLast( index ) {
@@ -977,6 +1017,7 @@ method._resolvePromise = function Promise$_resolvePromise(
                     return;
                 }
             }
+            promise._push();
             x = tryCatchApply( onFulfilledOrRejected, value );
         }
         else {
@@ -985,11 +1026,13 @@ method._resolvePromise = function Promise$_resolvePromise(
             this._spreadSlowCase( onFulfilledOrRejected, promise, value );
             return;
         }
-
     }
     else {
+        promise._push();
         x = tryCatch1( onFulfilledOrRejected, receiver, value );
     }
+
+    promise._pop();
 
     if( x === errorObj ) {
         promise._attachExtraTrace( x.e );
@@ -1077,6 +1120,11 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             async.invoke( this._reject, this, promise._resolvedValue );
         else
             this._reject( promise._resolvedValue );
+    }
+
+    if( longStackTraces &&
+        promise._traceParent == null ) {
+        promise._traceParent = this;
     }
 };
 
@@ -1214,6 +1262,14 @@ method._reject = function Promise$_reject( reason ) {
     this._cleanValues();
 };
 
+method._push = function Promise$_push() {
+    contextStack.push( this );
+};
+
+method._pop = function Promise$_pop() {
+    contextStack.pop();
+};
+
 method._progress = function Promise$_progress( progressValue ) {
     //2.5 onProgress is never called once a promise
     //has already been fulfilled or rejected.
@@ -1231,7 +1287,9 @@ method._progress = function Promise$_progress( progressValue ) {
         }
         var ret = progressValue;
         if( fn !== noop ) {
+            this._push();
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
+            this._pop();
             if( ret === errorObj ) {
                 //2.4 if the onProgress callback throws an exception
                 //with a name property equal to 'StopProgressPropagation',
@@ -1294,6 +1352,7 @@ if( !CapturedTrace.isSupported() ) {
     CapturedTrace.possiblyUnhandledRejection = noop;
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
+    contextStack.setLongStackTraces( false );
 }
 
 return Promise;})();

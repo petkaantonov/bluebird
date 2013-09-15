@@ -1,9 +1,9 @@
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
-    "\\b(?:Promise\\.method\\._\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
+    "\\b(?:Promise(?:Array)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
     "|makeNodePromisified|processImmediate|nextTick" +
-    "|_?consumeFunctionBuffer)\\b"
+    "|Async\\$\\w+)\\b"
 );
 
 var rtraceline = null;

@@ -1,34 +1,3 @@
-//This is the only way to have efficient constants
-CONSTANT(FUNCTION_OFFSET, 0);
-CONSTANT(RECEIVER_OFFSET, 1);
-CONSTANT(ARGUMENT_OFFSET, 2);
-CONSTANT(FUNCTION_SIZE, 3);
-
-CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
-CONSTANT(CALLBACK_REJECT_OFFSET, 1);
-CONSTANT(CALLBACK_PROGRESS_OFFSET, 2);
-CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
-CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
-CONSTANT(CALLBACK_SIZE, 5);
-
-//Layout
-//00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//0 = Always 0 (never used)
-//R = [Reserved]
-//F = isFulfilled
-//N = isRejected
-//C = isCancellable
-//L = Length, 26 bit unsigned
-//- = Reserved
-CONSTANT(IS_FULFILLED, 0x10000000);
-CONSTANT(IS_REJECTED, 0x8000000);
-CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000);
-CONSTANT(IS_CANCELLABLE, 0x4000000);
-
-CONSTANT(LENGTH_MASK, 0x3FFFFFF);
-CONSTANT(LENGTH_CLEAR_MASK, 0x3C000000);
-CONSTANT(MAX_LENGTH, 0x3FFFFFF);
-
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -94,7 +63,7 @@ function makeNodePromisified( callback, receiver ) {
     }
 
     return new Function("Promise", "callback", "receiver",
-        "return function promisified( a1, a2, a3, a4, a5 ) {" +
+        "return function promisified( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( promisified );" +
         "" +

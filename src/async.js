@@ -19,6 +19,10 @@ var deferFn = typeof process !== "undefined" ?
         }
 ) ;
 
+CONSTANT(FUNCTION_OFFSET, 0);
+CONSTANT(RECEIVER_OFFSET, 1);
+CONSTANT(ARGUMENT_OFFSET, 2);
+CONSTANT(FUNCTION_SIZE, 3);
 
 function Async() {
     this._isTickUsed = false;
