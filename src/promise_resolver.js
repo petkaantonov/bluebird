@@ -18,7 +18,7 @@ var method = PromiseResolver.prototype;
 /**
  * @return {string}
  */
-method.toString = function() {
+method.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
 };
 
@@ -29,7 +29,7 @@ method.toString = function() {
  * @param {dynamic} value The value to fulfill the promise with.
  *
  */
-method.fulfill = function( value ) {
+method.fulfill = function PromiseResolver$fulfill( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
@@ -43,7 +43,7 @@ method.fulfill = function( value ) {
  * @param {dynamic} reason The reason why the promise was rejected.
  *
  */
-method.reject = function( reason ) {
+method.reject = function PromiseResolver$reject( reason ) {
     this.promise._attachExtraTrace( reason );
     async.invoke( this.promise._reject, this.promise, reason );
 };
@@ -54,7 +54,7 @@ method.reject = function( reason ) {
  * @param {dynamic} value The reason why the promise was rejected.
  *
  */
-method.progress = function( value ) {
+method.progress = function PromiseResolver$progress( value ) {
     async.invoke( this.promise._progress, this.promise, value );
 };
 
@@ -62,7 +62,7 @@ method.progress = function( value ) {
  * Cancel the promise.
  *
  */
-method.cancel = function() {
+method.cancel = function PromiseResolver$cancel() {
     async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
@@ -70,7 +70,7 @@ method.cancel = function() {
  * Resolves the promise by rejecting it with the reason
  * TimeoutError
  */
-method.timeout = function() {
+method.timeout = function PromiseResolver$timeout() {
     this.reject( new TimeoutError( "timeout" ) );
 };
 
@@ -79,7 +79,7 @@ method.timeout = function() {
  *
  * @return {boolean}
  */
-method.isResolved = function() {
+method.isResolved = function PromiseResolver$isResolved() {
     return this._promise.isResolved();
 };
 

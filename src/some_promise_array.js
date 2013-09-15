@@ -6,7 +6,9 @@ function SomePromiseArray( values, caller ) {
 }
 var method = inherits( SomePromiseArray, PromiseArray );
 
-method._init = function() {
+
+
+method._init = function SomePromiseArray$_init() {
     this._init$( void 0, [] );
     this._howMany = 0;
     this._rejected = 0;
@@ -19,7 +21,8 @@ method._init = function() {
     }
 };
 
-method._canPossiblyFulfill = function() {
+method._canPossiblyFulfill =
+function SomePromiseArray$_canPossiblyFulfill() {
             //fulfilled already
     return this._totalResolved - this._rejected +
         //could fulfill
@@ -27,7 +30,8 @@ method._canPossiblyFulfill = function() {
 };
 
 //override
-method._promiseFulfilled = function( value ) {
+method._promiseFulfilled =
+function SomePromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
 
     var totalResolved = this._totalResolved;
@@ -42,7 +46,8 @@ method._promiseFulfilled = function( value ) {
 
 };
 //override
-method._promiseRejected = function( reason ) {
+method._promiseRejected =
+function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
 
     this._rejectionValues[ this._rejected ] = reason;

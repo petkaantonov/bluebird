@@ -6,7 +6,10 @@ function SettledPromiseArray( values, caller ) {
 }
 var method = inherits( SettledPromiseArray, PromiseArray );
 
-method._promiseResolved = function( index, inspection ) {
+
+
+method._promiseResolved =
+function SettledPromiseArray$_promiseResolved( index, inspection ) {
     ASSERT(typeof index === "number");
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
@@ -17,7 +20,8 @@ method._promiseResolved = function( index, inspection ) {
 
 var throwawayPromise = new Promise()._setTrace();
 //override
-method._promiseFulfilled = function( value, index ) {
+method._promiseFulfilled =
+function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
@@ -28,7 +32,8 @@ method._promiseFulfilled = function( value, index ) {
     this._promiseResolved( index.valueOf(), ret );
 };
 //override
-method._promiseRejected = function( reason, index ) {
+method._promiseRejected =
+function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor

@@ -23,7 +23,7 @@ var method = PromiseInspection.prototype;
  *
  * @return {boolean}
  */
-method.isFulfilled = function() {
+method.isFulfilled = function PromiseInspection$isFulfilled() {
     return ( this._bitField & IS_FULFILLED ) > 0;
 };
 
@@ -33,7 +33,7 @@ method.isFulfilled = function() {
  *
  * @return {boolean}
  */
-method.isRejected = function() {
+method.isRejected = function PromiseInspection$isRejected() {
     return ( this._bitField & IS_REJECTED ) > 0;
 };
 
@@ -43,7 +43,7 @@ method.isRejected = function() {
  *
  * @return {boolean}
  */
-method.isPending = function() {
+method.isPending = function PromiseInspection$isPending() {
     return ( this._bitField & IS_REJECTED_OR_FULFILLED ) === 0;
 };
 
@@ -55,7 +55,7 @@ method.isPending = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.value = function() {
+method.value = function PromiseInspection$value() {
     if( !this.isFulfilled() ) {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
@@ -71,7 +71,7 @@ method.value = function() {
  * @return {dynamic}
  * @throws {TypeError}
  */
-method.error = function() {
+method.error = function PromiseInspection$error() {
     if( !this.isRejected() ) {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");

@@ -117,7 +117,7 @@ method._setTrace = function _setTrace( fn ) {
 /**
  * @return {string}
  */
-method.toString = function() {
+method.toString = function Promise$toString() {
     return "[object Promise]";
 };
 
@@ -128,7 +128,7 @@ method.toString = function() {
  * @param {Function} fn The callback to call if this promise is rejected
  * @return {Promise}
  */
-method.caught = method["catch"] = function( fn ) {
+method.caught = method["catch"] = function Promise$catch( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0, void 0 );
 };
 
@@ -138,7 +138,7 @@ method.caught = method["catch"] = function( fn ) {
  * @param {Function} fn The callback to call if this promise is progressed
  * @return {Promise}
  */
-method.progressed = function( fn ) {
+method.progressed = function Promise$progressed( fn ) {
     return this._then( void 0, void 0, fn, void 0, void 0, void 0 );
 };
 
@@ -149,7 +149,7 @@ method.progressed = function( fn ) {
  * either fulfilled or rejected
  * @return {Promise}
  */
-method.resolved = function( fn ) {
+method.resolved = function Promise$resolved( fn ) {
     return this._then( fn, fn, void 0, void 0, void 0, void 0 );
 };
 
@@ -166,7 +166,7 @@ method.resolved = function( fn ) {
  *
  * @return {PromiseInspection}
  */
-method.inspect = function() {
+method.inspect = function Promise$inspect() {
     return new PromiseInspection( this );
 };
 
@@ -189,7 +189,7 @@ method.inspect = function() {
  *
  * @return {Promise}
  */
-method.cancel = function() {
+method.cancel = function Promise$cancel() {
     if( !this.isCancellable() ) return this;
     var cancelTarget = this;
     //Propagate to the last parent that is still pending
@@ -215,7 +215,7 @@ method.cancel = function() {
  *
  * @return {Promise}
  */
-method.uncancellable = function() {
+method.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
     ret._setTrace();
     ret._unsetCancellable();
@@ -236,7 +236,7 @@ method.uncancellable = function() {
  *  notified of progress.
  * @return {Promise}
  */
-method.fork = function( didFulfill, didReject, didProgress ) {
+method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
     var ret = this.then( didFulfill, didReject, didProgress );
     ret._cancellationParent = null;
     return ret;
@@ -263,7 +263,7 @@ method.fork = function( didFulfill, didReject, didProgress ) {
  * @return {Promise}
  *
  */
-method.call = function( propertyName ) {
+method.call = function Promise$call( propertyName ) {
     var len = arguments.length;
 
     if( len < 2 ) {
@@ -297,7 +297,7 @@ method.call = function( propertyName ) {
  * @return {Promise}
  *
  */
-method.get = function( propertyName ) {
+method.get = function Promise$get( propertyName ) {
     return this.then( getGetter( propertyName ) );
 };
 
@@ -314,7 +314,7 @@ method.get = function( propertyName ) {
  * @return {Promise}
  *
  */
-method.then = function( didFulfill, didReject, didProgress ) {
+method.then = function Promise$then( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress,
         void 0, void 0, void 0 );
 };
@@ -342,7 +342,7 @@ method.then = function( didFulfill, didReject, didProgress ) {
  *  is fulfilled.
  *
  */
-method.spread = function( didFulfill ) {
+method.spread = function Promise$spread( didFulfill ) {
     return this._then( didFulfill, void 0, void 0, APPLY, void 0, void 0 );
 };
 /**
@@ -350,7 +350,7 @@ method.spread = function( didFulfill ) {
  *
  * @return {boolean}
  */
-method.isFulfilled = function() {
+method.isFulfilled = function Promise$isFulfilled() {
     return ( this._bitField & IS_FULFILLED ) > 0;
 };
 
@@ -359,7 +359,7 @@ method.isFulfilled = function() {
  *
  * @return {boolean}
  */
-method.isRejected = function() {
+method.isRejected = function Promise$isRejected() {
     return ( this._bitField & IS_REJECTED ) > 0;
 };
 
@@ -368,7 +368,7 @@ method.isRejected = function() {
  *
  * @return {boolean}
  */
-method.isPending = function() {
+method.isPending = function Promise$isPending() {
     return !this.isResolved();
 };
 
@@ -377,7 +377,7 @@ method.isPending = function() {
  *
  * @return {boolean}
  */
-method.isResolved = function() {
+method.isResolved = function Promise$isResolved() {
     return ( this._bitField & IS_REJECTED_OR_FULFILLED ) > 0;
 };
 
@@ -386,7 +386,7 @@ method.isResolved = function() {
  *
  * @return {boolean}
  */
-method.isCancellable = function() {
+method.isCancellable = function Promise$isCancellable() {
     return !this.isResolved() &&
         this._cancellable();
 };
@@ -396,7 +396,7 @@ method.isCancellable = function() {
  *
  *
  */
-method.map = function( fn ) {
+method.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
 
@@ -405,7 +405,7 @@ method.map = function( fn ) {
  *
  *
  */
-method.all = function() {
+method.all = function Promise$all() {
     return Promise.all( this );
 };
 
@@ -414,7 +414,7 @@ method.all = function() {
  *
  *
  */
-method.any = function() {
+method.any = function Promise$any() {
     return Promise.any( this );
 };
 
@@ -423,7 +423,7 @@ method.any = function() {
  *
  *
  */
-method.settle = function() {
+method.settle = function Promise$settle() {
     return Promise.settle( this );
 };
 
@@ -432,7 +432,7 @@ method.settle = function() {
  *
  *
  */
-method.some = function( count ) {
+method.some = function Promise$some( count ) {
     return Promise.some( this, count );
 };
 
@@ -441,7 +441,7 @@ method.some = function( count ) {
  *
  *
  */
-method.reduce = function( fn, initialValue ) {
+method.reduce = function Promise$reduce( fn, initialValue ) {
     return Promise.reduce( this, fn, initialValue );
 };
 
@@ -459,7 +459,7 @@ Promise.is = isPromise;
  *
  *
  */
-Promise.settle = function( promises ) {
+Promise.settle = function Promise$Settle( promises ) {
     var ret = Promise._all( promises, SettledPromiseArray );
     return ret.promise();
 };
@@ -483,7 +483,7 @@ Promise.all = function Promise$All( promises ) {
  * @return {Promise}
  *
  */
-Promise.join = function() {
+Promise.join = function Promise$Join() {
     var ret = new Array( arguments.length );
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
@@ -496,7 +496,7 @@ Promise.join = function() {
  *
  *
  */
-Promise.any = function( promises ) {
+Promise.any = function Promise$Any( promises ) {
     var ret = Promise._all( promises, AnyPromiseArray );
     return ret.promise();
 };
@@ -506,7 +506,7 @@ Promise.any = function( promises ) {
  *
  *
  */
-Promise.some = function( promises, howMany ) {
+Promise.some = function Promise$Some( promises, howMany ) {
     var ret = Promise._all( promises, SomePromiseArray );
     if( ( howMany | 0 ) !== howMany ) {
         throw new TypeError("howMany must be an integer");
@@ -541,7 +541,7 @@ function mapper( fulfilleds ) {
  *
  *
  */
-Promise.map = function ( promises, fn ) {
+Promise.map = function Promise$Map( promises, fn ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function" );
     return Promise.all( promises )._then(
@@ -588,7 +588,7 @@ function slowReduce( promises, fn, initialValue ) {
  *
  *
  */
-Promise.reduce = function( promises, fn, initialValue ) {
+Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     if( typeof fn !== "function" )
         throw new TypeError( "fn is not a function");
     if( initialValue !== void 0 ) {
@@ -614,7 +614,7 @@ Promise.reduce = function( promises, fn, initialValue ) {
  * @param {dynamic} value The value the promise is fulfilled with.
  * @return {Promise}
  */
-Promise.fulfilled = function( value ) {
+Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
     ret._setTrace();
     ret._fulfill( value );
@@ -631,7 +631,7 @@ Promise.fulfilled = function( value ) {
  * @param {dynamic} reason The reason the promise is rejected.
  * @return {Promise}
  */
-Promise.rejected = function( reason ) {
+Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
     ret._setTrace();
     ret._reject( reason );
@@ -643,7 +643,7 @@ Promise.rejected = function( reason ) {
  *
  * @return {PromiseResolver}
  */
-Promise.pending = function( caller ) {
+Promise.pending = function Promise$Pending( caller ) {
     var promise = new Promise();
     promise._setTrace( caller );
     return new PromiseResolver( promise );
@@ -680,7 +680,7 @@ Promise.pending = function( caller ) {
  * @return {Promise}
  *
  */
-Promise.cast = function( obj ) {
+Promise.cast = function Promise$Cast( obj ) {
     if( isObject( obj ) ) {
         var ref = {ref: null};
         if( isThenable( obj, ref ) ) {
@@ -728,7 +728,8 @@ Promise.cast = function( obj ) {
  * a function, no rejections will be reported as possibly unhandled.
  *
  */
-Promise.onPossiblyUnhandledRejection = function( fn ) {
+Promise.onPossiblyUnhandledRejection =
+function Promise$OnPossiblyUnhandledRejection( fn ) {
     if( typeof fn === "function" ) {
         CapturedTrace.possiblyUnhandledRejection = fn;
     }
@@ -742,19 +743,26 @@ Promise.onPossiblyUnhandledRejection = function( fn ) {
  *
  *
  */
-Promise.promisify = function( callback, receiver/*, callbackDescriptor*/ ) {
+Promise.promisify = function Promise$Promisify( callback, receiver/*, callbackDescriptor*/ ) {
     return makeNodePromisified( callback, receiver );
 };
 
-method._then = function _then( didFulfill, didReject, didProgress, receiver,
-    internalData, caller ) {
+method._then =
+function Promise$_then(
+    didFulfill,
+    didReject,
+    didProgress,
+    receiver,
+    internalData,
+    caller
+) {
     ASSERT( arguments.length === 6 );
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 
     if( longStackTraces && !haveInternalData ) {
         ret._traceParent = this;
-        ret._setTrace( typeof caller === "function" ? caller : _then );
+        ret._setTrace( typeof caller === "function" ? caller : this._then );
     }
 
     var callbackIndex =
@@ -770,36 +778,36 @@ method._then = function _then( didFulfill, didReject, didProgress, receiver,
     return ret;
 };
 
-method._length = function() {
+method._length = function Promise$_length() {
     return this._bitField & LENGTH_MASK;
 };
 
-method._setLength = function( len ) {
+method._setLength = function Promise$_setLength( len ) {
     this._bitField = ( this._bitField & LENGTH_CLEAR_MASK ) |
         ( len & LENGTH_MASK ) ;
 };
 
-method._cancellable = function() {
+method._cancellable = function Promise$_cancellable() {
     return ( this._bitField & IS_CANCELLABLE ) > 0;
 };
 
-method._setFulfilled = function() {
+method._setFulfilled = function Promise$_setFulfilled() {
     this._bitField = this._bitField | IS_FULFILLED;
 };
 
-method._setRejected = function() {
+method._setRejected = function Promise$_setRejected() {
     this._bitField = this._bitField | IS_REJECTED;
 };
 
-method._setCancellable = function() {
+method._setCancellable = function Promise$_setCancellable() {
     this._bitField = this._bitField | IS_CANCELLABLE;
 };
 
-method._unsetCancellable = function() {
+method._unsetCancellable = function Promise$_unsetCancellable() {
     this._bitField = this._bitField & ( ~IS_CANCELLABLE );
 };
 
-method._receiverAt = function( index ) {
+method._receiverAt = function Promise$_receiverAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -808,7 +816,7 @@ method._receiverAt = function( index ) {
     return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
 };
 
-method._promiseAt = function( index ) {
+method._promiseAt = function Promise$_promiseAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -817,7 +825,7 @@ method._promiseAt = function( index ) {
     return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
 };
 
-method._fulfillAt = function( index ) {
+method._fulfillAt = function Promise$_fulfillAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -826,7 +834,7 @@ method._fulfillAt = function( index ) {
     return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
 };
 
-method._rejectAt = function( index ) {
+method._rejectAt = function Promise$_rejectAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -835,7 +843,7 @@ method._rejectAt = function( index ) {
     return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
 };
 
-method._progressAt = function( index ) {
+method._progressAt = function Promise$_progressAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -844,9 +852,9 @@ method._progressAt = function( index ) {
     return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
 };
 
-method._resolveResolver = function _resolveResolver( resolver ) {
+method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
-    this._setTrace( _resolveResolver );
+    this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
     var r = tryCatch1( resolver, this, p );
     if( r === errorObj ) {
@@ -854,7 +862,7 @@ method._resolveResolver = function _resolveResolver( resolver ) {
     }
 };
 
-method._addCallbacks = function(
+method._addCallbacks = function Promise$_addCallbacks(
     fulfill,
     reject,
     progress,
@@ -886,11 +894,11 @@ method._addCallbacks = function(
     return index;
 };
 
-method._callFast = function( propertyName ) {
+method._callFast = function Promise$_callFast( propertyName ) {
     return this.then( getFunction( propertyName ) );
 };
 
-method._callSlow = function( propertyName, args ) {
+method._callSlow = function Promise$_callSlow( propertyName, args ) {
     ASSERT( isArray( args ) );
     ASSERT( args.length > 0 );
     return this.then( function( obj ) {
@@ -898,7 +906,7 @@ method._callSlow = function( propertyName, args ) {
     });
 };
 
-method._resolveLast = function( index ) {
+method._resolveLast = function Promise$_resolveLast( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index < this._length() );
@@ -927,15 +935,16 @@ method._resolveLast = function( index ) {
     }
 };
 
-method._spreadSlowCase = function spreadSlowCase( targetFn, promise, values ) {
+method._spreadSlowCase =
+function Promise$_spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
         Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
-            spreadSlowCase ),
+            this._spreadSlowCase ),
         false
     );
 };
 
-method._resolvePromise = function(
+method._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
     if( isError( value ) ) {
@@ -1040,7 +1049,8 @@ method._resolvePromise = function(
     }
 };
 
-method._assumeStateOf = function( promise, mustAsync ) {
+method._assumeStateOf =
+function Promise$_assumeStateOf( promise, mustAsync ) {
     ASSERT( isPromise( promise ) );
     ASSERT( typeof mustAsync === "boolean" );
     if( promise.isPending() ) {
@@ -1070,13 +1080,14 @@ method._assumeStateOf = function( promise, mustAsync ) {
     }
 };
 
-method._tryAssumeStateOf = function  _tryAssumeStateOf( value, mustAsync ) {
+method._tryAssumeStateOf =
+function Promise$_tryAssumeStateOf( value, mustAsync ) {
     if( !isPromise( value ) ) return false;
     this._assumeStateOf( value, mustAsync );
     return true;
 };
 
-method._resolveFulfill = function( value ) {
+method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     var len = this._length();
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         var fn = this._fulfillAt( i );
@@ -1097,7 +1108,7 @@ method._resolveFulfill = function( value ) {
     }
 };
 
-method._resolveReject = function( reason ) {
+method._resolveReject = function Promise$_resolveReject( reason ) {
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
@@ -1138,7 +1149,7 @@ method._resolveReject = function( reason ) {
 
 };
 
-method._attachExtraTrace = function( error ) {
+method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
         isError( error ) ) {
         var promise = this;
@@ -1168,24 +1179,25 @@ method._attachExtraTrace = function( error ) {
     }
 };
 
-method._notifyUnhandledRejection = function( reason ) {
+method._notifyUnhandledRejection =
+function Promise$_notifyUnhandledRejection( reason ) {
     if( !reason.__handled ) {
         reason.__handled = true;
         CapturedTrace.possiblyUnhandledRejection( reason );
     }
 };
 
-method._unhandledRejection = function( reason ) {
+method._unhandledRejection = function Promise$_unhandledRejection( reason ) {
     if( !reason.__handled ) {
         async.invokeLater( this._notifyUnhandledRejection, this, reason );
     }
 };
 
-method._cleanValues = function() {
+method._cleanValues = function Promise$_cleanValues() {
     this._cancellationParent = null;
 };
 
-method._fulfill = function( value ) {
+method._fulfill = function Promise$_fulfill( value ) {
     if( this.isResolved() ) return;
     this._cleanValues();
     this._setFulfilled();
@@ -1194,7 +1206,7 @@ method._fulfill = function( value ) {
 
 };
 
-method._reject = function( reason ) {
+method._reject = function Promise$_reject( reason ) {
     if( this.isResolved() ) return;
     this._setRejected();
     this._resolvedValue = reason;
@@ -1202,7 +1214,7 @@ method._reject = function( reason ) {
     this._cleanValues();
 };
 
-method._progress = function( progressValue ) {
+method._progress = function Promise$_progress( progressValue ) {
     //2.5 onProgress is never called once a promise
     //has already been fulfilled or rejected.
 
@@ -1261,7 +1273,8 @@ method._progress = function( progressValue ) {
     }
 };
 
-Promise._all = function _all( promises, PromiseArray, caller ) {
+Promise._all =
+function Promise$_All( promises, PromiseArray, caller ) {
     ASSERT( typeof PromiseArray === "function" );
     if( isPromise( promises ) ||
         isArray( promises ) ) {
@@ -1269,7 +1282,7 @@ Promise._all = function _all( promises, PromiseArray, caller ) {
         return new PromiseArray( promises,
             typeof caller === "function"
             ? caller
-            : _all
+            : Promise$_All
         );
     }
     throw new TypeError("expecting an array or a promise");

@@ -1,4 +1,4 @@
-/* jshint -W014, -W116 */
+/* jshint -W014, -W116, -W106 */
 /* global process, unreachable */
 /**
  * @preserve Copyright (c) 2013 Petka Antonov

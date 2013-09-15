@@ -32,18 +32,18 @@ function PromiseArray( values, caller ) {
 }
 var method = PromiseArray.prototype;
 
-method.length = function() {
+method.length = function PromiseArray$length() {
     return this._length;
 };
 
-method.promise = function() {
+method.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
 
                         //when.some resolves to [] when empty
                         //but when.any resolved to void 0 when empty :<
-method._init = function _init( _, fulfillValueIfEmpty ) {
+method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //_ must be intentionally empty because smuggled
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
@@ -124,29 +124,31 @@ method._init = function _init( _, fulfillValueIfEmpty ) {
     this._length = newLen;
 };
 
-method._isResolved = function() {
+method._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-method._fulfill = function( value ) {
+method._fulfill = function PromiseArray$_fulfill( value ) {
     ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.fulfill( value );
 };
 
-method._reject = function( reason ) {
+method._reject = function PromiseArray$_reject( reason ) {
     ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.reject( reason );
 };
 
-method._promiseProgressed = function( progressValue ) {
+method._promiseProgressed =
+function PromiseArray$_promiseProgressed( progressValue ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
     this._resolver.progress( progressValue );
 };
 
-method._promiseFulfilled = function( value, index ) {
+method._promiseFulfilled =
+function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
     ASSERT( index instanceof Integer );
@@ -158,7 +160,8 @@ method._promiseFulfilled = function( value, index ) {
     }
 };
 
-method._promiseRejected = function( reason ) {
+method._promiseRejected =
+function PromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
     this._totalResolved++;
@@ -169,11 +172,11 @@ function Integer( value ) {
     this._value = value;
 }
 
-Integer.prototype.valueOf = function() {
+Integer.prototype.valueOf = function Integer$valueOf() {
     return this._value;
 };
 //256 first integers from 0 are cached
-Integer.get = function( i ) {
+Integer.get = function Integer$get( i ) {
     if( i < 256 ) {
         return ints[i];
     }

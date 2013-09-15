@@ -24,11 +24,12 @@ function Async() {
     this._isTickUsed = false;
     this._length = 0;
     this._backupBuffer = [];
-    var functionBuffer = this._functionBuffer = new Array( 1000 * FUNCTION_SIZE );
+    var functionBuffer = this._functionBuffer =
+        new Array( 1000 * FUNCTION_SIZE );
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
-    this.consumeFunctionBuffer = function() {
+    this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
     };
 
@@ -38,9 +39,13 @@ function Async() {
 }
 var method = Async.prototype;
 
+method.haveItemsQueued = function Async$haveItemsQueued() {
+    return this._length > 0;
+};
+
 //When the fn absolutely needs to be called after
 //the queue has been completely flushed
-method.invokeLater = function( fn, receiver, arg ) {
+method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     ASSERT( typeof fn === "function" );
     ASSERT( arguments.length === 3 );
     if( !this._isTickUsed ) {
@@ -50,7 +55,7 @@ method.invokeLater = function( fn, receiver, arg ) {
     this._backupBuffer.push( fn, receiver, arg );
 };
 
-method.invoke = function( fn, receiver, arg ) {
+method.invoke = function Async$invoke( fn, receiver, arg ) {
     ASSERT( typeof fn === "function" );
     ASSERT( arguments.length === 3 );
     var functionBuffer = this._functionBuffer,
@@ -76,7 +81,7 @@ method.invoke = function( fn, receiver, arg ) {
     }
 };
 
-method._consumeFunctionBuffer = function() {
+method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
     ASSERT( this._length > 0 );
     ASSERT( this._isTickUsed );
@@ -104,13 +109,9 @@ method._consumeFunctionBuffer = function() {
     }
 };
 
-method._reset = function() {
+method._reset = function Async$_reset() {
     this._isTickUsed = false;
     this._length = 0;
-};
-
-method.haveItemsQueued = function() {
-    return this._length > 0;
 };
 
 
