@@ -1,6 +1,7 @@
 var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 
+
 var ccOptions = {
     compilation_level: 'SIMPLE_OPTIMIZATIONS',
     language_in: 'ECMASCRIPT5_STRICT',
@@ -91,6 +92,7 @@ module.exports = function( grunt ) {
                 "./src/prologue.js",
                 "./src/util.js",
                 "./src/errors.js",
+                "./src/captured_trace.js",
                 "./src/caches.js",
                 "./src/async.js",
                 "./src/promise.js",
@@ -151,22 +153,22 @@ module.exports = function( grunt ) {
         var sys = require('sys');
         var spawn = require('child_process').spawn;
         var p = path.join(process.cwd(), "test");
+
+        var stdio = [
+            'ignore',
+            grunt.option("verbose")
+                ? process.stdout
+                : 'ignore',
+            process.stderr
+        ];
+
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', ["../mocharun.js", file], {cwd: p});
+            var node = spawn('node', ["../mocharun.js", file], {cwd: p, stdio: stdio});
         }
         else {
-            var node = spawn('node', ["./"+file], {cwd: p});
+            var node = spawn('node', ["./"+file], {cwd: p, stdio: stdio});
         }
-
-        if( grunt.option("verbose") ) {
-            node.stdout.on('data', function( data ) {
-                process.stdout.write(data);
-            });
-        }
-
-        node.stderr.on('data', function( data ) {
-            process.stderr.write(data);
-        });
+        node.on('exit', exit );
 
         function exit( code ) {
             if( code !== 0 ) {
@@ -177,7 +179,7 @@ module.exports = function( grunt ) {
             }
         }
 
-        node.on('exit', exit );
+
     }
 
     function fixStrict( code ) {

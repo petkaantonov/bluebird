@@ -25,61 +25,6 @@ function isThenable( ret, ref ) {
     }
 }
 
-function combineTraces( current, prev ) {
-    var curLast = current.length - 1;
-    //Eliminate common roots
-    for( var i = prev.length - 1; i >= 0; --i ) {
-        var line = prev[i];
-        if( current[ curLast ] === line ) {
-            current.pop();
-            curLast--;
-        }
-        else {
-            break;
-        }
-    }
-    var lines = current.concat( prev );
-
-    var ret = [];
-    var rignore = new RegExp(
-        "\\b(?:Promise\\.method\\._\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-        "|makeNodePromisified|processImmediate|nextTick" +
-        "|_?consumeFunctionBuffer)\\b"
-    );
-    var rtrace = /^\s*at\s*/;
-    //Eliminate library internal stuff and async callers
-    //that nobody cares about
-    for( var i = 0, len = lines.length; i < len; ++i ) {
-        if( rignore.test( lines[i] ) ||
-            ( i > 0 && !rtrace.test( lines[i] ) )
-        ) {
-            continue;
-        }
-        ret.push( lines[i] );
-    }
-    return ret;
-}
-
-var possiblyUnhandledRejection = function( reason ) {
-    if( typeof console === "object" ) {
-        var stack = reason.stack;
-        var message = "Possibly unhandled ";
-        if( typeof stack === "string" ) {
-            message += stack;
-        }
-        else {
-            message += reason.name + ". " + reason.message;
-        }
-
-        if( typeof console.error === "function" ) {
-            console.error( message );
-        }
-        else if( typeof console.log === "function" ) {
-            console.log( message );
-        }
-    }
-};
-
 function isObject( value ) {
     //no need to check for undefined twice
     if( value === null ) {
@@ -109,12 +54,6 @@ var isArray = Arr.isArray || function( obj ) {
 var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
-
-function CapturedTrace( ignoreUntil ) {
-    ASSERT( typeof ignoreUntil === "function" );
-    Error.captureStackTrace( this, ignoreUntil );
-}
-inherits( CapturedTrace, Error );
 
 /**
  * Description.
@@ -530,7 +469,7 @@ Promise.settle = function( promises ) {
  *
  *
  */
-Promise.all = function( promises ) {
+Promise.all = function Promise$All( promises ) {
     var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
@@ -637,6 +576,7 @@ function reducer( fulfilleds, initialValue ) {
 
 function slowReduce( promises, fn, initialValue ) {
     return Promise._all( promises, PromiseArray, slowReduce )
+        .promise()
         .then( function( fulfilleds ) {
             return reducer.call( fn, fulfilleds, initialValue );
         });
@@ -790,10 +730,10 @@ Promise.cast = function( obj ) {
  */
 Promise.onPossiblyUnhandledRejection = function( fn ) {
     if( typeof fn === "function" ) {
-        possiblyUnhandledRejection = fn;
+        CapturedTrace.possiblyUnhandledRejection = fn;
     }
     else {
-        possiblyUnhandledRejection = noop;
+        CapturedTrace.possiblyUnhandledRejection = noop;
     }
 };
 
@@ -1130,7 +1070,7 @@ method._assumeStateOf = function( promise, mustAsync ) {
     }
 };
 
-method._tryAssumeStateOf = function( value, mustAsync ) {
+method._tryAssumeStateOf = function  _tryAssumeStateOf( value, mustAsync ) {
     if( !isPromise( value ) ) return false;
     this._assumeStateOf( value, mustAsync );
     return true;
@@ -1180,7 +1120,7 @@ method._resolveReject = function( reason ) {
     }
     if( !rejectionWasHandled &&
         isError( reason ) &&
-        possiblyUnhandledRejection !== noop
+        CapturedTrace.possiblyUnhandledRejection !== noop
 
     ) {
         //If the prop is not there, reading it
@@ -1207,7 +1147,10 @@ method._attachExtraTrace = function( error ) {
 
         while( promise != null &&
             promise._trace != null ) {
-            stack = combineTraces( stack, promise._trace.stack.split("\n") );
+            stack = CapturedTrace.combine(
+                stack,
+                promise._trace.stack.split( "\n" )
+            );
             promise = promise._traceParent;
         }
 
@@ -1228,7 +1171,7 @@ method._attachExtraTrace = function( error ) {
 method._notifyUnhandledRejection = function( reason ) {
     if( !reason.__handled ) {
         reason.__handled = true;
-        possiblyUnhandledRejection( reason );
+        CapturedTrace.possiblyUnhandledRejection( reason );
     }
 };
 
@@ -1333,13 +1276,14 @@ Promise._all = function _all( promises, PromiseArray, caller ) {
 };
 
 
-if( typeof Error.stackTraceLimit !== "number" ||
-    typeof Error.captureStackTrace !== "function" ) {
+if( !CapturedTrace.isSupported() ) {
     Promise.longStackTraces = noop;
-    possiblyUnhandledRejection = noop;
+    CapturedTrace.possiblyUnhandledRejection = noop;
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
 }
 
 return Promise;})();
+
+
 

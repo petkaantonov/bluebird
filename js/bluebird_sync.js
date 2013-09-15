@@ -158,6 +158,134 @@ var CancellationError = subError( "CancellationError",
 var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
 
 
+var CapturedTrace = (function() {
+
+    var rignore = new RegExp(
+        "\\b(?:Promise\\.method\\._\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
+        "|makeNodePromisified|processImmediate|nextTick" +
+        "|_?consumeFunctionBuffer)\\b"
+    );
+
+    var rtraceline = null;
+    var formatStack = null;
+
+    function CapturedTrace( ignoreUntil ) {
+        this.captureStackTrace( ignoreUntil );
+    }
+    var method = inherits( CapturedTrace, Error );
+
+    method.captureStackTrace = function( ignoreUntil ) {
+        captureStackTrace( this, ignoreUntil );
+    };
+
+    CapturedTrace.possiblyUnhandledRejection = function( reason ) {
+        if( typeof console === "object" ) {
+            var stack = reason.stack;
+            var message = "Possibly unhandled " + formatStack( stack, reason );
+            if( typeof console.error === "function" ) {
+                console.error( message );
+            }
+            else if( typeof console.log === "function" ) {
+                console.log( message );
+            }
+        }
+    };
+
+    CapturedTrace.combine = function ( current, prev ) {
+        var curLast = current.length - 1;
+        for( var i = prev.length - 1; i >= 0; --i ) {
+            var line = prev[i];
+            if( current[ curLast ] === line ) {
+                current.pop();
+                curLast--;
+            }
+            else {
+                break;
+            }
+        }
+        var lines = current.concat( prev );
+
+        var ret = [];
+
+
+        for( var i = 0, len = lines.length; i < len; ++i ) {
+            if( rignore.test( lines[i] ) ||
+                ( i > 0 && !rtraceline.test( lines[i] ) )
+            ) {
+                continue;
+            }
+            ret.push( lines[i] );
+        }
+        return ret;
+    };
+
+    CapturedTrace.isSupported = function() {
+        return typeof captureStackTrace === "function";
+    };
+
+    var captureStackTrace = (function stackDetection() {
+        if( typeof Error.stackTraceLimit === "number" &&
+            typeof Error.captureStackTrace === "function" ) {
+            rtraceline = /^\s*at\s*/;
+            formatStack = function( stack, error ) {
+                return ( typeof stack === "string" )
+                    ? stack
+                    : error.name + ". " + error.message;
+            };
+            return Error.captureStackTrace;
+        }
+        var err = new Error();
+
+        if( typeof err.stack === "string" &&
+            typeof "".startsWith === "function" &&
+            ( err.stack.startsWith("stackDetection@")) &&
+            stackDetection.name === "stackDetection" ) {
+
+            Object.defineProperty( Error, "stackTraceLimit", {
+                writable: true,
+                enumerable: false,
+                configurable: false,
+                value: 25
+            });
+            rtraceline = /@/;
+            var rline = /[@\n]/;
+
+            formatStack = function( stack, error ) {
+                return ( typeof stack === "string" )
+                    ? ( error.name + ". " + error.message + "\n" + stack )
+                    : ( error.name + ". " + error.message );
+            };
+
+            return function captureStackTrace(o, fn) {
+                var name = fn.name;
+                var stack = new Error().stack;
+                var split = stack.split( rline );
+                var i, len = split.length;
+                for (i = 0; i < len; i += 2) {
+                    if (split[i] === name) {
+                        break;
+                    }
+                }
+                split = split.slice(i + 2);
+                len = split.length - 2;
+                var ret = "";
+                for (i = 0; i < len; i += 2) {
+                    ret += split[i];
+                    ret += "@";
+                    ret += split[i + 1];
+                    ret += "\n";
+                }
+                o.stack = ret;
+            };
+        }
+        else {
+            return null;
+        }
+    })();
+
+    return CapturedTrace;
+})();
+
 function GetterCache(){}
 function FunctionCache(){}
 
@@ -339,58 +467,6 @@ function isThenable( ret, ref ) {
     }
 }
 
-function combineTraces( current, prev ) {
-    var curLast = current.length - 1;
-    for( var i = prev.length - 1; i >= 0; --i ) {
-        var line = prev[i];
-        if( current[ curLast ] === line ) {
-            current.pop();
-            curLast--;
-        }
-        else {
-            break;
-        }
-    }
-    var lines = current.concat( prev );
-
-    var ret = [];
-    var rignore = new RegExp(
-        "\\b(?:Promise\\.method\\._\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-        "|makeNodePromisified|processImmediate|nextTick" +
-        "|_?consumeFunctionBuffer)\\b"
-    );
-    var rtrace = /^\s*at\s*/;
-    for( var i = 0, len = lines.length; i < len; ++i ) {
-        if( rignore.test( lines[i] ) ||
-            ( i > 0 && !rtrace.test( lines[i] ) )
-        ) {
-            continue;
-        }
-        ret.push( lines[i] );
-    }
-    return ret;
-}
-
-var possiblyUnhandledRejection = function( reason ) {
-    if( typeof console === "object" ) {
-        var stack = reason.stack;
-        var message = "Possibly unhandled ";
-        if( typeof stack === "string" ) {
-            message += stack;
-        }
-        else {
-            message += reason.name + ". " + reason.message;
-        }
-
-        if( typeof console.error === "function" ) {
-            console.error( message );
-        }
-        else if( typeof console.log === "function" ) {
-            console.log( message );
-        }
-    }
-};
-
 function isObject( value ) {
     if( value === null ) {
         return false;
@@ -419,11 +495,6 @@ var isArray = Arr.isArray || function( obj ) {
 var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
-
-function CapturedTrace( ignoreUntil ) {
-    Error.captureStackTrace( this, ignoreUntil );
-}
-inherits( CapturedTrace, Error );
 
 function Promise( resolver ) {
     if( typeof resolver === "function" )
@@ -595,7 +666,7 @@ Promise.settle = function( promises ) {
     return ret.promise();
 };
 
-Promise.all = function( promises ) {
+Promise.all = function Promise$All( promises ) {
     var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
@@ -678,6 +749,7 @@ function reducer( fulfilleds, initialValue ) {
 
 function slowReduce( promises, fn, initialValue ) {
     return Promise._all( promises, PromiseArray, slowReduce )
+        .promise()
         .then( function( fulfilleds ) {
             return reducer.call( fn, fulfilleds, initialValue );
         });
@@ -734,10 +806,10 @@ Promise.cast = function( obj ) {
 
 Promise.onPossiblyUnhandledRejection = function( fn ) {
     if( typeof fn === "function" ) {
-        possiblyUnhandledRejection = fn;
+        CapturedTrace.possiblyUnhandledRejection = fn;
     }
     else {
-        possiblyUnhandledRejection = noop;
+        CapturedTrace.possiblyUnhandledRejection = noop;
     }
 };
 
@@ -1008,7 +1080,7 @@ method._assumeStateOf = function( promise, mustAsync ) {
     }
 };
 
-method._tryAssumeStateOf = function( value, mustAsync ) {
+method._tryAssumeStateOf = function  _tryAssumeStateOf( value, mustAsync ) {
     if( !isPromise( value ) ) return false;
     this._assumeStateOf( value, mustAsync );
     return true;
@@ -1058,7 +1130,7 @@ method._resolveReject = function( reason ) {
     }
     if( !rejectionWasHandled &&
         isError( reason ) &&
-        possiblyUnhandledRejection !== noop
+        CapturedTrace.possiblyUnhandledRejection !== noop
 
     ) {
         if( reason.__handled !== true ) {
@@ -1078,7 +1150,10 @@ method._attachExtraTrace = function( error ) {
 
         while( promise != null &&
             promise._trace != null ) {
-            stack = combineTraces( stack, promise._trace.stack.split("\n") );
+            stack = CapturedTrace.combine(
+                stack,
+                promise._trace.stack.split( "\n" )
+            );
             promise = promise._traceParent;
         }
 
@@ -1099,7 +1174,7 @@ method._attachExtraTrace = function( error ) {
 method._notifyUnhandledRejection = function( reason ) {
     if( !reason.__handled ) {
         reason.__handled = true;
-        possiblyUnhandledRejection( reason );
+        CapturedTrace.possiblyUnhandledRejection( reason );
     }
 };
 
@@ -1181,15 +1256,16 @@ Promise._all = function _all( promises, PromiseArray, caller ) {
 };
 
 
-if( typeof Error.stackTraceLimit !== "number" ||
-    typeof Error.captureStackTrace !== "function" ) {
+if( !CapturedTrace.isSupported() ) {
     Promise.longStackTraces = noop;
-    possiblyUnhandledRejection = noop;
+    CapturedTrace.possiblyUnhandledRejection = noop;
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
 }
 
 return Promise;})();
+
+
 
 
 var PromiseArray = (function() {
