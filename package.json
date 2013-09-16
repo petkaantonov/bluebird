@@ -38,13 +38,15 @@
     "q": "~0.9.7",
     "when": "~2.4.0",
     "deferred": "~0.6.5",
-    "buster": "~0.6.12"
+    "buster": "~0.6.12",
+    "rsvp": "~2.0.4",
+    "avow": "~2.0.1",
+    "jsdom": "~0.8.4",
+    "jquery-browserify": "~1.8.1"
   },
-
   "optionalDependencies": {
-      "closure-compiler": "~0.2.1"
+    "closure-compiler": "~0.2.1"
   },
-
   "readmeFilename": "README.md",
   "main": "./js/promise.js"
 }
