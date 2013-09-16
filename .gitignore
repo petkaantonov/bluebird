@@ -9,3 +9,5 @@ async
 sync
 mixed
 bench.json
+js/bluebird_sync.min.js
+js/bluebird.min.js
