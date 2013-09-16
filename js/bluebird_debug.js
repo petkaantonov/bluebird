@@ -52,59 +52,6 @@
  */
 (function( global, Function, Array, Error, Object ) { "use strict";
 
-var ContextStack = (function() {
-var method = ContextStack.prototype;
-
-function ContextStack() {
-    this._longStackTraces = true;
-    this._stack = new Array( 50 );
-    for( var i = 0, len = this._stack.length; i < len; ++i ) {
-        this._stack[i] = void 0;
-    }
-    this._length = 0;
-}
-
-method.push = function ContextStack$push( promise ) {
-    if( !this._longStackTraces ) return;
-    ASSERT((promise instanceof Promise),
-    "promise instanceof Promise");
-    if( this._length >= this._stack.length ) {
-        this._stack.push( promise );
-    }
-    else {
-        this._stack[this._length] = promise;
-    }
-    this._length++;
-};
-
-method.pop = function ContextStack$pop() {
-    if( !this._longStackTraces ) return;
-    ASSERT((this.length() > 0),
-    "this.length() > 0");
-    this._length--;
-    this._stack[ this._length ] = void 0;
-};
-
-method.context = function ContextStack$context() {
-    if( !this._longStackTraces ||
-        this.length() === 0 ) return void 0;
-    var ret = this._stack[ this.length() - 1 ];
-    ASSERT((ret instanceof Promise),
-    "ret instanceof Promise");
-    return ret;
-};
-
-method.length = function ContextStack$length() {
-    return this._length;
-};
-
-method.setLongStackTraces = function ContextStack$setLongStackTraces( val ) {
-    this._longStackTraces = val;
-};
-
-return ContextStack;})();
-
-var contextStack = new ContextStack();
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -613,7 +560,7 @@ function Promise( resolver ) {
         void 0;
     this._resolvedValue = UNRESOLVED;
     this._cancellationParent = null;
-    this._traceParent = contextStack.context();
+    if( longStackTraces ) this._traceParent = this._peekContext();
 }
 
 var method = Promise.prototype;
@@ -627,7 +574,6 @@ Promise.longStackTraces = function() {
         "after promises have been created");
     }
     longStackTraces = true;
-    contextStack.setLongStackTraces( true );
 };
 
 method._setTrace = function _setTrace( fn ) {
@@ -1066,9 +1012,9 @@ method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     "typeof resolver === \u0022function\u0022");
     this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
-    this._push();
+    this._pushContext();
     var r = tryCatch1( resolver, this, p );
-    this._pop();
+    this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );
     }
@@ -1198,7 +1144,7 @@ method._resolvePromise = function Promise$_resolvePromise(
                     return;
                 }
             }
-            promise._push();
+            promise._pushContext();
             x = tryCatchApply( onFulfilledOrRejected, value );
         }
         else {
@@ -1207,11 +1153,11 @@ method._resolvePromise = function Promise$_resolvePromise(
         }
     }
     else {
-        promise._push();
+        promise._pushContext();
         x = tryCatch1( onFulfilledOrRejected, receiver, value );
     }
 
-    promise._pop();
+    promise._popContext();
 
     if( x === errorObj ) {
         promise._attachExtraTrace( x.e );
@@ -1423,11 +1369,23 @@ method._reject = function Promise$_reject( reason ) {
     this._cleanValues();
 };
 
-method._push = function Promise$_push() {
+var contextStack = [];
+method._peekContext = function Promise$_peekContext() {
+    var lastIndex = contextStack.length - 1;
+    if( lastIndex >= 0 ) {
+        return contextStack[ lastIndex ];
+    }
+    return void 0;
+
+};
+
+method._pushContext = function Promise$_pushContext() {
+    if( !longStackTraces ) return;
     contextStack.push( this );
 };
 
-method._pop = function Promise$_pop() {
+method._popContext = function Promise$_popContext() {
+    if( !longStackTraces ) return;
     contextStack.pop();
 };
 
@@ -1443,9 +1401,9 @@ method._progress = function Promise$_progress( progressValue ) {
         }
         var ret = progressValue;
         if( fn !== noop ) {
-            this._push();
+            this._pushContext();
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-            this._pop();
+            this._popContext();
             if( ret === errorObj ) {
                 if( ret.e != null &&
                     ret.e.name === "StopProgressPropagation" ) {
@@ -1492,7 +1450,6 @@ if( !CapturedTrace.isSupported() ) {
     CapturedTrace.possiblyUnhandledRejection = noop;
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
-    contextStack.setLongStackTraces( false );
 }
 
 return Promise;})();

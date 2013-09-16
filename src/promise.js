@@ -62,15 +62,14 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 
-//Layout
+//Layout for .bitField
 //00RF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
-//0 = Always 0 (never used)
+//0 = Always 0 (must be never used)
 //R = [Reserved]
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //L = Length, 26 bit unsigned
-//- = Reserved
 CONSTANT(IS_FULFILLED, 0x10000000);
 CONSTANT(IS_REJECTED, 0x8000000);
 CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000);
@@ -102,7 +101,7 @@ function Promise( resolver ) {
     this._resolvedValue = UNRESOLVED;
     //Used in cancel propagation
     this._cancellationParent = null;
-    this._traceParent = contextStack.context();
+    if( longStackTraces ) this._traceParent = this._peekContext();
 }
 
 var method = Promise.prototype;
@@ -116,7 +115,6 @@ Promise.longStackTraces = function() {
         "after promises have been created");
     }
     longStackTraces = true;
-    contextStack.setLongStackTraces( true );
 };
 
 method._setTrace = function _setTrace( fn ) {
@@ -881,9 +879,9 @@ method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
     this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
-    this._push();
+    this._pushContext();
     var r = tryCatch1( resolver, this, p );
-    this._pop();
+    this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );
     }
@@ -1017,7 +1015,7 @@ method._resolvePromise = function Promise$_resolvePromise(
                     return;
                 }
             }
-            promise._push();
+            promise._pushContext();
             x = tryCatchApply( onFulfilledOrRejected, value );
         }
         else {
@@ -1028,11 +1026,11 @@ method._resolvePromise = function Promise$_resolvePromise(
         }
     }
     else {
-        promise._push();
+        promise._pushContext();
         x = tryCatch1( onFulfilledOrRejected, receiver, value );
     }
 
-    promise._pop();
+    promise._popContext();
 
     if( x === errorObj ) {
         promise._attachExtraTrace( x.e );
@@ -1262,11 +1260,23 @@ method._reject = function Promise$_reject( reason ) {
     this._cleanValues();
 };
 
-method._push = function Promise$_push() {
+var contextStack = [];
+method._peekContext = function Promise$_peekContext() {
+    var lastIndex = contextStack.length - 1;
+    if( lastIndex >= 0 ) {
+        return contextStack[ lastIndex ];
+    }
+    return void 0;
+
+};
+
+method._pushContext = function Promise$_pushContext() {
+    if( !longStackTraces ) return;
     contextStack.push( this );
 };
 
-method._pop = function Promise$_pop() {
+method._popContext = function Promise$_popContext() {
+    if( !longStackTraces ) return;
     contextStack.pop();
 };
 
@@ -1287,9 +1297,9 @@ method._progress = function Promise$_progress( progressValue ) {
         }
         var ret = progressValue;
         if( fn !== noop ) {
-            this._push();
+            this._pushContext();
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-            this._pop();
+            this._popContext();
             if( ret === errorObj ) {
                 //2.4 if the onProgress callback throws an exception
                 //with a name property equal to 'StopProgressPropagation',
@@ -1352,7 +1362,6 @@ if( !CapturedTrace.isSupported() ) {
     CapturedTrace.possiblyUnhandledRejection = noop;
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
-    contextStack.setLongStackTraces( false );
 }
 
 return Promise;})();

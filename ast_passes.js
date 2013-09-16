@@ -171,7 +171,6 @@ var convertSrc = function( src, results ) {
             }
             return ret;
         });
-        //Remove duplicates - due to a bug in acorn there might be some
         for( var i = 1; i < results.length; ++i ) {
             var item = results[i];
             if( item.start === results[i-1].start &&
