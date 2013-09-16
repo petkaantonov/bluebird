@@ -157,6 +157,22 @@ method.progressed = function Promise$progressed( fn ) {
     return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
 };
 
+
+function thrower( r ) {
+    throw r;
+}
+function slowFinally( ret, reasonOrValue ) {
+    if( this.isFulfilled() ) {
+        return ret._then(function() {
+            return reasonOrValue;
+        }, thrower, void 0, this, void 0, slowFinally );
+    }
+    else {
+        return ret._then(function() {
+            throw reasonOrValue;
+        }, thrower, void 0, this, void 0, slowFinally );
+    }
+}
 /**
  * Convenience method for .then( fn, fn );
  *
@@ -164,8 +180,16 @@ method.progressed = function Promise$progressed( fn ) {
  * either fulfilled or rejected
  * @return {Promise}
  */
-method.resolved = function Promise$resolved( fn ) {
-    return this._then( fn, fn, void 0, void 0, void 0, this.resolved );
+method.lastly = method["finally"] = function Promise$finally( fn ) {
+    var r = function( reasonOrValue ) {
+        var ret = fn( reasonOrValue );
+        if( isPromise( ret ) ) {
+            return slowFinally.call( this, ret, reasonOrValue );
+        }
+        if( this.isRejected() ) throw reasonOrValue;
+        return reasonOrValue;
+    };
+    return this._then( r, r, void 0, this, void 0, this.anyway );
 };
 
 /**
@@ -365,8 +389,9 @@ method.then = function Promise$then( didFulfill, didReject, didProgress ) {
  *  is fulfilled.
  *
  */
-method.spread = function Promise$spread( didFulfill ) {
-    return this._then( didFulfill, void 0, void 0, APPLY, void 0, this.spread );
+method.spread = function Promise$spread( didFulfill, didReject ) {
+    return this._then( didFulfill, didReject, void 0,
+        APPLY, void 0, this.spread );
 };
 /**
  * See if this promise is fulfilled.

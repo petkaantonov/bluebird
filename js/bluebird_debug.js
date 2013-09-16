@@ -602,8 +602,32 @@ method.progressed = function Promise$progressed( fn ) {
     return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
 };
 
-method.resolved = function Promise$resolved( fn ) {
-    return this._then( fn, fn, void 0, void 0, void 0, this.resolved );
+
+function thrower( r ) {
+    throw r;
+}
+function slowFinally( ret, reasonOrValue ) {
+    if( this.isFulfilled() ) {
+        return ret._then(function() {
+            return reasonOrValue;
+        }, thrower, void 0, this, void 0, slowFinally );
+    }
+    else {
+        return ret._then(function() {
+            throw reasonOrValue;
+        }, thrower, void 0, this, void 0, slowFinally );
+    }
+}
+method.lastly = method["finally"] = function Promise$finally( fn ) {
+    var r = function( reasonOrValue ) {
+        var ret = fn( reasonOrValue );
+        if( isPromise( ret ) ) {
+            return slowFinally.call( this, ret, reasonOrValue );
+        }
+        if( this.isRejected() ) throw reasonOrValue;
+        return reasonOrValue;
+    };
+    return this._then( r, r, void 0, this, void 0, this.anyway );
 };
 
 method.inspect = function Promise$inspect() {
@@ -674,8 +698,9 @@ method.then = function Promise$then( didFulfill, didReject, didProgress ) {
         void 0, void 0, this.then );
 };
 
-method.spread = function Promise$spread( didFulfill ) {
-    return this._then( didFulfill, void 0, void 0, APPLY, void 0, this.spread );
+method.spread = function Promise$spread( didFulfill, didReject ) {
+    return this._then( didFulfill, didReject, void 0,
+        APPLY, void 0, this.spread );
 };
 method.isFulfilled = function Promise$isFulfilled() {
     return ( this._bitField & 0x10000000 ) > 0;
@@ -1576,11 +1601,15 @@ method._reject = function PromiseArray$_reject( reason ) {
 };
 
 method._promiseProgressed =
-function PromiseArray$_promiseProgressed( progressValue ) {
+function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
     "isArray( this._values )");
-    this._resolver.progress( progressValue );
+
+    this._resolver.progress({
+        index: index.valueOf(),
+        value: progressValue
+    });
 };
 
 method._promiseFulfilled =

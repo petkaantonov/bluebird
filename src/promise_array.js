@@ -141,10 +141,14 @@ method._reject = function PromiseArray$_reject( reason ) {
 };
 
 method._promiseProgressed =
-function PromiseArray$_promiseProgressed( progressValue ) {
+function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
-    this._resolver.progress( progressValue );
+
+    this._resolver.progress({
+        index: index.valueOf(),
+        value: progressValue
+    });
 };
 
 method._promiseFulfilled =
@@ -152,7 +156,6 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
     ASSERT( index instanceof Integer );
-    //(TODO) could fire a progress when a promise is completed
     this._values[ index.valueOf() ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
