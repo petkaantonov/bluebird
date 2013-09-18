@@ -39,22 +39,25 @@ CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 
 //Layout for .bitField
-//00WF NCLL LLLL LLLL LLLL LLLL LLLL LLLL
+//00WF NCDR LLLL LLLL LLLL LLLL LLLL LLLL
 //0 = Always 0 (must be never used)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
-//L = Length, 26 bit unsigned
+//D = isDelegated
+//R = [Reserved]
+//L = Length, 24 bit unsigned
 CONSTANT(IS_FOLLOWING, 0x20000000);
 CONSTANT(IS_FULFILLED, 0x10000000);
 CONSTANT(IS_REJECTED, 0x8000000);
 CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000);
 CONSTANT(IS_FOLLOWING_OR_REJECTED_OR_FULFILLED, 0x38000000);
 CONSTANT(IS_CANCELLABLE, 0x4000000);
-CONSTANT(LENGTH_MASK, 0x3FFFFFF);
-CONSTANT(LENGTH_CLEAR_MASK, 0x3C000000);
-CONSTANT(MAX_LENGTH, 0x3FFFFFF);
+CONSTANT(IS_DELEGATED, 0x2000000);
+CONSTANT(LENGTH_MASK, 0xFFFFFF);
+CONSTANT(LENGTH_CLEAR_MASK, 0x3F000000);
+CONSTANT(MAX_LENGTH, 0xFFFFFF);
 /**
  * Description.
  *
@@ -797,6 +800,14 @@ function Promise$_then(
         ret._cancellationParent = this;
     }
 
+    if( this._isDelegated() ) {
+        this._unsetDelegated();
+        ASSERT( !this.isResolved() );
+        var x = this._resolvedValue;
+        if( !this._tryThenable( x ) ) {
+            async.invoke( this._fulfill, this, x );
+        }
+    }
     return ret;
 };
 
@@ -828,6 +839,18 @@ method._setRejected = function Promise$_setRejected() {
 
 method._setFollowing = function Promise$_setFollowing() {
     this._bitField = this._bitField | IS_FOLLOWING;
+};
+
+method._setDelegated = function Promise$_setDelegated() {
+    return this._bitField = this._bitField | IS_DELEGATED;
+};
+
+method._isDelegated = function Promise$_isDelegated() {
+    return ( this._bitField & IS_DELEGATED ) > 0;
+};
+
+method._unsetDelegated = function Promise$_unsetDelegated() {
+    this._bitField = this._bitField & ( ~IS_DELEGATED );
 };
 
 method._setCancellable = function Promise$_setCancellable() {
@@ -1048,6 +1071,106 @@ function cast( obj ) {
     return obj;
 }
 
+method._tryThenable = function Promise$_tryThenable( x ) {
+    var ref;
+    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
+        return false;
+    }
+    if( ref.promise != null ) {
+        this._assumeStateOf( ref.promise, true );
+        return true;
+    }
+    thenable.addCache( x, this );
+    //3.2 If retrieving the property x.then
+    //results in a thrown exception e,
+    //reject promise with e as the reason.
+    if( ref.ref === errorObj ) {
+        this._attachExtraTrace( ref.ref.e );
+        async.invoke( this._reject, this, ref.ref.e );
+    }
+    else {
+        //3.1. Let then be x.then
+        var then = ref.ref;
+        var localX = x;
+        var localP = this;
+        var key = {};
+        var called = false;
+        //3.3 If then is a function, call it with x as this,
+        //first argument resolvePromise, and
+        //second argument rejectPromise
+        var t = function t( v ) {
+            if( called && this !== key ) return;
+            called = true;
+            var b = cast( v );
+
+            if( b !== v ||
+                ( b instanceof Promise && b.isPending() ) ) {
+                b._then( t, r, void 0, key, void 0, t);
+                return;
+            }
+
+            var fn = localP._fulfill;
+            if( b instanceof Promise ) {
+                var fn = b.isFulfilled()
+                    ? localP._fulfill : localP._reject;
+                ASSERT( b.isResolved() );
+                v = v._resolvedValue;
+                b = cast( v );
+                ASSERT( b instanceof Promise || b === v );
+                if( b !== v ||
+                    ( b instanceof Promise && b !== v ) ) {
+                    b._then( t, r, void 0, key, void 0, t);
+                    return;
+                }
+            }
+            async.invoke( fn, localP, v );
+            async.invokeLater( thenable.deleteCache,
+                    thenable, localX );
+        };
+
+        var r = function r( v ) {
+            if( called && this !== key ) return;
+            called = true;
+
+            var b = cast( v );
+
+            if( b !== v ||
+                ( b instanceof Promise && b.isPending() ) ) {
+                b._then( t, r, void 0, key, void 0, t);
+                return;
+            }
+
+            var fn = localP._reject;
+            if( b instanceof Promise ) {
+                var fn = b.isFulfilled()
+                    ? localP._fulfill : localP._reject;
+                ASSERT( b.isResolved() );
+                v = v._resolvedValue;
+                b = cast( v );
+                if( b !== v ||
+                    ( b instanceof Promise && b.isPending() ) ) {
+                    b._then( t, r, void 0, key, void 0, t);
+                    return;
+                }
+            }
+
+            async.invoke( fn, localP, v );
+            async.invokeLater( thenable.deleteCache,
+                thenable, localX );
+
+        };
+        var threw = tryCatch2( then, x, t, r);
+        //3.3.4 If calling then throws an exception e,
+        if( threw === errorObj &&
+            !called ) {
+            this._attachExtraTrace( threw.e );
+            //3.3.4.2 Otherwise, reject promise with e as the reason.
+            async.invoke( this._reject, this, threw.e );
+        }
+    }
+    return true;
+};
+
 method._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -1112,113 +1235,24 @@ method._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        var ref;
         if( promise._tryAssumeStateOf( x, true ) ) {
             //2. If x is a promise, adopt its state
             return;
         }
         //3. Otherwise, if x is an object or function,
-        else if( isObject( x ) &&
-            thenable.is( x, ref = {ref: null, promise: null} ) ) {
-            if( ref.promise != null ) {
-                promise._assumeStateOf( ref.promise, true );
-
+        else if( isObject( x ) ) {
+            if( promise._length() === 0 ) {
+                promise._resolvedValue = x;
+                promise._setDelegated();
                 return;
             }
-            thenable.addCache( x, promise );
-            //3.2 If retrieving the property x.then
-            //results in a thrown exception e,
-            //reject promise with e as the reason.
-            if( ref.ref === errorObj ) {
-                promise._attachExtraTrace( ref.ref.e );
-                async.invoke( promise._reject, promise, ref.ref.e );
-            }
-            else {
-                //3.1. Let then be x.then
-                var then = ref.ref;
-                var localX = x;
-                var localP = promise;
-                var key = {};
-                var called = false;
-                //3.3 If then is a function, call it with x as this,
-                //first argument resolvePromise, and
-                //second argument rejectPromise
-                var t = function t( v ) {
-                    if( called && this !== key ) return;
-                    called = true;
-                    var b = cast( v );
-
-                    if( b !== v ||
-                        ( b instanceof Promise && b.isPending() ) ) {
-                        b._then( t, r, void 0, key, void 0, t);
-                        return;
-                    }
-
-                    var fn = localP._fulfill;
-                    if( b instanceof Promise ) {
-                        var fn = b.isFulfilled()
-                            ? localP._fulfill : localP._reject;
-                        ASSERT( b.isResolved() );
-                        v = v._resolvedValue;
-                        b = cast( v );
-                        ASSERT( b instanceof Promise || b === v );
-                        if( b !== v ||
-                            ( b instanceof Promise && b !== v ) ) {
-                            b._then( t, r, void 0, key, void 0, t);
-                            return;
-                        }
-                    }
-                    async.invoke( fn, localP, v );
-                    async.invokeLater( thenable.deleteCache,
-                            thenable, localX );
-                };
-
-                var r = function r( v ) {
-                    if( called && this !== key ) return;
-                    called = true;
-
-                    var b = cast( v );
-
-                    if( b !== v ||
-                        ( b instanceof Promise && b.isPending() ) ) {
-                        b._then( t, r, void 0, key, void 0, t);
-                        return;
-                    }
-
-                    var fn = localP._reject;
-                    if( b instanceof Promise ) {
-                        var fn = b.isFulfilled()
-                            ? localP._fulfill : localP._reject;
-                        ASSERT( b.isResolved() );
-                        v = v._resolvedValue;
-                        b = cast( v );
-                        if( b !== v ||
-                            ( b instanceof Promise && b.isPending() ) ) {
-                            b._then( t, r, void 0, key, void 0, t);
-                            return;
-                        }
-                    }
-
-                    async.invoke( fn, localP, v );
-                    async.invokeLater( thenable.deleteCache,
-                        thenable, localX );
-
-                };
-                var threw = tryCatch2( then, x, t, r);
-                //3.3.4 If calling then throws an exception e,
-                if( threw === errorObj &&
-                    !called ) {
-                    promise._attachExtraTrace( threw.e );
-                    //3.3.4.2 Otherwise, reject promise with e as the reason.
-                    async.invoke( promise._reject, promise, threw.e );
-                }
+            else if( promise._tryThenable( x ) ) {
+                return;
             }
         }
         // 3.4 If then is not a function, fulfill promise with x.
         // 4. If x is not an object or function, fulfill promise with x.
-        else {
-            async.invoke( promise._fulfill, promise, x );
-        }
+        async.invoke( promise._fulfill, promise, x );
     }
 };
 

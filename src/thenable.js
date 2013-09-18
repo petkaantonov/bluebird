@@ -6,6 +6,7 @@ function Thenable() {
     this.treshold = 1000;
     this.thenableCache = new Array( this.treshold );
     this.promiseCache = new Array( this.treshold );
+    this._compactQueued = false;
 }
 var method = Thenable.prototype;
 
@@ -50,9 +51,10 @@ method.addCache = function Thenable$_addCache( thenable, promise ) {
     this.thenableCache[id] = thenable;
     this.promiseCache[id] = promise;
     ASSERT( this.thenableCache[ thenable.__id_$thenable__ ] === thenable );
-    if( this.thenableCache.length > this.treshold ) {
-        this._compactCache();
-        ASSERT( this.thenableCache[ thenable.__id_$thenable__ ] === thenable );
+    if( this.thenableCache.length > this.treshold &&
+        !this._compactQueued) {
+        this._compactQueued = true;
+        async.invokeLater( this._compactCache, this, void 0 );
     }
 };
 
@@ -100,6 +102,7 @@ method._compactCache = function Thenable$_compactCache() {
     }
 
     this.__id__ = newId;
+    this._compactQueued = false;
 };
 
 

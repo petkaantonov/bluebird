@@ -49,7 +49,7 @@ describe("Memoization of thenables", function () {
 
         tuple.fulfill();
 
-        //setTimeout(function(){
+        setTimeout(function(){
             assert.strictEqual(thenable.timesCalled, 0);
             assert.strictEqual(thenable.timesGotten, 0);
             var valuesGotten = 0;
@@ -74,7 +74,7 @@ describe("Memoization of thenables", function () {
                 assert.strictEqual(valuesGotten, 2);
                 done();
                 }, 50);
-        //}, 50 );
+        }, 50 );
     });
 
     specify("retrieving a value twice, in sequence, should only call `then` once.", function (done) {
@@ -84,7 +84,7 @@ describe("Memoization of thenables", function () {
 
         tuple.fulfill();
 
-        //setTimeout( function() {
+        setTimeout( function() {
                 assert.strictEqual(thenable.timesCalled, 0);
                 assert.strictEqual(thenable.timesGotten, 0);
                 var valuesGotten = 0;
@@ -111,7 +111,7 @@ describe("Memoization of thenables", function () {
                         done();
                     }, 50);
                 }, 50);
-        //}, 50);
+        }, 50);
     });
 
     specify("when multiple promises are resolved to the thenable", function (done) {

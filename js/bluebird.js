@@ -455,6 +455,7 @@ function Thenable() {
     this.treshold = 1000;
     this.thenableCache = new Array( this.treshold );
     this.promiseCache = new Array( this.treshold );
+    this._compactQueued = false;
 }
 var method = Thenable.prototype;
 
@@ -488,8 +489,10 @@ method.addCache = function Thenable$_addCache( thenable, promise ) {
     Object.defineProperty( thenable, "__id_$thenable__", descriptor );
     this.thenableCache[id] = thenable;
     this.promiseCache[id] = promise;
-    if( this.thenableCache.length > this.treshold ) {
-        this._compactCache();
+    if( this.thenableCache.length > this.treshold &&
+        !this._compactQueued) {
+        this._compactQueued = true;
+        async.invokeLater( this._compactCache, this, void 0 );
     }
 };
 
@@ -535,6 +538,7 @@ method._compactCache = function Thenable$_compactCache() {
     }
 
     this.__id__ = newId;
+    this._compactQueued = false;
 };
 
 
@@ -952,11 +956,18 @@ function Promise$_then(
         ret._cancellationParent = this;
     }
 
+    if( this._isDelegated() ) {
+        this._unsetDelegated();
+        var x = this._resolvedValue;
+        if( !this._tryThenable( x ) ) {
+            async.invoke( this._fulfill, this, x );
+        }
+    }
     return ret;
 };
 
 method._length = function Promise$_length() {
-    return this._bitField & 0x3FFFFFF;
+    return this._bitField & 0xFFFFFF;
 };
 
 method._isFollowingOrFulfilledOrRejected =
@@ -965,8 +976,8 @@ function Promise$_isFollowingOrFulfilledOrRejected() {
 };
 
 method._setLength = function Promise$_setLength( len ) {
-    this._bitField = ( this._bitField & 0x3C000000 ) |
-        ( len & 0x3FFFFFF ) ;
+    this._bitField = ( this._bitField & 0x3F000000 ) |
+        ( len & 0xFFFFFF ) ;
 };
 
 method._cancellable = function Promise$_cancellable() {
@@ -983,6 +994,18 @@ method._setRejected = function Promise$_setRejected() {
 
 method._setFollowing = function Promise$_setFollowing() {
     this._bitField = this._bitField | 0x20000000;
+};
+
+method._setDelegated = function Promise$_setDelegated() {
+    return this._bitField = this._bitField | 0x2000000;
+};
+
+method._isDelegated = function Promise$_isDelegated() {
+    return ( this._bitField & 0x2000000 ) > 0;
+};
+
+method._unsetDelegated = function Promise$_unsetDelegated() {
+    this._bitField = this._bitField & ( ~0x2000000 );
 };
 
 method._setCancellable = function Promise$_setCancellable() {
@@ -1177,6 +1200,94 @@ function cast( obj ) {
     return obj;
 }
 
+method._tryThenable = function Promise$_tryThenable( x ) {
+    var ref;
+    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
+        return false;
+    }
+    if( ref.promise != null ) {
+        this._assumeStateOf( ref.promise, true );
+        return true;
+    }
+    thenable.addCache( x, this );
+    if( ref.ref === errorObj ) {
+        this._attachExtraTrace( ref.ref.e );
+        async.invoke( this._reject, this, ref.ref.e );
+    }
+    else {
+        var then = ref.ref;
+        var localX = x;
+        var localP = this;
+        var key = {};
+        var called = false;
+        var t = function t( v ) {
+            if( called && this !== key ) return;
+            called = true;
+            var b = cast( v );
+
+            if( b !== v ||
+                ( b instanceof Promise && b.isPending() ) ) {
+                b._then( t, r, void 0, key, void 0, t);
+                return;
+            }
+
+            var fn = localP._fulfill;
+            if( b instanceof Promise ) {
+                var fn = b.isFulfilled()
+                    ? localP._fulfill : localP._reject;
+                v = v._resolvedValue;
+                b = cast( v );
+                if( b !== v ||
+                    ( b instanceof Promise && b !== v ) ) {
+                    b._then( t, r, void 0, key, void 0, t);
+                    return;
+                }
+            }
+            async.invoke( fn, localP, v );
+            async.invokeLater( thenable.deleteCache,
+                    thenable, localX );
+        };
+
+        var r = function r( v ) {
+            if( called && this !== key ) return;
+            called = true;
+
+            var b = cast( v );
+
+            if( b !== v ||
+                ( b instanceof Promise && b.isPending() ) ) {
+                b._then( t, r, void 0, key, void 0, t);
+                return;
+            }
+
+            var fn = localP._reject;
+            if( b instanceof Promise ) {
+                var fn = b.isFulfilled()
+                    ? localP._fulfill : localP._reject;
+                v = v._resolvedValue;
+                b = cast( v );
+                if( b !== v ||
+                    ( b instanceof Promise && b.isPending() ) ) {
+                    b._then( t, r, void 0, key, void 0, t);
+                    return;
+                }
+            }
+
+            async.invoke( fn, localP, v );
+            async.invokeLater( thenable.deleteCache,
+                thenable, localX );
+
+        };
+        var threw = tryCatch2( then, x, t, r);
+        if( threw === errorObj &&
+            !called ) {
+            this._attachExtraTrace( threw.e );
+            async.invoke( this._reject, this, threw.e );
+        }
+    }
+    return true;
+};
+
 method._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -1228,97 +1339,20 @@ method._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        var ref;
         if( promise._tryAssumeStateOf( x, true ) ) {
             return;
         }
-        else if( isObject( x ) &&
-            thenable.is( x, ref = {ref: null, promise: null} ) ) {
-            if( ref.promise != null ) {
-                promise._assumeStateOf( ref.promise, true );
-
+        else if( isObject( x ) ) {
+            if( promise._length() === 0 ) {
+                promise._resolvedValue = x;
+                promise._setDelegated();
                 return;
             }
-            thenable.addCache( x, promise );
-            if( ref.ref === errorObj ) {
-                promise._attachExtraTrace( ref.ref.e );
-                async.invoke( promise._reject, promise, ref.ref.e );
-            }
-            else {
-                var then = ref.ref;
-                var localX = x;
-                var localP = promise;
-                var key = {};
-                var called = false;
-                var t = function t( v ) {
-                    if( called && this !== key ) return;
-                    called = true;
-                    var b = cast( v );
-
-                    if( b !== v ||
-                        ( b instanceof Promise && b.isPending() ) ) {
-                        b._then( t, r, void 0, key, void 0, t);
-                        return;
-                    }
-
-                    var fn = localP._fulfill;
-                    if( b instanceof Promise ) {
-                        var fn = b.isFulfilled()
-                            ? localP._fulfill : localP._reject;
-                        v = v._resolvedValue;
-                        b = cast( v );
-                        if( b !== v ||
-                            ( b instanceof Promise && b !== v ) ) {
-                            b._then( t, r, void 0, key, void 0, t);
-                            return;
-                        }
-                    }
-                    async.invoke( fn, localP, v );
-                    async.invokeLater( thenable.deleteCache,
-                            thenable, localX );
-                };
-
-                var r = function r( v ) {
-                    if( called && this !== key ) return;
-                    called = true;
-
-                    var b = cast( v );
-
-                    if( b !== v ||
-                        ( b instanceof Promise && b.isPending() ) ) {
-                        b._then( t, r, void 0, key, void 0, t);
-                        return;
-                    }
-
-                    var fn = localP._reject;
-                    if( b instanceof Promise ) {
-                        var fn = b.isFulfilled()
-                            ? localP._fulfill : localP._reject;
-                        v = v._resolvedValue;
-                        b = cast( v );
-                        if( b !== v ||
-                            ( b instanceof Promise && b.isPending() ) ) {
-                            b._then( t, r, void 0, key, void 0, t);
-                            return;
-                        }
-                    }
-
-                    async.invoke( fn, localP, v );
-                    async.invokeLater( thenable.deleteCache,
-                        thenable, localX );
-
-                };
-                var threw = tryCatch2( then, x, t, r);
-                if( threw === errorObj &&
-                    !called ) {
-                    promise._attachExtraTrace( threw.e );
-                    async.invoke( promise._reject, promise, threw.e );
-                }
+            else if( promise._tryThenable( x ) ) {
+                return;
             }
         }
-        else {
-            async.invoke( promise._fulfill, promise, x );
-        }
+        async.invoke( promise._fulfill, promise, x );
     }
 };
 
