@@ -562,11 +562,12 @@ method.deleteCache = function Thenable$deleteCache( thenable ) {
     if( id === -1 ) {
         return;
     }
+    ASSERT((id > (- 1)),
+    "id > -1");
     ASSERT((id < this.__id__),
     "id < this.__id__");
     ASSERT((this.thenableCache[id] === thenable),
     "this.thenableCache[id] === thenable");
-
     this.thenableCache[id] = void 0;
     this.promiseCache[id] = void 0;
     thenable.__id_$thenable__ = -1;};
@@ -1760,8 +1761,6 @@ if( !CapturedTrace.isSupported() ) {
     Promise.onPossiblyUnhandledRejection = noop;
     longStackTraces = false;
 }
-
-global.thenable = thenable;
 
 return Promise;})();
 

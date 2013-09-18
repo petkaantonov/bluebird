@@ -1617,8 +1617,6 @@ if( !CapturedTrace.isSupported() ) {
     longStackTraces = false;
 }
 
-global.thenable = thenable;
-
 return Promise;})();
 
 
