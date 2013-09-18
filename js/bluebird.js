@@ -384,11 +384,11 @@ method.haveItemsQueued = function Async$haveItemsQueued() {
 };
 
 method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
-    if( !this._isTickUsed ) {
-        this.invoke( fn, receiver, arg );
-        return;
-    }
     this._backupBuffer.push( fn, receiver, arg );
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
+    }
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
@@ -427,8 +427,10 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     this._reset();
     if( this._backupBuffer.length ) {
         var buffer = this._backupBuffer;
-        for( var i = 0, len = buffer.length; i < len; i+= 3 ) {
-            buffer[ i ].call( buffer[ i + 1 ] , buffer[ i + 2 ] );
+        for( var i = 0; i < buffer.length; i+= 3 ) {
+            buffer[ i + 0 ].call(
+                buffer[ i + 1 ] ,
+                buffer[ i + 2 ] );
         }
         buffer.length = 0;
     }
@@ -500,6 +502,7 @@ var noop = function(){};
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
+
     this._bitField = 0x4000000;
     this._fulfill0 =
     this._reject0 =
@@ -1134,6 +1137,7 @@ method._resolvePromise = function Promise$_resolvePromise(
 
 method._assumeStateOf =
 function Promise$_assumeStateOf( promise, mustAsync ) {
+    this._setFollowing();
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -1146,20 +1150,18 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             void 0,
             this._tryAssumeStateOf
         );
-
-        this._setFollowing();
     }
     else if( promise.isFulfilled() ) {
         if( mustAsync )
-            async.invoke( this._fulfill, this, promise._resolvedValue );
+            async.invoke( this._resolveFulfill, this, promise._resolvedValue );
         else
-            this._fulfill( promise._resolvedValue );
+            this._resolveFulfill( promise._resolvedValue );
     }
     else {
         if( mustAsync )
-            async.invoke( this._reject, this, promise._resolvedValue );
+            async.invoke( this._resolveReject, this, promise._resolvedValue );
         else
-            this._reject( promise._resolvedValue );
+            this._resolveReject( promise._resolvedValue );
     }
 
     if( longStackTraces &&

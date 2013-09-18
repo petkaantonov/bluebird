@@ -52,11 +52,11 @@ method.haveItemsQueued = function Async$haveItemsQueued() {
 method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     ASSERT( typeof fn === "function" );
     ASSERT( arguments.length === 3 );
-    if( !this._isTickUsed ) {
-        this.invoke( fn, receiver, arg );
-        return;
-    }
     this._backupBuffer.push( fn, receiver, arg );
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
+    }
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
@@ -87,7 +87,6 @@ method.invoke = function Async$invoke( fn, receiver, arg ) {
 
 method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
-    ASSERT( this._length > 0 );
     ASSERT( this._isTickUsed );
     //Must not cache the length
     for( var i = 0; i < this._length; i += FUNCTION_SIZE ) {
@@ -106,8 +105,10 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     this._reset();
     if( this._backupBuffer.length ) {
         var buffer = this._backupBuffer;
-        for( var i = 0, len = buffer.length; i < len; i+= 3 ) {
-            buffer[ i ].call( buffer[ i + 1 ] , buffer[ i + 2 ] );
+        for( var i = 0; i < buffer.length; i+= FUNCTION_SIZE ) {
+            buffer[ i + FUNCTION_OFFSET ].call(
+                buffer[ i + RECEIVER_OFFSET ] ,
+                buffer[ i + ARGUMENT_OFFSET ] );
         }
         buffer.length = 0;
     }

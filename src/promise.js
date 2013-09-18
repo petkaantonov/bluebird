@@ -87,6 +87,7 @@ CONSTANT(MAX_LENGTH, 0x3FFFFFF);
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
+
     this._bitField = IS_CANCELLABLE;
     //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
@@ -1136,6 +1137,7 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
     ASSERT( isPromise( promise ) );
     ASSERT( typeof mustAsync === "boolean" );
     ASSERT( this._isFollowingOrFulfilledOrRejected() === false );
+    this._setFollowing();
     if( promise.isPending() ) {
         if( promise._cancellable()  ) {
             this._cancellationParent = promise;
@@ -1148,20 +1150,18 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             void 0,
             this._tryAssumeStateOf
         );
-
-        this._setFollowing();
     }
     else if( promise.isFulfilled() ) {
         if( mustAsync )
-            async.invoke( this._fulfill, this, promise._resolvedValue );
+            async.invoke( this._resolveFulfill, this, promise._resolvedValue );
         else
-            this._fulfill( promise._resolvedValue );
+            this._resolveFulfill( promise._resolvedValue );
     }
     else {
         if( mustAsync )
-            async.invoke( this._reject, this, promise._resolvedValue );
+            async.invoke( this._resolveReject, this, promise._resolvedValue );
         else
-            this._reject( promise._resolvedValue );
+            this._resolveReject( promise._resolvedValue );
     }
 
     if( longStackTraces &&
