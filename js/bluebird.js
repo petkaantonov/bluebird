@@ -170,10 +170,7 @@ var rtraceline = null;
 var formatStack = null;
 
 function CapturedTrace( ignoreUntil ) {
-    var a = Error.stackTraceLimit;
-    Error.stackTraceLimit = 1;
     this.captureStackTrace( ignoreUntil );
-    Error.stackTraceLimit = a;
 }
 var method = inherits( CapturedTrace, Error );
 
@@ -808,14 +805,14 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
 Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
     ret._setTrace();
-    ret._fulfill( value );
+    ret._resolveFulfill( value );
     return ret;
 };
 
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
     ret._setTrace();
-    ret._reject( reason );
+    ret._resolveReject( reason );
     return ret;
 };
 
@@ -890,6 +887,11 @@ method._length = function Promise$_length() {
     return this._bitField & 0x3FFFFFF;
 };
 
+method._isFollowingOrFulfilledOrRejected =
+function Promise$_isFollowingOrFulfilledOrRejected() {
+    return ( this._bitField & 0x38000000 ) > 0;
+};
+
 method._setLength = function Promise$_setLength( len ) {
     this._bitField = ( this._bitField & 0x3C000000 ) |
         ( len & 0x3FFFFFF ) ;
@@ -905,6 +907,10 @@ method._setFulfilled = function Promise$_setFulfilled() {
 
 method._setRejected = function Promise$_setRejected() {
     this._bitField = this._bitField | 0x8000000;
+};
+
+method._setFollowing = function Promise$_setFollowing() {
+    this._bitField = this._bitField | 0x20000000;
 };
 
 method._setCancellable = function Promise$_setCancellable() {
@@ -1133,13 +1139,15 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             this._cancellationParent = promise;
         }
         promise._then(
-            this._fulfill,
-            this._reject,
-            this._progress,
+            this._resolveFulfill,
+            this._resolveReject,
+            this._resolveProgress,
             this,
             void 0,
             this._tryAssumeStateOf
         );
+
+        this._setFollowing();
     }
     else if( promise.isFulfilled() ) {
         if( mustAsync )
@@ -1162,69 +1170,14 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
 
 method._tryAssumeStateOf =
 function Promise$_tryAssumeStateOf( value, mustAsync ) {
-    if( !isPromise( value ) ) return false;
+    if( !isPromise( value ) ||
+        this._isFollowingOrFulfilledOrRejected() ) return false;
+
     this._assumeStateOf( value, mustAsync );
     return true;
 };
 
-method._resolveFulfill = function Promise$_resolveFulfill( value ) {
-    var len = this._length();
-    for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._fulfillAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        if( fn !== noop ) {
-            this._resolvePromise(
-                fn,
-                receiver,
-                value,
-                promise
-            );
 
-        }
-        else {
-            async.invoke( promise._fulfill, promise, value );
-        }
-    }
-};
-
-method._resolveReject = function Promise$_resolveReject( reason ) {
-    var len = this._length();
-    var rejectionWasHandled = false;
-    for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._rejectAt( i );
-        var promise = this._promiseAt( i );
-        if( fn !== noop ) {
-            rejectionWasHandled = true;
-            this._resolvePromise(
-                fn,
-                this._receiverAt( i ),
-                reason,
-                promise
-            );
-        }
-        else {
-            if( !rejectionWasHandled )
-                rejectionWasHandled = promise._length() > 0;
-            async.invoke( promise._reject, promise, reason );
-        }
-    }
-    if( !rejectionWasHandled &&
-        isError( reason ) &&
-        CapturedTrace.possiblyUnhandledRejection !== noop
-
-    ) {
-        if( reason.__handled !== true ) {
-            reason.__handled = false;
-            async.invoke(
-                this._unhandledRejection,
-                this,
-                reason
-            );
-        }
-    }
-
-};
 
 method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
@@ -1275,44 +1228,88 @@ method._cleanValues = function Promise$_cleanValues() {
 };
 
 method._fulfill = function Promise$_fulfill( value ) {
-    if( this.isResolved() ) return;
-    this._cleanValues();
-    this._setFulfilled();
-    this._resolvedValue = value;
+    if( this._isFollowingOrFulfilledOrRejected() ) return;
     this._resolveFulfill( value );
 
 };
 
 method._reject = function Promise$_reject( reason ) {
-    if( this.isResolved() ) return;
-    this._setRejected();
-    this._resolvedValue = reason;
+    if( this._isFollowingOrFulfilledOrRejected() ) return;
     this._resolveReject( reason );
-    this._cleanValues();
-};
-
-var contextStack = [];
-method._peekContext = function Promise$_peekContext() {
-    var lastIndex = contextStack.length - 1;
-    if( lastIndex >= 0 ) {
-        return contextStack[ lastIndex ];
-    }
-    return void 0;
-
-};
-
-method._pushContext = function Promise$_pushContext() {
-    if( !longStackTraces ) return;
-    contextStack.push( this );
-};
-
-method._popContext = function Promise$_popContext() {
-    if( !longStackTraces ) return;
-    contextStack.pop();
 };
 
 method._progress = function Promise$_progress( progressValue ) {
-    if( this.isResolved() ) return;
+    if( this._isFollowingOrFulfilledOrRejected() ) return;
+    this._resolveProgress( progressValue );
+
+};
+
+method._resolveFulfill = function Promise$_resolveFulfill( value ) {
+    this._cleanValues();
+    this._setFulfilled();
+    this._resolvedValue = value;
+    var len = this._length();
+    for( var i = 0; i < len; i+= 5 ) {
+        var fn = this._fulfillAt( i );
+        var promise = this._promiseAt( i );
+        var receiver = this._receiverAt( i );
+        if( fn !== noop ) {
+            this._resolvePromise(
+                fn,
+                receiver,
+                value,
+                promise
+            );
+
+        }
+        else {
+            async.invoke( promise._fulfill, promise, value );
+        }
+    }
+};
+
+method._resolveReject = function Promise$_resolveReject( reason ) {
+    this._cleanValues();
+    this._setRejected();
+    this._resolvedValue = reason;
+    var len = this._length();
+    var rejectionWasHandled = false;
+    for( var i = 0; i < len; i+= 5 ) {
+        var fn = this._rejectAt( i );
+        var promise = this._promiseAt( i );
+        if( fn !== noop ) {
+            rejectionWasHandled = true;
+            this._resolvePromise(
+                fn,
+                this._receiverAt( i ),
+                reason,
+                promise
+            );
+        }
+        else {
+            if( !rejectionWasHandled )
+                rejectionWasHandled = promise._length() > 0;
+            async.invoke( promise._reject, promise, reason );
+        }
+    }
+    if( !rejectionWasHandled &&
+        isError( reason ) &&
+        CapturedTrace.possiblyUnhandledRejection !== noop
+
+    ) {
+        if( reason.__handled !== true ) {
+            reason.__handled = false;
+            async.invoke(
+                this._unhandledRejection,
+                this,
+                reason
+            );
+        }
+    }
+
+};
+
+method._resolveProgress = function Promise$_resolveProgress( progressValue ) {
     var len = this._length();
     for( var i = 0; i < len; i += 5 ) {
         var fn = this._progressAt( i );
@@ -1349,6 +1346,27 @@ method._progress = function Promise$_progress( progressValue ) {
         }
     }
 };
+
+var contextStack = [];
+method._peekContext = function Promise$_peekContext() {
+    var lastIndex = contextStack.length - 1;
+    if( lastIndex >= 0 ) {
+        return contextStack[ lastIndex ];
+    }
+    return void 0;
+
+};
+
+method._pushContext = function Promise$_pushContext() {
+    if( !longStackTraces ) return;
+    contextStack.push( this );
+};
+
+method._popContext = function Promise$_popContext() {
+    if( !longStackTraces ) return;
+    contextStack.pop();
+};
+
 
 Promise._all =
 function Promise$_All( promises, PromiseArray, caller ) {
@@ -1745,7 +1763,7 @@ method.timeout = function PromiseResolver$timeout() {
 };
 
 method.isResolved = function PromiseResolver$isResolved() {
-    return this._promise.isResolved();
+    return this.promise.isResolved();
 };
 
 
