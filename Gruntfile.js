@@ -253,24 +253,34 @@ module.exports = function( grunt ) {
                 done();
             }
         }
-
-        var files = testOption === "all"
-            ? fs.readdirSync('test')
-                .concat( "aplus.js" )
-                .concat(fs.readdirSync('test/mocha')
-                    .map(function(fileName){
-                        return "mocha/" + fileName
-                    })
-                )
-            : [testOption + ".js" ];
-
-        if( testOption !== "all" &&
-            !fs.existsSync( "./test/" + files[0] ) ) {
-            files[0] = "mocha/" + files[0];
+        var files;
+        if( testOption === "aplus" ) {
+            files = fs.readdirSync("test/mocha").filter(function(f){
+                return /^\d+\.\d+\.\d+/.test(f);
+            }).map(function( f ){
+                return "mocha/" + f;
+            });
         }
+        else {
+            files = testOption === "all"
+                ? fs.readdirSync('test')
+                    .concat(fs.readdirSync('test/mocha')
+                        .map(function(fileName){
+                            return "mocha/" + fileName
+                        })
+                    )
+                : [testOption + ".js" ];
 
+
+            if( testOption !== "all" &&
+                !fs.existsSync( "./test/" + files[0] ) ) {
+                files[0] = "mocha/" + files[0];
+            }
+        }
         files = files.filter(function(fileName){
             return /\.js$/.test(fileName);
+        }).map(function(f){
+            return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
         });
 
         for( var i = 0, len = files.length; i < len; ++i ) {
@@ -334,6 +344,7 @@ module.exports = function( grunt ) {
         var testOption = grunt.option("run");
         if( !testOption ) testOption = "all";
         else {
+            testOption = ("" + testOption);
             testOption = testOption
                 .replace( /\.js$/, "" )
                 .replace( /[^a-zA-Z0-9_-]/g, "" );

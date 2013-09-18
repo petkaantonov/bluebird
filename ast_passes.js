@@ -46,7 +46,7 @@ function nodeToString( expr ) {
     else if( expr.type === "Literal" ) {
         return expr.raw;
     }
-    else if( expr.type === "BinaryExpression" ) {
+    else if( expr.type === "BinaryExpression" || expr.type === "LogicalExpression" ) {
         return "("+nodeToString(expr.left) + " " +
             expr.operator + " " +
             nodeToString(expr.right) + ")";

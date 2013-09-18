@@ -17,7 +17,9 @@ function subError( constructorName, nameProperty, defaultMessage ) {
         "} return "+constructorName+";")(create);
 }
 
-var TypeError = subError( "TypeError", "TypeError" );
+if( typeof global.TypeError === "undefined" ) {
+    global.TypeError = subError( "TypeError", "TypeError" );
+}
 var CancellationError = subError( "CancellationError",
     "Cancel", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );

@@ -1,15 +1,12 @@
 var file = process.argv[2];
 
-if( file === "aplus.js" ) {
-    var adapter = require("./js/bluebird_debug.js");
-    require("promises-aplus-tests")(adapter, process.exit);
-    return;
-}
+global.adapter = require("./js/bluebird_debug.js");
 
 var Mocha = require("mocha");
 var mochaOpts = {
     reporter: "spec",
-    timeout: 200,
+    timeout: 500, //200 caused non-deterministic test failures
+            //when a test uses timeouts just barely under 200 ms
     slow: Infinity
 };
 

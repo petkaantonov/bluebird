@@ -15,7 +15,8 @@ method.is = function Thenable$is( ret, ref ) {
     try {
         //Retrieving the property may throw
         var id = ret.__id_$thenable__;
-        if( this.thenableCache[id] !== void 0 ) {
+        if( typeof id === "number" &&
+            this.thenableCache[id] !== void 0 ) {
             ref.ref = this.thenableCache[id];
             ref.promise = this.promiseCache[id];
             return true;
@@ -26,6 +27,7 @@ method.is = function Thenable$is( ret, ref ) {
             //caller may read the retrieved value
             //since reading .then again might
             //return something different
+
             ref.ref = then;
             return true;
         }
@@ -43,15 +45,14 @@ method.is = function Thenable$is( ret, ref ) {
 method.addCache = function Thenable$_addCache( thenable, promise ) {
     var id = this.__id__;
     this.__id__ = id + 1;
-
     var descriptor = this._descriptor( id );
     Object.defineProperty( thenable, "__id_$thenable__", descriptor );
-
     this.thenableCache[id] = thenable;
     this.promiseCache[id] = promise;
-
+    ASSERT( this.thenableCache[ thenable.__id_$thenable__ ] === thenable );
     if( this.thenableCache.length > this.treshold ) {
-        this.thenableCacheCompact();
+        this._compactCache();
+        ASSERT( this.thenableCache[ thenable.__id_$thenable__ ] === thenable );
     }
 };
 
@@ -66,7 +67,7 @@ method.deleteCache = function Thenable$deleteCache( thenable ) {
 var descriptor = {
     value: 0,
     enumerable: false,
-    writable: false,
+    writable: true,
     configurable: true
 };
 method._descriptor = function Thenable$_descriptor( id ) {

@@ -65,6 +65,8 @@ function safeToEmbedString( str ) {
 }
 
 function tryCatch1( fn, receiver, arg ) {
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
     try {
         return fn.call( receiver, arg );
     }
@@ -75,6 +77,8 @@ function tryCatch1( fn, receiver, arg ) {
 }
 
 function tryCatch2( fn, receiver, arg, arg2 ) {
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
     try {
         return fn.call( receiver, arg, arg2 );
     }
@@ -85,6 +89,8 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
 }
 
 function tryCatchApply( fn, args ) {
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
     try {
         return fn.apply( void 0, args );
     }
@@ -181,7 +187,9 @@ function subError( constructorName, nameProperty, defaultMessage ) {
         "} return "+constructorName+";")(create);
 }
 
-var TypeError = subError( "TypeError", "TypeError" );
+if( typeof global.TypeError === "undefined" ) {
+    global.TypeError = subError( "TypeError", "TypeError" );
+}
 var CancellationError = subError( "CancellationError",
     "Cancel", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
@@ -508,7 +516,8 @@ var method = Thenable.prototype;
 method.is = function Thenable$is( ret, ref ) {
     try {
         var id = ret.__id_$thenable__;
-        if( this.thenableCache[id] !== void 0 ) {
+        if( typeof id === "number" &&
+            this.thenableCache[id] !== void 0 ) {
             ref.ref = this.thenableCache[id];
             ref.promise = this.promiseCache[id];
             return true;
@@ -530,15 +539,16 @@ method.is = function Thenable$is( ret, ref ) {
 method.addCache = function Thenable$_addCache( thenable, promise ) {
     var id = this.__id__;
     this.__id__ = id + 1;
-
     var descriptor = this._descriptor( id );
     Object.defineProperty( thenable, "__id_$thenable__", descriptor );
-
     this.thenableCache[id] = thenable;
     this.promiseCache[id] = promise;
-
+    ASSERT((this.thenableCache[thenable.__id_$thenable__] === thenable),
+    "this.thenableCache[ thenable.__id_$thenable__ ] === thenable");
     if( this.thenableCache.length > this.treshold ) {
-        this.thenableCacheCompact();
+        this._compactCache();
+        ASSERT((this.thenableCache[thenable.__id_$thenable__] === thenable),
+    "this.thenableCache[ thenable.__id_$thenable__ ] === thenable");
     }
 };
 
@@ -555,7 +565,7 @@ method.deleteCache = function Thenable$deleteCache( thenable ) {
 var descriptor = {
     value: 0,
     enumerable: false,
-    writable: false,
+    writable: true,
     configurable: true
 };
 method._descriptor = function Thenable$_descriptor( id ) {
@@ -959,33 +969,11 @@ Promise.pending = function Promise$Pending( caller ) {
 
 
 Promise.cast = function Promise$Cast( obj ) {
-    if( isObject( obj ) ) {
-        if( obj instanceof Promise ) {
-            return obj;
-        }
-        var ref = { ref: null, promise: null };
-        if( thenable.is( obj, ref ) ) {
-            if( ref.promise != null ) {
-                return ref.promise;
-            }
-            var resolver = Promise.pending();
-            var ret = tryCatch2( ref.ref, obj, function( a ) {
-                async.invokeLater( thenable.deleteCache, thenable, obj );
-                resolver.fulfill( a );
-            }, function( a ) {
-                async.invokeLater( thenable.deleteCache, thenable, obj );
-                resolver.reject( a );
-            });
-            if( ret === errorObj ) {
-                resolver.reject( ret.e );
-            }
-            else {
-                thenable.addCache( obj, resolver.promise );
-            }
-            return resolver.promise;
-        }
+    var ret = cast( obj );
+    if( !( ret instanceof Promise ) ) {
+        return Promise.fulfilled( ret );
     }
-    return Promise.fulfilled( obj );
+    return ret;
 };
 
 Promise.onPossiblyUnhandledRejection =
@@ -1255,6 +1243,59 @@ function Promise$_spreadSlowCase( targetFn, promise, values ) {
     );
 };
 
+
+function cast( obj ) {
+    if( isObject( obj ) ) {
+        if( obj instanceof Promise ) {
+            return obj;
+        }
+        var ref = { ref: null, promise: null };
+        if( thenable.is( obj, ref ) ) {
+            if( ref.promise != null ) {
+                return ref.promise;
+            }
+            var resolver = Promise.pending();
+            thenable.addCache( obj, resolver.promise );
+            var result = ref.ref;
+            if( result === errorObj ) {
+                resolver.reject( result.e );
+                return resolver.promise;
+            }
+            var called = false;
+            var ret = tryCatch2( result, obj, function t( a ) {
+                if( called ) return;
+                called = true;
+                async.invokeLater( thenable.deleteCache, thenable, obj );
+                var b = cast( a );
+                if( b === a ) {
+                    resolver.fulfill( a );
+                }
+                else {
+                    b._then(
+                        resolver.fulfill,
+                        resolver.reject,
+                        void 0,
+                        resolver,
+                        void 0,
+                        t
+                    );
+                }
+            }, function t( a ) {
+                if( called ) return;
+                called = true;
+                async.invokeLater( thenable.deleteCache, thenable, obj );
+                resolver.reject( a );
+            });
+            if( ret === errorObj && !called ) {
+                resolver.reject( ret.e );
+                async.invokeLater( thenable.deleteCache, thenable, obj );
+            }
+            return resolver.promise;
+        }
+    }
+    return obj;
+}
+
 method._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -1314,8 +1355,11 @@ method._resolvePromise = function Promise$_resolvePromise(
             thenable.is( x, ref = {ref: null, promise: null} ) ) {
             if( ref.promise != null ) {
                 promise._assumeStateOf( ref.promise, true );
+
+                return;
             }
-            else if( ref.ref === errorObj ) {
+            thenable.addCache( x, promise );
+            if( ref.ref === errorObj ) {
                 promise._attachExtraTrace( ref.ref.e );
                 async.invoke( promise._reject, promise, ref.ref.e );
             }
@@ -1323,27 +1367,78 @@ method._resolvePromise = function Promise$_resolvePromise(
                 var then = ref.ref;
                 var localX = x;
                 var localP = promise;
-                var threw = tryCatch2(
-                        then,
-                        x,
-                        function( v ) {
-                            async.invokeLater( thenable.deleteCache,
-                                thenable, localX );
-                            async.invoke( localP._fulfill, localP, v );
-                        }, function( v ) {
-                            async.invokeLater( thenable.deleteCache,
-                                thenable, localX );
-                            async.invoke( localP._reject, localP, v );
+                var key = {};
+                var called = false;
+                var t = function t( v ) {
+                    if( called && this !== key ) return;
+                    called = true;
+                    var b = cast( v );
+
+                    if( b !== v ||
+                        ( b instanceof Promise && b.isPending() ) ) {
+                        b._then( t, r, void 0, key, void 0, t);
+                        return;
+                    }
+
+                    var fn = localP._fulfill;
+                    if( b instanceof Promise ) {
+                        var fn = b.isFulfilled()
+                            ? localP._fulfill : localP._reject;
+                        ASSERT(b.isResolved(),
+    "b.isResolved()");
+                        v = v._resolvedValue;
+                        b = cast( v );
+                        ASSERT(((b instanceof Promise) || (b === v)),
+    "b instanceof Promise || b === v");
+                        if( b !== v ||
+                            ( b instanceof Promise && b !== v ) ) {
+                            b._then( t, r, void 0, key, void 0, t);
+                            return;
                         }
-                );
-                if( threw === errorObj ) {
+                    }
+                    async.invoke( fn, localP, v );
+                    async.invokeLater( thenable.deleteCache,
+                            thenable, localX );
+                };
+
+                var r = function r( v ) {
+                    if( called && this !== key ) return;
+                    called = true;
+
+                    var b = cast( v );
+
+                    if( b !== v ||
+                        ( b instanceof Promise && b.isPending() ) ) {
+                        b._then( t, r, void 0, key, void 0, t);
+                        return;
+                    }
+
+                    var fn = localP._reject;
+                    if( b instanceof Promise ) {
+                        var fn = b.isFulfilled()
+                            ? localP._fulfill : localP._reject;
+                        ASSERT(b.isResolved(),
+    "b.isResolved()");
+                        v = v._resolvedValue;
+                        b = cast( v );
+                        if( b !== v ||
+                            ( b instanceof Promise && b.isPending() ) ) {
+                            b._then( t, r, void 0, key, void 0, t);
+                            return;
+                        }
+                    }
+
+                    async.invoke( fn, localP, v );
+                    async.invokeLater( thenable.deleteCache,
+                        thenable, localX );
+
+                };
+                var threw = tryCatch2( then, x, t, r);
+                if( threw === errorObj &&
+                    !called ) {
                     promise._attachExtraTrace( threw.e );
                     async.invoke( promise._reject, promise, threw.e );
                 }
-                else {
-                    thenable.addCache( x, promise );
-                }
-
             }
         }
         else {

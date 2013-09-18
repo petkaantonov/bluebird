@@ -13,6 +13,7 @@ function safeToEmbedString( str ) {
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
 function tryCatch1( fn, receiver, arg ) {
+    ASSERT( typeof fn === "function" );
     try {
         return fn.call( receiver, arg );
     }
@@ -23,6 +24,7 @@ function tryCatch1( fn, receiver, arg ) {
 }
 
 function tryCatch2( fn, receiver, arg, arg2 ) {
+    ASSERT( typeof fn === "function" );
     try {
         return fn.call( receiver, arg, arg2 );
     }
@@ -33,6 +35,7 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
 }
 
 function tryCatchApply( fn, args ) {
+    ASSERT( typeof fn === "function" );
     try {
         return fn.apply( void 0, args );
     }

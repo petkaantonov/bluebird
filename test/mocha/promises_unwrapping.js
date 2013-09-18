@@ -49,52 +49,18 @@ describe("Memoization of thenables", function () {
 
         tuple.fulfill();
 
-        assert.strictEqual(thenable.timesCalled, 0);
-        assert.strictEqual(thenable.timesGotten, 0);
-        var valuesGotten = 0;
+        //setTimeout(function(){
+            assert.strictEqual(thenable.timesCalled, 0);
+            assert.strictEqual(thenable.timesGotten, 0);
+            var valuesGotten = 0;
 
-        adapter.done(derived, function (value) {
-            assert.strictEqual(thenable.timesCalled, 1);
-            assert.strictEqual(thenable.timesGotten, 1);
-            assert.strictEqual(value, sentinel);
-            ++valuesGotten;
-        });
+            adapter.done(derived, function (value) {
+                assert.strictEqual(thenable.timesCalled, 1);
+                assert.strictEqual(thenable.timesGotten, 1);
+                assert.strictEqual(value, sentinel);
+                ++valuesGotten;
+            });
 
-        adapter.done(derived, function (value) {
-            assert.strictEqual(thenable.timesCalled, 1);
-            assert.strictEqual(thenable.timesGotten, 1);
-            assert.strictEqual(value, sentinel);
-            ++valuesGotten;
-        });
-
-        setTimeout(function () {
-            assert.strictEqual(thenable.timesCalled, 1);
-            assert.strictEqual(thenable.timesGotten, 1);
-            assert.strictEqual(valuesGotten, 2);
-            done();
-        }, 50);
-    });
-
-    specify("retrieving a value twice, in sequence, should only call `then` once.", function (done) {
-        var tuple = adapter.pending();
-        var thenable = fulfilledThenable(sentinel);
-        var derived = tuple.promise.then(function () { return thenable; });
-
-        tuple.fulfill();
-
-
-        assert.strictEqual(thenable.timesCalled, 0);
-        assert.strictEqual(thenable.timesGotten, 0);
-        var valuesGotten = 0;
-
-        adapter.done(derived, function (value) {
-            assert.strictEqual(thenable.timesCalled, 1);
-            assert.strictEqual(thenable.timesGotten, 1);
-            assert.strictEqual(value, sentinel);
-            ++valuesGotten;
-        });
-
-        setTimeout(function () {
             adapter.done(derived, function (value) {
                 assert.strictEqual(thenable.timesCalled, 1);
                 assert.strictEqual(thenable.timesGotten, 1);
@@ -107,8 +73,45 @@ describe("Memoization of thenables", function () {
                 assert.strictEqual(thenable.timesGotten, 1);
                 assert.strictEqual(valuesGotten, 2);
                 done();
-            }, 50);
-        }, 50);
+                }, 50);
+        //}, 50 );
+    });
+
+    specify("retrieving a value twice, in sequence, should only call `then` once.", function (done) {
+        var tuple = adapter.pending();
+        var thenable = fulfilledThenable(sentinel);
+        var derived = tuple.promise.then(function () { return thenable; });
+
+        tuple.fulfill();
+
+        //setTimeout( function() {
+                assert.strictEqual(thenable.timesCalled, 0);
+                assert.strictEqual(thenable.timesGotten, 0);
+                var valuesGotten = 0;
+
+                adapter.done(derived, function (value) {
+                    assert.strictEqual(thenable.timesCalled, 1);
+                    assert.strictEqual(thenable.timesGotten, 1);
+                    assert.strictEqual(value, sentinel);
+                    ++valuesGotten;
+                });
+
+                setTimeout(function () {
+                    adapter.done(derived, function (value) {
+                        assert.strictEqual(thenable.timesCalled, 1);
+                        assert.strictEqual(thenable.timesGotten, 1);
+                        assert.strictEqual(value, sentinel);
+                        ++valuesGotten;
+                    });
+
+                    setTimeout(function () {
+                        assert.strictEqual(thenable.timesCalled, 1);
+                        assert.strictEqual(thenable.timesGotten, 1);
+                        assert.strictEqual(valuesGotten, 2);
+                        done();
+                    }, 50);
+                }, 50);
+        //}, 50);
     });
 
     specify("when multiple promises are resolved to the thenable", function (done) {
@@ -143,8 +146,6 @@ describe("Memoization of thenables", function () {
     });
 });
 
-
-// Does not work even in Node 0.11.7 --harmony, since Array is not iterable yet I guess? So skipping.
 describe("Promise.all", function () {
     it("fulfills if passed an empty array", function (done) {
         adapter.done(Promise.all([]), function (value) {
