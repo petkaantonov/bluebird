@@ -445,17 +445,25 @@ method._reset = function Async$_reset() {
 return Async;})();
 
 var async = new Async();
+var Thenable = (function() {
 
-var bindDefer = function bindDefer( fn, receiver ) {
-    return function deferBound( arg ) {
-        fn.call(receiver, arg);
-    };
-};
+function Thenable() {
+    this.errorObj = errorObj;
+    this.__id__ = 0;
+    this.treshold = 1000;
+    this.thenableCache = new Array( this.treshold );
+    this.promiseCache = new Array( this.treshold );
+}
+var method = Thenable.prototype;
 
-var Promise = (function() {
-
-function isThenable( ret, ref ) {
+method.is = function Thenable$is( ret, ref ) {
     try {
+        var id = ret.__id_$thenable__;
+        if( this.thenableCache[id] !== void 0 ) {
+            ref.ref = this.thenableCache[id];
+            ref.promise = this.promiseCache[id];
+            return true;
+        }
         var then = ret.then;
         if( typeof then === "function" ) {
             ref.ref = then;
@@ -464,11 +472,76 @@ function isThenable( ret, ref ) {
         return false;
     }
     catch(e) {
-        errorObj.e = e;
-        ref.ref = errorObj;
+        this.errorObj.e = e;
+        ref.ref = this.errorObj;
         return true;
     }
-}
+};
+
+method.addCache = function Thenable$_addCache( thenable, promise ) {
+    var id = this.__id__;
+    this.__id__ = id + 1;
+
+    var descriptor = this._descriptor( id );
+    Object.defineProperty( thenable, "__id_$thenable__", descriptor );
+
+    this.thenableCache[id] = thenable;
+    this.promiseCache[id] = promise;
+
+    if( this.thenableCache.length > this.treshold ) {
+        this.thenableCacheCompact();
+    }
+};
+
+method.deleteCache = function Thenable$deleteCache( thenable ) {
+    var id = thenable.__id_$thenable__;
+    this.thenableCache[id] = void 0;
+    this.promiseCache[id] = void 0;
+};
+
+var descriptor = {
+    value: 0,
+    enumerable: false,
+    writable: false,
+    configurable: true
+};
+method._descriptor = function Thenable$_descriptor( id ) {
+    descriptor.value = id;
+    return descriptor;
+};
+
+method._compactCache = function Thenable$_compactCache() {
+    var arr = this.thenableCache;
+    var promiseArr = this.promiseCache;
+    var skips = 0;
+    var j = 0;
+    for( var i = 0, len = arr.length; i < len; ++i ) {
+        var item = arr[ i ];
+        if( item === void 0 ) {
+            skips++;
+        }
+        else {
+            promiseArr[ j ] = promiseArr[ i ];
+            item.__id_$thenable__ = j;
+            arr[ j++ ] = item;
+        }
+    }
+    var newId = arr.length - skips;
+    if( newId === this.__id__ ) {
+        this.treshold *= 2;
+    }
+    else for( var i = newId, len = arr.length; i < len; ++i ) {
+        promiseArr[ j ] = arr[i] = void 0;
+    }
+
+    this.__id__ = newId;
+};
+
+
+
+
+return Thenable;})();
+var Promise = (function() {
 
 function isObject( value ) {
     if( value === null ) {
@@ -498,6 +571,7 @@ var isArray = Arr.isArray || function( obj ) {
 var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
+var thenable = new Thenable( errorObj );
 
 function Promise( resolver ) {
     if( typeof resolver === "function" )
@@ -808,6 +882,9 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
 Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
     ret._setTrace();
+    if( ret._tryAssumeStateOf( value, false ) ) {
+        return ret;
+    }
     ret._resolveFulfill( value );
     return ret;
 };
@@ -828,14 +905,28 @@ Promise.pending = function Promise$Pending( caller ) {
 
 Promise.cast = function Promise$Cast( obj ) {
     if( isObject( obj ) ) {
-        var ref = {ref: null};
-        if( isThenable( obj, ref ) ) {
+        if( obj instanceof Promise ) {
+            return obj;
+        }
+        var ref = { ref: null, promise: null };
+        if( thenable.is( obj, ref ) ) {
+            if( ref.promise != null ) {
+                return ref.promise;
+            }
             var resolver = Promise.pending();
-            ref.ref.call(obj, function( a ) {
+            var ret = tryCatch2( ref.ref, obj, function( a ) {
+                async.invokeLater( thenable.deleteCache, thenable, obj );
                 resolver.fulfill( a );
             }, function( a ) {
+                async.invokeLater( thenable.deleteCache, thenable, obj );
                 resolver.reject( a );
             });
+            if( ret === errorObj ) {
+                resolver.reject( ret.e );
+            }
+            else {
+                thenable.addCache( obj, resolver.promise );
+            }
             return resolver.promise;
         }
     }
@@ -1106,23 +1197,40 @@ method._resolvePromise = function Promise$_resolvePromise(
         if( promise._tryAssumeStateOf( x, true ) ) {
             return;
         }
-        else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
-            if( ref.ref === errorObj ) {
+        else if( isObject( x ) &&
+            thenable.is( x, ref = {ref: null, promise: null} ) ) {
+            if( ref.promise != null ) {
+                promise._assumeStateOf( ref.promise, true );
+            }
+            else if( ref.ref === errorObj ) {
                 promise._attachExtraTrace( ref.ref.e );
                 promise._reject(ref.ref.e);
             }
             else {
                 var then = ref.ref;
+                var localX = x;
+                var localP = promise;
                 var threw = tryCatch2(
                         then,
                         x,
-                        bindDefer( promise._fulfill, promise ),
-                        bindDefer( promise._reject, promise )
+                        function( v ) {
+                            async.invokeLater( thenable.deleteCache,
+                                thenable, localX );
+                            localP._fulfill(v);
+                        }, function( v ) {
+                            async.invokeLater( thenable.deleteCache,
+                                thenable, localX );
+                            localP._reject(v);
+                        }
                 );
                 if( threw === errorObj ) {
                     promise._attachExtraTrace( threw.e );
                     promise._reject(threw.e);
                 }
+                else {
+                    thenable.addCache( x, promise );
+                }
+
             }
         }
         else {
@@ -1470,9 +1578,9 @@ method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        if( !isPromise( promise ) ) {
-            promise = Promise.fulfilled( promise );
-        }
+
+        promise = Promise.cast( promise );
+
         promise._then(
             this._promiseFulfilled,
             this._promiseRejected,

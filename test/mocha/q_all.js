@@ -100,20 +100,16 @@ describe("all", function () {
         .timeout(1000);
     });
 
-    /*
-    Disagree with this even in A+ spec, libraries should never do
-    such reckless duck typing where arbitrary types may appear
-
     it("resolves foreign thenables", function () {
         var normal = Q(1);
         var foreign = { then: function (f) { f(2); } };
 
         return Q.all([normal, foreign])
         .then(function (result) {
-            assert.equal(result).toEqual([1, 2]);
+            assert.deepEqual(result,[1, 2]);
         });
     });
-    */
+
 
     it("fulfills when passed an sparse array", function () {
         var toResolve = Q.defer();

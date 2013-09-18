@@ -95,9 +95,9 @@ method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        if( !isPromise( promise ) ) {
-            promise = Promise.fulfilled( promise );
-        }
+
+        promise = Promise.cast( promise );
+
         promise._then(
             this._promiseFulfilled,
             this._promiseRejected,

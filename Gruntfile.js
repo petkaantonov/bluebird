@@ -95,6 +95,7 @@ module.exports = function( grunt ) {
                 "./src/captured_trace.js",
                 "./src/caches.js",
                 "./src/async.js",
+                "./src/thenable.js",
                 "./src/promise.js",
                 "./src/promise_array.js",
                 "./src/settled_promise_array.js",

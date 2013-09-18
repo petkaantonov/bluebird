@@ -8,7 +8,7 @@ var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
 
-describe("A promise A that is following a promise B", function() {
+describe("a promise A that is following a promise B", function() {
     specify("Must not react to fulfill/reject/progress that don't come from promise B", function(done) {
         var deferred = Promise.pending();
         var promiseA = deferred.promise;
@@ -85,4 +85,35 @@ describe("A promise A that is following a promise B", function() {
 
     });
 
+    specify("Should be instantly fulfilled with Bs fulfillment value if B was fulfilled", function(done) {
+        var val = {};
+        var B = Promise.fulfilled(val);
+        var A = Promise.fulfilled(B);
+        assert.equal( A.inspect().value(), val );
+        assert.equal( A.inspect().value(), B.inspect().value() );
+        done();
+    });
+
+    specify("Should be instantly fulfilled with Bs parent fulfillment value if B was fulfilled with a parent", function(done) {
+        var val = {};
+        var parent = Promise.fulfilled(val);
+        var B = Promise.fulfilled(parent);
+        var A = Promise.fulfilled(B);
+        assert.equal( A.inspect().value(), val );
+        assert.equal( A.inspect().value(), B.inspect().value() );
+        assert.equal( A.inspect().value(), parent.inspect().value() );
+        done();
+    });
+
+
+});
+
+describe("Rejecting a promise A with promise B", function(){
+    specify("Should reject promise A with B as reason ", function(done) {
+        var val = {};
+        var B = Promise.fulfilled(val);
+        var A = Promise.rejected(B);
+        assert.equal( A.inspect().error(), B );
+        done();
+    });
 });

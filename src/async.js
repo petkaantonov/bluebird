@@ -123,9 +123,3 @@ method._reset = function Async$_reset() {
 return Async;})();
 
 var async = new Async();
-
-var bindDefer = function bindDefer( fn, receiver ) {
-    return function deferBound( arg ) {
-        async.invoke( fn, receiver, arg );
-    };
-};

@@ -1,30 +1,5 @@
 var Promise = (function() {
 
-function isThenable( ret, ref ) {
-    //Do try catching since retrieving non-existent
-    //properties slows down anyway
-    try {
-        //Retrieving the property may throw
-        var then = ret.then;
-        if( typeof then === "function" ) {
-            //Faking a reference so that the
-            //caller may read the retrieved value
-            //since reading .then again might
-            //return something different
-            ref.ref = then;
-            return true;
-        }
-        return false;
-    }
-    catch(e) {
-        errorObj.e = e;
-        ref.ref = errorObj;
-        //This idiosyncrasy is because of how the
-        //caller code is currently layed out..
-        return true;
-    }
-}
-
 function isObject( value ) {
     //no need to check for undefined twice
     if( value === null ) {
@@ -54,6 +29,7 @@ var isArray = Arr.isArray || function( obj ) {
 var APPLY = {};
 var UNRESOLVED = {};
 var noop = function(){};
+var thenable = new Thenable( errorObj );
 
 CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
 CONSTANT(CALLBACK_REJECT_OFFSET, 1);
@@ -668,6 +644,9 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
 Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
     ret._setTrace();
+    if( ret._tryAssumeStateOf( value, false ) ) {
+        return ret;
+    }
     ret._resolveFulfill( value );
     return ret;
 };
@@ -733,14 +712,28 @@ Promise.pending = function Promise$Pending( caller ) {
  */
 Promise.cast = function Promise$Cast( obj ) {
     if( isObject( obj ) ) {
-        var ref = {ref: null};
-        if( isThenable( obj, ref ) ) {
+        if( obj instanceof Promise ) {
+            return obj;
+        }
+        var ref = { ref: null, promise: null };
+        if( thenable.is( obj, ref ) ) {
+            if( ref.promise != null ) {
+                return ref.promise;
+            }
             var resolver = Promise.pending();
-            ref.ref.call(obj, function( a ) {
+            var ret = tryCatch2( ref.ref, obj, function( a ) {
+                async.invokeLater( thenable.deleteCache, thenable, obj );
                 resolver.fulfill( a );
             }, function( a ) {
+                async.invokeLater( thenable.deleteCache, thenable, obj );
                 resolver.reject( a );
             });
+            if( ret === errorObj ) {
+                resolver.reject( ret.e );
+            }
+            else {
+                thenable.addCache( obj, resolver.promise );
+            }
             return resolver.promise;
         }
     }
@@ -1094,27 +1087,38 @@ method._resolvePromise = function Promise$_resolvePromise(
             return;
         }
         //3. Otherwise, if x is an object or function,
-                        //(TODO) isThenable is far more thorough
-                        //than other libraries?
-        else if( isObject( x ) && isThenable( x, ref = {ref: null} ) ) {
+        else if( isObject( x ) &&
+            thenable.is( x, ref = {ref: null, promise: null} ) ) {
+            if( ref.promise != null ) {
+                promise._assumeStateOf( ref.promise, true );
+            }
             //3.2 If retrieving the property x.then
             //results in a thrown exception e,
             //reject promise with e as the reason.
-            if( ref.ref === errorObj ) {
+            else if( ref.ref === errorObj ) {
                 promise._attachExtraTrace( ref.ref.e );
                 async.invoke( promise._reject, promise, ref.ref.e );
             }
             else {
                 //3.1. Let then be x.then
                 var then = ref.ref;
+                var localX = x;
+                var localP = promise;
                 //3.3 If then is a function, call it with x as this,
                 //first argument resolvePromise, and
                 //second argument rejectPromise
                 var threw = tryCatch2(
                         then,
                         x,
-                        bindDefer( promise._fulfill, promise ),
-                        bindDefer( promise._reject, promise )
+                        function( v ) {
+                            async.invokeLater( thenable.deleteCache,
+                                thenable, localX );
+                            async.invoke( localP._fulfill, localP, v );
+                        }, function( v ) {
+                            async.invokeLater( thenable.deleteCache,
+                                thenable, localX );
+                            async.invoke( localP._reject, localP, v );
+                        }
                 );
                 //3.3.4 If calling then throws an exception e,
                 if( threw === errorObj ) {
@@ -1122,6 +1126,10 @@ method._resolvePromise = function Promise$_resolvePromise(
                     //3.3.4.2 Otherwise, reject promise with e as the reason.
                     async.invoke( promise._reject, promise, threw.e );
                 }
+                else {
+                    thenable.addCache( x, promise );
+                }
+
             }
         }
         // 3.4 If then is not a function, fulfill promise with x.
