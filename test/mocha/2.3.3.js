@@ -986,5 +986,8 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
         testFulfillViaNonFunction([function () { }], "an array containing a function");
         testFulfillViaNonFunction(/a-b/i, "a regular expression");
         testFulfillViaNonFunction(Object.create(Function.prototype), "an object inheriting from `Function.prototype`");
+
+
+
     });
 });

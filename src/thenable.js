@@ -1,5 +1,12 @@
 var Thenable = (function() {
 
+//Pending promises are not garbage collected anyway
+//so this works as a weak map as addition and deletion
+//are all done from internal code
+
+//(TODO) Perf is already pretty bad if one insists on using
+//non-real promises so instead of using funky expando property
+//should use identity array with O(N) lookup
 function Thenable() {
     this.errorObj = errorObj;
     this.__id__ = 0;
@@ -62,8 +69,15 @@ method.deleteCache = function Thenable$deleteCache( thenable ) {
     var id = thenable.__id_$thenable__;
     ASSERT( typeof id === "number" );
     ASSERT( (id | 0) === id );
+    if( id === -1 ) {
+        return;
+    }
+    ASSERT( id > -1 );
+    ASSERT( id < this.__id__ );
+    ASSERT( this.thenableCache[id] === thenable );
     this.thenableCache[id] = void 0;
     this.promiseCache[id] = void 0;
+    thenable.__id_$thenable__ = -1; //dont delete the property
 };
 
 var descriptor = {
