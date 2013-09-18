@@ -23,14 +23,15 @@ Q.when = function() {
     return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
 };
 
-Q.delay = function(ms) {
-    return new Promise(function(resolver){
-        setTimeout(function(){
-            resolver.fulfill();
-        }, ms);
-    });
+var freeMs;
+function resolver( fulfill ) {
+    setTimeout(fulfill, freeMs );
 };
 
+Q.delay = function(ms) {
+    freeMs = ms;
+    return new Promise(resolver);
+};
 Promise.prototype.delay = function(ms) {
     return this.then(function(){
         return Q.delay(ms);

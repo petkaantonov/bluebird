@@ -900,12 +900,17 @@ method._progressAt = function Promise$_progressAt( index ) {
     return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
 };
 
+var fulfiller = new Function("p",
+    "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
+var rejecter = new Function("p",
+    "'use strict';return function Promise$_rejecter(a){ p.reject( a ); }" );
+
 method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
     this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
     this._pushContext();
-    var r = tryCatch1( resolver, this, p );
+    var r = tryCatch2( resolver, this, fulfiller( p ), rejecter( p ) );
     this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );

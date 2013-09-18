@@ -170,7 +170,10 @@ var rtraceline = null;
 var formatStack = null;
 
 function CapturedTrace( ignoreUntil ) {
+    var a = Error.stackTraceLimit;
+    Error.stackTraceLimit = 1;
     this.captureStackTrace( ignoreUntil );
+    Error.stackTraceLimit = a;
 }
 var method = inherits( CapturedTrace, Error );
 
@@ -937,11 +940,16 @@ method._progressAt = function Promise$_progressAt( index ) {
     return this[ index + 2 - 5 ];
 };
 
+var fulfiller = new Function("p",
+    "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
+var rejecter = new Function("p",
+    "'use strict';return function Promise$_rejecter(a){ p.reject( a ); }" );
+
 method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     this._setTrace( this._resolveResolver );
     var p = new PromiseResolver( this );
     this._pushContext();
-    var r = tryCatch1( resolver, this, p );
+    var r = tryCatch2( resolver, this, fulfiller( p ), rejecter( p ) );
     this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );

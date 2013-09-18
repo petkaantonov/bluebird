@@ -10,7 +10,6 @@ var PromiseResolver = (function() {
  * @constructor
  */
 function PromiseResolver( promise ) {
-    //(TODO) Make this a method and use a custom adapter to pass tests
     this.promise = promise;
 }
 var method = PromiseResolver.prototype;
@@ -80,7 +79,7 @@ method.timeout = function PromiseResolver$timeout() {
  * @return {boolean}
  */
 method.isResolved = function PromiseResolver$isResolved() {
-    return this._promise.isResolved();
+    return this.promise.isResolved();
 };
 
 

@@ -22,13 +22,14 @@ Q.progress = function(p, cb) {
 Q.when = function() {
     return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
 };
+var freeMs;
+function resolver( fulfill ) {
+    setTimeout(fulfill, freeMs );
+};
 
 Q.delay = function(ms) {
-    return new Promise(function(resolver){
-        setTimeout(function(){
-            resolver.fulfill();
-        }, ms);
-    });
+    freeMs = ms;
+    return new Promise(resolver);
 };
 
 Q.defer = function() {

@@ -24,26 +24,11 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 (function(buster, define) {
 
+
 var assert, fail, sentinel;
 
 assert = buster.assert;
 fail = buster.assertions.fail;
-
-function throwOnError(e) {
-    var stack = e.error.stack;
-    var message = "";
-    if( stack ) {
-        message = stack;
-    }
-    else {
-        message = e.error.name + " in '" + e.name + "' " + e.error.message;
-    }
-    console.error(message);
-    process.exit(-1);
-}
-buster.eventEmitter.on( "test:failure", throwOnError);
-buster.eventEmitter.on( "test:timeout", throwOnError);
-
 
 sentinel = {};
 
