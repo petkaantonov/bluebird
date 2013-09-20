@@ -11,7 +11,14 @@ module.exports = function run( done ) {
 
         if( i >= files.length ) done();
         else {
-            var node = spawn('node', ["./benchmark/cujotests/" + files[i]]);
+            var args =  ["./benchmark/cujotests/" + files[i]];
+            var name = "node";
+
+
+            //name = "nodex64";
+            //args.unshift.apply(args, ["--trace_inlining", "--trace_deopt", "--trace_normalization", "--trace_generalization", "--trace_array_abuse", "--trace_stub_failures", "--trace_gc_ignore_scavenger", "--trace_elements_transitions", "--code_comments"]);
+
+            var node = spawn( name, args);
             node.stdout.on('data', function( data ) {
                 process.stdout.write(data);
             });

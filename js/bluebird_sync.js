@@ -459,27 +459,31 @@ function Thenable() {
 }
 var method = Thenable.prototype;
 
-method.is = function Thenable$is( ret, ref ) {
-    try {
-        var id = ret.__id_$thenable__;
-        if( typeof id === "number" &&
-            this.thenableCache[id] !== void 0 ) {
-            ref.ref = this.thenableCache[id];
-            ref.promise = this.promiseCache[id];
-            return true;
-        }
-        var then = ret.then;
-        if( typeof then === "function" ) {
-            ref.ref = then;
-            return true;
-        }
+method.couldBe = function Thenable$couldBe( ret ) {
+    if( ret === null ||
+        typeof ret === "undefined" ||
+        typeof ret === "string" ||
+        typeof ret === "boolean" ||
+        typeof ret === "number" ) {
         return false;
     }
-    catch(e) {
-        this.errorObj.e = e;
-        ref.ref = this.errorObj;
+    var id = ret.__id_$thenable__;
+    if( typeof id === "number" &&
+        this.thenableCache[id] !== void 0 ) {
         return true;
     }
+    return ("then" in ret);
+};
+
+method.is = function Thenable$is( ret, ref ) {
+    var id = ret.__id_$thenable__;
+    if( typeof id === "number" &&
+        this.thenableCache[id] !== void 0 ) {
+        ref.ref = this.thenableCache[id];
+        ref.promise = this.promiseCache[id];
+        return true;
+    }
+    return this._thenableSlowCase( ret, ref );
 };
 
 method.addCache = function Thenable$_addCache( thenable, promise ) {
@@ -544,6 +548,22 @@ method._compactCache = function Thenable$_compactCache() {
     this._compactQueued = false;
 };
 
+method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
+    try {
+        var then = ret.then;
+        if( typeof then === "function" ) {
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
+    catch(e) {
+        this.errorObj.e = e;
+        ref.ref = this.errorObj;
+        return true;
+    }
+};
+
 
 
 
@@ -576,23 +596,21 @@ var isArray = Arr.isArray || function( obj ) {
 
 
 var APPLY = {};
-var UNRESOLVED = {};
-var noop = function(){};
 var thenable = new Thenable( errorObj );
 
 function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
 
+
     this._bitField = 0x4000000;
-    this._fulfill0 =
-    this._reject0 =
-    this._progress0 =
-    this._promise0 =
-    this._receiver0 =
-        void 0;
-    this._resolvedValue = UNRESOLVED;
-    this._cancellationParent = null;
+    this._fulfill0 = void 0;
+    this._reject0 = void 0;
+    this._progress0 = void 0;
+    this._promise0 = void 0;
+    this._receiver0 = void 0;
+    this._resolvedValue = void 0;
+    this._cancellationParent = void 0;
     if( longStackTraces ) this._traceParent = this._peekContext();
 }
 
@@ -668,7 +686,7 @@ method.inspect = function Promise$inspect() {
 method.cancel = function Promise$cancel() {
     if( !this.isCancellable() ) return this;
     var cancelTarget = this;
-    while( cancelTarget._cancellationParent !== null ) {
+    while( cancelTarget._cancellationParent !== void 0 ) {
         cancelTarget = cancelTarget._cancellationParent;
     }
     if( cancelTarget === this ) {
@@ -693,7 +711,7 @@ method.uncancellable = function Promise$uncancellable() {
 method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
     var ret = this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.fork );
-    ret._cancellationParent = null;
+    ret._cancellationParent = void 0;
     return ret;
 };
 
@@ -892,14 +910,18 @@ Promise.fulfilled = function Promise$Fulfilled( value ) {
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
-    ret._resolveFulfill( value );
+    ret._cleanValues();
+    ret._setFulfilled();
+    ret._resolvedValue = value;
     return ret;
 };
 
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
     ret._setTrace();
-    ret._resolveReject( reason );
+    ret._cleanValues();
+    ret._setRejected();
+    ret._resolvedValue = reason;
     return ret;
 };
 
@@ -924,7 +946,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
         CapturedTrace.possiblyUnhandledRejection = fn;
     }
     else {
-        CapturedTrace.possiblyUnhandledRejection = noop;
+        CapturedTrace.possiblyUnhandledRejection = void 0;
     }
 };
 
@@ -1067,9 +1089,9 @@ method._addCallbacks = function Promise$_addCallbacks(
     promise,
     receiver
 ) {
-    fulfill = typeof fulfill === "function" ? fulfill : noop;
-    reject = typeof reject === "function" ? reject : noop;
-    progress = typeof progress === "function" ? progress : noop;
+    fulfill = typeof fulfill === "function" ? fulfill : void 0;
+    reject = typeof reject === "function" ? reject : void 0;
+    progress = typeof progress === "function" ? progress : void 0;
     var index = this._length();
 
     if( index === 0 ) {
@@ -1130,7 +1152,7 @@ method._resolveLast = function Promise$_resolveLast( index ) {
 
     var obj = this._resolvedValue;
     var ret = obj;
-    if( fn !== noop ) {
+    if( fn !== void 0 ) {
         this._resolvePromise( fn, receiver, obj, promise );
     }
     else if( this.isFulfilled() ) {
@@ -1203,14 +1225,10 @@ function cast( obj ) {
     return obj;
 }
 
-method._tryThenable = function Promise$_tryThenable( x ) {
-    var ref;
-    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
-        return false;
-    }
+method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
     if( ref.promise != null ) {
         this._assumeStateOf( ref.promise, true );
-        return true;
+        return;
     }
     if( ref.ref === errorObj ) {
         this._attachExtraTrace( ref.ref.e );
@@ -1287,6 +1305,14 @@ method._tryThenable = function Promise$_tryThenable( x ) {
             thenable.deleteCache(x);
         }
     }
+};
+
+method._tryThenable = function Promise$_tryThenable( x ) {
+    var ref;
+    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
+        return false;
+    }
+    this._resolveThenable( x, ref );
     return true;
 };
 
@@ -1340,7 +1366,8 @@ method._resolvePromise = function Promise$_resolvePromise(
         if( promise._tryAssumeStateOf( x, true ) ) {
             return;
         }
-        else if( isObject( x ) ) {
+        else if( thenable.couldBe( x ) ) {
+
             if( promise._length() === 0 ) {
                 promise._resolvedValue = x;
                 promise._setDelegated();
@@ -1445,7 +1472,7 @@ method._unhandledRejection = function Promise$_unhandledRejection( reason ) {
 };
 
 method._cleanValues = function Promise$_cleanValues() {
-    this._cancellationParent = null;
+    this._cancellationParent = void 0;
 };
 
 method._fulfill = function Promise$_fulfill( value ) {
@@ -1474,7 +1501,7 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
         var receiver = this._receiverAt( i );
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             this._resolvePromise(
                 fn,
                 receiver,
@@ -1498,7 +1525,7 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             rejectionWasHandled = true;
             this._resolvePromise(
                 fn,
@@ -1515,7 +1542,7 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     }
     if( !rejectionWasHandled &&
         isError( reason ) &&
-        CapturedTrace.possiblyUnhandledRejection !== noop
+        CapturedTrace.possiblyUnhandledRejection !== void 0
 
     ) {
         if( reason.__handled !== true ) {
@@ -1536,7 +1563,7 @@ method._resolveProgress = function Promise$_resolveProgress( progressValue ) {
             continue;
         }
         var ret = progressValue;
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             this._pushContext();
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
             this._popContext();
@@ -1601,9 +1628,9 @@ function Promise$_All( promises, PromiseArray, caller ) {
 
 
 if( !CapturedTrace.isSupported() ) {
-    Promise.longStackTraces = noop;
-    CapturedTrace.possiblyUnhandledRejection = noop;
-    Promise.onPossiblyUnhandledRejection = noop;
+    Promise.longStackTraces = void 0;
+    CapturedTrace.possiblyUnhandledRejection = void 0;
+    Promise.onPossiblyUnhandledRejection = void 0;
     longStackTraces = false;
 }
 

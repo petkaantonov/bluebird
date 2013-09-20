@@ -32,9 +32,6 @@ test.run(Object.keys(libs).map(function mapper(name) {
 function runTest(name, lib) {
     var start, d;
 
-    // Start timer
-    start = Date.now();
-
     d = lib.pending();
     d.fulfill(0);
 
@@ -49,7 +46,30 @@ function runTest(name, lib) {
             d.fulfill(currentVal + nextVal);
             return d.promise;
         });
-    }, d.promise).then(function result() {
-        test.addResult(name, Date.now() - start);
+    }, d.promise).then(function(){
+
+        // Start timer
+        start = Date.now();
+
+        d = lib.pending();
+        d.fulfill(0);
+
+        // Use reduce to chain <iteration> number of promises back
+        // to back.  The final result will only be computed after
+        // all promises have resolved
+        return array.reduce(function outer(promise, nextVal) {
+            return promise.then(function inner(currentVal) {
+                // Uncomment if you want progress indication:
+                //if(nextVal % 1000 === 0) console.log(name, nextVal);
+                var d = lib.pending();
+                d.fulfill(currentVal + nextVal);
+                return d.promise;
+            });
+        }, d.promise).then(function result() {
+            test.addResult(name, Date.now() - start);
+        });
+
     });
+
+
 }

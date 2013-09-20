@@ -17,24 +17,31 @@ iterations = 10000;
 test = new Test('defer-reject', iterations);
 
 for(var lib in libs) {
-	runTest(lib, libs[lib].pending);
+    runTest(lib, libs[lib].pending);
 }
 
 test.report();
 
 function runTest(name, createDeferred) {
-	var start, d;
+    var start, d;
 
-	start = Date.now();
-	for(i = 0; i<iterations; i++) {
-		d = createDeferred();
-		d.promise.then(addOne);
-		d.reject(i);
-	}
+    for(i = 0; i<iterations; i++) {
+        d = createDeferred();
+        d.promise.then(addOne);
+        d.reject(i);
+    }
 
-	test.addResult(name, Date.now() - start);
+
+    start = Date.now();
+    for(i = 0; i<iterations; i++) {
+        d = createDeferred();
+        d.promise.then(addOne);
+        d.reject(i);
+    }
+
+    test.addResult(name, Date.now() - start);
 }
 
 function addOne(x) {
-	return x + 1;
+    return x + 1;
 }

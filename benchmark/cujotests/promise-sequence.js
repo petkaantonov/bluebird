@@ -36,9 +36,6 @@ test.run(Object.keys(libs).map(function(name) {
 function runTest(name, lib) {
     var start;
 
-    // Start timer
-    start = Date.now();
-
     // Use reduce to chain <iteration> number of promises back
     // to back.  The final result will only be computed after
     // all promises have resolved
@@ -49,8 +46,18 @@ function runTest(name, lib) {
             //if(nextVal % 1000 === 0) console.log(name, nextVal);
             return lib.fulfilled(currentVal + nextVal);
         });
-    }, lib.fulfilled(0)).then(function() {
-        test.addResult(name, Date.now() - start);
+    }, lib.fulfilled(0)).then(function () {
+        // Start timer
+        start = Date.now();
+        return array.reduce(function outer(promise, nextVal) {
+            return promise.then(function inner(currentVal) {
+                // Uncomment if you want progress indication:
+                //if(nextVal % 1000 === 0) console.log(name, nextVal);
+                return lib.fulfilled(currentVal + nextVal);
+            });
+        }, lib.fulfilled(0)).then(function () {
+            test.addResult(name, Date.now() - start);
+        });
     });
 
 

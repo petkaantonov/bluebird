@@ -33,15 +33,17 @@ function runTest(name, lib) {
     });
     var last = a[a.length-1];
     var ret = lib.pending();
-    last.then(function(){
-        var start = Date.now();
-
-        lib.map(a, function(value) {
+    last.then(function () {
+        lib.map(a, function (value) {
             return lib.fulfilled(value * 2);
-        })
-        .then(function(a) {
-            test.addResult(name, Date.now() - start);
-            ret.fulfill(a);
+        }).then(function () {
+            var start = Date.now();
+            lib.map(a, function (value) {
+                return lib.fulfilled(value * 2);
+            }).then(function (a) {
+                test.addResult(name, Date.now() - start);
+                ret.fulfill(a);
+            });
         });
     });
     return ret.promise;

@@ -17,37 +17,31 @@ function Thenable() {
 }
 var method = Thenable.prototype;
 
-method.is = function Thenable$is( ret, ref ) {
-    //Do try catching since retrieving non-existent
-    //properties slows down anyway
-    try {
-        //Retrieving the property may throw
-        var id = ret.__id_$thenable__;
-        if( typeof id === "number" &&
-            this.thenableCache[id] !== void 0 ) {
-            ref.ref = this.thenableCache[id];
-            ref.promise = this.promiseCache[id];
-            return true;
-        }
-        var then = ret.then;
-        if( typeof then === "function" ) {
-            //Faking a reference so that the
-            //caller may read the retrieved value
-            //since reading .then again might
-            //return something different
-
-            ref.ref = then;
-            return true;
-        }
+method.couldBe = function Thenable$couldBe( ret ) {
+    if( ret === null ||
+        typeof ret === "undefined" ||
+        typeof ret === "string" ||
+        typeof ret === "boolean" ||
+        typeof ret === "number" ) {
         return false;
     }
-    catch(e) {
-        this.errorObj.e = e;
-        ref.ref = this.errorObj;
-        //This idiosyncrasy is because of how the
-        //caller code is currently layed out..
+    var id = ret.__id_$thenable__;
+    if( typeof id === "number" &&
+        this.thenableCache[id] !== void 0 ) {
         return true;
     }
+    return ("then" in ret);
+};
+
+method.is = function Thenable$is( ret, ref ) {
+    var id = ret.__id_$thenable__;
+    if( typeof id === "number" &&
+        this.thenableCache[id] !== void 0 ) {
+        ref.ref = this.thenableCache[id];
+        ref.promise = this.promiseCache[id];
+        return true;
+    }
+    return this._thenableSlowCase( ret, ref );
 };
 
 method.addCache = function Thenable$_addCache( thenable, promise ) {
@@ -117,6 +111,29 @@ method._compactCache = function Thenable$_compactCache() {
 
     this.__id__ = newId;
     this._compactQueued = false;
+};
+
+method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
+    try {
+        //Retrieving the property may throw
+        var then = ret.then;
+        if( typeof then === "function" ) {
+            //Faking a reference so that the
+            //caller may read the retrieved value
+            //since reading .then again might
+            //return something different
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
+    catch(e) {
+        this.errorObj.e = e;
+        ref.ref = this.errorObj;
+        //This idiosyncrasy is because of how the
+        //caller code is currently layed out..
+        return true;
+    }
 };
 
 

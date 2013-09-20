@@ -1,5 +1,10 @@
 var q = require('q');
 
+q.longStackTraces = false;
+q.longStackSupport = false;
+q.onerror = function(){};
+
+
 exports.pending = function () {
     var deferred = q.defer();
 

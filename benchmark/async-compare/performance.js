@@ -21,13 +21,24 @@ var perf = module.exports = function(args, done) {
 
     var fn = require(args.file);
 
-    var start = Date.now();
+    var warmedUp = 0;
+    var tot =  Math.min( 350, times );
+    for (var k = 0, kn = tot; k < kn; ++k)
+        fn('a','b','c', warmup);
 
-    var memStart = process.memoryUsage().rss;
-    for (var k = 0, kn = args.n; k < kn; ++k)
-        fn('a','b','c', cb);
+    var memMax; var memStart; var start;
+    function warmup(){
+        warmedUp++
+        if( warmedUp === tot ) {
+            start = Date.now();
 
-    var memMax = process.memoryUsage().rss;
+            memStart = process.memoryUsage().rss;
+            for (var k = 0, kn = args.n; k < kn; ++k)
+                fn('a','b','c', cb);
+
+            memMax = process.memoryUsage().rss;
+        }
+    }
 
     function cb (err) {
         if (err) {
@@ -44,6 +55,7 @@ var perf = module.exports = function(args, done) {
             });
         }
     }
+
 }
 
 

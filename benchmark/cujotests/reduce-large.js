@@ -43,21 +43,18 @@ function runTest(name, lib) {
     });
     var last = a[a.length-1];
     var ret = lib.pending();
-    last.then(function(){
-        var start = Date.now();
-        lib.reduce(a, function(current, next) {
+    last.then(function () {
+        lib.reduce(a, function (current, next) {
             return lib.fulfilled(current + next);
-        }, lib.fulfilled(0))
-            .then(
-                function(result) {
-                    test.addResult(name, Date.now() - start);
-                    ret.fulfill( result );
-                },
-                function(e) {
-                    test.addError(name, e);
-                    ret.reject( result );
-                }
-        );
+        }, lib.fulfilled(0)).then(function () {
+            var start = Date.now();
+            lib.reduce(a, function (current, next) {
+                return lib.fulfilled(current + next);
+            }, lib.fulfilled(0)).then(function (result) {
+                test.addResult(name, Date.now() - start);
+                ret.fulfill(result);
+            });
+        });
     });
     return ret.promise;
 }

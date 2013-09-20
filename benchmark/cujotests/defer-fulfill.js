@@ -25,6 +25,12 @@ test.report();
 function runTest(name, createDeferred) {
     var start, d;
 
+    for(i = 0; i<iterations; i++) {
+        d = createDeferred();
+        d.promise.then(addOne);
+        d.fulfill(i);
+    }
+
     start = Date.now();
     for(i = 0; i<iterations; i++) {
         d = createDeferred();

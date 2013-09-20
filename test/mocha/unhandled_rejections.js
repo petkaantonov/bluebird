@@ -46,10 +46,7 @@ function notE() {
 }
 
 describe("Will report rejections that are not handled in time", function() {
-    specify("Already rejected not handled at all", function(done) {
-        onUnhandledSucceed(done);
-        rejected(e());
-    });
+
     specify("Immediately rejected not handled at all", function(done) {
         onUnhandledSucceed(done);
         var promise = pending();
@@ -64,13 +61,7 @@ describe("Will report rejections that are not handled in time", function() {
     });
 
 
-    specify("Already rejected handled too late", function(done) {
-        onUnhandledSucceed(done);
-        var promise = rejected(e());
-        setTimeout( function() {
-            promise.caught(function(){});
-        }, 120 );
-    });
+
     specify("Immediately rejected handled too late", function(done) {
         onUnhandledSucceed(done);
         var promise = pending();
@@ -92,13 +83,7 @@ describe("Will report rejections that are not handled in time", function() {
 });
 
 describe("Will report rejections that are code errors", function() {
-    specify("Already fulfilled handled with erroneous code", function(done) {
-        onUnhandledSucceed(done);
-        var promise = fulfilled(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        });
-    });
+
     specify("Immediately fulfilled handled with erroneous code", function(done) {
         onUnhandledSucceed(done);
         var deferred = pending();

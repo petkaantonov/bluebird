@@ -27,8 +27,6 @@ var isArray = Arr.isArray || function( obj ) {
 
 
 var APPLY = {};
-var UNRESOLVED = {};
-var noop = function(){};
 var thenable = new Thenable( errorObj );
 
 CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
@@ -45,7 +43,7 @@ CONSTANT(CALLBACK_SIZE, 5);
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
-//D = isDelegated
+//D = isDelegated //To implement just in time thenable assimilation
 //R = [Reserved]
 //L = Length, 24 bit unsigned
 CONSTANT(IS_FOLLOWING, 0x20000000);
@@ -67,22 +65,22 @@ function Promise( resolver ) {
     if( typeof resolver === "function" )
         this._resolveResolver( resolver );
 
+
     this._bitField = IS_CANCELLABLE;
     //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
     //The rest (if needed) are stored on the object's
     //elements array (this[0], this[1]...etc)
     //which has less indirection than when using external array
-    this._fulfill0 =
-    this._reject0 =
-    this._progress0 =
-    this._promise0 =
-    this._receiver0 =
-        void 0;
+    this._fulfill0 = void 0;
+    this._reject0 = void 0;
+    this._progress0 = void 0;
+    this._promise0 = void 0;
+    this._receiver0 = void 0;
     //reason for rejection or fulfilled value
-    this._resolvedValue = UNRESOLVED;
+    this._resolvedValue = void 0;
     //Used in cancel propagation
-    this._cancellationParent = null;
+    this._cancellationParent = void 0;
     if( longStackTraces ) this._traceParent = this._peekContext();
 }
 
@@ -214,8 +212,8 @@ method.cancel = function Promise$cancel() {
     if( !this.isCancellable() ) return this;
     var cancelTarget = this;
     //Propagate to the last parent that is still pending
-    //Resolved promises always have ._cancellationParent === null
-    while( cancelTarget._cancellationParent !== null ) {
+    //Resolved promises always have ._cancellationParent === void 0
+    while( cancelTarget._cancellationParent !== void 0 ) {
         cancelTarget = cancelTarget._cancellationParent;
     }
     //The propagated parent or original and had no parents
@@ -260,7 +258,7 @@ method.uncancellable = function Promise$uncancellable() {
 method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
     var ret = this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.fork );
-    ret._cancellationParent = null;
+    ret._cancellationParent = void 0;
     return ret;
 };
 
@@ -650,7 +648,9 @@ Promise.fulfilled = function Promise$Fulfilled( value ) {
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
-    ret._resolveFulfill( value );
+    ret._cleanValues();
+    ret._setFulfilled();
+    ret._resolvedValue = value;
     return ret;
 };
 
@@ -667,7 +667,9 @@ Promise.fulfilled = function Promise$Fulfilled( value ) {
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
     ret._setTrace();
-    ret._resolveReject( reason );
+    ret._cleanValues();
+    ret._setRejected();
+    ret._resolvedValue = reason;
     return ret;
 };
 
@@ -759,7 +761,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
         CapturedTrace.possiblyUnhandledRejection = fn;
     }
     else {
-        CapturedTrace.possiblyUnhandledRejection = noop;
+        CapturedTrace.possiblyUnhandledRejection = void 0;
     }
 };
 
@@ -812,6 +814,8 @@ function Promise$_then(
 };
 
 method._length = function Promise$_length() {
+    ASSERT( isPromise( this ) );
+    ASSERT( arguments.length === 0 );
     return this._bitField & LENGTH_MASK;
 };
 
@@ -930,9 +934,9 @@ method._addCallbacks = function Promise$_addCallbacks(
     promise,
     receiver
 ) {
-    fulfill = typeof fulfill === "function" ? fulfill : noop;
-    reject = typeof reject === "function" ? reject : noop;
-    progress = typeof progress === "function" ? progress : noop;
+    fulfill = typeof fulfill === "function" ? fulfill : void 0;
+    reject = typeof reject === "function" ? reject : void 0;
+    progress = typeof progress === "function" ? progress : void 0;
     var index = this._length();
 
     if( index === 0 ) {
@@ -998,7 +1002,7 @@ method._resolveLast = function Promise$_resolveLast( index ) {
 
     var obj = this._resolvedValue;
     var ret = obj;
-    if( fn !== noop ) {
+    if( fn !== void 0 ) {
         this._resolvePromise( fn, receiver, obj, promise );
     }
     else if( this.isFulfilled() ) {
@@ -1071,16 +1075,12 @@ function cast( obj ) {
     return obj;
 }
 
-method._tryThenable = function Promise$_tryThenable( x ) {
-    var ref;
-    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
-        return false;
-    }
+method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
     if( ref.promise != null ) {
         this._assumeStateOf( ref.promise, true );
-        return true;
+        return;
     }
-    //3.2 If retrieving the property x.then
+     //3.2 If retrieving the property x.then
     //results in a thrown exception e,
     //reject promise with e as the reason.
     if( ref.ref === errorObj ) {
@@ -1169,6 +1169,14 @@ method._tryThenable = function Promise$_tryThenable( x ) {
             async.invoke( thenable.deleteCache, thenable, x );
         }
     }
+};
+
+method._tryThenable = function Promise$_tryThenable( x ) {
+    var ref;
+    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
+        return false;
+    }
+    this._resolveThenable( x, ref );
     return true;
 };
 
@@ -1241,7 +1249,8 @@ method._resolvePromise = function Promise$_resolvePromise(
             return;
         }
         //3. Otherwise, if x is an object or function,
-        else if( isObject( x ) ) {
+        else if( thenable.couldBe( x ) ) {
+
             if( promise._length() === 0 ) {
                 promise._resolvedValue = x;
                 promise._setDelegated();
@@ -1351,7 +1360,7 @@ method._unhandledRejection = function Promise$_unhandledRejection( reason ) {
 };
 
 method._cleanValues = function Promise$_cleanValues() {
-    this._cancellationParent = null;
+    this._cancellationParent = void 0;
 };
 
 method._fulfill = function Promise$_fulfill( value ) {
@@ -1381,7 +1390,7 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
         var receiver = this._receiverAt( i );
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             this._resolvePromise(
                 fn,
                 receiver,
@@ -1406,7 +1415,7 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             rejectionWasHandled = true;
             this._resolvePromise(
                 fn,
@@ -1423,7 +1432,7 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     }
     if( !rejectionWasHandled &&
         isError( reason ) &&
-        CapturedTrace.possiblyUnhandledRejection !== noop
+        CapturedTrace.possiblyUnhandledRejection !== void 0
 
     ) {
         //If the prop is not there, reading it
@@ -1454,7 +1463,7 @@ method._resolveProgress = function Promise$_resolveProgress( progressValue ) {
             continue;
         }
         var ret = progressValue;
-        if( fn !== noop ) {
+        if( fn !== void 0 ) {
             this._pushContext();
             ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
             this._popContext();
@@ -1537,9 +1546,9 @@ function Promise$_All( promises, PromiseArray, caller ) {
 
 
 if( !CapturedTrace.isSupported() ) {
-    Promise.longStackTraces = noop;
-    CapturedTrace.possiblyUnhandledRejection = noop;
-    Promise.onPossiblyUnhandledRejection = noop;
+    Promise.longStackTraces = void 0;
+    CapturedTrace.possiblyUnhandledRejection = void 0;
+    Promise.onPossiblyUnhandledRejection = void 0;
     longStackTraces = false;
 }
 

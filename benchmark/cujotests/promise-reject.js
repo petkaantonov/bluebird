@@ -28,10 +28,14 @@ test.report();
 function runTest(name, createPromise) {
     var start;
 
+    for(i = 0; i<iterations; i++) {
+        createPromise(i);
+    }
+
     start = Date.now();
     for(i = 0; i<iterations; i++) {
         createPromise(i);
     }
 
-    test.addResult(name, Date.now() - start);
+    test.addResult(name, Math.max(Date.now() - start, 0.01));
 }

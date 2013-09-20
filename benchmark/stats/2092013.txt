@@ -1,0 +1,17 @@
+Spion:
+
+        100     500     1000        1500        2000
+mem     0.3     2.2     6.5         8.04        12.59
+ms      79      80      85          83          95
+
+CujoJs:
+
+defer-fulfill           12
+defer-reject            2
+defer-sequence          7
+map                     14
+promise-fulfill         1
+promise-reject          0
+promise-sequence        7
+reduce-large            31
+reduce-small            2

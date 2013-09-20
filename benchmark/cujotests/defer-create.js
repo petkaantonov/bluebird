@@ -31,6 +31,10 @@ test.run(Object.keys(libs).map(function(name) {
 function runTest(name, lib) {
     var start;
 
+    for(i = 0; i<iterations; i++) {
+        lib.pending();
+    }
+
     start = Date.now();
     for(i = 0; i<iterations; i++) {
         lib.pending();
