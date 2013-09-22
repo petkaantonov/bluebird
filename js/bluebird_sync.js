@@ -772,6 +772,23 @@ method.isCancellable = function Promise$isCancellable() {
         this._cancellable();
 };
 
+method.toJSON = function Promise$toJSON() {
+    var inspection = this.inspect();
+    var ret = {
+        isFulfilled: false,
+        isRejected: false
+    };
+    if( inspection.isFulfilled() ) {
+        ret.fulfillmentValue = inspection.value();
+        ret.isFulfilled = true;
+    }
+    else if( inspection.isRejected() ) {
+        ret.rejectionReason = inspection.error();
+        ret.isRejected = true;
+    }
+    return ret;
+};
+
 method.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
@@ -2007,6 +2024,10 @@ method.timeout = function PromiseResolver$timeout() {
 
 method.isResolved = function PromiseResolver$isResolved() {
     return this.promise.isResolved();
+};
+
+method.toJSON = function PromiseResolver$toJSON() {
+    return this.promise.toJSON();
 };
 
 

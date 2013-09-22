@@ -82,5 +82,14 @@ method.isResolved = function PromiseResolver$isResolved() {
     return this.promise.isResolved();
 };
 
+/**
+ * For JSON serialization.
+ *
+ * @return {dynamic}
+ */
+method.toJSON = function PromiseResolver$toJSON() {
+    return this.promise.toJSON();
+};
+
 
 return PromiseResolver;})();

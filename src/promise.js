@@ -420,6 +420,28 @@ method.isCancellable = function Promise$isCancellable() {
 };
 
 /**
+ * For JSON serialization.
+ *
+ * @return {dynamic}
+ */
+method.toJSON = function Promise$toJSON() {
+    var inspection = this.inspect();
+    var ret = {
+        isFulfilled: false,
+        isRejected: false
+    };
+    if( inspection.isFulfilled() ) {
+        ret.fulfillmentValue = inspection.value();
+        ret.isFulfilled = true;
+    }
+    else if( inspection.isRejected() ) {
+        ret.rejectionReason = inspection.error();
+        ret.isRejected = true;
+    }
+    return ret;
+};
+
+/**
  * Description.
  *
  *
