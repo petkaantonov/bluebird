@@ -31,6 +31,9 @@ function getReceiver( expr ) {
 }
 
 function nodeToString( expr ) {
+    if( expr == null || typeof expr !== "object" ) {
+        return ("" + expr);
+    }
     if( expr.type === "Identifier" ) {
         return expr.name;
     }
@@ -41,6 +44,12 @@ function nodeToString( expr ) {
             return nodeToString( expr.object ) + "." + nodeToString( expr.property );
     }
     else if( expr.type === "UnaryExpression" ) {
+        if( expr.operator === "~" ||
+            expr.operator === "-" ||
+            expr.operator === "+" ||
+            expr.operator === "-" ) {
+            return expr.operator + nodeToString( expr.argument );
+        }
         return "(" + expr.operator + " " + nodeToString( expr.argument ) + ")";
     }
     else if( expr.type === "Literal" ) {
@@ -252,11 +261,6 @@ var astPasses = module.exports = {
                             src.substring(start, end)
                         );
                     }
-                    if( node.arguments[1].type !== "Literal" ) {
-                        throw new Error( "Only a literal can be a constant " +
-                            src.substring(start, end)
-                        );
-                    }
 
                     var args = node.arguments;
                     var e = end + 1;
@@ -270,9 +274,11 @@ var astPasses = module.exports = {
                     var nameStr = name.name;
                     var expr = args[1];
 
+                    var e = eval;
+
                     constants[nameStr] = {
                         identifier: name,
-                        value: expr
+                        value: e(nodeToString(expr))
                     };
                 }
             },

@@ -566,7 +566,7 @@ method.deleteCache = function Thenable$deleteCache( thenable ) {
     if( id === -1 ) {
         return;
     }
-    ASSERT((id > (- 1)),
+    ASSERT((id > -1),
     "id > -1");
     ASSERT((id < this.__id__),
     "id < this.__id__");
@@ -670,7 +670,7 @@ function Promise( resolver ) {
         this._resolveResolver( resolver );
 
 
-    this._bitField = 0x4000000;
+    this._bitField = 67108864;
     this._fulfill0 = void 0;
     this._reject0 = void 0;
     this._progress0 = void 0;
@@ -821,11 +821,11 @@ method.spread = function Promise$spread( didFulfill, didReject ) {
         APPLY, void 0, this.spread );
 };
 method.isFulfilled = function Promise$isFulfilled() {
-    return ( this._bitField & 0x10000000 ) > 0;
+    return ( this._bitField & 268435456 ) > 0;
 };
 
 method.isRejected = function Promise$isRejected() {
-    return ( this._bitField & 0x8000000 ) > 0;
+    return ( this._bitField & 134217728 ) > 0;
 };
 
 method.isPending = function Promise$isPending() {
@@ -833,7 +833,7 @@ method.isPending = function Promise$isPending() {
 };
 
 method.isResolved = function Promise$isResolved() {
-    return ( this._bitField & 0x18000000 ) > 0;
+    return ( this._bitField & 402653184 ) > 0;
 };
 
 method.isCancellable = function Promise$isCancellable() {
@@ -1086,53 +1086,54 @@ method._length = function Promise$_length() {
     "isPromise( this )");
     ASSERT((arguments.length === 0),
     "arguments.length === 0");
-    return this._bitField & 0xFFFFFF;
+    return this._bitField & 16777215;
 };
 
 method._isFollowingOrFulfilledOrRejected =
 function Promise$_isFollowingOrFulfilledOrRejected() {
-    return ( this._bitField & 0x38000000 ) > 0;
+    return ( this._bitField & 939524096 ) > 0;
 };
 
 method._setLength = function Promise$_setLength( len ) {
-    this._bitField = ( this._bitField & 0x3F000000 ) |
-        ( len & 0xFFFFFF ) ;
+    this._bitField = ( this._bitField & -16777216 ) |
+        ( len & 16777215 ) ;
 };
 
 method._cancellable = function Promise$_cancellable() {
-    return ( this._bitField & 0x4000000 ) > 0;
+    return ( this._bitField & 67108864 ) > 0;
 };
 
 method._setFulfilled = function Promise$_setFulfilled() {
-    this._bitField = this._bitField | 0x10000000;
+    this._bitField = this._bitField | 268435456;
 };
 
 method._setRejected = function Promise$_setRejected() {
-    this._bitField = this._bitField | 0x8000000;
+    this._bitField = this._bitField | 134217728;
 };
 
 method._setFollowing = function Promise$_setFollowing() {
-    this._bitField = this._bitField | 0x20000000;
+    this._bitField = this._bitField | 536870912;
 };
 
 method._setDelegated = function Promise$_setDelegated() {
-    return this._bitField = this._bitField | 0x2000000;
+    this._bitField = this._bitField | -1073741824;
+
 };
 
 method._isDelegated = function Promise$_isDelegated() {
-    return ( this._bitField & 0x2000000 ) > 0;
+    return ( this._bitField & -1073741824 ) === -1073741824;
 };
 
 method._unsetDelegated = function Promise$_unsetDelegated() {
-    this._bitField = this._bitField & ( ~0x2000000 );
+    this._bitField = this._bitField & ( ~-1073741824 );
 };
 
 method._setCancellable = function Promise$_setCancellable() {
-    this._bitField = this._bitField | 0x4000000;
+    this._bitField = this._bitField | 67108864;
 };
 
 method._unsetCancellable = function Promise$_unsetCancellable() {
-    this._bitField = this._bitField & ( ~0x4000000 );
+    this._bitField = this._bitField & ( ~67108864 );
 };
 
 method._receiverAt = function Promise$_receiverAt( index ) {
@@ -2015,7 +2016,7 @@ method._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection( throwawayPromise );
-    ret._bitField = 0x10000000;
+    ret._bitField = 268435456;
     ret._resolvedValue = value;
     this._promiseResolved( index.valueOf(), ret );
 };
@@ -2023,7 +2024,7 @@ method._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection( throwawayPromise );
-    ret._bitField = 0x8000000;
+    ret._bitField = 134217728;
     ret._resolvedValue = reason;
     this._promiseResolved( index.valueOf(), ret );
 };
@@ -2129,15 +2130,15 @@ function PromiseInspection( promise ) {
 var method = PromiseInspection.prototype;
 
 method.isFulfilled = function PromiseInspection$isFulfilled() {
-    return ( this._bitField & 0x10000000 ) > 0;
+    return ( this._bitField & 268435456 ) > 0;
 };
 
 method.isRejected = function PromiseInspection$isRejected() {
-    return ( this._bitField & 0x8000000 ) > 0;
+    return ( this._bitField & 134217728 ) > 0;
 };
 
 method.isPending = function PromiseInspection$isPending() {
-    return ( this._bitField & 0x18000000 ) === 0;
+    return ( this._bitField & 402653184 ) === 0;
 };
 
 method.value = function PromiseInspection$value() {

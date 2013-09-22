@@ -37,25 +37,26 @@ CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 
 //Layout for .bitField
-//00WF NCDR LLLL LLLL LLLL LLLL LLLL LLLL
-//0 = Always 0 (must be never used)
+//DDWF NCRR LLLL LLLL LLLL LLLL LLLL LLLL
+//D = isDelegated - To implement just in time thenable assimilation
+//Both of the DD bits must be either 0 or 1
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
-//D = isDelegated //To implement just in time thenable assimilation
+
 //R = [Reserved]
 //L = Length, 24 bit unsigned
-CONSTANT(IS_FOLLOWING, 0x20000000);
-CONSTANT(IS_FULFILLED, 0x10000000);
-CONSTANT(IS_REJECTED, 0x8000000);
-CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000);
-CONSTANT(IS_FOLLOWING_OR_REJECTED_OR_FULFILLED, 0x38000000);
-CONSTANT(IS_CANCELLABLE, 0x4000000);
-CONSTANT(IS_DELEGATED, 0x2000000);
-CONSTANT(LENGTH_MASK, 0xFFFFFF);
-CONSTANT(LENGTH_CLEAR_MASK, 0x3F000000);
-CONSTANT(MAX_LENGTH, 0xFFFFFF);
+CONSTANT(IS_DELEGATED, 0xC0000000|0);
+CONSTANT(IS_FOLLOWING, 0x20000000|0);
+CONSTANT(IS_FULFILLED, 0x10000000|0);
+CONSTANT(IS_REJECTED, 0x8000000|0);
+CONSTANT(IS_REJECTED_OR_FULFILLED, 0x18000000|0);
+CONSTANT(IS_FOLLOWING_OR_REJECTED_OR_FULFILLED, 0x38000000|0);
+CONSTANT(IS_CANCELLABLE, 0x4000000|0);
+CONSTANT(LENGTH_MASK, 0xFFFFFF|0);
+CONSTANT(LENGTH_CLEAR_MASK, ~0xFFFFFF|0);
+CONSTANT(MAX_LENGTH, 0xFFFFFF|0);
 /**
  * Description.
  *
@@ -868,11 +869,12 @@ method._setFollowing = function Promise$_setFollowing() {
 };
 
 method._setDelegated = function Promise$_setDelegated() {
-    return this._bitField = this._bitField | IS_DELEGATED;
+    this._bitField = this._bitField | IS_DELEGATED;
+
 };
 
 method._isDelegated = function Promise$_isDelegated() {
-    return ( this._bitField & IS_DELEGATED ) > 0;
+    return ( this._bitField & IS_DELEGATED ) === IS_DELEGATED;
 };
 
 method._unsetDelegated = function Promise$_unsetDelegated() {
