@@ -11,3 +11,5 @@ js/bluebird.min.js
 js/bluebird_sync.js
 js/bluebird_sync.min.js
 js/bluebird_debug.js
+reader.js
+read.txt

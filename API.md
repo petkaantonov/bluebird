@@ -1,17 +1,58 @@
 #API Reference
 
 - [Core](#core)
+    - [new Promise\(Function<Function resolve, Function reject> resolver\)](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
+    - [.then\(\[Function fulfilledHandler\] \[, Function rejectedHandler \] \[, Function progressHandler \]\)](#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [.catch\(Function handler\)](#catchfunction-handler---promise)
+    - [.catch\(\[Function ErrorClass...\], Function handler\]\)](#catchfunction-errorclass-function-handler---promise)
+    - [.finally\(Function handler\)](#finallyfunction-handler---promise)
+    - [.progressed\(Function handler\)](#progressedfunction-handler---promise)
+    - [Promise.fulfilled\(dynamic value\)](#promisefulfilleddynamic-value---promise)
+    - [Promise.rejected\(dynamic reason\)](#promiserejecteddynamic-reason---promise)
+    - [Promise.pending\(\)](#promisepending---promiseresolver)
+    - [Promise.cast\(dynamic value\)](#promisecastdynamic-value---promise)
+    - [Promise.is\(dynamic value\)](#promiseisdynamic-value---boolean)
 - [Promise resolution](#promise-resolution)
+    - [.fulfill\(dynamic value\)](#fulfilldynamic-value---undefined)
+    - [.reject\(dynamic reason\)](#rejectdynamic-reason---undefined)
+    - [.progress\(dynamic value\)](#progressdynamic-value---undefined)
 - [Collections](#collections)
+    - [.map\(Function mapper\)](#mapfunction-mapper---promise)
+    - [.any\(\)](#any---promise)
+    - [.settle\(\)](#settle---promise)
+    - [.some\(int count\)](#someint-count---promise)
+    - [.reduce\(Function reducer \[, dynamic initialValue\]\)](#reducefunction-reducer--dynamic-initialvalue---promise)
+    - [.all\(\)](#all---promise)
+    - [Promise.map\(Array<dynamic> values, Function mapper\)](#promisemaparraydynamic-values-function-mapper---promise)
+    - [Promise.any\(Array<dynamic> values\)](#promiseanyarraydynamic-values---promise)
+    - [Promise.settle\(Array<dynamic> values\)](#promisesettlearraydynamic-values---promise)
+    - [Promise.some\(Array<dynamic> values, int count\)](#promisesomearraydynamic-values-int-count---promise)
+    - [Promise.reduce\(Array<dynamic> values, Function reducer \[, dynamic initialValue\]\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise)
+    - [Promise.all\(Array<dynamic> values\)](#promiseallarraydynamic-values---promise)
+    - [Promise.join\(\[dynamic value...\]\)](#promisejoindynamic-value---promise)
 - [Cancellation](#cancellation)
+    - [.cancel\(\)](#cancel---promise)
+    - [.fork\(\[Function fulfilledHandler\] \[, Function rejectedHandler \] \[, Function progressHandler \]\)](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [.uncancellable\(\)](#uncancellable---promise)
+    - [.isCancellable\(\)](#iscancellable---boolean)
 - [Synchronous inspection](#synchronous-inspection)
+    - [.isFulfilled\(\)](#isfulfilled---boolean)
+    - [.isRejected\(\)](#isrejected---boolean)
+    - [.isPending\(\)](#ispending---boolean)
+    - [.isResolved\(\)](#isresolved---boolean)
+    - [.inspect\(\)](#inspect---promiseinspection)
 - [Utility](#utility)
+    - [.call\(String propertyName \[, dynamic arg...\]\)](#callstring-propertyname--dynamic-arg---promise)
+    - [.get\(String propertyName\)](#getstring-propertyname---promise)
+    - [.toString\(\)](#tostring---string)
+    - [.toJSON\(\)](#tojson---object)
+    - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
 
 ##Core
 
 Core methods of `Promise` instances and core static methods of the Promise class.
 
-###`new Promise(Function<Function resolve, Function reject> resolver)` -> `Promise`
+#####`new Promise(Function<Function resolve, Function reject> resolver)` -> `Promise`
 
 Create a new promise. The passed in function will receive functions `resolve` and `reject` as its arguments which can be called to seal the fate of the created promise.
 
@@ -29,7 +70,7 @@ function ajaxGetAsync(url) {
 }
 ```
     
-###`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+#####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
@@ -45,13 +86,13 @@ promptAsync("Which url to visit?").then(function(url){
 });
 ```
 
-###`.catch(Function handler)` -> `Promise`
+#####`.catch(Function handler)` -> `Promise`
 
 This is a catch-all exception handler, shortcut for calling `.then(null, handler)` on this promise. Any exception happening in a `.then`-chain will propagate to nearest `.catch` handler.
 
 For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.
 
-###`.catch([Function ErrorClass...], Function handler])` -> `Promise`
+#####`.catch([Function ErrorClass...], Function handler])` -> `Promise`
 
 This extends `.catch` to work more like catch-clauses in languages like Java or C#. Instead of manually checking `instanceof` or `.name === "SomeError"`, you may specify a number of error constructors which are eligible for this catch handler. The catch handler that is first met that has eligible constructors specified, is the one that will be called.
 
@@ -106,7 +147,7 @@ Promise.fulfilled().then(function(){
     
 For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.
         
-###`.finally(Function handler)` -> `Promise`
+#####`.finally(Function handler)` -> `Promise`
 
 Pass a handler that will be called regardless of this promise's fate. Returns a new promise chained from this promise. There are special semantics for `.finally()` in that the final value cannot be modified from the handler.
 
@@ -152,23 +193,23 @@ The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wi
     
 For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.
 
-###`.progressed(Function handler)` -> `Promise`
+#####`.progressed(Function handler)` -> `Promise`
 
 Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
 
-###`Promise.fulfilled(dynamic value)` -> `Promise`
+#####`Promise.fulfilled(dynamic value)` -> `Promise`
 
 Create a promise that is fulfilled with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
 
-###`Promise.rejected(dynamic reason)` -> `Promise`
+#####`Promise.rejected(dynamic reason)` -> `Promise`
 
 Create a promise that is rejected with the given `reason`. The promise is synchronously rejected.
 
-###`Promise.pending()` -> `PromiseResolver`
+#####`Promise.pending()` -> `PromiseResolver`
 
 Create a promise with undecided fate and return a `PromiseResolver` to control it. See [Promise resultion](#promise-resolution).
 
-###`Promise.cast(dynamic value)` -> `Promise`
+#####`Promise.cast(dynamic value)` -> `Promise`
 
 Cast the given `value` to a trusted promise. If `value` is already a trusted `Promise`, it is returned as is. If `value` is not a thenable, a fulfilled Promise is returned with `value` as its fulfillment value. If `value` is a thenable (Promise-like object, like those returned by jQuery's `$.ajax`), returns a trusted Promise that assimilates the state of the thenable.
 
@@ -187,7 +228,7 @@ Promise.cast($.get("http://www.google.com")).then(function(){
 });
 ```
 
-###`Promise.is(dynamic value)` -> `boolean`
+#####`Promise.is(dynamic value)` -> `boolean`
 
 See if `value` is a trusted Promise.
 
@@ -202,15 +243,15 @@ A `PromiseResolver` can be used to control the fate of a promise. It is like "De
 
 The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
 
-###`.fulfill(dynamic value)` -> `undefined`
+#####`.fulfill(dynamic value)` -> `undefined`
 
 Fulfill the underlying promise with `value` as the fulfillment value. If `value` is a trusted `Promise`, the underlying promise will instead follow that promise, adapting to its state.
 
-###`.reject(dynamic reason)` -> `undefined`
+#####`.reject(dynamic reason)` -> `undefined`
 
 Reject the underlying promise with `reason` as the rejection reason.
 
-###`.progress(dynamic value)` -> `undefined`
+#####`.progress(dynamic value)` -> `undefined`
 
 Progress the underlying promise with `value` as the progression value.
 
@@ -219,40 +260,40 @@ Progress the underlying promise with `value` as the progression value.
 Methods of `Promise` instances and core static methods of the Promise class to deal with
 collections of promises or mixed promises and values.
 
-###`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
+#####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
-###`.map(Function mapper)` -> `Promise`
+#####`.map(Function mapper)` -> `Promise`
 
-###`.any()` -> `Promise`
+#####`.any()` -> `Promise`
 
-###`.settle()` -> `Promise`
+#####`.settle()` -> `Promise`
 
-###`.some(int count)` -> `Promise`
+#####`.some(int count)` -> `Promise`
 
-###`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
+#####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
-###`.all()` -> `Promise`
+#####`.all()` -> `Promise`
 
-###`Promise.map(Array<dynamic> values, Function mapper)` -> `Promise`
+#####`Promise.map(Array<dynamic> values, Function mapper)` -> `Promise`
 
-###`Promise.any(Array<dynamic> values)` -> `Promise`
+#####`Promise.any(Array<dynamic> values)` -> `Promise`
 
-###`Promise.settle(Array<dynamic> values)` -> `Promise`
+#####`Promise.settle(Array<dynamic> values)` -> `Promise`
 
-###`Promise.some(Array<dynamic> values, int count)` -> `Promise`
+#####`Promise.some(Array<dynamic> values, int count)` -> `Promise`
 
-###`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
+#####`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
 
-###`Promise.all(Array<dynamic> values)` -> `Promise`
+#####`Promise.all(Array<dynamic> values)` -> `Promise`
 
-###`Promise.join([dynamic value...])` -> `Promise`
+#####`Promise.join([dynamic value...])` -> `Promise`
 
 
 ##Cancellation
 
 By default, all Promises are cancellable. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7)
 
-###`.cancel()` -> `Promise`
+#####`.cancel()` -> `Promise`
 
 Cancel this promise. The cancellation will propagate
 to farthest ancestor promise which is still pending.
@@ -268,17 +309,17 @@ the cancellability of a promise before handing it out to a
 client, call `.uncancellable()` which returns an uncancellable
 promise.
 
-###`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+#####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but cancellation of the the returned promise
 or any of its descendant will not propagate cancellation
 to this promise or this promise's ancestors.
 
-###`.uncancellable()` -> `Promise`
+#####`.uncancellable()` -> `Promise`
 
 Create an uncancellable promise based on this promise
 
-###`.isCancellable()` -> `boolean`
+#####`.isCancellable()` -> `boolean`
 
 See if this promise can be cancelled.
 
@@ -310,23 +351,23 @@ if(inspection.isFulfilled()){
 }
 ```
 
-###`.isFulfilled()` -> `boolean`
+#####`.isFulfilled()` -> `boolean`
 
 See if this `promise` has been fulfilled.
 
-###`.isRejected()` -> `boolean`
+#####`.isRejected()` -> `boolean`
 
 See if this `promise` has been rejected.
 
-###`.isPending()` -> `boolean`
+#####`.isPending()` -> `boolean`
 
 See if this `promise` is still pending.
 
-###`.isResolved()` -> `boolean`
+#####`.isResolved()` -> `boolean`
 
 See if this `promise` is resolved -> either fulfilled or rejected.
 
-###`.inspect()` -> `PromiseInspection`
+#####`.inspect()` -> `PromiseInspection`
 
 Synchronously inspect the state of this `promise`. The `PromiseInspection` will represent the state of the promise as snapshotted at the time of calling `.inspect()`. It will have the following methods:
 
@@ -355,7 +396,7 @@ Get the rejection reason for the underlying promise. Throws if the promise wasn'
 
 Functions that could potentially be handy in some situations.
 
-###`.call(String propertyName [, dynamic arg...])` -> `Promise`
+#####`.call(String propertyName [, dynamic arg...])` -> `Promise`
 
 This is a convenience method for doing:
 
@@ -365,7 +406,7 @@ promise.then(function(obj){
 });
 ```
 
-###`.get(String propertyName)` -> `Promise`
+#####`.get(String propertyName)` -> `Promise`
 
 This is a convenience method for doing:
 
@@ -375,13 +416,13 @@ promise.then(function(obj){
 });
 ```
 
-###`.toString()` -> `String`
+#####`.toString()` -> `String`
 
-###`.toJSON()` -> `Object`
+#####`.toJSON()` -> `Object`
 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
 
-###`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
+#####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
 Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
 
