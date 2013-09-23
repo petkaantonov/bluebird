@@ -125,6 +125,24 @@ method.toString = function Promise$toString() {
  * @return {Promise}
  */
 method.caught = method["catch"] = function Promise$catch( fn ) {
+    var len = arguments.length;
+    if( len > 1 ) {
+        var catchInstances = new Array( len - 1 ),
+            j = 0, i;
+        for( i = 0; i < len - 1; ++i ) {
+            var item = arguments[i];
+            if( typeof item === "function" &&
+                ( item.prototype instanceof Error ||
+                item === Error ) ) {
+                catchInstances[j++] = item;
+            }
+        }
+        catchInstances.length = j;
+        fn = arguments[i];
+        var catchFilter = new CatchFilter( catchInstances, fn );
+        return this._then( void 0, catchFilter.doFilter, void 0,
+            catchFilter, void 0, this.caught );
+    }
     return this._then( void 0, fn, void 0, void 0, void 0, this.caught );
 };
 
@@ -1204,6 +1222,7 @@ method._tryThenable = function Promise$_tryThenable( x ) {
     return true;
 };
 
+var ignore = CatchFilter.prototype.doFilter;
 method._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -1255,7 +1274,9 @@ method._resolvePromise = function Promise$_resolvePromise(
     promise._popContext();
 
     if( x === errorObj ) {
-        promise._attachExtraTrace( x.e );
+        if( onFulfilledOrRejected !== ignore ) {
+            promise._attachExtraTrace( x.e );
+        }
         async.invoke( promise._reject, promise, x.e );
     }
     else if( x === promise ) {
