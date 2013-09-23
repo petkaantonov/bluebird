@@ -26,14 +26,17 @@ Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [
 
 Then:
 
+```js
     var Promise = require("bluebird");
-    
+```    
 ##Browsers
 
 Download the [bluebird_debug.js](https://github.com/petkaantonov/bluebird/blob/master/js/bluebird_debug.js) file. And then use a script tag:
 
+```html
     <script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
-    
+```
+
 The global variable `Promise` becomes available after the above script tag. The debug file has long stack traces and assertions enabled, which degrade performance substantially but not enough to matter for anything you could do with promises on the browser.
 
 After quick start, see [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
@@ -55,8 +58,10 @@ There are two common pragmatic attempts at solving the problem that promise libr
 
 The more popular one is to have the user explicitly communicate that they are done and any unhandled rejections should be done, like so:
 
+```js
     download().then(...).then(...).done();
-    
+```
+
 For handling this problem, in my opinion, this is completely unacceptable and pointless. The user must remember to explicitly call `.done` and that cannot be justified when the problem is forgetting to create an error handler in the first place.
 
 The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a second turn. The default handler is to write the stack trace to stderr or `console.error` in browsers. This is close to what happens with synchronous code - your code doens't work as expected and you open console and see a stack trace. Nice.
@@ -65,13 +70,17 @@ Of course this is not perfect, if your code for some reason needs to swoop in an
 
 If you want to override the default handler for these possibly unhandled rejections, you can pass yours like so:
 
+```js
     Promise.onPossiblyUnhandledRejection(function(error){
         throw error;
     });
+```
 
 If you want to also enable long stack traces, call:
 
+```js
     Promise.longStackTraces();
+```
 
 right after the library is loaded. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, even after using every trick to optimize them.
 
@@ -140,6 +149,7 @@ This should pressure the CPU slightly less and thus the sync build should perfor
 Note that while some benchmarks are waiting for the next event tick, the CPU is actually not in use during that time. So the resulting benchmark result is not completely accurate because on node.js you only care about how much the CPU is taxed. Any time spent on CPU is time the whole process (or server) is paralyzed. And it is not graceful like it would be with threads.
 
 
+```js
     var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
     function getResult(url) {
         var resolver = Promise.pending();
@@ -168,6 +178,7 @@ Note that while some benchmarks are waiting for the next event tick, the CPU is 
         });
         console.log(i);
     }
+```
 
 #Optimization guide
 
