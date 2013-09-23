@@ -18,15 +18,15 @@ Create a new promise. The passed in function will receive functions `resolve` an
 Example:
 
 ```js
-    function ajaxGetAsync(url) {
-        return new Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest;
-            xhr.addEventListener("error", reject);
-            xhr.addEventListener("load", resolve);
-            xhr.open("GET", url);
-            xhr.send(null);
-        });
-    }
+function ajaxGetAsync(url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest;
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    });
+}
 ```
     
 ###`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
@@ -36,13 +36,13 @@ Example:
 Example:
 
 ```js
-    promptAsync("Which url to visit?").then(function(url){
-        return ajaxGetAsync(url);
-    }).then(function(contents){
-        alertAsync("The contents were: " + contents);
-    }).catch(function(e){
-        alertAsync("Exception " + e);
-    });
+promptAsync("Which url to visit?").then(function(url){
+    return ajaxGetAsync(url);
+}).then(function(contents){
+    alertAsync("The contents were: " + contents);
+}).catch(function(e){
+    alertAsync("Exception " + e);
+});
 ```
 
 ###`.catch(Function handler)` -> `Promise`
@@ -58,31 +58,31 @@ This extends `.catch` to work more like catch-clauses in languages like Java or 
 Example:
 
 ```js
-    somePromise.then(function(){
-        return a.b.c.d();
-    }).catch(TypeError, function(e){
-        //If a is defined, will end up here because 
-        //it is a type error to reference property of undefined
-    }).catch(ReferenceError, function(e){
-        //Will end up here if a wasn't defined at all
-    }).catch(function(e){
-        //Generic catch-the rest, error wasn't TypeError nor
-        //ReferenceError
-    });
+somePromise.then(function(){
+    return a.b.c.d();
+}).catch(TypeError, function(e){
+    //If a is defined, will end up here because 
+    //it is a type error to reference property of undefined
+}).catch(ReferenceError, function(e){
+    //Will end up here if a wasn't defined at all
+}).catch(function(e){
+    //Generic catch-the rest, error wasn't TypeError nor
+    //ReferenceError
+});
  ```
  
 You may also add multiple filters for a catch handler:
 
 ```js
-    somePromise.then(function(){
-        return a.b.c.d();
-    }).catch(TypeError, ReferenceError, function(e){
-        //Will end up here on programmer error
-    }).catch(NetworkError, TimeoutError, function(e){
-        //Will end up here on expected everyday network errors
-    }).catch(function(e){
-        //Catch any unexpected errors
-    });
+somePromise.then(function(){
+    return a.b.c.d();
+}).catch(TypeError, ReferenceError, function(e){
+    //Will end up here on programmer error
+}).catch(NetworkError, TimeoutError, function(e){
+    //Will end up here on expected everyday network errors
+}).catch(function(e){
+    //Catch any unexpected errors
+});
 ```
     
 For a paramater to be considered a type of error that you want to filter, you need the constructor to have its `.prototype` property be `instanceof Error`.
@@ -90,18 +90,18 @@ For a paramater to be considered a type of error that you want to filter, you ne
 Such a constructor can be created like so:
 
 ```js
-    function MyCustomError() {}
-    MyCustomError.prototype = Object.create(Error.prototype);
+function MyCustomError() {}
+MyCustomError.prototype = Object.create(Error.prototype);
 ```
 
 Using it:
 
 ```js
-    Promise.fulfilled().then(function(){
-        throw new MyCustomError();
-    }).catch(MyCustomError, function(e){
-        //will end up here now
-    });
+Promise.fulfilled().then(function(){
+    throw new MyCustomError();
+}).catch(MyCustomError, function(e){
+    //will end up here now
+});
 ```
     
 For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.
@@ -113,19 +113,19 @@ Pass a handler that will be called regardless of this promise's fate. Returns a 
 Consider the example:
 
 ```js
-    function anyway() {
-        $("#ajax-loader-animation").hide();
-    }
-    
-    function ajaxGetAsync(url) {
-        return new Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest;
-            xhr.addEventListener("error", reject);
-            xhr.addEventListener("load", resolve);
-            xhr.open("GET", url);
-            xhr.send(null);
-        }).then(anyway, anyway);
-    }
+function anyway() {
+    $("#ajax-loader-animation").hide();
+}
+
+function ajaxGetAsync(url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest;
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    }).then(anyway, anyway);
+}
 ```
     
 This example doesn't work as intended because the `then` handler actually swallows the exception and returns `undefined` for any further chainers.
@@ -133,17 +133,17 @@ This example doesn't work as intended because the `then` handler actually swallo
 The situation can be fixed with `.finally`:
 
 ```js
-    function ajaxGetAsync(url) {
-        return new Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest;
-            xhr.addEventListener("error", reject);
-            xhr.addEventListener("load", resolve);
-            xhr.open("GET", url);
-            xhr.send(null);
-        }).finally(function(){
-            $("#ajax-loader-animation").hide();
-        });
-    }
+function ajaxGetAsync(url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest;
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    }).finally(function(){
+        $("#ajax-loader-animation").hide();
+    });
+}
 ```
 
 Now the animation is hidden but an exception or the actual return value will automatically skip the finally and propagate to further chainers. This is more in line with the synchronous `finally` keyword.
@@ -175,16 +175,16 @@ Cast the given `value` to a trusted promise. If `value` is already a trusted `Pr
 Example: (`$` is jQuery)
 
 ```js
-    Promise.cast($.get("http://www.google.com")).then(function(){
-        //Returning a thenable from a handler is automatically
-        //cast to a trusted Promise as per Promises/A+ specification
-        return $.post("http://www.yahoo.com");
-    }).then(function(){
-    
-    }).catch(function(e){
-        //jQuery doesn't throw real errors so use catch-all
-        console.log(e.statusText);
-    });
+Promise.cast($.get("http://www.google.com")).then(function(){
+    //Returning a thenable from a handler is automatically
+    //cast to a trusted Promise as per Promises/A+ specification
+    return $.post("http://www.yahoo.com");
+}).then(function(){
+
+}).catch(function(e){
+    //jQuery doesn't throw real errors so use catch-all
+    console.log(e.statusText);
+});
 ```
 
 ###`Promise.is(dynamic value)` -> `boolean`
@@ -192,8 +192,8 @@ Example: (`$` is jQuery)
 See if `value` is a trusted Promise.
 
 ```js
-    Promise.is($.get("http://www.google.com")); //false
-    Promise.is(Promise.cast($.get("http://www.google.com"))) //true
+Promise.is($.get("http://www.google.com")); //false
+Promise.is(Promise.cast($.get("http://www.google.com"))) //true
 ```
 
 ##Promise resolution
@@ -287,27 +287,27 @@ See if this promise can be cancelled.
 Because `.then()` must give asynchronous guarantees, it cannot be used to inspect a given promise's state synchronously. The following code won't work:
 
 ```js
-    var wasFulfilled = false;
-    var wasRejected = false;
-    var resolutionValueOrRejectionReason = null;
-    somePromise.then(function(v){
-        wasFulfilled = true;
-        resolutionValueOrRejectionReason = v
-    }).catch(function(v){
-        wasRejected = true;
-        resolutionValueOrRejectionReason = v
-    });
-    //Using the variables won't work here because .then must be called asynchronously
- ```
+var wasFulfilled = false;
+var wasRejected = false;
+var resolutionValueOrRejectionReason = null;
+somePromise.then(function(v){
+    wasFulfilled = true;
+    resolutionValueOrRejectionReason = v
+}).catch(function(v){
+    wasRejected = true;
+    resolutionValueOrRejectionReason = v
+});
+//Using the variables won't work here because .then must be called asynchronously
+```
  
 Synchronous inspection API allows you to do this like so:
 
 ```js
-    var inspection = somePromise.inspect();
-    
-    if(inspection.isFulfilled()){
-        console.log("Was fulfilled with", inspection.value());
-    }
+var inspection = somePromise.inspect();
+
+if(inspection.isFulfilled()){
+    console.log("Was fulfilled with", inspection.value());
+}
 ```
 
 ###`.isFulfilled()` -> `boolean`
@@ -360,9 +360,9 @@ Functions that could potentially be handy in some situations.
 This is a convenience method for doing:
 
 ```js
-    promise.then(function(obj){
-        return obj[propertyName].call(obj, arg...);
-    });
+promise.then(function(obj){
+    return obj[propertyName].call(obj, arg...);
+});
 ```
 
 ###`.get(String propertyName)` -> `Promise`
@@ -370,9 +370,9 @@ This is a convenience method for doing:
 This is a convenience method for doing:
 
 ```js
-    promise.then(function(obj){
-        return obj[propertyName];
-    });
+promise.then(function(obj){
+    return obj[propertyName];
+});
 ```
 
 ###`.toString()` -> `String`
@@ -390,16 +390,16 @@ If you pass a `receiver`, the `nodeFunction` will be called as a method on the `
 Example of promisifying the asynchronous `readFile` of node.js `fs`-module:
 
 ```js
-    var readFile = Promise.promisify(require("fs").readFile);
-    
-    readFile("myfile.js", "utf8").then(function(contents){
-        return eval(contents);
-    }).then(function(result){
-        console.log("The result of evaluating myfile.js", result);
-    }).catch(SyntaxError, function(e){
-        console.log("File had syntax error", e);
-    //Catch any other error
-    }).catch(function(e){
-        console.log("Error reading file", e);
-    });
+var readFile = Promise.promisify(require("fs").readFile);
+
+readFile("myfile.js", "utf8").then(function(contents){
+    return eval(contents);
+}).then(function(result){
+    console.log("The result of evaluating myfile.js", result);
+}).catch(SyntaxError, function(e){
+    console.log("File had syntax error", e);
+//Catch any other error
+}).catch(function(e){
+    console.log("Error reading file", e);
+});
 ```

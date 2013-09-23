@@ -27,14 +27,14 @@ Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [
 Then:
 
 ```js
-    var Promise = require("bluebird");
+var Promise = require("bluebird");
 ```    
 ##Browsers
 
 Download the [bluebird_debug.js](https://github.com/petkaantonov/bluebird/blob/master/js/bluebird_debug.js) file. And then use a script tag:
 
 ```html
-    <script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
+<script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
 ```
 
 The global variable `Promise` becomes available after the above script tag. The debug file has long stack traces and assertions enabled, which degrade performance substantially but not enough to matter for anything you could do with promises on the browser.
@@ -59,7 +59,7 @@ There are two common pragmatic attempts at solving the problem that promise libr
 The more popular one is to have the user explicitly communicate that they are done and any unhandled rejections should be done, like so:
 
 ```js
-    download().then(...).then(...).done();
+download().then(...).then(...).done();
 ```
 
 For handling this problem, in my opinion, this is completely unacceptable and pointless. The user must remember to explicitly call `.done` and that cannot be justified when the problem is forgetting to create an error handler in the first place.
@@ -71,15 +71,15 @@ Of course this is not perfect, if your code for some reason needs to swoop in an
 If you want to override the default handler for these possibly unhandled rejections, you can pass yours like so:
 
 ```js
-    Promise.onPossiblyUnhandledRejection(function(error){
-        throw error;
-    });
+Promise.onPossiblyUnhandledRejection(function(error){
+    throw error;
+});
 ```
 
 If you want to also enable long stack traces, call:
 
 ```js
-    Promise.longStackTraces();
+Promise.longStackTraces();
 ```
 
 right after the library is loaded. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, even after using every trick to optimize them.
@@ -150,34 +150,34 @@ Note that while some benchmarks are waiting for the next event tick, the CPU is 
 
 
 ```js
-    var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
-    function getResult(url) {
-        var resolver = Promise.pending();
-        if (cache.has(url)) {
-            resolver.fulfill(cache.get(url));
-        }
-        else {
-            http.get(url, function(err, content) {
-                if (err) resolver.reject(err);
-                else {
-                    cache.set(url, content);
-                    resolver.fulfill(content);
-                }
-            });
-        }
-        return resolver.promise;
+var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
+function getResult(url) {
+    var resolver = Promise.pending();
+    if (cache.has(url)) {
+        resolver.fulfill(cache.get(url));
     }
-
-
-
-    //The result of console.log is truly random without async guarantees
-    function guessWhatItPrints( url ) {
-        var i = 3;
-        getResult(url).then(function(){
-            i = 4;
+    else {
+        http.get(url, function(err, content) {
+            if (err) resolver.reject(err);
+            else {
+                cache.set(url, content);
+                resolver.fulfill(content);
+            }
         });
-        console.log(i);
     }
+    return resolver.promise;
+}
+
+
+
+//The result of console.log is truly random without async guarantees
+function guessWhatItPrints( url ) {
+    var i = 3;
+    getResult(url).then(function(){
+        i = 4;
+    });
+    console.log(i);
+}
 ```
 
 #Optimization guide
