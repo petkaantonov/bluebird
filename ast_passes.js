@@ -2,6 +2,7 @@
 var jsp = require("acorn");
 var walk = require("acorn/util/walk.js");
 var rnonIdentMember = /[.\-_$a-zA-Z0-9]/g;
+var global = new Function("return this")();
 
 function equals( a, b ) {
     if( a.type === b.type ) {
@@ -215,6 +216,7 @@ function safeToEmbedString( str ) {
 var astPasses = module.exports = {
 
     removeComments: function( src ) {
+        console.log("removingcom");
         var results = [];
         var rnoremove = /^[*\s\/]*(?:@preserve|jshint|global)/;
         opts.onComment = function( block, text, start, end ) {
@@ -228,6 +230,7 @@ var astPasses = module.exports = {
             results.push( new Empty( s + 2, e - 1 ) );
         };
         var ast = jsp.parse(src, opts);
+         console.log("removedcom");
         return convertSrc( src, results );
     },
 
@@ -235,6 +238,7 @@ var astPasses = module.exports = {
         var constants = {};
         var results = [];
         var identifiers = [];
+        var ignore =[];
         var ast = jsp.parse(src);
         walk.simple(ast, {
             ExpressionStatement: function( node ) {
@@ -275,11 +279,16 @@ var astPasses = module.exports = {
                     var expr = args[1];
 
                     var e = eval;
-
                     constants[nameStr] = {
                         identifier: name,
                         value: e(nodeToString(expr))
                     };
+                    walk.simple( expr, {
+                        Identifier: function( node ) {
+                            ignore.push(node);
+                        }
+                    });
+                    global[nameStr] = constants[nameStr].value;
                 }
             },
 
@@ -290,6 +299,9 @@ var astPasses = module.exports = {
 
         for( var i = 0, len = identifiers.length; i < len; ++i ) {
             var id = identifiers[i];
+            if( ignore.indexOf(id) > -1 ) {
+                continue;
+            }
             var constant = constants[id.name];
             if( constant === void 0 ) {
                 continue;
@@ -301,7 +313,6 @@ var astPasses = module.exports = {
             results.push( new ConstantReplacement( constant.value, id.start, id.end ) );
 
         }
-
         return convertSrc( src, results );
     },
 
@@ -369,6 +380,7 @@ var astPasses = module.exports = {
 
     asyncConvert: function( src, objName, fnProp ) {
         var ast = jsp.parse(src);
+
         var results = [];
         walk.simple(ast, {
             CallExpression: function( node ) {
