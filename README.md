@@ -120,7 +120,7 @@ Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.co
     
 The other benchmarks included are broken and misleading, I will remove them. 
 
-#What is the sync build?
+##What is the sync build?
 
 The sync build is provided to see how forced asynchronity affects benchmarks. It should not be used in real code due to the implied hazards.
 

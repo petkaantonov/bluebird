@@ -33,6 +33,9 @@ function getReceiver( expr ) {
 
 function nodeToString( expr ) {
     if( expr == null || typeof expr !== "object" ) {
+        if( expr === void 0 ) {
+            return "void 0";
+        }
         return ("" + expr);
     }
     if( expr.type === "Identifier" ) {
