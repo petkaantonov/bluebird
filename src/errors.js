@@ -23,4 +23,3 @@ if( typeof global.TypeError === "undefined" ) {
 var CancellationError = subError( "CancellationError",
     "Cancel", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
-

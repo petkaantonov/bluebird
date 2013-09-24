@@ -17,19 +17,20 @@
     - [.reject\(dynamic reason\)](#rejectdynamic-reason---undefined)
     - [.progress\(dynamic value\)](#progressdynamic-value---undefined)
 - [Collections](#collections)
-    - [.map\(Function mapper\)](#mapfunction-mapper---promise)
-    - [.any\(\)](#any---promise)
-    - [.settle\(\)](#settle---promise)
-    - [.some\(int count\)](#someint-count---promise)
-    - [.reduce\(Function reducer \[, dynamic initialValue\]\)](#reducefunction-reducer--dynamic-initialvalue---promise)
     - [.all\(\)](#all---promise)
-    - [Promise.map\(Array<dynamic> values, Function mapper\)](#promisemaparraydynamic-values-function-mapper---promise)
-    - [Promise.any\(Array<dynamic> values\)](#promiseanyarraydynamic-values---promise)
-    - [Promise.settle\(Array<dynamic> values\)](#promisesettlearraydynamic-values---promise)
-    - [Promise.some\(Array<dynamic> values, int count\)](#promisesomearraydynamic-values-int-count---promise)
-    - [Promise.reduce\(Array<dynamic> values, Function reducer \[, dynamic initialValue\]\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise)
+    - [.settle\(\)](#settle---promise)
+    - [.any\(\)](#any---promise)
+    - [.some\(int count\)](#someint-count---promise)
+    - [.spread\(\[Function fulfilledHandler\] \[, Function rejectedHandler \]\)](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise)
+    - [.map\(Function mapper\)](#mapfunction-mapper---promise)    
+    - [.reduce\(Function reducer \[, dynamic initialValue\]\)](#reducefunction-reducer--dynamic-initialvalue---promise)
     - [Promise.all\(Array<dynamic> values\)](#promiseallarraydynamic-values---promise)
+    - [Promise.settle\(Array<dynamic> values\)](#promisesettlearraydynamic-values---promise)
+    - [Promise.any\(Array<dynamic> values\)](#promiseanyarraydynamic-values---promise)    
+    - [Promise.some\(Array<dynamic> values, int count\)](#promisesomearraydynamic-values-int-count---promise)
     - [Promise.join\(\[dynamic value...\]\)](#promisejoindynamic-value---promise)
+    - [Promise.map\(Array<dynamic> values, Function mapper\)](#promisemaparraydynamic-values-function-mapper---promise)
+    - [Promise.reduce\(Array<dynamic> values, Function reducer \[, dynamic initialValue\]\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise)
 - [Cancellation](#cancellation)
     - [.cancel\(\)](#cancel---promise)
     - [.fork\(\[Function fulfilledHandler\] \[, Function rejectedHandler \] \[, Function progressHandler \]\)](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
@@ -260,38 +261,162 @@ Progress the underlying promise with `value` as the progression value.
 Methods of `Promise` instances and core static methods of the Promise class to deal with
 collections of promises or mixed promises and values.
 
-#####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
+#####`.all()` -> `Promise`
 
-#####`.map(Function mapper)` -> `Promise`
-
-#####`.any()` -> `Promise`
+Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise)
 
 #####`.settle()` -> `Promise`
 
+Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise).
+
+#####`.any()` -> `Promise`
+
+Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---promise).
+
 #####`.some(int count)` -> `Promise`
+
+Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise)
+
+#####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
+
+Like calling `.then`, but the fulfillment value or rejection reason is assumed to be an array, which is flattened to the formal parameters of the handlers.
+
+```js
+Promise.all([task1, task2, task3]).spread(function(result1, result2, result3){
+
+});
+```
+
+Normally using when using `.then` the code would be like:
+
+```js
+Promise.all([task1, task2, task3]).then(function(results){
+    var result1 = results[0];
+    var result2 = results[1];
+    var result3 = results[2];
+});
+```
+
+This is useful when the results are not conceptually items of the same list.
+
+#####`.map(Function mapper)` -> `Promise`
+
+Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamic-values-function-mapper---promise).
 
 #####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
-#####`.all()` -> `Promise`
-
-#####`Promise.map(Array<dynamic> values, Function mapper)` -> `Promise`
-
-#####`Promise.any(Array<dynamic> values)` -> `Promise`
-
-#####`Promise.settle(Array<dynamic> values)` -> `Promise`
-
-#####`Promise.some(Array<dynamic> values, int count)` -> `Promise`
-
-#####`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
+Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise).
 
 #####`Promise.all(Array<dynamic> values)` -> `Promise`
 
+Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are fulfilled. The promise's fulfillment value is an array with fulfillment values at respective positions to the original array. If any promise in the array rejects, the returned promise is rejected with the rejection reason.
+
+In this example we create a promise that is fulfilled only when the pictures, comments and tweets are all loaded.
+
+```js
+Promise.all([getPictures(), getComments(), getTweets()].then(function(results){
+    //Everything loaded and good to go
+    var pictures = results[0];
+    var comments = results[1];
+    var tweets = results[2];
+}).catch(function(e){
+    alertAsync("error when getting your stuff");
+});
+```
+
+See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
+
+The original array is not modified. The input array sparsity is retained in the resulting array.
+
+#####`Promise.settle(Array<dynamic> values)` -> `Promise`
+
+Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#inspect---promiseinspection) instances at respective positions in relation to the input array.
+
+The original array is not modified. The input array sparsity is retained in the resulting array.
+
+#####`Promise.any(Array<dynamic> values)` -> `Promise`
+
+Like [`Promise.some\(\)`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
+
+#####`Promise.some(Array<dynamic> values, int count)` -> `Promise`
+
+Initiate a competetive race between multiple promises or values (values will become immediately fulfilled promises). When `count` amount of promises have been fulfilled, the returned promise is fulfilled with an array that contains the fulfillment values of the winners in order of resolution.
+
+This example pings 4 nameservers, and logs the fastest 2 on console:
+
+```js
+Promise.some([
+    ping("ns1.example.com"),
+    ping("ns2.example.com"),
+    ping("ns3.example.com"),
+    ping("ns4.example.com")
+], 2).spread(function(first, second) {
+    console.log(first, second);
+});
+```
+
+If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an array of rejection reasons in the order they were thrown in.
+
+The original array is not modified.
+
 #####`Promise.join([dynamic value...])` -> `Promise`
 
+Like [`Promise.all\(\)`](#promiseallarraydynamic-values---promise) but instead of having to pass an array, the array is generated from the passed variadic arguments.
+
+So instead of:
+
+```js
+Promise.all([a, b]).spread(function(aResult, bResult) {
+
+});
+```
+
+You can do:
+
+```js
+Promise.join(a, b).spread(function(aResult, bResult) {
+
+});
+```
+
+#####`Promise.map(Array<dynamic> values, Function mapper)` -> `Promise`
+
+Map an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
+
+If the `mapper` function returns promises, the returned promise will wait for all the mapped results to be resolved as well.
+
+*(TODO: an example where this is useful)*
+
+The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.
+
+#####`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
+
+Reduce an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, current, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
+
+*(TODO: an example where this is useful)*
+
+The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.
 
 ##Cancellation
 
 By default, all Promises are cancellable. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7)
+
+If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
+
+```js
+function ajaxGetAsync(url) {
+    var xhr = new XMLHttpRequest;
+    return new Promise(function (resolve, reject) {
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    }).catch(Promise.CancellationError, function(e) {
+        xhr.abort();
+        throw e; //Don't swallow it
+    });
+}
+```
 
 #####`.cancel()` -> `Promise`
 

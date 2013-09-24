@@ -158,8 +158,6 @@ if( typeof global.TypeError === "undefined" ) {
 var CancellationError = subError( "CancellationError",
     "Cancel", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
-
-
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
@@ -395,7 +393,7 @@ else if ( typeof global.postMessage === "function" &&
 
         function onmessage(e) {
             if(e.source === global &&
-                e.data === "bluebird_message_key_0.5444685644470155") {
+                e.data === "bluebird_message_key_0.4375570372212678") {
                 var fn = queuedFn;
                 queuedFn = void 0;
                 fn();
@@ -407,7 +405,7 @@ else if ( typeof global.postMessage === "function" &&
         return function( fn ) {
             queuedFn = fn;
             global.postMessage(
-                "bluebird_message_key_0.5444685644470155", "*"
+                "bluebird_message_key_0.4375570372212678", "*"
             );
         };
 
@@ -759,6 +757,11 @@ method.caught = method["catch"] = function Promise$catch( fn ) {
                 item === Error ) ) {
                 catchInstances[j++] = item;
             }
+            else {
+                throw new TypeError(
+                    "A catch filter must be an error constructor"
+                );
+            }
         }
         catchInstances.length = j;
         fn = arguments[i];
@@ -976,7 +979,11 @@ function mapper( fulfilleds ) {
     var fn = this;
     var shouldDefer = false;
     for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-        var fulfill = fn(fulfilleds[i]);
+        if( fulfilleds[i] === void 0 &&
+            !(i in fulfilleds) ) {
+            continue;
+        }
+        var fulfill = fn( fulfilleds[ i ], i, len );
         if( !shouldDefer && isPromise( fulfill ) ) {
             if( fulfill.isFulfilled() ) {
                 fulfilleds[i] = fulfill._resolvedValue;
@@ -1006,7 +1013,7 @@ Promise.map = function Promise$Map( promises, fn ) {
 function reducer( fulfilleds, initialValue ) {
     var fn = this;
     var len = fulfilleds.length;
-    var accum;
+    var accum = void 0;
     var startIndex = 0;
 
     if( initialValue !== void 0 ) {
@@ -1014,10 +1021,24 @@ function reducer( fulfilleds, initialValue ) {
         startIndex = 0;
     }
     else {
-        accum = len > 0 ? fulfilleds[0] : void 0;
         startIndex = 1;
+        if( len > 0 ) {
+            for( var i = 0; i < len; ++i ) {
+                if( fulfilleds[i] === void 0 &&
+                    !(i in fulfilleds) ) {
+                    continue;
+                }
+                accum = fulfilleds[i];
+                startIndex = i + 1;
+                break;
+            }
+        }
     }
     for( var i = startIndex; i < len; ++i ) {
+        if( fulfilleds[i] === void 0 &&
+            !(i in fulfilleds) ) {
+            continue;
+        }
         accum = fn( accum, fulfilleds[i], i, len );
     }
     return accum;
@@ -1776,6 +1797,11 @@ if( !CapturedTrace.isSupported() ) {
     Promise.onPossiblyUnhandledRejection = void 0;
     longStackTraces = false;
 }
+
+
+Promise.CancellationError = CancellationError;
+Promise.TimeoutError = TimeoutError;
+Promise.TypeError = TypeError;
 
 return Promise;})();
 
