@@ -36,6 +36,9 @@ function nodeToString( expr ) {
         if( expr === void 0 ) {
             return "void 0";
         }
+        else if( typeof expr === "string" ) {
+            return '"' + safeToEmbedString(expr) + '"';
+        }
         return ("" + expr);
     }
     if( expr.type === "Identifier" ) {
@@ -219,7 +222,6 @@ function safeToEmbedString( str ) {
 var astPasses = module.exports = {
 
     removeComments: function( src ) {
-        console.log("removingcom");
         var results = [];
         var rnoremove = /^[*\s\/]*(?:@preserve|jshint|global)/;
         opts.onComment = function( block, text, start, end ) {
@@ -233,7 +235,6 @@ var astPasses = module.exports = {
             results.push( new Empty( s + 2, e - 1 ) );
         };
         var ast = jsp.parse(src, opts);
-         console.log("removedcom");
         return convertSrc( src, results );
     },
 

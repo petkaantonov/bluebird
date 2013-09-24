@@ -345,24 +345,101 @@ function getFunction( propertyName ) {
 }
 var Async = (function() {
 
-var deferFn = typeof process !== "undefined" ?
-    ( typeof global.setImmediate !== "undefined"
-        ? function( fn ){
+
+var deferFn;
+if( typeof process !== "undefined" && process !== null &&
+    typeof process.cwd === "function" ) {
+    if( typeof global.setImmediate !== "undefined" ) {
+        deferFn = function( fn ){
             global.setImmediate( fn );
-          }
-        : function( fn ) {
+        };
+    }
+    else {
+        deferFn = function( fn ) {
             process.nextTick( fn );
+        };
+    }
+}
+else if( typeof MutationObserver === "function" &&
+    typeof document !== "undefined" &&
+    typeof document.createElement === "function" ) {
+    deferFn = (function(){
+        var div = document.createElement("div");
+        var queuedFn = void 0;
+        var observer = new MutationObserver( function(){
+            var fn = queuedFn;
+            queuedFn = void 0;
+            fn();
+        });
+        var cur = true;
+        observer.observe( div, {
+            attributes: true,
+            childList: true,
+            characterData: true
+        });
+        return function( fn ) {
+            queuedFn = fn;
+            cur = !cur;
+            div.setAttribute( "class", cur ? "foo" : "bar" );
+        };
+
+    })();
+}
+else if ( typeof global.postMessage === "function" &&
+    typeof global.importScripts !== "function" &&
+    typeof global.addEventListener === "function" &&
+    typeof global.removeEventListener === "function" ) {
+
+    deferFn = (function(){
+        var queuedFn = void 0;
+
+        function onmessage(e) {
+            if(e.source === global &&
+                e.data === "bluebird_message_key_0.5444685644470155") {
+                var fn = queuedFn;
+                queuedFn = void 0;
+                fn();
+            }
         }
 
-    ) :
-    ( typeof setTimeout !== "undefined"
-        ? function( fn ) {
-            setTimeout( fn, 4 );
-        }
-        : function( fn ) {
-            fn();
-        }
-) ;
+        global.addEventListener( "message", onmessage, false );
+
+        return function( fn ) {
+            queuedFn = fn;
+            global.postMessage(
+                "bluebird_message_key_0.5444685644470155", "*"
+            );
+        };
+
+    })();
+}
+else if( typeof MessageChannel === "function" ) {
+    deferFn = (function(){
+        var queuedFn = void 0;
+
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function() {
+                var fn = queuedFn;
+                queuedFn = void 0;
+                fn();
+        };
+
+        return function( fn ) {
+            queuedFn = fn;
+            channel.port2.postMessage( null );
+        };
+    })();
+}
+else if( global.setTimeout ) {
+    deferFn = function( fn ) {
+        setTimeout( fn, 4 );
+    };
+}
+else {
+    deferFn = function( fn ) {
+        fn();
+    };
+}
 
 function Async() {
     this._isTickUsed = false;
