@@ -47,7 +47,7 @@ else if ( typeof global.postMessage === "function" &&
     typeof global.addEventListener === "function" &&
     typeof global.removeEventListener === "function" ) {
 
-    CONSTANT(MESSAGE_KEY, "bluebird_message_key_" + Math.random());
+    var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
     deferFn = (function(){
         var queuedFn = void 0;
 

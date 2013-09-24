@@ -43,11 +43,10 @@
     "avow": "~2.0.1",
     "jsdom": "~0.8.4",
     "jquery-browserify": "~1.8.1",
+    "closure-compiler": "~0.2.1",
     "sinon": "~1.7.3"
   },
-  "optionalDependencies": {
-    "closure-compiler": "~0.2.1"
-  },
+
   "readmeFilename": "README.md",
   "main": "./js/promise.js"
 }
