@@ -348,12 +348,12 @@ var deferFn;
 if( typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" ) {
     if( typeof global.setImmediate !== "undefined" ) {
-        deferFn = function( fn ){
+        deferFn = function Promise$_Deferred( fn ) {
             global.setImmediate( fn );
         };
     }
     else {
-        deferFn = function( fn ) {
+        deferFn = function Promise$_Deferred( fn ) {
             process.nextTick( fn );
         };
     }
@@ -364,18 +364,20 @@ else if( typeof MutationObserver === "function" &&
     deferFn = (function(){
         var div = document.createElement("div");
         var queuedFn = void 0;
-        var observer = new MutationObserver( function(){
-            var fn = queuedFn;
-            queuedFn = void 0;
-            fn();
-        });
+        var observer = new MutationObserver(
+            function Promise$_Deferred() {
+                var fn = queuedFn;
+                queuedFn = void 0;
+                fn();
+            }
+        );
         var cur = true;
         observer.observe( div, {
             attributes: true,
             childList: true,
             characterData: true
         });
-        return function( fn ) {
+        return function Promise$_Deferred( fn ) {
             queuedFn = fn;
             cur = !cur;
             div.setAttribute( "class", cur ? "foo" : "bar" );
@@ -392,7 +394,7 @@ else if ( typeof global.postMessage === "function" &&
     deferFn = (function(){
         var queuedFn = void 0;
 
-        function onmessage(e) {
+        function Promise$_Deferred(e) {
             if(e.source === global &&
                 e.data === MESSAGE_KEY) {
                 var fn = queuedFn;
@@ -401,9 +403,9 @@ else if ( typeof global.postMessage === "function" &&
             }
         }
 
-        global.addEventListener( "message", onmessage, false );
+        global.addEventListener( "message", Promise$_Deferred, false );
 
-        return function( fn ) {
+        return function Promise$_Deferred( fn ) {
             queuedFn = fn;
             global.postMessage(
                 MESSAGE_KEY, "*"
@@ -417,25 +419,25 @@ else if( typeof MessageChannel === "function" ) {
         var queuedFn = void 0;
 
         var channel = new MessageChannel();
-        channel.port1.onmessage = function() {
+        channel.port1.onmessage = function Promise$_Deferred() {
                 var fn = queuedFn;
                 queuedFn = void 0;
                 fn();
         };
 
-        return function( fn ) {
+        return function Promise$_Deferred( fn ) {
             queuedFn = fn;
             channel.port2.postMessage( null );
         };
     })();
 }
 else if( global.setTimeout ) {
-    deferFn = function( fn ) {
+    deferFn = function Promise$_Deferred( fn ) {
         setTimeout( fn, 4 );
     };
 }
 else {
-    deferFn = function( fn ) {
+    deferFn = function Promise$_Deferred( fn ) {
         fn();
     };
 }

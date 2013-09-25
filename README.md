@@ -86,6 +86,65 @@ right after the library is loaded. Long stack traces cannot be disabled after be
 
 Long stack traces are enabled by default in the debug build.
 
+##How do long stack traces differ from e.g. Q?
+
+Bluebirds attempt to have more elaborate traces. Consider:
+
+```js
+Error.stackTraceLimit = 25;
+Q.longStackSupport = true;
+Q().then(function outer() {
+    return Q().then(function inner() {
+        return Q().then(function evenMoreInner() {
+            a.b.c.d();
+        }).catch(function catcher(e){
+            console.error(e.stack);
+        });
+    })
+});
+```
+
+You will see
+
+    ReferenceError: a is not defined
+        at evenMoreInner (<anonymous>:7:13)
+    From previous event:
+        at inner (<anonymous>:6:20)
+
+Compare to:
+
+```js
+Error.stackTraceLimit = 25;
+Promise.longStackTraces();
+Promise.fulfilled().then(function outer() {
+    return Promise.fulfilled().then(function inner() {
+        return Promise.fulfilled().then(function evenMoreInner() {
+            a.b.c.d()
+        }).catch(function catcher(e){
+            console.error(e.stack);
+        });
+    });
+});
+```
+
+    ReferenceError: a is not defined
+        at evenMoreInner (<anonymous>:7:13)
+        at inner (<anonymous>:6:36)
+        at Function.Promise$Fulfilled (<anonymous>:1073:9)
+        at inner (<anonymous>:6:24)
+        at outer (<anonymous>:5:32)
+        at Function.Promise$Fulfilled (<anonymous>:1073:9)
+        at outer (<anonymous>:5:20)
+        at <anonymous>:4:21
+        at Function.Promise$Fulfilled (<anonymous>:1073:9)
+        at <anonymous>:4:9
+        at Object.InjectedScript._evaluateOn (<anonymous>:572:39)
+        at Object.InjectedScript._evaluateAndWrap (<anonymous>:531:52)
+        at Object.InjectedScript.evaluate (<anonymous>:450:21)
+        
+
+A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability). (for `--error` and `--throw`, promises don't actually need to handle `--athrow` since that is something someone using a promises would never do)
+
 #Development
 
 For development tasks such as running benchmarks or testing, you need to clone the repository and install dev-dependencies.
