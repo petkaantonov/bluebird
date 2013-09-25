@@ -48,7 +48,7 @@
     - [.toString\(\)](#tostring---string)
     - [.toJSON\(\)](#tojson---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
-
+    - [Promise.noConflict\(\)](#promisenoconflict---object)
 ##Core
 
 Core methods of `Promise` instances and core static methods of the Promise class.
@@ -568,4 +568,23 @@ readFile("myfile.js", "utf8").then(function(contents){
 }).catch(function(e){
     console.log("Error reading file", e);
 });
+```
+
+#####`Promise.noConflict()` -> `Object`
+
+This is relevant to browser environments with no module loader.
+
+Release control of the `Promise` namespace to whatever it was before this library was loaded. Returns a reference to the library namespace so you can attach it to something else.
+
+```html
+<!-- the other promise library must be loaded first -->
+<script type="text/javascript" src="/scripts/other_promise.js"></script>
+<script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
+<script type="text/javascript">
+//Release control right after
+var Bluebird = Promise.noConflict();
+
+//Cast a promise from some other Promise library using the Promise namespace to Bluebird:
+var promise = Bluebird.cast(new Promise());
+</script>
 ```
