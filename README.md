@@ -86,7 +86,7 @@ right after the library is loaded. Long stack traces cannot be disabled after be
 
 Long stack traces are enabled by default in the debug build.
 
-##How do long stack traces differ from e.g. Q?
+####How do long stack traces differ from e.g. Q?
 
 Bluebirds attempt to have more elaborate traces. Consider:
 
