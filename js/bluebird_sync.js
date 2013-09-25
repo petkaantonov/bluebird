@@ -654,7 +654,7 @@ function CatchFilter( instances, callback ) {
 }
 var method = CatchFilter.prototype;
 
-method.doFilter = function( e ) {
+method.doFilter = function CatchFilter$doFilter( e ) {
     if( e === null || typeof e !== "object" ) {
         throw e;
     }

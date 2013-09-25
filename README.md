@@ -56,7 +56,7 @@ This is a problem every promise library needs to handle in some way. Unhandled r
 
 There are two common pragmatic attempts at solving the problem that promise libraries do.
 
-The more popular one is to have the user explicitly communicate that they are done and any unhandled rejections should be done, like so:
+The more popular one is to have the user explicitly communicate that they are done and any unhandled rejections should be thrown, like so:
 
 ```js
 download().then(...).then(...).done();
@@ -88,7 +88,7 @@ Long stack traces are enabled by default in the debug build.
 
 ####How do long stack traces differ from e.g. Q?
 
-Bluebirds attempt to have more elaborate traces. Consider:
+Bluebird attempts to have more elaborate traces. Consider:
 
 ```js
 Error.stackTraceLimit = 25;

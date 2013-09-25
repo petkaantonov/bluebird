@@ -48,5 +48,5 @@
   },
 
   "readmeFilename": "README.md",
-  "main": "./js/promise.js"
+  "main": "./js/bluebird.js"
 }
