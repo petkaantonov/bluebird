@@ -28,7 +28,7 @@
     })();
 
 /* jshint -W014, -W116, -W106 */
-/* global process, unreachable */
+/* global process */
 /**
  * @preserve Copyright (c) 2013 Petka Antonov
  *
@@ -435,12 +435,13 @@ else if ( typeof global.postMessage === "function" &&
     typeof global.addEventListener === "function" &&
     typeof global.removeEventListener === "function" ) {
 
+    var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
     deferFn = (function(){
         var queuedFn = void 0;
 
         function onmessage(e) {
             if(e.source === global &&
-                e.data === "bluebird_message_key_0.28183712530881166") {
+                e.data === MESSAGE_KEY) {
                 ASSERT((queuedFn !== (void 0)),
     "queuedFn !== void 0");
                 var fn = queuedFn;
@@ -456,7 +457,7 @@ else if ( typeof global.postMessage === "function" &&
     "queuedFn === void 0");
             queuedFn = fn;
             global.postMessage(
-                "bluebird_message_key_0.28183712530881166", "*"
+                MESSAGE_KEY, "*"
             );
         };
 
@@ -882,7 +883,7 @@ method.lastly = method["finally"] = function Promise$finally( fn ) {
         if( this.isRejected() ) throw reasonOrValue;
         return reasonOrValue;
     };
-    return this._then( r, r, void 0, this, void 0, this.anyway );
+    return this._then( r, r, void 0, this, void 0, this.lastly );
 };
 
 method.inspect = function Promise$inspect() {
@@ -1444,13 +1445,14 @@ method._resolveLast = function Promise$_resolveLast( index ) {
     var receiver = this._receiverAt( index );
     var fn;
 
+    ASSERT((this.isFulfilled() || this.isRejected()),
+    "this.isFulfilled() || this.isRejected()");
     if( this.isFulfilled() ) {
         fn = this._fulfillAt( index );
     }
-    else if( this.isRejected() ) {
+    else {
         fn = this._rejectAt( index );
     }
-    else unreachable();
 
     var obj = this._resolvedValue;
     var ret = obj;
@@ -1961,11 +1963,20 @@ function Promise$_All( promises, PromiseArray, caller ) {
     throw new TypeError("expecting an array or a promise");
 };
 
+var old = global.Promise;
+
+Promise.noConflict = function() {
+    if( global.Promise === Promise ) {
+        global.Promise = old;
+    }
+    return Promise;
+};
+
 
 if( !CapturedTrace.isSupported() ) {
-    Promise.longStackTraces = void 0;
-    CapturedTrace.possiblyUnhandledRejection = void 0;
-    Promise.onPossiblyUnhandledRejection = void 0;
+    Promise.longStackTraces = function(){};
+    CapturedTrace.possiblyUnhandledRejection = function(){};
+    Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
 }
 
@@ -1973,6 +1984,7 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+
 
 return Promise;})();
 

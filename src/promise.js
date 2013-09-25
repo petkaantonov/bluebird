@@ -179,7 +179,7 @@ function slowFinally( ret, reasonOrValue ) {
     }
 }
 /**
- * Convenience method for .then( fn, fn );
+ * Like Q Finally
  *
  * @param {Function} fn The callback to call when this promise is
  * either fulfilled or rejected
@@ -194,7 +194,7 @@ method.lastly = method["finally"] = function Promise$finally( fn ) {
         if( this.isRejected() ) throw reasonOrValue;
         return reasonOrValue;
     };
-    return this._then( r, r, void 0, this, void 0, this.anyway );
+    return this._then( r, r, void 0, this, void 0, this.lastly );
 };
 
 /**
@@ -1058,13 +1058,13 @@ method._resolveLast = function Promise$_resolveLast( index ) {
     var receiver = this._receiverAt( index );
     var fn;
 
+    ASSERT( this.isFulfilled() || this.isRejected() );
     if( this.isFulfilled() ) {
         fn = this._fulfillAt( index );
     }
-    else if( this.isRejected() ) {
+    else {
         fn = this._rejectAt( index );
     }
-    else unreachable();
 
     var obj = this._resolvedValue;
     var ret = obj;
@@ -1613,11 +1613,20 @@ function Promise$_All( promises, PromiseArray, caller ) {
     throw new TypeError("expecting an array or a promise");
 };
 
+var old = global.Promise;
+
+Promise.noConflict = function() {
+    if( global.Promise === Promise ) {
+        global.Promise = old;
+    }
+    return Promise;
+};
+
 
 if( !CapturedTrace.isSupported() ) {
-    Promise.longStackTraces = void 0;
-    CapturedTrace.possiblyUnhandledRejection = void 0;
-    Promise.onPossiblyUnhandledRejection = void 0;
+    Promise.longStackTraces = function(){};
+    CapturedTrace.possiblyUnhandledRejection = function(){};
+    Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
 }
 
@@ -1625,6 +1634,7 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+
 
 return Promise;})();
 
