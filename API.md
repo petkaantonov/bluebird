@@ -49,6 +49,7 @@
     - [.toJSON\(\)](#tojson---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [Promise.noConflict\(\)](#promisenoconflict---object)
+
 ##Core
 
 Core methods of `Promise` instances and core static methods of the Promise class.
