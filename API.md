@@ -257,6 +257,23 @@ Reject the underlying promise with `reason` as the rejection reason.
 
 Progress the underlying promise with `value` as the progression value.
 
+Example
+
+```js
+function delay(ms) {
+    var resolver = Promise.pending();
+    var now = Date.now();
+    setTimeout(function(){
+        resolver.fulfill(Date.now() - now);
+    }, ms);
+    return resolver.promise;
+}
+
+delay(500).then(function(ms){
+    console.log(ms + " ms passed");
+});
+```
+
 ##Collections
 
 Methods of `Promise` instances and core static methods of the Promise class to deal with
