@@ -591,6 +591,15 @@ readFile("myfile.js", "utf8").then(function(contents){
 });
 ```
 
+Note that if the node function is a method of some object, you need to pass the object as the second argument like so:
+
+```js
+var redisGet = Promise.promisify(redisClient.get, redisClient);
+redisGet.then(function(){
+    //...
+});
+```
+
 #####`Promise.noConflict()` -> `Object`
 
 This is relevant to browser environments with no module loader.
