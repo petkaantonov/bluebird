@@ -51,6 +51,9 @@ var create = Object.create || function( proto ) {
     return new F();
 };
 
+
+
+
 function makeNodePromisified( callback, receiver ) {
 
     function getCall(count) {
@@ -75,6 +78,14 @@ function makeNodePromisified( callback, receiver ) {
         "resolver.reject( err );" +
         "}" +
         "else {" +
+        "if( arguments.length > 2 ) {" +
+        "    var len = arguments.length;" +
+        "    var val = new Array(len - 1);" +
+        "    for( var i = 1; i < len; ++i ) {" +
+        "        val[ i - 1 ] = arguments[i];" +
+        "    }" +
+        "    value = val;" +
+        "}" +
         "resolver.fulfill( value );" +
         "}" +
         "};" +

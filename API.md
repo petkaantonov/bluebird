@@ -92,7 +92,7 @@ promptAsync("Which url to visit?").then(function(url){
 
 This is a catch-all exception handler, shortcut for calling `.then(null, handler)` on this promise. Any exception happening in a `.then`-chain will propagate to nearest `.catch` handler.
 
-For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.
+*For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
 
 #####`.catch([Function ErrorClass...], Function handler])` -> `Promise`
 
@@ -147,7 +147,7 @@ Promise.fulfilled().then(function(){
 });
 ```
     
-For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.
+*For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
         
 #####`.finally(Function handler)` -> `Promise`
 
@@ -193,7 +193,7 @@ Now the animation is hidden but an exception or the actual return value will aut
 
 The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wiki/API-Reference#promisefinallycallback).
     
-For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.
+*For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.*
 
 #####`.progressed(Function handler)` -> `Promise`
 
@@ -327,13 +327,13 @@ Promise.all([getPictures(), getComments(), getTweets()].then(function(results){
 
 See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
 
-The original array is not modified. The input array sparsity is retained in the resulting array.
+*The original array is not modified. The input array sparsity is retained in the resulting array.*
 
 #####`Promise.settle(Array<dynamic> values)` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#inspect---promiseinspection) instances at respective positions in relation to the input array.
 
-The original array is not modified. The input array sparsity is retained in the resulting array.
+*The original array is not modified. The input array sparsity is retained in the resulting array.*
 
 #####`Promise.any(Array<dynamic> values)` -> `Promise`
 
@@ -358,7 +358,7 @@ Promise.some([
 
 If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an array of rejection reasons in the order they were thrown in.
 
-The original array is not modified.
+*The original array is not modified.*
 
 #####`Promise.join([dynamic value...])` -> `Promise`
 
@@ -388,7 +388,7 @@ If the `mapper` function returns promises, the returned promise will wait for al
 
 *(TODO: an example where this is useful)*
 
-The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.
+*The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.*
 
 #####`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
 
@@ -396,7 +396,7 @@ Reduce an array, or a promise of an array, which contains a promises (or a mix o
 
 *(TODO: an example where this is useful)*
 
-The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.
+*The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
 
 ##Cancellation
 
@@ -551,6 +551,8 @@ This is implicitly called by `JSON.stringify` when serializing the object. Retur
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
 Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
+
+If the `nodeFunction` calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If you pass a `receiver`, the `nodeFunction` will be called as a method on the `receiver`.
 
