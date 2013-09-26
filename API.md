@@ -49,6 +49,7 @@
     - [.toJSON\(\)](#tojson---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [Promise.noConflict\(\)](#promisenoconflict---object)
+    - [Promise.onPossiblyUnhandledRejection\(Function handler\)](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
 
 ##Core
 
@@ -608,3 +609,15 @@ var Bluebird = Promise.noConflict();
 var promise = Bluebird.cast(new Promise());
 </script>
 ```
+
+#####`Promise.onPossiblyUnhandledRejection(Function handler)` -> `undefined`
+
+Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
+
+```html
+Promise.onPossiblyUnhandledRejection(function(e){
+    throw e;
+});
+```
+
+Passing no value or a non-function will have the effect of removing any kind of handling for possibly unhandled rejections.
