@@ -1,7 +1,7 @@
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
-    "\\b(?:Promise(?:Array)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
+    "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
     "|makeNodePromisified|processImmediate|nextTick" +
     "|Async\\$\\w+)\\b"
 );

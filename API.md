@@ -49,6 +49,7 @@
     - [.toString\(\)](#tostring---string)
     - [.toJSON\(\)](#tojson---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
+    - [Promise.spawn\(GeneratorFunction generatorFunction\)](#promisespawngeneratorfunction-generatorfunction---promise)
     - [Promise.noConflict\(\)](#promisenoconflict---object)
     - [Promise.onPossiblyUnhandledRejection\(Function handler\)](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
 
@@ -606,6 +607,27 @@ redisGet.then(function(){
     //...
 });
 ```
+
+#####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
+
+Spawn a coroutine which may yield promises to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
+
+```js
+Promise.spawn(function* () {
+    var data = yield $.get("http://www.example.com");
+    var moreUrls = data.split("\n");
+    var contents = [];
+    for( var i = 0, len = moreUrls.length; i < len; ++i ) {
+        contents.push(yield $.get(moreUrls[i]));
+    }
+    return contents;
+});
+```
+
+In the example is returned a promise that will eventually have the contents of the urls separated by newline on example.com.
+
+Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
+
 
 #####`Promise.noConflict()` -> `Object`
 

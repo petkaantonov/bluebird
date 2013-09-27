@@ -641,7 +641,7 @@ Promise.map = function Promise$Map( promises, fn ) {
         void 0,
         fn,
         void 0,
-        Promise.all
+        Promise.map
     );
 };
 
@@ -719,9 +719,11 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
  * @param {dynamic} value The value the promise is fulfilled with.
  * @return {Promise}
  */
-Promise.fulfilled = function Promise$Fulfilled( value ) {
+Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     var ret = new Promise();
-    ret._setTrace( Promise.fulfilled );
+    ret._setTrace( typeof caller === "function"
+        ? caller
+        : Promise.fulfilled );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -792,10 +794,10 @@ Promise.pending = function Promise$Pending( caller ) {
  * @return {Promise}
  *
  */
-Promise.cast = function Promise$Cast( obj ) {
-    var ret = cast( obj );
+Promise.cast = function Promise$Cast( obj, caller ) {
+    var ret = cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
-        return Promise.fulfilled( ret );
+        return Promise.fulfilled( ret, caller );
     }
     return ret;
 };
@@ -840,6 +842,13 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     else {
         CapturedTrace.possiblyUnhandledRejection = void 0;
     }
+};
+
+Promise.spawn = function Promise$Spawn( generator ) {
+    var spawn = new PromiseSpawn( generator, Promise.spawn );
+    var ret = spawn.promise();
+    spawn._run( Promise.spawn );
+    return ret;
 };
 
 /**
@@ -1131,7 +1140,7 @@ function Promise$_spreadSlowCase( targetFn, promise, values ) {
 };
 
 
-function cast( obj ) {
+function cast( obj, caller ) {
     if( isObject( obj ) ) {
         if( obj instanceof Promise ) {
             return obj;
@@ -1141,7 +1150,7 @@ function cast( obj ) {
             if( ref.promise != null ) {
                 return ref.promise;
             }
-            var resolver = Promise.pending();
+            var resolver = Promise.pending( caller );
             var result = ref.ref;
             if( result === errorObj ) {
                 resolver.reject( result.e );
