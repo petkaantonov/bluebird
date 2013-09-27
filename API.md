@@ -7,6 +7,7 @@
     - [.catch\(\[Function ErrorClass...\], Function handler\]\)](#catchfunction-errorclass-function-handler---promise)
     - [.finally\(Function handler\)](#finallyfunction-handler---promise)
     - [.progressed\(Function handler\)](#progressedfunction-handler---promise)
+    - [.done\(\[Function fulfilledHandler\] \[, Function rejectedHandler \] \[, Function progressHandler \]\)](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
     - [Promise.fulfilled\(dynamic value\)](#promisefulfilleddynamic-value---promise)
     - [Promise.rejected\(dynamic reason\)](#promiserejecteddynamic-reason---promise)
     - [Promise.pending\(\)](#promisepending---promiseresolver)
@@ -72,6 +73,8 @@ function ajaxGetAsync(url) {
     });
 }
 ```
+
+
     
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
@@ -199,6 +202,10 @@ The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wi
 #####`.progressed(Function handler)` -> `Promise`
 
 Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
+
+#####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+
+Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
 #####`Promise.fulfilled(dynamic value)` -> `Promise`
 

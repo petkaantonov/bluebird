@@ -970,6 +970,12 @@ method.then = function Promise$then( didFulfill, didReject, didProgress ) {
         void 0, void 0, this.then );
 };
 
+method.done = function Promise$done( didFulfill, didReject, didProgress ) {
+    var promise = this._then( didFulfill, didReject, didProgress,
+        void 0, void 0, this.done );
+    promise._setIsFinal();
+};
+
 method.spread = function Promise$spread( didFulfill, didReject ) {
     return this._then( didFulfill, didReject, void 0,
         APPLY, void 0, this.spread );
@@ -1291,7 +1297,14 @@ method._setFollowing = function Promise$_setFollowing() {
 
 method._setDelegated = function Promise$_setDelegated() {
     this._bitField = this._bitField | -1073741824;
+};
 
+method._setIsFinal = function Promise$_setIsFinal() {
+    this._bitField = this._bitField | 33554432;
+};
+
+method._isFinal = function Promise$_isFinal() {
+    return ( this._bitField & 33554432 ) > 0;
 };
 
 method._isDelegated = function Promise$_isDelegated() {
@@ -1893,6 +1906,14 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
+
+    if( this._isFinal() ) {
+        ASSERT((this._length() === 0),
+    "this._length() === 0");
+        async.invokeLater( thrower, void 0, reason );
+        return;
+    }
+
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
@@ -1915,10 +1936,10 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
             async.invoke( promise._reject, promise, reason );
         }
     }
+
     if( !rejectionWasHandled &&
         isError( reason ) &&
         CapturedTrace.possiblyUnhandledRejection !== void 0
-
     ) {
         if( reason.__handled !== true ) {
             reason.__handled = false;

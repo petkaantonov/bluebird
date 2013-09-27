@@ -66,7 +66,7 @@ For handling this problem, in my opinion, this is completely unacceptable and po
 
 The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a second turn. The default handler is to write the stack trace to stderr or `console.error` in browsers. This is close to what happens with synchronous code - your code doens't work as expected and you open console and see a stack trace. Nice.
 
-Of course this is not perfect, if your code for some reason needs to swoop in and attach error handler to some promise after the promise has been hanging around a while then you will see annoying messages. I will probably add a done method if it turns out people actually need to do this.
+Of course this is not perfect, if your code for some reason needs to swoop in and attach error handler to some promise after the promise has been hanging around a while then you will see annoying messages. In that case you can use the `.done()` method to signal that any hanging exceptions should be thrown.
 
 If you want to override the default handler for these possibly unhandled rejections, you can pass yours like so:
 

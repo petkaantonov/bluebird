@@ -37,13 +37,14 @@ CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 
 //Layout for .bitField
-//DDWF NCRR LLLL LLLL LLLL LLLL LLLL LLLL
+//DDWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
 //D = isDelegated - To implement just in time thenable assimilation
 //Both of the DD bits must be either 0 or 1
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
+//T = isFinal (used for .done() implementation)
 
 //R = [Reserved]
 //L = Length, 24 bit unsigned
@@ -52,6 +53,7 @@ CONSTANT(IS_FOLLOWING, 0x20000000|0);
 CONSTANT(IS_FULFILLED, 0x10000000|0);
 CONSTANT(IS_REJECTED, 0x8000000|0);
 CONSTANT(IS_CANCELLABLE, 0x4000000|0);
+CONSTANT(IS_FINAL, 0x2000000|0);
 CONSTANT(LENGTH_MASK, 0xFFFFFF|0);
 CONSTANT(LENGTH_CLEAR_MASK, ~LENGTH_MASK);
 CONSTANT(MAX_LENGTH, LENGTH_MASK);
@@ -369,6 +371,16 @@ method.get = function Promise$get( propertyName ) {
 method.then = function Promise$then( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.then );
+};
+
+/**
+ * Any rejections that come here will be thrown.
+ *
+ */
+method.done = function Promise$done( didFulfill, didReject, didProgress ) {
+    var promise = this._then( didFulfill, didReject, didProgress,
+        void 0, void 0, this.done );
+    promise._setIsFinal();
 };
 
 /**
@@ -914,7 +926,14 @@ method._setFollowing = function Promise$_setFollowing() {
 
 method._setDelegated = function Promise$_setDelegated() {
     this._bitField = this._bitField | IS_DELEGATED;
+};
 
+method._setIsFinal = function Promise$_setIsFinal() {
+    this._bitField = this._bitField | IS_FINAL;
+};
+
+method._isFinal = function Promise$_isFinal() {
+    return ( this._bitField & IS_FINAL ) > 0;
 };
 
 method._isDelegated = function Promise$_isDelegated() {
@@ -1503,6 +1522,15 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
+
+    if( this._isFinal() ) {
+        ASSERT( this._length() === 0 );
+        //Currently not in conflict with anything but should
+        //invokeLater be used for something else, this needs to be revisited
+        async.invokeLater( thrower, void 0, reason );
+        return;
+    }
+
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
@@ -1525,10 +1553,10 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
             async.invoke( promise._reject, promise, reason );
         }
     }
+
     if( !rejectionWasHandled &&
         isError( reason ) &&
         CapturedTrace.possiblyUnhandledRejection !== void 0
-
     ) {
         //If the prop is not there, reading it
         //will cause deoptimization most likely
