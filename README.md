@@ -129,15 +129,12 @@ Promise.fulfilled().then(function outer() {
 
     ReferenceError: a is not defined
         at evenMoreInner (<anonymous>:7:13)
+    From previous event:
         at inner (<anonymous>:6:36)
-        at Function.Promise$Fulfilled (<anonymous>:1073:9)
-        at inner (<anonymous>:6:24)
+    From previous event:
         at outer (<anonymous>:5:32)
-        at Function.Promise$Fulfilled (<anonymous>:1073:9)
-        at outer (<anonymous>:5:20)
+    From previous event:
         at <anonymous>:4:21
-        at Function.Promise$Fulfilled (<anonymous>:1073:9)
-        at <anonymous>:4:9
         at Object.InjectedScript._evaluateOn (<anonymous>:572:39)
         at Object.InjectedScript._evaluateAndWrap (<anonymous>:531:52)
         at Object.InjectedScript.evaluate (<anonymous>:450:21)

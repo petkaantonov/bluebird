@@ -39,6 +39,7 @@ function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     }
 };
 
+CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
     var curLast = current.length - 1;
     //Eliminate common roots
@@ -52,6 +53,7 @@ CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
             break;
         }
     }
+    current.push( FROM_PREVIOUS_EVENT );
     var lines = current.concat( prev );
 
     var ret = [];
@@ -60,8 +62,10 @@ CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
     //Eliminate library internal stuff and async callers
     //that nobody cares about
     for( var i = 0, len = lines.length; i < len; ++i ) {
-        if( rignore.test( lines[i] ) ||
-            ( i > 0 && !rtraceline.test( lines[i] ) )
+
+        if( ( rignore.test( lines[i] ) ||
+            ( i > 0 && !rtraceline.test( lines[i] ) ) &&
+            lines[i] !== FROM_PREVIOUS_EVENT )
         ) {
             continue;
         }

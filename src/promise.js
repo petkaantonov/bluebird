@@ -261,7 +261,7 @@ method.cancel = function Promise$cancel() {
  */
 method.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( this.uncancellable );
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -709,7 +709,7 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
  */
 Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( Promise.fulfilled );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -731,7 +731,7 @@ Promise.fulfilled = function Promise$Fulfilled( value ) {
  */
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( Promise.rejected );
     ret._cleanValues();
     ret._setRejected();
     ret._resolvedValue = reason;
@@ -853,7 +853,9 @@ function Promise$_then(
     var ret = haveInternalData ? internalData : new Promise();
 
     if( longStackTraces && !haveInternalData ) {
-        ret._traceParent = this;
+        ret._traceParent = this._peekContext() === this._traceParent
+            ? this._traceParent
+            : this;
         ret._setTrace( typeof caller === "function" ? caller : this._then );
     }
 

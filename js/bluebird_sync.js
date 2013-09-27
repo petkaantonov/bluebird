@@ -216,14 +216,17 @@ CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
             break;
         }
     }
+    current.push( "From previous event:" );
     var lines = current.concat( prev );
 
     var ret = [];
 
 
     for( var i = 0, len = lines.length; i < len; ++i ) {
-        if( rignore.test( lines[i] ) ||
-            ( i > 0 && !rtraceline.test( lines[i] ) )
+
+        if( ( rignore.test( lines[i] ) ||
+            ( i > 0 && !rtraceline.test( lines[i] ) ) &&
+            lines[i] !== "From previous event:" )
         ) {
             continue;
         }
@@ -841,7 +844,7 @@ method.cancel = function Promise$cancel() {
 
 method.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( this.uncancellable );
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -1080,7 +1083,7 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
 
 Promise.fulfilled = function Promise$Fulfilled( value ) {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( Promise.fulfilled );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -1092,7 +1095,7 @@ Promise.fulfilled = function Promise$Fulfilled( value ) {
 
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
-    ret._setTrace();
+    ret._setTrace( Promise.rejected );
     ret._cleanValues();
     ret._setRejected();
     ret._resolvedValue = reason;
@@ -1141,7 +1144,9 @@ function Promise$_then(
     var ret = haveInternalData ? internalData : new Promise();
 
     if( longStackTraces && !haveInternalData ) {
-        ret._traceParent = this;
+        ret._traceParent = this._peekContext() === this._traceParent
+            ? this._traceParent
+            : this;
         ret._setTrace( typeof caller === "function" ? caller : this._then );
     }
 
@@ -1241,6 +1246,23 @@ method._progressAt = function Promise$_progressAt( index ) {
     return this[ index + 2 - 5 ];
 };
 
+method._unsetAt = function Promise$_unsetAt( index ) {
+    if( index === 0 ) {
+        this._fulfill0 =
+        this._reject0 =
+        this._progress0 =
+        this._promise0 =
+        this._receiver0 = void 0;
+    }
+    else {
+        this[ index - 5 + 0 ] =
+        this[ index - 5 + 1 ] =
+        this[ index - 5 + 2 ] =
+        this[ index - 5 + 3 ] =
+        this[ index - 5 + 4 ] = void 0;
+    }
+};
+
 var fulfiller = new Function("p",
     "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
 var rejecter = new Function("p",
@@ -1323,7 +1345,7 @@ method._resolveLast = function Promise$_resolveLast( index ) {
     else {
         fn = this._rejectAt( index );
     }
-
+    this._unsetAt( index );
     var obj = this._resolvedValue;
     var ret = obj;
     if( fn !== void 0 ) {
@@ -1678,6 +1700,7 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
         var receiver = this._receiverAt( i );
+        this._unsetAt( i );
         if( fn !== void 0 ) {
             this._resolvePromise(
                 fn,
@@ -1702,11 +1725,13 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     for( var i = 0; i < len; i+= 5 ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
+        var receiver = this._receiverAt( i );
+        this._unsetAt( i );
         if( fn !== void 0 ) {
             rejectionWasHandled = true;
             this._resolvePromise(
                 fn,
-                this._receiverAt( i ),
+                receiver,
                 reason,
                 promise
             );
