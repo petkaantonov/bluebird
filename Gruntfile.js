@@ -1,6 +1,6 @@
 var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
-
+var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 
 var ccOptions = {
     compilation_level: 'SIMPLE_OPTIMIZATIONS',
@@ -104,6 +104,7 @@ module.exports = function( grunt ) {
                 "./src/some_promise_array.js",
                 "./src/promise_inspection.js",
                 "./src/promise_resolver.js",
+                "./src/promise_spawn.js",
                 "./src/epilogue.js"
             ],
 
@@ -163,12 +164,12 @@ module.exports = function( grunt ) {
                 : 'ignore',
             process.stderr
         ];
-
+        var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', ["../mocharun.js", file], {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["../mocharun.js", file]), {cwd: p, stdio: stdio});
         }
         else {
-            var node = spawn('node', ["./"+file], {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["./"+file]), {cwd: p, stdio: stdio});
         }
         node.on('exit', exit );
 
@@ -279,6 +280,9 @@ module.exports = function( grunt ) {
             }
         }
         files = files.filter(function(fileName){
+            if( !node11 && fileName.indexOf("generator") > -1 ) {
+                return false;
+            }
             return /\.js$/.test(fileName);
         }).map(function(f){
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );

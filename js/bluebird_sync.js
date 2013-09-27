@@ -172,7 +172,7 @@ var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
-    "\\b(?:Promise(?:Array)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
+    "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
     "|makeNodePromisified|processImmediate|nextTick" +
     "|Async\\$\\w+)\\b"
 );
@@ -1029,7 +1029,7 @@ Promise.map = function Promise$Map( promises, fn ) {
         void 0,
         fn,
         void 0,
-        Promise.all
+        Promise.map
     );
 };
 
@@ -1087,9 +1087,11 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
         ._then( reducer, void 0, void 0, fn, void 0, Promise.all );
 };
 
-Promise.fulfilled = function Promise$Fulfilled( value ) {
+Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     var ret = new Promise();
-    ret._setTrace( Promise.fulfilled );
+    ret._setTrace( typeof caller === "function"
+        ? caller
+        : Promise.fulfilled );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -1115,10 +1117,10 @@ Promise.pending = function Promise$Pending( caller ) {
 };
 
 
-Promise.cast = function Promise$Cast( obj ) {
-    var ret = cast( obj );
+Promise.cast = function Promise$Cast( obj, caller ) {
+    var ret = cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
-        return Promise.fulfilled( ret );
+        return Promise.fulfilled( ret, caller );
     }
     return ret;
 };
@@ -1131,6 +1133,13 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     else {
         CapturedTrace.possiblyUnhandledRejection = void 0;
     }
+};
+
+Promise.spawn = function Promise$Spawn( generator ) {
+    var spawn = new PromiseSpawn( generator, Promise.spawn );
+    var ret = spawn.promise();
+    spawn._run( Promise.spawn );
+    return ret;
 };
 
 Promise.promisify = function Promise$Promisify( callback, receiver) {
@@ -1382,7 +1391,7 @@ function Promise$_spreadSlowCase( targetFn, promise, values ) {
 };
 
 
-function cast( obj ) {
+function cast( obj, caller ) {
     if( isObject( obj ) ) {
         if( obj instanceof Promise ) {
             return obj;
@@ -1392,7 +1401,7 @@ function cast( obj ) {
             if( ref.promise != null ) {
                 return ref.promise;
             }
-            var resolver = Promise.pending();
+            var resolver = Promise.pending( caller );
             var result = ref.ref;
             if( result === errorObj ) {
                 resolver.reject( result.e );
@@ -2251,6 +2260,65 @@ method.toJSON = function PromiseResolver$toJSON() {
 
 
 return PromiseResolver;})();
+var PromiseSpawn = (function() {
+
+function PromiseSpawn( generatorFunction, caller ) {
+    this._resolver = Promise.pending( caller );
+    this._generatorFunction = generatorFunction;
+    this._generator = void 0;
+    this._caller = caller;
+}
+var method = PromiseSpawn.prototype;
+
+method.promise = function PromiseSpawn$promise() {
+    return this._resolver.promise;
+};
+
+method._run = function PromiseSpawn$_run( caller ) {
+    this._generator = this._generatorFunction();
+    this._generatorFunction = void 0;
+    this._next( void 0, caller );
+};
+
+method._continue = function PromiseSpawn$_continue( result, caller ) {
+    if( result === errorObj ) {
+        this._resolver.reject( result.e );
+        return;
+    }
+
+    var value = result.value;
+    if( result.done ) {
+         this._resolver.fulfill( value );
+    }
+    else {
+        Promise.cast( value, caller )._then(
+            this._next,
+            this._throw,
+            void 0,
+            this,
+            caller,
+            caller
+        );
+    }
+};
+
+method._throw = function PromiseSpawn$_throw( reason, caller ) {
+    this._continue(
+        tryCatch1( this._generator["throw"], this._generator, reason ),
+        caller
+    );
+};
+
+method._next = function PromiseSpawn$_next( value, caller ) {
+    this._continue(
+        tryCatch1( this._generator.next, this._generator, value ),
+        caller
+    );
+};
+
+
+
+return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {
     module.exports = Promise;
 }
