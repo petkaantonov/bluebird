@@ -976,6 +976,27 @@ method._progressAt = function Promise$_progressAt( index ) {
     return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
 };
 
+method._unsetAt = function Promise$_unsetAt( index ) {
+    ASSERT( typeof index === "number" );
+    ASSERT( index >= 0 );
+    ASSERT( index < this._length() );
+    ASSERT( index % CALLBACK_SIZE === 0 );
+    if( index === 0 ) {
+        this._fulfill0 =
+        this._reject0 =
+        this._progress0 =
+        this._promise0 =
+        this._receiver0 = void 0;
+    }
+    else {
+        this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] =
+        this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] =
+        this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] =
+        this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] =
+        this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = void 0;
+    }
+};
+
 var fulfiller = new Function("p",
     "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
 var rejecter = new Function("p",
@@ -1065,7 +1086,7 @@ method._resolveLast = function Promise$_resolveLast( index ) {
     else {
         fn = this._rejectAt( index );
     }
-
+    this._unsetAt( index );
     var obj = this._resolvedValue;
     var ret = obj;
     if( fn !== void 0 ) {
@@ -1459,6 +1480,7 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
         var fn = this._fulfillAt( i );
         var promise = this._promiseAt( i );
         var receiver = this._receiverAt( i );
+        this._unsetAt( i );
         if( fn !== void 0 ) {
             this._resolvePromise(
                 fn,
@@ -1484,11 +1506,13 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         var fn = this._rejectAt( i );
         var promise = this._promiseAt( i );
+        var receiver = this._receiverAt( i );
+        this._unsetAt( i );
         if( fn !== void 0 ) {
             rejectionWasHandled = true;
             this._resolvePromise(
                 fn,
-                this._receiverAt( i ),
+                receiver,
                 reason,
                 promise
             );
