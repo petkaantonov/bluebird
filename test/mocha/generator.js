@@ -94,26 +94,6 @@ describe("thenables", function(){
     });
 });
 
-describe("delayed promises", function(){
-
-    specify("should delay sync looking execution", function(done){
-        Promise.spawn(function* () {
-            var now = Date.now();
-            yield delay();
-            yield delay();
-            yield delay();
-            yield delay();
-            yield delay();
-            yield delay();
-            return Date.now() - now;
-        }).then(function(val){
-            assert(val > 50);
-            done();
-        });
-    });
-
-});
-
 describe("yield loop", function(){
 
     specify("should work", function(done){
