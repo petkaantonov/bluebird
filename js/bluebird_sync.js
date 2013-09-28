@@ -2294,46 +2294,46 @@ method.promise = function PromiseSpawn$promise() {
     return this._resolver.promise;
 };
 
-method._run = function PromiseSpawn$_run( caller ) {
+method._run = function PromiseSpawn$_run() {
     this._generator = this._generatorFunction.call( this._receiver );
     this._receiver =
         this._generatorFunction = void 0;
-    this._next( void 0, caller );
+    this._next( void 0 );
 };
 
-method._continue = function PromiseSpawn$_continue( result, caller ) {
+method._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
+        this._generator = void 0;
         this._resolver.reject( result.e );
         return;
     }
 
     var value = result.value;
-    if( result.done ) {
-         this._resolver.fulfill( value );
+    if( result.done === true ) {
+        this._generator = void 0;
+        this._resolver.fulfill( value );
     }
     else {
-        Promise.cast( value, caller )._then(
+        Promise.cast( value )._then(
             this._next,
             this._throw,
             void 0,
             this,
-            caller,
-            caller
+            null,
+            void 0
         );
     }
 };
 
-method._throw = function PromiseSpawn$_throw( reason, caller ) {
+method._throw = function PromiseSpawn$_throw( reason ) {
     this._continue(
-        tryCatch1( this._generator["throw"], this._generator, reason ),
-        caller
+        tryCatch1( this._generator["throw"], this._generator, reason )
     );
 };
 
-method._next = function PromiseSpawn$_next( value, caller ) {
+method._next = function PromiseSpawn$_next( value ) {
     this._continue(
-        tryCatch1( this._generator.next, this._generator, value ),
-        caller
+        tryCatch1( this._generator.next, this._generator, value )
     );
 };
 
