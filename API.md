@@ -49,6 +49,7 @@
     - [.toString\(\)](#tostring---string)
     - [.toJSON\(\)](#tojson---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
+    - [Promise.coroutine\(GeneratorFunction generatorFunction\)](#promisecoroutinegeneratorfunction-generatorfunction---function)
     - [Promise.spawn\(GeneratorFunction generatorFunction\)](#promisespawngeneratorfunction-generatorfunction---promise)
     - [Promise.noConflict\(\)](#promisenoconflict---object)
     - [Promise.onPossiblyUnhandledRejection\(Function handler\)](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
@@ -607,6 +608,57 @@ redisGet.then(function(){
     //...
 });
 ```
+
+#####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
+
+Returns a function that can use `yield` to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
+
+This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of anonymous functions can be completely avoided.
+
+```js
+var Promise = require("Promise");
+
+function delay(ms) {
+    return new Promise(function(f){
+        setTimeout(f, ms);
+    });
+}
+
+function PingPong() {
+
+}
+
+PingPong.prototype.ping = Promise.coroutine(function* (val) {
+    console.log("Ping?", val)
+    yield delay(500)
+    this.pong(val+1)
+});
+
+PingPong.prototype.pong = Promise.coroutine(function* (val) {
+    console.log("Pong!", val)
+    yield delay(500);
+    this.ping(val+1)
+});
+
+var a = new PingPong();
+a.ping(0);
+```
+
+Running the example with node version at least 0.11.2:
+
+    $ node --harmony test.js
+    Ping? 0
+    Pong! 1
+    Ping? 2
+    Pong! 3
+    Ping? 4
+    Pong! 5
+    Ping? 6
+    Pong! 7
+    Ping? 8
+    ...
+
+Doing `Promise.coroutine(function*(){})` is like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are `Task`s.
 
 #####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
 

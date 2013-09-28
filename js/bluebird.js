@@ -1135,17 +1135,35 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-Promise.spawn = function Promise$Spawn( generator ) {
-    if( typeof generator !== "function" ) {
-        throw new TypeError( "generator must be a function" );
+Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
+     if( typeof generatorFunction !== "function" ) {
+        throw new TypeError( "generatorFunction must be a function" );
+    }
+    if( !PromiseSpawn.isSupported() ) {
+        throw new Error( "Attempting to use Promise.coroutine "+
+                "without generatorFunction support" );
+    }
+    var PromiseSpawn$ = PromiseSpawn;
+    return function anonymous() {
+        var generator = generatorFunction.apply( this, arguments );
+        var spawn = new PromiseSpawn$( void 0, void 0, anonymous );
+        spawn._generator = generator;
+        spawn._next( void 0 );
+        return spawn.promise();
+    };
+};
+
+Promise.spawn = function Promise$Spawn( generatorFunction ) {
+    if( typeof generatorFunction !== "function" ) {
+        throw new TypeError( "generatorFunction must be a function" );
     }
     if( !PromiseSpawn.isSupported() ) {
         var defer = Promise.pending( Promise.spawn );
         defer.reject( new Error( "Attempting to use Promise.spawn "+
-                "without generator support" ));
+                "without generatorFunction support" ));
         return defer.promise;
     }
-    var spawn = new PromiseSpawn( generator, this, Promise.spawn );
+    var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
     var ret = spawn.promise();
     spawn._run( Promise.spawn );
     return ret;
@@ -2350,6 +2368,8 @@ method._next = function PromiseSpawn$_next( value ) {
 
 PromiseSpawn.isSupported =
     new Function("return " + (haveEs6Generators));
+
+
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {
