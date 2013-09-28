@@ -845,7 +845,16 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
 };
 
 Promise.spawn = function Promise$Spawn( generator ) {
-    var spawn = new PromiseSpawn( generator, Promise.spawn );
+    if( typeof generator !== "function" ) {
+        throw new TypeError( "generator must be a function" );
+    }
+    if( !PromiseSpawn.isSupported() ) {
+        var defer = Promise.pending( Promise.spawn );
+        defer.reject( new Error( "Attempting to use Promise.spawn "+
+                "without generator support" ));
+        return defer.promise;
+    }
+    var spawn = new PromiseSpawn( generator, this, Promise.spawn );
     var ret = spawn.promise();
     spawn._run( Promise.spawn );
     return ret;

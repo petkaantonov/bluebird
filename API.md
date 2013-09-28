@@ -628,6 +628,31 @@ In the example is returned a promise that will eventually have the contents of t
 
 Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
 
+**Tip:**
+
+When `Promise.spawn` is called as a method of an object, that object becomes the receiver of the generator function too.
+
+```js
+function ChatRoom(roomId) {
+    this.roomId = roomId
+}
+ChatRoom.prototype.spawn = Promise.spawn;
+
+ChatRoom.prototype.addUser = function( userId ) {
+    return this.spawn(function* () {
+        var isBanned = yield chatStore.userIsBannedForRoom(this.roomId, userId);
+        if (isBanned) {
+            throw new ChatError("You have been banned from this room");
+        }
+        return chatStore.addUserToRoom(this.roomId, userId);
+    });
+};
+
+var room = new ChatRoom(1);
+room.addUser(2);
+```
+
+In the above example, all the methods of `ChatRoom` can avoid the `var self = this` prologue and just use `this` normally inside the generator.
 
 #####`Promise.noConflict()` -> `Object`
 

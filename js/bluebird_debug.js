@@ -1217,7 +1217,16 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
 };
 
 Promise.spawn = function Promise$Spawn( generator ) {
-    var spawn = new PromiseSpawn( generator, Promise.spawn );
+    if( typeof generator !== "function" ) {
+        throw new TypeError( "generator must be a function" );
+    }
+    if( !PromiseSpawn.isSupported() ) {
+        var defer = Promise.pending( Promise.spawn );
+        defer.reject( new Error( "Attempting to use Promise.spawn "+
+                "without generator support" ));
+        return defer.promise;
+    }
+    var spawn = new PromiseSpawn( generator, this, Promise.spawn );
     var ret = spawn.promise();
     spawn._run( Promise.spawn );
     return ret;
@@ -2460,11 +2469,22 @@ method.toJSON = function PromiseResolver$toJSON() {
 return PromiseResolver;})();
 var PromiseSpawn = (function() {
 
-function PromiseSpawn( generatorFunction, caller ) {
+var haveEs6Generators = (function(){
+    try {
+        /* jshint nonew: false */
+        new Function("(function*(){})");
+        return true;
+    }
+    catch(e) {
+        return false;
+    }
+})();
+
+function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
     this._generatorFunction = generatorFunction;
+    this._receiver = receiver;
     this._generator = void 0;
-    this._caller = caller;
 }
 var method = PromiseSpawn.prototype;
 
@@ -2477,8 +2497,9 @@ method._run = function PromiseSpawn$_run( caller ) {
     "this._generator === void 0");
     ASSERT(((typeof this._generatorFunction) === "function"),
     "typeof this._generatorFunction === \u0022function\u0022");
-    this._generator = this._generatorFunction();
-    this._generatorFunction = void 0;
+    this._generator = this._generatorFunction.call( this._receiver );
+    this._receiver =
+        this._generatorFunction = void 0;
     this._next( void 0, caller );
 };
 
@@ -2540,6 +2561,8 @@ method._next = function PromiseSpawn$_next( value, caller ) {
 };
 
 
+PromiseSpawn.isSupported =
+    new Function("return " + (haveEs6Generators));
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {

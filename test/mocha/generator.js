@@ -140,3 +140,31 @@ describe("yield loop", function(){
     });
 
 });
+
+describe("when using spawn as a method", function(){
+
+    function MyClass() {
+        this.goblins = 3;
+    }
+    MyClass.prototype.spawn = Promise.spawn;
+
+    MyClass.prototype.spawnGoblins = function() {
+        return this.spawn(function* () {
+            this.goblins = yield get(this.goblins+1);
+        });
+    };
+
+    specify("generator function's receiver should be the instance too", function( done ) {
+        var a = new MyClass();
+        var b = new MyClass();
+
+        Promise.join(a.spawnGoblins().then(function(){
+            return a.spawnGoblins()
+        }), b.spawnGoblins()).then(function(){
+            assert.equal(a.goblins, 5);
+            assert.equal(b.goblins, 4);
+            done();
+        });
+
+    });
+});

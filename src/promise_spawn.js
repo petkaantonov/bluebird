@@ -1,10 +1,21 @@
 var PromiseSpawn = (function() {
 
-function PromiseSpawn( generatorFunction, caller ) {
+var haveEs6Generators = (function(){
+    try {
+        /* jshint nonew: false */
+        new Function("(function*(){})");
+        return true;
+    }
+    catch(e) {
+        return false;
+    }
+})();
+
+function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
     this._generatorFunction = generatorFunction;
+    this._receiver = receiver;
     this._generator = void 0;
-    this._caller = caller;
 }
 var method = PromiseSpawn.prototype;
 
@@ -15,8 +26,9 @@ method.promise = function PromiseSpawn$promise() {
 method._run = function PromiseSpawn$_run( caller ) {
     ASSERT( this._generator === void 0 );
     ASSERT( typeof this._generatorFunction === "function" );
-    this._generator = this._generatorFunction();
-    this._generatorFunction = void 0;
+    this._generator = this._generatorFunction.call( this._receiver );
+    this._receiver =
+        this._generatorFunction = void 0;
     this._next( void 0, caller );
 };
 
@@ -69,5 +81,7 @@ method._next = function PromiseSpawn$_next( value, caller ) {
 };
 
 
+PromiseSpawn.isSupported =
+    new Function("return " + (haveEs6Generators));
 
 return PromiseSpawn;})();
