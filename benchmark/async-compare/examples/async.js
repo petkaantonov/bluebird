@@ -52,7 +52,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
             else return callback(null, file.id);
         },
         function afterFileExists(iFileId, callback) {
-            fileId = iFileId;
+            fileId = iFileId; 
             FileVersion.insert({fileId: fileId, versionId: version.id})
                 .execWithin(tx, callback);
         },
