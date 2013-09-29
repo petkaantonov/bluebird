@@ -48,6 +48,8 @@ method._continue = function PromiseSpawn$_continue( result ) {
             this._throw,
             void 0,
             this,
+            //Don't need to smuggle null but doing so
+            //triggers many fast paths
             null,
             void 0
         );
@@ -55,6 +57,7 @@ method._continue = function PromiseSpawn$_continue( result ) {
 };
 
 method._throw = function PromiseSpawn$_throw( reason ) {
+    this.promise()._attachExtraTrace( reason );
     this._continue(
         tryCatch1( this._generator["throw"], this._generator, reason )
     );
