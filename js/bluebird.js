@@ -71,60 +71,6 @@ var create = Object.create || function( proto ) {
     return new F();
 };
 
-
-
-
-function makeNodePromisified( callback, receiver ) {
-
-    function getCall(count) {
-        var args = new Array(count);
-        for( var i = 0, len = args.length; i < len; ++i ) {
-            args[i] = "a" + (i+1);
-        }
-        var comma = count > 0 ? "," : "";
-        return ( receiver === void 0
-            ? "callback("+args.join(",")+ comma +" fn);"
-            : "callback.call(receiver, "+args.join(",") + comma + " fn);" ) +
-        "break;";
-    }
-
-    return new Function("Promise", "callback", "receiver",
-        "return function promisified( a1, a2, a3, a4, a5 ) {\"use strict\";" +
-        "var len = arguments.length;" +
-        "var resolver = Promise.pending( promisified );" +
-        "" +
-        "var fn = function fn( err, value ) {" +
-        "if( err ) {" +
-        "resolver.reject( err );" +
-        "}" +
-        "else {" +
-        "if( arguments.length > 2 ) {" +
-        "    var len = arguments.length;" +
-        "    var val = new Array(len - 1);" +
-        "    for( var i = 1; i < len; ++i ) {" +
-        "        val[ i - 1 ] = arguments[i];" +
-        "    }" +
-        "    value = val;" +
-        "}" +
-        "resolver.fulfill( value );" +
-        "}" +
-        "};" +
-        "switch( len ) {" +
-        "case 5:" + getCall(5) +
-        "case 4:" + getCall(4) +
-        "case 3:" + getCall(3) +
-        "case 2:" + getCall(2) +
-        "case 1:" + getCall(1) +
-        "case 0:" + getCall(0) +
-        "default: callback.apply(receiver, arguments); break;" +
-        "}" +
-        "return resolver.promise;" +
-        "" +
-        "};"
-    )(Promise, callback, receiver);
-}
-
-
 var inherits = function( Child, Parent ) {
     var hasProp = {}.hasOwnProperty;
 
@@ -144,6 +90,85 @@ var inherits = function( Child, Parent ) {
     return Child.prototype;
 };
 
+
+function withAppended( target, appendee ) {
+    var len = target.length;
+    var ret = new Array( len + 1 );
+    var i;
+    for( i = 0; i < len; ++i ) {
+        ret[ i ] = target[ i ];
+    }
+    ret[ i ] = appendee;
+    return ret;
+}
+
+var THIS = {};
+function makeNodePromisified( callback, receiver ) {
+
+    function getCall(count) {
+        var args = new Array(count);
+        for( var i = 0, len = args.length; i < len; ++i ) {
+            args[i] = "a" + (i+1);
+        }
+        var comma = count > 0 ? "," : "";
+
+        if( typeof callback === "string" &&
+            receiver === THIS ) {
+            return "this['" + callback + "']("+args.join(",")+ comma +" fn);"+
+                "break;";
+        }
+        return ( receiver === void 0
+            ? "callback("+args.join(",")+ comma +" fn);"
+            : "callback.call("+( receiver === THIS
+                ? "this"
+                : "receiver" )+", "+args.join(",") + comma + " fn);" ) +
+        "break;";
+    }
+
+    var callbackName = (typeof callback === "string"
+        ? ( callback + "Async" )
+        : "promisified");
+
+    return new Function("Promise", "callback", "receiver", "withAppended",
+        "return function " + callbackName +
+        "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
+        "var len = arguments.length;" +
+        "var resolver = Promise.pending( " + callbackName + " );" +
+        "var fn = function fn( err, value ) {" +
+        "if( err ) {" +
+        "resolver.reject( err );" +
+        "}" +
+        "else {" +
+        "if( arguments.length > 2 ) {" +
+        "    var len = arguments.length;" +
+        "    var val = new Array(len - 1);" +
+        "    for( var i = 1; i < len; ++i ) {" +
+        "        val[ i - 1 ] = arguments[i];" +
+        "    }" +
+        "    value = val;" +
+        "}" +
+        "resolver.fulfill( value );" +
+        "}" +
+        "};" +
+        "switch( len ) {" +
+        "case 1:" + getCall(1) +
+        "case 2:" + getCall(2) +
+        "case 3:" + getCall(3) +
+        "case 0:" + getCall(0) +
+        "case 4:" + getCall(4) +
+        "case 5:" + getCall(5) +
+        "default: " + (typeof callback === "string"
+            ? "this['" + callback + "'].apply("
+            : "callback.apply("
+        ) +
+            ( receiver === THIS ? "this" : "receiver" ) +
+        ", withAppended( arguments, fn ) ); break;" +
+        "}" +
+        "return resolver.promise;" +
+        "" +
+        "};"
+    )(Promise, callback, receiver, withAppended);
+}
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
@@ -1169,7 +1194,31 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
-Promise.promisify = function Promise$Promisify( callback, receiver) {
+var PROCESSED = {};
+var descriptor = {
+    value: PROCESSED,
+    writable: true,
+    configurable: false,
+    enumerable: false
+};
+function f(){}
+Promise.promisify = function Promise$Promisify( callback, receiver ) {
+    if( typeof callback === "object" && callback !== null ) {
+        if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
+            for( var key in callback ) {
+                if( callback.hasOwnProperty( key ) &&
+                    rjsident.test( key ) &&
+                    typeof callback[ key ] === "function" ) {
+                    callback[ key + "Async" ] =
+                        makeNodePromisified( key, THIS );
+                }
+            }
+            Object.defineProperty( callback,
+                "__processedBluebirdAsync__", descriptor );
+            f.prototype = callback;
+        }
+        return callback;
+    }
     return makeNodePromisified( callback, receiver );
 };
 
@@ -2354,6 +2403,7 @@ method._continue = function PromiseSpawn$_continue( result ) {
 };
 
 method._throw = function PromiseSpawn$_throw( reason ) {
+    this.promise()._attachExtraTrace( reason );
     this._continue(
         tryCatch1( this._generator["throw"], this._generator, reason )
     );

@@ -48,6 +48,7 @@
     - [.get\(String propertyName\)](#getstring-propertyname---promise)
     - [.toString\(\)](#tostring---string)
     - [.toJSON\(\)](#tojson---object)
+    - [Promise.promisify\(Object target\)](#promisepromisifyobject-target---object)
     - [Promise.promisify\(Function nodeFunction \[, dynamic receiver\]\)](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [Promise.coroutine\(GeneratorFunction generatorFunction\)](#promisecoroutinegeneratorfunction-generatorfunction---function)
     - [Promise.spawn\(GeneratorFunction generatorFunction\)](#promisespawngeneratorfunction-generatorfunction---promise)
@@ -574,6 +575,40 @@ promise.then(function(obj){
 #####`.toJSON()` -> `Object`
 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
+
+#####`Promise.promisify(Object target)` -> `Object`
+
+Promisifies the entire object by going through the object and creating an async equivalent of each function on the object. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+
+Example:
+
+```js
+Promise.promisify(RedisClient.prototype);
+
+//Later on, all redis client instances have promise returning functions:
+
+redisClient.hexistsAsync("myhash", "field").then(function(v){
+
+}).catch(function(e){
+
+});
+```
+
+It also works on singletons or specific instances:
+
+```js
+var fs = Promise.promisify(require("fs"));
+
+fs.readFileAsync("myfile.js", "utf8").then(function(contents){
+    console.log(contents);
+}).catch(function(e){
+    console.error(e.stack);
+});
+```
+
+Only enumerable own properties are considered. A specific object will only be promisified once. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
+
+If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
