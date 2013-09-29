@@ -885,7 +885,34 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
  *
  *
  */
-Promise.promisify = function Promise$Promisify( callback, receiver/*, callbackDescriptor*/ ) {
+var PROCESSED = {};
+var descriptor = {
+    value: PROCESSED,
+    writable: true,
+    configurable: false,
+    enumerable: false
+};
+function f(){}
+Promise.promisify = function Promise$Promisify( callback, receiver ) {
+    if( typeof callback === "object" && callback !== null ) {
+        if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
+            for( var key in callback ) {
+                if( callback.hasOwnProperty( key ) &&
+                    rjsident.test( key ) &&
+                    typeof callback[ key ] === "function" ) {
+                    callback[ key + "Async" ] =
+                        makeNodePromisified( key, THIS );
+                }
+            }
+            Object.defineProperty( callback,
+                "__processedBluebirdAsync__", descriptor );
+            //Right now the above loop will easily turn the
+            //object into hash table in V8
+            //but this will turn it back. Yes I am ashamed.
+            f.prototype = callback;
+        }
+        return callback;
+    }
     return makeNodePromisified( callback, receiver );
 };
 

@@ -155,3 +155,125 @@ describe("when calling promisified function it should ", function(){
 
 
 });
+
+describe("with more than 5 arguments", function(){
+
+    var o = {
+        value: 15,
+
+        f: function(a,b,c,d,e,f,g, cb) {
+            cb(null, [a,b,c,d,e,f,g, this.value])
+        }
+
+    }
+
+    var prom = Promise.promisify(o.f, o);
+
+    specify("receiver should still work", function(done) {
+        prom(1,2,3,4,5,6,7).then(function(val){
+            assert.deepEqual(
+                val,
+                [1,2,3,4,5,6,7, 15]
+            );
+            done();
+        });
+
+    });
+
+});
+
+describe("promisify on objects", function(){
+
+    var o = {
+        value: 15,
+
+        f: function(a,b,c,d,e,f,g, cb) {
+            cb(null, [a,b,c,d,e,f,g, this.value])
+        }
+
+    }
+
+    function Test(data) {
+        this.data = data;
+    }
+
+    Test.prototype.get = function(a, b, c, cb) {
+        cb(null, a, b, c, this.data);
+    };
+
+    Test.prototype.getMany = function(a, b, c, d, e, f, g, cb) {
+        cb(null, a, b, c, d, e, f, g, this.data);
+    };
+
+    Promise.promisify(o);
+    Promise.promisify(Test.prototype);
+
+    specify("should not repromisify", function() {
+        var f = o.f;
+        var fAsync = o.fAsync;
+        var keys = Object.keys(o);
+        var ret = Promise.promisify(o);
+        assert.equal(f, o.f);
+        assert.equal(fAsync, o.fAsync);
+        assert.deepEqual(keys, Object.keys(o));
+        assert.equal(ret, o);
+    });
+
+    specify("should work on prototypes and not mix-up the instances", function(done) {
+        var a = new Test(15);
+        var b = new Test(30);
+        var c = new Test(45);
+
+        var calls = 0;
+
+        function calldone() {
+            calls++;
+            if( calls === 3 ) {
+                done();
+            }
+        }
+        a.getAsync(1, 2, 3).then(function( result ){
+            assert.deepEqual( result, [1, 2, 3, 15] );
+            calldone();
+        });
+
+        b.getAsync(4, 5, 6).then(function( result ){
+            assert.deepEqual( result, [4, 5, 6, 30] );
+            calldone();
+        });
+
+        c.getAsync(7, 8, 9).then(function( result ){
+            assert.deepEqual( result, [7, 8, 9, 45] );
+            calldone();
+        });
+    });
+
+    specify("should work on prototypes and not mix-up the instances with more than 5 arguments", function(done) {
+        var a = new Test(15);
+        var b = new Test(30);
+        var c = new Test(45);
+
+        var calls = 0;
+
+        function calldone() {
+            calls++;
+            if( calls === 3 ) {
+                done();
+            }
+        }
+        a.getManyAsync(1, 2, 3, 4, 5, 6, 7).then(function( result ){
+            assert.deepEqual( result, [1, 2, 3, 4, 5, 6, 7, 15] );
+            calldone();
+        });
+
+        b.getManyAsync(4, 5, 6, 7, 8, 9, 10).then(function( result ){
+            assert.deepEqual( result, [4, 5, 6, 7, 8, 9, 10, 30] );
+            calldone();
+        });
+
+        c.getManyAsync(7, 8, 9, 10, 11, 12, 13).then(function( result ){
+            assert.deepEqual( result, [7, 8, 9, 10, 11, 12, 13, 45] );
+            calldone();
+        });
+    });
+});
