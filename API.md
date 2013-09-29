@@ -616,7 +616,7 @@ Returns a function that can use `yield` to run asynchronous code synchronously. 
 This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of anonymous functions can be completely avoided.
 
 ```js
-var Promise = require("Promise");
+var Promise = require("bluebird");
 
 function delay(ms) {
     return new Promise(function(f){
