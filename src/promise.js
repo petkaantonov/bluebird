@@ -802,6 +802,10 @@ Promise.cast = function Promise$Cast( obj, caller ) {
     return ret;
 };
 
+Promise["try"] = Promise.attempt = function( fn ) {
+    return Promise.fulfilled().then( fn );
+};
+
 /**
  * If `fn` is a function, will set that function as a callback to call
  * when an possibly unhandled rejection happens. Passing anything other
