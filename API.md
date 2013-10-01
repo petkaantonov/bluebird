@@ -46,6 +46,7 @@
 - [Utility](#utility)
     - [`.call(String propertyName [, dynamic arg...])`](#callstring-propertyname--dynamic-arg---promise)
     - [`.get(String propertyName)`](#getstring-propertyname---promise)
+    - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
     - [`.toString()`](#tostring---string)
     - [`.toJSON()`](#tojson---object)
     - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
@@ -570,11 +571,51 @@ promise.then(function(obj){
 });
 ```
 
+#####`.nodeify([Function callback])` -> `Promise`
+
+Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
+
+Returns back this promise instead of creating a new one. If the `callback` argument is not a function, the function does not do anything.
+
+This can be used to create APIs that both accept node-style callbacks and return promises:
+
+```js
+function getDataFor(input, callback) {
+    return dataFromDataBase(input).nodeify(callback);
+}
+```
+
+The above function can then make everyone happy.
+
+Promises:
+
+```js
+getDataFor("me").then(function(dataForMe) {
+    console.log(dataForMe);
+});
+```
+
+Normal callbacks:
+
+```js
+getDataFor("me", function(err, dataForMe) {
+    if( err ) {
+        console.error( err );
+    }
+    console.log(dataForMe);
+});
+```
+
+There is no effect on peformance if the user doesn't actually pass a node-style callback function.
+
+
 #####`.toString()` -> `String`
 
 #####`.toJSON()` -> `Object`
 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
+
+
 
 #####`Promise.promisify(Object target)` -> `Object`
 
@@ -643,6 +684,8 @@ redisGet.then(function(){
     //...
 });
 ```
+
+
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 

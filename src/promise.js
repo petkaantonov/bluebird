@@ -478,6 +478,42 @@ method.toJSON = function Promise$toJSON() {
     return ret;
 };
 
+function Promise$_successAdapter( val ) {
+    var nodeback = this;
+    ASSERT( typeof nodeback == "function" );
+    var ret = tryCatch2( nodeback, void 0, null, val );
+    if( ret === errorObj ) {
+        async.invokeLater( thrower, void 0, ret.e );
+    }
+}
+function Promise$_errorAdapter( reason ) {
+    var nodeback = this;
+    ASSERT( typeof nodeback == "function" );
+    var ret = tryCatch1( nodeback, void 0, reason );
+    if( ret === errorObj ) {
+        async.invokeLater( thrower, void 0, ret.e );
+    }
+}
+
+/**
+ * Description.
+ *
+ *
+ */
+method.nodeify = function Promise$nodeify( nodeback ) {
+    if( typeof nodeback == "function" ) {
+        this._then(
+            Promise$_successAdapter,
+            Promise$_errorAdapter,
+            void 0,
+            nodeback,
+            null,
+            this.nodeify
+        );
+    }
+    return this;
+};
+
 /**
  * Description.
  *
