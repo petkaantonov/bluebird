@@ -1043,6 +1043,39 @@ method.toJSON = function Promise$toJSON() {
     return ret;
 };
 
+function Promise$_successAdapter( val ) {
+    var nodeback = this;
+    ASSERT(((typeof nodeback) == "function"),
+    "typeof nodeback == \u0022function\u0022");
+    var ret = tryCatch2( nodeback, void 0, null, val );
+    if( ret === errorObj ) {
+        async.invokeLater( thrower, void 0, ret.e );
+    }
+}
+function Promise$_errorAdapter( reason ) {
+    var nodeback = this;
+    ASSERT(((typeof nodeback) == "function"),
+    "typeof nodeback == \u0022function\u0022");
+    var ret = tryCatch1( nodeback, void 0, reason );
+    if( ret === errorObj ) {
+        async.invokeLater( thrower, void 0, ret.e );
+    }
+}
+
+method.nodeify = function Promise$nodeify( nodeback ) {
+    if( typeof nodeback == "function" ) {
+        this._then(
+            Promise$_successAdapter,
+            Promise$_errorAdapter,
+            void 0,
+            nodeback,
+            null,
+            this.nodeify
+        );
+    }
+    return this;
+};
+
 method.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
@@ -1229,6 +1262,10 @@ Promise.cast = function Promise$Cast( obj, caller ) {
         return Promise.fulfilled( ret, caller );
     }
     return ret;
+};
+
+Promise["try"] = Promise.attempt = function( fn ) {
+    return Promise.fulfilled().then( fn );
 };
 
 Promise.onPossiblyUnhandledRejection =
@@ -1689,15 +1726,22 @@ method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
         var t = function t( v ) {
             if( called && this !== key ) return;
             called = true;
+            var fn = localP._fulfill;
             var b = cast( v );
 
             if( b !== v ||
                 ( b instanceof Promise && b.isPending() ) ) {
-                b._then( t, r, void 0, key, void 0, t);
+                if( v === x ) {
+                    async.invoke( fn, localP, v );
+                    async.invoke( thenable.deleteCache, thenable, localX );
+                }
+                else {
+                    b._then( t, r, void 0, key, void 0, t);
+                }
                 return;
             }
 
-            var fn = localP._fulfill;
+
             if( b instanceof Promise ) {
                 var fn = b.isFulfilled()
                     ? localP._fulfill : localP._reject;
@@ -1720,17 +1764,24 @@ method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
 
         var r = function r( v ) {
             if( called && this !== key ) return;
+            var fn = localP._reject;
             called = true;
 
             var b = cast( v );
 
             if( b !== v ||
                 ( b instanceof Promise && b.isPending() ) ) {
-                b._then( t, r, void 0, key, void 0, t);
+                if( v === x ) {
+                    async.invoke( fn, localP, v );
+                    async.invoke( thenable.deleteCache, thenable, localX );
+                }
+                else {
+                    b._then( t, r, void 0, key, void 0, t);
+                }
                 return;
             }
 
-            var fn = localP._reject;
+
             if( b instanceof Promise ) {
                 var fn = b.isFulfilled()
                     ? localP._fulfill : localP._reject;

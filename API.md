@@ -211,6 +211,25 @@ Shorthand for `.then(null, null, handler);`. Attach a progress handler that will
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
+#####`Promise.try(Function fn)` -> `Promise`
+
+Start the chain of promises with `Promise.try`. Any synchronous exceptions will be turned into rejections on the returned promise.
+
+```js
+function getUserById(id) {
+    return Promise.try(function(){
+        if (typeof id !== "number") {
+            throw new Error("id must be a number");
+        }
+        return db.getUserById(id);
+    });
+}
+```
+
+Now if someone uses this function, they will catch all errors in their Promise `.catch` handlers instead of having to handle both synchronous and asynchronous exception flows.
+
+*For compatibility with earlier ECMAScript version, an alias `Promise.attempt()` is provided for `Promise.try()`.*
+
 #####`Promise.fulfilled(dynamic value)` -> `Promise`
 
 Create a promise that is fulfilled with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
