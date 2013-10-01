@@ -1278,15 +1278,23 @@ method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
         var t = function t( v ) {
             if( called && this !== key ) return;
             called = true;
+            var fn = localP._fulfill;
             var b = cast( v );
 
             if( b !== v ||
                 ( b instanceof Promise && b.isPending() ) ) {
-                b._then( t, r, void 0, key, void 0, t);
+                if( v === x ) {
+                    //Thenable used itself as the value
+                    async.invoke( fn, localP, v );
+                    async.invoke( thenable.deleteCache, thenable, localX );
+                }
+                else {
+                    b._then( t, r, void 0, key, void 0, t);
+                }
                 return;
             }
 
-            var fn = localP._fulfill;
+
             if( b instanceof Promise ) {
                 var fn = b.isFulfilled()
                     ? localP._fulfill : localP._reject;
@@ -1307,17 +1315,25 @@ method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
 
         var r = function r( v ) {
             if( called && this !== key ) return;
+            var fn = localP._reject;
             called = true;
 
             var b = cast( v );
 
             if( b !== v ||
                 ( b instanceof Promise && b.isPending() ) ) {
-                b._then( t, r, void 0, key, void 0, t);
+                if( v === x ) {
+                    //Thenable used itself as the reason
+                    async.invoke( fn, localP, v );
+                    async.invoke( thenable.deleteCache, thenable, localX );
+                }
+                else {
+                    b._then( t, r, void 0, key, void 0, t);
+                }
                 return;
             }
 
-            var fn = localP._reject;
+
             if( b instanceof Promise ) {
                 var fn = b.isFulfilled()
                     ? localP._fulfill : localP._reject;
