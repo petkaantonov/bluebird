@@ -5,6 +5,7 @@ var args = require('optimist').argv;
 global.longStackSupport = require('q').longStackSupport = true;
 require("bluebird").longStackTraces();
 
+var path = require('path');
 
 var perf = module.exports = function(args, done) {
     global.asyncTime = args.t || 1;
@@ -20,19 +21,25 @@ var perf = module.exports = function(args, done) {
 if (args.file) {
     perf(args, function(err) {
         if (err) {
-            console.log(err.stack);
-            //throw err;
-            //return console.log(err.stack);
             // for browser-compatibility, stratifiedjs reports errors
             // on __oni_stack (or toString()), rather than 'stack'.
-            //console.error(err.__oni_stack ? err.__oni_stack.map(function(x) { return x.join(':') }).join('\n') : new Error(err.stack).stack);
+
+            var stratifiedStack = err.__oni_stack &&
+                err.__oni_stack.map(function(x) {
+                return x.join(':') }).join('\n');
+
+            var callbackStack = new Error().stack
+                .split('\n').slice(1).join('\n');
+            console.error(
+                stratifiedStack ||
+                err.stack + '\nCallback stack:\n' + callbackStack);
         }
     });
 } else {
     var cp    = require('child_process')
     var async = require('async');
     var fs    = require('fs');
-    var dir = __dirname + '/examples';
+    var dir   = path.join(__dirname, 'examples');
 
     var table = require('text-table');
 
@@ -59,7 +66,7 @@ if (args.file) {
         console.error("testing", f);
 
         var argsFork = [__filename,
-            '--file', dir + '/' + f];
+            '--file', path.join(dir, f)];
         if (args.error) argsFork.push('--error')
         if (args.throw) argsFork.push('--throw');
         if (args.athrow) argsFork.push('--athrow');
@@ -69,45 +76,81 @@ if (args.file) {
         var p = cp.spawn(process.execPath, argsFork);
 
 
-        var lineNumber = fs.readFileSync(dir + '/' + sourceOf(f), 'utf8')
-            .split('\n')
-            .map(function(l, k) {
-                return {
-                    contained: l.indexOf('FileVersion.insert') >= 0,
-                    line: k + 2
-                };
-            }).filter(function(l) { return l.contained; })[0].line;
+        var lineNumber = -1;
 
+        (function(){
+            var lines = fs.readFileSync(path.join(dir, sourceOf(f)), 'utf8').split('\n');
+            var sawFileVersionInsert = false;
+            for (var i = 0, len = lines.length; i < len; ++i) {
+                var item = lines[i];
+                if (!sawFileVersionInsert) {
+                    if (item.indexOf('FileVersion.insert') >= 0) {
+                        sawFileVersionInsert = true;
+                    }
+                }
+                else {
+                    if (item.indexOf('execWithin') >= 0) {
+                        lineNumber = i + 1;
+                        break;
+                    }
+                }
+            }
+            if (lineNumber < 0) {
+                throw new Error("Example didn't contain throwing line: " + f);
+            }
+        })();
         var r = { file: f, data: [], line: lineNumber };
-
+        var separator = require("path").sep;
         p.stderr.pipe(process.stderr);
-        p.stderr.on('data', function(d) { r.data.push(d.toString()); });
+        p.stderr.on('data', function(d) {  r.data.push(d.toString());});
         p.stderr.on('end', function(code) {
             r.data = r.data.join('').split('\n').filter(function(line) {
                 // match lines reporting either compiled or source files:
-                return line.match('examples/' + f) || line.match('examples/' + sourceOf(f))
+                return line.indexOf('examples\\' + f) >= 0 ||
+                    line.indexOf('examples\\' + sourceOf(f)) >= 0 ||
+                    line.indexOf('examples/' + f) >= 0 ||
+                    line.indexOf('examples/' + sourceOf(f)) >= 0
+
             }).map(function(l) {
-                return {content: l,
-                    line: l.split(':')[1],
-                    distance: Math.abs(l.split(':')[1] - r.line)};
+                //Windows dirs has colons in drives like "C:\"
+                //so splitting on colon doesn't work :P
+                var rlineno = /(?:\.js|\.sjs|\._js):(\d+)/;
+
+                var line = rlineno.exec(l)[1];
+                return {
+                    content: l,
+                    line: line,
+                    distance: Math.abs(line - r.line)
+                };
             }).sort(function(l1, l2) {
                 return l1.distance - l2.distance;
-            })[0];
+            });
+
+
+            r.data = r.data[0];
             done(null, r);
         });
     }, function(err, res) {
+
         console.log("");
         console.log("error reporting");
         console.log("");
         res = res.sort(function(r1, r2) {
-            return parseFloat(r1.data ? r1.data.distance : Infinity)
-                - parseFloat(r2.data ? r2.data.distance : Infinity)
+            var ret = parseFloat(r1.data ? r1.data.distance : Infinity)
+                - parseFloat(r2.data ? r2.data.distance : Infinity);
+
+            if( ret === 0 ) {
+                return r1.file < r2.file ? -1 :
+                       r1.file > r2.file ? 1 :
+                       0;
+
+            }
+            return ret;
         });
         res = res.map(function(r) {
             return [r.file, r.line,
                 r.data ? r.data.line : '-',
                 r.data ? r.data.distance : '-'];
-                //r.data ? 'yes ' + r.data.content :'no'];
         })
         res = [['file', 'actual-line', 'rep-line', 'distance']].concat(res)
         console.log(table(res, {align: ['l','r','r','r']}));

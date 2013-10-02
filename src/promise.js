@@ -101,14 +101,22 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
-method._setTrace = function _setTrace( fn ) {
+method._setTrace = function _setTrace( fn, parent ) {
     ASSERT( this._trace == null );
     if( longStackTraces ) {
-        this._trace = new CapturedTrace(
-            typeof fn === "function"
-            ? fn
-            : _setTrace
-        );
+
+        if( parent !== void 0 &&
+            parent._traceParent === parent._peekContext() ) {
+            ASSERT( parent._trace != null );
+            this._trace = parent._trace;
+        }
+        else {
+            this._trace = new CapturedTrace(
+                typeof fn === "function"
+                ? fn
+                : _setTrace
+            );
+        }
     }
     return this;
 };
@@ -263,7 +271,7 @@ method.cancel = function Promise$cancel() {
  */
 method.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
-    ret._setTrace( this.uncancellable );
+    ret._setTrace( this.uncancellable, this );
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
     return ret;
@@ -759,7 +767,7 @@ Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     var ret = new Promise();
     ret._setTrace( typeof caller === "function"
         ? caller
-        : Promise.fulfilled );
+        : Promise.fulfilled, void 0 );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -781,7 +789,7 @@ Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
  */
 Promise.rejected = function Promise$Rejected( reason ) {
     var ret = new Promise();
-    ret._setTrace( Promise.rejected );
+    ret._setTrace( Promise.rejected, void 0 );
     ret._cleanValues();
     ret._setRejected();
     ret._resolvedValue = reason;
@@ -795,7 +803,7 @@ Promise.rejected = function Promise$Rejected( reason ) {
  */
 Promise.pending = function Promise$Pending( caller ) {
     var promise = new Promise();
-    promise._setTrace( caller );
+    promise._setTrace( caller, void 0 );
     return new PromiseResolver( promise );
 };
 
@@ -970,10 +978,11 @@ function Promise$_then(
     var ret = haveInternalData ? internalData : new Promise();
 
     if( longStackTraces && !haveInternalData ) {
-        ret._traceParent = this._peekContext() === this._traceParent
-            ? this._traceParent
-            : this;
-        ret._setTrace( typeof caller === "function" ? caller : this._then );
+        var haveSameContext = this._peekContext() === this._traceParent;
+        ret._traceParent = haveSameContext ? this._traceParent : this;
+        ret._setTrace( typeof caller === "function" ?
+            caller : this._then, this );
+
     }
 
     var callbackIndex =
@@ -1130,7 +1139,7 @@ var rejecter = new Function("p",
 
 method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
-    this._setTrace( this._resolveResolver );
+    this._setTrace( this._resolveResolver, void 0 );
     var p = new PromiseResolver( this );
     this._pushContext();
     var r = tryCatch2( resolver, this, fulfiller( p ), rejecter( p ) );

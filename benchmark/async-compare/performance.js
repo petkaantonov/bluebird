@@ -16,11 +16,13 @@ var perf = module.exports = function(args, done) {
     global.asyncTime = args.t;
 
     if (args.longStackSupport) {
-        global.longStackSupport = require('q').longStackSupport
+        global.longStackSupport = require('q').longStackSupport 
             = args.longStackSupport;
+        require('bluebird').longStackTraces();
     }
 
     var fn = require(args.file);
+
     var start = Date.now();
 
 
@@ -48,11 +50,11 @@ var perf = module.exports = function(args, done) {
             lastErr = err;
         }
         memMax = Math.max(memMax, process.memoryUsage().rss);
-        if (!--times) {
+        if (!--times) { 
             done(null, {
-                time: Date.now() - start,
+                time: Date.now() - start, 
                 mem: (memMax - memStart)/1024/1024,
-                errors: errs,
+                errors: errs, 
                 lastErr: lastErr ? lastErr.stack : null
             });
         }
@@ -67,13 +69,13 @@ function report(err, res) {
 if (args.file) {
     perf(args, function(err, res) {
         report(err, res);
-        if (res.lastErr)
+        if (res.lastErr) 
             console.error(res.lastErr);
     });
 } else {
     var cp    = require('child_process')
     var async = require('async');
-    var fs    = require('fs');
+    var fs    = require('fs');    
     var dir = __dirname + '/examples';
 
     var table = require('text-table');
@@ -86,18 +88,18 @@ if (args.file) {
     if (args.n)
         measure(files, args.n, args.t, function(err, res) {
             console.log("");
-            console.log("results for", args.n, "parallel executions,",
+            console.log("results for", args.n, "parallel executions,", 
                         args.t, "ms per I/O op");
 
-            res.sort(function(r1, r2) {
+            res.sort(function(r1, r2) { 
                 return parseFloat(r1.data.time) - parseFloat(r2.data.time)
             });
             console.log("");
-            res = res.map(function(r) {
+            res = res.map(function(r) { 
                 var failText = 'N/A';
                 if (r.data.timeout) failText = 'T/O';
-                return [path.basename(r.file),
-                    r.data.mem != null ? r.data.time: failText,
+                return [path.basename(r.file), 
+                    r.data.mem != null ? r.data.time: failText, 
                     r.data.mem != null ? r.data.mem.toFixed(2) : failText]
             });
 
@@ -112,13 +114,13 @@ if (args.file) {
                 return done(null, {n: n, res: res});
             });
         }, function(err, all) {
-            //structure:
+            //structure: 
             //[{n: n, res: [{ file: file, data: {time: time, mem: mem}}]}]
             var times = [], mems = [];
             for (var k = 0; k < all[0].res.length; ++k) {
                 var file = all[0].res[k].file;
                 // skip missing
-                if (all[0].res[k].data.missing)
+                if (all[0].res[k].data.missing) 
                     continue;
                 var memf  = {label: path.basename(file), data: []};
                 var timef = {label: path.basename(file), data: []};
@@ -128,7 +130,7 @@ if (args.file) {
                         mem = all[n].res[k].data.mem;
                     timef.data.push([requests, time]);
                     memf.data.push( [requests, mem]);
-                }
+                }                
                 times.push(timef);
                 mems.push(memf);
             }
@@ -144,11 +146,12 @@ function measure(files, requests, time, callback) {
     async.mapSeries(files, function(f, done) {
         console.log("benchmarking", f);
 
-        var argsFork = [__filename,
-            '--n', requests,
-            '--t', time,
+        var argsFork = [__filename, 
+            '--n', requests, 
+            '--t', time, 
             '--file', f];
         if (args.harmony) argsFork.unshift('--harmony');
+        if (args.longStackSupport) argsFork.push('--longStackSupport');
 
         var p = cp.spawn(process.execPath, argsFork);
 
@@ -167,7 +170,7 @@ function measure(files, requests, time, callback) {
             try {
                 r.data = JSON.parse(r.data.join(''));
             } catch(e) {
-                r.data = {time: Number.POSITIVE_INFINITY, mem: null,
+                r.data = {time: Number.POSITIVE_INFINITY, mem: null, 
                     missing: true, timeout: timedout};
             }
             done(null, r);

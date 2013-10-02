@@ -27,7 +27,7 @@ Uploader.prototype.run = function run () {
     blob.put(this.stream, this.afterBlobWritten, this);
 }
 
-Uploader.prototype.afterBlobWritten = function afterBlobWritten(err, blobId) { 
+Uploader.prototype.afterBlobWritten = function afterBlobWritten(err, blobId) {
     if (err) return this.done(err);
     this.blobId = blobId;
     self.byUuidOrPath(this.idOrPath)
@@ -55,7 +55,7 @@ Uploader.prototype.afterFileFetched = function afterFileFetched(err, file) {
         this.tx, this.afterVersionInserted, this);
 }
 
-Uploader.prototype.afterVersionInserted = function afterVersionInserted(err) { 
+Uploader.prototype.afterVersionInserted = function afterVersionInserted(err) {
     if (err) return this.backoff(err);
     if (!this.file) {
         var splitPath = this.idOrPath.split('/');
@@ -67,7 +67,7 @@ Uploader.prototype.afterVersionInserted = function afterVersionInserted(err) {
             name: fileName,
             version: this.version.id
         };
-        self.createQuery(this.idOrPath, file, 
+        self.createQuery(this.idOrPath, file,
             this.afterQueryCreated, this);
     }
     else return afterFileExists.call(this);
