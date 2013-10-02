@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+benchmark=$1
+cwd=${PWD}
+
+if [ "$benchmark" = "spion" ]; then
+    cd "$cwd/benchmark/async-compare"
+    npm install
+    node performance.js --n 500 --t 1 ./examples/*.js --harmony
+    cd "$cwd"
+elif [ "$benchmark" = "cujojs" ]; then
+    cd "$cwd/benchmark"
+    node cujojs.js
+    cd "$cwd"
+else
+    echo "Invalid benchmark name $benchmark"
+    exit -1
+fi

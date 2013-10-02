@@ -177,15 +177,17 @@ Currently the most relevant benchmark is @gorkikosev's benchmark in the article 
 
 You can run the benchmark with:
 
-    cd benchmark/async-compare
-    npm install
-    node performance.js --n 10000 --t 1 ./examples/*.js --harmony
+    bench spion
+    
+While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 Node 0.11.2+ is required to run the generator examples.
 
 Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.com/cujojs/promise-perf-tests). The reduce and map have been modified from the original. The benchmarks also include warmup-phases.
 
-    grunt bench --run=cujojs
+    bench cujojs
+
+While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
     
 ##What is the sync build?
 
