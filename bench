@@ -2,15 +2,17 @@
 benchmark=$1
 cwd=${PWD}
 
+trap 'cd "$cwd"' EXIT
+
 if [ "$benchmark" = "spion" ]; then
     cd "$cwd/benchmark/async-compare"
     npm install
-    node performance.js --n 500 --t 1 ./examples/*.js --harmony
-    cd "$cwd"
+    node performance.js --n 10000 --t 1 ./examples/*.js --harmony
+    exit 1
 elif [ "$benchmark" = "cujojs" ]; then
     cd "$cwd/benchmark"
     node cujojs.js
-    cd "$cwd"
+    exit 1
 else
     echo "Invalid benchmark name $benchmark"
     exit -1
