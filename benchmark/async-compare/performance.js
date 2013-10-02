@@ -19,7 +19,7 @@ var perf = module.exports = function(args, done) {
         global.longStackSupport = require('q').longStackSupport
             = args.longStackSupport;
     }
-    console.log(args.file);
+
     var fn = require(args.file);
     var start = Date.now();
 

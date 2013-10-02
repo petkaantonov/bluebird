@@ -671,8 +671,6 @@ method.is = function Thenable$is( ret, ref ) {
 };
 
 method.addCache = function Thenable$_addCache( thenable, promise ) {
-    console.error("AddCache called");
-    console.log("AddCache called");
     var id = this.__id__;
     this.__id__ = id + 1;
     var descriptor = this._descriptor( id );
@@ -2189,6 +2187,7 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+
 
 return Promise;})();
 
