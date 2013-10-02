@@ -1,19 +1,16 @@
-
-if (global.useQ)
+if (global.useQ) 
     var lifter = require('q').denodeify;
-else if( global.useBluebird ) {
+else if (global.useBluebird) 
     //Currently promisifies only Node style callbacks
-    var lifter = require('../../../js/bluebird.js').promisify;
-}else {
+    var lifter = require('bluebird').promisify;
+else 
     var lifter = require('when/node/function').lift
-}
-
 
 var f = require('./dummy');
 
 var makefakes = require('./fakemaker');
 
-// A function taking n values or promises and returning
+// A function taking n values or promises and returning 
 // a promise
 function dummyP(n) {
     return lifter(f.dummy(n));

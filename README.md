@@ -177,19 +177,16 @@ Currently the most relevant benchmark is @gorkikosev's benchmark in the article 
 
 You can run the benchmark with:
 
-    grunt bench --run=spion
-    
-The competing modules can be updated by:
-
     cd benchmark/async-compare
-    npm update
-    
+    npm install
+    node performance.js --n 10000 --t 1 ./examples/*.js --harmony
+
+Node 0.11.2+ is required to run the generator examples.
+
 Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.com/cujojs/promise-perf-tests). The reduce and map have been modified from the original. The benchmarks also include warmup-phases.
 
     grunt bench --run=cujojs
     
-The other benchmarks included are broken and misleading, I will remove them. 
-
 ##What is the sync build?
 
 The sync build is provided to see how forced asynchronity affects benchmarks. It should not be used in real code due to the implied hazards.

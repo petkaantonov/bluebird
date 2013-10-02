@@ -11,7 +11,6 @@
     "text-table": "~0.1.1",
     "streamline": "~0.6.0",
     "long-stack-traces": "~0.1.2",
-    "q": "~0.9.6",
     "suspend": "~0.3.0",
     "gens": "~0.2.5",
     "co": "~1.5.1",
@@ -19,7 +18,9 @@
     "source-map-support": "~0.2.3",
     "traceur": "0.0.4",
     "genny": "~0.5.0",
-    "stratifiedjs": "~0.14.0"
+    "stratifiedjs": "~0.14.0",
+    "bluebird": "~0.7.1-4",
+    "q": "~0.9.7"
   },
   "devDependencies": {},
   "scripts": {

@@ -5,6 +5,8 @@ var util = require('util');
 
 var path = require('path');
 
+
+
 var perf = module.exports = function(args, done) {
 
     var errs = 0;
@@ -17,9 +19,10 @@ var perf = module.exports = function(args, done) {
         global.longStackSupport = require('q').longStackSupport
             = args.longStackSupport;
     }
-
-
+    console.log(args.file);
     var fn = require(args.file);
+    var start = Date.now();
+
 
     var warmedUp = 0;
     var tot =  Math.min( 350, times );
@@ -27,7 +30,7 @@ var perf = module.exports = function(args, done) {
         fn('a','b','c', warmup);
 
     var memMax; var memStart; var start;
-    function warmup(){
+    function warmup() {
         warmedUp++
         if( warmedUp === tot ) {
             start = Date.now();
@@ -35,7 +38,6 @@ var perf = module.exports = function(args, done) {
             memStart = process.memoryUsage().rss;
             for (var k = 0, kn = args.n; k < kn; ++k)
                 fn('a','b','c', cb);
-
             memMax = process.memoryUsage().rss;
         }
     }
@@ -55,7 +57,6 @@ var perf = module.exports = function(args, done) {
             });
         }
     }
-
 }
 
 
@@ -78,18 +79,9 @@ if (args.file) {
     var table = require('text-table');
 
 
-
     var files = args._.filter(function(f) {
         return !/^src-/.test(path.basename(f));
     });
-
-    if( files.length === 1 && files[0].indexOf("*") >= 0 ) {
-        var p = path.join( process.cwd(), path.dirname(files[0]) );
-        files = fs.readdirSync(p).map(function(file){
-            return p + "/" + file;
-
-        });
-    }
 
     if (args.n)
         measure(files, args.n, args.t, function(err, res) {
@@ -102,9 +94,11 @@ if (args.file) {
             });
             console.log("");
             res = res.map(function(r) {
+                var failText = 'N/A';
+                if (r.data.timeout) failText = 'T/O';
                 return [path.basename(r.file),
-                    r.data.mem != null ? r.data.time: 'N/A',
-                    r.data.mem != null ? r.data.mem.toFixed(2) : 'N/A']
+                    r.data.mem != null ? r.data.time: failText,
+                    r.data.mem != null ? r.data.mem.toFixed(2) : failText]
             });
 
             res = [['file', 'time(ms)', 'memory(MB)']].concat(res)
@@ -145,31 +139,36 @@ if (args.file) {
         })
 }
 
+
 function measure(files, requests, time, callback) {
     async.mapSeries(files, function(f, done) {
         console.log("benchmarking", f);
-        var argsFork = ['--harmony', __filename,
+
+        var argsFork = [__filename,
             '--n', requests,
             '--t', time,
             '--file', f];
+        if (args.harmony) argsFork.unshift('--harmony');
 
+        var p = cp.spawn(process.execPath, argsFork);
 
-        var p = cp.spawn("node", argsFork, {
-            cwd: process.cwd(),
-            env: {
-                NODE_PATH: process.cwd()
-            }
-        });
+        var complete = false, timedout = false;
+        if (args.timeout) setTimeout(function() {
+            if (complete) return;
+            timedout = true;
+            p.kill();
+        }, args.timeout);
+
         var r = { file: f, data: [] };
-        p.stderr.pipe( process.stderr );
         p.stdout.on('data', function(d) { r.data.push(d.toString()); });
         p.stdout.pipe(process.stdout);
         p.stdout.on('end', function(code) {
+            complete = true;
             try {
                 r.data = JSON.parse(r.data.join(''));
             } catch(e) {
                 r.data = {time: Number.POSITIVE_INFINITY, mem: null,
-                    missing: true};
+                    missing: true, timeout: timedout};
             }
             done(null, r);
         });

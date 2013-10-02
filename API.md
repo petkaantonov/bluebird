@@ -594,7 +594,7 @@ promise.then(function(obj){
 
 Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
 
-Returns back this promise instead of creating a new one. If the `callback` argument is not a function, the function does not do anything.
+Returns back this promise instead of creating a new one. If the `callback` argument is not a function, this method does not do anything.
 
 This can be used to create APIs that both accept node-style callbacks and return promises:
 
