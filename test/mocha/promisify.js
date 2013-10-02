@@ -41,6 +41,11 @@ var syncSuccessNodeMultipleValues = function(a, b, c, cb) {
     cb(null, sentinel, sentinel, sentinel);
 };
 
+var errToThrow;
+var thrower = Promise.promisify(function(a, b, c, cb) {
+    errToThrow = new Error();
+    throw errToThrow;
+});
 
 var error = Promise.promisify(erroneusNode);
 var success = Promise.promisify(successNode);
@@ -98,6 +103,13 @@ describe("when calling promisified function it should ", function(){
             e.then(donecall, assert.fail);
             f.then(donecall, assert.fail);
         }, 100);
+    });
+
+    specify("Reject with the synchronously caught reason", function(done){
+        thrower(1, 2, 3).then(assert.fail).catch(function(e){
+            assert(e === errToThrow);
+            done();
+        });
     });
 
     specify("reject with the proper reason", function(done) {

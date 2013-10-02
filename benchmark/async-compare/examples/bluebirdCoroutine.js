@@ -40,6 +40,6 @@ module.exports = bluebird.coroutine(function* upload(stream, idOrPath, tag, done
         done();
     } catch (err) {
         tx.rollback();
-        done();
+        done(err);
     }
 });

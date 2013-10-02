@@ -132,6 +132,7 @@ function makeNodePromisified( callback, receiver ) {
         "resolver.fulfill( value );" +
         "}" +
         "};" +
+        "try{" +
         "switch( len ) {" +
         "case 1:" + getCall(1) +
         "case 2:" + getCall(2) +
@@ -145,6 +146,11 @@ function makeNodePromisified( callback, receiver ) {
         ) +
             ( receiver === THIS ? "this" : "receiver" ) +
         ", withAppended( arguments, fn ) ); break;" +
+        "}" +
+        "}" +
+        "catch(e){ " +
+        "" +
+        "resolver.reject(e);" +
         "}" +
         "return resolver.promise;" +
         "" +
