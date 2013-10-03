@@ -211,14 +211,15 @@ var rignore = new RegExp(
 var rtraceline = null;
 var formatStack = null;
 
-function CapturedTrace( ignoreUntil ) {
-    this.captureStackTrace( ignoreUntil );
+function CapturedTrace( ignoreUntil, isTopLevel ) {
+    this.captureStackTrace( ignoreUntil, isTopLevel );
+
 }
 var method = inherits( CapturedTrace, Error );
 
 method.captureStackTrace =
-function CapturedTrace$captureStackTrace( ignoreUntil ) {
-    captureStackTrace( this, ignoreUntil );
+function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
+    captureStackTrace( this, ignoreUntil, isTopLevel );
 };
 
 CapturedTrace.possiblyUnhandledRejection =
@@ -279,7 +280,21 @@ var captureStackTrace = (function stackDetection() {
                 ? stack
                 : error.name + ". " + error.message;
         };
-        return Error.captureStackTrace;
+        var captureStackTrace = Error.captureStackTrace;
+        return function CapturedTrace$_captureStackTrace(
+            receiver, ignoreUntil, isTopLevel ) {
+            var prev = -1;
+            if( !isTopLevel ) {
+                prev = Error.stackTraceLimit;
+                Error.stackTraceLimit =
+                    Math.max(1, Math.min(10000, prev) / 3 | 0);
+            }
+            captureStackTrace( receiver, ignoreUntil );
+
+            if( !isTopLevel ) {
+                Error.stackTraceLimit = prev;
+            }
+        };
     }
     var err = new Error();
 
@@ -777,18 +792,20 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
-method._setTrace = function _setTrace( fn, parent ) {
+method._setTrace = function _setTrace( caller, parent ) {
     if( longStackTraces ) {
-
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
         if( parent !== void 0 &&
-            parent._traceParent === parent._peekContext() ) {
+            parent._traceParent === context ) {
             this._trace = parent._trace;
         }
         else {
             this._trace = new CapturedTrace(
-                typeof fn === "function"
-                ? fn
-                : _setTrace
+                typeof caller === "function"
+                ? caller
+                : _setTrace,
+                isTopLevel
             );
         }
     }

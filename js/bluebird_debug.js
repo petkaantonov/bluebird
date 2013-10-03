@@ -246,20 +246,21 @@ var rignore = new RegExp(
 var rtraceline = null;
 var formatStack = null;
 
-function CapturedTrace( ignoreUntil ) {
+function CapturedTrace( ignoreUntil, isTopLevel ) {
     ASSERT(((typeof ignoreUntil) === "function"),
     "typeof ignoreUntil === \u0022function\u0022");
     ASSERT(((typeof ignoreUntil.name) === "string"),
     "typeof ignoreUntil.name === \u0022string\u0022");
     ASSERT((ignoreUntil.name.length > 0),
     "ignoreUntil.name.length > 0");
-    this.captureStackTrace( ignoreUntil );
+    this.captureStackTrace( ignoreUntil, isTopLevel );
+
 }
 var method = inherits( CapturedTrace, Error );
 
 method.captureStackTrace =
-function CapturedTrace$captureStackTrace( ignoreUntil ) {
-    captureStackTrace( this, ignoreUntil );
+function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
+    captureStackTrace( this, ignoreUntil, isTopLevel );
 };
 
 CapturedTrace.possiblyUnhandledRejection =
@@ -320,7 +321,21 @@ var captureStackTrace = (function stackDetection() {
                 ? stack
                 : error.name + ". " + error.message;
         };
-        return Error.captureStackTrace;
+        var captureStackTrace = Error.captureStackTrace;
+        return function CapturedTrace$_captureStackTrace(
+            receiver, ignoreUntil, isTopLevel ) {
+            var prev = -1;
+            if( !isTopLevel ) {
+                prev = Error.stackTraceLimit;
+                Error.stackTraceLimit =
+                    Math.max(1, Math.min(10000, prev) / 3 | 0);
+            }
+            captureStackTrace( receiver, ignoreUntil );
+
+            if( !isTopLevel ) {
+                Error.stackTraceLimit = prev;
+            }
+        };
     }
     var err = new Error();
 
@@ -856,22 +871,24 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
-method._setTrace = function _setTrace( fn, parent ) {
+method._setTrace = function _setTrace( caller, parent ) {
     ASSERT((this._trace == null),
     "this._trace == null");
     if( longStackTraces ) {
-
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
         if( parent !== void 0 &&
-            parent._traceParent === parent._peekContext() ) {
+            parent._traceParent === context ) {
             ASSERT((parent._trace != null),
     "parent._trace != null");
             this._trace = parent._trace;
         }
         else {
             this._trace = new CapturedTrace(
-                typeof fn === "function"
-                ? fn
-                : _setTrace
+                typeof caller === "function"
+                ? caller
+                : _setTrace,
+                isTopLevel
             );
         }
     }

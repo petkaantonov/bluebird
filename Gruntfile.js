@@ -134,7 +134,7 @@ module.exports = function( grunt ) {
         updateConfigs: [],
         commit: true,
         commitMessage: 'Release v%VERSION%',
-        commitFiles: ['package.json'], // '-a' for all files
+        commitFiles: ['-a'],
         createTag: true,
         tagName: 'v%VERSION%',
         tagMessage: 'Version %VERSION%',
