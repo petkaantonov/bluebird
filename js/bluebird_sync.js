@@ -1558,14 +1558,19 @@ function cast( obj, caller ) {
                     resolver.fulfill( a );
                 }
                 else {
-                    b._then(
-                        resolver.fulfill,
-                        resolver.reject,
-                        void 0,
-                        resolver,
-                        void 0,
-                        t
-                    );
+                    if( a === obj ) {
+                        resolver.promise._resolveFulfill( a );
+                    }
+                    else {
+                        b._then(
+                            resolver.fulfill,
+                            resolver.reject,
+                            void 0,
+                            resolver,
+                            void 0,
+                            t
+                        );
+                    }
                 }
             }, function t( a ) {
                 if( called ) return;
