@@ -101,20 +101,22 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
-method._setTrace = function _setTrace( fn, parent ) {
+method._setTrace = function _setTrace( caller, parent ) {
     ASSERT( this._trace == null );
     if( longStackTraces ) {
-
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
         if( parent !== void 0 &&
-            parent._traceParent === parent._peekContext() ) {
+            parent._traceParent === context ) {
             ASSERT( parent._trace != null );
             this._trace = parent._trace;
         }
         else {
             this._trace = new CapturedTrace(
-                typeof fn === "function"
-                ? fn
-                : _setTrace
+                typeof caller === "function"
+                ? caller
+                : _setTrace,
+                isTopLevel
             );
         }
     }

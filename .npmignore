@@ -15,3 +15,7 @@ js/bluebird_debug.js
 reader.js
 read.txt
 bench
+.editorconfig
+.jshintrc
+ast_passes.js
+mocharun.js

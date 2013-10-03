@@ -9,20 +9,21 @@ var rignore = new RegExp(
 var rtraceline = null;
 var formatStack = null;
 
-function CapturedTrace( ignoreUntil ) {
+function CapturedTrace( ignoreUntil, isTopLevel ) {
     ASSERT( typeof ignoreUntil === "function" );
     ASSERT( typeof ignoreUntil.name === "string" );
     //Polyfills for V8's stacktrace API work on strings
     //instead of function identities so the function must have
     //an unique name
     ASSERT( ignoreUntil.name.length > 0 );
-    this.captureStackTrace( ignoreUntil );
+    this.captureStackTrace( ignoreUntil, isTopLevel );
+
 }
 var method = inherits( CapturedTrace, Error );
 
 method.captureStackTrace =
-function CapturedTrace$captureStackTrace( ignoreUntil ) {
-    captureStackTrace( this, ignoreUntil );
+function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
+    captureStackTrace( this, ignoreUntil, isTopLevel );
 };
 
 CapturedTrace.possiblyUnhandledRejection =
@@ -88,7 +89,21 @@ var captureStackTrace = (function stackDetection() {
                 ? stack
                 : error.name + ". " + error.message;
         };
-        return Error.captureStackTrace;
+        var captureStackTrace = Error.captureStackTrace;
+        return function CapturedTrace$_captureStackTrace(
+            receiver, ignoreUntil, isTopLevel ) {
+            var prev = -1;
+            if( !isTopLevel ) {
+                prev = Error.stackTraceLimit;
+                Error.stackTraceLimit =
+                    Math.max(1, Math.min(10000, prev) / 3 | 0);
+            }
+            captureStackTrace( receiver, ignoreUntil );
+
+            if( !isTopLevel ) {
+                Error.stackTraceLimit = prev;
+            }
+        };
     }
     var err = new Error();
 
