@@ -9,4 +9,5 @@ module.exports = {
     deferred: require('../adapters/deferred.js'), //fails spec
     bluebird: require('../adapters/bluebird.js'),
     "bluebird sync build": require('../adapters/bluebird_sync.js'),
+    concurrent: require('../adapters/concurrent.js')
 };
