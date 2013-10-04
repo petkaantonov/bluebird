@@ -8,6 +8,7 @@
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [`Promise.try(Function fn)`](#promisetryfunction-fn---promise)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
     - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
     - [`Promise.pending()`](#promisepending---promiseresolver)
