@@ -44,9 +44,9 @@
     "jsdom": "~0.8.4",
     "jquery-browserify": "~1.8.1",
     "closure-compiler": "~0.2.1",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "kew": "~0.2.2"
   },
-
   "readmeFilename": "README.md",
   "main": "./js/bluebird.js"
 }
