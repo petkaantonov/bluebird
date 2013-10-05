@@ -86,7 +86,8 @@ Q.fcall= function( fn ) {
 var sinon = require("sinon");
 
 
-
+var isNodeJS = typeof process !== "undefined" &&
+    typeof process.execPath === "string";
 
 
 /*
@@ -143,50 +144,52 @@ describe("nodeify", function () {
 //Should be the last test because it is ridiculously hard to test
 //if something throws in the node process
 
-describe("nodeify", function () {
+if( isNodeJS ) {
+    describe("nodeify", function () {
 
-    var h = [];
+        var h = [];
 
-    function clearHandlers() {
-        var originalException;
-        while( originalException = process.listeners('uncaughtException').pop() ) {
-            process.removeListener('uncaughtException', originalException);
-            h.push(originalException);
+        function clearHandlers() {
+            var originalException;
+            while( originalException = process.listeners('uncaughtException').pop() ) {
+                process.removeListener('uncaughtException', originalException);
+                h.push(originalException);
+            }
         }
-    }
 
-    function clearHandlersNoRestore() {
-        var originalException;
-        while( originalException = process.listeners('uncaughtException').pop() ) {
-            process.removeListener('uncaughtException', originalException);
+        function clearHandlersNoRestore() {
+            var originalException;
+            while( originalException = process.listeners('uncaughtException').pop() ) {
+                process.removeListener('uncaughtException', originalException);
+            }
         }
-    }
 
-    function addHandlersBack() {
-        for( var i = 0, len = h.length; i < len; ++i ) {
-            process.addListener('uncaughtException', h[i]);
+        function addHandlersBack() {
+            for( var i = 0, len = h.length; i < len; ++i ) {
+                process.addListener('uncaughtException', h[i]);
+            }
         }
-    }
-    var e = new Error();
-    function thrower() {
-        throw e;
-    }
+        var e = new Error();
+        function thrower() {
+            throw e;
+        }
 
-    it("throws normally in the node process if the function throws", function (done) {
-        clearHandlers();
-        var promise = Q(10);
-        promise.nodeify(thrower);
-        var turns = 0;
-        process.nextTick(function(){
+        it("throws normally in the node process if the function throws", function (done) {
+            clearHandlers();
+            var promise = Q(10);
+            promise.nodeify(thrower);
+            var turns = 0;
+            process.nextTick(function(){
 
-            turns++;
-        });
-        var doneCalls = 0;
-        process.addListener("uncaughtException", function(err) {
-            clearHandlersNoRestore();
-            assert( err === e );
-            assert( turns === 1);
-            done();
+                turns++;
+            });
+            var doneCalls = 0;
+            process.addListener("uncaughtException", function(err) {
+                clearHandlersNoRestore();
+                assert( err === e );
+                assert( turns === 1);
+                done();
+            });
         });
     });
-});
+}

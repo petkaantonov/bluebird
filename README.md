@@ -181,7 +181,7 @@ To test in browsers:
     
 Then open the `index.html` in your browser. Requires bash (on windows the mingw32 that comes with git works fine too).
 
-You may also visit the github hosted page.
+You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
 
 ##Benchmarks
 
