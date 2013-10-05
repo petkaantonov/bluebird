@@ -14,16 +14,16 @@ CustomError.prototype = new Error();
 
 describe("A promise handler that throws a TypeError must be caught", function() {
 
-    specify("in a middle catch filter", function(done) {
+    specify("in a middle.caught filter", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -31,32 +31,32 @@ describe("A promise handler that throws a TypeError must be caught", function() 
     });
 
 
-    specify("in a generic catch filter that comes first", function(done) {
+    specify("in a generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(function(e){
+        }).caught(function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             assert.fail();
         });
 
         a.fulfill(3);
     });
 
-    specify("in an explicitly generic catch filter that comes first", function(done) {
+    specify("in an explicitly generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(Error, function(e){
+        }).caught(Error, function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             assert.fail();
         });
 
@@ -68,13 +68,13 @@ describe("A promise handler that throws a TypeError must be caught", function() 
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(function(e){
+        }).caught(function(e){
             throw e
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -87,9 +87,9 @@ describe("A promise handler that throws a TypeError must be caught", function() 
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, TypeError, function(e){
+        }).caught(SyntaxError, TypeError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -97,16 +97,16 @@ describe("A promise handler that throws a TypeError must be caught", function() 
     });
 
 
-    specify("in a specific handler after non-matching multi-catch handler", function(done) {
+    specify("in a specific handler after non-matching multi.caught handler", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, CustomError, function(e){
+        }).caught(SyntaxError, CustomError, function(e){
            assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -123,11 +123,11 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
            assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
            assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.equal( e, b );
             done();
         });
@@ -140,25 +140,25 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).catch(TypeError, SyntaxError, CustomError, function(e){
+        }).caught(TypeError, SyntaxError, CustomError, function(e){
            done()
-        }).catch(assert.fail);
+        }).caught(assert.fail);
 
         a.fulfill(3);
     });
 });
 
 describe("A promise handler that throws a CustomError must be caught", function() {
-    specify("in a middle catch filter", function(done) {
+    specify("in a middle.caught filter", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -166,32 +166,32 @@ describe("A promise handler that throws a CustomError must be caught", function(
     });
 
 
-    specify("in a generic catch filter that comes first", function(done) {
+    specify("in a generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(function(e){
+        }).caught(function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.fail();
         });
 
         a.fulfill(3);
     });
 
-    specify("in an explicitly generic catch filter that comes first", function(done) {
+    specify("in an explicitly generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(Error, function(e){
+        }).caught(Error, function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.fail();
         });
 
@@ -203,13 +203,13 @@ describe("A promise handler that throws a CustomError must be caught", function(
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(function(e){
+        }).caught(function(e){
             throw e
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -222,9 +222,9 @@ describe("A promise handler that throws a CustomError must be caught", function(
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, CustomError, function(e){
+        }).caught(SyntaxError, CustomError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -232,16 +232,16 @@ describe("A promise handler that throws a CustomError must be caught", function(
     });
 
 
-    specify("in a specific handler after non-matching multi-catch handler", function(done) {
+    specify("in a specific handler after non-matching multi.caught handler", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, TypeError, function(e){
+        }).caught(SyntaxError, TypeError, function(e){
            assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -258,11 +258,11 @@ describe("A promise handler that is caught in a filter", function() {
          var b = new CustomError();
          a.promise.then(function(){
              throw b;
-         }).catch(SyntaxError, function(e){
+         }).caught(SyntaxError, function(e){
             assert.fail();
-         }).catch(TypeError, function(e){
+         }).caught(TypeError, function(e){
             assert.fail();
-         }).catch(CustomError, function(e){
+         }).caught(CustomError, function(e){
             assert.equal( e, b );
             return c.promise;
          }).then(function(){done()}, assert.fail, assert.fail);
@@ -279,11 +279,11 @@ describe("A promise handler that is caught in a filter", function() {
          var b = new CustomError();
          a.promise.then(function(){
              return c.promise;
-         }).catch(SyntaxError, function(e){
+         }).caught(SyntaxError, function(e){
             assert.fail();
-         }).catch(TypeError, function(e){
+         }).caught(TypeError, function(e){
             assert.fail();
-         }).catch(CustomError, function(e){
+         }).caught(CustomError, function(e){
             assert.fail();
          }).then(function(){done()}, assert.fail, assert.fail);
 

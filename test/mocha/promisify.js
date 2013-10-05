@@ -77,8 +77,8 @@ describe("when calling promisified function it should ", function(){
         assert.equal(d.isPending(), true);
         assert.equal(e.isPending(), true);
         assert.equal(f.isPending(), true);
-        a.catch(donecall);
-        d.catch(donecall);
+        a.caught(donecall);
+        d.caught(donecall);
     });
 
     specify("call future attached handlers later", function(done) {
@@ -106,7 +106,7 @@ describe("when calling promisified function it should ", function(){
     });
 
     specify("Reject with the synchronously caught reason", function(done){
-        thrower(1, 2, 3).then(assert.fail).catch(function(e){
+        thrower(1, 2, 3).then(assert.fail).caught(function(e){
             assert(e === errToThrow);
             done();
         });
@@ -122,11 +122,11 @@ describe("when calling promisified function it should ", function(){
             }
         }
 
-        a.catch(function(e){
+        a.caught(function(e){
             assert.equal( sentinelError, e);
             donecall();
         });
-        b.catch(function(e){
+        b.caught(function(e){
             assert.equal( sentinelError, e);
             donecall();
         });

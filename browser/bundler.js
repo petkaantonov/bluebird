@@ -8,7 +8,7 @@ function toReq( v ) {
 }
 
 function toReqFn( v ) {
-    return "function(){ return require('" + v + "');}";
+    return "{fn: function(){ return require('" + v + "');}, name: '" + v + "'}";
 }
 
 function buster(v) {
