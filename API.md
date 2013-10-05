@@ -711,7 +711,7 @@ redisGet.then(function(){
 
 Returns a function that can use `yield` to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
 
-This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of anonymous functions can be completely avoided.
+This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of new anonymous function identities at runtime can be completely avoided without obfuscating your code.
 
 ```js
 var Promise = require("bluebird");

@@ -3,6 +3,7 @@ todo.txt
 npm-debug.log
 test/*
 benchmark/*
+browser/*
 src/*
 async
 sync

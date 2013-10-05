@@ -171,6 +171,18 @@ When trying to get a test to pass, run only that individual test file with `--ve
     
 The reason for the unusual way of testing is because the majority of tests are from different libraries using different testing frameworks and because it takes forever to test sequentially.
     
+    
+###Testing in browsers
+
+To test in browsers:
+
+    cd browser
+    setup
+    
+Then open the `index.html` in your browser. Requires bash (on windows the mingw32 that comes with git works fine too).
+
+You may also visit the github hosted page.
+
 ##Benchmarks
 
 Currently the most relevant benchmark is @gorkikosev's benchmark in the article [Analysis of generators and other async patterns in node](http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html). The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action. The benchmark has been modified to include a warm-up phase to minimize any JITing during timed sections.

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="./mocha.css" rel="stylesheet">
+    <title></title>
+</head>
+<body>
+<div id="mocha"></div>
+<script type="text/javascript" src="./mocha.js"></script>
+<script type="text/javascript">
+mocha.setup({
+    ui: "bdd",
+    timeout: 500,
+    slow: Infinity
+});
+</script>
+<script type="text/javascript" src="bundle.js"></script>
+<script type="text/javascript">
+(function(tests){
+    for( var i = 0, len = tests.length; i < len; ++i ) {
+        var item = tests[i];
+        item();
+    }
+
+})(tests);
+</script>
+<script type="text/javascript">var runner = mocha.run();</script>
+</body>
+</html>
