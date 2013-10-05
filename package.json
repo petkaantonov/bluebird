@@ -46,7 +46,8 @@
     "closure-compiler": "~0.2.1",
     "sinon": "~1.7.3",
     "kew": "~0.2.2",
-    "browserify": "~2.33.1"
+    "browserify": "~2.33.1",
+    "concurrent": "~0.3.2"
   },
   "readmeFilename": "README.md",
   "main": "./js/bluebird.js"
