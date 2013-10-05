@@ -50,20 +50,20 @@ describe("thenables", function(){
     });
 
 
-    specify("when they reject, and the generator doesn't have try catch, it should immediately reject the promise", function(done){
+    specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(done){
 
         Promise.spawn(function*(){
             var a = yield fail(error);
             assert.fail();
 
-        }).then(assert.fail).catch(function(e){
+        }).then(assert.fail).caught(function(e){
             assert.equal(e, error);
             done();
         });
 
     });
 
-    specify("when they reject, and the generator has try catch, it should continue working normally", function(done){
+    specify("when they reject, and the generator has try.caught, it should continue working normally", function(done){
 
         Promise.spawn(function*(){
             try {
@@ -87,7 +87,7 @@ describe("thenables", function(){
             var a = yield get(3);
             assert.equal(a, 3);
             throw error;
-        }).then(assert.fail).catch(function(e){
+        }).then(assert.fail).caught(function(e){
             assert.equal(e, error);
             done();
         });
@@ -187,20 +187,20 @@ describe("Promise.coroutine", function() {
         });
 
 
-        specify("when they reject, and the generator doesn't have try catch, it should immediately reject the promise", function(done){
+        specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(done){
 
             Promise.coroutine(function*(){
                 var a = yield fail(error);
                 assert.fail();
 
-            })().then(assert.fail).catch(function(e){
+            })().then(assert.fail).caught(function(e){
                 assert.equal(e, error);
                 done();
             });
 
         });
 
-        specify("when they reject, and the generator has try catch, it should continue working normally", function(done){
+        specify("when they reject, and the generator has try.caught, it should continue working normally", function(done){
 
             Promise.coroutine(function*(){
                 try {
@@ -224,7 +224,7 @@ describe("Promise.coroutine", function() {
                 var a = yield get(3);
                 assert.equal(a, 3);
                 throw error;
-            })().then(assert.fail).catch(function(e){
+            })().then(assert.fail).caught(function(e){
                 assert.equal(e, error);
                 done();
             });

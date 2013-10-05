@@ -93,7 +93,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
             deferred.fulfill(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
         });
         specify("Eventually fulfilled handled with erroneous code", function(done) {
@@ -104,7 +104,7 @@ if( adapter.hasLongStackTraces() ) {
                 deferred.fulfill(null);
             }, 40);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
         });
 
@@ -113,7 +113,7 @@ if( adapter.hasLongStackTraces() ) {
             onUnhandledSucceed(done, err);
             var promise = fulfilled(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -131,7 +131,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
             deferred.fulfill(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -150,7 +150,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
 
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -171,7 +171,7 @@ if( adapter.hasLongStackTraces() ) {
             onUnhandledSucceed(done, err);
             var promise = fulfilled(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -214,7 +214,7 @@ if( adapter.hasLongStackTraces() ) {
             });
 
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
 
         });
