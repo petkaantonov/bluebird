@@ -118,7 +118,6 @@ function makeNodePromisified( callback, receiver ) {
         "var resolver = Promise.pending( " + callbackName + " );" +
         "var fn = function fn( err, value ) {" +
         "if( err ) {" +
-        ""+
         "resolver.reject( err );" +
         "}" +
         "else {" +
