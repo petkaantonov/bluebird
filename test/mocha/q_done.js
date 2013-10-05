@@ -83,7 +83,8 @@ Q.fcall= function( fn ) {
     return p.promise;
 };
 
-
+var isNodeJS = typeof process !== "undefined" &&
+    typeof process.execPath === "string";
 
 Promise.prototype.fin = Promise.prototype.lastly;
 Promise.prototype.fail = Promise.prototype.caught;
@@ -130,43 +131,45 @@ describe("done", function () {
             });
         });
 
-        describe("and the callback throws", function () {
-            it("should rethrow that error in the next turn and return nothing", function () {
-                var originalException;
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+        if( isNodeJS ) {
+            describe("and the callback throws", function () {
+                it("should rethrow that error in the next turn and return nothing", function () {
+                    var originalException;
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
-                    e = er;
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q().done(
+                        function () {
+                            throw "safe_error";
+                        }
+                    );
+
+                    setTimeout(function first() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q().done(
-                    function () {
-                        throw "safe_error";
-                    }
-                );
-
-                setTimeout(function first() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
+        }
     });
 
 
@@ -191,78 +194,81 @@ describe("done", function () {
             });
         });
 
-        describe("and the errback throws", function () {
-            it("should rethrow that error in the next turn and return nothing", function () {
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+        if( isNodeJS ) {
+            describe("and the errback throws", function () {
+                it("should rethrow that error in the next turn and return nothing", function () {
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
 
-                    e = er;
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q.reject("unsafe_error").done(
+                        null,
+                        function () {
+                            throw "safe_error";
+                        }
+                    );
+
+                    setTimeout(function second() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q.reject("unsafe_error").done(
-                    null,
-                    function () {
-                        throw "safe_error";
-                    }
-                );
-
-                setTimeout(function second() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
 
-        describe("and there is no errback", function () {
-            it("should throw the original error in the next turn", function () {
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+
+            describe("and there is no errback", function () {
+                it("should throw the original error in the next turn", function () {
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
 
-                    e = er;
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q.reject("safe_error").done();
+
+                    setTimeout(function third() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q.reject("safe_error").done();
-
-                setTimeout(function third() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
+        }
     });
 
     it("should attach a progress listener", function () {

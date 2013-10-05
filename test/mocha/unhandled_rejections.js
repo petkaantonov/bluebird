@@ -45,179 +45,182 @@ function notE() {
     return rets[Math.random()*rets.length|0];
 }
 
-describe("Will report rejections that are not handled in time", function() {
 
-    specify("Immediately rejected not handled at all", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        promise.reject(e());
-    });
-    specify("Eventually rejected not handled at all", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        setTimeout(function(){
+if( adapter.hasLongStackTraces() ) {
+    describe("Will report rejections that are not handled in time", function() {
+
+
+        specify("Immediately rejected not handled at all", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
             promise.reject(e());
-        }, 50);
-    });
+        });
+        specify("Eventually rejected not handled at all", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
+            setTimeout(function(){
+                promise.reject(e());
+            }, 50);
+        });
 
 
 
-    specify("Immediately rejected handled too late", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        promise.reject(e());
-        setTimeout( function() {
-            promise.promise.caught(function(){});
-        }, 120 );
-    });
-    specify("Eventually rejected handled too late", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        setTimeout(function(){
+        specify("Immediately rejected handled too late", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
             promise.reject(e());
-        }, 20);
-        setTimeout( function() {
-            promise.promise.caught(function(){});
-        }, 160 );
-    });
-});
-
-describe("Will report rejections that are code errors", function() {
-
-    specify("Immediately fulfilled handled with erroneous code", function(done) {
-        onUnhandledSucceed(done);
-        var deferred = pending();
-        var promise = deferred.promise;
-        deferred.fulfill(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
+            setTimeout( function() {
+                promise.promise.caught(function(){});
+            }, 120 );
+        });
+        specify("Eventually rejected handled too late", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
+            setTimeout(function(){
+                promise.reject(e());
+            }, 20);
+            setTimeout( function() {
+                promise.promise.caught(function(){});
+            }, 160 );
         });
     });
-    specify("Eventually fulfilled handled with erroneous code", function(done) {
-        onUnhandledSucceed(done);
-        var deferred = pending();
-        var promise = deferred.promise;
-        setTimeout(function(){
+
+    describe("Will report rejections that are code errors", function() {
+
+        specify("Immediately fulfilled handled with erroneous code", function(done) {
+            onUnhandledSucceed(done);
+            var deferred = pending();
+            var promise = deferred.promise;
             deferred.fulfill(null);
-        }, 40);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        });
-    });
-
-    specify("Already fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var promise = fulfilled(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Immediately fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var deferred = pending();
-        var promise = deferred.promise;
-        deferred.fulfill(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Eventually fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var deferred = pending();
-        var promise = deferred.promise;
-
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-
-        setTimeout(function(){
-            deferred.fulfill(null);
-        }, 40 );
-    });
-
-    specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var promise = fulfilled(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-        });
-
-        promise.caught(function(e) {
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Errors are reported in depth-first order", function(done) {
-        var err = e();
-
-        Promise.onPossiblyUnhandledRejection(function(e){
-            assert.equal(e, err);
-            Promise.onPossiblyUnhandledRejection(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError );
-
-                Promise.onPossiblyUnhandledRejection( null );
-                done();
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
             });
         });
-        var promise = fulfilled(null);
-
-        promise.caught(function(e) {
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
+        specify("Eventually fulfilled handled with erroneous code", function(done) {
+            onUnhandledSucceed(done);
+            var deferred = pending();
+            var promise = deferred.promise;
+            setTimeout(function(){
+                deferred.fulfill(null);
+            }, 40);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            });
         });
 
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
+        specify("Already fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var promise = fulfilled(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Immediately fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var deferred = pending();
+            var promise = deferred.promise;
+            deferred.fulfill(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Eventually fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var deferred = pending();
+            var promise = deferred.promise;
+
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+
+            setTimeout(function(){
+                deferred.fulfill(null);
+            }, 40 );
+        });
+
+        specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var promise = fulfilled(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+            });
+
+            promise.caught(function(e) {
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Errors are reported in depth-first order", function(done) {
+            var err = e();
+
+            Promise.onPossiblyUnhandledRejection(function(e){
+                assert.equal(e, err);
+                Promise.onPossiblyUnhandledRejection(function(e){
+                    if( haveTypeErrors )
+                        assert.ok( e instanceof TypeError );
+
+                    Promise.onPossiblyUnhandledRejection( null );
+                    done();
+                });
+            });
+            var promise = fulfilled(null);
+
+            promise.caught(function(e) {
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            });
+
         });
 
     });
-
-});
-
+}
 describe("Will not report rejections that are not instanceof Error", function() {
 
     specify("Already rejected with non instanceof Error", function(done) {

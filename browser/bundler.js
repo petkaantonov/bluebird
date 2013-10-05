@@ -31,6 +31,9 @@ var code = "(" + (function(){
     global.adapter = Promise;
     global.sinon = require("sinon");
     global.assert = require("assert");
+    global.setImmediate = function(fn){
+        setTimeout(fn, 0);
+    };
 }).toString() + ")();\n";
 
 
