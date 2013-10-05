@@ -14,6 +14,7 @@
     - [`Promise.pending()`](#promisepending---promiseresolver)
     - [`Promise.cast(dynamic value)`](#promisecastdynamic-value---promise)
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
+    - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
 - [Promise resolution](#promise-resolution)
     - [`.fulfill(dynamic value)`](#fulfilldynamic-value---undefined)
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
@@ -293,6 +294,54 @@ See if `value` is a trusted Promise.
 Promise.is($.get("http://www.google.com")); //false
 Promise.is(Promise.cast($.get("http://www.google.com"))) //true
 ```
+
+#####`Promise.longStackTraces()` -> `void`
+
+Call this right after the library is loaded to enabled long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.
+
+Long stack traces are enabled by default in the debug build.
+
+You should enabled long stack traces if you want better debugging experience. For example:
+
+```js
+Promise.longStackTraces();
+Promise.fulfilled().then(function outer() {
+    return Promise.fulfilled().then(function inner() {
+        return Promise.fulfilled().then(function evenMoreInner() {
+            a.b.c.d()
+        }).catch(function catcher(e){
+            console.error(e.stack);
+        });
+    });
+});
+```
+
+Gives
+
+    ReferenceError: a is not defined
+        at evenMoreInner (<anonymous>:6:13)
+    From previous event:
+        at inner (<anonymous>:5:24)
+    From previous event:
+        at outer (<anonymous>:4:20)
+    From previous event:
+        at <anonymous>:3:9
+        at Object.InjectedScript._evaluateOn (<anonymous>:581:39)
+        at Object.InjectedScript._evaluateAndWrap (<anonymous>:540:52)
+        at Object.InjectedScript.evaluate (<anonymous>:459:21) 
+
+While with long stack traces disabled, you would get:
+
+    ReferenceError: a is not defined
+        at evenMoreInner (<anonymous>:6:13)
+        at tryCatch1 (<anonymous>:41:19)
+        at Promise$_resolvePromise [as _resolvePromise] (<anonymous>:1739:13)
+        at Promise$_resolveLast [as _resolveLast] (<anonymous>:1520:14)
+        at Async$_consumeFunctionBuffer [as _consumeFunctionBuffer] (<anonymous>:560:33)
+        at Async$consumeFunctionBuffer (<anonymous>:515:14)
+        at MutationObserver.Promise$_Deferred (<anonymous>:433:17)
+        
+On client side, long stack traces currently only work in Firefox and Chrome.
 
 ##Promise resolution
 
