@@ -5856,43 +5856,43 @@ var Promise = require("../js/bluebird_debug.js");
     };
 })();
 
-;window.tests = [function(){ return require('../test/mocha/2.1.2.js');},
-function(){ return require('../test/mocha/2.1.3.js');},
-function(){ return require('../test/mocha/2.2.1.js');},
-function(){ return require('../test/mocha/2.2.2.js');},
-function(){ return require('../test/mocha/2.2.3.js');},
-function(){ return require('../test/mocha/2.2.4.js');},
-function(){ return require('../test/mocha/2.2.5.js');},
-function(){ return require('../test/mocha/2.2.6.js');},
-function(){ return require('../test/mocha/2.2.7.js');},
-function(){ return require('../test/mocha/2.3.1.js');},
-function(){ return require('../test/mocha/2.3.2.js');},
-function(){ return require('../test/mocha/2.3.3.js');},
-function(){ return require('../test/mocha/2.3.4.js');},
-function(){ return require('../test/mocha/3.2.1.js');},
-function(){ return require('../test/mocha/3.2.2.js');},
-function(){ return require('../test/mocha/3.2.3.js');},
-function(){ return require('../test/mocha/3.2.4.js');},
-function(){ return require('../test/mocha/3.2.5.js');},
-function(){ return require('../test/mocha/3.2.6.js');},
-function(){ return require('../test/mocha/async.js');},
-function(){ return require('../test/mocha/cancel.js');},
-function(){ return require('../test/mocha/cast.js');},
-function(){ return require('../test/mocha/catch_filter.js');},
-function(){ return require('../test/mocha/following.js');},
-function(){ return require('../test/mocha/promises_unwrapping.js');},
-function(){ return require('../test/mocha/promisify.js');},
-function(){ return require('../test/mocha/q_all.js');},
-function(){ return require('../test/mocha/q_done.js');},
-function(){ return require('../test/mocha/q_fin.js');},
-function(){ return require('../test/mocha/q_inspect.js');},
-function(){ return require('../test/mocha/q_nodeify.js');},
-function(){ return require('../test/mocha/q_progress.js');},
-function(){ return require('../test/mocha/q_propagation.js');},
-function(){ return require('../test/mocha/q_settle.js');},
-function(){ return require('../test/mocha/q_spread.js');},
-function(){ return require('../test/mocha/sparsity.js');},
-function(){ return require('../test/mocha/unhandled_rejections.js');}];
+;window.tests = [{fn: function(){ return require('../test/mocha/2.1.2.js');}, name: '../test/mocha/2.1.2.js'},
+{fn: function(){ return require('../test/mocha/2.1.3.js');}, name: '../test/mocha/2.1.3.js'},
+{fn: function(){ return require('../test/mocha/2.2.1.js');}, name: '../test/mocha/2.2.1.js'},
+{fn: function(){ return require('../test/mocha/2.2.2.js');}, name: '../test/mocha/2.2.2.js'},
+{fn: function(){ return require('../test/mocha/2.2.3.js');}, name: '../test/mocha/2.2.3.js'},
+{fn: function(){ return require('../test/mocha/2.2.4.js');}, name: '../test/mocha/2.2.4.js'},
+{fn: function(){ return require('../test/mocha/2.2.5.js');}, name: '../test/mocha/2.2.5.js'},
+{fn: function(){ return require('../test/mocha/2.2.6.js');}, name: '../test/mocha/2.2.6.js'},
+{fn: function(){ return require('../test/mocha/2.2.7.js');}, name: '../test/mocha/2.2.7.js'},
+{fn: function(){ return require('../test/mocha/2.3.1.js');}, name: '../test/mocha/2.3.1.js'},
+{fn: function(){ return require('../test/mocha/2.3.2.js');}, name: '../test/mocha/2.3.2.js'},
+{fn: function(){ return require('../test/mocha/2.3.3.js');}, name: '../test/mocha/2.3.3.js'},
+{fn: function(){ return require('../test/mocha/2.3.4.js');}, name: '../test/mocha/2.3.4.js'},
+{fn: function(){ return require('../test/mocha/3.2.1.js');}, name: '../test/mocha/3.2.1.js'},
+{fn: function(){ return require('../test/mocha/3.2.2.js');}, name: '../test/mocha/3.2.2.js'},
+{fn: function(){ return require('../test/mocha/3.2.3.js');}, name: '../test/mocha/3.2.3.js'},
+{fn: function(){ return require('../test/mocha/3.2.4.js');}, name: '../test/mocha/3.2.4.js'},
+{fn: function(){ return require('../test/mocha/3.2.5.js');}, name: '../test/mocha/3.2.5.js'},
+{fn: function(){ return require('../test/mocha/3.2.6.js');}, name: '../test/mocha/3.2.6.js'},
+{fn: function(){ return require('../test/mocha/async.js');}, name: '../test/mocha/async.js'},
+{fn: function(){ return require('../test/mocha/cancel.js');}, name: '../test/mocha/cancel.js'},
+{fn: function(){ return require('../test/mocha/cast.js');}, name: '../test/mocha/cast.js'},
+{fn: function(){ return require('../test/mocha/catch_filter.js');}, name: '../test/mocha/catch_filter.js'},
+{fn: function(){ return require('../test/mocha/following.js');}, name: '../test/mocha/following.js'},
+{fn: function(){ return require('../test/mocha/promises_unwrapping.js');}, name: '../test/mocha/promises_unwrapping.js'},
+{fn: function(){ return require('../test/mocha/promisify.js');}, name: '../test/mocha/promisify.js'},
+{fn: function(){ return require('../test/mocha/q_all.js');}, name: '../test/mocha/q_all.js'},
+{fn: function(){ return require('../test/mocha/q_done.js');}, name: '../test/mocha/q_done.js'},
+{fn: function(){ return require('../test/mocha/q_fin.js');}, name: '../test/mocha/q_fin.js'},
+{fn: function(){ return require('../test/mocha/q_inspect.js');}, name: '../test/mocha/q_inspect.js'},
+{fn: function(){ return require('../test/mocha/q_nodeify.js');}, name: '../test/mocha/q_nodeify.js'},
+{fn: function(){ return require('../test/mocha/q_progress.js');}, name: '../test/mocha/q_progress.js'},
+{fn: function(){ return require('../test/mocha/q_propagation.js');}, name: '../test/mocha/q_propagation.js'},
+{fn: function(){ return require('../test/mocha/q_settle.js');}, name: '../test/mocha/q_settle.js'},
+{fn: function(){ return require('../test/mocha/q_spread.js');}, name: '../test/mocha/q_spread.js'},
+{fn: function(){ return require('../test/mocha/sparsity.js');}, name: '../test/mocha/sparsity.js'},
+{fn: function(){ return require('../test/mocha/unhandled_rejections.js');}, name: '../test/mocha/unhandled_rejections.js'}];
 },{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/async.js":52,"../test/mocha/cancel.js":53,"../test/mocha/cast.js":54,"../test/mocha/catch_filter.js":55,"../test/mocha/following.js":56,"../test/mocha/promises_unwrapping.js":60,"../test/mocha/promisify.js":61,"../test/mocha/q_all.js":62,"../test/mocha/q_done.js":63,"../test/mocha/q_fin.js":64,"../test/mocha/q_inspect.js":65,"../test/mocha/q_nodeify.js":66,"../test/mocha/q_progress.js":67,"../test/mocha/q_propagation.js":68,"../test/mocha/q_settle.js":69,"../test/mocha/q_spread.js":70,"../test/mocha/sparsity.js":71,"../test/mocha/unhandled_rejections.js":72,"assert":2,"sinon":18}],17:[function(require,module,exports){
 var process=require("__browserify_process");
     var ASSERT = (function(){/* jshint -W014, -W116 */
@@ -15994,16 +15994,16 @@ CustomError.prototype = new Error();
 
 describe("A promise handler that throws a TypeError must be caught", function() {
 
-    specify("in a middle catch filter", function(done) {
+    specify("in a middle.caught filter", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16011,32 +16011,32 @@ describe("A promise handler that throws a TypeError must be caught", function() 
     });
 
 
-    specify("in a generic catch filter that comes first", function(done) {
+    specify("in a generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(function(e){
+        }).caught(function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             assert.fail();
         });
 
         a.fulfill(3);
     });
 
-    specify("in an explicitly generic catch filter that comes first", function(done) {
+    specify("in an explicitly generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(Error, function(e){
+        }).caught(Error, function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             assert.fail();
         });
 
@@ -16048,13 +16048,13 @@ describe("A promise handler that throws a TypeError must be caught", function() 
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(function(e){
+        }).caught(function(e){
             throw e
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16067,9 +16067,9 @@ describe("A promise handler that throws a TypeError must be caught", function() 
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, TypeError, function(e){
+        }).caught(SyntaxError, TypeError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16077,16 +16077,16 @@ describe("A promise handler that throws a TypeError must be caught", function() 
     });
 
 
-    specify("in a specific handler after non-matching multi-catch handler", function(done) {
+    specify("in a specific handler after non-matching multi.caught handler", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             a.b.c.d()
-        }).catch(SyntaxError, CustomError, function(e){
+        }).caught(SyntaxError, CustomError, function(e){
            assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16103,11 +16103,11 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
            assert.fail();
-        }).catch(TypeError, function(e){
+        }).caught(TypeError, function(e){
            assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.equal( e, b );
             done();
         });
@@ -16120,25 +16120,25 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).catch(TypeError, SyntaxError, CustomError, function(e){
+        }).caught(TypeError, SyntaxError, CustomError, function(e){
            done()
-        }).catch(assert.fail);
+        }).caught(assert.fail);
 
         a.fulfill(3);
     });
 });
 
 describe("A promise handler that throws a CustomError must be caught", function() {
-    specify("in a middle catch filter", function(done) {
+    specify("in a middle.caught filter", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16146,32 +16146,32 @@ describe("A promise handler that throws a CustomError must be caught", function(
     });
 
 
-    specify("in a generic catch filter that comes first", function(done) {
+    specify("in a generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(function(e){
+        }).caught(function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.fail();
         });
 
         a.fulfill(3);
     });
 
-    specify("in an explicitly generic catch filter that comes first", function(done) {
+    specify("in an explicitly generic.caught filter that comes first", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(Error, function(e){
+        }).caught(Error, function(e){
             done();
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             assert.fail();
         });
 
@@ -16183,13 +16183,13 @@ describe("A promise handler that throws a CustomError must be caught", function(
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(function(e){
+        }).caught(function(e){
             throw e
-        }).catch(SyntaxError, function(e){
+        }).caught(SyntaxError, function(e){
             assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
             done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16202,9 +16202,9 @@ describe("A promise handler that throws a CustomError must be caught", function(
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, CustomError, function(e){
+        }).caught(SyntaxError, CustomError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16212,16 +16212,16 @@ describe("A promise handler that throws a CustomError must be caught", function(
     });
 
 
-    specify("in a specific handler after non-matching multi-catch handler", function(done) {
+    specify("in a specific handler after non-matching multi.caught handler", function(done) {
         var a = Promise.pending();
 
         a.promise.then(function(){
             throw new CustomError()
-        }).catch(SyntaxError, TypeError, function(e){
+        }).caught(SyntaxError, TypeError, function(e){
            assert.fail();
-        }).catch(CustomError, function(e){
+        }).caught(CustomError, function(e){
            done();
-        }).catch(function(e){
+        }).caught(function(e){
             assert.fail();
         });
 
@@ -16238,11 +16238,11 @@ describe("A promise handler that is caught in a filter", function() {
          var b = new CustomError();
          a.promise.then(function(){
              throw b;
-         }).catch(SyntaxError, function(e){
+         }).caught(SyntaxError, function(e){
             assert.fail();
-         }).catch(TypeError, function(e){
+         }).caught(TypeError, function(e){
             assert.fail();
-         }).catch(CustomError, function(e){
+         }).caught(CustomError, function(e){
             assert.equal( e, b );
             return c.promise;
          }).then(function(){done()}, assert.fail, assert.fail);
@@ -16259,11 +16259,11 @@ describe("A promise handler that is caught in a filter", function() {
          var b = new CustomError();
          a.promise.then(function(){
              return c.promise;
-         }).catch(SyntaxError, function(e){
+         }).caught(SyntaxError, function(e){
             assert.fail();
-         }).catch(TypeError, function(e){
+         }).caught(TypeError, function(e){
             assert.fail();
-         }).catch(CustomError, function(e){
+         }).caught(CustomError, function(e){
             assert.fail();
          }).then(function(){done()}, assert.fail, assert.fail);
 
@@ -16938,8 +16938,8 @@ describe("when calling promisified function it should ", function(){
         assert.equal(d.isPending(), true);
         assert.equal(e.isPending(), true);
         assert.equal(f.isPending(), true);
-        a.catch(donecall);
-        d.catch(donecall);
+        a.caught(donecall);
+        d.caught(donecall);
     });
 
     specify("call future attached handlers later", function(done) {
@@ -16967,7 +16967,7 @@ describe("when calling promisified function it should ", function(){
     });
 
     specify("Reject with the synchronously caught reason", function(done){
-        thrower(1, 2, 3).then(assert.fail).catch(function(e){
+        thrower(1, 2, 3).then(assert.fail).caught(function(e){
             assert(e === errToThrow);
             done();
         });
@@ -16983,11 +16983,11 @@ describe("when calling promisified function it should ", function(){
             }
         }
 
-        a.catch(function(e){
+        a.caught(function(e){
             assert.equal( sentinelError, e);
             donecall();
         });
-        b.catch(function(e){
+        b.caught(function(e){
             assert.equal( sentinelError, e);
             donecall();
         });
@@ -19331,7 +19331,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
             deferred.fulfill(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
         });
         specify("Eventually fulfilled handled with erroneous code", function(done) {
@@ -19342,7 +19342,7 @@ if( adapter.hasLongStackTraces() ) {
                 deferred.fulfill(null);
             }, 40);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
         });
 
@@ -19351,7 +19351,7 @@ if( adapter.hasLongStackTraces() ) {
             onUnhandledSucceed(done, err);
             var promise = fulfilled(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -19369,7 +19369,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
             deferred.fulfill(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -19388,7 +19388,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = deferred.promise;
 
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -19409,7 +19409,7 @@ if( adapter.hasLongStackTraces() ) {
             onUnhandledSucceed(done, err);
             var promise = fulfilled(null);
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             }).caught(function(e){
                 if( haveTypeErrors )
                     assert.ok( e instanceof TypeError )
@@ -19452,7 +19452,7 @@ if( adapter.hasLongStackTraces() ) {
             });
 
             promise.then(function(itsNull){
-                itsNull.will.fail.for.sure();
+                itsNull.will.fail.four.sure();
             });
 
         });
