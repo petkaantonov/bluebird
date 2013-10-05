@@ -168,7 +168,7 @@ function MyCustomError(message) {
     Error.captureStackTrace(this, MyCustomError);
 }
 MyCustomError.prototype = Object.create(Error.prototype);
-MyCustomError.constructor = MyCustomError;
+MyCustomError.prototype.constructor = MyCustomError;
 ```
 
 Using CoffeeScript's `class` for the same:
