@@ -139,7 +139,7 @@ somePromise.then(function(){
     
 For a paramater to be considered a type of error that you want to filter, you need the constructor to have its `.prototype` property be `instanceof Error`.
 
-Such a constructor can be created like so:
+Such a constructor can be minimally created like so:
 
 ```js
 function MyCustomError() {}
@@ -154,6 +154,29 @@ Promise.fulfilled().then(function(){
 }).catch(MyCustomError, function(e){
     //will end up here now
 });
+```
+
+However if you  want stack traces and cleaner string output, then you should do:
+
+*in Node.js and other V8 environments, with support for `Error.captureStackTrace`*
+
+```js
+function MyCustomError(message) {
+    this.message = message;
+    this.name = "MyCustomError";
+    Error.captureStackTrace(this, MyCustomError);
+}
+MyCustomError.prototype = Object.create(Error.prototype);
+MyCustomError.constructor = MyCustomError;
+```
+
+Using CoffeeScript's `class` for the same:
+
+```js
+class MyCustomError extends Error
+  constructor: (@message) ->
+    @name = "MyCustomError"
+    Error.captureStackTrace(this, MyCustomError)
 ```
     
 *For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
