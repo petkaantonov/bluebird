@@ -5851,6 +5851,9 @@ var Promise = require("../js/bluebird_debug.js");
     global.adapter = Promise;
     global.sinon = require("sinon");
     global.assert = require("assert");
+    global.setImmediate = function(fn){
+        setTimeout(fn, 0);
+    };
 })();
 
 ;window.tests = [function(){ return require('../test/mocha/2.1.2.js');},
@@ -6762,6 +6765,10 @@ Promise.longStackTraces = function() {
         "after promises have been created");
     }
     longStackTraces = true;
+};
+
+Promise.hasLongStackTraces = function() {
+    return longStackTraces;
 };
 
 method._setTrace = function _setTrace( caller, parent ) {
@@ -7881,7 +7888,8 @@ method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
         isError( error ) ) {
         var promise = this;
-        var stack = error.stack.split("\n");
+        var stack = error.stack;
+        stack = stack ? stack.split("\n") : [];
         var headerLineCount = 1;
 
         while( promise != null &&
@@ -8120,6 +8128,7 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+
 
 
 return Promise;})();
@@ -17401,7 +17410,8 @@ Q.fcall= function( fn ) {
     return p.promise;
 };
 
-
+var isNodeJS = typeof process !== "undefined" &&
+    typeof process.execPath === "string";
 
 Promise.prototype.fin = Promise.prototype.lastly;
 Promise.prototype.fail = Promise.prototype.caught;
@@ -17448,43 +17458,45 @@ describe("done", function () {
             });
         });
 
-        describe("and the callback throws", function () {
-            it("should rethrow that error in the next turn and return nothing", function () {
-                var originalException;
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+        if( isNodeJS ) {
+            describe("and the callback throws", function () {
+                it("should rethrow that error in the next turn and return nothing", function () {
+                    var originalException;
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
-                    e = er;
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q().done(
+                        function () {
+                            throw "safe_error";
+                        }
+                    );
+
+                    setTimeout(function first() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q().done(
-                    function () {
-                        throw "safe_error";
-                    }
-                );
-
-                setTimeout(function first() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
+        }
     });
 
 
@@ -17509,78 +17521,81 @@ describe("done", function () {
             });
         });
 
-        describe("and the errback throws", function () {
-            it("should rethrow that error in the next turn and return nothing", function () {
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+        if( isNodeJS ) {
+            describe("and the errback throws", function () {
+                it("should rethrow that error in the next turn and return nothing", function () {
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
 
-                    e = er;
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q.reject("unsafe_error").done(
+                        null,
+                        function () {
+                            throw "safe_error";
+                        }
+                    );
+
+                    setTimeout(function second() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q.reject("unsafe_error").done(
-                    null,
-                    function () {
-                        throw "safe_error";
-                    }
-                );
-
-                setTimeout(function second() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
 
-        describe("and there is no errback", function () {
-            it("should throw the original error in the next turn", function () {
-                while( originalException = process.listeners('uncaughtException').pop() ) {
-                    process.removeListener('uncaughtException', originalException);
-                }
-                var e;
-                process.on("uncaughtException", function(er){
-                    if( er !== "safe_error" ) {
-                        console.log(er.stack);
-                        process.exit(-1);
+
+            describe("and there is no errback", function () {
+                it("should throw the original error in the next turn", function () {
+                    while( originalException = process.listeners('uncaughtException').pop() ) {
+                        process.removeListener('uncaughtException', originalException);
                     }
+                    var e;
+                    process.on("uncaughtException", function(er){
+                        if( er !== "safe_error" ) {
+                            console.log(er.stack);
+                            process.exit(-1);
+                        }
 
-                    e = er;
+                        e = er;
+                    });
+                    var turn = 0;
+                    process.nextTick(function () {
+                        ++turn;
+                    });
+
+                    var returnValue = Q.reject("safe_error").done();
+
+                    setTimeout(function third() {
+                        assert.equal(turn,1);
+                        assert.equal(e, "safe_error");
+                        assert.equal(returnValue,undefined);
+                        deferred.resolve();
+                    }, 4);
+                    var deferred = Q.defer();
+                    Q.delay(100).then(deferred.reject);
+
+                    return deferred.promise;
                 });
-                var turn = 0;
-                process.nextTick(function () {
-                    ++turn;
-                });
-
-                var returnValue = Q.reject("safe_error").done();
-
-                setTimeout(function third() {
-                    assert.equal(turn,1);
-                    assert.equal(e, "safe_error");
-                    assert.equal(returnValue,undefined);
-                    deferred.resolve();
-                }, 4);
-                var deferred = Q.defer();
-                Q.delay(100).then(deferred.reject);
-
-                return deferred.promise;
             });
-        });
+        }
     });
 
     it("should attach a progress listener", function () {
@@ -18090,7 +18105,8 @@ Q.fcall= function( fn ) {
 var sinon = require("sinon");
 
 
-
+var isNodeJS = typeof process !== "undefined" &&
+    typeof process.execPath === "string";
 
 
 /*
@@ -18147,53 +18163,55 @@ describe("nodeify", function () {
 //Should be the last test because it is ridiculously hard to test
 //if something throws in the node process
 
-describe("nodeify", function () {
+if( isNodeJS ) {
+    describe("nodeify", function () {
 
-    var h = [];
+        var h = [];
 
-    function clearHandlers() {
-        var originalException;
-        while( originalException = process.listeners('uncaughtException').pop() ) {
-            process.removeListener('uncaughtException', originalException);
-            h.push(originalException);
+        function clearHandlers() {
+            var originalException;
+            while( originalException = process.listeners('uncaughtException').pop() ) {
+                process.removeListener('uncaughtException', originalException);
+                h.push(originalException);
+            }
         }
-    }
 
-    function clearHandlersNoRestore() {
-        var originalException;
-        while( originalException = process.listeners('uncaughtException').pop() ) {
-            process.removeListener('uncaughtException', originalException);
+        function clearHandlersNoRestore() {
+            var originalException;
+            while( originalException = process.listeners('uncaughtException').pop() ) {
+                process.removeListener('uncaughtException', originalException);
+            }
         }
-    }
 
-    function addHandlersBack() {
-        for( var i = 0, len = h.length; i < len; ++i ) {
-            process.addListener('uncaughtException', h[i]);
+        function addHandlersBack() {
+            for( var i = 0, len = h.length; i < len; ++i ) {
+                process.addListener('uncaughtException', h[i]);
+            }
         }
-    }
-    var e = new Error();
-    function thrower() {
-        throw e;
-    }
+        var e = new Error();
+        function thrower() {
+            throw e;
+        }
 
-    it("throws normally in the node process if the function throws", function (done) {
-        clearHandlers();
-        var promise = Q(10);
-        promise.nodeify(thrower);
-        var turns = 0;
-        process.nextTick(function(){
+        it("throws normally in the node process if the function throws", function (done) {
+            clearHandlers();
+            var promise = Q(10);
+            promise.nodeify(thrower);
+            var turns = 0;
+            process.nextTick(function(){
 
-            turns++;
-        });
-        var doneCalls = 0;
-        process.addListener("uncaughtException", function(err) {
-            clearHandlersNoRestore();
-            assert( err === e );
-            assert( turns === 1);
-            done();
+                turns++;
+            });
+            var doneCalls = 0;
+            process.addListener("uncaughtException", function(err) {
+                clearHandlersNoRestore();
+                assert( err === e );
+                assert( turns === 1);
+                done();
+            });
         });
     });
-});
+}
 },{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],67:[function(require,module,exports){
 var assert = require("assert");
 
@@ -19265,179 +19283,182 @@ function notE() {
     return rets[Math.random()*rets.length|0];
 }
 
-describe("Will report rejections that are not handled in time", function() {
 
-    specify("Immediately rejected not handled at all", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        promise.reject(e());
-    });
-    specify("Eventually rejected not handled at all", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        setTimeout(function(){
+if( adapter.hasLongStackTraces() ) {
+    describe("Will report rejections that are not handled in time", function() {
+
+
+        specify("Immediately rejected not handled at all", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
             promise.reject(e());
-        }, 50);
-    });
+        });
+        specify("Eventually rejected not handled at all", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
+            setTimeout(function(){
+                promise.reject(e());
+            }, 50);
+        });
 
 
 
-    specify("Immediately rejected handled too late", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        promise.reject(e());
-        setTimeout( function() {
-            promise.promise.caught(function(){});
-        }, 120 );
-    });
-    specify("Eventually rejected handled too late", function(done) {
-        onUnhandledSucceed(done);
-        var promise = pending();
-        setTimeout(function(){
+        specify("Immediately rejected handled too late", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
             promise.reject(e());
-        }, 20);
-        setTimeout( function() {
-            promise.promise.caught(function(){});
-        }, 160 );
-    });
-});
-
-describe("Will report rejections that are code errors", function() {
-
-    specify("Immediately fulfilled handled with erroneous code", function(done) {
-        onUnhandledSucceed(done);
-        var deferred = pending();
-        var promise = deferred.promise;
-        deferred.fulfill(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
+            setTimeout( function() {
+                promise.promise.caught(function(){});
+            }, 120 );
+        });
+        specify("Eventually rejected handled too late", function(done) {
+            onUnhandledSucceed(done);
+            var promise = pending();
+            setTimeout(function(){
+                promise.reject(e());
+            }, 20);
+            setTimeout( function() {
+                promise.promise.caught(function(){});
+            }, 160 );
         });
     });
-    specify("Eventually fulfilled handled with erroneous code", function(done) {
-        onUnhandledSucceed(done);
-        var deferred = pending();
-        var promise = deferred.promise;
-        setTimeout(function(){
+
+    describe("Will report rejections that are code errors", function() {
+
+        specify("Immediately fulfilled handled with erroneous code", function(done) {
+            onUnhandledSucceed(done);
+            var deferred = pending();
+            var promise = deferred.promise;
             deferred.fulfill(null);
-        }, 40);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        });
-    });
-
-    specify("Already fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var promise = fulfilled(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Immediately fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var deferred = pending();
-        var promise = deferred.promise;
-        deferred.fulfill(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Eventually fulfilled handled with erroneous code but then recovered and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var deferred = pending();
-        var promise = deferred.promise;
-
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-
-        setTimeout(function(){
-            deferred.fulfill(null);
-        }, 40 );
-    });
-
-    specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failed again", function(done) {
-        var err = e();
-        onUnhandledSucceed(done, err);
-        var promise = fulfilled(null);
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
-        }).caught(function(e){
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-        });
-
-        promise.caught(function(e) {
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
-        });
-    });
-
-    specify("Errors are reported in depth-first order", function(done) {
-        var err = e();
-
-        Promise.onPossiblyUnhandledRejection(function(e){
-            assert.equal(e, err);
-            Promise.onPossiblyUnhandledRejection(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError );
-
-                Promise.onPossiblyUnhandledRejection( null );
-                done();
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
             });
         });
-        var promise = fulfilled(null);
-
-        promise.caught(function(e) {
-            if( haveTypeErrors )
-                assert.ok( e instanceof TypeError )
-            //Handling the type error here
-        }).then(function(){
-            //then failing again
-            //this error should be reported
-            throw err;
+        specify("Eventually fulfilled handled with erroneous code", function(done) {
+            onUnhandledSucceed(done);
+            var deferred = pending();
+            var promise = deferred.promise;
+            setTimeout(function(){
+                deferred.fulfill(null);
+            }, 40);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            });
         });
 
-        promise.then(function(itsNull){
-            itsNull.will.fail.for.sure();
+        specify("Already fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var promise = fulfilled(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Immediately fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var deferred = pending();
+            var promise = deferred.promise;
+            deferred.fulfill(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Eventually fulfilled handled with erroneous code but then recovered and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var deferred = pending();
+            var promise = deferred.promise;
+
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+
+            setTimeout(function(){
+                deferred.fulfill(null);
+            }, 40 );
+        });
+
+        specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failed again", function(done) {
+            var err = e();
+            onUnhandledSucceed(done, err);
+            var promise = fulfilled(null);
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            }).caught(function(e){
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+            });
+
+            promise.caught(function(e) {
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+        });
+
+        specify("Errors are reported in depth-first order", function(done) {
+            var err = e();
+
+            Promise.onPossiblyUnhandledRejection(function(e){
+                assert.equal(e, err);
+                Promise.onPossiblyUnhandledRejection(function(e){
+                    if( haveTypeErrors )
+                        assert.ok( e instanceof TypeError );
+
+                    Promise.onPossiblyUnhandledRejection( null );
+                    done();
+                });
+            });
+            var promise = fulfilled(null);
+
+            promise.caught(function(e) {
+                if( haveTypeErrors )
+                    assert.ok( e instanceof TypeError )
+                //Handling the type error here
+            }).then(function(){
+                //then failing again
+                //this error should be reported
+                throw err;
+            });
+
+            promise.then(function(itsNull){
+                itsNull.will.fail.for.sure();
+            });
+
         });
 
     });
-
-});
-
+}
 describe("Will not report rejections that are not instanceof Error", function() {
 
     specify("Already rejected with non instanceof Error", function(done) {

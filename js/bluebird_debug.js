@@ -871,6 +871,10 @@ Promise.longStackTraces = function() {
     longStackTraces = true;
 };
 
+Promise.hasLongStackTraces = function() {
+    return longStackTraces;
+};
+
 method._setTrace = function _setTrace( caller, parent ) {
     ASSERT((this._trace == null),
     "this._trace == null");
@@ -1988,7 +1992,8 @@ method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
         isError( error ) ) {
         var promise = this;
-        var stack = error.stack.split("\n");
+        var stack = error.stack;
+        stack = stack ? stack.split("\n") : [];
         var headerLineCount = 1;
 
         while( promise != null &&
@@ -2227,6 +2232,7 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+
 
 
 return Promise;})();
