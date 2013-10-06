@@ -5892,8 +5892,17 @@ var Promise = require("../js/bluebird_debug.js");
 {fn: function(){ return require('../test/mocha/q_settle.js');}, name: '../test/mocha/q_settle.js'},
 {fn: function(){ return require('../test/mocha/q_spread.js');}, name: '../test/mocha/q_spread.js'},
 {fn: function(){ return require('../test/mocha/sparsity.js');}, name: '../test/mocha/sparsity.js'},
-{fn: function(){ return require('../test/mocha/unhandled_rejections.js');}, name: '../test/mocha/unhandled_rejections.js'}];
-},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/async.js":52,"../test/mocha/cancel.js":53,"../test/mocha/cast.js":54,"../test/mocha/catch_filter.js":55,"../test/mocha/following.js":56,"../test/mocha/promises_unwrapping.js":60,"../test/mocha/promisify.js":61,"../test/mocha/q_all.js":62,"../test/mocha/q_done.js":63,"../test/mocha/q_fin.js":64,"../test/mocha/q_inspect.js":65,"../test/mocha/q_nodeify.js":66,"../test/mocha/q_progress.js":67,"../test/mocha/q_propagation.js":68,"../test/mocha/q_settle.js":69,"../test/mocha/q_spread.js":70,"../test/mocha/sparsity.js":71,"../test/mocha/unhandled_rejections.js":72,"assert":2,"sinon":18}],17:[function(require,module,exports){
+{fn: function(){ return require('../test/mocha/unhandled_rejections.js');}, name: '../test/mocha/unhandled_rejections.js'},
+{fn: function(){ return require('../test/mocha/when_all.js');}, name: '../test/mocha/when_all.js'},
+{fn: function(){ return require('../test/mocha/when_any.js');}, name: '../test/mocha/when_any.js'},
+{fn: function(){ return require('../test/mocha/when_defer.js');}, name: '../test/mocha/when_defer.js'},
+{fn: function(){ return require('../test/mocha/when_join.js');}, name: '../test/mocha/when_join.js'},
+{fn: function(){ return require('../test/mocha/when_map.js');}, name: '../test/mocha/when_map.js'},
+{fn: function(){ return require('../test/mocha/when_reduce.js');}, name: '../test/mocha/when_reduce.js'},
+{fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
+{fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
+{fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
+},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/async.js":52,"../test/mocha/cancel.js":53,"../test/mocha/cast.js":54,"../test/mocha/catch_filter.js":55,"../test/mocha/following.js":56,"../test/mocha/promises_unwrapping.js":60,"../test/mocha/promisify.js":61,"../test/mocha/q_all.js":62,"../test/mocha/q_done.js":63,"../test/mocha/q_fin.js":64,"../test/mocha/q_inspect.js":65,"../test/mocha/q_nodeify.js":66,"../test/mocha/q_progress.js":67,"../test/mocha/q_propagation.js":68,"../test/mocha/q_settle.js":69,"../test/mocha/q_spread.js":70,"../test/mocha/sparsity.js":71,"../test/mocha/unhandled_rejections.js":72,"../test/mocha/when_all.js":73,"../test/mocha/when_any.js":74,"../test/mocha/when_defer.js":75,"../test/mocha/when_join.js":76,"../test/mocha/when_map.js":77,"../test/mocha/when_reduce.js":78,"../test/mocha/when_settle.js":79,"../test/mocha/when_some.js":80,"../test/mocha/when_spread.js":81,"assert":2,"sinon":18}],17:[function(require,module,exports){
 var process=require("__browserify_process");
     var ASSERT = (function(){/* jshint -W014, -W116 */
         var AssertionError = (function() {
@@ -7188,6 +7197,7 @@ Promise.pending = function Promise$Pending( caller ) {
 };
 
 
+Promise._cast = cast;
 Promise.cast = function Promise$Cast( obj, caller ) {
     var ret = cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
@@ -8572,7 +8582,14 @@ method._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        Promise.cast( value )._then(
+        var ret = Promise._cast( value, PromiseSpawn$_continue );
+        if( !( ret instanceof Promise ) ) {
+            this._throw( new TypeError(
+                "A value was yielded that could not be treated as a promise"
+            ) );
+            return;
+        }
+        ret._then(
             this._next,
             this._throw,
             void 0,
@@ -19702,5 +19719,1924 @@ describe("Will not report rejections that are handled in time", function() {
 
 
 });
+},{"../../js/bluebird_debug.js":17,"assert":2}],73:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.done(function(){
+        fn();
+    });
+};
+
+function fail() {
+    assert.fail();
+}
+
+describe("when.all-test", function () {
+
+    specify("should resolve empty input", function(done) {
+        return when.all([]).then(
+            function(result) {
+                assert.deepEqual(result, []);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve values array", function(done) {
+        var input = [1, 2, 3];
+        when.all(input).then(
+            function(results) {
+                assert.deepEqual(results, input);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve promises array", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.all(input).then(
+            function(results) {
+                assert.deepEqual(results, [1, 2, 3]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve sparse array input", function(done) {
+        var input = [, 1, , 1, 1 ];
+        when.all(input).then(
+            function(results) {
+                assert.deepEqual(results, input);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reject if any input promise rejects", function(done) {
+        var input = [resolved(1), rejected(2), resolved(3)];
+        when.all(input).then(
+            fail,
+            function(failed) {
+                assert.deepEqual(failed, 2);
+            }
+        ).ensure(done);
+    });
+
+    specify("should accept a promise for an array", function(done) {
+        var expected, input;
+
+        expected = [1, 2, 3];
+        input = resolved(expected);
+
+        when.all(input).then(
+            function(results) {
+                assert.deepEqual(results, expected);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve to empty array when input promise does not resolve to array", function(done) {
+        when.all(resolved(1)).then(
+            function(result) {
+                assert.deepEqual(result, []);
+            },
+            fail
+        ).ensure(done);
+    });
+
+});
+},{"../../js/bluebird_debug.js":17,"assert":2}],74:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.done(function(){
+        fn();
+    });
+};
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+
+describe("when.any-test", function () {
+
+    specify("should resolve to undefined with empty input array", function(done) {
+        when.any([]).then(
+            function(result) {
+                refute.defined(result);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve with an input value", function(done) {
+        var input = [1, 2, 3];
+        when.any(input).then(
+            function(result) {
+                assert(contains(input, result));
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve with a promised input value", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.any(input).then(
+            function(result) {
+                assert(contains([1, 2, 3], result));
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reject with all rejected input values if all inputs are rejected", function(done) {
+        var input = [rejected(1), rejected(2), rejected(3)];
+        when.any(input).then(
+            fail,
+            function(result) {
+                assert.deepEqual(result, [1, 2, 3]);
+            }
+        ).ensure(done);
+    });
+
+    specify("should accept a promise for an array", function(done) {
+        var expected, input;
+
+        expected = [1, 2, 3];
+        input = resolved(expected);
+
+        when.any(input).then(
+            function(result) {
+                refute.equals(expected.indexOf(result), -1);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should allow zero handlers", function(done) {
+        var input = [1, 2, 3];
+        when.any(input).then(
+            function(result) {
+                assert(contains(input, result));
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve to undefined when input promise does not resolve to array", function(done) {
+        when.any(resolved(1)).then(
+            function(result) {
+                refute.defined(result);
+            },
+            fail
+        ).ensure(done);
+    });
+});
+},{"../../js/bluebird_debug.js":17,"assert":2}],75:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+
+describe("when.defer-test", function () {
+
+
+    specify("should fulfill with an immediate value", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            function(val) {
+                assert.equal(val, sentinel);
+            },
+            fail
+        ).ensure(done);
+
+        d.resolve(sentinel);
+    });
+
+    specify("should fulfill with fulfilled promised", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            function(val) {
+                assert.equal(val, sentinel);
+            },
+            fail
+        ).ensure(done);
+
+        d.resolve(fakeResolved(sentinel));
+    });
+
+    specify("should reject with rejected promise", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, sentinel);
+            }
+        ).ensure(done);
+
+        d.resolve(fakeRejected(sentinel));
+    });
+
+    specify("should return a promise for the resolution value", function(done) {
+        var d = when.defer();
+
+        d.resolve(sentinel);
+        d.promise.then(
+            function(returnedPromiseVal) {
+                assert.deepEqual(returnedPromiseVal, sentinel);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should return a promise for a promised resolution value", function(done) {
+        var d = when.defer();
+
+        d.resolve(when.resolve(sentinel))
+        d.promise.then(
+            function(returnedPromiseVal) {
+                assert.deepEqual(returnedPromiseVal, sentinel);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should return a promise for a promised rejection value", function(done) {
+        var d = when.defer();
+
+        // Both the returned promise, and the deferred's own promise should
+        // be rejected with the same value
+        d.resolve(when.reject(sentinel))
+        d.promise.then(
+            fail,
+            function(returnedPromiseVal) {
+                assert.deepEqual(returnedPromiseVal, sentinel);
+            }
+        ).ensure(done);
+    });
+
+    specify("should invoke newly added callback when already resolved", function(done) {
+        var d = when.defer();
+
+        d.resolve(sentinel);
+
+        d.promise.then(
+            function(val) {
+                assert.equal(val, sentinel);
+                done();
+            },
+            fail
+        );
+    });
+
+
+
+    specify("should reject with an immediate value", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, sentinel);
+            }
+        ).ensure(done);
+
+        d.reject(sentinel);
+    });
+
+    specify("should reject with fulfilled promised", function(done) {
+        var d, expected;
+
+        d = when.defer();
+        expected = fakeResolved(sentinel);
+
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, expected);
+            }
+        ).ensure(done);
+
+        d.reject(expected);
+    });
+
+    specify("should reject with rejected promise", function(done) {
+        var d, expected;
+
+        d = when.defer();
+        expected = fakeRejected(sentinel);
+
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, expected);
+            }
+        ).ensure(done);
+
+        d.reject(expected);
+    });
+
+
+    specify("should return a promise for the rejection value", function(done) {
+        var d = when.defer();
+
+        // Both the returned promise, and the deferred's own promise should
+        // be rejected with the same value
+        d.reject(sentinel);
+        d.promise.then(
+            fail,
+            function(returnedPromiseVal) {
+                assert.deepEqual(returnedPromiseVal, sentinel);
+            }
+        ).ensure(done);
+    });
+
+    specify("should invoke newly added errback when already rejected", function(done) {
+        var d = when.defer();
+
+        d.reject(sentinel);
+
+        d.promise.then(
+            fail,
+            function (val) {
+                assert.deepEqual(val, sentinel);
+            }
+        ).ensure(done);
+    });
+
+
+
+    specify("should notify of progress updates", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            fail,
+            fail,
+            function(val) {
+                assert.equal(val, sentinel);
+                done();
+            }
+        );
+
+        d.notify(sentinel);
+    });
+
+    specify("should propagate progress to downstream promises", function(done) {
+        var d = when.defer();
+
+        d.promise
+        .then(fail, fail,
+            function(update) {
+                return update;
+            }
+        )
+        .then(fail, fail,
+            function(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+
+        d.notify(sentinel);
+    });
+
+    specify("should propagate transformed progress to downstream promises", function(done) {
+        var d = when.defer();
+
+        d.promise
+        .then(fail, fail,
+            function() {
+                return sentinel;
+            }
+        )
+        .then(fail, fail,
+            function(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+
+        d.notify(other);
+    });
+
+    specify("should propagate caught exception value as progress", function(done) {
+        var d = when.defer();
+
+        d.promise
+        .then(fail, fail,
+            function() {
+                throw sentinel;
+            }
+        )
+        .then(fail, fail,
+            function(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+
+        d.notify(other);
+    });
+
+    specify("should forward progress events when intermediary callback (tied to a resolved promise) returns a promise", function(done) {
+        var d, d2;
+
+        d = when.defer();
+        d2 = when.defer();
+
+        // resolve d BEFORE calling attaching progress handler
+        d.resolve();
+
+        d.promise.then(
+            function() {
+                var ret = pending();
+                setTimeout(function(){
+                    ret.notify(sentinel);
+                }, 0)
+                return ret.promise;
+            }
+        ).then(null, null,
+            function onProgress(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+    });
+
+    specify("should forward progress events when intermediary callback (tied to an unresovled promise) returns a promise", function(done) {
+        var d = when.defer();
+
+        d.promise.then(
+            function() {
+                var ret = pending();
+                setTimeout(function(){
+                    ret.notify(sentinel);
+                }, 0)
+                return ret.promise;
+            }
+        ).then(null, null,
+            function onProgress(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+
+        // resolve d AFTER calling attaching progress handler
+        d.resolve();
+    });
+
+    specify("should forward progress when resolved with another promise", function(done) {
+        var d, d2;
+
+        d = when.defer();
+        d2 = when.defer();
+
+        d.promise
+        .then(fail, fail,
+            function() {
+                return sentinel;
+            }
+        )
+        .then(fail, fail,
+            function(update) {
+                assert.equal(update, sentinel);
+                done();
+            }
+        );
+
+        d.resolve(d2.promise);
+
+        d2.notify();
+    });
+
+    specify("should allow resolve after progress", function(done) {
+        var d = when.defer();
+
+        var progressed = false;
+        d.promise.then(
+            function() {
+                assert(progressed);
+                done();
+            },
+            fail,
+            function() {
+                progressed = true;
+            }
+        );
+
+        d.notify();
+        d.resolve();
+    });
+
+    specify("should allow reject after progress", function(done) {
+        var d = when.defer();
+
+        var progressed = false;
+        d.promise.then(
+            fail,
+            function() {
+                assert(progressed);
+                done();
+            },
+            function() {
+                progressed = true;
+            }
+        );
+
+        d.notify();
+        d.reject();
+    });
+
+    specify("should be indistinguishable after resolution", function() {
+        var d, before, after;
+
+        d = when.defer();
+
+        before = d.notify(sentinel);
+        d.resolve();
+        after = d.notify(sentinel);
+
+        assert.equal(before, after);
+    });
+
+
+    specify("should return a promise for passed-in resolution value when already resolved", function(done) {
+        var d = when.defer();
+        d.resolve(other);
+
+        d.resolve(sentinel);
+        d.promise.then(function(val) {
+            assert.equal(val, sentinel);
+        }).ensure(done);
+    });
+
+    specify("should return a promise for passed-in rejection value when already resolved", function(done) {
+        var d = when.defer();
+        d.resolve(other);
+
+        d.reject(sentinel)
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, sentinel);
+            }
+        ).ensure(done);
+    });
+
+    specify("should return silently on progress when already resolved", function() {
+        var d = when.defer();
+        d.resolve();
+
+        refute.defined(d.notify());
+    });
+
+    specify("should return a promise for passed-in resolution value when already rejected", function(done) {
+        var d = when.defer();
+        d.reject(other);
+
+        d.resolve(sentinel)
+        d.promise.then(function(val) {
+            assert.equal(val, sentinel);
+        }).ensure(done);
+    });
+
+    specify("should return a promise for passed-in rejection value when already rejected", function(done) {
+        var d = when.defer();
+        d.reject(other);
+
+        d.reject(sentinel)
+        d.promise.then(
+            fail,
+            function(val) {
+                assert.equal(val, sentinel);
+            }
+        ).ensure(done);
+    });
+
+    specify("should return silently on progress when already rejected", function() {
+        var d = when.defer();
+        d.reject();
+
+        refute.defined(d.notify());
+    });
+});
+
+},{"../../js/bluebird_debug.js":17,"assert":2}],76:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+
+describe("when.join-test", function () {
+
+
+
+    specify("should resolve empty input", function(done) {
+        return when.join().then(
+            function(result) {
+                assert.equals(result, []);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should join values", function(done) {
+        when.join(1, 2, 3).then(
+            function(results) {
+                assert.equals(results, [1, 2, 3]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should join promises array", function(done) {
+        when.join(resolved(1), resolved(2), resolved(3)).then(
+            function(results) {
+                assert.equals(results, [1, 2, 3]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should join mixed array", function(done) {
+        when.join(resolved(1), 2, resolved(3), 4).then(
+            function(results) {
+                assert.equals(results, [1, 2, 3, 4]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reject if any input promise rejects", function(done) {
+        when.join(resolved(1), rejected(2), resolved(3)).then(
+            fail,
+            function(failed) {
+                assert.equals(failed, 2);
+            }
+        ).ensure(done);
+    });
+
+});
+},{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var reject = rejected;
+var resolve = resolved;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+var delay = function (val, ms) {
+    var p = when.pending();
+    setTimeout(function () {
+        p.fulfill(val);
+    }, ms);
+    return p.promise
+};
+
+describe("when.map-test", function () {
+
+    function mapper(val) {
+        return val * 2;
+    }
+
+    function deferredMapper(val) {
+        return delay(mapper(val), Math.random()*10);
+    }
+
+    specify("should map input values array", function(done) {
+        var input = [1, 2, 3];
+        when.map(input, mapper).then(
+            function(results) {
+                assert.equals(results, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should map input promises array", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.map(input, mapper).then(
+            function(results) {
+                assert.equals(results, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should map mixed input array", function(done) {
+        var input = [1, resolved(2), 3];
+        when.map(input, mapper).then(
+            function(results) {
+                assert.equals(results, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should map input when mapper returns a promise", function(done) {
+        var input = [1,2,3];
+        when.map(input, deferredMapper).then(
+            function(results) {
+                assert.equals(results, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should accept a promise for an array", function(done) {
+        when.map(resolved([1, resolved(2), 3]), mapper).then(
+            function(result) {
+                assert.equals(result, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve to empty array when input promise does not resolve to an array", function(done) {
+        when.map(resolved(123), mapper).then(
+            function(result) {
+                assert.equals(result, []);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should map input promises when mapper returns a promise", function(done) {
+        var input = [resolved(1),resolved(2),resolved(3)];
+        when.map(input, mapper).then(
+            function(results) {
+                assert.equals(results, [2,4,6]);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reject when input contains rejection", function(done) {
+        var input = [resolved(1), reject(2), resolved(3)];
+        when.map(input, mapper).then(
+            fail,
+            function(result) {
+                assert.equals(result, 2);
+            }
+        ).ensure(done);
+    });
+
+    specify("should propagate progress", function(done) {
+        var input = [1, 2, 3];
+
+        when.map(input, function(x) {
+            var d = when.pending();
+            d.progress(x);
+            setTimeout(d.fulfill.bind(d, x), 0);
+            return d.promise;
+        }).then(null, null,
+            function(update) {
+                assert.equals(update, input.shift());
+            }
+        ).ensure(done);
+    });
+
+
+});
+},{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var reject = rejected;
+var resolve = resolved;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+var delay = function (val, ms) {
+    var p = when.pending();
+    setTimeout(function () {
+        p.fulfill(val);
+    }, ms);
+    return p.promise
+};
+
+describe("when.reduce-test", function () {
+
+    function plus(sum, val) {
+        return sum + val;
+    }
+
+    function later(val) {
+        return delay(val, Math.random() * 10);
+    }
+
+
+    specify("should reduce values without initial value", function(done) {
+        when.reduce([1,2,3], plus).then(
+            function(result) {
+                assert.equals(result, 6);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce values with initial value", function(done) {
+        when.reduce([1,2,3], plus, 1).then(
+            function(result) {
+                assert.equals(result, 7);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce values with initial promise", function(done) {
+        when.reduce([1,2,3], plus, resolved(1)).then(
+            function(result) {
+                assert.equals(result, 7);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce promised values without initial value", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.reduce(input, plus).then(
+            function(result) {
+                assert.equals(result, 6);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce promised values with initial value", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.reduce(input, plus, 1).then(
+            function(result) {
+                assert.equals(result, 7);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce promised values with initial promise", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.reduce(input, plus, resolved(1)).then(
+            function(result) {
+                assert.equals(result, 7);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce empty input with initial value", function(done) {
+        var input = [];
+        when.reduce(input, plus, 1).then(
+            function(result) {
+                assert.equals(result, 1);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce empty input with initial promise", function(done) {
+        when.reduce([], plus, resolved(1)).then(
+            function(result) {
+                assert.equals(result, 1);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reject when input contains rejection", function(done) {
+        var input = [resolved(1), reject(2), resolved(3)];
+        when.reduce(input, plus, resolved(1)).then(
+            fail,
+            function(result) {
+                assert.equals(result, 2);
+            }
+        ).ensure(done);
+    });
+
+    specify("should reduce to undefined with empty array", function(done) {
+        when.reduce([], plus).then(function(r){
+            assert(r === void 0);
+            done();
+        });
+    });
+
+    specify("should reduce to initial value with empty array", function(done) {
+        when.reduce([], plus, sentinel).then(function(r){
+            assert(r === sentinel);
+            done();
+        });
+    });
+
+    specify("should allow sparse array input without initial", function(done) {
+        when.reduce([ , , 1, , 1, 1], plus).then(
+            function(result) {
+                assert.equals(result, 3);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should allow sparse array input with initial", function(done) {
+        when.reduce([ , , 1, , 1, 1], plus, 1).then(
+            function(result) {
+                assert.equals(result, 4);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should reduce in input order", function(done) {
+        when.reduce([later(1), later(2), later(3)], plus, '').then(
+            function(result) {
+                assert.equals(result, '123');
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should accept a promise for an array", function(done) {
+        when.reduce(resolved([1, 2, 3]), plus, '').then(
+            function(result) {
+                assert.equals(result, '123');
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should resolve to initialValue when input promise does not resolve to an array", function(done) {
+        when.reduce(resolved(123), plus, 1).then(
+            function(result) {
+                assert.equals(result, 1);
+            },
+            fail
+        ).ensure(done);
+    });
+
+    specify("should provide correct basis value", function(done) {
+        function insertIntoArray(arr, val, i) {
+            arr[i] = val;
+            return arr;
+        }
+
+        when.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
+            function(result) {
+                assert.equals(result, [1,2,3]);
+            },
+            fail
+        ).ensure(done);
+    });
+});
+},{"../../js/bluebird_debug.js":17,"assert":2}],79:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var reject = rejected;
+var resolve = resolved;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+
+function assertFulfilled(p, v) {
+    assert( p.value() === v );
+}
+
+function assertRejected(p, v) {
+    assert( p.error() === v );
+}
+
+var delay = function (val, ms) {
+    var p = when.pending();
+    setTimeout(function () {
+        p.fulfill(val);
+    }, ms);
+    return p.promise
+};
+
+describe("when.settle-test", function () {
+
+
+    when.promise = function( rs ){
+        var a = pending();
+        rs(a);
+        return a.promise;
+    };
+
+
+    specify("should settle empty array", function(done) {
+        return when.settle([]).then(function(settled) {
+            assert.deepEqual(settled.length, 0);
+            done();
+        });
+    });
+
+    specify("should reject if promise for input array rejects", function(done) {
+        return when.settle(when.reject(sentinel)).then(
+            fail,
+            function(reason) {
+                assert.equal(reason, sentinel);
+                done();
+            }
+        );
+    });
+
+    specify("should settle values", function(done) {
+        var array = [0, 1, sentinel];
+        return when.settle(array).then(function(settled) {
+            assertFulfilled(settled[0], 0);
+            assertFulfilled(settled[1], 1);
+            assertFulfilled(settled[2], sentinel);
+            done();
+        });
+    });
+
+    specify("should settle promises", function(done) {
+        var array = [0, when.resolve(sentinel), when.reject(sentinel)];
+        return when.settle(array).then(function(settled) {
+            assertFulfilled(settled[0], 0);
+            assertFulfilled(settled[1], sentinel);
+            assertRejected(settled[2], sentinel);
+            done();
+        });
+    });
+
+    specify("returned promise should fulfill once all inputs settle", function(done) {
+        var array, p1, p2, resolve, reject;
+
+        p1 = when.promise(function(r) { resolve = function(a){r.fulfill(a);}; });
+        p2 = when.promise(function(r) { reject = function(a){r.reject(a);}; });
+
+        array = [0, p1, p2];
+
+        setTimeout(function() { resolve(sentinel); }, 0);
+        setTimeout(function() { reject(sentinel); }, 0);
+
+        return when.settle(array).then(function(settled) {
+            assertFulfilled(settled[0], 0);
+            assertFulfilled(settled[1], sentinel);
+            assertRejected(settled[2], sentinel);
+            done();
+        });
+    });
+});
+
+},{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var reject = rejected;
+var resolve = resolved;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+
+function assertFulfilled(p, v) {
+    assert( p.value() === v );
+}
+
+function assertRejected(p, v) {
+    assert( p.error() === v );
+}
+
+var delay = function (val, ms) {
+    var p = when.pending();
+    setTimeout(function () {
+        p.fulfill(val);
+    }, ms);
+    return p.promise
+};
+
+function isSubset(subset, superset) {
+    var i, subsetLen;
+
+    subsetLen = subset.length;
+
+    if (subsetLen > superset.length) {
+        return false;
+    }
+
+    for(i = 0; i<subsetLen; i++) {
+        if(!contains(superset, subset[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+describe("when.some-test", function () {
+
+    specify("should resolve empty input", function(done) {
+        when.some([], 1).then(
+            function(result) {
+                assert.deepEqual(result, []);
+                done();
+            },
+            fail
+        )
+    });
+
+    specify("should resolve values array", function(done) {
+        var input = [1, 2, 3];
+        when.some(input, 2).then(
+            function(results) {
+                assert(isSubset(results, input));
+                done();
+            },
+            fail
+        )
+    });
+
+    specify("should resolve promises array", function(done) {
+        var input = [resolved(1), resolved(2), resolved(3)];
+        when.some(input, 2).then(
+            function(results) {
+                assert(isSubset(results, [1, 2, 3]));
+                done();
+            },
+            fail
+        )
+    });
+
+    specify("should resolve sparse array input", function(done) {
+        var input = [, 1, , 2, 3 ];
+        when.some(input, 2).then(
+            function(results) {
+                assert(isSubset(results, input));
+                done();
+            },
+            fail
+        )
+    });
+
+    specify("should reject with all rejected input values if resolving howMany becomes impossible", function(done) {
+        var input = [resolved(1), rejected(2), rejected(3)];
+        when.some(input, 2).then(
+            fail,
+            function(failed) {
+                assert.deepEqual(failed, [2, 3]);
+                done();
+            }
+        )
+    });
+
+    specify("should accept a promise for an array", function(done) {
+        var expected, input;
+
+        expected = [1, 2, 3];
+        input = resolved(expected);
+
+        when.some(input, 2).then(
+            function(results) {
+                assert.deepEqual(results.length, 2);
+                done();
+            },
+            fail
+        )
+    });
+
+    specify("should resolve to empty array when input promise does not resolve to array", function(done) {
+        when.some(resolved(1), 1).then(
+            function(result) {
+                assert.deepEqual(result, []);
+                done();
+            },
+            fail
+        )
+    });
+});
+
+},{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
+/*
+Based on When.js tests
+
+Open Source Initiative OSI - The MIT License
+
+http://www.opensource.org/licenses/mit-license.php
+
+Copyright (c) 2011 Brian Cavalier
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var when = adapter;
+var resolved = when.fulfilled;
+var rejected = when.rejected;
+var reject = rejected;
+var resolve = resolved;
+when.resolve = resolved;
+when.reject = rejected;
+when.defer = pending;
+var sentinel = {};
+var other = {};
+var p = new when().constructor.prototype;
+p.ensure = function(fn){
+    return this.lastly(function(){
+        fn();
+    });
+};
+
+p = pending().constructor.prototype;
+p.resolve = p.fulfill;
+p.notify = p.progress;
+
+function fail() {
+    assert.fail();
+}
+
+var refute = {
+    defined: function(val) {
+        assert( typeof val === "undefined" );
+    },
+
+    equals: function( a, b ) {
+        assert.notDeepEqual( a, b );
+    }
+};
+
+function contains(arr, result) {
+    return arr.indexOf(result) > -1;
+}
+
+function fakeResolved(val) {
+    return {
+        then: function(callback) {
+            return fakeResolved(callback ? callback(val) : val);
+        }
+    };
+}
+
+function fakeRejected(reason) {
+    return {
+        then: function(callback, errback) {
+            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
+        }
+    };
+}
+
+function assertFulfilled(p, v) {
+    assert( p.value() === v );
+}
+
+function assertRejected(p, v) {
+    assert( p.error() === v );
+}
+
+var delay = function (val, ms) {
+    var p = when.pending();
+    setTimeout(function () {
+        p.fulfill(val);
+    }, ms);
+    return p.promise
+};
+
+describe("when.spread-test", function () {
+    var slice = [].slice;
+
+    specify("should return a promise", function(done) {
+        assert( typeof (when.defer().promise.spread().then) === "function");
+        done();
+    });
+
+    specify("should apply onFulfilled with array as argument list", function(done) {
+        var expected = [1, 2, 3];
+        return when.resolve(expected).spread(function() {
+            assert.deepEqual(slice.call(arguments), expected);
+            done();
+        });
+    });
+
+    specify("should resolve array contents", function(done) {
+        var expected = [when.resolve(1), 2, when.resolve(3)];
+        return when.resolve(expected).spread(function() {
+            assert.deepEqual(slice.call(arguments), [1, 2, 3]);
+            done();
+        });
+    });
+
+    specify("should reject if any item in array rejects", function(done) {
+        var expected = [when.resolve(1), 2, when.reject(3)];
+        return when.resolve(expected)
+            .spread(fail)
+            .then(fail, function() { done();});
+    });
+
+    specify("should apply onFulfilled with array as argument list", function(done) {
+        var expected = [1, 2, 3];
+        return when.resolve(when.resolve(expected)).spread(function() {
+            assert.deepEqual(slice.call(arguments), expected);
+            done();
+        });
+    });
+
+    specify("should resolve array contents", function(done) {
+        var expected = [when.resolve(1), 2, when.resolve(3)];
+        return when.resolve(when.resolve(expected)).spread(function() {
+            assert.deepEqual(slice.call(arguments), [1, 2, 3]);
+            done();
+        });
+    });
+
+    specify("should reject if input is a rejected promise", function(done) {
+        var expected = when.reject([1, 2, 3]);
+        return when.resolve(expected)
+            .spread(fail)
+            .then(fail, function() { done();});
+    });
+});
+
 },{"../../js/bluebird_debug.js":17,"assert":2}]},{},[16])
 ;
