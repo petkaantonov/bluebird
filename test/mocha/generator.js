@@ -32,6 +32,41 @@ function delay() {
 
 var error = new Error("asd");
 
+describe("yielding", function() {
+
+    specify("non-promise should throw", function(done){
+
+        Promise.spawn(function*(){
+
+            var a = yield {};
+            assert.fail();
+            return 4;
+
+        }).then(assert.fail).catch(function(e){
+            assert( e instanceof TypeError );
+            done();
+        });
+    });
+
+    specify("non-promise should throw but be catchable", function(done){
+
+        Promise.spawn(function*(){
+            try {
+                var a = yield {};
+                assert.fail();
+            }
+            catch(e){
+                assert( e instanceof TypeError );
+                return 4;
+            }
+
+        }).then(function(val){
+            assert.equal(val, 4);
+            done();
+        }).catch(assert.fail)
+    });
+});
+
 describe("thenables", function(){
 
     specify("when they fulfill, the yielded value should be that fulfilled value", function(done){

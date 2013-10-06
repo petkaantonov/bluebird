@@ -844,6 +844,7 @@ Promise.pending = function Promise$Pending( caller ) {
  * @return {Promise}
  *
  */
+Promise._cast = cast;
 Promise.cast = function Promise$Cast( obj, caller ) {
     var ret = cast( obj, caller );
     if( !( ret instanceof Promise ) ) {

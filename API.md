@@ -168,7 +168,7 @@ function MyCustomError(message) {
     Error.captureStackTrace(this, MyCustomError);
 }
 MyCustomError.prototype = Object.create(Error.prototype);
-MyCustomError.constructor = MyCustomError;
+MyCustomError.prototype.constructor = MyCustomError;
 ```
 
 Using CoffeeScript's `class` for the same:
@@ -827,8 +827,10 @@ Running the example with node version at least 0.11.2:
     Pong! 7
     Ping? 8
     ...
+    
+When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
 
-Doing `Promise.coroutine(function*(){})` is like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are `Task`s.
+Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
 
 #####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
 

@@ -43,7 +43,14 @@ method._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        Promise.cast( value )._then(
+        var ret = Promise._cast( value, PromiseSpawn$_continue );
+        if( !( ret instanceof Promise ) ) {
+            this._throw( new TypeError(
+                "A value was yielded that could not be treated as a promise"
+            ) );
+            return;
+        }
+        ret._then(
             this._next,
             this._throw,
             void 0,
