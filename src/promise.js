@@ -903,7 +903,7 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         throw new Error( "Attempting to use Promise.coroutine "+
                 "without generatorFunction support" );
     }
@@ -923,7 +923,7 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         var defer = Promise.pending( Promise.spawn );
         defer.reject( new Error( "Attempting to use Promise.spawn "+
                 "without generatorFunction support" ));
