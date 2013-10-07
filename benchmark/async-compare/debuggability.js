@@ -55,8 +55,7 @@ if (args.file) {
     });
 
     var sourceOf = function(f) {
-        var parts = f.split('-');
-        var name = parts[1];
+        var name = f.replace(/^dst-/, '').replace(/-[^-]+.js$/, '');
         return sources.filter(function(s) {
             return s.indexOf(name) >= 0;
         })[0] || f;
@@ -96,14 +95,17 @@ if (args.file) {
                 }
             }
             if (lineNumber < 0) {
-                throw new Error("Example didn't contain throwing line: " + f);
+                throw new Error("Example didn't contain throwing line: "
+                                + sourceOf(f));
             }
         })();
         var r = { file: f, data: [], line: lineNumber };
         var separator = require("path").sep;
         p.stderr.pipe(process.stderr);
         p.stderr.on('data', function(d) {  r.data.push(d.toString());});
-        p.stderr.on('end', function(code) {
+        p.on('exit', function(code, second) {
+            console.log("exit code", code, second);
+        //p.stderr.on('end', function(code) {
             r.data = r.data.join('').split('\n').filter(function(line) {
                 // match lines reporting either compiled or source files:
                 return line.indexOf('examples\\' + f) >= 0 ||
@@ -128,6 +130,7 @@ if (args.file) {
 
 
             r.data = r.data[0];
+            r.crashed = !!code;
             done(null, r);
         });
     }, function(err, res) {
@@ -150,9 +153,10 @@ if (args.file) {
         res = res.map(function(r) {
             return [r.file, r.line,
                 r.data ? r.data.line : '-',
-                r.data ? r.data.distance : '-'];
+                r.data ? r.data.distance : '-',
+                r.crashed ? 'yes' : 'no'];
         })
-        res = [['file', 'actual-line', 'rep-line', 'distance']].concat(res)
-        console.log(table(res, {align: ['l','r','r','r']}));
+        res = [['file', 'actual-line', 'rep-line', 'distance', 'crashed']].concat(res)
+        console.log(table(res, {align: ['l','r','r','r', 'r']}));
     });
 }

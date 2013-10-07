@@ -8,7 +8,7 @@ module.exports = function fakemaker(dummy, dummyt, wrap) {
 
     if (global.testError || global.testThrow 
         || global.testThrowAsync) {
-        dummyt_2 = dummyt(2),
+        dummyt_2 = dummyt(2);
         dummyt_1 = dummyt(1);
     } else {
         dummyt_2 = dummy_2;
@@ -58,7 +58,11 @@ module.exports = function fakemaker(dummy, dummyt, wrap) {
         createQuery: wrap(function createQuery(x, y, cb, ctx) {
             cb.call(ctx, null, cqQueryish);
         }),
+        createQueryCtxless: wrap(function createQuery(x, y, cb) {
+            cb.call(this, null, cqQueryish);
+        })
     };
+
 
     global.File = {
         insert: queryish,
