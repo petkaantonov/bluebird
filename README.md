@@ -183,6 +183,8 @@ Then open the `index.html` in your browser. Requires bash (on windows the mingw3
 
 You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
 
+Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.
+
 ##Benchmarks
 
 Currently the most relevant benchmark is @gorkikosev's benchmark in the article [Analysis of generators and other async patterns in node](http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html). The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action. The benchmark has been modified to include a warm-up phase to minimize any JITing during timed sections.
