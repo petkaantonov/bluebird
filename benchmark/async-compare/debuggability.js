@@ -55,6 +55,7 @@ if (args.file) {
     });
 
     var sourceOf = function(f) {
+        if (!/^dst-/.test(f)) return f;        
         var name = f.replace(/^dst-/, '').replace(/-[^-]+.js$/, '');
         return sources.filter(function(s) {
             return s.indexOf(name) >= 0;
@@ -139,14 +140,15 @@ if (args.file) {
         console.log("error reporting");
         console.log("");
         res = res.sort(function(r1, r2) {
-            var ret = parseFloat(r1.data ? r1.data.distance : Infinity)
+            var ret = r1.crashed - r2.crashed;
+            if (ret === 0)
+            ret = parseFloat(r1.data ? r1.data.distance : Infinity)
                 - parseFloat(r2.data ? r2.data.distance : Infinity);
 
             if( ret === 0 ) {
-                return r1.file < r2.file ? -1 :
+                ret = r1.file < r2.file ? -1 :
                        r1.file > r2.file ? 1 :
                        0;
-
             }
             return ret;
         });
