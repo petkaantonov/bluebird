@@ -81,7 +81,27 @@ function ajaxGetAsync(url) {
 }
 ```
 
+*Performance tips*
 
+`new Promise(resolver)` should be avoided in performance sensitive code.
+
+In V8, anytime you call the above, you will create 3 function identities and 2 context objects because the `resolve, reject` callbacks require .binding for API ergonomics.
+
+For instance when implementing a `delay` function, it's possible to just do this:
+
+```js
+function delay(ms, value) {
+    var resolver = Promise.pending();
+    setTimeout(function(){
+        resolver.fulfill(value);
+    }, ms);
+    return resolver.promise;
+}
+```
+
+The above will only create 1 function identity and a context object and wasn't too hard to write. The savings are relatively good - it's possible to create 2.5 additional bluebird promises from the memory we saved (`(2 * 80 + 60) / 88 =~ 2.5`).
+
+Note that it isn't really about raw memory - I know you have plenty. It's about the additional GC work which uses CPU.
     
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
