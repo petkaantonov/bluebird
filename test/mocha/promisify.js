@@ -47,6 +47,21 @@ var thrower = Promise.promisify(function(a, b, c, cb) {
     throw errToThrow;
 });
 
+var tprimitive = "Where is your stack now?";
+var throwsStrings = Promise.promisify(function(cb){
+    throw tprimitive;
+});
+
+var errbacksStrings = Promise.promisify(function(cb){
+    cb( tprimitive );
+});
+
+var errbacksStringsAsync = Promise.promisify(function(cb){
+    setTimeout(function(){
+        cb( tprimitive );
+    }, 13);
+});
+
 var error = Promise.promisify(erroneusNode);
 var success = Promise.promisify(successNode);
 var successMulti = Promise.promisify(successNodeMultipleValues);
@@ -315,3 +330,70 @@ describe("promisify on objects", function(){
         });
     });
 });
+
+
+function assertLongStackTraces(e) {
+    assert( e.stack.indexOf("From previous event:") > -1 );
+}
+if( Promise.hasLongStackTraces() ) {
+    describe("Primitive errors wrapping", function() {
+        specify("when the node function throws it", function(done){
+            throwsStrings().caught(function(e){
+                assert(e instanceof Error);
+                assert(e.message == tprimitive);
+                done();
+            });
+        });
+
+        specify("when the node function throws it inside then", function(done){
+            Promise.fulfilled().then(function(){
+                throwsStrings().caught(function(e){
+                    assert(e instanceof Error);
+                    assert(e.message == tprimitive);
+                    assertLongStackTraces(e);
+                    done();
+                });
+            });
+        });
+
+
+        specify("when the node function errbacks it synchronously", function(done){
+            errbacksStrings().caught(function(e){
+                assert(e instanceof Error);
+                assert(e.message == tprimitive);
+                done();
+            });
+        });
+
+        specify("when the node function errbacks it synchronously inside then", function(done){
+            Promise.fulfilled().then(function(){
+                errbacksStrings().caught(function(e){
+                    assert(e instanceof Error);
+                    assert(e.message == tprimitive);
+                    assertLongStackTraces(e);
+                    done();
+                });
+            });
+        });
+
+        specify("when the node function errbacks it asynchronously", function(done){
+            errbacksStringsAsync().caught(function(e){
+                assert(e instanceof Error);
+                assert(e.message == tprimitive);
+                assertLongStackTraces(e);
+                done();
+            });
+        });
+
+        specify("when the node function errbacks it asynchronously inside then", function(done){
+            Promise.fulfilled().then(function(){
+                errbacksStringsAsync().caught(function(e){
+                    assert(e instanceof Error);
+                    assert(e.message == tprimitive);
+                    assertLongStackTraces(e);
+                    done();
+                });
+            });
+        });
+    });
+}
