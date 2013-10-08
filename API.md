@@ -51,8 +51,9 @@
     - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
     - [`.toString()`](#tostring---string)
     - [`.toJSON()`](#tojson---object)
-    - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
+    - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
+    - [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
     - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
     - [`Promise.spawn(GeneratorFunction generatorFunction)`](#promisespawngeneratorfunction-generatorfunction---promise)
     - [`Promise.noConflict()`](#promisenoconflict---object)
@@ -708,41 +709,6 @@ There is no effect on peformance if the user doesn't actually pass a node-style 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
 
 
-
-#####`Promise.promisify(Object target)` -> `Object`
-
-Promisifies the entire object by going through the object and creating an async equivalent of each function on the object. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
-
-Example:
-
-```js
-Promise.promisify(RedisClient.prototype);
-
-//Later on, all redis client instances have promise returning functions:
-
-redisClient.hexistsAsync("myhash", "field").then(function(v){
-
-}).catch(function(e){
-
-});
-```
-
-It also works on singletons or specific instances:
-
-```js
-var fs = Promise.promisify(require("fs"));
-
-fs.readFileAsync("myfile.js", "utf8").then(function(contents){
-    console.log(contents);
-}).catch(function(e){
-    console.error(e.stack);
-});
-```
-
-Only enumerable own properties are considered. A specific object will only be promisified once. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
-
-If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
-
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
 Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
@@ -777,6 +743,45 @@ redisGet.then(function(){
 });
 ```
 
+#####`Promise.promisify(Object target)` -> `Object`
+
+This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`]()
+
+#####`Promise.promisifyAll(Object target)` -> `Object`
+
+Promisifies the entire object by going through the object and creating an async equivalent of each function on the object. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+
+Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
+
+Example:
+
+```js
+Promise.promisifyAll(RedisClient.prototype);
+
+//Later on, all redis client instances have promise returning functions:
+
+redisClient.hexistsAsync("myhash", "field").then(function(v){
+
+}).catch(function(e){
+
+});
+```
+
+It also works on singletons or specific instances:
+
+```js
+var fs = Promise.promisifyAll(require("fs"));
+
+fs.readFileAsync("myfile.js", "utf8").then(function(contents){
+    console.log(contents);
+}).catch(function(e){
+    console.error(e.stack);
+});
+```
+
+Only enumerable own properties are considered. A specific object will only be promisified once. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
+
+If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`

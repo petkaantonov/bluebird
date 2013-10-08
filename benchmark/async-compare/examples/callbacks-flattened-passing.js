@@ -7,7 +7,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
     var blobId;
 }
 
-function backoff(err, tx) {
+function backoff(err, tx, done) {
     tx.rollback();
     return done(err);
 }
@@ -41,7 +41,7 @@ function afterFileFetched(tx, idOrPath, tag, done) {
 }
 function afterVersionInserted(tx, file, version, idOrPath, done) {
     return function (err) {
-        if (err) return backoff(err, tx);
+        if (err) return backoff(err, tx, done);
         if (!file) {
             var splitPath = idOrPath.split('/');
             var fileName = splitPath[splitPath.length - 1];
@@ -53,7 +53,7 @@ function afterVersionInserted(tx, file, version, idOrPath, done) {
                 version: version.id
             };
             self.createQuery(idOrPath, file, function (err, q) {
-                if (err) return backoff(err, tx);
+                if (err) return backoff(err, tx, done);
                 q.execWithin(tx, function (err) {
                     afterFileExists(err, tx, file, version, done);
                 });
@@ -66,21 +66,21 @@ function afterVersionInserted(tx, file, version, idOrPath, done) {
 
 function afterFileExists(err, tx, file, version, done) {
 
-    if (err) return backoff(err, tx);
+    if (err) return backoff(err, tx, done);
     FileVersion.insert({fileId: file.id, versionId: version.id})
         .execWithin(tx, afterFileVersionInserted(tx, file, version, done));
 }
 
 function afterFileVersionInserted(tx, file, version, done) {
     return function (err) {
-        if (err) return backoff(err, tx);
+        if (err) return backoff(err, tx, done);
         File.whereUpdate({id: file.id}, { version: version.id })
         .execWithin(tx, afterFileUpdated(tx, done));
     }
 }
 function afterFileUpdated(tx, done) {
     return function(err) {
-        if (err) return backoff(err, tx);
+        if (err) return backoff(err, tx, done);
         tx.commit(done);
     }
 }

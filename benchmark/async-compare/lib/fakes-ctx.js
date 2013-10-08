@@ -16,16 +16,17 @@ f.dummy = function dummy(n) {
 // A throwing callback function
 f.dummyt = function dummyt(n) {
     return function dummy_throwing_n() {
-        var cb = arguments[n - 1];
+        var cb = arguments[n - 1],
+            ctx = arguments[n];
         if (global.testThrow) 
             throw(new Error("Exception happened"));
         setTimeout(function throwTimeout() {
             if (global.testThrowAsync) {
                 throw(new Error("Exception happened"));
             } else if (global.testError) {
-                return cb(new Error("Error happened"));
+                return cb.call(ctx, new Error("Error happened"));
             }
-            else cb();
+            else cb.call(ctx);
         }, global.asyncTime || 100);
     }
 }

@@ -77,9 +77,6 @@ method._next = function PromiseSpawn$_next( value ) {
 };
 
 
-PromiseSpawn.isSupported =
-    new Function("return " + (haveEs6Generators));
-
-
+PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();

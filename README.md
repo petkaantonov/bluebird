@@ -46,6 +46,11 @@ The global variable `Promise` becomes available after the above script tag. The 
 
 After quick start, see [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 
+###Browser support
+
+Browsers that [implement ECMA-262, edition 5](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
+
+IE8 (ECMAS-262, edition 3) is supported if you include [es5-shim.js](https://github.com/kriskowal/es5-shim/blob/master/es5-shim.js) and [es5-sham.js](https://github.com/kriskowal/es5-shim/blob/master/es5-sham.js).
 
 #What are promises and why should I use them?
 
@@ -182,6 +187,8 @@ To test in browsers:
 Then open the `index.html` in your browser. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
+
+Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.
 
 ##Benchmarks
 

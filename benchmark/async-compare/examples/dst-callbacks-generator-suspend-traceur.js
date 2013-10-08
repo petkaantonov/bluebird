@@ -1,3 +1,3 @@
 require('traceur').require.makeDefault();
 require('source-map-support').install();
-module.exports = require('./qasync.js');
+module.exports = require('./callbacks-generator-suspend.js');

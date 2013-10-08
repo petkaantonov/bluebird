@@ -17,7 +17,7 @@ function Uploader(stream, idOrPath, tag, done) {
 
 Uploader.prototype.backoff = function backoff (err) {
     this.tx.rollback();
-    return done(err);
+    return this.done(err);
 }
 
 
