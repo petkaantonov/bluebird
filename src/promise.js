@@ -154,9 +154,13 @@ method.caught = method["catch"] = function Promise$catch( fn ) {
                 catchInstances[j++] = item;
             }
             else {
-                throw new TypeError(
-                    "A catch filter must be an error constructor"
-                );
+                var catchFilterTypeError =
+                    new TypeError(
+                        "A catch filter must be an error constructor");
+
+                this._attachExtraTrace( catchFilterTypeError );
+                async.invoke( this._reject, this, catchFilterTypeError );
+                return;
             }
         }
         catchInstances.length = j;
@@ -528,6 +532,16 @@ method.nodeify = function Promise$nodeify( nodeback ) {
     return this;
 };
 
+function apiRejection( msg ) {
+    var error = new TypeError( msg );
+    var ret = Promise.rejected( error );
+    var parent = ret._peekContext();
+    if( parent != null ) {
+        parent._attachExtraTrace( error );
+    }
+    return ret;
+}
+
 /**
  * Description.
  *
@@ -644,10 +658,10 @@ Promise.any = function Promise$Any( promises ) {
  *
  */
 Promise.some = function Promise$Some( promises, howMany ) {
-    var ret = Promise._all( promises, SomePromiseArray );
     if( ( howMany | 0 ) !== howMany ) {
-        throw new TypeError("howMany must be an integer");
+        return apiRejection("howMany must be an integer");
     }
+    var ret = Promise._all( promises, SomePromiseArray );
     var len = ret.length();
     howMany = Math.max(0, Math.min( howMany, len ) );
     ret._howMany = howMany;
@@ -683,8 +697,9 @@ function mapper( fulfilleds ) {
  *
  */
 Promise.map = function Promise$Map( promises, fn ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function" );
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
     return Promise.all( promises )._then(
         mapper,
         void 0,
@@ -744,8 +759,9 @@ function slowReduce( promises, fn, initialValue ) {
  *
  */
 Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function");
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
     if( initialValue !== void 0 ) {
         return slowReduce( promises, fn, initialValue );
     }
@@ -921,13 +937,11 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
 
 Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
-        throw new TypeError( "generatorFunction must be a function" );
+        return apiRejection( "generatorFunction must be a function" );
     }
     if( !PromiseSpawn.isSupported ) {
-        var defer = Promise.pending( Promise.spawn );
-        defer.reject( new Error( "Attempting to use Promise.spawn "+
-                "without generatorFunction support" ));
-        return defer.promise;
+        return apiRejection( "Attempting to use Promise.spawn "+
+                "without generatorFunction support" );
     }
     var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
     var ret = spawn.promise();
@@ -977,6 +991,9 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
         deprecated( "Promise.promisify for promisifying entire objects " +
             "is deprecated. Use Promise.promisifyAll instead." );
         return _promisify( callback, receiver, true );
+    }
+    if( typeof callback !== "function" ) {
+        throw new TypeError( "callback must be a function" );
     }
     return _promisify( callback, receiver, false );
 };
@@ -1506,12 +1523,15 @@ method._resolvePromise = function Promise$_resolvePromise(
         async.invoke( promise._reject, promise, x.e );
     }
     else if( x === promise ) {
+        var selfResolutionError =
+            new TypeError( "Circular thenable chain" );
+        this._attachExtraTrace( selfResolutionError );
         async.invoke(
             promise._reject,
             promise,
             //1. If promise and x refer to the same object,
             //reject promise with a TypeError as the reason.
-            new TypeError( "Circular thenable chain" )
+            selfResolutionError
         );
     }
     else {
@@ -1825,7 +1845,8 @@ function Promise$_All( promises, PromiseArray, caller ) {
             : Promise$_All
         );
     }
-    throw new TypeError("expecting an array or a promise");
+    return new PromiseArray(
+        [ apiRejection( "expecting an array or a promise" ) ] );
 };
 
 var old = global.Promise;
