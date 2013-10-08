@@ -995,7 +995,10 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
     if( typeof callback !== "function" ) {
         throw new TypeError( "callback must be a function" );
     }
-    return _promisify( callback, receiver, false );
+    return _promisify(
+        callback,
+        arguments.length < 2 ? THIS : receiver,
+        false );
 };
 
 Promise.promisifyAll = function Promise$PromisifyAll( target ) {

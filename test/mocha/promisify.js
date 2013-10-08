@@ -96,6 +96,21 @@ describe("when calling promisified function it should ", function(){
         d.caught(donecall);
     });
 
+    specify( "should use this if no receiver was given", function(done){
+        var o = {};
+        var fn = Promise.promisify(function(cb){
+
+            cb(null, this === o);
+        });
+
+        o.fn = fn;
+
+        o.fn().then(function(val){
+            assert(val);
+            done();
+        });
+    });
+
     specify("call future attached handlers later", function(done) {
         var a = error(1,2,3);
         var b = success(1,2,3);
