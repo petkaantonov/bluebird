@@ -787,6 +787,20 @@ redisClient.hexistsAsync("myhash", "field").then(function(v){
 });
 ```
 
+If you don't want to write on foreign prototypes, you can sub-class the target and promisify your subclass:
+
+```js
+function MyRedisClient() {
+    RedisClient.apply(this, arguments);
+}
+MyRedisClient.prototype = Object.create(RedisClient.prototype);
+MyRedisClient.prototype.constructor = MyRedisClient;
+Promise.promisify(MyRedisClient.prototype);
+```
+
+The promisified methods will be written on the `MyRedisClient.prototype` instead. This specific example doesn't actually work with `node_redis` because the `createClient` factory is hardcoded to instantiate `RedisClient` from closure.
+
+
 It also works on singletons or specific instances:
 
 ```js
@@ -802,7 +816,6 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
-
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 
