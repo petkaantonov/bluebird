@@ -5969,6 +5969,13 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
+function deprecated( msg ) {
+    if( typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function" ) {
+        console.warn( "Bluebird: " + msg );
+    }
+}
+
 function tryCatch1( fn, receiver, arg ) {
     ASSERT(((typeof fn) === "function"),
     "typeof fn === \u0022function\u0022");
@@ -6115,6 +6122,8 @@ function makeNodePromisified( callback, receiver ) {
         "};"
     )(Promise, callback, receiver, withAppended);
 }
+
+
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
@@ -7224,7 +7233,7 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         throw new Error( "Attempting to use Promise.coroutine "+
                 "without generatorFunction support" );
     }
@@ -7242,7 +7251,7 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         var defer = Promise.pending( Promise.spawn );
         defer.reject( new Error( "Attempting to use Promise.spawn "+
                 "without generatorFunction support" ));
@@ -7262,8 +7271,8 @@ var descriptor = {
     enumerable: false
 };
 function f(){}
-Promise.promisify = function Promise$Promisify( callback, receiver ) {
-    if( typeof callback === "object" && callback !== null ) {
+function _promisify( callback, receiver, isAll ) {
+    if( isAll ) {
         if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
             for( var key in callback ) {
                 if( callback.hasOwnProperty( key ) &&
@@ -7279,7 +7288,24 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
         }
         return callback;
     }
-    return makeNodePromisified( callback, receiver );
+    else {
+        return makeNodePromisified( callback, receiver );
+    }
+}
+Promise.promisify = function Promise$Promisify( callback, receiver ) {
+    if( typeof callback === "object" && callback !== null ) {
+        deprecated( "Promise.promisify for promisifying entire objects " +
+            "is deprecated. Use Promise.promisifyAll instead." );
+        return _promisify( callback, receiver, true );
+    }
+    return _promisify( callback, receiver, false );
+};
+
+Promise.promisifyAll = function Promise$PromisifyAll( target ) {
+    if( typeof target !== "function" && typeof target !== "object" ) {
+        throw new TypeError( "Cannot promisify " + typeof target );
+    }
+    return _promisify( target, void 0, true );
 };
 
 method._then =
@@ -8614,10 +8640,7 @@ method._next = function PromiseSpawn$_next( value ) {
 };
 
 
-PromiseSpawn.isSupported =
-    new Function("return " + (haveEs6Generators));
-
-
+PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {
@@ -17081,7 +17104,14 @@ describe("promisify on objects", function(){
             cb(null, [a,b,c,d,e,f,g, this.value])
         }
 
-    }
+    };
+
+    var objf = function(){};
+
+    objf.value = 15;
+    objf.f = function(a,b,c,d,e,f,g, cb) {
+        cb(null, [a,b,c,d,e,f,g, this.value])
+    };
 
     function Test(data) {
         this.data = data;
@@ -17095,18 +17125,37 @@ describe("promisify on objects", function(){
         cb(null, a, b, c, d, e, f, g, this.data);
     };
 
-    Promise.promisify(o);
-    Promise.promisify(Test.prototype);
+    Promise.promisifyAll(o);
+    Promise.promisifyAll(objf);
+    Promise.promisifyAll(Test.prototype);
 
     specify("should not repromisify", function() {
         var f = o.f;
         var fAsync = o.fAsync;
         var keys = Object.keys(o);
-        var ret = Promise.promisify(o);
+        var ret = Promise.promisifyAll(o);
         assert.equal(f, o.f);
         assert.equal(fAsync, o.fAsync);
         assert.deepEqual(keys, Object.keys(o));
         assert.equal(ret, o);
+    });
+
+    specify("should not repromisify function object", function() {
+        var f = objf.f;
+        var fAsync = objf.fAsync;
+        var keys = Object.keys(objf);
+        var ret = Promise.promisifyAll(objf);
+        assert.equal(f, objf.f);
+        assert.equal(fAsync, objf.fAsync);
+        assert.deepEqual(keys, Object.keys(objf));
+        assert.equal(ret, objf);
+    });
+
+    specify("should work on function objects too", function(done) {
+        objf.fAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
+            assert.deepEqual( result, [1, 2, 3, 4, 5, 6, 7, 15] );
+            done();
+        });
     });
 
     specify("should work on prototypes and not mix-up the instances", function(done) {
