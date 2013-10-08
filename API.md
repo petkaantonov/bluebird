@@ -765,7 +765,7 @@ redisGet.then(function(){
 
 #####`Promise.promisify(Object target)` -> `Object`
 
-This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`]()
+This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
 
 #####`Promise.promisifyAll(Object target)` -> `Object`
 
