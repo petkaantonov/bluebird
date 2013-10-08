@@ -203,7 +203,14 @@ describe("promisify on objects", function(){
             cb(null, [a,b,c,d,e,f,g, this.value])
         }
 
-    }
+    };
+
+    var objf = function(){};
+
+    objf.value = 15;
+    objf.f = function(a,b,c,d,e,f,g, cb) {
+        cb(null, [a,b,c,d,e,f,g, this.value])
+    };
 
     function Test(data) {
         this.data = data;
@@ -217,18 +224,37 @@ describe("promisify on objects", function(){
         cb(null, a, b, c, d, e, f, g, this.data);
     };
 
-    Promise.promisify(o);
-    Promise.promisify(Test.prototype);
+    Promise.promisifyAll(o);
+    Promise.promisifyAll(objf);
+    Promise.promisifyAll(Test.prototype);
 
     specify("should not repromisify", function() {
         var f = o.f;
         var fAsync = o.fAsync;
         var keys = Object.keys(o);
-        var ret = Promise.promisify(o);
+        var ret = Promise.promisifyAll(o);
         assert.equal(f, o.f);
         assert.equal(fAsync, o.fAsync);
         assert.deepEqual(keys, Object.keys(o));
         assert.equal(ret, o);
+    });
+
+    specify("should not repromisify function object", function() {
+        var f = objf.f;
+        var fAsync = objf.fAsync;
+        var keys = Object.keys(objf);
+        var ret = Promise.promisifyAll(objf);
+        assert.equal(f, objf.f);
+        assert.equal(fAsync, objf.fAsync);
+        assert.deepEqual(keys, Object.keys(objf));
+        assert.equal(ret, objf);
+    });
+
+    specify("should work on function objects too", function(done) {
+        objf.fAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
+            assert.deepEqual( result, [1, 2, 3, 4, 5, 6, 7, 15] );
+            done();
+        });
     });
 
     specify("should work on prototypes and not mix-up the instances", function(done) {

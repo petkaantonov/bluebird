@@ -948,8 +948,8 @@ var descriptor = {
     enumerable: false
 };
 function f(){}
-Promise.promisify = function Promise$Promisify( callback, receiver ) {
-    if( typeof callback === "object" && callback !== null ) {
+function _promisify( callback, receiver, isAll ) {
+    if( isAll ) {
         if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
             for( var key in callback ) {
                 if( callback.hasOwnProperty( key ) &&
@@ -968,7 +968,24 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
         }
         return callback;
     }
-    return makeNodePromisified( callback, receiver );
+    else {
+        return makeNodePromisified( callback, receiver );
+    }
+}
+Promise.promisify = function Promise$Promisify( callback, receiver ) {
+    if( typeof callback === "object" && callback !== null ) {
+        deprecated( "Promise.promisify for promisifying entire objects " +
+            "is deprecated. Use Promise.promisifyAll instead." );
+        return _promisify( callback, receiver, true );
+    }
+    return _promisify( callback, receiver, false );
+};
+
+Promise.promisifyAll = function Promise$PromisifyAll( target ) {
+    if( typeof target !== "function" && typeof target !== "object" ) {
+        throw new TypeError( "Cannot promisify " + typeof target );
+    }
+    return _promisify( target, void 0, true );
 };
 
 method._then =

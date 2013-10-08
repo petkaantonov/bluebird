@@ -10,6 +10,13 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
+function deprecated( msg ) {
+    if( typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function" ) {
+        console.warn( "Bluebird: " + msg );
+    }
+}
+
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
 function tryCatch1( fn, receiver, arg ) {
@@ -157,3 +164,4 @@ function makeNodePromisified( callback, receiver ) {
         "};"
     )(Promise, callback, receiver, withAppended);
 }
+

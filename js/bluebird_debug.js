@@ -64,6 +64,13 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
+function deprecated( msg ) {
+    if( typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function" ) {
+        console.warn( "Bluebird: " + msg );
+    }
+}
+
 function tryCatch1( fn, receiver, arg ) {
     ASSERT(((typeof fn) === "function"),
     "typeof fn === \u0022function\u0022");
@@ -210,6 +217,8 @@ function makeNodePromisified( callback, receiver ) {
         "};"
     )(Promise, callback, receiver, withAppended);
 }
+
+
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
@@ -1319,7 +1328,7 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         throw new Error( "Attempting to use Promise.coroutine "+
                 "without generatorFunction support" );
     }
@@ -1337,7 +1346,7 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported() ) {
+    if( !PromiseSpawn.isSupported ) {
         var defer = Promise.pending( Promise.spawn );
         defer.reject( new Error( "Attempting to use Promise.spawn "+
                 "without generatorFunction support" ));
@@ -1357,8 +1366,8 @@ var descriptor = {
     enumerable: false
 };
 function f(){}
-Promise.promisify = function Promise$Promisify( callback, receiver ) {
-    if( typeof callback === "object" && callback !== null ) {
+function _promisify( callback, receiver, isAll ) {
+    if( isAll ) {
         if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
             for( var key in callback ) {
                 if( callback.hasOwnProperty( key ) &&
@@ -1374,7 +1383,24 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
         }
         return callback;
     }
-    return makeNodePromisified( callback, receiver );
+    else {
+        return makeNodePromisified( callback, receiver );
+    }
+}
+Promise.promisify = function Promise$Promisify( callback, receiver ) {
+    if( typeof callback === "object" && callback !== null ) {
+        deprecated( "Promise.promisify for promisifying entire objects " +
+            "is deprecated. Use Promise.promisifyAll instead." );
+        return _promisify( callback, receiver, true );
+    }
+    return _promisify( callback, receiver, false );
+};
+
+Promise.promisifyAll = function Promise$PromisifyAll( target ) {
+    if( typeof target !== "function" && typeof target !== "object" ) {
+        throw new TypeError( "Cannot promisify " + typeof target );
+    }
+    return _promisify( target, void 0, true );
 };
 
 method._then =
@@ -2709,10 +2735,7 @@ method._next = function PromiseSpawn$_next( value ) {
 };
 
 
-PromiseSpawn.isSupported =
-    new Function("return " + (haveEs6Generators));
-
-
+PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {
