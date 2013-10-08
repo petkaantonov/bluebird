@@ -106,6 +106,18 @@ function withAppended( target, appendee ) {
     return ret;
 }
 
+
+function notEnumerableProp( obj, name, value ) {
+    var descriptor = {
+        value: value,
+        configurable: true,
+        enumerable: false,
+        writable: true
+    };
+    Object.defineProperty( obj, name, descriptor );
+    return obj;
+}
+
 var THIS = {};
 function makeNodePromisified( callback, receiver, originalName ) {
 

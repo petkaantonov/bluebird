@@ -261,22 +261,22 @@ describe("promisify on objects", function(){
     specify("should not repromisify", function() {
         var f = o.f;
         var fAsync = o.fAsync;
-        var keys = Object.keys(o);
+        var getOwnPropertyNames = Object.getOwnPropertyNames(o);
         var ret = Promise.promisifyAll(o);
         assert.equal(f, o.f);
         assert.equal(fAsync, o.fAsync);
-        assert.deepEqual(keys, Object.keys(o));
+        assert.deepEqual(getOwnPropertyNames, Object.getOwnPropertyNames(o));
         assert.equal(ret, o);
     });
 
     specify("should not repromisify function object", function() {
         var f = objf.f;
         var fAsync = objf.fAsync;
-        var keys = Object.keys(objf);
+        var getOwnPropertyNames = Object.getOwnPropertyNames(objf);
         var ret = Promise.promisifyAll(objf);
         assert.equal(f, objf.f);
         assert.equal(fAsync, objf.fAsync);
-        assert.deepEqual(keys, Object.keys(objf));
+        assert.deepEqual(getOwnPropertyNames, Object.getOwnPropertyNames(objf));
         assert.equal(ret, objf);
     });
 
@@ -368,14 +368,14 @@ describe( "Promisify from prototype to object", function(){
     specify( "Shouldn't touch the prototype when promisifying instance", function(done) {
         var Test = makeClass();
 
-        var origKeys = Object.keys(Test.prototype).sort();
+        var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
         var a = new Test();
         Promise.promisifyAll(a);
 
 
         assert( typeof a.testAsync === "function" );
         assert( a.hasOwnProperty("testAsync"));
-        assert.deepEqual( Object.keys(Test.prototype).sort(), origKeys );
+        assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
 
         done();
     });
@@ -383,13 +383,13 @@ describe( "Promisify from prototype to object", function(){
     specify( "Shouldn't touch the method", function(done) {
         var Test = makeClass();
 
-        var origKeys = Object.keys(Test.prototype.test).sort();
+        var origKeys = Object.getOwnPropertyNames(Test.prototype.test).sort();
         var a = new Test();
         Promise.promisifyAll(a);
 
 
         assert( typeof a.testAsync === "function" );
-        assert.deepEqual( Object.keys(Test.prototype.test).sort(), origKeys );
+        assert.deepEqual( Object.getOwnPropertyNames(Test.prototype.test).sort(), origKeys );
         assert( Promise.promisify( a.test ) !== a.testAsync );
 
         done();
@@ -399,26 +399,26 @@ describe( "Promisify from prototype to object", function(){
         var Test = makeClass();
         var instance = new Test();
         Promise.promisifyAll( instance );
-        var origKeys = Object.keys(Test.prototype).sort();
-        var origInstanceKeys = Object.keys(instance).sort();
+        var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
+        var origInstanceKeys = Object.getOwnPropertyNames(instance).sort();
         instance.test = function() {};
         Promise.promisifyAll( instance );
-        assert.deepEqual( origKeys, Object.keys(Test.prototype).sort() );
-        assert.notDeepEqual( origInstanceKeys,  Object.keys(instance).sort() );
+        assert.deepEqual( origKeys, Object.getOwnPropertyNames(Test.prototype).sort() );
+        assert.notDeepEqual( origInstanceKeys,  Object.getOwnPropertyNames(instance).sort() );
         done();
     });
 
     specify( "Shouldn promisify the method closest to the object if method of same name already exists somewhere in proto chain", function(done){
         //IF the implementation is for-in, this pretty much tests spec compliance
         var Test = makeClass();
-        var origKeys = Object.keys(Test.prototype).sort();
+        var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
         var instance = new Test();
         instance.test = function() {
 
         };
         Promise.promisifyAll(instance);
 
-        assert.deepEqual( Object.keys(Test.prototype).sort(), origKeys );
+        assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
         assert( instance.test__beforePromisified__ === instance.test );
         done();
     });

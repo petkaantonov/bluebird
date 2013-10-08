@@ -976,7 +976,7 @@ function _promisify( callback, receiver, isAll ) {
                     changed++;
                     var originalKey = key + BEFORE_PROMISIFIED_SUFFIX;
                     var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
-                    callback[ originalKey ] = fn;
+                    notEnumerableProp( callback, originalKey, fn );
                     callback[ promisifiedKey ] =
                         makeNodePromisified( originalKey, THIS, key );
                 }
