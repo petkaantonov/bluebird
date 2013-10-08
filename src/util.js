@@ -107,7 +107,7 @@ function withAppended( target, appendee ) {
 }
 
 var THIS = {};
-function makeNodePromisified( callback, receiver ) {
+function makeNodePromisified( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -129,13 +129,13 @@ function makeNodePromisified( callback, receiver ) {
         "break;";
     }
 
-    var callbackName = (typeof callback === "string"
-        ? ( callback + "Async" )
-        : "promisified");
+    var callbackName = ( typeof originalName === "string" ?
+        originalName + "Async" :
+        "promisified" );
 
     return new Function("Promise", "callback", "receiver",
             "withAppended", "maybeWrapAsError",
-        "return function " + callbackName +
+        "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
@@ -177,7 +177,7 @@ function makeNodePromisified( callback, receiver ) {
         "}" +
         "return resolver.promise;" +
         "" +
-        "};"
+        "}; ret.__isPromisified__ = true; return ret;"
     )(Promise, callback, receiver, withAppended, maybeWrapAsError);
 }
 

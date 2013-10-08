@@ -769,7 +769,7 @@ This overload has been **deprecated**. The overload will continue working for no
 
 #####`Promise.promisifyAll(Object target)` -> `Object`
 
-Promisifies the entire object by going through the object and creating an async equivalent of each function on the object. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+Promisifies the entire object by going iterating through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object. 
 
 Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
@@ -799,7 +799,7 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 });
 ```
 
-Only enumerable own properties are considered. A specific object will only be promisified once. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
+The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 

@@ -347,6 +347,85 @@ describe("promisify on objects", function(){
 });
 
 
+describe( "Promisify from prototype to object", function(){
+    function makeClass() {
+        var Test = (function() {
+
+        function Test() {
+
+        }
+        var method = Test.prototype;
+
+        method.test = function() {
+
+        };
+
+        return Test;})();
+
+        return Test;
+    }
+
+    specify( "Shouldn't touch the prototype when promisifying instance", function(done) {
+        var Test = makeClass();
+
+        var origKeys = Object.keys(Test.prototype).sort();
+        var a = new Test();
+        Promise.promisifyAll(a);
+
+
+        assert( typeof a.testAsync === "function" );
+        assert( a.hasOwnProperty("testAsync"));
+        assert.deepEqual( Object.keys(Test.prototype).sort(), origKeys );
+
+        done();
+    });
+
+    specify( "Shouldn't touch the method", function(done) {
+        var Test = makeClass();
+
+        var origKeys = Object.keys(Test.prototype.test).sort();
+        var a = new Test();
+        Promise.promisifyAll(a);
+
+
+        assert( typeof a.testAsync === "function" );
+        assert.deepEqual( Object.keys(Test.prototype.test).sort(), origKeys );
+        assert( Promise.promisify( a.test ) !== a.testAsync );
+
+        done();
+    });
+
+    specify( "Should promisify own method even if a promisified method of same name already exists somewhere in proto chain", function(done){
+        var Test = makeClass();
+        var instance = new Test();
+        Promise.promisifyAll( instance );
+        var origKeys = Object.keys(Test.prototype).sort();
+        var origInstanceKeys = Object.keys(instance).sort();
+        instance.test = function() {};
+        Promise.promisifyAll( instance );
+        assert.deepEqual( origKeys, Object.keys(Test.prototype).sort() );
+        assert.notDeepEqual( origInstanceKeys,  Object.keys(instance).sort() );
+        done();
+    });
+
+    specify( "Shouldn promisify the method closest to the object if method of same name already exists somewhere in proto chain", function(done){
+        //IF the implementation is for-in, this pretty much tests spec compliance
+        var Test = makeClass();
+        var origKeys = Object.keys(Test.prototype).sort();
+        var instance = new Test();
+        instance.test = function() {
+
+        };
+        Promise.promisifyAll(instance);
+
+        assert.deepEqual( Object.keys(Test.prototype).sort(), origKeys );
+        assert( instance.test__beforePromisified__ === instance.test );
+        done();
+    });
+
+});
+
+
 function assertLongStackTraces(e) {
     assert( e.stack.indexOf("From previous event:") > -1 );
 }

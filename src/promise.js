@@ -954,36 +954,45 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
  *
  *
  */
-var PROCESSED = {};
-var descriptor = {
-    value: PROCESSED,
-    writable: true,
-    configurable: false,
-    enumerable: false
-};
 function f(){}
+function isPromisified( fn ) {
+    return fn.__isPromisified__ === true;
+}
+var hasProp = {}.hasOwnProperty;
+CONSTANT(BEFORE_PROMISIFIED_SUFFIX, "__beforePromisified__");
+CONSTANT(AFTER_PROMISIFIED_SUFFIX, "Async");
+var roriginal = new RegExp( BEFORE_PROMISIFIED_SUFFIX + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
-        if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
-            for( var key in callback ) {
-                if( callback.hasOwnProperty( key ) &&
-                    rjsident.test( key ) &&
-                    typeof callback[ key ] === "function" ) {
-                    callback[ key + "Async" ] =
-                        makeNodePromisified( key, THIS );
+        var changed = 0;
+        for( var key in callback ) {
+            if( rjsident.test( key ) &&
+                !roriginal.test( key ) &&
+                !hasProp.call( callback,
+                    ( key + BEFORE_PROMISIFIED_SUFFIX ) ) &&
+                typeof callback[ key ] === "function" ) {
+                var fn = callback[key];
+                if( !isPromisified( fn ) ) {
+                    changed++;
+                    var originalKey = key + BEFORE_PROMISIFIED_SUFFIX;
+                    var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
+                    callback[ originalKey ] = fn;
+                    callback[ promisifiedKey ] =
+                        makeNodePromisified( originalKey, THIS, key );
                 }
             }
-            Object.defineProperty( callback,
-                "__processedBluebirdAsync__", descriptor );
+        }
+        if( changed > 0 ) {
             //Right now the above loop will easily turn the
             //object into hash table in V8
             //but this will turn it back. Yes I am ashamed.
             f.prototype = callback;
         }
+
         return callback;
     }
     else {
-        return makeNodePromisified( callback, receiver );
+        return makeNodePromisified( callback, receiver, void 0 );
     }
 }
 Promise.promisify = function Promise$Promisify( callback, receiver ) {
@@ -994,6 +1003,9 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
     }
     if( typeof callback !== "function" ) {
         throw new TypeError( "callback must be a function" );
+    }
+    if( isPromisified( callback ) ) {
+        return callback;
     }
     return _promisify(
         callback,

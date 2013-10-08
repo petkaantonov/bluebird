@@ -125,7 +125,7 @@ function withAppended( target, appendee ) {
 }
 
 var THIS = {};
-function makeNodePromisified( callback, receiver ) {
+function makeNodePromisified( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -147,13 +147,13 @@ function makeNodePromisified( callback, receiver ) {
         "break;";
     }
 
-    var callbackName = (typeof callback === "string"
-        ? ( callback + "Async" )
-        : "promisified");
+    var callbackName = ( typeof originalName === "string" ?
+        originalName + "Async" :
+        "promisified" );
 
     return new Function("Promise", "callback", "receiver",
             "withAppended", "maybeWrapAsError",
-        "return function " + callbackName +
+        "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
@@ -195,7 +195,7 @@ function makeNodePromisified( callback, receiver ) {
         "}" +
         "return resolver.promise;" +
         "" +
-        "};"
+        "}; ret.__isPromisified__ = true; return ret;"
     )(Promise, callback, receiver, withAppended, maybeWrapAsError);
 }
 
@@ -1301,33 +1301,40 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
-var PROCESSED = {};
-var descriptor = {
-    value: PROCESSED,
-    writable: true,
-    configurable: false,
-    enumerable: false
-};
 function f(){}
+function isPromisified( fn ) {
+    return fn.__isPromisified__ === true;
+}
+var hasProp = {}.hasOwnProperty;
+var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
-        if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
-            for( var key in callback ) {
-                if( callback.hasOwnProperty( key ) &&
-                    rjsident.test( key ) &&
-                    typeof callback[ key ] === "function" ) {
-                    callback[ key + "Async" ] =
-                        makeNodePromisified( key, THIS );
+        var changed = 0;
+        for( var key in callback ) {
+            if( rjsident.test( key ) &&
+                !roriginal.test( key ) &&
+                !hasProp.call( callback,
+                    ( key + "__beforePromisified__" ) ) &&
+                typeof callback[ key ] === "function" ) {
+                var fn = callback[key];
+                if( !isPromisified( fn ) ) {
+                    changed++;
+                    var originalKey = key + "__beforePromisified__";
+                    var promisifiedKey = key + "Async";
+                    callback[ originalKey ] = fn;
+                    callback[ promisifiedKey ] =
+                        makeNodePromisified( originalKey, THIS, key );
                 }
             }
-            Object.defineProperty( callback,
-                "__processedBluebirdAsync__", descriptor );
+        }
+        if( changed > 0 ) {
             f.prototype = callback;
         }
+
         return callback;
     }
     else {
-        return makeNodePromisified( callback, receiver );
+        return makeNodePromisified( callback, receiver, void 0 );
     }
 }
 Promise.promisify = function Promise$Promisify( callback, receiver ) {
@@ -1338,6 +1345,9 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
     }
     if( typeof callback !== "function" ) {
         throw new TypeError( "callback must be a function" );
+    }
+    if( isPromisified( callback ) ) {
+        return callback;
     }
     return _promisify(
         callback,
