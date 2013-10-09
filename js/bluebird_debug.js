@@ -483,7 +483,6 @@ function getFunction( propertyName ) {
 }
 var Async = (function() {
 
-
 var deferFn;
 if( typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" ) {
@@ -498,9 +497,13 @@ if( typeof process !== "undefined" && process !== null &&
         };
     }
 }
-else if( typeof MutationObserver === "function" &&
-    typeof document !== "undefined" &&
-    typeof document.createElement === "function" ) {
+else if( ( typeof MutationObserver === "function" ||
+        typeof WebkitMutationObserver === "function" ) &&
+        typeof document !== "undefined" &&
+        typeof document.createElement === "function" ) {
+
+    var MutationObserver = global.MutationObserver ||
+        global.WebkitMutationObserver;
     deferFn = (function(){
         var div = document.createElement("div");
         var queuedFn = void 0;
