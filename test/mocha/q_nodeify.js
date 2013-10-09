@@ -119,7 +119,7 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
-        }, 15);
+        }, 100);
 
     });
 
@@ -129,7 +129,7 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, 10);
-        }, 15);
+        }, 100);
     });
 
     it("forwards a promise", function () {

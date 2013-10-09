@@ -83,4 +83,77 @@ describe("Async requirement", function() {
             b();
         });
     });
+
+    if( typeof Error.captureStackTrace === "function" ) {
+        describe("Should not grow the stack and cause eventually stack overflow.", function(){
+            Error.stackTraceLimit = 10000;
+
+            function assertStackIsNotGrowing(stack) {
+                assert(stack.split("\n").length > 5);
+                assert(stack.split("\n").length < 15);
+            }
+
+            specify("Already fulfilled.", function(done) {
+                function test(i){
+                    if (i <= 0){
+                       return Promise.fulfilled(new Error().stack);
+                   } else {
+                       return Promise.fulfilled(i-1).then(test)
+                   }
+                }
+                test(100).then(function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Already rejected", function(done) {
+                function test(i){
+                    if (i <= 0){
+                       return Promise.rejected(new Error().stack);
+                   } else {
+                       return Promise.rejected(i-1).then(assert.fail, test)
+                   }
+                }
+                test(100).then(assert.fail, function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Immediately fulfilled", function(done) {
+                function test(i){
+                    var deferred = Promise.pending();
+                    if (i <= 0){
+                       deferred.fulfill(new Error().stack);
+                       return deferred.promise;
+                   } else {
+                       deferred.fulfill(i-1);
+                       return deferred.promise.then(test)
+                   }
+                }
+                test(100).then(function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Immediately rejected", function(done) {
+                function test(i){
+                    var deferred = Promise.pending();
+                    if (i <= 0){
+                       deferred.reject(new Error().stack);
+                       return deferred.promise;
+                   } else {
+                       deferred.reject(i-1);
+                       return deferred.promise.then(assert.fail, test)
+                   }
+                }
+                test(100).then(assert.fail, function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+        });
+    }
 });
