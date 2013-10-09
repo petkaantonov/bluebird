@@ -15,13 +15,16 @@ if( typeof process !== "undefined" && process !== null &&
     }
 }
 else if( ( typeof MutationObserver === "function" ||
-        typeof WebkitMutationObserver === "function" ) &&
+        typeof WebkitMutationObserver === "function" ||
+        typeof WebKitMutationObserver === "function" ) &&
         typeof document !== "undefined" &&
         typeof document.createElement === "function" ) {
 
-    var MutationObserver = global.MutationObserver ||
-        global.WebkitMutationObserver;
+
     deferFn = (function(){
+        var MutationObserver = global.MutationObserver ||
+            global.WebkitMutationObserver ||
+            global.WebKitMutationObserver;
         var div = document.createElement("div");
         var queuedFn = void 0;
         var observer = new MutationObserver(
