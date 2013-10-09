@@ -150,7 +150,6 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             done();
         });
         promise.cancel();
-        return result;
     });
 
     specify("then fulfilled assumption", function(done) {
@@ -169,8 +168,8 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             assert.ok(assumedCancelled);
             done();
         });
-        promise.cancel();
-        return promise;
+
+        setImmediate(function(){promise.cancel();})
     });
 
     specify("then chain-fulfilled assumption", function(done) {
@@ -211,7 +210,7 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             assert.ok(assumedCancelled);
             done();
         });
-        promise.cancel();
+        setImmediate(function(){promise.cancel();})
         return promise;
     });
 

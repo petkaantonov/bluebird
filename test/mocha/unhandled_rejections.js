@@ -188,10 +188,15 @@ if( adapter.hasLongStackTraces() ) {
             });
         });
 
+        /*
         specify("Errors are reported in depth-first order", function(done) {
             var err = e();
 
             Promise.onPossiblyUnhandledRejection(function(e){
+                console.error(e.stack);
+                console.error("\n\n\n");
+                console.error(err.stack);
+                console.error("\n\n\n");
                 assert.equal(e, err);
                 Promise.onPossiblyUnhandledRejection(function(e){
                     if( haveTypeErrors )
@@ -218,8 +223,9 @@ if( adapter.hasLongStackTraces() ) {
             });
 
         });
-
+        */
     });
+
 }
 describe("Will not report rejections that are not instanceof Error", function() {
 
