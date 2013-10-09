@@ -919,10 +919,6 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported ) {
-        throw new Error( "Attempting to use Promise.coroutine "+
-                "without generatorFunction support" );
-    }
     //(TODO) Check if v8 traverses the contexts or inlines the context slot
     //location depending on this
     var PromiseSpawn$ = PromiseSpawn;
@@ -938,10 +934,6 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
 Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
         return apiRejection( "generatorFunction must be a function" );
-    }
-    if( !PromiseSpawn.isSupported ) {
-        return apiRejection( "Attempting to use Promise.spawn "+
-                "without generatorFunction support" );
     }
     var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
     var ret = spawn.promise();

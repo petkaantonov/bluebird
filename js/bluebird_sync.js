@@ -1285,10 +1285,6 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported ) {
-        throw new Error( "Attempting to use Promise.coroutine "+
-                "without generatorFunction support" );
-    }
     var PromiseSpawn$ = PromiseSpawn;
     return function anonymous() {
         var generator = generatorFunction.apply( this, arguments );
@@ -1302,10 +1298,6 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
 Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
         return apiRejection( "generatorFunction must be a function" );
-    }
-    if( !PromiseSpawn.isSupported ) {
-        return apiRejection( "Attempting to use Promise.spawn "+
-                "without generatorFunction support" );
     }
     var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
     var ret = spawn.promise();
@@ -2516,17 +2508,6 @@ method.toJSON = function PromiseResolver$toJSON() {
 return PromiseResolver;})();
 var PromiseSpawn = (function() {
 
-var haveEs6Generators = (function(){
-    try {
-        /* jshint nonew: false */
-        new Function("(function*(){})");
-        return true;
-    }
-    catch(e) {
-        return false;
-    }
-})();
-
 function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
     this._generatorFunction = generatorFunction;
@@ -2589,9 +2570,6 @@ method._next = function PromiseSpawn$_next( value ) {
         tryCatch1( this._generator.next, this._generator, value )
     );
 };
-
-
-PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {

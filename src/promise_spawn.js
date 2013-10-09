@@ -1,16 +1,5 @@
 var PromiseSpawn = (function() {
 
-var haveEs6Generators = (function(){
-    try {
-        /* jshint nonew: false */
-        new Function("(function*(){})");
-        return true;
-    }
-    catch(e) {
-        return false;
-    }
-})();
-
 function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
     this._generatorFunction = generatorFunction;
@@ -75,8 +64,5 @@ method._next = function PromiseSpawn$_next( value ) {
         tryCatch1( this._generator.next, this._generator, value )
     );
 };
-
-
-PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();
