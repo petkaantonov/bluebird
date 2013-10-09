@@ -113,7 +113,7 @@ CONSTANT(FUNCTION_SIZE, 3);
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._backupBuffer = [];
+    this._lateBuffer = [];
     var functionBuffer = this._functionBuffer =
         new Array( 1000 * FUNCTION_SIZE );
     var self = this;
@@ -138,11 +138,8 @@ method.haveItemsQueued = function Async$haveItemsQueued() {
 method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     ASSERT( typeof fn === "function" );
     ASSERT( arguments.length === 3 );
-    this._backupBuffer.push( fn, receiver, arg );
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._lateBuffer.push( fn, receiver, arg );
+    this._queueTick();
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
@@ -164,11 +161,7 @@ method.invoke = function Async$invoke( fn, receiver, arg ) {
         functionBuffer[ length + ARGUMENT_OFFSET ] = arg;
     }
     this._length = length + FUNCTION_SIZE;
-
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._queueTick();
 };
 
 method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
@@ -189,14 +182,45 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
             void 0;
     }
     this._reset();
-    if( this._backupBuffer.length ) {
-        var buffer = this._backupBuffer;
+    this._consumeLateBuffer();
+};
+
+method._consumeLateBuffer = function Async$_consumeLateBuffer() {
+    if( this._lateBuffer.length ) {
+        var buffer = this._lateBuffer;
         for( var i = 0; i < buffer.length; i+= FUNCTION_SIZE ) {
-            buffer[ i + FUNCTION_OFFSET ].call(
-                buffer[ i + RECEIVER_OFFSET ] ,
-                buffer[ i + ARGUMENT_OFFSET ] );
+            var res = tryCatch1(
+                buffer[ i + FUNCTION_OFFSET ],
+                buffer[ i + RECEIVER_OFFSET ],
+                buffer[ i + ARGUMENT_OFFSET ]
+            );
+            if( res === errorObj ) {
+                //We are going to throw - copy rest of the buffer
+                //to be invocated in a later turn
+                i += FUNCTION_SIZE;
+                ASSERT( buffer.length - i >= 0 );
+                var newBuffer = new Array( buffer.length - i );
+                var c = 0;
+                for( var j = i; j < buffer.length; j += FUNCTION_SIZE ) {
+                    newBuffer[ c + FUNCTION_OFFSET ] = buffer[ j + FUNCTION_OFFSET ];
+                    newBuffer[ c + RECEIVER_OFFSET ] = buffer[ j + RECEIVER_OFFSET ];
+                    newBuffer[ c + ARGUMENT_OFFSET ] = buffer[ j + ARGUMENT_OFFSET ];
+                    c += FUNCTION_SIZE;
+                }
+                this._lateBuffer = newBuffer;
+                ASSERT( !this._isTickUsed );
+                this._queueTick();
+                throw res.e;
+            }
         }
         buffer.length = 0;
+    }
+};
+
+method._queueTick = function Async$_queue() {
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
     }
 };
 
