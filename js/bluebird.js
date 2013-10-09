@@ -97,6 +97,21 @@ var inherits = function( Child, Parent ) {
     return Child.prototype;
 };
 
+function asString( val ) {
+    return typeof val === "string" ? val : ( "" + val );
+}
+
+function isPrimitive( val ) {
+    return val == null || val === true || val === false ||
+        typeof val === "string" || typeof val === "number";
+
+}
+
+function maybeWrapAsError( maybeError ) {
+    if( !isPrimitive( maybeError ) ) return maybeError;
+
+    return new Error( asString( maybeError ) );
+}
 
 function withAppended( target, appendee ) {
     var len = target.length;
@@ -109,8 +124,20 @@ function withAppended( target, appendee ) {
     return ret;
 }
 
+
+function notEnumerableProp( obj, name, value ) {
+    var descriptor = {
+        value: value,
+        configurable: true,
+        enumerable: false,
+        writable: true
+    };
+    Object.defineProperty( obj, name, descriptor );
+    return obj;
+}
+
 var THIS = {};
-function makeNodePromisified( callback, receiver ) {
+function makeNodePromisified( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -132,18 +159,19 @@ function makeNodePromisified( callback, receiver ) {
         "break;";
     }
 
-    var callbackName = (typeof callback === "string"
-        ? ( callback + "Async" )
-        : "promisified");
+    var callbackName = ( typeof originalName === "string" ?
+        originalName + "Async" :
+        "promisified" );
 
-    return new Function("Promise", "callback", "receiver", "withAppended",
-        "return function " + callbackName +
+    return new Function("Promise", "callback", "receiver",
+            "withAppended", "maybeWrapAsError",
+        "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
         "var fn = function fn( err, value ) {" +
         "if( err ) {" +
-        "resolver.reject( err );" +
+        "resolver.reject( maybeWrapAsError( err ) );" +
         "}" +
         "else {" +
         "if( arguments.length > 2 ) {" +
@@ -175,12 +203,12 @@ function makeNodePromisified( callback, receiver ) {
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject(e);" +
+        "resolver.reject( maybeWrapAsError( e ) );" +
         "}" +
         "return resolver.promise;" +
         "" +
-        "};"
-    )(Promise, callback, receiver, withAppended);
+        "}; ret.__isPromisified__ = true; return ret;"
+    )(Promise, callback, receiver, withAppended, maybeWrapAsError);
 }
 
 
@@ -843,9 +871,13 @@ method.caught = method["catch"] = function Promise$catch( fn ) {
                 catchInstances[j++] = item;
             }
             else {
-                throw new TypeError(
-                    "A catch filter must be an error constructor"
-                );
+                var catchFilterTypeError =
+                    new TypeError(
+                        "A catch filter must be an error constructor");
+
+                this._attachExtraTrace( catchFilterTypeError );
+                async.invoke( this._reject, this, catchFilterTypeError );
+                return;
             }
         }
         catchInstances.length = j;
@@ -1034,6 +1066,16 @@ method.nodeify = function Promise$nodeify( nodeback ) {
     return this;
 };
 
+function apiRejection( msg ) {
+    var error = new TypeError( msg );
+    var ret = Promise.rejected( error );
+    var parent = ret._peekContext();
+    if( parent != null ) {
+        parent._attachExtraTrace( error );
+    }
+    return ret;
+}
+
 method.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
@@ -1084,10 +1126,10 @@ Promise.any = function Promise$Any( promises ) {
 };
 
 Promise.some = function Promise$Some( promises, howMany ) {
-    var ret = Promise._all( promises, SomePromiseArray );
     if( ( howMany | 0 ) !== howMany ) {
-        throw new TypeError("howMany must be an integer");
+        return apiRejection("howMany must be an integer");
     }
+    var ret = Promise._all( promises, SomePromiseArray );
     var len = ret.length();
     howMany = Math.max(0, Math.min( howMany, len ) );
     ret._howMany = howMany;
@@ -1118,8 +1160,9 @@ function mapper( fulfilleds ) {
     return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
 }
 Promise.map = function Promise$Map( promises, fn ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function" );
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
     return Promise.all( promises )._then(
         mapper,
         void 0,
@@ -1174,8 +1217,9 @@ function slowReduce( promises, fn, initialValue ) {
 
 
 Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
-    if( typeof fn !== "function" )
-        throw new TypeError( "fn is not a function");
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
     if( initialValue !== void 0 ) {
         return slowReduce( promises, fn, initialValue );
     }
@@ -1241,10 +1285,6 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
      if( typeof generatorFunction !== "function" ) {
         throw new TypeError( "generatorFunction must be a function" );
     }
-    if( !PromiseSpawn.isSupported ) {
-        throw new Error( "Attempting to use Promise.coroutine "+
-                "without generatorFunction support" );
-    }
     var PromiseSpawn$ = PromiseSpawn;
     return function anonymous() {
         var generator = generatorFunction.apply( this, arguments );
@@ -1257,13 +1297,7 @@ Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
 
 Promise.spawn = function Promise$Spawn( generatorFunction ) {
     if( typeof generatorFunction !== "function" ) {
-        throw new TypeError( "generatorFunction must be a function" );
-    }
-    if( !PromiseSpawn.isSupported ) {
-        var defer = Promise.pending( Promise.spawn );
-        defer.reject( new Error( "Attempting to use Promise.spawn "+
-                "without generatorFunction support" ));
-        return defer.promise;
+        return apiRejection( "generatorFunction must be a function" );
     }
     var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
     var ret = spawn.promise();
@@ -1271,33 +1305,40 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
-var PROCESSED = {};
-var descriptor = {
-    value: PROCESSED,
-    writable: true,
-    configurable: false,
-    enumerable: false
-};
 function f(){}
+function isPromisified( fn ) {
+    return fn.__isPromisified__ === true;
+}
+var hasProp = {}.hasOwnProperty;
+var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
-        if( callback.__processedBluebirdAsync__ !== PROCESSED ) {
-            for( var key in callback ) {
-                if( callback.hasOwnProperty( key ) &&
-                    rjsident.test( key ) &&
-                    typeof callback[ key ] === "function" ) {
-                    callback[ key + "Async" ] =
-                        makeNodePromisified( key, THIS );
+        var changed = 0;
+        for( var key in callback ) {
+            if( rjsident.test( key ) &&
+                !roriginal.test( key ) &&
+                !hasProp.call( callback,
+                    ( key + "__beforePromisified__" ) ) &&
+                typeof callback[ key ] === "function" ) {
+                var fn = callback[key];
+                if( !isPromisified( fn ) ) {
+                    changed++;
+                    var originalKey = key + "__beforePromisified__";
+                    var promisifiedKey = key + "Async";
+                    notEnumerableProp( callback, originalKey, fn );
+                    callback[ promisifiedKey ] =
+                        makeNodePromisified( originalKey, THIS, key );
                 }
             }
-            Object.defineProperty( callback,
-                "__processedBluebirdAsync__", descriptor );
+        }
+        if( changed > 0 ) {
             f.prototype = callback;
         }
+
         return callback;
     }
     else {
-        return makeNodePromisified( callback, receiver );
+        return makeNodePromisified( callback, receiver, void 0 );
     }
 }
 Promise.promisify = function Promise$Promisify( callback, receiver ) {
@@ -1306,7 +1347,16 @@ Promise.promisify = function Promise$Promisify( callback, receiver ) {
             "is deprecated. Use Promise.promisifyAll instead." );
         return _promisify( callback, receiver, true );
     }
-    return _promisify( callback, receiver, false );
+    if( typeof callback !== "function" ) {
+        throw new TypeError( "callback must be a function" );
+    }
+    if( isPromisified( callback ) ) {
+        return callback;
+    }
+    return _promisify(
+        callback,
+        arguments.length < 2 ? THIS : receiver,
+        false );
 };
 
 Promise.promisifyAll = function Promise$PromisifyAll( target ) {
@@ -1773,10 +1823,13 @@ method._resolvePromise = function Promise$_resolvePromise(
         async.invoke( promise._reject, promise, x.e );
     }
     else if( x === promise ) {
+        var selfResolutionError =
+            new TypeError( "Circular thenable chain" );
+        this._attachExtraTrace( selfResolutionError );
         async.invoke(
             promise._reject,
             promise,
-            new TypeError( "Circular thenable chain" )
+            selfResolutionError
         );
     }
     else {
@@ -2054,7 +2107,8 @@ function Promise$_All( promises, PromiseArray, caller ) {
             : Promise$_All
         );
     }
-    throw new TypeError("expecting an array or a promise");
+    return new PromiseArray(
+        [ apiRejection( "expecting an array or a promise" ) ] );
 };
 
 var old = global.Promise;
@@ -2464,17 +2518,6 @@ method.toJSON = function PromiseResolver$toJSON() {
 return PromiseResolver;})();
 var PromiseSpawn = (function() {
 
-var haveEs6Generators = (function(){
-    try {
-        /* jshint nonew: false */
-        new Function("(function*(){})");
-        return true;
-    }
-    catch(e) {
-        return false;
-    }
-})();
-
 function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
     this._generatorFunction = generatorFunction;
@@ -2537,9 +2580,6 @@ method._next = function PromiseSpawn$_next( value ) {
         tryCatch1( this._generator.next, this._generator, value )
     );
 };
-
-
-PromiseSpawn.isSupported = haveEs6Generators;
 
 return PromiseSpawn;})();
 if( typeof module !== "undefined" && module.exports ) {

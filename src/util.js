@@ -79,6 +79,21 @@ var inherits = function( Child, Parent ) {
     return Child.prototype;
 };
 
+function asString( val ) {
+    return typeof val === "string" ? val : ( "" + val );
+}
+
+function isPrimitive( val ) {
+    return val == null || val === true || val === false ||
+        typeof val === "string" || typeof val === "number";
+
+}
+
+function maybeWrapAsError( maybeError ) {
+    if( !isPrimitive( maybeError ) ) return maybeError;
+
+    return new Error( asString( maybeError ) );
+}
 
 function withAppended( target, appendee ) {
     var len = target.length;
@@ -91,8 +106,20 @@ function withAppended( target, appendee ) {
     return ret;
 }
 
+
+function notEnumerableProp( obj, name, value ) {
+    var descriptor = {
+        value: value,
+        configurable: true,
+        enumerable: false,
+        writable: true
+    };
+    Object.defineProperty( obj, name, descriptor );
+    return obj;
+}
+
 var THIS = {};
-function makeNodePromisified( callback, receiver ) {
+function makeNodePromisified( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -114,18 +141,19 @@ function makeNodePromisified( callback, receiver ) {
         "break;";
     }
 
-    var callbackName = (typeof callback === "string"
-        ? ( callback + "Async" )
-        : "promisified");
+    var callbackName = ( typeof originalName === "string" ?
+        originalName + "Async" :
+        "promisified" );
 
-    return new Function("Promise", "callback", "receiver", "withAppended",
-        "return function " + callbackName +
+    return new Function("Promise", "callback", "receiver",
+            "withAppended", "maybeWrapAsError",
+        "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
         "var fn = function fn( err, value ) {" +
         "if( err ) {" +
-        "resolver.reject( err );" +
+        "resolver.reject( maybeWrapAsError( err ) );" +
         "}" +
         "else {" +
         "if( arguments.length > 2 ) {" +
@@ -157,11 +185,11 @@ function makeNodePromisified( callback, receiver ) {
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject(e);" +
+        "resolver.reject( maybeWrapAsError( e ) );" +
         "}" +
         "return resolver.promise;" +
         "" +
-        "};"
-    )(Promise, callback, receiver, withAppended);
+        "}; ret.__isPromisified__ = true; return ret;"
+    )(Promise, callback, receiver, withAppended, maybeWrapAsError);
 }
 

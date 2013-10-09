@@ -81,7 +81,27 @@ function ajaxGetAsync(url) {
 }
 ```
 
+*Performance tips*
 
+`new Promise(resolver)` should be avoided in performance sensitive code.
+
+In V8, anytime you call the above, you will create 3 function identities and 2 context objects because the `resolve, reject` callbacks require .binding for API ergonomics.
+
+For instance when implementing a `delay` function, it's possible to just do this:
+
+```js
+function delay(ms, value) {
+    var resolver = Promise.pending();
+    setTimeout(function(){
+        resolver.fulfill(value);
+    }, ms);
+    return resolver.promise;
+}
+```
+
+The above will only create 1 function identity and a context object and wasn't too hard to write. The savings are relatively good - it's possible to create 2.5 additional bluebird promises from the memory we saved (`(2 * 80 + 60) / 88 =~ 2.5`).
+
+Note that it isn't really about raw memory - I know you have plenty. It's about the additional GC work which uses CPU.
     
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
@@ -745,11 +765,11 @@ redisGet.then(function(){
 
 #####`Promise.promisify(Object target)` -> `Object`
 
-This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`]()
+This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
 
 #####`Promise.promisifyAll(Object target)` -> `Object`
 
-Promisifies the entire object by going through the object and creating an async equivalent of each function on the object. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+Promisifies the entire object by going iterating through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object. 
 
 Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
@@ -767,6 +787,20 @@ redisClient.hexistsAsync("myhash", "field").then(function(v){
 });
 ```
 
+If you don't want to write on foreign prototypes, you can sub-class the target and promisify your subclass:
+
+```js
+function MyRedisClient() {
+    RedisClient.apply(this, arguments);
+}
+MyRedisClient.prototype = Object.create(RedisClient.prototype);
+MyRedisClient.prototype.constructor = MyRedisClient;
+Promise.promisify(MyRedisClient.prototype);
+```
+
+The promisified methods will be written on the `MyRedisClient.prototype` instead. This specific example doesn't actually work with `node_redis` because the `createClient` factory is hardcoded to instantiate `RedisClient` from closure.
+
+
 It also works on singletons or specific instances:
 
 ```js
@@ -779,10 +813,9 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 });
 ```
 
-Only enumerable own properties are considered. A specific object will only be promisified once. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
+The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
-
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 
