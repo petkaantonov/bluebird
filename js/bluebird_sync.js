@@ -960,7 +960,7 @@ method.cancel = function Promise$cancel() {
     if( cancelTarget === this ) {
         var err = new CancellationError();
         this._attachExtraTrace( err );
-        this._reject(err);
+        this._reject( err );
     }
     else {
         cancelTarget.cancel((void 0));
@@ -1609,31 +1609,6 @@ method._callSlow = function Promise$_callSlow( propertyName, args ) {
     );
 };
 
-method._resolveLast = function Promise$_resolveLast( index ) {
-    var promise = this._promiseAt( index );
-    var receiver = this._receiverAt( index );
-    var fn;
-
-    if( this.isFulfilled() ) {
-        fn = this._fulfillAt( index );
-    }
-    else {
-        fn = this._rejectAt( index );
-    }
-    this._unsetAt( index );
-    var obj = this._resolvedValue;
-    var ret = obj;
-    if( fn !== void 0 ) {
-        this._resolvePromise( fn, receiver, obj, promise );
-    }
-    else if( this.isFulfilled() ) {
-        promise._fulfill( ret );
-    }
-    else {
-        promise._reject( ret );
-    }
-};
-
 method._spreadSlowCase =
 function Promise$_spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
@@ -1989,27 +1964,56 @@ method._progress = function Promise$_progress( progressValue ) {
 
 };
 
+
+
+method._doResolveAt = function Promise$_doResolveAt( i ) {
+    var fn = this.isFulfilled()
+        ? this._fulfillAt( i )
+        : this._rejectAt( i );
+    var value = this._resolvedValue;
+    var receiver = this._receiverAt( i );
+    var promise = this._promiseAt( i );
+    this._unsetAt( i );
+    this._resolvePromise( fn, receiver, value, promise );
+};
+
 method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     this._cleanValues();
     this._setFulfilled();
     this._resolvedValue = value;
     var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._fulfillAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
-            this._resolvePromise(
-                fn,
-                receiver,
-                value,
-                promise
-            );
-
+        if( this._fulfillAt( i ) !== void 0 ) {
+            this._doResolveAt(i);
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             promise._fulfill(value);
+        }
+    }
+};
+
+method._resolveLast = function Promise$_resolveLast( index ) {
+    var fn;
+    if( this.isFulfilled() ) {
+        fn = this._fulfillAt( index );
+    }
+    else {
+        fn = this._rejectAt( index );
+    }
+    if( fn !== void 0 ) {
+        this._doResolveAt(index);
+    }
+    else {
+        var promise = this._promiseAt( index );
+        var value = this._resolvedValue;
+        this._unsetAt( index );
+        if( this.isFulfilled() ) {
+            promise._fulfill(value);
+        }
+        else {
+            promise._reject(value);
         }
     }
 };
@@ -2027,20 +2031,13 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._rejectAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
+        if( this._rejectAt( i ) !== void 0 ) {
             rejectionWasHandled = true;
-            this._resolvePromise(
-                fn,
-                receiver,
-                reason,
-                promise
-            );
+            this._doResolveAt(i);
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             if( !rejectionWasHandled )
                 rejectionWasHandled = promise._length() > 0;
             promise._reject(reason);

@@ -1047,7 +1047,7 @@ method.cancel = function Promise$cancel() {
     if( cancelTarget === this ) {
         var err = new CancellationError();
         this._attachExtraTrace( err );
-        async.invoke( this._reject, this, err );
+        this._reject( err );
     }
     else {
         async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
@@ -1762,39 +1762,6 @@ method._callSlow = function Promise$_callSlow( propertyName, args ) {
     );
 };
 
-method._resolveLast = function Promise$_resolveLast( index ) {
-    ASSERT(((typeof index) === "number"),
-    "typeof index === \u0022number\u0022");
-    ASSERT((index >= 0),
-    "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
-    var promise = this._promiseAt( index );
-    var receiver = this._receiverAt( index );
-    var fn;
-
-    ASSERT((this.isFulfilled() || this.isRejected()),
-    "this.isFulfilled() || this.isRejected()");
-    if( this.isFulfilled() ) {
-        fn = this._fulfillAt( index );
-    }
-    else {
-        fn = this._rejectAt( index );
-    }
-    this._unsetAt( index );
-    var obj = this._resolvedValue;
-    var ret = obj;
-    if( fn !== void 0 ) {
-        this._resolvePromise( fn, receiver, obj, promise );
-    }
-    else if( this.isFulfilled() ) {
-        promise._fulfill( ret );
-    }
-    else {
-        promise._reject( ret );
-    }
-};
-
 method._spreadSlowCase =
 function Promise$_spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
@@ -2170,6 +2137,23 @@ method._progress = function Promise$_progress( progressValue ) {
 
 };
 
+
+
+method._doResolveAt = function Promise$_doResolveAt( i ) {
+    var fn = this.isFulfilled()
+        ? this._fulfillAt( i )
+        : this._rejectAt( i );
+    ASSERT((this.isFulfilled() || this.isRejected()),
+    "this.isFulfilled() || this.isRejected()");
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+    var value = this._resolvedValue;
+    var receiver = this._receiverAt( i );
+    var promise = this._promiseAt( i );
+    this._unsetAt( i );
+    this._resolvePromise( fn, receiver, value, promise );
+};
+
 method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     ASSERT(this.isPending(),
     "this.isPending()");
@@ -2178,21 +2162,45 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     this._resolvedValue = value;
     var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._fulfillAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
-            this._resolvePromise(
-                fn,
-                receiver,
-                value,
-                promise
-            );
-
+        if( this._fulfillAt( i ) !== void 0 ) {
+            async.invoke( this._doResolveAt, this, i );
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             async.invoke( promise._fulfill, promise, value );
+        }
+    }
+};
+
+method._resolveLast = function Promise$_resolveLast( index ) {
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    var fn;
+    ASSERT((this.isFulfilled() || this.isRejected()),
+    "this.isFulfilled() || this.isRejected()");
+    if( this.isFulfilled() ) {
+        fn = this._fulfillAt( index );
+    }
+    else {
+        fn = this._rejectAt( index );
+    }
+    if( fn !== void 0 ) {
+        async.invoke( this._doResolveAt, this, index );
+    }
+    else {
+        var promise = this._promiseAt( index );
+        var value = this._resolvedValue;
+        this._unsetAt( index );
+        if( this.isFulfilled() ) {
+            async.invoke( promise._fulfill, promise, value );
+        }
+        else {
+            async.invoke( promise._reject, promise, value );
         }
     }
 };
@@ -2214,20 +2222,13 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._rejectAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
+        if( this._rejectAt( i ) !== void 0 ) {
             rejectionWasHandled = true;
-            this._resolvePromise(
-                fn,
-                receiver,
-                reason,
-                promise
-            );
+            async.invoke( this._doResolveAt, this, i );
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             if( !rejectionWasHandled )
                 rejectionWasHandled = promise._length() > 0;
             async.invoke( promise._reject, promise, reason );
