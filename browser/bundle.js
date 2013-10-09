@@ -6954,7 +6954,7 @@ method.cancel = function Promise$cancel() {
     if( cancelTarget === this ) {
         var err = new CancellationError();
         this._attachExtraTrace( err );
-        async.invoke( this._reject, this, err );
+        this._reject( err );
     }
     else {
         async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
@@ -7669,39 +7669,6 @@ method._callSlow = function Promise$_callSlow( propertyName, args ) {
     );
 };
 
-method._resolveLast = function Promise$_resolveLast( index ) {
-    ASSERT(((typeof index) === "number"),
-    "typeof index === \u0022number\u0022");
-    ASSERT((index >= 0),
-    "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
-    var promise = this._promiseAt( index );
-    var receiver = this._receiverAt( index );
-    var fn;
-
-    ASSERT((this.isFulfilled() || this.isRejected()),
-    "this.isFulfilled() || this.isRejected()");
-    if( this.isFulfilled() ) {
-        fn = this._fulfillAt( index );
-    }
-    else {
-        fn = this._rejectAt( index );
-    }
-    this._unsetAt( index );
-    var obj = this._resolvedValue;
-    var ret = obj;
-    if( fn !== void 0 ) {
-        this._resolvePromise( fn, receiver, obj, promise );
-    }
-    else if( this.isFulfilled() ) {
-        promise._fulfill( ret );
-    }
-    else {
-        promise._reject( ret );
-    }
-};
-
 method._spreadSlowCase =
 function Promise$_spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
@@ -8077,6 +8044,23 @@ method._progress = function Promise$_progress( progressValue ) {
 
 };
 
+
+
+method._doResolveAt = function Promise$_doResolveAt( i ) {
+    var fn = this.isFulfilled()
+        ? this._fulfillAt( i )
+        : this._rejectAt( i );
+    ASSERT((this.isFulfilled() || this.isRejected()),
+    "this.isFulfilled() || this.isRejected()");
+    ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+    var value = this._resolvedValue;
+    var receiver = this._receiverAt( i );
+    var promise = this._promiseAt( i );
+    this._unsetAt( i );
+    this._resolvePromise( fn, receiver, value, promise );
+};
+
 method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     ASSERT(this.isPending(),
     "this.isPending()");
@@ -8085,21 +8069,45 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     this._resolvedValue = value;
     var len = this._length();
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._fulfillAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
-            this._resolvePromise(
-                fn,
-                receiver,
-                value,
-                promise
-            );
-
+        if( this._fulfillAt( i ) !== void 0 ) {
+            async.invoke( this._doResolveAt, this, i );
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             async.invoke( promise._fulfill, promise, value );
+        }
+    }
+};
+
+method._resolveLast = function Promise$_resolveLast( index ) {
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    ASSERT((index >= 0),
+    "index >= 0");
+    ASSERT((index < this._length()),
+    "index < this._length()");
+    var fn;
+    ASSERT((this.isFulfilled() || this.isRejected()),
+    "this.isFulfilled() || this.isRejected()");
+    if( this.isFulfilled() ) {
+        fn = this._fulfillAt( index );
+    }
+    else {
+        fn = this._rejectAt( index );
+    }
+    if( fn !== void 0 ) {
+        async.invoke( this._doResolveAt, this, index );
+    }
+    else {
+        var promise = this._promiseAt( index );
+        var value = this._resolvedValue;
+        this._unsetAt( index );
+        if( this.isFulfilled() ) {
+            async.invoke( promise._fulfill, promise, value );
+        }
+        else {
+            async.invoke( promise._reject, promise, value );
         }
     }
 };
@@ -8121,20 +8129,13 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
     var len = this._length();
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
-        var fn = this._rejectAt( i );
-        var promise = this._promiseAt( i );
-        var receiver = this._receiverAt( i );
-        this._unsetAt( i );
-        if( fn !== void 0 ) {
+        if( this._rejectAt( i ) !== void 0 ) {
             rejectionWasHandled = true;
-            this._resolvePromise(
-                fn,
-                receiver,
-                reason,
-                promise
-            );
+            async.invoke( this._doResolveAt, this, i );
         }
         else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
             if( !rejectionWasHandled )
                 rejectionWasHandled = promise._length() > 0;
             async.invoke( promise._reject, promise, reason );
@@ -15976,6 +15977,79 @@ describe("Async requirement", function() {
             b();
         });
     });
+
+    if( typeof Error.captureStackTrace === "function" ) {
+        describe("Should not grow the stack and cause eventually stack overflow.", function(){
+            Error.stackTraceLimit = 10000;
+
+            function assertStackIsNotGrowing(stack) {
+                assert(stack.split("\n").length > 5);
+                assert(stack.split("\n").length < 15);
+            }
+
+            specify("Already fulfilled.", function(done) {
+                function test(i){
+                    if (i <= 0){
+                       return Promise.fulfilled(new Error().stack);
+                   } else {
+                       return Promise.fulfilled(i-1).then(test)
+                   }
+                }
+                test(100).then(function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Already rejected", function(done) {
+                function test(i){
+                    if (i <= 0){
+                       return Promise.rejected(new Error().stack);
+                   } else {
+                       return Promise.rejected(i-1).then(assert.fail, test)
+                   }
+                }
+                test(100).then(assert.fail, function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Immediately fulfilled", function(done) {
+                function test(i){
+                    var deferred = Promise.pending();
+                    if (i <= 0){
+                       deferred.fulfill(new Error().stack);
+                       return deferred.promise;
+                   } else {
+                       deferred.fulfill(i-1);
+                       return deferred.promise.then(test)
+                   }
+                }
+                test(100).then(function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+
+            specify("Immediately rejected", function(done) {
+                function test(i){
+                    var deferred = Promise.pending();
+                    if (i <= 0){
+                       deferred.reject(new Error().stack);
+                       return deferred.promise;
+                   } else {
+                       deferred.reject(i-1);
+                       return deferred.promise.then(assert.fail, test)
+                   }
+                }
+                test(100).then(assert.fail, function(stack) {
+                    assertStackIsNotGrowing(stack);
+                    done();
+                });
+            });
+        });
+    }
 });
 },{"../../js/bluebird_debug.js":17,"assert":2}],54:[function(require,module,exports){
 /*global describe specify require global*/
@@ -16130,7 +16204,6 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             done();
         });
         promise.cancel();
-        return result;
     });
 
     specify("then fulfilled assumption", function(done) {
@@ -16149,8 +16222,8 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             assert.ok(assumedCancelled);
             done();
         });
-        promise.cancel();
-        return promise;
+
+        setImmediate(function(){promise.cancel();})
     });
 
     specify("then chain-fulfilled assumption", function(done) {
@@ -16191,7 +16264,7 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             assert.ok(assumedCancelled);
             done();
         });
-        promise.cancel();
+        setImmediate(function(){promise.cancel();})
         return promise;
     });
 
@@ -18753,7 +18826,7 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
-        }, 15);
+        }, 100);
 
     });
 
@@ -18763,7 +18836,7 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, 10);
-        }, 15);
+        }, 100);
     });
 
     it("forwards a promise", function () {
@@ -20041,10 +20114,15 @@ if( adapter.hasLongStackTraces() ) {
             });
         });
 
+        /*
         specify("Errors are reported in depth-first order", function(done) {
             var err = e();
 
             Promise.onPossiblyUnhandledRejection(function(e){
+                console.error(e.stack);
+                console.error("\n\n\n");
+                console.error(err.stack);
+                console.error("\n\n\n");
                 assert.equal(e, err);
                 Promise.onPossiblyUnhandledRejection(function(e){
                     if( haveTypeErrors )
@@ -20071,8 +20149,9 @@ if( adapter.hasLongStackTraces() ) {
             });
 
         });
-
+        */
     });
+
 }
 describe("Will not report rejections that are not instanceof Error", function() {
 
