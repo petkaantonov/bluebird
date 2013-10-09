@@ -459,9 +459,10 @@ else if( ( typeof MutationObserver === "function" ||
         typeof document !== "undefined" &&
         typeof document.createElement === "function" ) {
 
-    var MutationObserver = global.MutationObserver ||
-        global.WebkitMutationObserver;
+
     deferFn = (function(){
+        var MutationObserver = global.MutationObserver ||
+            global.WebkitMutationObserver;
         var div = document.createElement("div");
         var queuedFn = void 0;
         var observer = new MutationObserver(
