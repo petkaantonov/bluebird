@@ -5881,6 +5881,7 @@ var Promise = require("../js/bluebird_debug.js");
 {fn: function(){ return require('../test/mocha/cast.js');}, name: '../test/mocha/cast.js'},
 {fn: function(){ return require('../test/mocha/catch_filter.js');}, name: '../test/mocha/catch_filter.js'},
 {fn: function(){ return require('../test/mocha/following.js');}, name: '../test/mocha/following.js'},
+{fn: function(){ return require('../test/mocha/late_buffer_safety.js');}, name: '../test/mocha/late_buffer_safety.js'},
 {fn: function(){ return require('../test/mocha/promises_unwrapping.js');}, name: '../test/mocha/promises_unwrapping.js'},
 {fn: function(){ return require('../test/mocha/promisify.js');}, name: '../test/mocha/promisify.js'},
 {fn: function(){ return require('../test/mocha/q_all.js');}, name: '../test/mocha/q_all.js'},
@@ -5903,7 +5904,7 @@ var Promise = require("../js/bluebird_debug.js");
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/api_exceptions.js":52,"../test/mocha/async.js":53,"../test/mocha/cancel.js":54,"../test/mocha/cast.js":55,"../test/mocha/catch_filter.js":56,"../test/mocha/following.js":57,"../test/mocha/promises_unwrapping.js":61,"../test/mocha/promisify.js":62,"../test/mocha/q_all.js":63,"../test/mocha/q_done.js":64,"../test/mocha/q_fin.js":65,"../test/mocha/q_inspect.js":66,"../test/mocha/q_nodeify.js":67,"../test/mocha/q_progress.js":68,"../test/mocha/q_propagation.js":69,"../test/mocha/q_settle.js":70,"../test/mocha/q_spread.js":71,"../test/mocha/sparsity.js":72,"../test/mocha/unhandled_rejections.js":73,"../test/mocha/when_all.js":74,"../test/mocha/when_any.js":75,"../test/mocha/when_defer.js":76,"../test/mocha/when_join.js":77,"../test/mocha/when_map.js":78,"../test/mocha/when_reduce.js":79,"../test/mocha/when_settle.js":80,"../test/mocha/when_some.js":81,"../test/mocha/when_spread.js":82,"assert":2,"sinon":18}],17:[function(require,module,exports){
+},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/api_exceptions.js":52,"../test/mocha/async.js":53,"../test/mocha/cancel.js":54,"../test/mocha/cast.js":55,"../test/mocha/catch_filter.js":56,"../test/mocha/following.js":57,"../test/mocha/late_buffer_safety.js":61,"../test/mocha/promises_unwrapping.js":62,"../test/mocha/promisify.js":63,"../test/mocha/q_all.js":64,"../test/mocha/q_done.js":65,"../test/mocha/q_fin.js":66,"../test/mocha/q_inspect.js":67,"../test/mocha/q_nodeify.js":68,"../test/mocha/q_progress.js":69,"../test/mocha/q_propagation.js":70,"../test/mocha/q_settle.js":71,"../test/mocha/q_spread.js":72,"../test/mocha/sparsity.js":73,"../test/mocha/unhandled_rejections.js":74,"../test/mocha/when_all.js":75,"../test/mocha/when_any.js":76,"../test/mocha/when_defer.js":77,"../test/mocha/when_join.js":78,"../test/mocha/when_map.js":79,"../test/mocha/when_reduce.js":80,"../test/mocha/when_settle.js":81,"../test/mocha/when_some.js":82,"../test/mocha/when_spread.js":83,"assert":2,"sinon":18}],17:[function(require,module,exports){
 var process=require("__browserify_process");
     var ASSERT = (function(){/* jshint -W014, -W116 */
         var AssertionError = (function() {
@@ -6389,7 +6390,6 @@ function getFunction( propertyName ) {
 }
 var Async = (function() {
 
-
 var deferFn;
 if( typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" ) {
@@ -6404,10 +6404,17 @@ if( typeof process !== "undefined" && process !== null &&
         };
     }
 }
-else if( typeof MutationObserver === "function" &&
-    typeof document !== "undefined" &&
-    typeof document.createElement === "function" ) {
+else if( ( typeof MutationObserver === "function" ||
+        typeof WebkitMutationObserver === "function" ||
+        typeof WebKitMutationObserver === "function" ) &&
+        typeof document !== "undefined" &&
+        typeof document.createElement === "function" ) {
+
+
     deferFn = (function(){
+        var MutationObserver = global.MutationObserver ||
+            global.WebkitMutationObserver ||
+            global.WebKitMutationObserver;
         var div = document.createElement("div");
         var queuedFn = void 0;
         var observer = new MutationObserver(
@@ -6503,7 +6510,7 @@ else {
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._backupBuffer = [];
+    this._lateBuffer = [];
     var functionBuffer = this._functionBuffer =
         new Array( 1000 * 3 );
     var self = this;
@@ -6526,11 +6533,8 @@ method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     "typeof fn === \u0022function\u0022");
     ASSERT((arguments.length === 3),
     "arguments.length === 3");
-    this._backupBuffer.push( fn, receiver, arg );
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._lateBuffer.push( fn, receiver, arg );
+    this._queueTick();
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
@@ -6553,11 +6557,7 @@ method.invoke = function Async$invoke( fn, receiver, arg ) {
         functionBuffer[ length + 2 ] = arg;
     }
     this._length = length + 3;
-
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._queueTick();
 };
 
 method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
@@ -6575,14 +6575,45 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
             void 0;
     }
     this._reset();
-    if( this._backupBuffer.length ) {
-        var buffer = this._backupBuffer;
+    this._consumeLateBuffer();
+};
+
+method._consumeLateBuffer = function Async$_consumeLateBuffer() {
+    if( this._lateBuffer.length ) {
+        var buffer = this._lateBuffer;
         for( var i = 0; i < buffer.length; i+= 3 ) {
-            buffer[ i + 0 ].call(
-                buffer[ i + 1 ] ,
-                buffer[ i + 2 ] );
+            var res = tryCatch1(
+                buffer[ i + 0 ],
+                buffer[ i + 1 ],
+                buffer[ i + 2 ]
+            );
+            if( res === errorObj ) {
+                i += 3;
+                ASSERT(((buffer.length - i) >= 0),
+    "buffer.length - i >= 0");
+                var newBuffer = new Array( buffer.length - i );
+                var c = 0;
+                for( var j = i; j < buffer.length; j += 3 ) {
+                    newBuffer[ c + 0 ] = buffer[ j + 0 ];
+                    newBuffer[ c + 1 ] = buffer[ j + 1 ];
+                    newBuffer[ c + 2 ] = buffer[ j + 2 ];
+                    c += 3;
+                }
+                this._lateBuffer = newBuffer;
+                ASSERT((! this._isTickUsed),
+    "!this._isTickUsed");
+                this._queueTick();
+                throw res.e;
+            }
         }
         buffer.length = 0;
+    }
+};
+
+method._queueTick = function Async$_queue() {
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
     }
 };
 
@@ -7307,6 +7338,7 @@ var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
         var changed = 0;
+        var o = {};
         for( var key in callback ) {
             if( rjsident.test( key ) &&
                 !roriginal.test( key ) &&
@@ -7319,12 +7351,17 @@ function _promisify( callback, receiver, isAll ) {
                     var originalKey = key + "__beforePromisified__";
                     var promisifiedKey = key + "Async";
                     notEnumerableProp( callback, originalKey, fn );
-                    callback[ promisifiedKey ] =
+                    o[ promisifiedKey ] =
                         makeNodePromisified( originalKey, THIS, key );
                 }
             }
         }
         if( changed > 0 ) {
+            for( var key in o ) {
+                if( hasProp.call( o, key ) ) {
+                    callback[key] = o[key];
+                }
+            }
             f.prototype = callback;
         }
 
@@ -16929,6 +16966,56 @@ exports.rejected = {
 
 },{}],61:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
+
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+var Promise = adapter;
+var isNodeJS = typeof process !== "undefined" &&
+    typeof process.execPath === "string";
+
+function async(cb){
+    return Promise.fulfilled().nodeify(cb);
+}
+
+
+if( isNodeJS ) {
+    describe("Late buffer", function(){
+
+        specify("shouldn't stop at first error but continue consumption until everything is consumed", function(done){
+            var originalException;
+            while( originalException = process.listeners('uncaughtException').pop() ) {
+                process.removeListener('uncaughtException', originalException);
+            }
+
+            var length = 10;
+            var l = length;
+            var a = 0;
+            while(l--){
+                async(function(){
+                    throw (a++);
+                });
+            }
+            var errs = [];
+            process.on("uncaughtException", function(e){
+                errs.push(e);
+                if( errs.length === length ) {
+                    var a = [];
+                    for( var i = 0, len = length; i < len; ++i ) {
+                        a[i] = i;
+                    }
+                    assert.deepEqual(a, errs);
+                    done();
+                }
+            });
+        });
+    });
+}
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2}],62:[function(require,module,exports){
+var process=require("__browserify_process");"use strict";
 //https://github.com/domenic/promises-unwrapping/blob/master/run-tests.js
 
 var assert = require("assert");
@@ -17140,7 +17227,7 @@ describe("Promise.all", function () {
         });
     });
 });
-},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2}],62:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2}],63:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -17341,6 +17428,7 @@ describe("when calling promisified function it should ", function(){
 
 });
 
+
 describe("with more than 5 arguments", function(){
 
     var o = {
@@ -17486,6 +17574,49 @@ describe("promisify on objects", function(){
             assert.deepEqual( result, [7, 8, 9, 10, 11, 12, 13, 45] );
             calldone();
         });
+    });
+
+    specify( "promisify Async suffixed methods", function( done ) {
+        var o = {
+            x: function(cb){
+                cb(null, 13);
+            },
+            xAsync: function(cb) {
+                cb(null, 13);
+            },
+
+            xAsyncAsync: function( cb ) {
+                cb(null, 13)
+            }
+        };
+
+        Promise.promisifyAll(o);
+        var b = {};
+        var hasProp = {}.hasOwnProperty;
+        for( var key in o ) {
+            if( hasProp.call(o, key ) ) {
+                b[key] = o[key];
+            }
+        }
+        Promise.promisifyAll(o);
+        assert.deepEqual(b, o);
+
+        o.xAsync()
+        .then(function(v){
+            assert( v === 13 );
+            return o.xAsyncAsync();
+        })
+        .then(function(v){
+            assert( v === 13 );
+            return o.xAsyncAsyncAsync();
+        })
+        .then(function(v){
+            assert( v === 13 );
+            done();
+        });
+
+
+
     });
 });
 
@@ -17634,7 +17765,7 @@ if( Promise.hasLongStackTraces() ) {
         });
     });
 }
-},{"../../js/bluebird_debug.js":17,"assert":2}],63:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],64:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -17808,7 +17939,7 @@ describe("all", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],64:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],65:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18098,7 +18229,7 @@ describe("done", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],65:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],66:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18372,7 +18503,7 @@ describe("fin", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],66:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],67:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18500,7 +18631,7 @@ describe("inspect", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],67:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],68:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18696,7 +18827,7 @@ if( isNodeJS ) {
         });
     });
 }
-},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],68:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],69:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19095,7 +19226,7 @@ describe("progress", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],69:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],70:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19325,7 +19456,7 @@ describe("propagation", function () {
         return result;
     });
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],70:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],71:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19480,7 +19611,7 @@ describe("allSettled", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],71:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],72:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19633,7 +19764,7 @@ describe("spread", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],72:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],73:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -19719,7 +19850,7 @@ describe("When using a sparse array the resulting array should have equal sparsi
 });
 
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],73:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],74:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/bluebird_debug.js");
@@ -20186,7 +20317,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],74:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],75:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -20309,7 +20440,7 @@ describe("when.all-test", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],75:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],76:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -20451,7 +20582,7 @@ describe("when.any-test", function () {
         ).ensure(done);
     });
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],76:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -20964,7 +21095,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21101,7 +21232,7 @@ describe("when.join-test", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],79:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21302,7 +21433,7 @@ describe("when.map-test", function () {
 
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],79:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21568,7 +21699,7 @@ describe("when.reduce-test", function () {
         ).ensure(done);
     });
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21740,7 +21871,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],82:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21945,7 +22076,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],82:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],83:[function(require,module,exports){
 /*
 Based on When.js tests
 
