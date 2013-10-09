@@ -198,6 +198,7 @@ describe("when calling promisified function it should ", function(){
 
 });
 
+
 describe("with more than 5 arguments", function(){
 
     var o = {
@@ -343,6 +344,49 @@ describe("promisify on objects", function(){
             assert.deepEqual( result, [7, 8, 9, 10, 11, 12, 13, 45] );
             calldone();
         });
+    });
+
+    specify( "promisify Async suffixed methods", function( done ) {
+        var o = {
+            x: function(cb){
+                cb(null, 13);
+            },
+            xAsync: function(cb) {
+                cb(null, 13);
+            },
+
+            xAsyncAsync: function( cb ) {
+                cb(null, 13)
+            }
+        };
+
+        Promise.promisifyAll(o);
+        var b = {};
+        var hasProp = {}.hasOwnProperty;
+        for( var key in o ) {
+            if( hasProp.call(o, key ) ) {
+                b[key] = o[key];
+            }
+        }
+        Promise.promisifyAll(o);
+        assert.deepEqual(b, o);
+
+        o.xAsync()
+        .then(function(v){
+            assert( v === 13 );
+            return o.xAsyncAsync();
+        })
+        .then(function(v){
+            assert( v === 13 );
+            return o.xAsyncAsyncAsync();
+        })
+        .then(function(v){
+            assert( v === 13 );
+            done();
+        });
+
+
+
     });
 });
 

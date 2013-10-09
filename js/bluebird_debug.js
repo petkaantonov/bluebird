@@ -1431,6 +1431,7 @@ var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
         var changed = 0;
+        var o = {};
         for( var key in callback ) {
             if( rjsident.test( key ) &&
                 !roriginal.test( key ) &&
@@ -1443,12 +1444,17 @@ function _promisify( callback, receiver, isAll ) {
                     var originalKey = key + "__beforePromisified__";
                     var promisifiedKey = key + "Async";
                     notEnumerableProp( callback, originalKey, fn );
-                    callback[ promisifiedKey ] =
+                    o[ promisifiedKey ] =
                         makeNodePromisified( originalKey, THIS, key );
                 }
             }
         }
         if( changed > 0 ) {
+            for( var key in o ) {
+                if( hasProp.call( o, key ) ) {
+                    callback[key] = o[key];
+                }
+            }
             f.prototype = callback;
         }
 
