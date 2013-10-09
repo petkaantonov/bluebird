@@ -5,7 +5,7 @@
   "main": "perf.js",
   "dependencies": {
     "optimist": "~0.6.0",
-    "when": "~2.2.1",
+    "when": "~2.5.0",
     "esprima": "~1.0.3",
     "async": "~0.2.9",
     "text-table": "~0.1.1",

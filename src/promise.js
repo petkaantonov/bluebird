@@ -957,6 +957,7 @@ var roriginal = new RegExp( BEFORE_PROMISIFIED_SUFFIX + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
         var changed = 0;
+        var o = {};
         for( var key in callback ) {
             if( rjsident.test( key ) &&
                 !roriginal.test( key ) &&
@@ -969,12 +970,17 @@ function _promisify( callback, receiver, isAll ) {
                     var originalKey = key + BEFORE_PROMISIFIED_SUFFIX;
                     var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
                     notEnumerableProp( callback, originalKey, fn );
-                    callback[ promisifiedKey ] =
+                    o[ promisifiedKey ] =
                         makeNodePromisified( originalKey, THIS, key );
                 }
             }
         }
         if( changed > 0 ) {
+            for( var key in o ) {
+                if( hasProp.call( o, key ) ) {
+                    callback[key] = o[key];
+                }
+            }
             //Right now the above loop will easily turn the
             //object into hash table in V8
             //but this will turn it back. Yes I am ashamed.

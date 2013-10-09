@@ -440,7 +440,6 @@ function getFunction( propertyName ) {
 }
 var Async = (function() {
 
-
 var deferFn;
 if( typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" ) {
@@ -455,10 +454,17 @@ if( typeof process !== "undefined" && process !== null &&
         };
     }
 }
-else if( typeof MutationObserver === "function" &&
-    typeof document !== "undefined" &&
-    typeof document.createElement === "function" ) {
+else if( ( typeof MutationObserver === "function" ||
+        typeof WebkitMutationObserver === "function" ||
+        typeof WebKitMutationObserver === "function" ) &&
+        typeof document !== "undefined" &&
+        typeof document.createElement === "function" ) {
+
+
     deferFn = (function(){
+        var MutationObserver = global.MutationObserver ||
+            global.WebkitMutationObserver ||
+            global.WebKitMutationObserver;
         var div = document.createElement("div");
         var queuedFn = void 0;
         var observer = new MutationObserver(
@@ -542,7 +548,7 @@ else {
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._backupBuffer = [];
+    this._lateBuffer = [];
     var functionBuffer = this._functionBuffer =
         new Array( 1000 * 3 );
     var self = this;
@@ -561,11 +567,8 @@ method.haveItemsQueued = function Async$haveItemsQueued() {
 };
 
 method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
-    this._backupBuffer.push( fn, receiver, arg );
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._lateBuffer.push( fn, receiver, arg );
+    this._queueTick();
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
@@ -582,11 +585,7 @@ method.invoke = function Async$invoke( fn, receiver, arg ) {
         functionBuffer[ length + 2 ] = arg;
     }
     this._length = length + 3;
-
-    if( !this._isTickUsed ) {
-        deferFn( this.consumeFunctionBuffer );
-        this._isTickUsed = true;
-    }
+    this._queueTick();
 };
 
 method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
@@ -602,14 +601,41 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
             void 0;
     }
     this._reset();
-    if( this._backupBuffer.length ) {
-        var buffer = this._backupBuffer;
+    this._consumeLateBuffer();
+};
+
+method._consumeLateBuffer = function Async$_consumeLateBuffer() {
+    if( this._lateBuffer.length ) {
+        var buffer = this._lateBuffer;
         for( var i = 0; i < buffer.length; i+= 3 ) {
-            buffer[ i + 0 ].call(
-                buffer[ i + 1 ] ,
-                buffer[ i + 2 ] );
+            var res = tryCatch1(
+                buffer[ i + 0 ],
+                buffer[ i + 1 ],
+                buffer[ i + 2 ]
+            );
+            if( res === errorObj ) {
+                i += 3;
+                var newBuffer = new Array( buffer.length - i );
+                var c = 0;
+                for( var j = i; j < buffer.length; j += 3 ) {
+                    newBuffer[ c + 0 ] = buffer[ j + 0 ];
+                    newBuffer[ c + 1 ] = buffer[ j + 1 ];
+                    newBuffer[ c + 2 ] = buffer[ j + 2 ];
+                    c += 3;
+                }
+                this._lateBuffer = newBuffer;
+                this._queueTick();
+                throw res.e;
+            }
         }
         buffer.length = 0;
+    }
+};
+
+method._queueTick = function Async$_queue() {
+    if( !this._isTickUsed ) {
+        deferFn( this.consumeFunctionBuffer );
+        this._isTickUsed = true;
     }
 };
 
@@ -1314,6 +1340,7 @@ var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
         var changed = 0;
+        var o = {};
         for( var key in callback ) {
             if( rjsident.test( key ) &&
                 !roriginal.test( key ) &&
@@ -1326,12 +1353,17 @@ function _promisify( callback, receiver, isAll ) {
                     var originalKey = key + "__beforePromisified__";
                     var promisifiedKey = key + "Async";
                     notEnumerableProp( callback, originalKey, fn );
-                    callback[ promisifiedKey ] =
+                    o[ promisifiedKey ] =
                         makeNodePromisified( originalKey, THIS, key );
                 }
             }
         }
         if( changed > 0 ) {
+            for( var key in o ) {
+                if( hasProp.call( o, key ) ) {
+                    callback[key] = o[key];
+                }
+            }
             f.prototype = callback;
         }
 
