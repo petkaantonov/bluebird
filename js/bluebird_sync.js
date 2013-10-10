@@ -212,6 +212,120 @@ function makeNodePromisified( callback, receiver, originalName ) {
 }
 
 
+var Deque = (function() {
+function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
+    for( var j = 0; j < len; ++j ) {
+        dst[ j + dstIndex ] = src[ j + srcIndex ];
+    }
+}
+
+function pow2AtLeast( n ) {
+    n = n >>> 0;
+    n = n - 1;
+    n = n | (n >> 1);
+    n = n | (n >> 2);
+    n = n | (n >> 4);
+    n = n | (n >> 8);
+    n = n | (n >> 16);
+    return n + 1;
+}
+
+function getCapacity( capacity ) {
+    if( typeof capacity !== "number" ) return 16;
+    return pow2AtLeast(
+        Math.min(
+            Math.max( 16, capacity ), 1073741824 )
+    );
+}
+
+function Deque( capacity ) {
+    this._capacity = getCapacity( capacity );
+    this._length = 0;
+    this._front = 0;
+    this._makeCapacity();
+}
+var method = Deque.prototype;
+
+method._willBeOverCapacity = function( size ) {
+    return this._capacity < size;
+};
+
+method._pushOne = function( arg ) {
+    var length = this.length();
+    this._checkCapacity( length + 1 );
+    var i = ( this._front + length ) & ( this._capacity - 1 );
+    this[i] = arg;
+    this._length = length + 1;
+};
+
+method.push = function( fn, receiver, arg ) {
+    var length = this.length() + 3;
+    if( this._willBeOverCapacity( length ) ) {
+        this._pushOne( fn );
+        this._pushOne( receiver );
+        this._pushOne( arg );
+        return;
+    }
+    var j = this._front + length - 3;
+    this._checkCapacity( length );
+    var wrapMask = this._capacity - 1;
+    this[ ( j + 0 ) & wrapMask ] = fn;
+    this[ ( j + 1 ) & wrapMask ] = receiver;
+    this[ ( j + 2 ) & wrapMask ] = arg;
+    this._length = length;
+};
+
+method.shift = function() {
+    var front = this._front,
+        ret = this[ front ];
+
+    this[ front ] = void 0;
+    this._front = ( front + 1 ) & ( this._capacity - 1 );
+    this._length--;
+    return ret;
+};
+
+
+method.length = function() {
+    return this._length;
+};
+
+method._makeCapacity = function() {
+    var len = this._capacity;
+    for( var i = 0; i < len; ++i ) {
+        this[i] = void 0;
+    }
+};
+
+method._checkCapacity = function( size ) {
+    if( this._capacity < size ) {
+        this._resizeTo( this._capacity << 3 );
+    }
+};
+
+method._resizeTo = function( capacity ) {
+    var oldFront = this._front;
+    var oldCapacity = this._capacity;
+    var oldQueue = new Array( oldCapacity );
+    var length = this.length();
+
+    arrayCopy( this, 0, oldQueue, 0, oldCapacity );
+    this._capacity = capacity;
+    this._makeCapacity();
+    this._front = 0;
+    if( oldFront + length <= oldCapacity ) {
+        arrayCopy( oldQueue, oldFront, this, 0, length );
+    }
+    else {        var lengthBeforeWrapping =
+            length - ( ( oldFront + length ) & ( oldCapacity - 1 ) );
+
+        arrayCopy( oldQueue, oldFront, this, 0, lengthBeforeWrapping );
+        arrayCopy( oldQueue, 0, this, lengthBeforeWrapping,
+                    length - lengthBeforeWrapping );
+    }
+};
+
+return Deque;})();
 function subError( constructorName, nameProperty, defaultMessage ) {
     defaultMessage = safeToEmbedString("" + defaultMessage );
     nameProperty = safeToEmbedString("" + nameProperty );
@@ -548,17 +662,12 @@ else {
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._lateBuffer = [];
-    var functionBuffer = this._functionBuffer =
-        new Array( 1000 * 3 );
+    this._lateBuffer = new Deque();
+    this._functionBuffer = new Deque( 25000 * 3 );
     var self = this;
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
     };
-
-    for( var i = 0, len = functionBuffer.length; i < len; ++i ) {
-        functionBuffer[i] = void 0;
-    }
 }
 var method = Async.prototype;
 
@@ -572,63 +681,35 @@ method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
 };
 
 method.invoke = function Async$invoke( fn, receiver, arg ) {
-    var functionBuffer = this._functionBuffer,
-        len = functionBuffer.length,
-        length = this._length;
-
-    if( length === len ) {
-        functionBuffer.push( fn, receiver, arg );
-    }
-    else {
-        functionBuffer[ length + 0 ] = fn;
-        functionBuffer[ length + 1 ] = receiver;
-        functionBuffer[ length + 2 ] = arg;
-    }
-    this._length = length + 3;
+    var functionBuffer = this._functionBuffer;
+    functionBuffer.push( fn, receiver, arg );
+    this._length = functionBuffer.length();
     this._queueTick();
 };
 
 method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
-    for( var i = 0; i < this._length; i += 3 ) {
-        functionBuffer[ i + 0 ].call(
-            functionBuffer[ i + 1 ],
-            functionBuffer[ i + 2 ] );
-
-        functionBuffer[ i + 0 ] =
-            functionBuffer[ i + 1 ] =
-            functionBuffer[ i + 2 ] =
-            void 0;
+    while( functionBuffer.length() > 0 ) {
+        var fn = functionBuffer.shift();
+        var receiver = functionBuffer.shift();
+        var arg = functionBuffer.shift();
+        fn.call( receiver, arg );
     }
     this._reset();
     this._consumeLateBuffer();
 };
 
 method._consumeLateBuffer = function Async$_consumeLateBuffer() {
-    if( this._lateBuffer.length ) {
-        var buffer = this._lateBuffer;
-        for( var i = 0; i < buffer.length; i+= 3 ) {
-            var res = tryCatch1(
-                buffer[ i + 0 ],
-                buffer[ i + 1 ],
-                buffer[ i + 2 ]
-            );
-            if( res === errorObj ) {
-                i += 3;
-                var newBuffer = new Array( buffer.length - i );
-                var c = 0;
-                for( var j = i; j < buffer.length; j += 3 ) {
-                    newBuffer[ c + 0 ] = buffer[ j + 0 ];
-                    newBuffer[ c + 1 ] = buffer[ j + 1 ];
-                    newBuffer[ c + 2 ] = buffer[ j + 2 ];
-                    c += 3;
-                }
-                this._lateBuffer = newBuffer;
-                this._queueTick();
-                throw res.e;
-            }
+    var buffer = this._lateBuffer;
+    while( buffer.length() > 0 ) {
+        var fn = buffer.shift();
+        var receiver = buffer.shift();
+        var arg = buffer.shift();
+        var res = tryCatch1( fn, receiver, arg );
+        if( res === errorObj ) {
+            this._queueTick();
+            throw res.e;
         }
-        buffer.length = 0;
     }
 };
 
