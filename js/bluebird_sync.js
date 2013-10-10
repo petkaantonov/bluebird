@@ -23,6 +23,22 @@
  */
 (function( global, Function, Array, Error, Object ) { "use strict";
 
+var haveGetters = (function(){
+    try {
+        var o = {};
+        Object.defineProperty(o, "f", {
+            get: function () {
+                return 3;
+            }
+        });
+        return o.f === 3;
+    }
+    catch(e) {
+        return false;
+    }
+
+})();
+
 var errorObj = {e: {}};
 var rescape = /[\r\n\u2028\u2029']/g;
 
@@ -113,6 +129,27 @@ function maybeWrapAsError( maybeError ) {
     return new Error( asString( maybeError ) );
 }
 
+function nodebackForResolver( resolver ) {
+    function PromiseResolver$_callback( err, value ) {
+        if( err ) {
+            resolver.reject( maybeWrapAsError( err ) );
+        }
+        else {
+            if( arguments.length > 2 ) {
+                var len = arguments.length;
+                var val = new Array( len - 1 );
+                for( var i = 1; i < len; ++i ) {
+                    val[ i - 1 ] = arguments[ i ];
+                }
+
+                value = val;
+            }
+            resolver.fulfill( value );
+        }
+    }
+    return PromiseResolver$_callback;
+}
+
 function withAppended( target, appendee ) {
     var len = target.length;
     var ret = new Array( len + 1 );
@@ -164,27 +201,12 @@ function makeNodePromisified( callback, receiver, originalName ) {
         "promisified" );
 
     return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError",
+            "withAppended", "maybeWrapAsError", "nodebackForResolver",
         "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
-        "var fn = function fn( err, value ) {" +
-        "if( err ) {" +
-        "resolver.reject( maybeWrapAsError( err ) );" +
-        "}" +
-        "else {" +
-        "if( arguments.length > 2 ) {" +
-        "    var len = arguments.length;" +
-        "    var val = new Array(len - 1);" +
-        "    for( var i = 1; i < len; ++i ) {" +
-        "        val[ i - 1 ] = arguments[i];" +
-        "    }" +
-        "    value = val;" +
-        "}" +
-        "resolver.fulfill( value );" +
-        "}" +
-        "};" +
+        "var fn = nodebackForResolver( resolver );"+
         "try{" +
         "switch( len ) {" +
         "case 1:" + getCall(1) +
@@ -208,10 +230,9 @@ function makeNodePromisified( callback, receiver, originalName ) {
         "return resolver.promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
-    )(Promise, callback, receiver, withAppended, maybeWrapAsError);
+    )(Promise, callback, receiver, withAppended,
+        maybeWrapAsError, nodebackForResolver);
 }
-
-
 var Deque = (function() {
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {
@@ -2573,10 +2594,28 @@ return PromiseInspection;})();
 
 var PromiseResolver = (function() {
 
-function PromiseResolver( promise ) {
-    this.promise = promise;
+var PromiseResolver;
+if( !haveGetters ) {
+    PromiseResolver = function PromiseResolver( promise ) {
+        this.promise = promise;
+        this.asCallback = nodebackForResolver( this );
+    };
 }
+else {
+    PromiseResolver = function PromiseResolver( promise ) {
+        this.promise = promise;
+    };
+}
+
 var method = PromiseResolver.prototype;
+
+if( haveGetters ) {
+    Object.defineProperty( method, "asCallback", {
+        get: function() {
+            return nodebackForResolver( this );
+        }
+    });
+}
 
 method.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
