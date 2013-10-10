@@ -1,3 +1,4 @@
+//http://jsperf.com/deque-vs-array-2
 var Deque = (function() {
 CONSTANT(DEQUE_MAX_CAPACITY, (1 << 30) | 0);
 CONSTANT(DEQUE_MIN_CAPACITY, 16);

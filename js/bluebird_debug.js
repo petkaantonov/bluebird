@@ -724,7 +724,7 @@ function Async() {
     this._isTickUsed = false;
     this._length = 0;
     this._lateBuffer = new Deque();
-    this._functionBuffer = new Deque( 12500 * 3 );
+    this._functionBuffer = new Deque( 25000 * 3 );
     var self = this;
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
@@ -771,19 +771,17 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
 };
 
 method._consumeLateBuffer = function Async$_consumeLateBuffer() {
-    if( this._lateBuffer.length ) {
-        var buffer = this._lateBuffer;
-        while( buffer.length() > 0 ) {
-            var fn = buffer.shift();
-            var receiver = buffer.shift();
-            var arg = buffer.shift();
-            var res = tryCatch1( fn, receiver, arg );
-            if( res === errorObj ) {
-                ASSERT((! this._isTickUsed),
+    var buffer = this._lateBuffer;
+    while( buffer.length() > 0 ) {
+        var fn = buffer.shift();
+        var receiver = buffer.shift();
+        var arg = buffer.shift();
+        var res = tryCatch1( fn, receiver, arg );
+        if( res === errorObj ) {
+            ASSERT((! this._isTickUsed),
     "!this._isTickUsed");
-                this._queueTick();
-                throw res.e;
-            }
+            this._queueTick();
+            throw res.e;
         }
     }
 };
