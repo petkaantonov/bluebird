@@ -1,5 +1,5 @@
 /* jshint -W014, -W116, -W106 */
-/* global process */
+/* global process, global */
 /**
  * @preserve Copyright (c) 2013 Petka Antonov
  *
@@ -39,17 +39,16 @@ var haveGetters = (function(){
 
 })();
 
-var errorObj = {e: {}};
-var rescape = /[\r\n\u2028\u2029']/g;
-
-var replacer = function( ch ) {
-        return "\\u" + (("0000") +
-            (ch.charCodeAt(0).toString(16))).slice(-4);
-};
-
-function safeToEmbedString( str ) {
-    return str.replace( rescape, replacer );
-}
+var canEvaluate = (function() {
+    if( typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global ) {
+        return false;
+    }
+    return true;
+})();
 
 function deprecated( msg ) {
     if( typeof console !== "undefined" && console !== null &&
@@ -58,6 +57,8 @@ function deprecated( msg ) {
     }
 }
 
+
+var errorObj = {e: {}};
 function tryCatch1( fn, receiver, arg ) {
     try {
         return fn.call( receiver, arg );
@@ -87,12 +88,6 @@ function tryCatchApply( fn, args ) {
         return errorObj;
     }
 }
-
-var create = Object.create || function( proto ) {
-    function F(){}
-    F.prototype = proto;
-    return new F();
-};
 
 var inherits = function( Child, Parent ) {
     var hasProp = {}.hasOwnProperty;
@@ -174,7 +169,7 @@ function notEnumerableProp( obj, name, value ) {
 }
 
 var THIS = {};
-function makeNodePromisified( callback, receiver, originalName ) {
+function makeNodePromisifiedEval( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -233,6 +228,31 @@ function makeNodePromisified( callback, receiver, originalName ) {
     )(Promise, callback, receiver, withAppended,
         maybeWrapAsError, nodebackForResolver);
 }
+
+function makeNodePromisifiedClosure( callback, receiver ) {
+    function promisified() {
+        var _receiver = receiver;
+        if( receiver === THIS ) _receiver = this;
+        if( typeof callback === "string" ) {
+            callback = _receiver[callback];
+        }
+        var resolver = Promise.pending( promisified );
+        var fn = nodebackForResolver( resolver );
+        try {
+            callback.apply( _receiver, withAppended( arguments, fn ) );
+        }
+        catch(e) {
+            resolver.reject( maybeWrapAsError( e ) );
+        }
+        return resolver.promise;
+    }
+    promisified.__isPromisified__ = true;
+    return promisified;
+}
+
+var makeNodePromisified = canEvaluate
+    ? makeNodePromisifiedEval
+    : makeNodePromisifiedClosure;
 var Deque = (function() {
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {
@@ -347,31 +367,26 @@ method._resizeTo = function( capacity ) {
 };
 
 return Deque;})();
-function subError( constructorName, nameProperty, defaultMessage ) {
-    defaultMessage = safeToEmbedString("" + defaultMessage );
-    nameProperty = safeToEmbedString("" + nameProperty );
+function subError( nameProperty, defaultMessage ) {
 
-    return new Function("create", "'use strict';\n" +
-         constructorName + ".prototype = create(Error.prototype);" +
-         constructorName + ".prototype.constructor = "+constructorName+";" +
-        "function "+constructorName+"(msg){" +
-        "if( Error.captureStackTrace ) {" +
-        "Error.captureStackTrace(this, this.constructor);" +
-        "}" +
-        "Error.call(this, msg);" +
-        "this.message = typeof msg === 'string'" +
-        "? msg" +
-        ": '"+defaultMessage+"';" +
-        "this.name = '"+nameProperty+"';" +
-        "} return "+constructorName+";")(create);
+    function SubError( message ) {
+        if( Error.captureStackTrace ) {
+            Error.captureStackTrace( this, this.constructor );
+        }
+        this.message = typeof message === "string" ? message : defaultMessage;
+        this.name = nameProperty;
+
+    }
+    inherits( SubError, Error );
+    return SubError;
 }
 
-if( typeof global.TypeError === "undefined" ) {
-    global.TypeError = subError( "TypeError", "TypeError" );
+var TypeError = global.TypeError;
+if( typeof TypeError !== "function" ) {
+    TypeError = subError( "TypeError", "type error" );
 }
-var CancellationError = subError( "CancellationError",
-    "Cancel", "cancellation error" );
-var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
+var CancellationError = subError("Cancel", "cancellation error" );
+var TimeoutError = subError( "Timeout", "timeout error" );
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
@@ -519,60 +534,6 @@ var captureStackTrace = (function stackDetection() {
 
 return CapturedTrace;})();
 
-function GetterCache(){}
-function FunctionCache(){}
-
-
-var getterCache = new GetterCache(),
-    functionCache = new FunctionCache(),
-    rjsident = /^[a-zA-Z$_][a-zA-Z0-9$_]*$/,
-    rkeyword = new RegExp(
-        "^(?:__proto__|undefined|NaN|Infinity|this|false|true|null|eval|" +
-        "arguments|break|case|catch|continue|debugger|default|delete|do|" +
-        "else|finally|for|function|if|in|instanceof|new|return|switch|th" +
-        "row|try|typeof|var|void|while|with|class|enum|export|extends|im" +
-        "port|super|implements|interface|let|package|private|protected|pu" +
-        "blic|static|yield)$"
-    ),
-    hasProp = {}.hasOwnProperty;
-
-
-
-function isJsIdentifier( val ) {
-    return rjsident.test(val) &&
-        !rkeyword.test(val);
-}
-
-function formatPropertyRead( val ) {
-    if( isJsIdentifier(val) ) {
-        return "." + val;
-    }
-    else {
-        return "['"+safeToEmbedString(val)+"']";
-    }
-}
-
-function getGetter( propertyName ) {
-    if( hasProp.call( getterCache, propertyName ) ) {
-        return getterCache[propertyName];
-    }
-    var fn = new Function("obj", "return obj"+
-        formatPropertyRead(""+propertyName)
-    +";");
-    getterCache[propertyName] = fn;
-    return fn;
-}
-
-function getFunction( propertyName ) {
-    if( hasProp.call( functionCache, propertyName ) ) {
-        return functionCache[propertyName];
-    }
-    var fn = new Function("obj", "return obj"+
-        formatPropertyRead(""+propertyName)
-    +"();");
-    functionCache[propertyName] = fn;
-    return fn;
-}
 var Async = (function() {
 
 var deferFn;
@@ -1088,25 +1049,34 @@ method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
 method.call = function Promise$call( propertyName ) {
     var len = arguments.length;
 
-    if( len < 2 ) {
-        return this._callFast( propertyName );
-    }
-    else {
-        var args = new Array(len-1);
-        for( var i = 1; i < len; ++i ) {
-            args[ i - 1 ] = arguments[ i ];
-        }
-        return this._callSlow( propertyName, args );
+    var args = new Array(len-1);
+    for( var i = 1; i < len; ++i ) {
+        args[ i - 1 ] = arguments[ i ];
     }
 
+    return this._then( function( obj ) {
+            return obj[ propertyName ].apply( obj, args );
+        },
+        void 0,
+        void 0,
+        void 0,
+        void 0,
+        this.call
+    );
 };
 
+function Promise$getter( obj ) {
+    var prop = typeof this === "string"
+        ? this
+        : ("" + this);
+    return obj[ prop ];
+}
 method.get = function Promise$get( propertyName ) {
     return this._then(
-        getGetter( propertyName ),
+        Promise$getter,
         void 0,
         void 0,
-        void 0,
+        propertyName,
         void 0,
         this.get
     );
@@ -1444,8 +1414,7 @@ function _promisify( callback, receiver, isAll ) {
         var changed = 0;
         var o = {};
         for( var key in callback ) {
-            if( rjsident.test( key ) &&
-                !roriginal.test( key ) &&
+            if( !roriginal.test( key ) &&
                 !hasProp.call( callback,
                     ( key + "__beforePromisified__" ) ) &&
                 typeof callback[ key ] === "function" ) {
@@ -1640,16 +1609,15 @@ method._unsetAt = function Promise$_unsetAt( index ) {
     }
 };
 
-var fulfiller = new Function("p",
-    "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
-var rejecter = new Function("p",
-    "'use strict';return function Promise$_rejecter(a){ p.reject( a ); }" );
-
 method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     this._setTrace( this._resolveResolver, void 0 );
     var p = new PromiseResolver( this );
     this._pushContext();
-    var r = tryCatch2( resolver, this, fulfiller( p ), rejecter( p ) );
+    var r = tryCatch2( resolver, this, function Promise$_fulfiller( val ) {
+        p.fulfill( val );
+    }, function Promise$_rejecter( val ) {
+        p.reject( val );
+    });
     this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );
@@ -1686,29 +1654,6 @@ method._addCallbacks = function Promise$_addCallbacks(
 
     this._setLength( index + 5 );
     return index;
-};
-
-method._callFast = function Promise$_callFast( propertyName ) {
-    return this._then(
-        getFunction( propertyName ),
-        void 0,
-        void 0,
-        void 0,
-        void 0,
-        this.call
-    );
-};
-
-method._callSlow = function Promise$_callSlow( propertyName, args ) {
-    return this._then( function( obj ) {
-        return obj[propertyName].apply( obj, args );
-    },
-        void 0,
-        void 0,
-        void 0,
-        void 0,
-        this.call
-    );
 };
 
 method._spreadSlowCase =
@@ -2733,7 +2678,21 @@ else {
 
 
 return Promise;})(
-    new Function("return this")(),
+    (function(){
+        if( typeof this !== "undefined" ) {
+            return this;
+        }
+        if( typeof process !== "undefined" &&
+            typeof global !== "undefined" &&
+            typeof process.execPath === "string" ) {
+            return global;
+        }
+        if( typeof window !== "undefined" &&
+            typeof document !== "undefined" &&
+            document.defaultView === window ) {
+            return window;
+        }
+    })(),
     Function,
     Array,
     Error,
