@@ -109,7 +109,7 @@ IN THE SOFTWARE.
 describe("fin", function () {
 
     var exception1 = new Error("boo!");
-    var exception2 = new TypeError("evil!");
+    var exception2 = new Promise.TypeError("evil!");
 
     describe("when the promise is fulfilled", function () {
 
