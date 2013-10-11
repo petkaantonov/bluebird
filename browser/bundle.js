@@ -13523,7 +13523,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
         });
 
         promise.then(null, function (reason) {
-            assert(reason instanceof TypeError);
+            assert(reason instanceof adapter.TypeError);
             done();
         });
     });
@@ -13534,7 +13534,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
         });
 
         promise.then(null, function (reason) {
-            assert(reason instanceof TypeError);
+            assert(reason instanceof adapter.TypeError);
             done();
         });
     });
@@ -16473,7 +16473,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             a.b.c.d()
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             done();
         }).caught(function(e){
             assert.fail();
@@ -16492,7 +16492,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             done();
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             assert.fail();
         });
 
@@ -16508,7 +16508,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             done();
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             assert.fail();
         });
 
@@ -16524,7 +16524,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             throw e
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             done();
         }).caught(function(e){
             assert.fail();
@@ -16556,7 +16556,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             a.b.c.d()
         }).caught(SyntaxError, CustomError, function(e){
            assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
            done();
         }).caught(function(e){
             assert.fail();
@@ -16577,7 +16577,7 @@ describe("A promise handler that throws a custom error", function() {
             throw b;
         }).caught(SyntaxError, function(e){
            assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
            assert.fail();
         }).caught(CustomError, function(e){
             assert.equal( e, b );
@@ -16592,7 +16592,7 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).caught(TypeError, SyntaxError, CustomError, function(e){
+        }).caught(Promise.TypeError, SyntaxError, CustomError, function(e){
            done()
         }).caught(assert.fail);
 
@@ -16712,7 +16712,7 @@ describe("A promise handler that is caught in a filter", function() {
              throw b;
          }).caught(SyntaxError, function(e){
             assert.fail();
-         }).caught(TypeError, function(e){
+         }).caught(Promise.TypeError, function(e){
             assert.fail();
          }).caught(CustomError, function(e){
             assert.equal( e, b );
@@ -16733,7 +16733,7 @@ describe("A promise handler that is caught in a filter", function() {
              return c.promise;
          }).caught(SyntaxError, function(e){
             assert.fail();
-         }).caught(TypeError, function(e){
+         }).caught(Promise.TypeError, function(e){
             assert.fail();
          }).caught(CustomError, function(e){
             assert.fail();
@@ -18494,7 +18494,7 @@ IN THE SOFTWARE.
 describe("fin", function () {
 
     var exception1 = new Error("boo!");
-    var exception2 = new TypeError("evil!");
+    var exception2 = new Promise.TypeError("evil!");
 
     describe("when the promise is fulfilled", function () {
 
@@ -20072,7 +20072,6 @@ var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 
-var haveTypeErrors = typeof TypeError !== "undefined";
 
 //Since there is only a single handler possible at a time, older
 //tests that are run just before this file could affect the results
@@ -20181,8 +20180,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
             }).then(function(){
                 //then failing again
                 //this error should be reported
@@ -20199,8 +20197,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -20218,8 +20215,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -20239,13 +20235,11 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
             });
 
             promise.caught(function(e) {
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -20265,8 +20259,7 @@ if( adapter.hasLongStackTraces() ) {
                 console.error("\n\n\n");
                 assert.equal(e, err);
                 Promise.onPossiblyUnhandledRejection(function(e){
-                    if( haveTypeErrors )
-                        assert.ok( e instanceof TypeError );
+                        assert.ok( e instanceof Promise.TypeError );
 
                     Promise.onPossiblyUnhandledRejection( null );
                     done();
@@ -20275,8 +20268,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = fulfilled(null);
 
             promise.caught(function(e) {
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
