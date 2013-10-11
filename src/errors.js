@@ -14,5 +14,5 @@ var TypeError = global.TypeError;
 if( typeof TypeError !== "function" ) {
     TypeError = subError( "TypeError", "type error" );
 }
-var CancellationError = subError("Cancel", "cancellation error" );
-var TimeoutError = subError( "Timeout", "timeout error" );
+var CancellationError = subError("CancellationError", "cancellation error" );
+var TimeoutError = subError( "TimeoutError", "timeout error" );
