@@ -94,7 +94,6 @@ module.exports = function( grunt ) {
                 "./src/deque.js",
                 "./src/errors.js",
                 "./src/captured_trace.js",
-                "./src/caches.js",
                 "./src/async.js",
                 "./src/thenable.js",
                 "./src/catch_filter.js",

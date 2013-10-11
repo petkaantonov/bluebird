@@ -9,10 +9,28 @@ var PromiseResolver = (function() {
  *
  * @constructor
  */
-function PromiseResolver( promise ) {
-    this.promise = promise;
+var PromiseResolver;
+if( !haveGetters ) {
+    PromiseResolver = function PromiseResolver( promise ) {
+        this.promise = promise;
+        this.asCallback = nodebackForResolver( this );
+    };
 }
+else {
+    PromiseResolver = function PromiseResolver( promise ) {
+        this.promise = promise;
+    };
+}
+
 var method = PromiseResolver.prototype;
+
+if( haveGetters ) {
+    Object.defineProperty( method, "asCallback", {
+        get: function() {
+            return nodebackForResolver( this );
+        }
+    });
+}
 
 /**
  * @return {string}

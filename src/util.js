@@ -1,14 +1,35 @@
-var errorObj = {e: {}};
-var rescape = /[\r\n\u2028\u2029']/g;
+var haveGetters = (function(){
+    try {
+        var o = {};
+        Object.defineProperty(o, "f", {
+            get: function () {
+                return 3;
+            }
+        });
+        return o.f === 3;
+    }
+    catch(e) {
+        return false;
+    }
 
-var replacer = function( ch ) {
-        return "\\u" + (("0000") +
-            (ch.charCodeAt(0).toString(16))).slice(-4);
-};
+})();
 
-function safeToEmbedString( str ) {
-    return str.replace( rescape, replacer );
-}
+var canEvaluate = (function() {
+    //Cannot feature detect CSP without triggering
+    //violations
+
+    //So assume CSP if environment is browser. This is reasonable
+    //because promise throughput doesn't matter in browser and
+    //promisifcation is mostly interesting to node.js anyway
+    if( typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global ) {
+        return false;
+    }
+    return true;
+})();
 
 function deprecated( msg ) {
     if( typeof console !== "undefined" && console !== null &&
@@ -17,6 +38,8 @@ function deprecated( msg ) {
     }
 }
 
+
+var errorObj = {e: {}};
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
 function tryCatch1( fn, receiver, arg ) {
@@ -51,12 +74,6 @@ function tryCatchApply( fn, args ) {
         return errorObj;
     }
 }
-
-var create = Object.create || function( proto ) {
-    function F(){}
-    F.prototype = proto;
-    return new F();
-};
 
 //Un-magical enough that using this doesn't prevent
 //extending classes from outside using any convention
@@ -95,6 +112,27 @@ function maybeWrapAsError( maybeError ) {
     return new Error( asString( maybeError ) );
 }
 
+function nodebackForResolver( resolver ) {
+    function PromiseResolver$_callback( err, value ) {
+        if( err ) {
+            resolver.reject( maybeWrapAsError( err ) );
+        }
+        else {
+            if( arguments.length > 2 ) {
+                var len = arguments.length;
+                var val = new Array( len - 1 );
+                for( var i = 1; i < len; ++i ) {
+                    val[ i - 1 ] = arguments[ i ];
+                }
+
+                value = val;
+            }
+            resolver.fulfill( value );
+        }
+    }
+    return PromiseResolver$_callback;
+}
+
 function withAppended( target, appendee ) {
     var len = target.length;
     var ret = new Array( len + 1 );
@@ -119,7 +157,7 @@ function notEnumerableProp( obj, name, value ) {
 }
 
 var THIS = {};
-function makeNodePromisified( callback, receiver, originalName ) {
+function makeNodePromisifiedEval( callback, receiver, originalName ) {
 
     function getCall(count) {
         var args = new Array(count);
@@ -146,27 +184,12 @@ function makeNodePromisified( callback, receiver, originalName ) {
         "promisified" );
 
     return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError",
+            "withAppended", "maybeWrapAsError", "nodebackForResolver",
         "var ret = function " + callbackName +
         "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
         "var len = arguments.length;" +
         "var resolver = Promise.pending( " + callbackName + " );" +
-        "var fn = function fn( err, value ) {" +
-        "if( err ) {" +
-        "resolver.reject( maybeWrapAsError( err ) );" +
-        "}" +
-        "else {" +
-        "if( arguments.length > 2 ) {" +
-        "    var len = arguments.length;" +
-        "    var val = new Array(len - 1);" +
-        "    for( var i = 1; i < len; ++i ) {" +
-        "        val[ i - 1 ] = arguments[i];" +
-        "    }" +
-        "    value = val;" +
-        "}" +
-        "resolver.fulfill( value );" +
-        "}" +
-        "};" +
+        "var fn = nodebackForResolver( resolver );"+
         "try{" +
         "switch( len ) {" +
         "case 1:" + getCall(1) +
@@ -190,6 +213,32 @@ function makeNodePromisified( callback, receiver, originalName ) {
         "return resolver.promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
-    )(Promise, callback, receiver, withAppended, maybeWrapAsError);
+    )(Promise, callback, receiver, withAppended,
+        maybeWrapAsError, nodebackForResolver);
 }
 
+function makeNodePromisifiedClosure( callback, receiver ) {
+    function promisified() {
+        var _receiver = receiver;
+        if( receiver === THIS ) _receiver = this;
+        if( typeof callback === "string" ) {
+            callback = _receiver[callback];
+        }
+        ASSERT( typeof callback === "function" );
+        var resolver = Promise.pending( promisified );
+        var fn = nodebackForResolver( resolver );
+        try {
+            callback.apply( _receiver, withAppended( arguments, fn ) );
+        }
+        catch(e) {
+            resolver.reject( maybeWrapAsError( e ) );
+        }
+        return resolver.promise;
+    }
+    promisified.__isPromisified__ = true;
+    return promisified;
+}
+
+var makeNodePromisified = canEvaluate
+    ? makeNodePromisifiedEval
+    : makeNodePromisifiedClosure;

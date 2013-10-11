@@ -10,7 +10,22 @@ else {
 
 
 return Promise;})(
-    new Function("return this")(),
+    (function(){
+        //shims for new Function("return this")()
+        if( typeof this !== "undefined" ) {
+            return this;
+        }
+        if( typeof process !== "undefined" &&
+            typeof global !== "undefined" &&
+            typeof process.execPath === "string" ) {
+            return global;
+        }
+        if( typeof window !== "undefined" &&
+            typeof document !== "undefined" &&
+            document.defaultView === window ) {
+            return window;
+        }
+    })(),
     Function,
     Array,
     Error,

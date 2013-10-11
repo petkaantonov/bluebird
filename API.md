@@ -399,6 +399,37 @@ delay(500).then(function(ms){
 });
 ```
 
+#####`.asCallback` -> `Function`
+
+Gives you a callback representation of the `PromiseResolver`. Note that this is not a method but a property. The callback accepts error object in first argument and success values on the 2nd parameter and the rest, I.E. node js conventions. 
+
+If the the callback is called with multiple success values, the resolver fullfills its promise with an array of the values.
+
+```js
+var fs = require("fs");
+function readAbc() {
+    var resolver = Promise.pending();
+    fs.readFile("abc.txt", resolver.asCallback);
+    return resolver.promise;
+}
+
+readAbc()
+.then(function(abcContents) {
+    console.log(abcContents);
+})
+.catch(function(e) {
+    console.error(e);
+});
+```
+
+This example is an alternative to automatic promisification of node functions.
+
+*Performance tips*
+
+The `asCallback` is actually an accessor property (except on legacy browsers where it's eager data property) - so save the result if you need to call it multiple times.
+
+This is more efficient way of promisification than using `new Promise`.
+
 ##Collections
 
 Methods of `Promise` instances and core static methods of the Promise class to deal with
