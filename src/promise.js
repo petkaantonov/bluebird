@@ -308,21 +308,6 @@ method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
 };
 
 /**
- * Chain this promise with a handler that will
- * call the given `propertyName` as a method on the
- * returned fulfillment value and return the result of the call.
- *
- * If more arguments are passed, those will be used as
- * respective arguments for the method call.
- *
- * Convenience method for:
- *
- * promise.then(function(value) {
- *     return value[propertyName]()
- * });
- *
- * If propertyName is a valid JS identifier and no arguments are
- * given, the call is optimized.
  *
  * @param {string} propertyName The property to call as a function.
  * @return {Promise}
@@ -331,43 +316,41 @@ method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
 method.call = function Promise$call( propertyName ) {
     var len = arguments.length;
 
-    if( len < 2 ) {
-        return this._callFast( propertyName );
-    }
-    else {
-        var args = new Array(len-1);
-        for( var i = 1; i < len; ++i ) {
-            args[ i - 1 ] = arguments[ i ];
-        }
-        return this._callSlow( propertyName, args );
+    var args = new Array(len-1);
+    for( var i = 1; i < len; ++i ) {
+        args[ i - 1 ] = arguments[ i ];
     }
 
+    return this._then( function( obj ) {
+            return obj[ propertyName ].apply( obj, args );
+        },
+        void 0,
+        void 0,
+        void 0,
+        void 0,
+        this.call
+    );
 };
 
 /**
- * Chain this promise with a handler that will
- * read given `propertyName` on the
- * return fulfillment value.
- *
- * Convenience method for:
- *
- * promise.then(function(value) {
- *     return value[propertyName]
- * });
- *
- * If propertyName is a valid JS identifier
- * the property read is optimized.
  *
  * @param {string} propertyName The property to retrieve.
  * @return {Promise}
  *
  */
+
+function Promise$getter( obj ) {
+    var prop = typeof this === "string"
+        ? this
+        : ("" + this);
+    return obj[ prop ];
+}
 method.get = function Promise$get( propertyName ) {
     return this._then(
-        getGetter( propertyName ),
+        Promise$getter,
         void 0,
         void 0,
-        void 0,
+        propertyName,
         void 0,
         this.get
     );
@@ -959,8 +942,7 @@ function _promisify( callback, receiver, isAll ) {
         var changed = 0;
         var o = {};
         for( var key in callback ) {
-            if( rjsident.test( key ) &&
-                !roriginal.test( key ) &&
+            if( !roriginal.test( key ) &&
                 !hasProp.call( callback,
                     ( key + BEFORE_PROMISIFIED_SUFFIX ) ) &&
                 typeof callback[ key ] === "function" ) {
@@ -1186,17 +1168,16 @@ method._unsetAt = function Promise$_unsetAt( index ) {
     }
 };
 
-var fulfiller = new Function("p",
-    "'use strict';return function Promise$_fulfiller(a){ p.fulfill( a ); }" );
-var rejecter = new Function("p",
-    "'use strict';return function Promise$_rejecter(a){ p.reject( a ); }" );
-
 method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     ASSERT( typeof resolver === "function" );
     this._setTrace( this._resolveResolver, void 0 );
     var p = new PromiseResolver( this );
     this._pushContext();
-    var r = tryCatch2( resolver, this, fulfiller( p ), rejecter( p ) );
+    var r = tryCatch2( resolver, this, function Promise$_fulfiller( val ) {
+        p.fulfill( val );
+    }, function Promise$_rejecter( val ) {
+        p.reject( val );
+    });
     this._popContext();
     if( r === errorObj ) {
         p.reject( r.e );
@@ -1233,31 +1214,6 @@ method._addCallbacks = function Promise$_addCallbacks(
 
     this._setLength( index + CALLBACK_SIZE );
     return index;
-};
-
-method._callFast = function Promise$_callFast( propertyName ) {
-    return this._then(
-        getFunction( propertyName ),
-        void 0,
-        void 0,
-        void 0,
-        void 0,
-        this.call
-    );
-};
-
-method._callSlow = function Promise$_callSlow( propertyName, args ) {
-    ASSERT( isArray( args ) );
-    ASSERT( args.length > 0 );
-    return this._then( function( obj ) {
-        return obj[propertyName].apply( obj, args );
-    },
-        void 0,
-        void 0,
-        void 0,
-        void 0,
-        this.call
-    );
 };
 
 method._spreadSlowCase =

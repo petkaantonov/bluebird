@@ -1,25 +1,20 @@
-function subError( constructorName, nameProperty, defaultMessage ) {
-    defaultMessage = safeToEmbedString("" + defaultMessage );
-    nameProperty = safeToEmbedString("" + nameProperty );
+function subError( nameProperty, defaultMessage ) {
 
-    return new Function("create", "'use strict';\n" +
-         constructorName + ".prototype = create(Error.prototype);" +
-         constructorName + ".prototype.constructor = "+constructorName+";" +
-        "function "+constructorName+"(msg){" +
-        "if( Error.captureStackTrace ) {" +
-        "Error.captureStackTrace(this, this.constructor);" +
-        "}" +
-        "Error.call(this, msg);" +
-        "this.message = typeof msg === 'string'" +
-        "? msg" +
-        ": '"+defaultMessage+"';" +
-        "this.name = '"+nameProperty+"';" +
-        "} return "+constructorName+";")(create);
+    function SubError( message ) {
+        if( Error.captureStackTrace ) {
+            Error.captureStackTrace( this, this.constructor );
+        }
+        this.message = typeof message === "string" ? message : defaultMessage;
+        this.name = nameProperty;
+
+    }
+    inherits( SubError, Error );
+    return SubError;
 }
 
-if( typeof global.TypeError === "undefined" ) {
-    global.TypeError = subError( "TypeError", "TypeError" );
+var TypeError = global.TypeError;
+if( typeof TypeError !== "function" ) {
+    TypeError = subError( "TypeError", "type error" );
 }
-var CancellationError = subError( "CancellationError",
-    "Cancel", "cancellation error" );
-var TimeoutError = subError( "TimeoutError", "Timeout", "timeout error" );
+var CancellationError = subError("Cancel", "cancellation error" );
+var TimeoutError = subError( "Timeout", "timeout error" );

@@ -27,7 +27,7 @@ function write(str){
 var mochaTests =  fs.readdirSync("../test/mocha").filter(js).map(mocha);
 
 var code = "(" + (function(){
-    var global = new Function("return this")();
+    var global = window;
     global.adapter = Promise;
     global.sinon = require("sinon");
     global.assert = require("assert");
