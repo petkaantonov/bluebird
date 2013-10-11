@@ -6,7 +6,6 @@ var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 
-var haveTypeErrors = typeof TypeError !== "undefined";
 
 //Since there is only a single handler possible at a time, older
 //tests that are run just before this file could affect the results
@@ -115,8 +114,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
             }).then(function(){
                 //then failing again
                 //this error should be reported
@@ -133,8 +131,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -152,8 +149,7 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -173,13 +169,11 @@ if( adapter.hasLongStackTraces() ) {
             promise.then(function(itsNull){
                 itsNull.will.fail.four.sure();
             }).caught(function(e){
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
             });
 
             promise.caught(function(e) {
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again
@@ -199,8 +193,7 @@ if( adapter.hasLongStackTraces() ) {
                 console.error("\n\n\n");
                 assert.equal(e, err);
                 Promise.onPossiblyUnhandledRejection(function(e){
-                    if( haveTypeErrors )
-                        assert.ok( e instanceof TypeError );
+                        assert.ok( e instanceof Promise.TypeError );
 
                     Promise.onPossiblyUnhandledRejection( null );
                     done();
@@ -209,8 +202,7 @@ if( adapter.hasLongStackTraces() ) {
             var promise = fulfilled(null);
 
             promise.caught(function(e) {
-                if( haveTypeErrors )
-                    assert.ok( e instanceof TypeError )
+                    assert.ok( e instanceof Promise.TypeError )
                 //Handling the type error here
             }).then(function(){
                 //then failing again

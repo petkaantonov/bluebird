@@ -21,7 +21,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             a.b.c.d()
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             done();
         }).caught(function(e){
             assert.fail();
@@ -40,7 +40,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             done();
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             assert.fail();
         });
 
@@ -56,7 +56,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             done();
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             assert.fail();
         });
 
@@ -72,7 +72,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             throw e
         }).caught(SyntaxError, function(e){
             assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
             done();
         }).caught(function(e){
             assert.fail();
@@ -104,7 +104,7 @@ describe("A promise handler that throws a TypeError must be caught", function() 
             a.b.c.d()
         }).caught(SyntaxError, CustomError, function(e){
            assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
            done();
         }).caught(function(e){
             assert.fail();
@@ -125,7 +125,7 @@ describe("A promise handler that throws a custom error", function() {
             throw b;
         }).caught(SyntaxError, function(e){
            assert.fail();
-        }).caught(TypeError, function(e){
+        }).caught(Promise.TypeError, function(e){
            assert.fail();
         }).caught(CustomError, function(e){
             assert.equal( e, b );
@@ -140,7 +140,7 @@ describe("A promise handler that throws a custom error", function() {
         var b = new CustomError();
         a.promise.then(function(){
             throw b;
-        }).caught(TypeError, SyntaxError, CustomError, function(e){
+        }).caught(Promise.TypeError, SyntaxError, CustomError, function(e){
            done()
         }).caught(assert.fail);
 
@@ -260,7 +260,7 @@ describe("A promise handler that is caught in a filter", function() {
              throw b;
          }).caught(SyntaxError, function(e){
             assert.fail();
-         }).caught(TypeError, function(e){
+         }).caught(Promise.TypeError, function(e){
             assert.fail();
          }).caught(CustomError, function(e){
             assert.equal( e, b );
@@ -281,7 +281,7 @@ describe("A promise handler that is caught in a filter", function() {
              return c.promise;
          }).caught(SyntaxError, function(e){
             assert.fail();
-         }).caught(TypeError, function(e){
+         }).caught(Promise.TypeError, function(e){
             assert.fail();
          }).caught(CustomError, function(e){
             assert.fail();

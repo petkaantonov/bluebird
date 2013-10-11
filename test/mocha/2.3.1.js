@@ -16,7 +16,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
         });
 
         promise.then(null, function (reason) {
-            assert(reason instanceof TypeError);
+            assert(reason instanceof adapter.TypeError);
             done();
         });
     });
@@ -27,7 +27,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
         });
 
         promise.then(null, function (reason) {
-            assert(reason instanceof TypeError);
+            assert(reason instanceof adapter.TypeError);
             done();
         });
     });
