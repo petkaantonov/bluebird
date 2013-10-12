@@ -15,9 +15,7 @@ function Thenable() {
     this.promiseCache = new Array( this.treshold );
     this._compactQueued = false;
 }
-var method = Thenable.prototype;
-
-method.couldBe = function Thenable$couldBe( ret ) {
+Thenable.prototype.couldBe = function Thenable$couldBe( ret ) {
     if( ret === null ||
         typeof ret === "undefined" ||
         typeof ret === "string" ||
@@ -33,7 +31,7 @@ method.couldBe = function Thenable$couldBe( ret ) {
     return ("then" in ret);
 };
 
-method.is = function Thenable$is( ret, ref ) {
+Thenable.prototype.is = function Thenable$is( ret, ref ) {
     var id = ret.__id_$thenable__;
     if( typeof id === "number" &&
         this.thenableCache[id] !== void 0 ) {
@@ -44,7 +42,7 @@ method.is = function Thenable$is( ret, ref ) {
     return this._thenableSlowCase( ret, ref );
 };
 
-method.addCache = function Thenable$_addCache( thenable, promise ) {
+Thenable.prototype.addCache = function Thenable$_addCache( thenable, promise ) {
     var id = this.__id__;
     this.__id__ = id + 1;
     var descriptor = this._descriptor( id );
@@ -59,7 +57,7 @@ method.addCache = function Thenable$_addCache( thenable, promise ) {
     }
 };
 
-method.deleteCache = function Thenable$deleteCache( thenable ) {
+Thenable.prototype.deleteCache = function Thenable$deleteCache( thenable ) {
     var id = thenable.__id_$thenable__;
     ASSERT( typeof id === "number" );
     ASSERT( (id | 0) === id );
@@ -80,12 +78,12 @@ var descriptor = {
     writable: true,
     configurable: true
 };
-method._descriptor = function Thenable$_descriptor( id ) {
+Thenable.prototype._descriptor = function Thenable$_descriptor( id ) {
     descriptor.value = id;
     return descriptor;
 };
 
-method._compactCache = function Thenable$_compactCache() {
+Thenable.prototype._compactCache = function Thenable$_compactCache() {
     var arr = this.thenableCache;
     var promiseArr = this.promiseCache;
     var skips = 0;
@@ -113,7 +111,8 @@ method._compactCache = function Thenable$_compactCache() {
     this._compactQueued = false;
 };
 
-method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
+Thenable.prototype._thenableSlowCase =
+function Thenable$_thenableSlowCase( ret, ref ) {
     try {
         //Retrieving the property may throw
         var then = ret.then;
@@ -135,8 +134,5 @@ method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
         return true;
     }
 };
-
-
-
 
 return Thenable;})();
