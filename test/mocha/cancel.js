@@ -18,7 +18,8 @@ var dummy = {
 }; // we fulfill or reject with this when we don't intend to test against it
 
 function isCancellationError(error) {
-    return error instanceof Error && error.name === "Cancel";
+    return error instanceof Error &&
+        error.name === "CancellationError";
 }
 
 describe("If the promise is not cancellable the 'cancel' call has no effect.", function() {

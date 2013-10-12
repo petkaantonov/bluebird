@@ -290,7 +290,7 @@ function makeNodePromisifiedClosure( callback, receiver ) {
 var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
-var Deque = (function() {
+var Queue = (function() {
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {
         dst[ j + dstIndex ] = src[ j + srcIndex ];
@@ -316,19 +316,19 @@ function getCapacity( capacity ) {
     );
 }
 
-function Deque( capacity ) {
+function Queue( capacity ) {
     this._capacity = getCapacity( capacity );
     this._length = 0;
     this._front = 0;
     this._makeCapacity();
 }
-var method = Deque.prototype;
 
-method._willBeOverCapacity = function( size ) {
+Queue.prototype._willBeOverCapacity =
+function Queue$_willBeOverCapacity( size ) {
     return this._capacity < size;
 };
 
-method._pushOne = function( arg ) {
+Queue.prototype._pushOne = function Queue$_pushOne( arg ) {
     var length = this.length();
     this._checkCapacity( length + 1 );
     var i = ( this._front + length ) & ( this._capacity - 1 );
@@ -336,7 +336,7 @@ method._pushOne = function( arg ) {
     this._length = length + 1;
 };
 
-method.push = function( fn, receiver, arg ) {
+Queue.prototype.push = function Queue$push( fn, receiver, arg ) {
     ASSERT((arguments.length === 3),
     "arguments.length === 3");
     ASSERT(((typeof fn) === "function"),
@@ -357,7 +357,7 @@ method.push = function( fn, receiver, arg ) {
     this._length = length;
 };
 
-method.shift = function() {
+Queue.prototype.shift = function Queue$shift() {
     ASSERT((this.length() > 0),
     "this.length() > 0");
     var front = this._front,
@@ -369,25 +369,24 @@ method.shift = function() {
     return ret;
 };
 
-
-method.length = function() {
+Queue.prototype.length = function Queue$length() {
     return this._length;
 };
 
-method._makeCapacity = function() {
+Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
     var len = this._capacity;
     for( var i = 0; i < len; ++i ) {
         this[i] = void 0;
     }
 };
 
-method._checkCapacity = function( size ) {
+Queue.prototype._checkCapacity = function Queue$_checkCapacity( size ) {
     if( this._capacity < size ) {
         this._resizeTo( this._capacity << 3 );
     }
 };
 
-method._resizeTo = function( capacity ) {
+Queue.prototype._resizeTo = function Queue$_resizeTo( capacity ) {
     var oldFront = this._front;
     var oldCapacity = this._capacity;
     var oldQueue = new Array( oldCapacity );
@@ -409,16 +408,15 @@ method._resizeTo = function( capacity ) {
     }
 };
 
-return Deque;})();
-function subError( nameProperty, defaultMessage ) {
+return Queue;})();
 
+function subError( nameProperty, defaultMessage ) {
     function SubError( message ) {
+        this.message = typeof message === "string" ? message : defaultMessage;
+        this.name = nameProperty;
         if( Error.captureStackTrace ) {
             Error.captureStackTrace( this, this.constructor );
         }
-        this.message = typeof message === "string" ? message : defaultMessage;
-        this.name = nameProperty;
-
     }
     inherits( SubError, Error );
     return SubError;
@@ -428,8 +426,9 @@ var TypeError = global.TypeError;
 if( typeof TypeError !== "function" ) {
     TypeError = subError( "TypeError", "type error" );
 }
-var CancellationError = subError("Cancel", "cancellation error" );
-var TimeoutError = subError( "Timeout", "timeout error" );
+var CancellationError = subError( "CancellationError", "cancellation error" );
+var TimeoutError = subError( "TimeoutError", "timeout error" );
+
 var CapturedTrace = (function() {
 
 var rignore = new RegExp(
@@ -451,9 +450,9 @@ function CapturedTrace( ignoreUntil, isTopLevel ) {
     this.captureStackTrace( ignoreUntil, isTopLevel );
 
 }
-var method = inherits( CapturedTrace, Error );
+inherits( CapturedTrace, Error );
 
-method.captureStackTrace =
+CapturedTrace.prototype.captureStackTrace =
 function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
     captureStackTrace( this, ignoreUntil, isTopLevel );
 };
@@ -707,20 +706,19 @@ else {
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._lateBuffer = new Deque();
-    this._functionBuffer = new Deque( 25000 * 3 );
+    this._lateBuffer = new Queue();
+    this._functionBuffer = new Queue( 25000 * 3 );
     var self = this;
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
     };
 }
-var method = Async.prototype;
 
-method.haveItemsQueued = function Async$haveItemsQueued() {
+Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
     return this._length > 0;
 };
 
-method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
+Async.prototype.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     ASSERT(((typeof fn) === "function"),
     "typeof fn === \u0022function\u0022");
     ASSERT((arguments.length === 3),
@@ -729,7 +727,7 @@ method.invokeLater = function Async$invokeLater( fn, receiver, arg ) {
     this._queueTick();
 };
 
-method.invoke = function Async$invoke( fn, receiver, arg ) {
+Async.prototype.invoke = function Async$invoke( fn, receiver, arg ) {
     ASSERT(((typeof fn) === "function"),
     "typeof fn === \u0022function\u0022");
     ASSERT((arguments.length === 3),
@@ -740,7 +738,8 @@ method.invoke = function Async$invoke( fn, receiver, arg ) {
     this._queueTick();
 };
 
-method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
+Async.prototype._consumeFunctionBuffer =
+function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
     ASSERT(this._isTickUsed,
     "this._isTickUsed");
@@ -754,7 +753,7 @@ method._consumeFunctionBuffer = function Async$_consumeFunctionBuffer() {
     this._consumeLateBuffer();
 };
 
-method._consumeLateBuffer = function Async$_consumeLateBuffer() {
+Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
     var buffer = this._lateBuffer;
     while( buffer.length() > 0 ) {
         var fn = buffer.shift();
@@ -770,14 +769,14 @@ method._consumeLateBuffer = function Async$_consumeLateBuffer() {
     }
 };
 
-method._queueTick = function Async$_queue() {
+Async.prototype._queueTick = function Async$_queue() {
     if( !this._isTickUsed ) {
         deferFn( this.consumeFunctionBuffer );
         this._isTickUsed = true;
     }
 };
 
-method._reset = function Async$_reset() {
+Async.prototype._reset = function Async$_reset() {
     this._isTickUsed = false;
     this._length = 0;
 };
@@ -786,6 +785,7 @@ method._reset = function Async$_reset() {
 return Async;})();
 
 var async = new Async();
+
 var Thenable = (function() {
 
 function Thenable() {
@@ -796,9 +796,7 @@ function Thenable() {
     this.promiseCache = new Array( this.treshold );
     this._compactQueued = false;
 }
-var method = Thenable.prototype;
-
-method.couldBe = function Thenable$couldBe( ret ) {
+Thenable.prototype.couldBe = function Thenable$couldBe( ret ) {
     if( ret === null ||
         typeof ret === "undefined" ||
         typeof ret === "string" ||
@@ -814,7 +812,7 @@ method.couldBe = function Thenable$couldBe( ret ) {
     return ("then" in ret);
 };
 
-method.is = function Thenable$is( ret, ref ) {
+Thenable.prototype.is = function Thenable$is( ret, ref ) {
     var id = ret.__id_$thenable__;
     if( typeof id === "number" &&
         this.thenableCache[id] !== void 0 ) {
@@ -825,7 +823,7 @@ method.is = function Thenable$is( ret, ref ) {
     return this._thenableSlowCase( ret, ref );
 };
 
-method.addCache = function Thenable$_addCache( thenable, promise ) {
+Thenable.prototype.addCache = function Thenable$_addCache( thenable, promise ) {
     var id = this.__id__;
     this.__id__ = id + 1;
     var descriptor = this._descriptor( id );
@@ -841,7 +839,7 @@ method.addCache = function Thenable$_addCache( thenable, promise ) {
     }
 };
 
-method.deleteCache = function Thenable$deleteCache( thenable ) {
+Thenable.prototype.deleteCache = function Thenable$deleteCache( thenable ) {
     var id = thenable.__id_$thenable__;
     ASSERT(((typeof id) === "number"),
     "typeof id === \u0022number\u0022");
@@ -866,12 +864,12 @@ var descriptor = {
     writable: true,
     configurable: true
 };
-method._descriptor = function Thenable$_descriptor( id ) {
+Thenable.prototype._descriptor = function Thenable$_descriptor( id ) {
     descriptor.value = id;
     return descriptor;
 };
 
-method._compactCache = function Thenable$_compactCache() {
+Thenable.prototype._compactCache = function Thenable$_compactCache() {
     var arr = this.thenableCache;
     var promiseArr = this.promiseCache;
     var skips = 0;
@@ -899,7 +897,8 @@ method._compactCache = function Thenable$_compactCache() {
     this._compactQueued = false;
 };
 
-method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
+Thenable.prototype._thenableSlowCase =
+function Thenable$_thenableSlowCase( ret, ref ) {
     try {
         var then = ret.then;
         if( typeof then === "function" ) {
@@ -915,19 +914,15 @@ method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
     }
 };
 
-
-
-
 return Thenable;})();
+
 var CatchFilter = (function() {
 
 function CatchFilter( instances, callback ) {
     this._instances = instances;
     this._callback = callback;
 }
-var method = CatchFilter.prototype;
-
-method.doFilter = function CatchFilter$doFilter( e ) {
+CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
     if( e === null || typeof e !== "object" ) {
         throw e;
     }
@@ -946,6 +941,7 @@ method.doFilter = function CatchFilter$doFilter( e ) {
 };
 
 return CatchFilter;})();
+
 var Promise = (function() {
 
 function isObject( value ) {
@@ -977,10 +973,6 @@ var APPLY = {};
 var thenable = new Thenable( errorObj );
 
 function Promise( resolver ) {
-    if( typeof resolver === "function" )
-        this._resolveResolver( resolver );
-
-
     this._bitField = 67108864;
     this._fulfill0 = void 0;
     this._reject0 = void 0;
@@ -990,55 +982,16 @@ function Promise( resolver ) {
     this._resolvedValue = void 0;
     this._cancellationParent = void 0;
     if( longStackTraces ) this._traceParent = this._peekContext();
+    if( typeof resolver === "function" ) this._resolveResolver( resolver );
 }
 
-var method = Promise.prototype;
-
-var longStackTraces = true;
-Promise.longStackTraces = function() {
-    if( async.haveItemsQueued() &&
-        longStackTraces === false
-    ) {
-        throw new Error("Cannot enable long stack traces " +
-        "after promises have been created");
-    }
-    longStackTraces = true;
-};
-
-Promise.hasLongStackTraces = function() {
-    return longStackTraces;
-};
-
-method._setTrace = function _setTrace( caller, parent ) {
-    ASSERT((this._trace == null),
-    "this._trace == null");
-    if( longStackTraces ) {
-        var context = this._peekContext();
-        var isTopLevel = context === void 0;
-        if( parent !== void 0 &&
-            parent._traceParent === context ) {
-            ASSERT((parent._trace != null),
-    "parent._trace != null");
-            this._trace = parent._trace;
-        }
-        else {
-            this._trace = new CapturedTrace(
-                typeof caller === "function"
-                ? caller
-                : _setTrace,
-                isTopLevel
-            );
-        }
-    }
-    return this;
-};
-
-method.toString = function Promise$toString() {
+Promise.prototype.toString = function Promise$toString() {
     return "[object Promise]";
 };
 
 
-method.caught = method["catch"] = function Promise$catch( fn ) {
+Promise.prototype.caught = Promise.prototype["catch"] =
+function Promise$catch( fn ) {
     var len = arguments.length;
     if( len > 1 ) {
         var catchInstances = new Array( len - 1 ),
@@ -1069,7 +1022,7 @@ method.caught = method["catch"] = function Promise$catch( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0, this.caught );
 };
 
-method.progressed = function Promise$progressed( fn ) {
+Promise.prototype.progressed = function Promise$progressed( fn ) {
     return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
 };
 
@@ -1089,7 +1042,8 @@ function slowFinally( ret, reasonOrValue ) {
         }, thrower, void 0, this, void 0, slowFinally );
     }
 }
-method.lastly = method["finally"] = function Promise$finally( fn ) {
+Promise.prototype.lastly = Promise.prototype["finally"] =
+function Promise$finally( fn ) {
     var r = function( reasonOrValue ) {
         var ret = fn( reasonOrValue );
         if( isPromise( ret ) ) {
@@ -1101,11 +1055,11 @@ method.lastly = method["finally"] = function Promise$finally( fn ) {
     return this._then( r, r, void 0, this, void 0, this.lastly );
 };
 
-method.inspect = function Promise$inspect() {
+Promise.prototype.inspect = function Promise$inspect() {
     return new PromiseInspection( this );
 };
 
-method.cancel = function Promise$cancel() {
+Promise.prototype.cancel = function Promise$cancel() {
     if( !this.isCancellable() ) return this;
     var cancelTarget = this;
     while( cancelTarget._cancellationParent !== void 0 ) {
@@ -1122,7 +1076,7 @@ method.cancel = function Promise$cancel() {
     return this;
 };
 
-method.uncancellable = function Promise$uncancellable() {
+Promise.prototype.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
     ret._setTrace( this.uncancellable, this );
     ret._unsetCancellable();
@@ -1130,14 +1084,15 @@ method.uncancellable = function Promise$uncancellable() {
     return ret;
 };
 
-method.fork = function Promise$fork( didFulfill, didReject, didProgress ) {
+Promise.prototype.fork =
+function Promise$fork( didFulfill, didReject, didProgress ) {
     var ret = this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.fork );
     ret._cancellationParent = void 0;
     return ret;
 };
 
-method.call = function Promise$call( propertyName ) {
+Promise.prototype.call = function Promise$call( propertyName ) {
     var len = arguments.length;
 
     var args = new Array(len-1);
@@ -1162,7 +1117,7 @@ function Promise$getter( obj ) {
         : ("" + this);
     return obj[ prop ];
 }
-method.get = function Promise$get( propertyName ) {
+Promise.prototype.get = function Promise$get( propertyName ) {
     return this._then(
         Promise$getter,
         void 0,
@@ -1173,43 +1128,45 @@ method.get = function Promise$get( propertyName ) {
     );
 };
 
-method.then = function Promise$then( didFulfill, didReject, didProgress ) {
+Promise.prototype.then =
+function Promise$then( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.then );
 };
 
-method.done = function Promise$done( didFulfill, didReject, didProgress ) {
+Promise.prototype.done =
+function Promise$done( didFulfill, didReject, didProgress ) {
     var promise = this._then( didFulfill, didReject, didProgress,
         void 0, void 0, this.done );
     promise._setIsFinal();
 };
 
-method.spread = function Promise$spread( didFulfill, didReject ) {
+Promise.prototype.spread = function Promise$spread( didFulfill, didReject ) {
     return this._then( didFulfill, didReject, void 0,
         APPLY, void 0, this.spread );
 };
-method.isFulfilled = function Promise$isFulfilled() {
+Promise.prototype.isFulfilled = function Promise$isFulfilled() {
     return ( this._bitField & 268435456 ) > 0;
 };
 
-method.isRejected = function Promise$isRejected() {
+Promise.prototype.isRejected = function Promise$isRejected() {
     return ( this._bitField & 134217728 ) > 0;
 };
 
-method.isPending = function Promise$isPending() {
+Promise.prototype.isPending = function Promise$isPending() {
     return !this.isResolved();
 };
 
-method.isResolved = function Promise$isResolved() {
+Promise.prototype.isResolved = function Promise$isResolved() {
     return ( this._bitField & 402653184 ) > 0;
 };
 
-method.isCancellable = function Promise$isCancellable() {
+Promise.prototype.isCancellable = function Promise$isCancellable() {
     return !this.isResolved() &&
         this._cancellable();
 };
 
-method.toJSON = function Promise$toJSON() {
+Promise.prototype.toJSON = function Promise$toJSON() {
     var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
@@ -1245,7 +1202,7 @@ function Promise$_errorAdapter( reason ) {
     }
 }
 
-method.nodeify = function Promise$nodeify( nodeback ) {
+Promise.prototype.nodeify = function Promise$nodeify( nodeback ) {
     if( typeof nodeback == "function" ) {
         this._then(
             Promise$_successAdapter,
@@ -1269,27 +1226,27 @@ function apiRejection( msg ) {
     return ret;
 }
 
-method.map = function Promise$map( fn ) {
+Promise.prototype.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
 
-method.all = function Promise$all() {
+Promise.prototype.all = function Promise$all() {
     return Promise.all( this );
 };
 
-method.any = function Promise$any() {
+Promise.prototype.any = function Promise$any() {
     return Promise.any( this );
 };
 
-method.settle = function Promise$settle() {
+Promise.prototype.settle = function Promise$settle() {
     return Promise.settle( this );
 };
 
-method.some = function Promise$some( count ) {
+Promise.prototype.some = function Promise$some( count ) {
     return Promise.some( this, count );
 };
 
-method.reduce = function Promise$reduce( fn, initialValue ) {
+Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
     return Promise.reduce( this, fn, initialValue );
 };
 
@@ -1323,9 +1280,9 @@ Promise.some = function Promise$Some( promises, howMany ) {
         return apiRejection("howMany must be an integer");
     }
     var ret = Promise._all( promises, SomePromiseArray );
-    var len = ret.length();
-    howMany = Math.max(0, Math.min( howMany, len ) );
-    ret._howMany = howMany;
+    ASSERT((ret instanceof SomePromiseArray),
+    "ret instanceof SomePromiseArray");
+    ret.setHowMany( howMany );
     return ret.promise();
 };
 
@@ -1498,6 +1455,21 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
+var longStackTraces = true;
+Promise.longStackTraces = function Promise$LongStackTraces() {
+    if( async.haveItemsQueued() &&
+        longStackTraces === false
+    ) {
+        throw new Error("Cannot enable long stack traces " +
+        "after promises have been created");
+    }
+    longStackTraces = true;
+};
+
+Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
+    return longStackTraces;
+};
+
 function f(){}
 function isPromisified( fn ) {
     return fn.__isPromisified__ === true;
@@ -1564,7 +1536,7 @@ Promise.promisifyAll = function Promise$PromisifyAll( target ) {
     return _promisify( target, void 0, true );
 };
 
-method._then =
+Promise.prototype._then =
 function Promise$_then(
     didFulfill,
     didReject,
@@ -1608,7 +1580,7 @@ function Promise$_then(
     return ret;
 };
 
-method._length = function Promise$_length() {
+Promise.prototype._length = function Promise$_length() {
     ASSERT(isPromise(this),
     "isPromise( this )");
     ASSERT((arguments.length === 0),
@@ -1616,61 +1588,61 @@ method._length = function Promise$_length() {
     return this._bitField & 16777215;
 };
 
-method._isFollowingOrFulfilledOrRejected =
+Promise.prototype._isFollowingOrFulfilledOrRejected =
 function Promise$_isFollowingOrFulfilledOrRejected() {
     return ( this._bitField & 939524096 ) > 0;
 };
 
-method._setLength = function Promise$_setLength( len ) {
+Promise.prototype._setLength = function Promise$_setLength( len ) {
     this._bitField = ( this._bitField & -16777216 ) |
         ( len & 16777215 ) ;
 };
 
-method._cancellable = function Promise$_cancellable() {
+Promise.prototype._cancellable = function Promise$_cancellable() {
     return ( this._bitField & 67108864 ) > 0;
 };
 
-method._setFulfilled = function Promise$_setFulfilled() {
+Promise.prototype._setFulfilled = function Promise$_setFulfilled() {
     this._bitField = this._bitField | 268435456;
 };
 
-method._setRejected = function Promise$_setRejected() {
+Promise.prototype._setRejected = function Promise$_setRejected() {
     this._bitField = this._bitField | 134217728;
 };
 
-method._setFollowing = function Promise$_setFollowing() {
+Promise.prototype._setFollowing = function Promise$_setFollowing() {
     this._bitField = this._bitField | 536870912;
 };
 
-method._setDelegated = function Promise$_setDelegated() {
+Promise.prototype._setDelegated = function Promise$_setDelegated() {
     this._bitField = this._bitField | -1073741824;
 };
 
-method._setIsFinal = function Promise$_setIsFinal() {
+Promise.prototype._setIsFinal = function Promise$_setIsFinal() {
     this._bitField = this._bitField | 33554432;
 };
 
-method._isFinal = function Promise$_isFinal() {
+Promise.prototype._isFinal = function Promise$_isFinal() {
     return ( this._bitField & 33554432 ) > 0;
 };
 
-method._isDelegated = function Promise$_isDelegated() {
+Promise.prototype._isDelegated = function Promise$_isDelegated() {
     return ( this._bitField & -1073741824 ) === -1073741824;
 };
 
-method._unsetDelegated = function Promise$_unsetDelegated() {
+Promise.prototype._unsetDelegated = function Promise$_unsetDelegated() {
     this._bitField = this._bitField & ( ~-1073741824 );
 };
 
-method._setCancellable = function Promise$_setCancellable() {
+Promise.prototype._setCancellable = function Promise$_setCancellable() {
     this._bitField = this._bitField | 67108864;
 };
 
-method._unsetCancellable = function Promise$_unsetCancellable() {
+Promise.prototype._unsetCancellable = function Promise$_unsetCancellable() {
     this._bitField = this._bitField & ( ~67108864 );
 };
 
-method._receiverAt = function Promise$_receiverAt( index ) {
+Promise.prototype._receiverAt = function Promise$_receiverAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1683,7 +1655,7 @@ method._receiverAt = function Promise$_receiverAt( index ) {
     return this[ index + 4 - 5 ];
 };
 
-method._promiseAt = function Promise$_promiseAt( index ) {
+Promise.prototype._promiseAt = function Promise$_promiseAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1696,7 +1668,7 @@ method._promiseAt = function Promise$_promiseAt( index ) {
     return this[ index + 3 - 5 ];
 };
 
-method._fulfillAt = function Promise$_fulfillAt( index ) {
+Promise.prototype._fulfillAt = function Promise$_fulfillAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1709,7 +1681,7 @@ method._fulfillAt = function Promise$_fulfillAt( index ) {
     return this[ index + 0 - 5 ];
 };
 
-method._rejectAt = function Promise$_rejectAt( index ) {
+Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1722,7 +1694,7 @@ method._rejectAt = function Promise$_rejectAt( index ) {
     return this[ index + 1 - 5 ];
 };
 
-method._progressAt = function Promise$_progressAt( index ) {
+Promise.prototype._progressAt = function Promise$_progressAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1735,7 +1707,7 @@ method._progressAt = function Promise$_progressAt( index ) {
     return this[ index + 2 - 5 ];
 };
 
-method._unsetAt = function Promise$_unsetAt( index ) {
+Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -1760,7 +1732,8 @@ method._unsetAt = function Promise$_unsetAt( index ) {
     }
 };
 
-method._resolveResolver = function Promise$_resolveResolver( resolver ) {
+Promise.prototype._resolveResolver =
+function Promise$_resolveResolver( resolver ) {
     ASSERT(((typeof resolver) === "function"),
     "typeof resolver === \u0022function\u0022");
     this._setTrace( this._resolveResolver, void 0 );
@@ -1777,7 +1750,7 @@ method._resolveResolver = function Promise$_resolveResolver( resolver ) {
     }
 };
 
-method._addCallbacks = function Promise$_addCallbacks(
+Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     fulfill,
     reject,
     progress,
@@ -1809,7 +1782,7 @@ method._addCallbacks = function Promise$_addCallbacks(
     return index;
 };
 
-method._spreadSlowCase =
+Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase( targetFn, promise, values ) {
     promise._assumeStateOf(
         Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
@@ -1878,7 +1851,8 @@ function cast( obj, caller ) {
     return obj;
 }
 
-method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
+Promise.prototype._resolveThenable =
+function Promise$_resolveThenable( x, ref ) {
     if( ref.promise != null ) {
         this._assumeStateOf( ref.promise, true );
         return;
@@ -1982,7 +1956,7 @@ method._resolveThenable = function Promise$_resolveThenable( x, ref ) {
     }
 };
 
-method._tryThenable = function Promise$_tryThenable( x ) {
+Promise.prototype._tryThenable = function Promise$_tryThenable( x ) {
     var ref;
     if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
         return false;
@@ -1992,7 +1966,7 @@ method._tryThenable = function Promise$_tryThenable( x ) {
 };
 
 var ignore = CatchFilter.prototype.doFilter;
-method._resolvePromise = function Promise$_resolvePromise(
+Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
     if( isError( value ) ) {
@@ -2066,7 +2040,7 @@ method._resolvePromise = function Promise$_resolvePromise(
     }
 };
 
-method._assumeStateOf =
+Promise.prototype._assumeStateOf =
 function Promise$_assumeStateOf( promise, mustAsync ) {
     ASSERT(isPromise(promise),
     "isPromise( promise )");
@@ -2107,7 +2081,7 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
     }
 };
 
-method._tryAssumeStateOf =
+Promise.prototype._tryAssumeStateOf =
 function Promise$_tryAssumeStateOf( value, mustAsync ) {
     if( !isPromise( value ) ||
         this._isFollowingOrFulfilledOrRejected() ) return false;
@@ -2116,9 +2090,32 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
     return true;
 };
 
+Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
+    ASSERT((this._trace == null),
+    "this._trace == null");
+    if( longStackTraces ) {
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
+        if( parent !== void 0 &&
+            parent._traceParent === context ) {
+            ASSERT((parent._trace != null),
+    "parent._trace != null");
+            this._trace = parent._trace;
+        }
+        else {
+            this._trace = new CapturedTrace(
+                typeof caller === "function"
+                ? caller
+                : this._setTrace,
+                isTopLevel
+            );
+        }
+    }
+    return this;
+};
 
-
-method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
+Promise.prototype._attachExtraTrace =
+function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
         isError( error ) ) {
         var promise = this;
@@ -2149,7 +2146,7 @@ method._attachExtraTrace = function Promise$_attachExtraTrace( error ) {
     }
 };
 
-method._notifyUnhandledRejection =
+Promise.prototype._notifyUnhandledRejection =
 function Promise$_notifyUnhandledRejection( reason ) {
     if( !reason.__handled ) {
         reason.__handled = true;
@@ -2157,36 +2154,35 @@ function Promise$_notifyUnhandledRejection( reason ) {
     }
 };
 
-method._unhandledRejection = function Promise$_unhandledRejection( reason ) {
+Promise.prototype._unhandledRejection =
+function Promise$_unhandledRejection( reason ) {
     if( !reason.__handled ) {
         async.invokeLater( this._notifyUnhandledRejection, this, reason );
     }
 };
 
-method._cleanValues = function Promise$_cleanValues() {
+Promise.prototype._cleanValues = function Promise$_cleanValues() {
     this._cancellationParent = void 0;
 };
 
-method._fulfill = function Promise$_fulfill( value ) {
+Promise.prototype._fulfill = function Promise$_fulfill( value ) {
     if( this._isFollowingOrFulfilledOrRejected() ) return;
     this._resolveFulfill( value );
 
 };
 
-method._reject = function Promise$_reject( reason ) {
+Promise.prototype._reject = function Promise$_reject( reason ) {
     if( this._isFollowingOrFulfilledOrRejected() ) return;
     this._resolveReject( reason );
 };
 
-method._progress = function Promise$_progress( progressValue ) {
+Promise.prototype._progress = function Promise$_progress( progressValue ) {
     if( this._isFollowingOrFulfilledOrRejected() ) return;
     this._resolveProgress( progressValue );
 
 };
 
-
-
-method._doResolveAt = function Promise$_doResolveAt( i ) {
+Promise.prototype._doResolveAt = function Promise$_doResolveAt( i ) {
     var fn = this.isFulfilled()
         ? this._fulfillAt( i )
         : this._rejectAt( i );
@@ -2201,7 +2197,7 @@ method._doResolveAt = function Promise$_doResolveAt( i ) {
     this._resolvePromise( fn, receiver, value, promise );
 };
 
-method._resolveFulfill = function Promise$_resolveFulfill( value ) {
+Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
     ASSERT(this.isPending(),
     "this.isPending()");
     this._cleanValues();
@@ -2220,7 +2216,7 @@ method._resolveFulfill = function Promise$_resolveFulfill( value ) {
     }
 };
 
-method._resolveLast = function Promise$_resolveLast( index ) {
+Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
@@ -2252,7 +2248,7 @@ method._resolveLast = function Promise$_resolveLast( index ) {
     }
 };
 
-method._resolveReject = function Promise$_resolveReject( reason ) {
+Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     ASSERT(this.isPending(),
     "this.isPending()");
     this._cleanValues();
@@ -2298,7 +2294,8 @@ method._resolveReject = function Promise$_resolveReject( reason ) {
 
 };
 
-method._resolveProgress = function Promise$_resolveProgress( progressValue ) {
+Promise.prototype._resolveProgress =
+function Promise$_resolveProgress( progressValue ) {
     ASSERT(this.isPending(),
     "this.isPending()");
     var len = this._length();
@@ -2339,7 +2336,7 @@ method._resolveProgress = function Promise$_resolveProgress( progressValue ) {
 };
 
 var contextStack = [];
-method._peekContext = function Promise$_peekContext() {
+Promise.prototype._peekContext = function Promise$_peekContext() {
     var lastIndex = contextStack.length - 1;
     if( lastIndex >= 0 ) {
         return contextStack[ lastIndex ];
@@ -2348,12 +2345,12 @@ method._peekContext = function Promise$_peekContext() {
 
 };
 
-method._pushContext = function Promise$_pushContext() {
+Promise.prototype._pushContext = function Promise$_pushContext() {
     if( !longStackTraces ) return;
     contextStack.push( this );
 };
 
-method._popContext = function Promise$_popContext() {
+Promise.prototype._popContext = function Promise$_popContext() {
     if( !longStackTraces ) return;
     contextStack.pop();
 };
@@ -2398,11 +2395,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
-
-
 return Promise;})();
-
-
 
 var PromiseArray = (function() {
 
@@ -2432,18 +2425,16 @@ function PromiseArray( values, caller ) {
     this._totalResolved = 0;
     this._init( void 0, empty );
 }
-var method = PromiseArray.prototype;
-
-method.length = function PromiseArray$length() {
+PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
 };
 
-method.promise = function PromiseArray$promise() {
+PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
-
-method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
+PromiseArray.prototype._init =
+function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var values = this._values;
     if( isPromise( values ) ) {
         if( values.isPending() ) {
@@ -2504,25 +2495,25 @@ method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     this._length = newLen;
 };
 
-method._isResolved = function PromiseArray$_isResolved() {
+PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-method._fulfill = function PromiseArray$_fulfill( value ) {
+PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
     ASSERT((! this._isResolved()),
     "!this._isResolved()");
     this._values = null;
     this._resolver.fulfill( value );
 };
 
-method._reject = function PromiseArray$_reject( reason ) {
+PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ASSERT((! this._isResolved()),
     "!this._isResolved()");
     this._values = null;
     this._resolver.reject( reason );
 };
 
-method._promiseProgressed =
+PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2534,7 +2525,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     });
 };
 
-method._promiseFulfilled =
+PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2548,7 +2539,7 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     }
 };
 
-method._promiseRejected =
+PromiseArray.prototype._promiseRejected =
 function PromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2581,15 +2572,14 @@ for( var i = 0; i < 256; ++i ) {
 
 
 return PromiseArray;})();
+
 var SettledPromiseArray = (function() {
 function SettledPromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( SettledPromiseArray, PromiseArray );
+inherits( SettledPromiseArray, PromiseArray );
 
-
-
-method._promiseResolved =
+SettledPromiseArray.prototype._promiseResolved =
 function SettledPromiseArray$_promiseResolved( index, inspection ) {
     ASSERT(((typeof index) === "number"),
     "typeof index === \u0022number\u0022");
@@ -2601,7 +2591,7 @@ function SettledPromiseArray$_promiseResolved( index, inspection ) {
 };
 
 var throwawayPromise = new Promise()._setTrace();
-method._promiseFulfilled =
+SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection( throwawayPromise );
@@ -2609,7 +2599,7 @@ function SettledPromiseArray$_promiseFulfilled( value, index ) {
     ret._resolvedValue = value;
     this._promiseResolved( index.valueOf(), ret );
 };
-method._promiseRejected =
+SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection( throwawayPromise );
@@ -2619,24 +2609,25 @@ function SettledPromiseArray$_promiseRejected( reason, index ) {
 };
 
 return SettledPromiseArray;})();
+
 var AnyPromiseArray = (function() {
 function AnyPromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( AnyPromiseArray, PromiseArray );
+inherits( AnyPromiseArray, PromiseArray );
 
-method._init = function AnyPromiseArray$_init() {
+AnyPromiseArray.prototype._init = function AnyPromiseArray$_init() {
     this._init$( void 0, null );
 };
 
-method._promiseFulfilled =
+AnyPromiseArray.prototype._promiseFulfilled =
 function AnyPromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
     ++this._totalResolved;
     this._fulfill( value );
 
 };
-method._promiseRejected =
+AnyPromiseArray.prototype._promiseRejected =
 function AnyPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var totalResolved = ++this._totalResolved;
@@ -2648,65 +2639,89 @@ function AnyPromiseArray$_promiseRejected( reason, index ) {
 };
 
 return AnyPromiseArray;})();
+
 var SomePromiseArray = (function() {
+var Arr = Array;
+var isArray = Arr.isArray || function( obj ) {
+    return obj instanceof Arr;
+};
+
 function SomePromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( SomePromiseArray, PromiseArray );
+inherits( SomePromiseArray, PromiseArray );
 
-
-
-method._init = function SomePromiseArray$_init() {
+SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     this._init$( void 0, [] );
     this._howMany = 0;
-    this._rejected = 0;
-    this._rejectionValues = new Array( this.length() );
-    this._resolutionValues = new Array( this.length() );
+    this._holes = isArray( this._values )
+        ? this._values.length - this.length()
+        : 0;
+};
+
+SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
+    return this._howMany;
+};
+
+SomePromiseArray.prototype.setHowMany =
+function SomePromiseArray$setHowMany( count ) {
     if( this._isResolved() ) return;
 
-    if( this._howMany > this._canPossiblyFulfill()  ) {
+    this._howMany = Math.max(0, Math.min( count, this.length() ) );
+    if( this.howMany() > this._canPossiblyFulfill()  ) {
         this._reject( [] );
     }
 };
 
-method._canPossiblyFulfill =
-function SomePromiseArray$_canPossiblyFulfill() {
-    return this._totalResolved - this._rejected +
-        ( this.length() - this._totalResolved );
-};
-
-method._promiseFulfilled =
+SomePromiseArray.prototype._promiseFulfilled =
 function SomePromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
+    this._addFulfilled( value );
 
-    var totalResolved = this._totalResolved;
-    this._resolutionValues[ totalResolved ] = value;
-    this._totalResolved = totalResolved + 1;
-    if( totalResolved + 1 === this._howMany ) {
-        this._resolutionValues.length = this._howMany;
-        this._fulfill( this._resolutionValues );
-        this._resolutionValues =
-            this._rejectionValues = null;
+    if( this._fulfilled() === this.howMany() ) {
+        this._values.length = this.howMany();
+        this._fulfill( this._values );
     }
 
 };
-method._promiseRejected =
+SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
-
-    this._rejectionValues[ this._rejected ] = reason;
-    this._rejected++;
-    this._totalResolved++;
-
-    if( this._howMany > this._canPossiblyFulfill() ) {
-        this._rejectionValues.length = this._rejected;
-        this._reject( this._rejectionValues );
-        this._resolutionValues =
-            this._rejectionValues = null;
+    this._addRejected( reason );
+    if( this.howMany() > this._canPossiblyFulfill() ) {
+        if( this._values.length === this.length() ) {
+            this._reject([]);
+        }
+        else {
+            this._reject( this._values.slice( this.length() ) );
+        }
     }
 };
 
+SomePromiseArray.prototype._fulfilled = function SomePromiseArray$_fulfilled() {
+    return this._totalResolved;
+};
+
+SomePromiseArray.prototype._rejected = function SomePromiseArray$_rejected() {
+    return this._values.length - this.length() - this._holes;
+};
+
+SomePromiseArray.prototype._addRejected =
+function SomePromiseArray$_addRejected( reason ) {
+    this._values.push( reason );
+};
+
+SomePromiseArray.prototype._addFulfilled =
+function SomePromiseArray$_addFulfilled( value ) {
+    this._values[ this._totalResolved++ ] = value;
+};
+
+SomePromiseArray.prototype._canPossiblyFulfill =
+function SomePromiseArray$_canPossiblyFulfill() {
+    return this.length() - this._rejected();
+};
 return SomePromiseArray;})();
+
 var PromiseInspection = (function() {
 
 
@@ -2716,21 +2731,21 @@ function PromiseInspection( promise ) {
         ? promise._resolvedValue
         : void 0;
 }
-var method = PromiseInspection.prototype;
-
-method.isFulfilled = function PromiseInspection$isFulfilled() {
+PromiseInspection.prototype.isFulfilled =
+function PromiseInspection$isFulfilled() {
     return ( this._bitField & 268435456 ) > 0;
 };
 
-method.isRejected = function PromiseInspection$isRejected() {
+PromiseInspection.prototype.isRejected =
+function PromiseInspection$isRejected() {
     return ( this._bitField & 134217728 ) > 0;
 };
 
-method.isPending = function PromiseInspection$isPending() {
+PromiseInspection.prototype.isPending = function PromiseInspection$isPending() {
     return ( this._bitField & 402653184 ) === 0;
 };
 
-method.value = function PromiseInspection$value() {
+PromiseInspection.prototype.value = function PromiseInspection$value() {
     if( !this.isFulfilled() ) {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
@@ -2738,16 +2753,13 @@ method.value = function PromiseInspection$value() {
     return this._resolvedValue;
 };
 
-method.error = function PromiseInspection$error() {
+PromiseInspection.prototype.error = function PromiseInspection$error() {
     if( !this.isRejected() ) {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");
     }
     return this._resolvedValue;
 };
-
-
-
 
 return PromiseInspection;})();
 
@@ -2765,55 +2777,54 @@ else {
         this.promise = promise;
     };
 }
-
-var method = PromiseResolver.prototype;
-
 if( haveGetters ) {
-    Object.defineProperty( method, "asCallback", {
+    Object.defineProperty( PromiseResolver.prototype, "asCallback", {
         get: function() {
             return nodebackForResolver( this );
         }
     });
 }
 
-method.toString = function PromiseResolver$toString() {
+PromiseResolver.prototype.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
 };
 
-method.fulfill = function PromiseResolver$fulfill( value ) {
+PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
     async.invoke( this.promise._fulfill, this.promise, value );
 };
 
-method.reject = function PromiseResolver$reject( reason ) {
+PromiseResolver.prototype.reject = function PromiseResolver$reject( reason ) {
     this.promise._attachExtraTrace( reason );
     async.invoke( this.promise._reject, this.promise, reason );
 };
 
-method.progress = function PromiseResolver$progress( value ) {
+PromiseResolver.prototype.progress =
+function PromiseResolver$progress( value ) {
     async.invoke( this.promise._progress, this.promise, value );
 };
 
-method.cancel = function PromiseResolver$cancel() {
+PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
     async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
-method.timeout = function PromiseResolver$timeout() {
+PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
     this.reject( new TimeoutError( "timeout" ) );
 };
 
-method.isResolved = function PromiseResolver$isResolved() {
+PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {
     return this.promise.isResolved();
 };
 
-method.toJSON = function PromiseResolver$toJSON() {
+PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
     return this.promise.toJSON();
 };
 
 
 return PromiseResolver;})();
+
 var PromiseSpawn = (function() {
 
 function PromiseSpawn( generatorFunction, receiver, caller ) {
@@ -2822,20 +2833,19 @@ function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._receiver = receiver;
     this._generator = void 0;
 }
-var method = PromiseSpawn.prototype;
 
-method.promise = function PromiseSpawn$promise() {
+PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
     return this._resolver.promise;
 };
 
-method._run = function PromiseSpawn$_run() {
+PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
     this._generator = this._generatorFunction.call( this._receiver );
     this._receiver =
         this._generatorFunction = void 0;
     this._next( void 0 );
 };
 
-method._continue = function PromiseSpawn$_continue( result ) {
+PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
         this._generator = void 0;
         this._resolver.reject( result.e );
@@ -2866,20 +2876,21 @@ method._continue = function PromiseSpawn$_continue( result ) {
     }
 };
 
-method._throw = function PromiseSpawn$_throw( reason ) {
+PromiseSpawn.prototype._throw = function PromiseSpawn$_throw( reason ) {
     this.promise()._attachExtraTrace( reason );
     this._continue(
         tryCatch1( this._generator["throw"], this._generator, reason )
     );
 };
 
-method._next = function PromiseSpawn$_next( value ) {
+PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
     this._continue(
         tryCatch1( this._generator.next, this._generator, value )
     );
 };
 
 return PromiseSpawn;})();
+
 if( typeof module !== "undefined" && module.exports ) {
     module.exports = Promise;
 }

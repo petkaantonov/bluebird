@@ -4,11 +4,9 @@ var SettledPromiseArray = (function() {
 function SettledPromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( SettledPromiseArray, PromiseArray );
+inherits( SettledPromiseArray, PromiseArray );
 
-
-
-method._promiseResolved =
+SettledPromiseArray.prototype._promiseResolved =
 function SettledPromiseArray$_promiseResolved( index, inspection ) {
     ASSERT(typeof index === "number");
     this._values[ index ] = inspection;
@@ -20,7 +18,7 @@ function SettledPromiseArray$_promiseResolved( index, inspection ) {
 
 var throwawayPromise = new Promise()._setTrace();
 //override
-method._promiseFulfilled =
+SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack
@@ -32,7 +30,7 @@ function SettledPromiseArray$_promiseFulfilled( value, index ) {
     this._promiseResolved( index.valueOf(), ret );
 };
 //override
-method._promiseRejected =
+SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     //Pretty ugly hack

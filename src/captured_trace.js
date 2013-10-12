@@ -19,9 +19,9 @@ function CapturedTrace( ignoreUntil, isTopLevel ) {
     this.captureStackTrace( ignoreUntil, isTopLevel );
 
 }
-var method = inherits( CapturedTrace, Error );
+inherits( CapturedTrace, Error );
 
-method.captureStackTrace =
+CapturedTrace.prototype.captureStackTrace =
 function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
     captureStackTrace( this, ignoreUntil, isTopLevel );
 };

@@ -91,7 +91,7 @@ module.exports = function( grunt ) {
             src: [
                 "./src/prologue.js",
                 "./src/util.js",
-                "./src/deque.js",
+                "./src/queue.js",
                 "./src/errors.js",
                 "./src/captured_trace.js",
                 "./src/async.js",

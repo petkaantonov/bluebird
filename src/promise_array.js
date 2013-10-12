@@ -30,20 +30,18 @@ function PromiseArray( values, caller ) {
     this._totalResolved = 0;
     this._init( void 0, empty );
 }
-var method = PromiseArray.prototype;
-
-method.length = function PromiseArray$length() {
+PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
 };
 
-method.promise = function PromiseArray$promise() {
+PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
-
-                        //when.some resolves to [] when empty
-                        //but when.any resolved to void 0 when empty :<
-method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
+PromiseArray.prototype._init =
+            //when.some resolves to [] when empty
+            //but when.any resolved to void 0 when empty :<
+function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //_ must be intentionally empty because smuggled
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
@@ -124,23 +122,23 @@ method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     this._length = newLen;
 };
 
-method._isResolved = function PromiseArray$_isResolved() {
+PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-method._fulfill = function PromiseArray$_fulfill( value ) {
+PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
     ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.fulfill( value );
 };
 
-method._reject = function PromiseArray$_reject( reason ) {
+PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ASSERT( !this._isResolved() );
     this._values = null;
     this._resolver.reject( reason );
 };
 
-method._promiseProgressed =
+PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
@@ -151,7 +149,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     });
 };
 
-method._promiseFulfilled =
+PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
@@ -163,7 +161,7 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     }
 };
 
-method._promiseRejected =
+PromiseArray.prototype._promiseRejected =
 function PromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );

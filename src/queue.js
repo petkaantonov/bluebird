@@ -1,7 +1,7 @@
 //http://jsperf.com/deque-vs-array-2
-var Deque = (function() {
-CONSTANT(DEQUE_MAX_CAPACITY, (1 << 30) | 0);
-CONSTANT(DEQUE_MIN_CAPACITY, 16);
+var Queue = (function() {
+CONSTANT(QUEUE_MAX_CAPACITY, (1 << 30) | 0);
+CONSTANT(QUEUE_MIN_CAPACITY, 16);
 
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {
@@ -21,26 +21,26 @@ function pow2AtLeast( n ) {
 }
 
 function getCapacity( capacity ) {
-    if( typeof capacity !== "number" ) return DEQUE_MIN_CAPACITY;
+    if( typeof capacity !== "number" ) return QUEUE_MIN_CAPACITY;
     return pow2AtLeast(
         Math.min(
-            Math.max( DEQUE_MIN_CAPACITY, capacity ), DEQUE_MAX_CAPACITY )
+            Math.max( QUEUE_MIN_CAPACITY, capacity ), QUEUE_MAX_CAPACITY )
     );
 }
 
-function Deque( capacity ) {
+function Queue( capacity ) {
     this._capacity = getCapacity( capacity );
     this._length = 0;
     this._front = 0;
     this._makeCapacity();
 }
-var method = Deque.prototype;
 
-method._willBeOverCapacity = function( size ) {
+Queue.prototype._willBeOverCapacity =
+function Queue$_willBeOverCapacity( size ) {
     return this._capacity < size;
 };
 
-method._pushOne = function( arg ) {
+Queue.prototype._pushOne = function Queue$_pushOne( arg ) {
     var length = this.length();
     this._checkCapacity( length + 1 );
     var i = ( this._front + length ) & ( this._capacity - 1 );
@@ -48,7 +48,7 @@ method._pushOne = function( arg ) {
     this._length = length + 1;
 };
 
-method.push = function( fn, receiver, arg ) {
+Queue.prototype.push = function Queue$push( fn, receiver, arg ) {
     ASSERT( arguments.length === 3 );
     ASSERT( typeof fn === "function" );
     var length = this.length() + 3;
@@ -69,7 +69,7 @@ method.push = function( fn, receiver, arg ) {
     this._length = length;
 };
 
-method.shift = function() {
+Queue.prototype.shift = function Queue$shift() {
     ASSERT( this.length() > 0 );
     var front = this._front,
         ret = this[ front ];
@@ -80,25 +80,24 @@ method.shift = function() {
     return ret;
 };
 
-
-method.length = function() {
+Queue.prototype.length = function Queue$length() {
     return this._length;
 };
 
-method._makeCapacity = function() {
+Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
     var len = this._capacity;
     for( var i = 0; i < len; ++i ) {
         this[i] = void 0;
     }
 };
 
-method._checkCapacity = function( size ) {
+Queue.prototype._checkCapacity = function Queue$_checkCapacity( size ) {
     if( this._capacity < size ) {
         this._resizeTo( this._capacity << 3 );
     }
 };
 
-method._resizeTo = function( capacity ) {
+Queue.prototype._resizeTo = function Queue$_resizeTo( capacity ) {
     var oldFront = this._front;
     var oldCapacity = this._capacity;
     var oldQueue = new Array( oldCapacity );
@@ -123,4 +122,4 @@ method._resizeTo = function( capacity ) {
     }
 };
 
-return Deque;})();
+return Queue;})();

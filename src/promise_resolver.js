@@ -21,11 +21,8 @@ else {
         this.promise = promise;
     };
 }
-
-var method = PromiseResolver.prototype;
-
 if( haveGetters ) {
-    Object.defineProperty( method, "asCallback", {
+    Object.defineProperty( PromiseResolver.prototype, "asCallback", {
         get: function() {
             return nodebackForResolver( this );
         }
@@ -35,7 +32,7 @@ if( haveGetters ) {
 /**
  * @return {string}
  */
-method.toString = function PromiseResolver$toString() {
+PromiseResolver.prototype.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
 };
 
@@ -46,7 +43,7 @@ method.toString = function PromiseResolver$toString() {
  * @param {dynamic} value The value to fulfill the promise with.
  *
  */
-method.fulfill = function PromiseResolver$fulfill( value ) {
+PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
@@ -60,7 +57,7 @@ method.fulfill = function PromiseResolver$fulfill( value ) {
  * @param {dynamic} reason The reason why the promise was rejected.
  *
  */
-method.reject = function PromiseResolver$reject( reason ) {
+PromiseResolver.prototype.reject = function PromiseResolver$reject( reason ) {
     this.promise._attachExtraTrace( reason );
     async.invoke( this.promise._reject, this.promise, reason );
 };
@@ -71,7 +68,8 @@ method.reject = function PromiseResolver$reject( reason ) {
  * @param {dynamic} value The reason why the promise was rejected.
  *
  */
-method.progress = function PromiseResolver$progress( value ) {
+PromiseResolver.prototype.progress =
+function PromiseResolver$progress( value ) {
     async.invoke( this.promise._progress, this.promise, value );
 };
 
@@ -79,7 +77,7 @@ method.progress = function PromiseResolver$progress( value ) {
  * Cancel the promise.
  *
  */
-method.cancel = function PromiseResolver$cancel() {
+PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
     async.invoke( this.promise.cancel, this.promise, void 0 );
 };
 
@@ -87,7 +85,7 @@ method.cancel = function PromiseResolver$cancel() {
  * Resolves the promise by rejecting it with the reason
  * TimeoutError
  */
-method.timeout = function PromiseResolver$timeout() {
+PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
     this.reject( new TimeoutError( "timeout" ) );
 };
 
@@ -96,7 +94,7 @@ method.timeout = function PromiseResolver$timeout() {
  *
  * @return {boolean}
  */
-method.isResolved = function PromiseResolver$isResolved() {
+PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {
     return this.promise.isResolved();
 };
 
@@ -105,7 +103,7 @@ method.isResolved = function PromiseResolver$isResolved() {
  *
  * @return {dynamic}
  */
-method.toJSON = function PromiseResolver$toJSON() {
+PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
     return this.promise.toJSON();
 };
 
