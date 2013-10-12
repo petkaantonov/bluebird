@@ -85,43 +85,6 @@ function Promise( resolver ) {
     if( typeof resolver === "function" ) this._resolveResolver( resolver );
 }
 
-var longStackTraces = __DEBUG__;
-Promise.longStackTraces = function Promise$LongStackTraces() {
-    if( async.haveItemsQueued() &&
-        longStackTraces === false
-    ) {
-        throw new Error("Cannot enable long stack traces " +
-        "after promises have been created");
-    }
-    longStackTraces = true;
-};
-
-Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
-    return longStackTraces;
-};
-
-Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
-    ASSERT( this._trace == null );
-    if( longStackTraces ) {
-        var context = this._peekContext();
-        var isTopLevel = context === void 0;
-        if( parent !== void 0 &&
-            parent._traceParent === context ) {
-            ASSERT( parent._trace != null );
-            this._trace = parent._trace;
-        }
-        else {
-            this._trace = new CapturedTrace(
-                typeof caller === "function"
-                ? caller
-                : this._setTrace,
-                isTopLevel
-            );
-        }
-    }
-    return this;
-};
-
 /**
  * @return {string}
  */
@@ -924,6 +887,21 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
+var longStackTraces = __DEBUG__;
+Promise.longStackTraces = function Promise$LongStackTraces() {
+    if( async.haveItemsQueued() &&
+        longStackTraces === false
+    ) {
+        throw new Error("Cannot enable long stack traces " +
+        "after promises have been created");
+    }
+    longStackTraces = true;
+};
+
+Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
+    return longStackTraces;
+};
+
 /**
  * Description.
  *
@@ -1546,7 +1524,27 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
     return true;
 };
 
-
+Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
+    ASSERT( this._trace == null );
+    if( longStackTraces ) {
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
+        if( parent !== void 0 &&
+            parent._traceParent === context ) {
+            ASSERT( parent._trace != null );
+            this._trace = parent._trace;
+        }
+        else {
+            this._trace = new CapturedTrace(
+                typeof caller === "function"
+                ? caller
+                : this._setTrace,
+                isTopLevel
+            );
+        }
+    }
+    return this;
+};
 
 Promise.prototype._attachExtraTrace =
 function Promise$_attachExtraTrace( error ) {
