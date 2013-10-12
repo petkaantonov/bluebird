@@ -4,15 +4,15 @@ var AnyPromiseArray = (function() {
 function AnyPromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( AnyPromiseArray, PromiseArray );
+inherits( AnyPromiseArray, PromiseArray );
 
-method._init = function AnyPromiseArray$_init() {
+AnyPromiseArray.prototype._init = function AnyPromiseArray$_init() {
     //.any must resolve to undefined in case of empty array
     this._init$( void 0, null );
 };
 
 //override
-method._promiseFulfilled =
+AnyPromiseArray.prototype._promiseFulfilled =
 function AnyPromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
     ++this._totalResolved;
@@ -20,7 +20,7 @@ function AnyPromiseArray$_promiseFulfilled( value ) {
 
 };
 //override
-method._promiseRejected =
+AnyPromiseArray.prototype._promiseRejected =
 function AnyPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var totalResolved = ++this._totalResolved;

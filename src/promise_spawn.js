@@ -6,20 +6,19 @@ function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._receiver = receiver;
     this._generator = void 0;
 }
-var method = PromiseSpawn.prototype;
 
-method.promise = function PromiseSpawn$promise() {
+PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
     return this._resolver.promise;
 };
 
-method._run = function PromiseSpawn$_run() {
+PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
     this._generator = this._generatorFunction.call( this._receiver );
     this._receiver =
         this._generatorFunction = void 0;
     this._next( void 0 );
 };
 
-method._continue = function PromiseSpawn$_continue( result ) {
+PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
         this._generator = void 0;
         this._resolver.reject( result.e );
@@ -52,14 +51,14 @@ method._continue = function PromiseSpawn$_continue( result ) {
     }
 };
 
-method._throw = function PromiseSpawn$_throw( reason ) {
+PromiseSpawn.prototype._throw = function PromiseSpawn$_throw( reason ) {
     this.promise()._attachExtraTrace( reason );
     this._continue(
         tryCatch1( this._generator["throw"], this._generator, reason )
     );
 };
 
-method._next = function PromiseSpawn$_next( value ) {
+PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
     this._continue(
         tryCatch1( this._generator.next, this._generator, value )
     );

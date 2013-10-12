@@ -4,11 +4,9 @@ var SomePromiseArray = (function() {
 function SomePromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
-var method = inherits( SomePromiseArray, PromiseArray );
+inherits( SomePromiseArray, PromiseArray );
 
-
-
-method._init = function SomePromiseArray$_init() {
+SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     this._init$( void 0, [] );
     this._howMany = 0;
     this._rejected = 0;
@@ -21,7 +19,7 @@ method._init = function SomePromiseArray$_init() {
     }
 };
 
-method._canPossiblyFulfill =
+SomePromiseArray.prototype._canPossiblyFulfill =
 function SomePromiseArray$_canPossiblyFulfill() {
             //fulfilled already
     return this._totalResolved - this._rejected +
@@ -30,7 +28,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 };
 
 //override
-method._promiseFulfilled =
+SomePromiseArray.prototype._promiseFulfilled =
 function SomePromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
 
@@ -46,7 +44,7 @@ function SomePromiseArray$_promiseFulfilled( value ) {
 
 };
 //override
-method._promiseRejected =
+SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
 

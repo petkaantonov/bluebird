@@ -4,9 +4,7 @@ function CatchFilter( instances, callback ) {
     this._instances = instances;
     this._callback = callback;
 }
-var method = CatchFilter.prototype;
-
-method.doFilter = function CatchFilter$doFilter( e ) {
+CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
     if( e === null || typeof e !== "object" ) {
         throw e;
     }
