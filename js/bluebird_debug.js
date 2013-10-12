@@ -796,9 +796,7 @@ function Thenable() {
     this.promiseCache = new Array( this.treshold );
     this._compactQueued = false;
 }
-var method = Thenable.prototype;
-
-method.couldBe = function Thenable$couldBe( ret ) {
+Thenable.prototype.couldBe = function Thenable$couldBe( ret ) {
     if( ret === null ||
         typeof ret === "undefined" ||
         typeof ret === "string" ||
@@ -814,7 +812,7 @@ method.couldBe = function Thenable$couldBe( ret ) {
     return ("then" in ret);
 };
 
-method.is = function Thenable$is( ret, ref ) {
+Thenable.prototype.is = function Thenable$is( ret, ref ) {
     var id = ret.__id_$thenable__;
     if( typeof id === "number" &&
         this.thenableCache[id] !== void 0 ) {
@@ -825,7 +823,7 @@ method.is = function Thenable$is( ret, ref ) {
     return this._thenableSlowCase( ret, ref );
 };
 
-method.addCache = function Thenable$_addCache( thenable, promise ) {
+Thenable.prototype.addCache = function Thenable$_addCache( thenable, promise ) {
     var id = this.__id__;
     this.__id__ = id + 1;
     var descriptor = this._descriptor( id );
@@ -841,7 +839,7 @@ method.addCache = function Thenable$_addCache( thenable, promise ) {
     }
 };
 
-method.deleteCache = function Thenable$deleteCache( thenable ) {
+Thenable.prototype.deleteCache = function Thenable$deleteCache( thenable ) {
     var id = thenable.__id_$thenable__;
     ASSERT(((typeof id) === "number"),
     "typeof id === \u0022number\u0022");
@@ -866,12 +864,12 @@ var descriptor = {
     writable: true,
     configurable: true
 };
-method._descriptor = function Thenable$_descriptor( id ) {
+Thenable.prototype._descriptor = function Thenable$_descriptor( id ) {
     descriptor.value = id;
     return descriptor;
 };
 
-method._compactCache = function Thenable$_compactCache() {
+Thenable.prototype._compactCache = function Thenable$_compactCache() {
     var arr = this.thenableCache;
     var promiseArr = this.promiseCache;
     var skips = 0;
@@ -899,7 +897,8 @@ method._compactCache = function Thenable$_compactCache() {
     this._compactQueued = false;
 };
 
-method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
+Thenable.prototype._thenableSlowCase =
+function Thenable$_thenableSlowCase( ret, ref ) {
     try {
         var then = ret.then;
         if( typeof then === "function" ) {
@@ -915,10 +914,8 @@ method._thenableSlowCase = function Thenable$_thenableSlowCase( ret, ref ) {
     }
 };
 
-
-
-
 return Thenable;})();
+
 var CatchFilter = (function() {
 
 function CatchFilter( instances, callback ) {
@@ -987,45 +984,6 @@ function Promise( resolver ) {
     if( longStackTraces ) this._traceParent = this._peekContext();
     if( typeof resolver === "function" ) this._resolveResolver( resolver );
 }
-
-var longStackTraces = true;
-Promise.longStackTraces = function Promise$LongStackTraces() {
-    if( async.haveItemsQueued() &&
-        longStackTraces === false
-    ) {
-        throw new Error("Cannot enable long stack traces " +
-        "after promises have been created");
-    }
-    longStackTraces = true;
-};
-
-Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
-    return longStackTraces;
-};
-
-Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
-    ASSERT((this._trace == null),
-    "this._trace == null");
-    if( longStackTraces ) {
-        var context = this._peekContext();
-        var isTopLevel = context === void 0;
-        if( parent !== void 0 &&
-            parent._traceParent === context ) {
-            ASSERT((parent._trace != null),
-    "parent._trace != null");
-            this._trace = parent._trace;
-        }
-        else {
-            this._trace = new CapturedTrace(
-                typeof caller === "function"
-                ? caller
-                : this._setTrace,
-                isTopLevel
-            );
-        }
-    }
-    return this;
-};
 
 Promise.prototype.toString = function Promise$toString() {
     return "[object Promise]";
@@ -1322,9 +1280,9 @@ Promise.some = function Promise$Some( promises, howMany ) {
         return apiRejection("howMany must be an integer");
     }
     var ret = Promise._all( promises, SomePromiseArray );
-    var len = ret.length();
-    howMany = Math.max(0, Math.min( howMany, len ) );
-    ret._howMany = howMany;
+    ASSERT((ret instanceof SomePromiseArray),
+    "ret instanceof SomePromiseArray");
+    ret.setHowMany( howMany );
     return ret.promise();
 };
 
@@ -1495,6 +1453,21 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     var ret = spawn.promise();
     spawn._run( Promise.spawn );
     return ret;
+};
+
+var longStackTraces = true;
+Promise.longStackTraces = function Promise$LongStackTraces() {
+    if( async.haveItemsQueued() &&
+        longStackTraces === false
+    ) {
+        throw new Error("Cannot enable long stack traces " +
+        "after promises have been created");
+    }
+    longStackTraces = true;
+};
+
+Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
+    return longStackTraces;
 };
 
 function f(){}
@@ -2117,7 +2090,29 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
     return true;
 };
 
-
+Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
+    ASSERT((this._trace == null),
+    "this._trace == null");
+    if( longStackTraces ) {
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
+        if( parent !== void 0 &&
+            parent._traceParent === context ) {
+            ASSERT((parent._trace != null),
+    "parent._trace != null");
+            this._trace = parent._trace;
+        }
+        else {
+            this._trace = new CapturedTrace(
+                typeof caller === "function"
+                ? caller
+                : this._setTrace,
+                isTopLevel
+            );
+        }
+    }
+    return this;
+};
 
 Promise.prototype._attachExtraTrace =
 function Promise$_attachExtraTrace( error ) {
@@ -2430,18 +2425,16 @@ function PromiseArray( values, caller ) {
     this._totalResolved = 0;
     this._init( void 0, empty );
 }
-var method = PromiseArray.prototype;
-
-method.length = function PromiseArray$length() {
+PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
 };
 
-method.promise = function PromiseArray$promise() {
+PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
-
-method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
+PromiseArray.prototype._init =
+function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var values = this._values;
     if( isPromise( values ) ) {
         if( values.isPending() ) {
@@ -2502,25 +2495,25 @@ method._init = function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     this._length = newLen;
 };
 
-method._isResolved = function PromiseArray$_isResolved() {
+PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-method._fulfill = function PromiseArray$_fulfill( value ) {
+PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
     ASSERT((! this._isResolved()),
     "!this._isResolved()");
     this._values = null;
     this._resolver.fulfill( value );
 };
 
-method._reject = function PromiseArray$_reject( reason ) {
+PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ASSERT((! this._isResolved()),
     "!this._isResolved()");
     this._values = null;
     this._resolver.reject( reason );
 };
 
-method._promiseProgressed =
+PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2532,7 +2525,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     });
 };
 
-method._promiseFulfilled =
+PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2546,7 +2539,7 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     }
 };
 
-method._promiseRejected =
+PromiseArray.prototype._promiseRejected =
 function PromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
@@ -2579,6 +2572,7 @@ for( var i = 0; i < 256; ++i ) {
 
 
 return PromiseArray;})();
+
 var SettledPromiseArray = (function() {
 function SettledPromiseArray( values, caller ) {
     this.constructor$( values, caller );
@@ -2647,6 +2641,11 @@ function AnyPromiseArray$_promiseRejected( reason, index ) {
 return AnyPromiseArray;})();
 
 var SomePromiseArray = (function() {
+var Arr = Array;
+var isArray = Arr.isArray || function( obj ) {
+    return obj instanceof Arr;
+};
+
 function SomePromiseArray( values, caller ) {
     this.constructor$( values, caller );
 }
@@ -2655,53 +2654,72 @@ inherits( SomePromiseArray, PromiseArray );
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     this._init$( void 0, [] );
     this._howMany = 0;
-    this._rejected = 0;
-    this._rejectionValues = new Array( this.length() );
-    this._resolutionValues = new Array( this.length() );
-    if( this._isResolved() ) return;
-
-    if( this._howMany > this._canPossiblyFulfill()  ) {
-        this._reject( [] );
-    }
+    this._holes = isArray( this._values )
+        ? this._values.length - this.length()
+        : 0;
 };
 
-SomePromiseArray.prototype._canPossiblyFulfill =
-function SomePromiseArray$_canPossiblyFulfill() {
-    return this._totalResolved - this._rejected +
-        ( this.length() - this._totalResolved );
+SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
+    return this._howMany;
+};
+
+SomePromiseArray.prototype.setHowMany =
+function SomePromiseArray$setHowMany( count ) {
+    if( this._isResolved() ) return;
+
+    this._howMany = Math.max(0, Math.min( count, this.length() ) );
+    if( this.howMany() > this._canPossiblyFulfill()  ) {
+        this._reject( [] );
+    }
 };
 
 SomePromiseArray.prototype._promiseFulfilled =
 function SomePromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
+    this._addFulfilled( value );
 
-    var totalResolved = this._totalResolved;
-    this._resolutionValues[ totalResolved ] = value;
-    this._totalResolved = totalResolved + 1;
-    if( totalResolved + 1 === this._howMany ) {
-        this._resolutionValues.length = this._howMany;
-        this._fulfill( this._resolutionValues );
-        this._resolutionValues =
-            this._rejectionValues = null;
+    if( this._fulfilled() === this.howMany() ) {
+        this._values.length = this.howMany();
+        this._fulfill( this._values );
     }
 
 };
 SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
-
-    this._rejectionValues[ this._rejected ] = reason;
-    this._rejected++;
-    this._totalResolved++;
-
-    if( this._howMany > this._canPossiblyFulfill() ) {
-        this._rejectionValues.length = this._rejected;
-        this._reject( this._rejectionValues );
-        this._resolutionValues =
-            this._rejectionValues = null;
+    this._addRejected( reason );
+    if( this.howMany() > this._canPossiblyFulfill() ) {
+        if( this._values.length === this.length() ) {
+            this._reject([]);
+        }
+        else {
+            this._reject( this._values.slice( this.length() ) );
+        }
     }
 };
 
+SomePromiseArray.prototype._fulfilled = function SomePromiseArray$_fulfilled() {
+    return this._totalResolved;
+};
+
+SomePromiseArray.prototype._rejected = function SomePromiseArray$_rejected() {
+    return this._values.length - this.length() - this._holes;
+};
+
+SomePromiseArray.prototype._addRejected =
+function SomePromiseArray$_addRejected( reason ) {
+    this._values.push( reason );
+};
+
+SomePromiseArray.prototype._addFulfilled =
+function SomePromiseArray$_addFulfilled( value ) {
+    this._values[ this._totalResolved++ ] = value;
+};
+
+SomePromiseArray.prototype._canPossiblyFulfill =
+function SomePromiseArray$_canPossiblyFulfill() {
+    return this.length() - this._rejected();
+};
 return SomePromiseArray;})();
 
 var PromiseInspection = (function() {
