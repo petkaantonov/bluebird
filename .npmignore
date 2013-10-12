@@ -20,3 +20,7 @@ bench
 .jshintrc
 ast_passes.js
 mocharun.js
+throwaway.js
+throwaway.html
+bluebird.sublime-workspace
+bluebird.sublime-project
