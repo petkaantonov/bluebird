@@ -608,9 +608,8 @@ Promise.some = function Promise$Some( promises, howMany ) {
         return apiRejection("howMany must be an integer");
     }
     var ret = Promise._all( promises, SomePromiseArray );
-    var len = ret.length();
-    howMany = Math.max(0, Math.min( howMany, len ) );
-    ret._howMany = howMany;
+    ASSERT( ret instanceof SomePromiseArray );
+    ret.setHowMany( howMany );
     return ret.promise();
 };
 

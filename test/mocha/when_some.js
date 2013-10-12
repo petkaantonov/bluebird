@@ -158,10 +158,13 @@ describe("when.some-test", function () {
         var input = [, 1, , 2, 3 ];
         when.some(input, 2).then(
             function(results) {
-                assert(isSubset(results, input));
+                assert(isSubset(results, [1,2,3]));
                 done();
             },
-            fail
+            function() {
+                console.error(arguments);
+                fail();
+            }
         )
     });
 
