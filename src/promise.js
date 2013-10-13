@@ -429,7 +429,9 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
-        isRejected: false
+        isRejected: false,
+        fulfillmentValue: void 0,
+        rejectionReason: void 0
     };
     if( inspection.isFulfilled() ) {
         ret.fulfillmentValue = inspection.value();
