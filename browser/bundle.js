@@ -7265,21 +7265,37 @@ function reducer( fulfilleds, initialValue ) {
     return accum;
 }
 
-function slowReduce( promises, fn, initialValue ) {
-    return Promise._all( promises, PromiseArray, slowReduce )
-        .promise()
-        .then( function( fulfilleds ) {
-            return reducer.call( fn, fulfilleds, initialValue );
-        });
+function unpackReducer( fulfilleds ) {
+    var fn = this.fn;
+    var initialValue = this.initialValue;
+    return reducer.call( fn, fulfilleds, initialValue );
 }
 
-
+function slowReduce( promises, fn, initialValue ) {
+    return initialValue.then( function( initialValue ) {
+        return Promise.reduce( promises, fn, initialValue );
+    });
+}
 Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     if( typeof fn !== "function" ) {
         return apiRejection( "fn is not a function" );
     }
     if( initialValue !== void 0 ) {
-        return slowReduce( promises, fn, initialValue );
+        if( isPromise( initialValue ) ) {
+            if( initialValue.isFulfilled() ) {
+                initialValue = initialValue._resolvedValue;
+            }
+            else {
+                return slowReduce( promises, fn, initialValue );
+            }
+
+        }
+        return Promise
+            .all( promises )
+            ._then( unpackReducer, void 0, void 0, {
+                fn: fn,
+                initialValue: initialValue
+            }, void 0, Promise.all );
     }
     return Promise
         .all( promises )
@@ -20578,11 +20594,6 @@ var when = adapter;
 var resolved = when.fulfilled;
 var rejected = when.rejected;
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.done(function(){
-        fn();
-    });
-};
 
 function fail() {
     assert.fail();
@@ -20594,9 +20605,9 @@ describe("when.all-test", function () {
         return when.all([]).then(
             function(result) {
                 assert.deepEqual(result, []);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve values array", function(done) {
@@ -20604,9 +20615,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, input);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve promises array", function(done) {
@@ -20614,9 +20625,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve sparse array input", function(done) {
@@ -20624,9 +20635,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, input);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should reject if any input promise rejects", function(done) {
@@ -20635,8 +20646,9 @@ describe("when.all-test", function () {
             fail,
             function(failed) {
                 assert.deepEqual(failed, 2);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
@@ -20648,21 +20660,22 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, expected);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve to empty array when input promise does not resolve to array", function(done) {
         when.all(resolved(1)).then(
             function(result) {
                 assert.deepEqual(result, []);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
 });
+
 },{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
 /*
 Based on When.js tests
@@ -20706,11 +20719,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.done(function(){
-        fn();
-    });
-};
 
 function fail() {
     assert.fail();
@@ -20737,9 +20745,9 @@ describe("when.any-test", function () {
         when.any([]).then(
             function(result) {
                 refute.defined(result);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve with an input value", function(done) {
@@ -20747,9 +20755,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains(input, result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve with a promised input value", function(done) {
@@ -20757,9 +20765,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains([1, 2, 3], result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
@@ -20768,8 +20776,9 @@ describe("when.any-test", function () {
             fail,
             function(result) {
                 assert.deepEqual(result, [1, 2, 3]);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
@@ -20781,9 +20790,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 refute.equals(expected.indexOf(result), -1);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should allow zero handlers", function(done) {
@@ -20791,20 +20800,21 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains(input, result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve to undefined when input promise does not resolve to array", function(done) {
         when.any(resolved(1)).then(
             function(result) {
                 refute.defined(result);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 });
+
 },{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
 /*
 Based on When.js tests
@@ -20848,12 +20858,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -20901,25 +20905,30 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
 
         d.resolve(sentinel);
     });
 
+    //Not implemented
+    /*
     specify("should fulfill with fulfilled promised", function(done) {
         var d = when.defer();
 
         d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
 
         d.resolve(fakeResolved(sentinel));
     });
+
 
     specify("should reject with rejected promise", function(done) {
         var d = when.defer();
@@ -20928,12 +20937,13 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.resolve(fakeRejected(sentinel));
     });
-
+    */
     specify("should return a promise for the resolution value", function(done) {
         var d = when.defer();
 
@@ -20941,9 +20951,10 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should return a promise for a promised resolution value", function(done) {
@@ -20953,9 +20964,10 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should return a promise for a promised rejection value", function(done) {
@@ -20968,8 +20980,9 @@ describe("when.defer-test", function () {
             fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should invoke newly added callback when already resolved", function(done) {
@@ -20995,8 +21008,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(sentinel);
     });
@@ -21011,8 +21025,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, expected);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(expected);
     });
@@ -21027,8 +21042,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, expected);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(expected);
     });
@@ -21044,8 +21060,9 @@ describe("when.defer-test", function () {
             fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should invoke newly added errback when already rejected", function(done) {
@@ -21057,8 +21074,9 @@ describe("when.defer-test", function () {
             fail,
             function (val) {
                 assert.deepEqual(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
 
@@ -21256,7 +21274,8 @@ describe("when.defer-test", function () {
         assert.equal(before, after);
     });
 
-
+    //definitely not implemented
+    /*
     specify("should return a promise for passed-in resolution value when already resolved", function(done) {
         var d = when.defer();
         d.resolve(other);
@@ -21264,8 +21283,10 @@ describe("when.defer-test", function () {
         d.resolve(sentinel);
         d.promise.then(function(val) {
             assert.equal(val, sentinel);
-        }).ensure(done);
+            done();
+        });
     });
+
 
     specify("should return a promise for passed-in rejection value when already resolved", function(done) {
         var d = when.defer();
@@ -21276,15 +21297,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
-    });
-
-    specify("should return silently on progress when already resolved", function() {
-        var d = when.defer();
-        d.resolve();
-
-        refute.defined(d.notify());
+        );
     });
 
     specify("should return a promise for passed-in resolution value when already rejected", function(done) {
@@ -21294,7 +21309,8 @@ describe("when.defer-test", function () {
         d.resolve(sentinel)
         d.promise.then(function(val) {
             assert.equal(val, sentinel);
-        }).ensure(done);
+            done();
+        });
     });
 
     specify("should return a promise for passed-in rejection value when already rejected", function(done) {
@@ -21306,8 +21322,17 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
+    });
+    */
+
+    specify("should return silently on progress when already resolved", function() {
+        var d = when.defer();
+        d.resolve();
+
+        refute.defined(d.notify());
     });
 
     specify("should return silently on progress when already rejected", function() {
@@ -21361,12 +21386,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -21412,49 +21431,55 @@ describe("when.join-test", function () {
     specify("should resolve empty input", function(done) {
         return when.join().then(
             function(result) {
-                assert.equals(result, []);
+                assert.deepEqual(result, []);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should join values", function(done) {
         when.join(1, 2, 3).then(
             function(results) {
-                assert.equals(results, [1, 2, 3]);
+                assert.deepEqual(results, [1, 2, 3]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should join promises array", function(done) {
         when.join(resolved(1), resolved(2), resolved(3)).then(
             function(results) {
-                assert.equals(results, [1, 2, 3]);
+                assert.deepEqual(results, [1, 2, 3]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should join mixed array", function(done) {
         when.join(resolved(1), 2, resolved(3), 4).then(
             function(results) {
-                assert.equals(results, [1, 2, 3, 4]);
+                assert.deepEqual(results, [1, 2, 3, 4]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reject if any input promise rejects", function(done) {
         when.join(resolved(1), rejected(2), resolved(3)).then(
             fail,
             function(failed) {
-                assert.equals(failed, 2);
+                assert.deepEqual(failed, 2);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
 });
+
 },{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
 /*
 Based on When.js tests
@@ -21500,12 +21525,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -21565,68 +21584,75 @@ describe("when.map-test", function () {
         var input = [1, 2, 3];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input promises array", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map mixed input array", function(done) {
         var input = [1, resolved(2), 3];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input when mapper returns a promise", function(done) {
         var input = [1,2,3];
         when.map(input, deferredMapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
         when.map(resolved([1, resolved(2), 3]), mapper).then(
             function(result) {
-                assert.equals(result, [2,4,6]);
+                assert.deepEqual(result, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should resolve to empty array when input promise does not resolve to an array", function(done) {
         when.map(resolved(123), mapper).then(
             function(result) {
-                assert.equals(result, []);
+                assert.deepEqual(result, []);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input promises when mapper returns a promise", function(done) {
         var input = [resolved(1),resolved(2),resolved(3)];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reject when input contains rejection", function(done) {
@@ -21634,28 +21660,75 @@ describe("when.map-test", function () {
         when.map(input, mapper).then(
             fail,
             function(result) {
-                assert.equals(result, 2);
+                assert( result === 2 );
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should propagate progress", function(done) {
         var input = [1, 2, 3];
+        var donecalls = 0;
+        function donecall() {
+            if( ++donecalls === 3 ) done();
+        }
 
         when.map(input, function(x) {
             var d = when.pending();
             d.progress(x);
             setTimeout(d.fulfill.bind(d, x), 0);
             return d.promise;
-        }).then(null, null,
-            function(update) {
-                assert.equals(update, input.shift());
-            }
-        ).ensure(done);
+        }).then(null, null, function(update) {
+            assert(update.value === input.shift());
+            donecall();
+        });
     });
 
+    specify("should propagate progress 2", function(done) {
+         // Thanks @depeele for this test
+        var input, ncall;
+
+        input = [_resolver(1), _resolver(2), _resolver(3)];
+        ncall = 0;
+
+        function identity(x) {
+            return x;
+        }
+        //This test didn't contain the mapper argument so I assume
+        //when.js uses identity mapper in such cases.
+
+        //In bluebird it's illegal to call Promise.map without mapper function
+        return when.map(input, identity).then(function () {
+            assert(ncall === 6);
+            done();
+        }, fail, function () {
+            ncall++;
+        });
+
+        function _resolver(id) {
+          var p = when.defer();
+
+          setTimeout(function () {
+            var loop, timer;
+
+            loop = 0;
+            timer = setInterval(function () {
+              p.notify(id);
+              loop++;
+              if (loop === 2) {
+                clearInterval(timer);
+                p.resolve(id);
+              }
+            }, 1);
+          }, 0);
+
+          return p.promise;
+        }
+
+    });
 
 });
+
 },{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
 /*
 Based on When.js tests
@@ -21701,12 +21774,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -21766,77 +21833,85 @@ describe("when.reduce-test", function () {
     specify("should reduce values without initial value", function(done) {
         when.reduce([1,2,3], plus).then(
             function(result) {
-                assert.equals(result, 6);
+                assert.deepEqual(result, 6);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce values with initial value", function(done) {
         when.reduce([1,2,3], plus, 1).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce values with initial promise", function(done) {
         when.reduce([1,2,3], plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values without initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus).then(
             function(result) {
-                assert.equals(result, 6);
+                assert.deepEqual(result, 6);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values with initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus, 1).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values with initial promise", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce empty input with initial value", function(done) {
         var input = [];
         when.reduce(input, plus, 1).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce empty input with initial promise", function(done) {
         when.reduce([], plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reject when input contains rejection", function(done) {
@@ -21844,9 +21919,10 @@ describe("when.reduce-test", function () {
         when.reduce(input, plus, resolved(1)).then(
             fail,
             function(result) {
-                assert.equals(result, 2);
+                assert.deepEqual(result, 2);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should reduce to undefined with empty array", function(done) {
@@ -21866,46 +21942,51 @@ describe("when.reduce-test", function () {
     specify("should allow sparse array input without initial", function(done) {
         when.reduce([ , , 1, , 1, 1], plus).then(
             function(result) {
-                assert.equals(result, 3);
+                assert.deepEqual(result, 3);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should allow sparse array input with initial", function(done) {
         when.reduce([ , , 1, , 1, 1], plus, 1).then(
             function(result) {
-                assert.equals(result, 4);
+                assert.deepEqual(result, 4);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce in input order", function(done) {
         when.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {
-                assert.equals(result, '123');
+                assert.deepEqual(result, '123');
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
         when.reduce(resolved([1, 2, 3]), plus, '').then(
             function(result) {
-                assert.equals(result, '123');
+                assert.deepEqual(result, '123');
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should resolve to initialValue when input promise does not resolve to an array", function(done) {
         when.reduce(resolved(123), plus, 1).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should provide correct basis value", function(done) {
@@ -21916,12 +21997,14 @@ describe("when.reduce-test", function () {
 
         when.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
             function(result) {
-                assert.equals(result, [1,2,3]);
+                assert.deepEqual(result, [1,2,3]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 });
+
 },{"../../js/bluebird_debug.js":17,"assert":2}],82:[function(require,module,exports){
 /*
 Based on When.js tests
@@ -21967,12 +22050,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -22139,12 +22216,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -22347,12 +22418,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
