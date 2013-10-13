@@ -102,6 +102,7 @@ module.exports = function( grunt ) {
                 "./src/settled_promise_array.js",
                 "./src/any_promise_array.js",
                 "./src/some_promise_array.js",
+                "./src/properties_promise_array.js",
                 "./src/promise_inspection.js",
                 "./src/promise_resolver.js",
                 "./src/promise_spawn.js",

@@ -197,4 +197,26 @@ describe("when.some-test", function () {
             fail
         )
     });
+
+    specify("should give sparse rejection reasons", function(done) {
+        var d1 = when.defer();
+        var d2 = when.defer();
+        var d3 = when.defer();
+
+
+        var arr = [,,,,d1.promise, d2.promise, d3.promise];
+
+        when.some(arr, 2).then(assert.fail, function(rejectionReasons){
+            //Should be apparent after 2 rejections that
+            //it could never be fulfilled
+            assert.deepEqual(rejectionReasons, [1,2]);
+            done();
+        });
+
+        setTimeout(function(){
+            d1.reject(1);
+            d2.reject(2);
+            d3.reject(3);
+        }, 13);
+    });
 });

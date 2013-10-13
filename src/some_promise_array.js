@@ -12,7 +12,7 @@ function SomePromiseArray( values, caller ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, [] );
+    this._init$( void 0, FULFILL_ARRAY );
     this._howMany = 0;
     //Need to keep track of holes in the array so
     //we know where rejection values start
@@ -52,12 +52,13 @@ SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     this._addRejected( reason );
+
     if( this.howMany() > this._canPossiblyFulfill() ) {
         if( this._values.length === this.length() ) {
             this._reject([]);
         }
         else {
-            this._reject( this._values.slice( this.length() ) );
+            this._reject( this._values.slice( this.length() + this._holes ) );
         }
     }
 };

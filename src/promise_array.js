@@ -1,18 +1,20 @@
 var PromiseArray = (function() {
+CONSTANT(FULFILL_UNDEFINED, 0);
+CONSTANT(FULFILL_ARRAY, 1);
+CONSTANT(FULFILL_OBJECT, 2);
 
-//Because undefined cannot be smuggled
-//we smuggle null instead and convert back to undefined
-//when calling
-//breaks down if null needs to be smuggled but so far doesn't
-function nullToUndefined( val ) {
-    return val === null
-        ? void 0
-        : val;
+//To avoid eagerly allocating the objects
+//and also because void 0 cannot be smuggled
+function toFulfillmentValue( val ) {
+    switch( val ) {
+    case FULFILL_UNDEFINED: return void 0;
+    case FULFILL_ARRAY: return [];
+    case FULFILL_OBJECT: return {};
+    }
+    ASSERT( false );
 }
 
 var hasOwn = {}.hasOwnProperty;
-var empty = [];
-
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
@@ -28,7 +30,7 @@ function PromiseArray( values, caller ) {
     this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, empty );
+    this._init( void 0, FULFILL_ARRAY );
 }
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
@@ -70,7 +72,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -78,12 +80,18 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 
     }
     if( !values.length ) {
-        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
     var newLen = len;
-    var newValues = new Array( len );
+    var newValues;
+    if( this instanceof PropertiesPromiseArray ) {
+        newValues = this._values;
+    }
+    else {
+        newValues = new Array( len );
+    }
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
 
@@ -102,15 +110,12 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._promiseProgressed,
 
             this, //Smuggle receiver - .bind avoided round 1
-            Integer.get( i ), //Smuggle the index as internal data
+            i, //Smuggle the index as internal data
               //to avoid creating closures in this loop - .bind avoided round 2
 
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
-              //The integer is wrapped because raw integers currently cause
-              //circular deoptimizations - this gives 20% boost in
-              //gorgikosev's benchmarks
              this.constructor
 
 
@@ -144,7 +149,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     ASSERT( isArray( this._values ) );
 
     this._resolver.progress({
-        index: index.valueOf(),
+        index: index,
         value: progressValue
     });
 };
@@ -153,8 +158,8 @@ PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
-    ASSERT( index instanceof Integer );
-    this._values[ index.valueOf() ] = value;
+    ASSERT( typeof index === "number" );
+    this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
@@ -168,29 +173,5 @@ function PromiseArray$_promiseRejected( reason ) {
     this._totalResolved++;
     this._reject( reason );
 };
-
-function Integer( value ) {
-    this._value = value;
-}
-
-Integer.prototype.valueOf = function Integer$valueOf() {
-    return this._value;
-};
-//256 first integers from 0 are cached
-Integer.get = function Integer$get( i ) {
-    if( i < 256 ) {
-        return ints[i];
-    }
-    return new Integer(i);
-};
-
-var ints = [];
-for( var i = 0; i < 256; ++i ) {
-    ints.push( new Integer(i) );
-}
-
-
-
-
 
 return PromiseArray;})();
