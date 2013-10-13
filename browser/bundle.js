@@ -5884,6 +5884,7 @@ var Promise = require("../js/bluebird_debug.js");
 {fn: function(){ return require('../test/mocha/late_buffer_safety.js');}, name: '../test/mocha/late_buffer_safety.js'},
 {fn: function(){ return require('../test/mocha/promises_unwrapping.js');}, name: '../test/mocha/promises_unwrapping.js'},
 {fn: function(){ return require('../test/mocha/promisify.js');}, name: '../test/mocha/promisify.js'},
+{fn: function(){ return require('../test/mocha/props.js');}, name: '../test/mocha/props.js'},
 {fn: function(){ return require('../test/mocha/q_all.js');}, name: '../test/mocha/q_all.js'},
 {fn: function(){ return require('../test/mocha/q_done.js');}, name: '../test/mocha/q_done.js'},
 {fn: function(){ return require('../test/mocha/q_fin.js');}, name: '../test/mocha/q_fin.js'},
@@ -5905,7 +5906,7 @@ var Promise = require("../js/bluebird_debug.js");
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/api_exceptions.js":52,"../test/mocha/async.js":53,"../test/mocha/cancel.js":54,"../test/mocha/cast.js":55,"../test/mocha/catch_filter.js":56,"../test/mocha/following.js":57,"../test/mocha/late_buffer_safety.js":61,"../test/mocha/promises_unwrapping.js":62,"../test/mocha/promisify.js":63,"../test/mocha/q_all.js":64,"../test/mocha/q_done.js":65,"../test/mocha/q_fin.js":66,"../test/mocha/q_inspect.js":67,"../test/mocha/q_make_node_resolver.js":68,"../test/mocha/q_nodeify.js":69,"../test/mocha/q_progress.js":70,"../test/mocha/q_propagation.js":71,"../test/mocha/q_settle.js":72,"../test/mocha/q_spread.js":73,"../test/mocha/sparsity.js":74,"../test/mocha/unhandled_rejections.js":75,"../test/mocha/when_all.js":76,"../test/mocha/when_any.js":77,"../test/mocha/when_defer.js":78,"../test/mocha/when_join.js":79,"../test/mocha/when_map.js":80,"../test/mocha/when_reduce.js":81,"../test/mocha/when_settle.js":82,"../test/mocha/when_some.js":83,"../test/mocha/when_spread.js":84,"assert":2,"sinon":18}],17:[function(require,module,exports){
+},{"../js/bluebird_debug.js":17,"../test/mocha/2.1.2.js":33,"../test/mocha/2.1.3.js":34,"../test/mocha/2.2.1.js":35,"../test/mocha/2.2.2.js":36,"../test/mocha/2.2.3.js":37,"../test/mocha/2.2.4.js":38,"../test/mocha/2.2.5.js":39,"../test/mocha/2.2.6.js":40,"../test/mocha/2.2.7.js":41,"../test/mocha/2.3.1.js":42,"../test/mocha/2.3.2.js":43,"../test/mocha/2.3.3.js":44,"../test/mocha/2.3.4.js":45,"../test/mocha/3.2.1.js":46,"../test/mocha/3.2.2.js":47,"../test/mocha/3.2.3.js":48,"../test/mocha/3.2.4.js":49,"../test/mocha/3.2.5.js":50,"../test/mocha/3.2.6.js":51,"../test/mocha/api_exceptions.js":52,"../test/mocha/async.js":53,"../test/mocha/cancel.js":54,"../test/mocha/cast.js":55,"../test/mocha/catch_filter.js":56,"../test/mocha/following.js":57,"../test/mocha/late_buffer_safety.js":61,"../test/mocha/promises_unwrapping.js":62,"../test/mocha/promisify.js":63,"../test/mocha/props.js":64,"../test/mocha/q_all.js":65,"../test/mocha/q_done.js":66,"../test/mocha/q_fin.js":67,"../test/mocha/q_inspect.js":68,"../test/mocha/q_make_node_resolver.js":69,"../test/mocha/q_nodeify.js":70,"../test/mocha/q_progress.js":71,"../test/mocha/q_propagation.js":72,"../test/mocha/q_settle.js":73,"../test/mocha/q_spread.js":74,"../test/mocha/sparsity.js":75,"../test/mocha/unhandled_rejections.js":76,"../test/mocha/when_all.js":77,"../test/mocha/when_any.js":78,"../test/mocha/when_defer.js":79,"../test/mocha/when_join.js":80,"../test/mocha/when_map.js":81,"../test/mocha/when_reduce.js":82,"../test/mocha/when_settle.js":83,"../test/mocha/when_some.js":84,"../test/mocha/when_spread.js":85,"assert":2,"sinon":18}],17:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
     var ASSERT = (function(){/* jshint -W014, -W116 */
         var AssertionError = (function() {
@@ -7078,7 +7079,9 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
-        isRejected: false
+        isRejected: false,
+        fulfillmentValue: void 0,
+        rejectionReason: void 0
     };
     if( inspection.isFulfilled() ) {
         ret.fulfillmentValue = inspection.value();
@@ -7158,6 +7161,10 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
     return Promise.reduce( this, fn, initialValue );
 };
 
+ Promise.prototype.props = function Promise$props() {
+    return Promise.props( this );
+ };
+
 Promise.is = isPromise;
 
 Promise.settle = function Promise$Settle( promises ) {
@@ -7169,6 +7176,20 @@ Promise.all = function Promise$All( promises ) {
     var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
+
+Promise.props = function Promise$Props( promises ) {
+    if( isPrimitive( promises ) ) {
+        return Promise.fulfilled( promises, Promise.props );
+    }
+    else if( isPromise( promises ) ) {
+        return promises._then( Promise.props, void 0, void 0,
+                        void 0, void 0, Promise.props);
+    }
+    else {
+        return new PropertiesPromiseArray( promises, Promise.props ).promise();
+    }
+};
+
 
 Promise.join = function Promise$Join() {
     var ret = new Array( arguments.length );
@@ -8322,16 +8343,17 @@ Promise.TypeError = TypeError;
 return Promise;})();
 
 var PromiseArray = (function() {
-
-function nullToUndefined( val ) {
-    return val === null
-        ? void 0
-        : val;
+function toFulfillmentValue( val ) {
+    switch( val ) {
+    case 0: return void 0;
+    case 1: return [];
+    case 2: return {};
+    }
+    ASSERT(false,
+    "false");
 }
 
 var hasOwn = {}.hasOwnProperty;
-var empty = [];
-
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
@@ -8347,7 +8369,7 @@ function PromiseArray( values, caller ) {
     this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, empty );
+    this._init( void 0, 1 );
 }
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
@@ -8379,7 +8401,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         else {
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -8387,12 +8409,18 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 
     }
     if( !values.length ) {
-        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
     var newLen = len;
-    var newValues = new Array( len );
+    var newValues;
+    if( this instanceof PropertiesPromiseArray ) {
+        newValues = this._values;
+    }
+    else {
+        newValues = new Array( len );
+    }
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
 
@@ -8408,7 +8436,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this,            Integer.get( i ),             this.constructor
+            this,            i,             this.constructor
 
 
 
@@ -8444,7 +8472,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     "isArray( this._values )");
 
     this._resolver.progress({
-        index: index.valueOf(),
+        index: index,
         value: progressValue
     });
 };
@@ -8454,9 +8482,9 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT(isArray(this._values),
     "isArray( this._values )");
-    ASSERT((index instanceof Integer),
-    "index instanceof Integer");
-    this._values[ index.valueOf() ] = value;
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
+    this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
@@ -8471,29 +8499,6 @@ function PromiseArray$_promiseRejected( reason ) {
     this._totalResolved++;
     this._reject( reason );
 };
-
-function Integer( value ) {
-    this._value = value;
-}
-
-Integer.prototype.valueOf = function Integer$valueOf() {
-    return this._value;
-};
-Integer.get = function Integer$get( i ) {
-    if( i < 256 ) {
-        return ints[i];
-    }
-    return new Integer(i);
-};
-
-var ints = [];
-for( var i = 0; i < 256; ++i ) {
-    ints.push( new Integer(i) );
-}
-
-
-
-
 
 return PromiseArray;})();
 
@@ -8518,18 +8523,22 @@ var throwawayPromise = new Promise()._setTrace();
 SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 268435456;
     ret._resolvedValue = value;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 134217728;
     ret._resolvedValue = reason;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 
 return SettledPromiseArray;})();
@@ -8541,7 +8550,7 @@ function AnyPromiseArray( values, caller ) {
 inherits( AnyPromiseArray, PromiseArray );
 
 AnyPromiseArray.prototype._init = function AnyPromiseArray$_init() {
-    this._init$( void 0, null );
+    this._init$( void 0, 0 );
 };
 
 AnyPromiseArray.prototype._promiseFulfilled =
@@ -8554,8 +8563,10 @@ function AnyPromiseArray$_promiseFulfilled( value ) {
 AnyPromiseArray.prototype._promiseRejected =
 function AnyPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
+    ASSERT(((typeof index) === "number"),
+    "typeof index === \u0022number\u0022");
     var totalResolved = ++this._totalResolved;
-    this._values[ index.valueOf() ] = reason;
+    this._values[ index ] = reason;
     if( totalResolved >= this._length ) {
         this._reject( this._values );
     }
@@ -8576,7 +8587,7 @@ function SomePromiseArray( values, caller ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, [] );
+    this._init$( void 0, 1 );
     this._howMany = 0;
     this._holes = isArray( this._values )
         ? this._values.length - this.length()
@@ -8612,12 +8623,13 @@ SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     this._addRejected( reason );
+
     if( this.howMany() > this._canPossiblyFulfill() ) {
         if( this._values.length === this.length() ) {
             this._reject([]);
         }
         else {
-            this._reject( this._values.slice( this.length() ) );
+            this._reject( this._values.slice( this.length() + this._holes ) );
         }
     }
 };
@@ -8645,6 +8657,57 @@ function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
 return SomePromiseArray;})();
+
+var PropertiesPromiseArray = (function(){
+
+function PropertiesPromiseArray( obj, caller ) {
+    var keys = Object.keys( obj );
+    var values = new Array( keys.length );
+    for( var i = 0, len = values.length; i < len; ++i ) {
+        values[i] = obj[keys[i]];
+    }
+    this.constructor$( values, caller );
+    if( !this._isResolved() ) {
+        for( var i = 0, len = keys.length; i < len; ++i ) {
+            values.push( keys[i] );
+        }
+        ASSERT((this._values.length === (2 * this.length())),
+    "this._values.length === 2 * this.length()");
+    }
+}
+inherits( PropertiesPromiseArray, PromiseArray );
+
+PropertiesPromiseArray.prototype._init =
+function PropertiesPromiseArray$_init() {
+    this._init$( void 0, 2 ) ;
+};
+
+PropertiesPromiseArray.prototype._promiseFulfilled =
+function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
+    if( this._isResolved() ) return;
+    this._values[ index ] = value;
+    var totalResolved = ++this._totalResolved;
+    if( totalResolved >= this._length ) {
+        var val = {};
+        var keyOffset = this.length();
+        for( var i = 0, len = this.length(); i < len; ++i ) {
+            val[this._values[i + keyOffset]] = this._values[i];
+        }
+        this._fulfill( val );
+    }
+};
+
+PropertiesPromiseArray.prototype._promiseProgressed =
+function PropertiesPromiseArray$_promiseProgressed( value, index ) {
+    if( this._isResolved() ) return;
+
+    this._resolver.progress({
+        key: this._values[ index + this.length() ],
+        value: value
+    });
+};
+
+return PropertiesPromiseArray;})();
 
 var PromiseInspection = (function() {
 
@@ -18001,6 +18064,255 @@ Q.defer = function() {
 
 Q.all = Promise.all;
 
+describe("Promise.props", function () {
+
+    specify("should resolve undefined to undefined", function(done) {
+        adapter.props().then(function(v){
+            assert( v === void 0 );
+            done();
+        });
+    });
+
+    specify("should resolve primitive to primitive", function(done) {
+        adapter.props("str").then(function(v){
+            assert( v === "str" );
+            done();
+        });
+    });
+
+    specify("should resolve to new object", function(done) {
+        var o = {};
+        adapter.props(o).then(function(v){
+            assert( v !== o );
+            assert.deepEqual(o, v);
+            done();
+        });
+    });
+
+    specify("should resolve value properties", function(done) {
+        var o = {
+            one: 1,
+            two: 2,
+            three: 3
+        };
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+    });
+
+    specify("should resolve immediate properties", function(done) {
+        var o = {
+            one: fulfilled(1),
+            two: fulfilled(2),
+            three: fulfilled(3)
+        };
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+    });
+
+    specify("should resolve eventual properties", function(done) {
+        var d1 = pending(),
+            d2 = pending(),
+            d3 = pending();
+        var o = {
+            one: d1.promise,
+            two: d2.promise,
+            three: d3.promise
+        };
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+
+        setTimeout(function(){
+            d1.fulfill(1);
+            d2.fulfill(2);
+            d3.fulfill(3);
+        }, 13);
+    });
+
+    specify("should reject if any input promise rejects", function(done) {
+        var o = {
+            one: fulfilled(1),
+            two: rejected(2),
+            three: fulfilled(3)
+        };
+        adapter.props(o).then(assert.fail, function(v){
+            assert( v === 2 );
+            done();
+        });
+    });
+
+    specify("should accept a promise for an object", function(done) {
+         var o = {
+            one: fulfilled(1),
+            two: fulfilled(2),
+            three: fulfilled(3)
+        };
+        var d1 = pending();
+        adapter.props(d1.promise).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+        setTimeout(function(){
+            d1.fulfill(o);
+        }, 13);
+    });
+
+    specify("should accept a promise for a primitive", function(done) {
+        var d1 = pending();
+        adapter.props(d1.promise).then(function(v){
+            assert(v === "text");
+            done();
+        });
+        setTimeout(function(){
+            d1.fulfill("text");
+        }, 13);
+    });
+
+    specify("should accept thenables in properties", function(done) {
+        var t1 = {then: function(cb){cb(1);}};
+        var t2 = {then: function(cb){cb(2);}};
+        var t3 = {then: function(cb){cb(3);}};
+        var o = {
+            one: t1,
+            two: t2,
+            three: t3
+        };
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+    });
+
+    specify("sends { key, value } progress updates", function(done) {
+        var deferred1 = Q.defer();
+        var deferred2 = Q.defer();
+
+        var progressValues = [];
+
+        Q.delay(50).then(function () {
+            deferred1.notify("a");
+        });
+        Q.delay(100).then(function () {
+            deferred2.notify("b");
+            deferred2.resolve();
+        });
+        Q.delay(150).then(function () {
+            deferred1.notify("c");
+            deferred1.resolve();
+        });
+
+        adapter.props({
+            one: deferred1.promise,
+            two: deferred2.promise
+        }).then(function () {
+            assert.deepEqual(progressValues, [
+                { key: "one", value: "a" },
+                { key: "two", value: "b" },
+                { key: "one", value: "c" }
+            ]);
+            done();
+        },
+        undefined,
+        function (progressValue) {
+            progressValues.push(progressValue);
+        });
+    });
+
+    specify("treats arrays for their properties", function(done) {
+        var o = [1,2,3];
+
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                0: 1,
+                1: 2,
+                2: 3
+            }, v);
+            done();
+        });
+    });
+
+});
+
+},{"../../js/bluebird_debug.js":17,"assert":2}],65:[function(require,module,exports){
+var assert = require("assert");
+
+var adapter = require("../../js/bluebird_debug.js");
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+
+var Promise = fulfilled().constructor;
+
+Promise.prototype.progress = Promise.prototype.progressed;
+
+
+var Q = function(p) {
+    if( p.then ) return p;
+    return fulfilled(p);
+};
+
+Q.progress = function(p, cb) {
+    return Q(p).then(null, null, cb);
+};
+
+Q.when = function() {
+    return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
+};
+var freeMs;
+function resolver( fulfill ) {
+    setTimeout(fulfill, freeMs );
+};
+
+Q.delay = function(ms) {
+    freeMs = ms;
+    return new Promise(resolver);
+};
+
+Q.defer = function() {
+    var ret = pending();
+    return {
+        reject: function(a){
+            return ret.reject(a)
+        },
+        resolve: function(a) {
+            return ret.fulfill(a);
+        },
+
+        notify: function(a) {
+            return ret.progress(a);
+        },
+
+        promise: ret.promise
+    };
+};
+
+Q.all = Promise.all;
+
 Promise.prototype.timeout = function( ms ){
     var self = this;
     setTimeout(function(){
@@ -18120,7 +18432,7 @@ describe("all", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],65:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],66:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18410,7 +18722,7 @@ describe("done", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],66:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],67:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18684,7 +18996,7 @@ describe("fin", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],67:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],68:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18812,7 +19124,7 @@ describe("inspect", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],68:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],69:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -18872,7 +19184,7 @@ describe("PromiseResolver.asCallback", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],69:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],70:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19068,7 +19380,7 @@ if( isNodeJS ) {
         });
     });
 }
-},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],70:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"__browserify_process":15,"assert":2,"sinon":18}],71:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19467,7 +19779,7 @@ describe("progress", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],71:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],72:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19697,7 +20009,7 @@ describe("propagation", function () {
         return result;
     });
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],72:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],73:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -19852,7 +20164,7 @@ describe("allSettled", function () {
     });
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],73:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],74:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/bluebird_debug.js");
@@ -20005,7 +20317,7 @@ describe("spread", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],74:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],75:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20091,7 +20403,7 @@ describe("When using a sparse array the resulting array should have equal sparsi
 });
 
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],75:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],76:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/bluebird_debug.js");
@@ -20556,7 +20868,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 
 });
-},{"../../js/bluebird_debug.js":17,"assert":2}],76:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -20676,7 +20988,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],77:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -20815,7 +21127,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],78:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],79:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21343,7 +21655,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],79:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21480,7 +21792,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],80:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -21729,7 +22041,7 @@ describe("when.map-test", function () {
 
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],81:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],82:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -22005,7 +22317,7 @@ describe("when.reduce-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],82:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],83:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -22171,7 +22483,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],83:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],84:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -22371,9 +22683,31 @@ describe("when.some-test", function () {
             fail
         )
     });
+
+    specify("should give sparse rejection reasons", function(done) {
+        var d1 = when.defer();
+        var d2 = when.defer();
+        var d3 = when.defer();
+
+
+        var arr = [,,,,d1.promise, d2.promise, d3.promise];
+
+        when.some(arr, 2).then(assert.fail, function(rejectionReasons){
+            //Should be apparent after 2 rejections that
+            //it could never be fulfilled
+            assert.deepEqual(rejectionReasons, [1,2]);
+            done();
+        });
+
+        setTimeout(function(){
+            d1.reject(1);
+            d2.reject(2);
+            d3.reject(3);
+        }, 13);
+    });
 });
 
-},{"../../js/bluebird_debug.js":17,"assert":2}],84:[function(require,module,exports){
+},{"../../js/bluebird_debug.js":17,"assert":2}],85:[function(require,module,exports){
 /*
 Based on When.js tests
 
