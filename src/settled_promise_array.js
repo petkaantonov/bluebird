@@ -21,25 +21,27 @@ var throwawayPromise = new Promise()._setTrace();
 SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT( typeof index === "number" );
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = IS_FULFILLED;
     ret._resolvedValue = value;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 //override
 SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
+    ASSERT( typeof index === "number" );
     //Pretty ugly hack
     //but keeps the PromiseInspection constructor
     //simple
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = IS_REJECTED;
     ret._resolvedValue = reason;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 
 return SettledPromiseArray;})();

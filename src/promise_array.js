@@ -102,15 +102,12 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._promiseProgressed,
 
             this, //Smuggle receiver - .bind avoided round 1
-            Integer.get( i ), //Smuggle the index as internal data
+            i, //Smuggle the index as internal data
               //to avoid creating closures in this loop - .bind avoided round 2
 
               //Will not chain so creating a Promise from
               //the ._then() would be a waste anyway
 
-              //The integer is wrapped because raw integers currently cause
-              //circular deoptimizations - this gives 20% boost in
-              //gorgikosev's benchmarks
              this.constructor
 
 
@@ -144,7 +141,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
     ASSERT( isArray( this._values ) );
 
     this._resolver.progress({
-        index: index.valueOf(),
+        index: index,
         value: progressValue
     });
 };
@@ -153,8 +150,8 @@ PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( isArray( this._values ) );
-    ASSERT( index instanceof Integer );
-    this._values[ index.valueOf() ] = value;
+    ASSERT( typeof index === "number" );
+    this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
@@ -168,29 +165,5 @@ function PromiseArray$_promiseRejected( reason ) {
     this._totalResolved++;
     this._reject( reason );
 };
-
-function Integer( value ) {
-    this._value = value;
-}
-
-Integer.prototype.valueOf = function Integer$valueOf() {
-    return this._value;
-};
-//256 first integers from 0 are cached
-Integer.get = function Integer$get( i ) {
-    if( i < 256 ) {
-        return ints[i];
-    }
-    return new Integer(i);
-};
-
-var ints = [];
-for( var i = 0; i < 256; ++i ) {
-    ints.push( new Integer(i) );
-}
-
-
-
-
 
 return PromiseArray;})();

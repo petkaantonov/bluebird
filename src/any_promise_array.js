@@ -23,8 +23,9 @@ function AnyPromiseArray$_promiseFulfilled( value ) {
 AnyPromiseArray.prototype._promiseRejected =
 function AnyPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
+    ASSERT( typeof index === "number" );
     var totalResolved = ++this._totalResolved;
-    this._values[ index.valueOf() ] = reason;
+    this._values[ index ] = reason;
     if( totalResolved >= this._length ) {
         this._reject( this._values );
     }
