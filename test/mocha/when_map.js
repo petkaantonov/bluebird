@@ -42,12 +42,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -107,68 +101,75 @@ describe("when.map-test", function () {
         var input = [1, 2, 3];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input promises array", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map mixed input array", function(done) {
         var input = [1, resolved(2), 3];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input when mapper returns a promise", function(done) {
         var input = [1,2,3];
         when.map(input, deferredMapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
         when.map(resolved([1, resolved(2), 3]), mapper).then(
             function(result) {
-                assert.equals(result, [2,4,6]);
+                assert.deepEqual(result, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should resolve to empty array when input promise does not resolve to an array", function(done) {
         when.map(resolved(123), mapper).then(
             function(result) {
-                assert.equals(result, []);
+                assert.deepEqual(result, []);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should map input promises when mapper returns a promise", function(done) {
         var input = [resolved(1),resolved(2),resolved(3)];
         when.map(input, mapper).then(
             function(results) {
-                assert.equals(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reject when input contains rejection", function(done) {
@@ -176,25 +177,71 @@ describe("when.map-test", function () {
         when.map(input, mapper).then(
             fail,
             function(result) {
-                assert.equals(result, 2);
+                assert( result === 2 );
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should propagate progress", function(done) {
         var input = [1, 2, 3];
+        var donecalls = 0;
+        function donecall() {
+            if( ++donecalls === 3 ) done();
+        }
 
         when.map(input, function(x) {
             var d = when.pending();
             d.progress(x);
             setTimeout(d.fulfill.bind(d, x), 0);
             return d.promise;
-        }).then(null, null,
-            function(update) {
-                assert.equals(update, input.shift());
-            }
-        ).ensure(done);
+        }).then(null, null, function(update) {
+            assert(update.value === input.shift());
+            donecall();
+        });
     });
 
+    specify("should propagate progress 2", function(done) {
+         // Thanks @depeele for this test
+        var input, ncall;
+
+        input = [_resolver(1), _resolver(2), _resolver(3)];
+        ncall = 0;
+
+        function identity(x) {
+            return x;
+        }
+        //This test didn't contain the mapper argument so I assume
+        //when.js uses identity mapper in such cases.
+
+        //In bluebird it's illegal to call Promise.map without mapper function
+        return when.map(input, identity).then(function () {
+            assert(ncall === 6);
+            done();
+        }, fail, function () {
+            ncall++;
+        });
+
+        function _resolver(id) {
+          var p = when.defer();
+
+          setTimeout(function () {
+            var loop, timer;
+
+            loop = 0;
+            timer = setInterval(function () {
+              p.notify(id);
+              loop++;
+              if (loop === 2) {
+                clearInterval(timer);
+                p.resolve(id);
+              }
+            }, 1);
+          }, 0);
+
+          return p.promise;
+        }
+
+    });
 
 });

@@ -42,12 +42,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -107,77 +101,85 @@ describe("when.reduce-test", function () {
     specify("should reduce values without initial value", function(done) {
         when.reduce([1,2,3], plus).then(
             function(result) {
-                assert.equals(result, 6);
+                assert.deepEqual(result, 6);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce values with initial value", function(done) {
         when.reduce([1,2,3], plus, 1).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce values with initial promise", function(done) {
         when.reduce([1,2,3], plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values without initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus).then(
             function(result) {
-                assert.equals(result, 6);
+                assert.deepEqual(result, 6);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values with initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus, 1).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce promised values with initial promise", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
         when.reduce(input, plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 7);
+                assert.deepEqual(result, 7);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce empty input with initial value", function(done) {
         var input = [];
         when.reduce(input, plus, 1).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce empty input with initial promise", function(done) {
         when.reduce([], plus, resolved(1)).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reject when input contains rejection", function(done) {
@@ -185,9 +187,10 @@ describe("when.reduce-test", function () {
         when.reduce(input, plus, resolved(1)).then(
             fail,
             function(result) {
-                assert.equals(result, 2);
+                assert.deepEqual(result, 2);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should reduce to undefined with empty array", function(done) {
@@ -207,46 +210,51 @@ describe("when.reduce-test", function () {
     specify("should allow sparse array input without initial", function(done) {
         when.reduce([ , , 1, , 1, 1], plus).then(
             function(result) {
-                assert.equals(result, 3);
+                assert.deepEqual(result, 3);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should allow sparse array input with initial", function(done) {
         when.reduce([ , , 1, , 1, 1], plus, 1).then(
             function(result) {
-                assert.equals(result, 4);
+                assert.deepEqual(result, 4);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should reduce in input order", function(done) {
         when.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {
-                assert.equals(result, '123');
+                assert.deepEqual(result, '123');
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
         when.reduce(resolved([1, 2, 3]), plus, '').then(
             function(result) {
-                assert.equals(result, '123');
+                assert.deepEqual(result, '123');
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should resolve to initialValue when input promise does not resolve to an array", function(done) {
         when.reduce(resolved(123), plus, 1).then(
             function(result) {
-                assert.equals(result, 1);
+                assert.deepEqual(result, 1);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should provide correct basis value", function(done) {
@@ -257,9 +265,10 @@ describe("when.reduce-test", function () {
 
         when.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
             function(result) {
-                assert.equals(result, [1,2,3]);
+                assert.deepEqual(result, [1,2,3]);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 });
