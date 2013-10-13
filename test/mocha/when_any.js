@@ -40,11 +40,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.done(function(){
-        fn();
-    });
-};
 
 function fail() {
     assert.fail();
@@ -71,9 +66,9 @@ describe("when.any-test", function () {
         when.any([]).then(
             function(result) {
                 refute.defined(result);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve with an input value", function(done) {
@@ -81,9 +76,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains(input, result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve with a promised input value", function(done) {
@@ -91,9 +86,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains([1, 2, 3], result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
@@ -102,8 +97,9 @@ describe("when.any-test", function () {
             fail,
             function(result) {
                 assert.deepEqual(result, [1, 2, 3]);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
@@ -115,9 +111,9 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 refute.equals(expected.indexOf(result), -1);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should allow zero handlers", function(done) {
@@ -125,17 +121,17 @@ describe("when.any-test", function () {
         when.any(input).then(
             function(result) {
                 assert(contains(input, result));
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 
     specify("should resolve to undefined when input promise does not resolve to array", function(done) {
         when.any(resolved(1)).then(
             function(result) {
                 refute.defined(result);
-            },
-            fail
-        ).ensure(done);
+                done();
+            }, fail
+        );
     });
 });

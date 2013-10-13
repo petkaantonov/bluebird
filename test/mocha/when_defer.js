@@ -40,12 +40,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -93,25 +87,30 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
 
         d.resolve(sentinel);
     });
 
+    //Not implemented
+    /*
     specify("should fulfill with fulfilled promised", function(done) {
         var d = when.defer();
 
         d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
 
         d.resolve(fakeResolved(sentinel));
     });
+
 
     specify("should reject with rejected promise", function(done) {
         var d = when.defer();
@@ -120,12 +119,13 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.resolve(fakeRejected(sentinel));
     });
-
+    */
     specify("should return a promise for the resolution value", function(done) {
         var d = when.defer();
 
@@ -133,9 +133,10 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should return a promise for a promised resolution value", function(done) {
@@ -145,9 +146,10 @@ describe("when.defer-test", function () {
         d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             },
             fail
-        ).ensure(done);
+        );
     });
 
     specify("should return a promise for a promised rejection value", function(done) {
@@ -160,8 +162,9 @@ describe("when.defer-test", function () {
             fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should invoke newly added callback when already resolved", function(done) {
@@ -187,8 +190,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(sentinel);
     });
@@ -203,8 +207,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, expected);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(expected);
     });
@@ -219,8 +224,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, expected);
+                done();
             }
-        ).ensure(done);
+        );
 
         d.reject(expected);
     });
@@ -236,8 +242,9 @@ describe("when.defer-test", function () {
             fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should invoke newly added errback when already rejected", function(done) {
@@ -249,8 +256,9 @@ describe("when.defer-test", function () {
             fail,
             function (val) {
                 assert.deepEqual(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
 
@@ -448,7 +456,8 @@ describe("when.defer-test", function () {
         assert.equal(before, after);
     });
 
-
+    //definitely not implemented
+    /*
     specify("should return a promise for passed-in resolution value when already resolved", function(done) {
         var d = when.defer();
         d.resolve(other);
@@ -456,8 +465,10 @@ describe("when.defer-test", function () {
         d.resolve(sentinel);
         d.promise.then(function(val) {
             assert.equal(val, sentinel);
-        }).ensure(done);
+            done();
+        });
     });
+
 
     specify("should return a promise for passed-in rejection value when already resolved", function(done) {
         var d = when.defer();
@@ -468,15 +479,9 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
-    });
-
-    specify("should return silently on progress when already resolved", function() {
-        var d = when.defer();
-        d.resolve();
-
-        refute.defined(d.notify());
+        );
     });
 
     specify("should return a promise for passed-in resolution value when already rejected", function(done) {
@@ -486,7 +491,8 @@ describe("when.defer-test", function () {
         d.resolve(sentinel)
         d.promise.then(function(val) {
             assert.equal(val, sentinel);
-        }).ensure(done);
+            done();
+        });
     });
 
     specify("should return a promise for passed-in rejection value when already rejected", function(done) {
@@ -498,8 +504,17 @@ describe("when.defer-test", function () {
             fail,
             function(val) {
                 assert.equal(val, sentinel);
+                done();
             }
-        ).ensure(done);
+        );
+    });
+    */
+
+    specify("should return silently on progress when already resolved", function() {
+        var d = when.defer();
+        d.resolve();
+
+        refute.defined(d.notify());
     });
 
     specify("should return silently on progress when already rejected", function() {

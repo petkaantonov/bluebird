@@ -42,12 +42,6 @@ when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.lastly(function(){
-        fn();
-    });
-};
-
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;

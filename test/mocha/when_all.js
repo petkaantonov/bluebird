@@ -35,11 +35,6 @@ var when = adapter;
 var resolved = when.fulfilled;
 var rejected = when.rejected;
 var p = new when().constructor.prototype;
-p.ensure = function(fn){
-    return this.done(function(){
-        fn();
-    });
-};
 
 function fail() {
     assert.fail();
@@ -51,9 +46,9 @@ describe("when.all-test", function () {
         return when.all([]).then(
             function(result) {
                 assert.deepEqual(result, []);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve values array", function(done) {
@@ -61,9 +56,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, input);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve promises array", function(done) {
@@ -71,9 +66,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve sparse array input", function(done) {
@@ -81,9 +76,9 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, input);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should reject if any input promise rejects", function(done) {
@@ -92,8 +87,9 @@ describe("when.all-test", function () {
             fail,
             function(failed) {
                 assert.deepEqual(failed, 2);
+                done();
             }
-        ).ensure(done);
+        );
     });
 
     specify("should accept a promise for an array", function(done) {
@@ -105,18 +101,18 @@ describe("when.all-test", function () {
         when.all(input).then(
             function(results) {
                 assert.deepEqual(results, expected);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
     specify("should resolve to empty array when input promise does not resolve to array", function(done) {
         when.all(resolved(1)).then(
             function(result) {
                 assert.deepEqual(result, []);
-            },
-            fail
-        ).ensure(done);
+                done()
+            }, fail
+        );
     });
 
 });

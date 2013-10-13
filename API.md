@@ -102,7 +102,7 @@ function delay(ms, value) {
 The above will only create 1 function identity and a context object and wasn't too hard to write. The savings are relatively good - it's possible to create 2.5 additional bluebird promises from the memory we saved (`(2 * 80 + 60) / 88 =~ 2.5`).
 
 Note that it isn't really about raw memory - I know you have plenty. It's about the additional GC work which uses CPU.
-    
+
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
@@ -135,7 +135,7 @@ Example:
 somePromise.then(function(){
     return a.b.c.d();
 }).catch(TypeError, function(e){
-    //If a is defined, will end up here because 
+    //If a is defined, will end up here because
     //it is a type error to reference property of undefined
 }).catch(ReferenceError, function(e){
     //Will end up here if a wasn't defined at all
@@ -144,7 +144,7 @@ somePromise.then(function(){
     //ReferenceError
 });
  ```
- 
+
 You may also add multiple filters for a catch handler:
 
 ```js
@@ -158,7 +158,7 @@ somePromise.then(function(){
     //Catch any unexpected errors
 });
 ```
-    
+
 For a paramater to be considered a type of error that you want to filter, you need the constructor to have its `.prototype` property be `instanceof Error`.
 
 Such a constructor can be minimally created like so:
@@ -200,9 +200,9 @@ class MyCustomError extends Error
     @name = "MyCustomError"
     Error.captureStackTrace(this, MyCustomError)
 ```
-    
+
 *For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
-        
+
 #####`.finally(Function handler)` -> `Promise`
 
 Pass a handler that will be called regardless of this promise's fate. Returns a new promise chained from this promise. There are special semantics for `.finally()` in that the final value cannot be modified from the handler.
@@ -224,7 +224,7 @@ function ajaxGetAsync(url) {
     }).then(anyway, anyway);
 }
 ```
-    
+
 This example doesn't work as intended because the `then` handler actually swallows the exception and returns `undefined` for any further chainers.
 
 The situation can be fixed with `.finally`:
@@ -246,7 +246,7 @@ function ajaxGetAsync(url) {
 Now the animation is hidden but an exception or the actual return value will automatically skip the finally and propagate to further chainers. This is more in line with the synchronous `finally` keyword.
 
 The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wiki/API-Reference#promisefinallycallback).
-    
+
 *For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.*
 
 #####`.progressed(Function handler)` -> `Promise`
@@ -349,7 +349,7 @@ Gives
         at <anonymous>:3:9
         at Object.InjectedScript._evaluateOn (<anonymous>:581:39)
         at Object.InjectedScript._evaluateAndWrap (<anonymous>:540:52)
-        at Object.InjectedScript.evaluate (<anonymous>:459:21) 
+        at Object.InjectedScript.evaluate (<anonymous>:459:21)
 
 While with long stack traces disabled, you would get:
 
@@ -361,7 +361,7 @@ While with long stack traces disabled, you would get:
         at Async$_consumeFunctionBuffer [as _consumeFunctionBuffer] (<anonymous>:560:33)
         at Async$consumeFunctionBuffer (<anonymous>:515:14)
         at MutationObserver.Promise$_Deferred (<anonymous>:433:17)
-        
+
 On client side, long stack traces currently only work in Firefox and Chrome.
 
 ##Promise resolution
@@ -401,7 +401,7 @@ delay(500).then(function(ms){
 
 #####`.asCallback` -> `Function`
 
-Gives you a callback representation of the `PromiseResolver`. Note that this is not a method but a property. The callback accepts error object in first argument and success values on the 2nd parameter and the rest, I.E. node js conventions. 
+Gives you a callback representation of the `PromiseResolver`. Note that this is not a method but a property. The callback accepts error object in first argument and success values on the 2nd parameter and the rest, I.E. node js conventions.
 
 If the the callback is called with multiple success values, the resolver fullfills its promise with an array of the values.
 
@@ -461,7 +461,7 @@ Promise.all([task1, task2, task3]).spread(function(result1, result2, result3){
 });
 ```
 
-Normally using when using `.then` the code would be like:
+Normally when using `.then` the code would be like:
 
 ```js
 Promise.all([task1, task2, task3]).then(function(results){
@@ -471,7 +471,7 @@ Promise.all([task1, task2, task3]).then(function(results){
 });
 ```
 
-This is useful when the results are not conceptually items of the same list.
+This is useful when the `results` array contains items that are not conceptually items of the same list.
 
 #####`.map(Function mapper)` -> `Promise`
 
@@ -639,7 +639,7 @@ somePromise.then(function(v){
 });
 //Using the variables won't work here because .then must be called asynchronously
 ```
- 
+
 Synchronous inspection API allows you to do this like so:
 
 ```js
@@ -794,13 +794,29 @@ redisGet.then(function(){
 });
 ```
 
+**Tip**
+
+Use [`.spread`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) with APIs that have multiple success values:
+
+```js
+var Promise = require("bluebird");
+var request = Promise.promisify(require('request'));
+request("http://www.google.com").spread(function(request, body) {
+    console.log(body);
+}).catch(function(err) {
+    console.error(err);
+});
+```
+
+The above uses [request](https://github.com/mikeal/request) library which has a callback signature of multiple success values.
+
 #####`Promise.promisify(Object target)` -> `Object`
 
 This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
 
 #####`Promise.promisifyAll(Object target)` -> `Object`
 
-Promisifies the entire object by going iterating through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object. 
+Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
 
 Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
@@ -896,7 +912,7 @@ Running the example with node version at least 0.11.2:
     Pong! 7
     Ping? 8
     ...
-    
+
 When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
 
 Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
