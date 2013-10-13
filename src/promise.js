@@ -711,7 +711,13 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     }
     if( initialValue !== void 0 ) {
         if( isPromise( initialValue ) ) {
-            return slowReduce( promises, fn, initialValue );
+            if( initialValue.isFulfilled() ) {
+                initialValue = initialValue._resolvedValue;
+            }
+            else {
+                return slowReduce( promises, fn, initialValue );
+            }
+
         }
         return Promise
             .all( promises )
