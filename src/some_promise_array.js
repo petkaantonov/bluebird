@@ -52,12 +52,13 @@ SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     this._addRejected( reason );
+
     if( this.howMany() > this._canPossiblyFulfill() ) {
         if( this._values.length === this.length() ) {
             this._reject([]);
         }
         else {
-            this._reject( this._values.slice( this.length() ) );
+            this._reject( this._values.slice( this.length() + this._holes ) );
         }
     }
 };
