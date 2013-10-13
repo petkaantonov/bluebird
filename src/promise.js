@@ -689,15 +689,17 @@ function reducer( fulfilleds, initialValue ) {
     return accum;
 }
 
-function slowReduce( promises, fn, initialValue ) {
-    return Promise._all( promises, PromiseArray, slowReduce )
-        .promise()
-        .then( function( fulfilleds ) {
-            return reducer.call( fn, fulfilleds, initialValue );
-        });
+function unpackReducer( fulfilleds ) {
+    var fn = this.fn;
+    var initialValue = this.initialValue;
+    return reducer.call( fn, fulfilleds, initialValue );
 }
 
-
+function slowReduce( promises, fn, initialValue ) {
+    return initialValue.then( function( initialValue ) {
+        return Promise.reduce( promises, fn, initialValue );
+    });
+}
 /**
  * Description.
  *
@@ -708,7 +710,15 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
         return apiRejection( "fn is not a function" );
     }
     if( initialValue !== void 0 ) {
-        return slowReduce( promises, fn, initialValue );
+        if( isPromise( initialValue ) ) {
+            return slowReduce( promises, fn, initialValue );
+        }
+        return Promise
+            .all( promises )
+            ._then( unpackReducer, void 0, void 0, {
+                fn: fn,
+                initialValue: initialValue
+            }, void 0, Promise.all );
     }
     return Promise
     //Currently smuggling internal data has a limitation
