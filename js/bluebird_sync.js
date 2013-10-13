@@ -1083,7 +1083,9 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
-        isRejected: false
+        isRejected: false,
+        fulfillmentValue: void 0,
+        rejectionReason: void 0
     };
     if( inspection.isFulfilled() ) {
         ret.fulfillmentValue = inspection.value();
@@ -1159,6 +1161,10 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
     return Promise.reduce( this, fn, initialValue );
 };
 
+ Promise.prototype.props = function Promise$props() {
+    return Promise.props( this );
+ };
+
 Promise.is = isPromise;
 
 Promise.settle = function Promise$Settle( promises ) {
@@ -1170,6 +1176,20 @@ Promise.all = function Promise$All( promises ) {
     var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
+
+Promise.props = function Promise$Props( promises ) {
+    if( isPrimitive( promises ) ) {
+        return Promise.fulfilled( promises, Promise.props );
+    }
+    else if( isPromise( promises ) ) {
+        return promises._then( Promise.props, void 0, void 0,
+                        void 0, void 0, Promise.props);
+    }
+    else {
+        return new PropertiesPromiseArray( promises, Promise.props ).promise();
+    }
+};
+
 
 Promise.join = function Promise$Join() {
     var ret = new Array( arguments.length );
@@ -2213,16 +2233,15 @@ Promise.TypeError = TypeError;
 return Promise;})();
 
 var PromiseArray = (function() {
-
-function nullToUndefined( val ) {
-    return val === null
-        ? void 0
-        : val;
+function toFulfillmentValue( val ) {
+    switch( val ) {
+    case 0: return void 0;
+    case 1: return [];
+    case 2: return {};
+    }
 }
 
 var hasOwn = {}.hasOwnProperty;
-var empty = [];
-
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
@@ -2238,7 +2257,7 @@ function PromiseArray( values, caller ) {
     this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, empty );
+    this._init( void 0, 1 );
 }
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
@@ -2270,7 +2289,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         else {
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -2278,12 +2297,18 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 
     }
     if( !values.length ) {
-        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
     var newLen = len;
-    var newValues = new Array( len );
+    var newValues;
+    if( this instanceof PropertiesPromiseArray ) {
+        newValues = this._values;
+    }
+    else {
+        newValues = new Array( len );
+    }
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
 
@@ -2299,7 +2324,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._promiseRejected,
             this._promiseProgressed,
 
-            this,            Integer.get( i ),             this.constructor
+            this,            i,             this.constructor
 
 
 
@@ -2328,7 +2353,7 @@ PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed( progressValue, index ) {
     if( this._isResolved() ) return;
     this._resolver.progress({
-        index: index.valueOf(),
+        index: index,
         value: progressValue
     });
 };
@@ -2336,7 +2361,7 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
 PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
-    this._values[ index.valueOf() ] = value;
+    this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
         this._fulfill( this._values );
@@ -2349,29 +2374,6 @@ function PromiseArray$_promiseRejected( reason ) {
     this._totalResolved++;
     this._reject( reason );
 };
-
-function Integer( value ) {
-    this._value = value;
-}
-
-Integer.prototype.valueOf = function Integer$valueOf() {
-    return this._value;
-};
-Integer.get = function Integer$get( i ) {
-    if( i < 256 ) {
-        return ints[i];
-    }
-    return new Integer(i);
-};
-
-var ints = [];
-for( var i = 0; i < 256; ++i ) {
-    ints.push( new Integer(i) );
-}
-
-
-
-
 
 return PromiseArray;})();
 
@@ -2397,7 +2399,7 @@ function SettledPromiseArray$_promiseFulfilled( value, index ) {
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 268435456;
     ret._resolvedValue = value;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
@@ -2405,7 +2407,7 @@ function SettledPromiseArray$_promiseRejected( reason, index ) {
     var ret = new PromiseInspection( throwawayPromise );
     ret._bitField = 134217728;
     ret._resolvedValue = reason;
-    this._promiseResolved( index.valueOf(), ret );
+    this._promiseResolved( index, ret );
 };
 
 return SettledPromiseArray;})();
@@ -2417,7 +2419,7 @@ function AnyPromiseArray( values, caller ) {
 inherits( AnyPromiseArray, PromiseArray );
 
 AnyPromiseArray.prototype._init = function AnyPromiseArray$_init() {
-    this._init$( void 0, null );
+    this._init$( void 0, 0 );
 };
 
 AnyPromiseArray.prototype._promiseFulfilled =
@@ -2431,7 +2433,7 @@ AnyPromiseArray.prototype._promiseRejected =
 function AnyPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var totalResolved = ++this._totalResolved;
-    this._values[ index.valueOf() ] = reason;
+    this._values[ index ] = reason;
     if( totalResolved >= this._length ) {
         this._reject( this._values );
     }
@@ -2452,7 +2454,7 @@ function SomePromiseArray( values, caller ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, [] );
+    this._init$( void 0, 1 );
     this._howMany = 0;
     this._holes = isArray( this._values )
         ? this._values.length - this.length()
@@ -2488,12 +2490,13 @@ SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     this._addRejected( reason );
+
     if( this.howMany() > this._canPossiblyFulfill() ) {
         if( this._values.length === this.length() ) {
             this._reject([]);
         }
         else {
-            this._reject( this._values.slice( this.length() ) );
+            this._reject( this._values.slice( this.length() + this._holes ) );
         }
     }
 };
@@ -2521,6 +2524,55 @@ function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
 return SomePromiseArray;})();
+
+var PropertiesPromiseArray = (function(){
+
+function PropertiesPromiseArray( obj, caller ) {
+    var keys = Object.keys( obj );
+    var values = new Array( keys.length );
+    for( var i = 0, len = values.length; i < len; ++i ) {
+        values[i] = obj[keys[i]];
+    }
+    this.constructor$( values, caller );
+    if( !this._isResolved() ) {
+        for( var i = 0, len = keys.length; i < len; ++i ) {
+            values.push( keys[i] );
+        }
+    }
+}
+inherits( PropertiesPromiseArray, PromiseArray );
+
+PropertiesPromiseArray.prototype._init =
+function PropertiesPromiseArray$_init() {
+    this._init$( void 0, 2 ) ;
+};
+
+PropertiesPromiseArray.prototype._promiseFulfilled =
+function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
+    if( this._isResolved() ) return;
+    this._values[ index ] = value;
+    var totalResolved = ++this._totalResolved;
+    if( totalResolved >= this._length ) {
+        var val = {};
+        var keyOffset = this.length();
+        for( var i = 0, len = this.length(); i < len; ++i ) {
+            val[this._values[i + keyOffset]] = this._values[i];
+        }
+        this._fulfill( val );
+    }
+};
+
+PropertiesPromiseArray.prototype._promiseProgressed =
+function PropertiesPromiseArray$_promiseProgressed( value, index ) {
+    if( this._isResolved() ) return;
+
+    this._resolver.progress({
+        key: this._values[ index + this.length() ],
+        value: value
+    });
+};
+
+return PropertiesPromiseArray;})();
 
 var PromiseInspection = (function() {
 

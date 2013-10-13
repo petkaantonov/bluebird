@@ -19,8 +19,10 @@
     - [`.fulfill(dynamic value)`](#fulfilldynamic-value---undefined)
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
+    - [`.asCallback`](#ascallback---function)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
+    - [`.props()`](#props---promise)
     - [`.settle()`](#settle---promise)
     - [`.any()`](#any---promise)
     - [`.some(int count)`](#someint-count---promise)
@@ -28,6 +30,7 @@
     - [`.map(Function mapper)`](#mapfunction-mapper---promise)
     - [`.reduce(Function reducer [, dynamic initialValue])`](#reducefunction-reducer--dynamic-initialvalue---promise)
     - [`Promise.all(Array<dynamic> values)`](#promiseallarraydynamic-values---promise)
+    - [`Promise.props(Object object)`](#promisepropsobject-object---promise)
     - [`Promise.settle(Array<dynamic> values)`](#promisesettlearraydynamic-values---promise)
     - [`Promise.any(Array<dynamic> values)`](#promiseanyarraydynamic-values---promise)
     - [`Promise.some(Array<dynamic> values, int count)`](#promisesomearraydynamic-values-int-count---promise)
@@ -439,6 +442,10 @@ collections of promises or mixed promises and values.
 
 Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise)
 
+#####`.props()` -> `Promise`
+
+Same as calling [Promise.props\(thisPromise\)](#promisepropsobject-object---promise)
+
 #####`.settle()` -> `Promise`
 
 Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise).
@@ -501,6 +508,33 @@ Promise.all([getPictures(), getComments(), getTweets()].then(function(results){
 See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
+
+#####`Promise.props(Object object)` -> `Promise`
+
+Like [`Promise.all`](#promiseallarraydynamic-values---promise) but for object properties instead of array items. Returns a promise that is fulfilled when all the properties of the object are fulfilled. The promise's fulfillment value is an object with fulfillment values at respective keys to the original object. If any promise in the object rejects, the returned promise is rejected with the rejection reason.
+
+If `object` is a trusted `Promise`, then it will be treated as a promise for object rather than for its properties. All other objects are treated for their properties as is returned by `Object.keys` - the object's own enumerable properties.
+
+```js
+Promise.props({
+    pictures: getPictures(),
+    comments: getComments(),
+    tweets: getTweets()
+}).then(function(result){
+    console.log(result.tweets, result.pictures, result.comments);
+});
+```
+
+Note that if you have no use for the result object other than retrieving the properties, it is more convenient to use [`Promise.all`](#promiseallarraydynamic-values---promise) and [`.spread()`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise):
+
+```js
+Promise.all([getPictures(), getComments(), getTweets()])
+.spread(function(pictures, comments, tweets) {
+    console.log(pictures, comments, tweets);
+});
+```
+
+*The original object is not modified.*
 
 #####`Promise.settle(Array<dynamic> values)` -> `Promise`
 
