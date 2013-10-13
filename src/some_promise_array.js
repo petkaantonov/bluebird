@@ -12,7 +12,7 @@ function SomePromiseArray( values, caller ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, [] );
+    this._init$( void 0, FULFILL_ARRAY );
     this._howMany = 0;
     //Need to keep track of holes in the array so
     //we know where rejection values start

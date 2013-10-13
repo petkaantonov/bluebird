@@ -1,18 +1,20 @@
 var PromiseArray = (function() {
+CONSTANT(FULFILL_UNDEFINED, 0);
+CONSTANT(FULFILL_ARRAY, 1);
+CONSTANT(FULFILL_OBJECT, 2);
 
-//Because undefined cannot be smuggled
-//we smuggle null instead and convert back to undefined
-//when calling
-//breaks down if null needs to be smuggled but so far doesn't
-function nullToUndefined( val ) {
-    return val === null
-        ? void 0
-        : val;
+//To avoid eagerly allocating the objects
+//and also because void 0 cannot be smuggled
+function toFulfillmentValue( val ) {
+    switch( val ) {
+    case FULFILL_UNDEFINED: return void 0;
+    case FULFILL_ARRAY: return [];
+    case FULFILL_OBJECT: return {};
+    }
+    ASSERT( false );
 }
 
 var hasOwn = {}.hasOwnProperty;
-var empty = [];
-
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
@@ -28,7 +30,7 @@ function PromiseArray( values, caller ) {
     this._resolver = Promise.pending( caller );
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, empty );
+    this._init( void 0, FULFILL_ARRAY );
 }
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
@@ -70,7 +72,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -78,12 +80,18 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 
     }
     if( !values.length ) {
-        this._fulfill( nullToUndefined( fulfillValueIfEmpty ) );
+        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
     var newLen = len;
-    var newValues = new Array( len );
+    var newValues;
+    if( this instanceof PropertiesPromiseArray ) {
+        newValues = this._values;
+    }
+    else {
+        newValues = new Array( len );
+    }
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
 

@@ -8,7 +8,7 @@ inherits( AnyPromiseArray, PromiseArray );
 
 AnyPromiseArray.prototype._init = function AnyPromiseArray$_init() {
     //.any must resolve to undefined in case of empty array
-    this._init$( void 0, null );
+    this._init$( void 0, FULFILL_UNDEFINED );
 };
 
 //override

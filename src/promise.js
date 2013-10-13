@@ -545,6 +545,15 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
 };
 
 /**
+ * Description.
+ *
+ *
+ */
+ Promise.prototype.props = function Promise$props() {
+    return Promise.props( this );
+ };
+
+/**
  * See if obj is a promise from this library. Same
  * as calling `obj instanceof Promise`.
  *
@@ -572,6 +581,25 @@ Promise.all = function Promise$All( promises ) {
     var ret = Promise._all( promises, PromiseArray );
     return ret.promise();
 };
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.props = function Promise$Props( promises ) {
+    if( isPrimitive( promises ) ) {
+        return Promise.fulfilled( promises, Promise.props );
+    }
+    else if( isPromise( promises ) ) {
+        return promises._then( Promise.props, void 0, void 0,
+                        void 0, void 0, Promise.props);
+    }
+    else {
+        return new PropertiesPromiseArray( promises, Promise.props ).promise();
+    }
+};
+
 
 /**
  * Like Promise.all but instead of having to pass an array,
