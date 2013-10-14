@@ -1683,8 +1683,6 @@ Promise.prototype._receiverAt = function Promise$_receiverAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._receiver0;
@@ -1696,8 +1694,6 @@ Promise.prototype._promiseAt = function Promise$_promiseAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._promise0;
@@ -1709,8 +1705,6 @@ Promise.prototype._fulfillAt = function Promise$_fulfillAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._fulfill0;
@@ -1722,8 +1716,6 @@ Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._reject0;
@@ -1735,8 +1727,6 @@ Promise.prototype._progressAt = function Promise$_progressAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) return this._progress0;
@@ -1748,8 +1738,6 @@ Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
     ASSERT(((index % 5) === 0),
     "index % CALLBACK_SIZE === 0");
     if( index === 0 ) {
@@ -2240,8 +2228,11 @@ Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
     this._setFulfilled();
     this._resolvedValue = value;
     var len = this._length();
+    this._setLength( 0 );
     for( var i = 0; i < len; i+= 5 ) {
         if( this._fulfillAt( i ) !== void 0 ) {
+            ASSERT(((typeof this._fulfillAt(i)) === "function"),
+    "typeof this._fulfillAt( i ) === \u0022function\u0022");
             async.invoke( this._doResolveAt, this, i );
         }
         else {
@@ -2250,6 +2241,7 @@ Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
             async.invoke( promise._fulfill, promise, value );
         }
     }
+
 };
 
 Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
@@ -2257,8 +2249,7 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     "typeof index === \u0022number\u0022");
     ASSERT((index >= 0),
     "index >= 0");
-    ASSERT((index < this._length()),
-    "index < this._length()");
+    this._setLength( 0 );
     var fn;
     ASSERT((this.isFulfilled() || this.isRejected()),
     "this.isFulfilled() || this.isRejected()");
@@ -2268,7 +2259,10 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     else {
         fn = this._rejectAt( index );
     }
+
     if( fn !== void 0 ) {
+        ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
         async.invoke( this._doResolveAt, this, index );
     }
     else {
@@ -2282,6 +2276,7 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
             async.invoke( promise._reject, promise, value );
         }
     }
+
 };
 
 Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
@@ -2290,15 +2285,14 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
-
     if( this._isFinal() ) {
         ASSERT((this._length() === 0),
     "this._length() === 0");
         async.invokeLater( thrower, void 0, reason );
         return;
     }
-
     var len = this._length();
+    this._setLength( 0 );
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
         if( this._rejectAt( i ) !== void 0 ) {
