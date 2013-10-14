@@ -100,11 +100,13 @@ Thenable.prototype._compactCache = function Thenable$_compactCache() {
         }
     }
     var newId = arr.length - skips;
+    //Compacting didn't result in any new free space
+    //so resize to 2x larger
     if( newId === this.__id__ ) {
         this.treshold *= 2;
     }
     else for( var i = newId, len = arr.length; i < len; ++i ) {
-        promiseArr[ j ] = arr[i] = void 0;
+        promiseArr[ j ] = arr[ i ] = void 0;
     }
 
     this.__id__ = newId;
