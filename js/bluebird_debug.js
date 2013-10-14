@@ -890,7 +890,7 @@ Thenable.prototype._compactCache = function Thenable$_compactCache() {
         this.treshold *= 2;
     }
     else for( var i = newId, len = arr.length; i < len; ++i ) {
-        promiseArr[ j ] = arr[i] = void 0;
+        promiseArr[ j ] = arr[ i ] = void 0;
     }
 
     this.__id__ = newId;
@@ -2967,7 +2967,7 @@ if( typeof module !== "undefined" && module.exports ) {
     module.exports = Promise;
 }
 else if( typeof define === "function" && define.amd ) {
-    define( "Promise", [], function(){return Promise;});
+    define(function(){return Promise;});
 }
 else {
     global.Promise = Promise;
