@@ -58,6 +58,8 @@ module.exports = function( grunt ) {
         MIN_SYNC_DEST = './js/bluebird_sync.min.js',
         MIN_DEST = './js/bluebird.min.js'
 
+    var ZALGO_DEST = './zalgo.js';
+
     function writeFile( dest, content ) {
         grunt.file.write( dest, content );
         grunt.log.writeln('File "' + dest + '" created.');
@@ -228,6 +230,8 @@ module.exports = function( grunt ) {
         writeFile( BUILD_DEST, asyncSrc );
         writeFile( BUILD_SYNC_DEST, syncSrc );
         writeFile( BUILD_DEBUG_DEST, debugSrc );
+        writeFile( ZALGO_DEST, syncSrc );
+
 
         if( shouldMinify ) {
             var ccDone = function( location, err, code ) {
