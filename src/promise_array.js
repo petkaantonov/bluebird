@@ -139,6 +139,7 @@ PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
 
 PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ASSERT( !this._isResolved() );
+    ensureNotHandled( reason );
     this._values = null;
     this._resolver.reject( reason );
 };

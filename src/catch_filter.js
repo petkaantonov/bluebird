@@ -19,6 +19,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
             return ret;
         }
     }
+    ensureNotHandled( e );
     throw e;
 };
 

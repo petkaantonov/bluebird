@@ -243,6 +243,8 @@ describe("progress", function () {
         return Q.delay(10).then(function () {
             assert.equal(called,false);
         });
+
+        deferred.promise.caught(function(){});
     });
 
     it("should not save and re-emit progress notifications", function () {
@@ -384,7 +386,6 @@ describe("progress", function () {
         var deferred = Q.defer();
         Promise.onPossiblyUnhandledRejection(function (error) {
             Promise.onPossiblyUnhandledRejection();
-            console.log(error.stack);
             assert.equal(error, theError);
             deferred.resolve();
         });

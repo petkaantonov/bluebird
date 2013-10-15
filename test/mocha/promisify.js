@@ -125,6 +125,9 @@ describe("when calling promisified function it should ", function(){
             }
         }
 
+        a.caught(function(){})
+        d.caught(function(){});
+
         setTimeout(function(){
             a.then(assert.fail, donecall);
             b.then(donecall, assert.fail);

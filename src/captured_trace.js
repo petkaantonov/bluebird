@@ -80,14 +80,37 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
 };
 
 var captureStackTrace = (function stackDetection() {
+    function formatNonError( obj ) {
+        var str = obj.toString();
+        if( str === "[object Object]") {
+            try {
+                var newStr = JSON.stringify(obj);
+                str = newStr;
+            }
+            catch( e ) {
+
+            }
+        }
+        return ("(<" + str + ">, no stack trace)");
+    }
+
     //V8
     if( typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function" ) {
         rtraceline = /^\s*at\s*/;
         formatStack = function( stack, error ) {
-            return ( typeof stack === "string" )
-                ? stack
-                : error.name + ". " + error.message;
+            ASSERT( typeof error === "object");
+            ASSERT( error !== null );
+
+            if( typeof stack === "string" ) return stack;
+
+            if( error.name !== void 0 &&
+                error.message !== void 0 ) {
+                return error.name + ". " + error.message;
+            }
+            return formatNonError( error );
+
+
         };
         var captureStackTrace = Error.captureStackTrace;
         return function CapturedTrace$_captureStackTrace(
@@ -123,9 +146,15 @@ var captureStackTrace = (function stackDetection() {
         var rline = /[@\n]/;
 
         formatStack = function( stack, error ) {
-            return ( typeof stack === "string" )
-                ? ( error.name + ". " + error.message + "\n" + stack )
-                : ( error.name + ". " + error.message );
+            if( typeof stack === "string" ) {
+                return ( error.name + ". " + error.message + "\n" + stack );
+            }
+
+            if( error.name !== void 0 &&
+                error.message !== void 0 ) {
+                return error.name + ". " + error.message;
+            }
+            return formatNonError( error );
         };
 
         return function captureStackTrace(o, fn) {
