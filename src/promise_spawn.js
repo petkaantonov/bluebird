@@ -52,6 +52,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
 };
 
 PromiseSpawn.prototype._throw = function PromiseSpawn$_throw( reason ) {
+    ensureNotHandled( reason );
     this.promise()._attachExtraTrace( reason );
     this._continue(
         tryCatch1( this._generator["throw"], this._generator, reason )

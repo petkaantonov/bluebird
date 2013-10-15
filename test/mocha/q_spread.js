@@ -136,16 +136,15 @@ describe("spread", function () {
         return promise;
     });
 
-    it("calls the errback when given a rejected promise", function () {
+    it("calls the errback when given a rejected promise", function (done) {
         var err = new Error();
-        return Q.spread([Q(10), Q.reject(err)],
-            function () {
-                assert.equal(true,false);
-            },
-            function (actual) {
-                assert.equal(actual,err);
-            }
-        );
+        var abc = [fulfilled(10), rejected(err)];
+
+        adapter.all([fulfilled(10), rejected(err)]).spread(assert.fail,
+            function(actual){
+            assert( actual === err );
+            done();
+        });
     });
 
 });

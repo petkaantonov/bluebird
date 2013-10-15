@@ -20,7 +20,12 @@ function onUnhandledFail() {
 function onUnhandledSucceed( done, testAgainst ) {
     Promise.onPossiblyUnhandledRejection(function(e){
          if( testAgainst !== void 0 ) {
-             assert.equal(testAgainst, e );
+            if( typeof testAgainst === "function" ) {
+                assert(testAgainst(e));
+            }
+            else {
+                assert.equal(testAgainst, e );
+            }
          }
          onDone(done)();
     });
@@ -40,7 +45,7 @@ function e() {
 }
 
 function notE() {
-    var rets = [null, void 0, "", 3, {}, [], true, false];
+    var rets = [{}, []];
     return rets[Math.random()*rets.length|0];
 }
 
@@ -181,81 +186,54 @@ if( adapter.hasLongStackTraces() ) {
                 throw err;
             });
         });
-
-        /*
-        specify("Errors are reported in depth-first order", function(done) {
-            var err = e();
-
-            Promise.onPossiblyUnhandledRejection(function(e){
-                console.error(e.stack);
-                console.error("\n\n\n");
-                console.error(err.stack);
-                console.error("\n\n\n");
-                assert.equal(e, err);
-                Promise.onPossiblyUnhandledRejection(function(e){
-                        assert.ok( e instanceof Promise.TypeError );
-
-                    Promise.onPossiblyUnhandledRejection( null );
-                    done();
-                });
-            });
-            var promise = fulfilled(null);
-
-            promise.caught(function(e) {
-                    assert.ok( e instanceof Promise.TypeError )
-                //Handling the type error here
-            }).then(function(){
-                //then failing again
-                //this error should be reported
-                throw err;
-            });
-
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            });
-
-        });
-        */
     });
 
 }
-describe("Will not report rejections that are not instanceof Error", function() {
-
-    specify("Already rejected with non instanceof Error", function(done) {
-        onUnhandledFail();
-
-        var failed = rejected(notE());
-        var failed2 = rejected(notE());
-
-        setTimeout( onDone(done), 175 );
-    });
+describe("Will report rejections that are not instanceof Error", function() {
 
     specify("Immediately rejected with non instanceof Error", function(done) {
-        onUnhandledFail();
+        onUnhandledSucceed(done);
 
         var failed = pending();
-        var failed2 = pending();
         failed.reject(notE());
-        failed2.reject(notE());
-
-        setTimeout( onDone(done), 175 );
-
     });
 
 
     specify("Eventually rejected with non instanceof Error", function(done) {
-        onUnhandledFail();
+        onUnhandledSucceed(done);
 
         var failed = pending();
-        var failed2 = pending();
 
         setTimeout(function(){
             failed.reject(notE());
-            failed2.reject(notE());
         }, 80 );
+    });
+});
 
-        setTimeout( onDone(done), 175 );
+describe("Will handle hostile rejection reasons like frozen objects", function() {
 
+    specify("Immediately rejected with non instanceof Error", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e.__promiseHandled__ > 0;
+        });
+
+
+        var failed = pending();
+        failed.reject(Object.freeze(new Error()));
+    });
+
+
+    specify("Eventually rejected with non instanceof Error", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e.__promiseHandled__ > 0;
+        });
+
+
+        var failed = pending();
+
+        setTimeout(function(){
+            failed.reject(Object.freeze({}));
+        }, 80 );
     });
 });
 

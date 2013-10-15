@@ -33,7 +33,7 @@ Then:
 
 ```js
 var Promise = require("bluebird");
-```    
+```
 ##Browsers
 
 Download the [bluebird_debug.js](https://github.com/petkaantonov/bluebird/blob/master/js/bluebird_debug.js) file. And then use a script tag:
@@ -148,7 +148,7 @@ Promise.fulfilled().then(function outer() {
         at Object.InjectedScript._evaluateOn (<anonymous>:572:39)
         at Object.InjectedScript._evaluateAndWrap (<anonymous>:531:52)
         at Object.InjectedScript.evaluate (<anonymous>:450:21)
-        
+
 
 A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability). (for `--error` and `--throw`, promises don't actually need to handle `--athrow` since that is something someone using a promises would never do)
 
@@ -173,17 +173,17 @@ Individual files can be run with `grunt test --run=filename` where `filename` is
 When trying to get a test to pass, run only that individual test file with `--verbose` to see the output from that test:
 
     grunt test --run=233 --verbose
-    
+
 The reason for the unusual way of testing is because the majority of tests are from different libraries using different testing frameworks and because it takes forever to test sequentially.
-    
-    
+
+
 ###Testing in browsers
 
 To test in browsers:
 
     cd browser
     setup
-    
+
 Then open the `index.html` in your browser. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
@@ -197,7 +197,7 @@ Currently the most relevant benchmark is @gorkikosev's benchmark in the article 
 You can run the benchmark with:
 
     bench spion
-    
+
 While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 Node 0.11.2+ is required to run the generator examples.
@@ -207,8 +207,12 @@ Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.co
     bench cujojs
 
 While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
-    
+
 ##What is the sync build?
+
+You may now use sync build by:
+
+    var Promise = require("bluebird/zalgo");
 
 The sync build is provided to see how forced asynchronity affects benchmarks. It should not be used in real code due to the implied hazards.
 
@@ -218,11 +222,11 @@ of stack overflow errors and non-deterministic behavior.
 The sync build skips the async call trampoline completely, e.g code like:
 
     async.invoke( this.fn, this, val );
-    
+
 Appears as this in the sync build:
 
     this.fn(val);
-    
+
 This should pressure the CPU slightly less and thus the sync build should perform better. Indeed it does, but only marginally. The biggest performance boosts are from writing efficient Javascript, not from compromising deternism.
 
 Note that while some benchmarks are waiting for the next event tick, the CPU is actually not in use during that time. So the resulting benchmark result is not completely accurate because on node.js you only care about how much the CPU is taxed. Any time spent on CPU is time the whole process (or server) is paralyzed. And it is not graceful like it would be with threads.

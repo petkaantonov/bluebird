@@ -14,6 +14,28 @@ var haveGetters = (function(){
 
 })();
 
+var ensurePropertyExpansion = function( obj, prop, value ) {
+    try {
+        notEnumerableProp( obj, prop, value );
+        return obj;
+    }
+    catch( e ) {
+        var ret = {};
+        var keys = Object.keys( obj );
+        for( var i = 0, len = keys.length; i < len; ++i ) {
+            try {
+                var key = keys[i];
+                ret[key] = obj[key];
+            }
+            catch( err ) {
+                ret[key] = err;
+            }
+        }
+        notEnumerableProp( ret, prop, value );
+        return ret;
+    }
+};
+
 var canEvaluate = (function() {
     //Cannot feature detect CSP without triggering
     //violations
@@ -104,6 +126,10 @@ function isPrimitive( val ) {
     return val == null || val === true || val === false ||
         typeof val === "string" || typeof val === "number";
 
+}
+
+function isObject( value ) {
+    return !isPrimitive( value );
 }
 
 function maybeWrapAsError( maybeError ) {

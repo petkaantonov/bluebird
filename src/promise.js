@@ -1,7 +1,6 @@
 var Promise = (function() {
 
 function isObject( value ) {
-    //no need to check for undefined twice
     if( value === null ) {
         return false;
     }
@@ -14,15 +13,8 @@ function isPromise( obj ) {
     return obj instanceof Promise;
 }
 
-var Err = Error;
-function isError( obj ) {
-    if( typeof obj !== "object" ) return false;
-    return obj instanceof Err;
-}
-
-var Arr = Array;
-var isArray = Arr.isArray || function( obj ) {
-    return obj instanceof Arr;
+var isArray = Array.isArray || function( obj ) {
+    return obj instanceof Array;
 };
 
 
@@ -153,6 +145,7 @@ function slowFinally( ret, reasonOrValue ) {
     }
     else {
         return ret._then(function() {
+            ensureNotHandled( reasonOrValue );
             throw reasonOrValue;
         }, thrower, void 0, this, void 0, slowFinally );
     }
@@ -171,7 +164,11 @@ function Promise$finally( fn ) {
         if( isPromise( ret ) ) {
             return slowFinally.call( this, ret, reasonOrValue );
         }
-        if( this.isRejected() ) throw reasonOrValue;
+
+        if( this.isRejected() ) {
+            ensureNotHandled( reasonOrValue );
+            throw reasonOrValue;
+        }
         return reasonOrValue;
     };
     return this._then( r, r, void 0, this, void 0, this.lastly );
@@ -568,7 +565,7 @@ Promise.is = isPromise;
  *
  */
 Promise.settle = function Promise$Settle( promises ) {
-    var ret = Promise._all( promises, SettledPromiseArray );
+    var ret = Promise._all( promises, SettledPromiseArray, Promise.settle );
     return ret.promise();
 };
 
@@ -578,7 +575,7 @@ Promise.settle = function Promise$Settle( promises ) {
  *
  */
 Promise.all = function Promise$All( promises ) {
-    var ret = Promise._all( promises, PromiseArray );
+    var ret = Promise._all( promises, PromiseArray, Promise.all );
     return ret.promise();
 };
 
@@ -615,7 +612,7 @@ Promise.join = function Promise$Join() {
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
     }
-    return Promise._all( ret, PromiseArray ).promise();
+    return Promise._all( ret, PromiseArray, Promise.join ).promise();
 };
 
 /**
@@ -624,7 +621,7 @@ Promise.join = function Promise$Join() {
  *
  */
 Promise.any = function Promise$Any( promises ) {
-    var ret = Promise._all( promises, AnyPromiseArray );
+    var ret = Promise._all( promises, AnyPromiseArray, Promise.any );
     return ret.promise();
 };
 
@@ -637,7 +634,7 @@ Promise.some = function Promise$Some( promises, howMany ) {
     if( ( howMany | 0 ) !== howMany ) {
         return apiRejection("howMany must be an integer");
     }
-    var ret = Promise._all( promises, SomePromiseArray );
+    var ret = Promise._all( promises, SomePromiseArray, Promise.some );
     ASSERT( ret instanceof SomePromiseArray );
     ret.setHowMany( howMany );
     return ret.promise();
@@ -1128,7 +1125,6 @@ Promise.prototype._unsetCancellable = function Promise$_unsetCancellable() {
 Promise.prototype._receiverAt = function Promise$_receiverAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._receiver0;
     return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
@@ -1137,7 +1133,6 @@ Promise.prototype._receiverAt = function Promise$_receiverAt( index ) {
 Promise.prototype._promiseAt = function Promise$_promiseAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._promise0;
     return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
@@ -1146,7 +1141,6 @@ Promise.prototype._promiseAt = function Promise$_promiseAt( index ) {
 Promise.prototype._fulfillAt = function Promise$_fulfillAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._fulfill0;
     return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
@@ -1155,7 +1149,6 @@ Promise.prototype._fulfillAt = function Promise$_fulfillAt( index ) {
 Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._reject0;
     return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
@@ -1164,7 +1157,6 @@ Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
 Promise.prototype._progressAt = function Promise$_progressAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) return this._progress0;
     return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
@@ -1173,7 +1165,6 @@ Promise.prototype._progressAt = function Promise$_progressAt( index ) {
 Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
     ASSERT( index % CALLBACK_SIZE === 0 );
     if( index === 0 ) {
         this._fulfill0 =
@@ -1242,6 +1233,9 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
 
 Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase( targetFn, promise, values ) {
+    ASSERT( isArray( values ) || isPromise( values ) );
+    ASSERT( typeof targetFn === "function" );
+    ASSERT( isPromise( promise ) );
     promise._assumeStateOf(
         Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
             this._spreadSlowCase ),
@@ -1434,8 +1428,20 @@ var ignore = CatchFilter.prototype.doFilter;
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
-    if( isError( value ) ) {
-        value.__handled = true;
+    var isRejected = this.isRejected();
+
+    if( isRejected &&
+        typeof value === "object" &&
+        value !== null ) {
+        var handledState = value[ERROR_HANDLED_KEY];
+
+        if( handledState === void 0 ) {
+            notEnumerableProp( value, ERROR_HANDLED_KEY, ERROR_HANDLED );
+        }
+        else {
+            value[ERROR_HANDLED_KEY] =
+                withHandledMarked( handledState );
+        }
     }
 
     //if promise is not instanceof Promise
@@ -1447,7 +1453,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     var x;
     //Special receiver that means we are .applying an array of arguments
     //(for .spread() at the moment)
-    if( receiver === APPLY ) {
+    if( !isRejected && receiver === APPLY ) {
         //Array of non-promise values is fast case
         //.spread has a bit convoluted semantics otherwise
         if( isArray( value ) ) {
@@ -1594,10 +1600,11 @@ Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
 Promise.prototype._attachExtraTrace =
 function Promise$_attachExtraTrace( error ) {
     if( longStackTraces &&
-        isError( error ) ) {
+        canAttach( error ) ) {
         var promise = this;
         var stack = error.stack;
-        stack = stack ? stack.split("\n") : [];
+        stack = typeof stack === "string"
+            ? stack.split("\n") : [];
         var headerLineCount = 1;
 
         while( promise != null &&
@@ -1620,20 +1627,23 @@ function Promise$_attachExtraTrace( error ) {
         else {
             error.stack = stack.join("\n");
         }
+        error[ERROR_HANDLED_KEY] =
+            withStackAttached( error[ERROR_HANDLED_KEY] );
     }
 };
 
 Promise.prototype._notifyUnhandledRejection =
 function Promise$_notifyUnhandledRejection( reason ) {
-    if( !reason.__handled ) {
-        reason.__handled = true;
+    if( !isHandled( reason[ERROR_HANDLED_KEY] ) ) {
+        reason[ERROR_HANDLED_KEY] =
+            withHandledMarked( reason[ERROR_HANDLED_KEY] );
         CapturedTrace.possiblyUnhandledRejection( reason );
     }
 };
 
 Promise.prototype._unhandledRejection =
 function Promise$_unhandledRejection( reason ) {
-    if( !reason.__handled ) {
+    if( !isHandled( reason[ERROR_HANDLED_KEY] ) ) {
         async.invokeLater( this._notifyUnhandledRejection, this, reason );
     }
 };
@@ -1678,8 +1688,10 @@ Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
     this._setFulfilled();
     this._resolvedValue = value;
     var len = this._length();
+    this._setLength( 0 );
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         if( this._fulfillAt( i ) !== void 0 ) {
+            ASSERT( typeof this._fulfillAt( i ) === "function");
             async.invoke( this._doResolveAt, this, i );
         }
         else {
@@ -1688,12 +1700,13 @@ Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
             async.invoke( promise._fulfill, promise, value );
         }
     }
+
 };
 
 Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
-    ASSERT( index < this._length() );
+    this._setLength( 0 );
     var fn;
     ASSERT( this.isFulfilled() || this.isRejected() );
     if( this.isFulfilled() ) {
@@ -1702,7 +1715,9 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     else {
         fn = this._rejectAt( index );
     }
+
     if( fn !== void 0 ) {
+        ASSERT( typeof fn === "function" );
         async.invoke( this._doResolveAt, this, index );
     }
     else {
@@ -1716,6 +1731,7 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
             async.invoke( promise._reject, promise, value );
         }
     }
+
 };
 
 Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
@@ -1723,7 +1739,6 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
-
     if( this._isFinal() ) {
         ASSERT( this._length() === 0 );
         //Currently not in conflict with anything but should
@@ -1731,8 +1746,8 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
         async.invokeLater( thrower, void 0, reason );
         return;
     }
-
     var len = this._length();
+    this._setLength( 0 );
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= CALLBACK_SIZE ) {
         if( this._rejectAt( i ) !== void 0 ) {
@@ -1749,19 +1764,27 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     }
 
     if( !rejectionWasHandled &&
-        isError( reason ) &&
         CapturedTrace.possiblyUnhandledRejection !== void 0
     ) {
-        //If the prop is not there, reading it
-        //will cause deoptimization most likely
-        //so do it at last possible moment
-        if( reason.__handled !== true ) {
-            reason.__handled = false;
-            async.invoke(
-                this._unhandledRejection,
-                this,
-                reason
-            );
+
+        if( isObject( reason ) ) {
+            var handledState = reason[ERROR_HANDLED_KEY];
+            var newReason = reason;
+
+            if( handledState === void 0 ) {
+                newReason = ensurePropertyExpansion(reason,
+                    ERROR_HANDLED_KEY, DEFAULT_STATE );
+                handledState = DEFAULT_STATE;
+            }
+            else if( isHandled( handledState ) ) {
+                return;
+            }
+
+            if( !isStackAttached( handledState ) )  {
+                this._attachExtraTrace( newReason );
+            }
+            async.invoke( this._unhandledRejection, this, newReason );
+
         }
     }
 
@@ -1791,7 +1814,7 @@ function Promise$_resolveProgress( progressValue ) {
                 //then the error is silenced.
                 if( ret.e != null &&
                     ret.e.name === "StopProgressPropagation" ) {
-                    ret.e.__handled = true;
+                    ret.e[ERROR_HANDLED_KEY] = ERROR_HANDLED;
                 }
                 else {
                     //2.3 Unless the onProgress callback throws an exception

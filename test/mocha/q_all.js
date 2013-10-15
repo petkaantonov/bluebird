@@ -93,11 +93,17 @@ describe("all", function () {
 
         toReject.reject(new Error("Rejected"));
 
+        promise.caught(function(e){
+            //Unhandled rejection
+        });
+
         return Q.delay(250)
         .then(function () {
             assert.equal(promise.isRejected(), true);
         })
         .timeout(1000);
+
+
     });
 
     it("resolves foreign thenables", function () {
