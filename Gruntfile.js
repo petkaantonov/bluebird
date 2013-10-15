@@ -141,7 +141,7 @@ module.exports = function( grunt ) {
         createTag: true,
         tagName: 'v%VERSION%',
         tagMessage: 'Version %VERSION%',
-        push: true,
+        false: true,
         pushTo: 'master',
         gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d' // options to use with '$ git describe'
       }
