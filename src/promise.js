@@ -816,7 +816,8 @@ Promise.rejected = function Promise$Rejected( reason ) {
  */
 Promise.pending = function Promise$Pending( caller ) {
     var promise = new Promise();
-    promise._setTrace( caller, void 0 );
+    promise._setTrace( typeof caller === "function"
+                              ? caller : Promise.pending, void 0 );
     return new PromiseResolver( promise );
 };
 
