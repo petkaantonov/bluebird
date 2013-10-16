@@ -26,6 +26,7 @@ function PropertiesPromiseArray$_init() {
 PropertiesPromiseArray.prototype._promiseFulfilled =
 function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT( !( value instanceof Promise ) );
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {

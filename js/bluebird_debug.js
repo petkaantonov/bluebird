@@ -27,7 +27,7 @@
         };
     })();
 
-/* jshint -W014, -W116, -W106 */
+/* jshint -W014, -W116, -W106, -W064 */
 /* global process, global */
 /**
  * @preserve Copyright (c) 2013 Petka Antonov
@@ -1095,7 +1095,6 @@ Promise.prototype.toString = function Promise$toString() {
     return "[object Promise]";
 };
 
-
 Promise.prototype.caught = Promise.prototype["catch"] =
 function Promise$catch( fn ) {
     var len = arguments.length;
@@ -1152,7 +1151,7 @@ function slowFinally( ret, reasonOrValue ) {
 Promise.prototype.lastly = Promise.prototype["finally"] =
 function Promise$finally( fn ) {
     var r = function( reasonOrValue ) {
-        var ret = fn( reasonOrValue );
+        var ret = fn();
         if( isPromise( ret ) ) {
             return slowFinally.call( this, ret, reasonOrValue );
         }
@@ -1370,13 +1369,13 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
 Promise.is = isPromise;
 
 Promise.settle = function Promise$Settle( promises ) {
-    var ret = Promise._all( promises, SettledPromiseArray, Promise.settle );
-    return ret.promise();
+    return Promise$_All( promises, SettledPromiseArray, Promise.settle )
+        .promise();
 };
 
 Promise.all = function Promise$All( promises ) {
-    var ret = Promise._all( promises, PromiseArray, Promise.all );
-    return ret.promise();
+    return Promise$_All( promises, PromiseArray, Promise.all )
+        .promise();
 };
 
 Promise.props = function Promise$Props( promises ) {
@@ -1398,19 +1397,19 @@ Promise.join = function Promise$Join() {
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
     }
-    return Promise._all( ret, PromiseArray, Promise.join ).promise();
+    return Promise$_All( ret, PromiseArray, Promise.join ).promise();
 };
 
 Promise.any = function Promise$Any( promises ) {
-    var ret = Promise._all( promises, AnyPromiseArray, Promise.any );
-    return ret.promise();
+    return Promise$_All( promises, AnyPromiseArray, Promise.any )
+        .promise();
 };
 
 Promise.some = function Promise$Some( promises, howMany ) {
     if( ( howMany | 0 ) !== howMany ) {
         return apiRejection("howMany must be an integer");
     }
-    var ret = Promise._all( promises, SomePromiseArray, Promise.some );
+    var ret = Promise$_All( promises, SomePromiseArray, Promise.some );
     ASSERT((ret instanceof SomePromiseArray),
     "ret instanceof SomePromiseArray");
     ret.setHowMany( howMany );
@@ -1418,7 +1417,7 @@ Promise.some = function Promise$Some( promises, howMany ) {
 };
 
 
-function mapper( fulfilleds ) {
+function Promise$_mapper( fulfilleds ) {
     var fn = this;
     var shouldDefer = false;
     for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
@@ -1438,23 +1437,27 @@ function mapper( fulfilleds ) {
         }
         fulfilleds[i] = fulfill;
     }
-    return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
+    return shouldDefer
+        ? Promise$_All( fulfilleds, PromiseArray, Promise$_mapper ).promise()
+        : fulfilleds;
 }
 Promise.map = function Promise$Map( promises, fn ) {
     if( typeof fn !== "function" ) {
         return apiRejection( "fn is not a function" );
     }
-    return Promise.all( promises )._then(
-        mapper,
-        void 0,
-        void 0,
-        fn,
-        void 0,
-        Promise.map
+    return Promise$_All( promises, PromiseArray, Promise.map )
+        .promise()
+        ._then(
+            Promise$_mapper,
+            void 0,
+            void 0,
+            fn,
+            void 0,
+            Promise.map
     );
 };
 
-function reducer( fulfilleds, initialValue ) {
+function Promise$_reducer( fulfilleds, initialValue ) {
     var fn = this;
     var len = fulfilleds.length;
     var accum = void 0;
@@ -1488,16 +1491,16 @@ function reducer( fulfilleds, initialValue ) {
     return accum;
 }
 
-function unpackReducer( fulfilleds ) {
+function Promise$_unpackReducer( fulfilleds ) {
     var fn = this.fn;
     var initialValue = this.initialValue;
-    return reducer.call( fn, fulfilleds, initialValue );
+    return Promise$_reducer.call( fn, fulfilleds, initialValue );
 }
 
-function slowReduce( promises, fn, initialValue ) {
-    return initialValue.then( function( initialValue ) {
+function Promise$_slowReduce( promises, fn, initialValue ) {
+    return initialValue._then( function( initialValue ) {
         return Promise.reduce( promises, fn, initialValue );
-    });
+    }, void 0, void 0, void 0, void 0, Promise.reduce );
 }
 Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     if( typeof fn !== "function" ) {
@@ -1509,20 +1512,19 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
                 initialValue = initialValue._resolvedValue;
             }
             else {
-                return slowReduce( promises, fn, initialValue );
+                return Promise$_slowReduce( promises, fn, initialValue );
             }
 
         }
-        return Promise
-            .all( promises )
-            ._then( unpackReducer, void 0, void 0, {
+        return Promise$_All( promises, PromiseArray, Promise.reduce )
+            .promise()
+            ._then( Promise$_unpackReducer, void 0, void 0, {
                 fn: fn,
                 initialValue: initialValue
-            }, void 0, Promise.all );
+            }, void 0, Promise.reduce );
     }
-    return Promise
-        .all( promises )
-        ._then( reducer, void 0, void 0, fn, void 0, Promise.all );
+    return Promise$_All( promises, PromiseArray, Promise.reduce ).promise()
+        ._then( Promise$_reducer, void 0, void 0, fn, void 0, Promise.reduce );
 };
 
 Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
@@ -1550,7 +1552,8 @@ Promise.rejected = function Promise$Rejected( reason ) {
 
 Promise.pending = function Promise$Pending( caller ) {
     var promise = new Promise();
-    promise._setTrace( caller, void 0 );
+    promise._setTrace( typeof caller === "function"
+                              ? caller : Promise.pending, void 0 );
     return new PromiseResolver( promise );
 };
 
@@ -1926,8 +1929,10 @@ function Promise$_spreadSlowCase( targetFn, promise, values ) {
     ASSERT(isPromise(promise),
     "isPromise( promise )");
     promise._assumeStateOf(
-        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
-            this._spreadSlowCase ),
+            Promise$_All( values, PromiseArray, this._spreadSlowCase )
+            .promise()
+            ._then( targetFn, void 0, void 0, APPLY, void 0,
+                    this._spreadSlowCase ),
         false
     );
 };
@@ -2530,7 +2535,6 @@ Promise.prototype._popContext = function Promise$_popContext() {
 };
 
 
-Promise._all =
 function Promise$_All( promises, PromiseArray, caller ) {
     ASSERT(((typeof PromiseArray) === "function"),
     "typeof PromiseArray === \u0022function\u0022");
@@ -2545,7 +2549,7 @@ function Promise$_All( promises, PromiseArray, caller ) {
     }
     return new PromiseArray(
         [ apiRejection( "expecting an array or a promise" ) ] );
-};
+}
 
 var old = global.Promise;
 
@@ -2608,6 +2612,7 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
+var cast = Promise._cast;
 PromiseArray.prototype._init =
 function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var values = this._values;
@@ -2637,7 +2642,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
 
     }
-    if( !values.length ) {
+    if( values.length === 0 ) {
         this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
@@ -2650,30 +2655,81 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     else {
         newValues = new Array( len );
     }
+    var isDirectScanNeeded = false;
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
-
         if( promise === void 0 && !hasOwn.call( values, i ) ) {
             newLen--;
             continue;
         }
+        var maybePromise = cast( promise );
+        if( maybePromise instanceof Promise &&
+            maybePromise.isPending() ) {
+            maybePromise._then(
+                this._promiseFulfilled,
+                this._promiseRejected,
+                this._promiseProgressed,
 
-        promise = Promise.cast( promise );
-
-        promise._then(
-            this._promiseFulfilled,
-            this._promiseRejected,
-            this._promiseProgressed,
-
-            this,            i,             this.constructor
-
-
-
-        );
-        newValues[i] = promise;
+                this,                i,                 this._scanDirectValues
+            );
+        }
+        else {
+            isDirectScanNeeded = true;
+        }
+        newValues[i] = maybePromise;
+    }
+    if( newLen === 0 ) {
+        this._fulfill( newValues );
+        return;
     }
     this._values = newValues;
     this._length = newLen;
+    if( isDirectScanNeeded ) {
+        var scanMethod = newLen === len
+            ? this._scanDirectValues
+            : this._scanDirectValuesHoled;
+        async.invoke( scanMethod, this, len );
+    }
+};
+
+PromiseArray.prototype._resolvePromiseAt =
+function PromiseArray$_resolvePromiseAt( i ) {
+    var value = this._values[i];
+    if( !( value instanceof Promise ) ) {
+        this._promiseFulfilled( value, i );
+    }
+    else if( value.isFulfilled() ) {
+        this._promiseFulfilled( value._resolvedValue, i );
+    }
+    else if( value.isRejected() ) {
+        this._promiseRejected( value._resolvedValue, i );
+    }
+};
+
+PromiseArray.prototype._scanDirectValuesHoled =
+function PromiseArray$_scanDirectValuesHoled( len ) {
+    ASSERT((len > this.length()),
+    "len > this.length()");
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        if( hasOwn.call( this._values, i ) ) {
+            this._resolvePromiseAt( i );
+        }
+    }
+};
+
+PromiseArray.prototype._scanDirectValues =
+function PromiseArray$_scanDirectValues( len ) {
+    ASSERT((len >= this.length()),
+    "len >= this.length()");
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        this._resolvePromiseAt( i );
+    }
 };
 
 PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
@@ -2915,6 +2971,8 @@ function PropertiesPromiseArray$_init() {
 PropertiesPromiseArray.prototype._promiseFulfilled =
 function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT((! (value instanceof Promise)),
+    "!( value instanceof Promise )");
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
@@ -3062,6 +3120,7 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
     this._next( void 0 );
 };
 
+var cast = Promise._cast;
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
         this._generator = void 0;
@@ -3075,14 +3134,14 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        var ret = Promise._cast( value, PromiseSpawn$_continue );
-        if( !( ret instanceof Promise ) ) {
+        var maybePromise = cast( value, PromiseSpawn$_continue );
+        if( !( maybePromise instanceof Promise ) ) {
             this._throw( new TypeError(
                 "A value was yielded that could not be treated as a promise"
             ) );
             return;
         }
-        ret._then(
+        maybePromise._then(
             this._next,
             this._throw,
             void 0,

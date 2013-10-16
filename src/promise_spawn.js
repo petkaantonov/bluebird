@@ -18,6 +18,7 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
     this._next( void 0 );
 };
 
+var cast = Promise._cast;
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
         this._generator = void 0;
@@ -31,14 +32,14 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        var ret = Promise._cast( value, PromiseSpawn$_continue );
-        if( !( ret instanceof Promise ) ) {
+        var maybePromise = cast( value, PromiseSpawn$_continue );
+        if( !( maybePromise instanceof Promise ) ) {
             this._throw( new TypeError(
                 "A value was yielded that could not be treated as a promise"
             ) );
             return;
         }
-        ret._then(
+        maybePromise._then(
             this._next,
             this._throw,
             void 0,
