@@ -40,6 +40,7 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
+var cast = Promise._cast;
 PromiseArray.prototype._init =
             //when.some resolves to [] when empty
             //but when.any resolved to void 0 when empty :<
@@ -79,7 +80,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
 
     }
-    if( !values.length ) {
+    if( values.length === 0 ) {
         this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
@@ -92,39 +93,91 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     else {
         newValues = new Array( len );
     }
+    var isDirectScanNeeded = false;
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
-
         //checking for undefined first (1 cycle instruction) in order not to
         //punish reasonable non-sparse arrays
         if( promise === void 0 && !hasOwn.call( values, i ) ) {
             newLen--;
             continue;
         }
+        var maybePromise = cast( promise );
+        if( maybePromise instanceof Promise &&
+            maybePromise.isPending() ) {
+            //Guaranteed to be called after the possible direct scan
+            maybePromise._then(
+                this._promiseFulfilled,
+                this._promiseRejected,
+                this._promiseProgressed,
 
-        promise = Promise.cast( promise );
+                this, //Smuggle receiver - .bind avoided round 1
+                i, //Smuggle the index as internal data
+                  //to avoid creating closures in this loop
+                  //- .bind avoided round 2
 
-        promise._then(
-            this._promiseFulfilled,
-            this._promiseRejected,
-            this._promiseProgressed,
+                  //Will not chain so creating a Promise from
+                  //the ._then() would be a waste anyway
 
-            this, //Smuggle receiver - .bind avoided round 1
-            i, //Smuggle the index as internal data
-              //to avoid creating closures in this loop - .bind avoided round 2
-
-              //Will not chain so creating a Promise from
-              //the ._then() would be a waste anyway
-
-             this.constructor
-
-
-
-        );
-        newValues[i] = promise;
+                 this._scanDirectValues
+            );
+        }
+        else {
+            isDirectScanNeeded = true;
+        }
+        newValues[i] = maybePromise;
+    }
+    //Array full of holes
+    if( newLen === 0 ) {
+        this._fulfill( newValues );
+        return;
     }
     this._values = newValues;
     this._length = newLen;
+    if( isDirectScanNeeded ) {
+        var scanMethod = newLen === len
+            ? this._scanDirectValues
+            : this._scanDirectValuesHoled;
+        async.invoke( scanMethod, this, len );
+    }
+};
+
+PromiseArray.prototype._resolvePromiseAt =
+function PromiseArray$_resolvePromiseAt( i ) {
+    var value = this._values[i];
+    if( !( value instanceof Promise ) ) {
+        this._promiseFulfilled( value, i );
+    }
+    else if( value.isFulfilled() ) {
+        this._promiseFulfilled( value._resolvedValue, i );
+    }
+    else if( value.isRejected() ) {
+        this._promiseRejected( value._resolvedValue, i );
+    }
+};
+
+PromiseArray.prototype._scanDirectValuesHoled =
+function PromiseArray$_scanDirectValuesHoled( len ) {
+    ASSERT( len > this.length() );
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        if( hasOwn.call( this._values, i ) ) {
+            this._resolvePromiseAt( i );
+        }
+    }
+};
+
+PromiseArray.prototype._scanDirectValues =
+function PromiseArray$_scanDirectValues( len ) {
+    ASSERT( len >= this.length() );
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        this._resolvePromiseAt( i );
+    }
 };
 
 PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
