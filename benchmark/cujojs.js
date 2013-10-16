@@ -13,14 +13,9 @@ var spawn = require('child_process').spawn;
         var args =  ["./cujotests/" + files[i]];
         var name = "node";
 
-        var node = spawn( name, args);
-        node.stdout.on('data', function( data ) {
-            process.stdout.write(data);
-        });
+        var stdio = ['ignore', process.stdout, process.stderr];
 
-        node.stderr.on('data', function( data ) {
-            process.stderr.write(data);
-        });
+        var node = spawn( name, args, {stdio: stdio});
 
         function exit( code ) {
             if( code !== 0 ) {

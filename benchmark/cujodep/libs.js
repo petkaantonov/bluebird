@@ -3,7 +3,7 @@
 module.exports = {
     when: require('../adapters/when.js'),
     q: require('../adapters/q.js'),
-    kew: require('../adapters/kew.js'),
+    //kew: require('../adapters/kew.js'),
     avow: require('../adapters/avow.js'),
     rsvp: require('../adapters/rsvp.js'),
     deferred: require('../adapters/deferred.js'), //fails spec

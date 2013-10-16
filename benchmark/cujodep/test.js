@@ -30,7 +30,9 @@ Test.prototype = {
     },
 
     run: function(testCases, exitWhenDone) {
+        console.log("\n###Running### "+this.name+"\n");
         if(testCases.length === 0) {
+            console.error("0 test cases");
             return;
         }
 
@@ -40,12 +42,17 @@ Test.prototype = {
 
         // some libs (e.g. deferred) seem to cause the process to hang
         // when they have leftover unresolved promises, so we have to
-        // force the process to exit.
-        if(exitWhenDone) {
-            promise.then(exit, exit);
+        // force the process to exit
+        promise.then(exitS, exitF);
+        var self = this;
+        function exitF( reason ) {
+            console.error( "Exiting " + self.name + " from failure.");
+            console.error( reason.stack );
+            process.exit(-1);
         }
 
-        function exit() {
+        function exitS() {
+            console.log( "Exiting " + self.name + " successfully.");
             process.exit(0);
         }
     },

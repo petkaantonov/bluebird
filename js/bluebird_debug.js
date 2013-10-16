@@ -1152,7 +1152,7 @@ function slowFinally( ret, reasonOrValue ) {
 Promise.prototype.lastly = Promise.prototype["finally"] =
 function Promise$finally( fn ) {
     var r = function( reasonOrValue ) {
-        var ret = fn( reasonOrValue );
+        var ret = fn();
         if( isPromise( ret ) ) {
             return slowFinally.call( this, ret, reasonOrValue );
         }
@@ -2609,6 +2609,7 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
+var cast = Promise._cast;
 PromiseArray.prototype._init =
 function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var values = this._values;
@@ -2638,7 +2639,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
 
     }
-    if( !values.length ) {
+    if( values.length === 0 ) {
         this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
         return;
     }
@@ -2651,30 +2652,81 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     else {
         newValues = new Array( len );
     }
+    var isDirectScanNeeded = false;
     for( var i = 0; i < len; ++i ) {
         var promise = values[i];
-
         if( promise === void 0 && !hasOwn.call( values, i ) ) {
             newLen--;
             continue;
         }
+        var maybePromise = cast( promise );
+        if( maybePromise instanceof Promise &&
+            maybePromise.isPending() ) {
+            maybePromise._then(
+                this._promiseFulfilled,
+                this._promiseRejected,
+                this._promiseProgressed,
 
-        promise = Promise.cast( promise );
-
-        promise._then(
-            this._promiseFulfilled,
-            this._promiseRejected,
-            this._promiseProgressed,
-
-            this,            i,             this.constructor
-
-
-
-        );
-        newValues[i] = promise;
+                this,                i,                 this._scanDirectValues
+            );
+        }
+        else {
+            isDirectScanNeeded = true;
+        }
+        newValues[i] = maybePromise;
+    }
+    if( newLen === 0 ) {
+        this._fulfill( newValues );
+        return;
     }
     this._values = newValues;
     this._length = newLen;
+    if( isDirectScanNeeded ) {
+        var scanMethod = newLen === len
+            ? this._scanDirectValues
+            : this._scanDirectValuesHoled;
+        async.invoke( scanMethod, this, len );
+    }
+};
+
+PromiseArray.prototype._resolvePromiseAt =
+function PromiseArray$_resolvePromiseAt( i ) {
+    var value = this._values[i];
+    if( !( value instanceof Promise ) ) {
+        this._promiseFulfilled( value, i );
+    }
+    else if( value.isFulfilled() ) {
+        this._promiseFulfilled( value._resolvedValue, i );
+    }
+    else if( value.isRejected() ) {
+        this._promiseRejected( value._resolvedValue, i );
+    }
+};
+
+PromiseArray.prototype._scanDirectValuesHoled =
+function PromiseArray$_scanDirectValuesHoled( len ) {
+    ASSERT((len > this.length()),
+    "len > this.length()");
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        if( hasOwn.call( this._values, i ) ) {
+            this._resolvePromiseAt( i );
+        }
+    }
+};
+
+PromiseArray.prototype._scanDirectValues =
+function PromiseArray$_scanDirectValues( len ) {
+    ASSERT((len >= this.length()),
+    "len >= this.length()");
+    for( var i = 0; i < len; ++i ) {
+        if( this._isResolved() ) {
+            break;
+        }
+        this._resolvePromiseAt( i );
+    }
 };
 
 PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
@@ -2916,6 +2968,8 @@ function PropertiesPromiseArray$_init() {
 PropertiesPromiseArray.prototype._promiseFulfilled =
 function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
+    ASSERT((! (value instanceof Promise)),
+    "!( value instanceof Promise )");
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
