@@ -160,7 +160,7 @@ function slowFinally( ret, reasonOrValue ) {
 Promise.prototype.lastly = Promise.prototype["finally"] =
 function Promise$finally( fn ) {
     var r = function( reasonOrValue ) {
-        var ret = fn( reasonOrValue );
+        var ret = fn();
         if( isPromise( ret ) ) {
             return slowFinally.call( this, ret, reasonOrValue );
         }
