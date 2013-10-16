@@ -84,7 +84,6 @@ Promise.prototype.toString = function Promise$toString() {
     return "[object Promise]";
 };
 
-
 /**
  * Convenience Promise.prototype for .then( null, fn, null );
  *
@@ -565,8 +564,8 @@ Promise.is = isPromise;
  *
  */
 Promise.settle = function Promise$Settle( promises ) {
-    var ret = Promise._all( promises, SettledPromiseArray, Promise.settle );
-    return ret.promise();
+    return Promise$_All( promises, SettledPromiseArray, Promise.settle )
+        .promise();
 };
 
 /**
@@ -575,8 +574,8 @@ Promise.settle = function Promise$Settle( promises ) {
  *
  */
 Promise.all = function Promise$All( promises ) {
-    var ret = Promise._all( promises, PromiseArray, Promise.all );
-    return ret.promise();
+    return Promise$_All( promises, PromiseArray, Promise.all )
+        .promise();
 };
 
 /**
@@ -612,7 +611,7 @@ Promise.join = function Promise$Join() {
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
     }
-    return Promise._all( ret, PromiseArray, Promise.join ).promise();
+    return Promise$_All( ret, PromiseArray, Promise.join ).promise();
 };
 
 /**
@@ -621,8 +620,8 @@ Promise.join = function Promise$Join() {
  *
  */
 Promise.any = function Promise$Any( promises ) {
-    var ret = Promise._all( promises, AnyPromiseArray, Promise.any );
-    return ret.promise();
+    return Promise$_All( promises, AnyPromiseArray, Promise.any )
+        .promise();
 };
 
 /**
@@ -634,14 +633,14 @@ Promise.some = function Promise$Some( promises, howMany ) {
     if( ( howMany | 0 ) !== howMany ) {
         return apiRejection("howMany must be an integer");
     }
-    var ret = Promise._all( promises, SomePromiseArray, Promise.some );
+    var ret = Promise$_All( promises, SomePromiseArray, Promise.some );
     ASSERT( ret instanceof SomePromiseArray );
     ret.setHowMany( howMany );
     return ret.promise();
 };
 
 
-function mapper( fulfilleds ) {
+function Promise$_mapper( fulfilleds ) {
     var fn = this;
     var shouldDefer = false;
     for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
@@ -661,7 +660,9 @@ function mapper( fulfilleds ) {
         }
         fulfilleds[i] = fulfill;
     }
-    return shouldDefer ? Promise.all( fulfilleds ) : fulfilleds;
+    return shouldDefer
+        ? Promise$_All( fulfilleds, PromiseArray, Promise$_mapper ).promise()
+        : fulfilleds;
 }
 /**
  * Description.
@@ -672,17 +673,19 @@ Promise.map = function Promise$Map( promises, fn ) {
     if( typeof fn !== "function" ) {
         return apiRejection( "fn is not a function" );
     }
-    return Promise.all( promises )._then(
-        mapper,
-        void 0,
-        void 0,
-        fn,
-        void 0,
-        Promise.map
+    return Promise$_All( promises, PromiseArray, Promise.map )
+        .promise()
+        ._then(
+            Promise$_mapper,
+            void 0,
+            void 0,
+            fn,
+            void 0,
+            Promise.map
     );
 };
 
-function reducer( fulfilleds, initialValue ) {
+function Promise$_reducer( fulfilleds, initialValue ) {
     var fn = this;
     var len = fulfilleds.length;
     var accum = void 0;
@@ -716,16 +719,16 @@ function reducer( fulfilleds, initialValue ) {
     return accum;
 }
 
-function unpackReducer( fulfilleds ) {
+function Promise$_unpackReducer( fulfilleds ) {
     var fn = this.fn;
     var initialValue = this.initialValue;
-    return reducer.call( fn, fulfilleds, initialValue );
+    return Promise$_reducer.call( fn, fulfilleds, initialValue );
 }
 
-function slowReduce( promises, fn, initialValue ) {
-    return initialValue.then( function( initialValue ) {
+function Promise$_slowReduce( promises, fn, initialValue ) {
+    return initialValue._then( function( initialValue ) {
         return Promise.reduce( promises, fn, initialValue );
-    });
+    }, void 0, void 0, void 0, void 0, Promise.reduce );
 }
 /**
  * Description.
@@ -742,25 +745,24 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
                 initialValue = initialValue._resolvedValue;
             }
             else {
-                return slowReduce( promises, fn, initialValue );
+                return Promise$_slowReduce( promises, fn, initialValue );
             }
 
         }
-        return Promise
-            .all( promises )
-            ._then( unpackReducer, void 0, void 0, {
+        return Promise$_All( promises, PromiseArray, Promise.reduce )
+            .promise()
+            ._then( Promise$_unpackReducer, void 0, void 0, {
                 fn: fn,
                 initialValue: initialValue
-            }, void 0, Promise.all );
+            }, void 0, Promise.reduce );
     }
-    return Promise
+    return Promise$_All( promises, PromiseArray, Promise.reduce ).promise()
     //Currently smuggling internal data has a limitation
     //in that no promises can be chained after it.
     //One needs to be able to chain to get at
     //the reduced results, so fast case is only possible
     //when there is no initialValue.
-        .all( promises )
-        ._then( reducer, void 0, void 0, fn, void 0, Promise.all );
+        ._then( Promise$_reducer, void 0, void 0, fn, void 0, Promise.reduce );
 };
 
 /**
@@ -1238,8 +1240,10 @@ function Promise$_spreadSlowCase( targetFn, promise, values ) {
     ASSERT( typeof targetFn === "function" );
     ASSERT( isPromise( promise ) );
     promise._assumeStateOf(
-        Promise.all( values )._then( targetFn, void 0, void 0, APPLY, void 0,
-            this._spreadSlowCase ),
+            Promise$_All( values, PromiseArray, this._spreadSlowCase )
+            .promise()
+            ._then( targetFn, void 0, void 0, APPLY, void 0,
+                    this._spreadSlowCase ),
         false
     );
 };
@@ -1871,7 +1875,6 @@ Promise.prototype._popContext = function Promise$_popContext() {
 };
 
 
-Promise._all =
 function Promise$_All( promises, PromiseArray, caller ) {
     ASSERT( typeof PromiseArray === "function" );
     if( isPromise( promises ) ||
@@ -1885,7 +1888,7 @@ function Promise$_All( promises, PromiseArray, caller ) {
     }
     return new PromiseArray(
         [ apiRejection( "expecting an array or a promise" ) ] );
-};
+}
 
 var old = global.Promise;
 
