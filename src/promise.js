@@ -495,6 +495,16 @@ Promise.prototype.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
 
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.prototype.filter = function Promise$filter( fn ) {
+    return Promise.filter( this, fn );
+};
+
 /**
  * Description.
  *
@@ -763,6 +773,33 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     //the reduced results, so fast case is only possible
     //when there is no initialValue.
         ._then( Promise$_reducer, void 0, void 0, fn, void 0, Promise.reduce );
+};
+
+function Promise$_filterer( fulfilleds ) {
+    var fn = this;
+    var ret = new Array( fulfilleds.length );
+    var j = 0;
+    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+        var item = fulfilleds[i];
+        if( item === void 0 &&
+            !( i in fulfilleds ) ) {
+            continue;
+        }
+        if( fn( item, i, len ) ) {
+            ret[j++] = item;
+        }
+    }
+    ret.length = j;
+    return ret;
+}
+
+Promise.filter = function Promise$Filter( promises, fn ) {
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
+    return Promise$_All( promises, PromiseArray, Promise.filter )
+        .promise()
+        ._then( Promise$_filterer, void 0, void 0, fn, void 0, Promise.filter );
 };
 
 /**
