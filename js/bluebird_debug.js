@@ -3178,6 +3178,10 @@ else {
     global.Promise = Promise;
 }
 
+if (typeof(process) !== "undefined"
+    && typeof(process.execPath) === "string"
+    && typeof(process.env) === "object"
+    && process.env["BLUEBIRD_DEBUG"]) Promise.longStackTraces();
 
 return Promise;})(
     (function(){
