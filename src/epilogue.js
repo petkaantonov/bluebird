@@ -9,11 +9,12 @@ else {
 }
 
 // Enable long stack traces in node when env.BLUEBIRD_DEBUG is defined
-
-if (typeof(process) !== "undefined"
-    && typeof(process.execPath) === "string"
-    && typeof(process.env) === "object"
-    && process.env["BLUEBIRD_DEBUG"]) Promise.longStackTraces();
+if( typeof process !== "undefined" &&
+    typeof process.execPath === "string" &&
+    typeof process.env === "object" &&
+    process.env[ "BLUEBIRD_DEBUG" ] ) {
+    Promise.longStackTraces();
+}
 
 return Promise;})(
     //shims for new Function("return this")()
