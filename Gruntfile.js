@@ -169,18 +169,18 @@ module.exports = function( grunt ) {
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', flags.concat(["../mocharun.js", file]), 
+            var node = spawn('node', flags.concat(["../mocharun.js", file]),
                              {cwd: p, stdio: stdio, env: env});
         }
         else {
-            var node = spawn('node', flags.concat(["./"+file]), 
+            var node = spawn('node', flags.concat(["./"+file]),
                              {cwd: p, stdio: stdio, env:env});
         }
         node.on('exit', exit );
 
         function exit( code ) {
             if( code !== 0 ) {
-                throw new Error("process didn't exit normally");
+                cb(new Error("process didn't exit normally. Code: " + code));
             }
             else {
                 cb(null);
@@ -295,23 +295,27 @@ module.exports = function( grunt ) {
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
         });
 
-        for( var i = 0, len = files.length; i < len; ++i ) {
-            (function(file, i) {
+        var maxParallelProcesses = 10;
+        var len = Math.min( files.length, maxParallelProcesses );
+        for( var i = 0; i < len; ++i ) {
+            (function arguments$callee(file) {
                 totalTests++;
-                grunt.log.writeln("Running test " + files[i] );
+                grunt.log.writeln("Running test " + file );
                 var env = undefined;
-                if (files[i].indexOf("bluebird-debug-env-flag") >= 0) {
+                if (file.indexOf("bluebird-debug-env-flag") >= 0) {
                     env = Object.create(process.env);
                     env["BLUEBIRD_DEBUG"] = true;
                 }
                 runIndependentTest(file, function(err) {
                     if( err ) throw new Error(err + " " + file + " failed");
-                    grunt.log.writeln("Test " + files[i] + " succeeded");
+                    grunt.log.writeln("Test " + file + " succeeded");
                     testDone();
+                    if( files.length > 0 ) {
+                        arguments$callee( files.shift() );
+                    }
                 }, env);
-            })(files[i], i);
+            })(files[i]);
         }
-
     }
 
     function benchmarkRun( benchmarkOption ) {
