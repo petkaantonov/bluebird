@@ -8,6 +8,12 @@ else {
     global.Promise = Promise;
 }
 
+// Enable long stack traces in node when env.BLUEBIRD_DEBUG is defined
+
+if (typeof(process) !== "undefined"
+    && typeof(process.execPath) === "string"
+    && typeof(process.env) === "object"
+    && process.env["BLUEBIRD_DEBUG"]) Promise.longStackTraces();
 
 return Promise;})(
     (function(){

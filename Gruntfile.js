@@ -153,7 +153,7 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-bump');
 
-    function runIndependentTest( file, cb ) {
+    function runIndependentTest( file, cb , env) {
         var fs = require("fs");
         var path = require("path");
         var sys = require('sys');
@@ -169,10 +169,12 @@ module.exports = function( grunt ) {
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', flags.concat(["../mocharun.js", file]), {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["../mocharun.js", file]), 
+                             {cwd: p, stdio: stdio, env: env});
         }
         else {
-            var node = spawn('node', flags.concat(["./"+file]), {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["./"+file]), 
+                             {cwd: p, stdio: stdio, env:env});
         }
         node.on('exit', exit );
 
@@ -297,11 +299,16 @@ module.exports = function( grunt ) {
             (function(file, i) {
                 totalTests++;
                 grunt.log.writeln("Running test " + files[i] );
+                var env = undefined;
+                if (files[i].indexOf("bluebird-debug-env-flag") >= 0) {
+                    env = Object.create(process.env);
+                    env["BLUEBIRD_DEBUG"] = true;
+                }
                 runIndependentTest(file, function(err) {
                     if( err ) throw new Error(err + " " + file + " failed");
                     grunt.log.writeln("Test " + files[i] + " succeeded");
                     testDone();
-                });
+                }, env);
             })(files[i], i);
         }
 
