@@ -2,261 +2,171 @@
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Enable process wide long stack traces through BLUEBIRD_DEBUG environment variable
 
 ## 0.8.5-0 (2013-10-16)
 
 Features:
 
- - feature
+ - Improve performance of all collection methods
 
 Bugfixes:
 
- - bugfix
+ - Fix .finally passing the value to handlers
+ - Remove kew from benchmarks due to bugs in the library breaking the benchmark
+ - Fix some bluebird library calls potentially appearing in stack traces
 
 ## 0.8.4-1 (2013-10-15)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix .pending() call showing in long stack traces
 
 ## 0.8.4-0 (2013-10-15)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix PromiseArray and its sub-classes swallowing possibly unhandled rejections
 
 ## 0.8.3-3 (2013-10-14)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix AMD-declaration using named module.
 
 ## 0.8.3-2 (2013-10-14)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - The mortals that can handle it may now release Zalgo by `require("bluebird/zalgo");`
 
 ## 0.8.3-1 (2013-10-14)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix memory leak when using the same promise to attach handlers over and over again
 
 ## 0.8.3-0 (2013-10-13)
 
 Features:
 
- - feature
+ - Add `Promise.props()` and `Promise.prototype.props()`. They work like `.all()` for object properties.
 
 Bugfixes:
 
- - bugfix
+ - Fix bug with .some returning garbage when sparse arrays have rejections
 
 ## 0.8.2-2 (2013-10-13)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Improve performance of `.reduce()` when `initialValue` can be synchronously cast to a value
 
 ## 0.8.2-1 (2013-10-12)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix .npmignore having irrelevant files
 
 ## 0.8.2-0 (2013-10-12)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Improve performance of `.some()`
 
 ## 0.8.1-0 (2013-10-11)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Remove uses of dynamic evaluation (`new Function`, `eval` etc) when strictly not necessary. Use feature detection to use static evaluation to avoid errors when dynamic evaluation is prohibited.
 
 ## 0.8.0-3 (2013-10-10)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Add `.asCallback` property to `PromiseResolver`s
 
 ## 0.8.0-2 (2013-10-10)
-
-Features:
-
- - feature
-
-Bugfixes:
-
- - bugfix
 
 ## 0.8.0-1 (2013-10-09)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Improve overall performance. Be able to sustain infinite recursion when using promises.
 
 ## 0.8.0-0 (2013-10-09)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix stackoverflow error when function calls itself "synchronously" from a promise handler
 
 ## 0.7.12-2 (2013-10-09)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix safari 6 not using `MutationObserver` as a scheduler
+ - Fix process exceptions interfering with internal queue flushing
 
 ## 0.7.12-1 (2013-10-09)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Don't try to detect if generators are available to allow shims to be used
 
 ## 0.7.12-0 (2013-10-08)
 
 Features:
 
- - feature
+ - Promisification now consider all functions on the object and its prototype chain
+ - Individual promisifcation uses current `this` if no explicit receiver is given
+ - Give better stack traces when promisified callbacks throw or errback primitives such as strings by wrapping them in an `Error` object.
 
 Bugfixes:
 
- - bugfix
+ - Fix runtime APIs throwing synchronous errors
 
 ## 0.7.11-0 (2013-10-08)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Deprecate `Promise.promisify(Object target)` in favor of `Promise.promisifyAll(Object target)` to avoid confusion with function objects
+ - Coroutines now throw error when a non-promise is `yielded`
 
 ## 0.7.10-1 (2013-10-05)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Make tests pass Internet Explorer 8
 
 ## 0.7.10-0 (2013-10-05)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Create browser tests
 
 ## 0.7.9-1 (2013-10-03)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix promise cast bug when thenable fulfills using itself as the fulfillment value
 
 ## 0.7.9-0 (2013-10-03)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - More performance improvements when long stack traces are enabled
 
 ## 0.7.8-1 (2013-10-02)
 
 Features:
 
- - feature
-
-Bugfixes:
-
- - bugfix
+ - Performance improvements when long stack traces are enabled
 
 ## 0.7.8-0 (2013-10-02)
 
-Features:
-
- - feature
-
 Bugfixes:
 
- - bugfix
+ - Fix promisified methods not turning synchronous exceptions into rejections
 
 ## 0.7.7-1 (2013-10-02)
 
