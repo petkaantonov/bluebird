@@ -325,6 +325,12 @@ Call this right after the library is loaded to enabled long stack traces. Long s
 
 Long stack traces are enabled by default in the debug build.
 
+To enable them in all instances of bluebird in node.js, use the environment variable `BLUEBIRD_DEBUG`:
+
+```
+BLUEBIRD_DEBUG=1 node server.js
+```
+
 You should enabled long stack traces if you want better debugging experience. For example:
 
 ```js
