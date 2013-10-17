@@ -20,7 +20,19 @@ Features:
 
 Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [promises_unwrapping](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/promises_unwrapping.js) (Just in time thenables), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
 
-[API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+#Topics
+
+- [Quick start](#quick-start)
+- [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+- [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
+- [Error handling](#error-handling)
+- [Development](#development)
+    - [Testing](#testing)
+    - [Benchmarking](#benchmarks)
+- [What is the sync build?](#what-is-the-sync-build)
+- [License](#license)
+- [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
+- [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
 
 #Quick start
 
