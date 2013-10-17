@@ -1246,6 +1246,11 @@ Promise.prototype.map = function Promise$map( fn ) {
     return Promise.map( this, fn );
 };
 
+
+Promise.prototype.filter = function Promise$filter( fn ) {
+    return Promise.filter( this, fn );
+};
+
 Promise.prototype.all = function Promise$all() {
     return Promise.all( this );
 };
@@ -1427,6 +1432,33 @@ Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
     }
     return Promise$_All( promises, PromiseArray, Promise.reduce ).promise()
         ._then( Promise$_reducer, void 0, void 0, fn, void 0, Promise.reduce );
+};
+
+function Promise$_filterer( fulfilleds ) {
+    var fn = this;
+    var ret = new Array( fulfilleds.length );
+    var j = 0;
+    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+        var item = fulfilleds[i];
+        if( item === void 0 &&
+            !( i in fulfilleds ) ) {
+            continue;
+        }
+        if( fn( item, i, len ) ) {
+            ret[j++] = item;
+        }
+    }
+    ret.length = j;
+    return ret;
+}
+
+Promise.filter = function Promise$Filter( promises, fn ) {
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
+    return Promise$_All( promises, PromiseArray, Promise.filter )
+        .promise()
+        ._then( Promise$_filterer, void 0, void 0, fn, void 0, Promise.filter );
 };
 
 Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
@@ -2417,7 +2449,15 @@ PromiseArray.prototype._init =
 function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var values = this._values;
     if( isPromise( values ) ) {
-        if( values.isPending() ) {
+        if( values.isFulfilled() ) {
+            values = values._resolvedValue;
+            if( !isArray( values ) ) {
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+                return;
+            }
+            this._values = values;
+        }
+        else if( values.isPending() ) {
             values._then(
                 this._init,
                 this._reject,
@@ -2428,19 +2468,10 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             );
             return;
         }
-        else if( values.isRejected() ) {
+        else {
             this._reject( values._resolvedValue );
             return;
         }
-        else {
-            values = values._resolvedValue;
-            if( !isArray( values ) ) {
-                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
-                return;
-            }
-            this._values = values;
-        }
-
     }
     if( values.length === 0 ) {
         this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
@@ -2495,7 +2526,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 PromiseArray.prototype._resolvePromiseAt =
 function PromiseArray$_resolvePromiseAt( i ) {
     var value = this._values[i];
-    if( !( value instanceof Promise ) ) {
+    if( !isPromise( value ) ) {
         this._promiseFulfilled( value, i );
     }
     else if( value.isFulfilled() ) {
@@ -2949,10 +2980,12 @@ else {
     global.Promise = Promise;
 }
 
-if (typeof(process) !== "undefined"
-    && typeof(process.execPath) === "string"
-    && typeof(process.env) === "object"
-    && process.env["BLUEBIRD_DEBUG"]) Promise.longStackTraces();
+if( typeof process !== "undefined" &&
+    typeof process.execPath === "string" &&
+    typeof process.env === "object" &&
+    process.env[ "BLUEBIRD_DEBUG" ] ) {
+    Promise.longStackTraces();
+}
 
 return Promise;})(
     (function(){
@@ -2966,7 +2999,8 @@ return Promise;})(
         }
         if( typeof window !== "undefined" &&
             typeof document !== "undefined" &&
-            document.defaultView === window ) {
+            typeof navigator !== "undefined" && navigator !== null &&
+            typeof navigator.appName === "string" ) {
             return window;
         }
     })(),
