@@ -10,19 +10,24 @@ else {
 
 
 return Promise;})(
+    //shims for new Function("return this")()
+    //wihch cannot be used in e.g. extensions
     (function(){
-        //shims for new Function("return this")()
+        //Not in strict mode
         if( typeof this !== "undefined" ) {
             return this;
         }
+        //Strict mode, node
         if( typeof process !== "undefined" &&
             typeof global !== "undefined" &&
             typeof process.execPath === "string" ) {
             return global;
         }
+        //Strict mode, browser
         if( typeof window !== "undefined" &&
             typeof document !== "undefined" &&
-            document.defaultView === window ) {
+            typeof navigator !== "undefined" && navigator !== null &&
+            typeof navigator.appName === "string" ) {
             return window;
         }
     })(),
