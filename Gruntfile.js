@@ -248,6 +248,10 @@ module.exports = function( grunt ) {
 
     }
 
+    function isSlowTest( file ) {
+        return file.indexOf("2.3.3") >= 0;
+    }
+
     function testRun( testOption ) {
         var fs = require("fs");
         var path = require("path");
@@ -295,63 +299,38 @@ module.exports = function( grunt ) {
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
         });
 
+
+        var slowTests = files.filter(isSlowTest);
+        files = files.filter(function(file){
+            return !isSlowTest(file);
+        });
+
+        function runFile(file) {
+            totalTests++;
+            grunt.log.writeln("Running test " + file );
+            var env = undefined;
+            if (file.indexOf("bluebird-debug-env-flag") >= 0) {
+                env = Object.create(process.env);
+                env["BLUEBIRD_DEBUG"] = true;
+            }
+            runIndependentTest(file, function(err) {
+                if( err ) throw new Error(err + " " + file + " failed");
+                grunt.log.writeln("Test " + file + " succeeded");
+                testDone();
+                if( files.length > 0 ) {
+                    runFile( files.shift() );
+                }
+            }, env);
+        }
+
+        slowTests.forEach(runFile);
+
         var maxParallelProcesses = 10;
         var len = Math.min( files.length, maxParallelProcesses );
         for( var i = 0; i < len; ++i ) {
-            (function arguments$callee(file) {
-                totalTests++;
-                grunt.log.writeln("Running test " + file );
-                var env = undefined;
-                if (file.indexOf("bluebird-debug-env-flag") >= 0) {
-                    env = Object.create(process.env);
-                    env["BLUEBIRD_DEBUG"] = true;
-                }
-                runIndependentTest(file, function(err) {
-                    if( err ) throw new Error(err + " " + file + " failed");
-                    grunt.log.writeln("Test " + file + " succeeded");
-                    testDone();
-                    if( files.length > 0 ) {
-                        arguments$callee( files.shift() );
-                    }
-                }, env);
-            })(files[i]);
+            runFile(files[i]);
         }
     }
-
-    function benchmarkRun( benchmarkOption ) {
-        var fs = require("fs");
-        var path = require("path");
-        var done = this.async();
-        var files = benchmarkOption === "all"
-            ? fs.readdirSync('benchmark')
-            : [benchmarkOption + ".js"];
-
-        files = files.filter(function( fileName ){
-            return /\.js$/.test(fileName);
-        }).map(function(fileName){
-            return "./" + path.join( "benchmark", fileName );
-        });
-
-        (function runner(files, i){
-            if( i >= files.length ) {
-                done();
-            }
-            else {
-                var file = files[i];
-                grunt.log.writeln("Running benchmark " + file );
-                if( file.indexOf( "matcha" ) !== -1 ) {
-                    grunt.log.writeln("Run matcha benchmarks with match");
-                    runner(files, i + 1 );
-                }
-                else {
-                    require(file)(function(){
-                        runner(files, i + 1 );
-                    });
-                }
-            }
-        })(files, 0);
-    }
-
 
     grunt.registerTask( "build-with-minify", function() {
         return build.call( this, true );
@@ -373,18 +352,6 @@ module.exports = function( grunt ) {
         testRun.call( this, testOption );
     });
 
-    grunt.registerTask( "benchrun", function(){
-        var benchmarkOption = grunt.option("run");
-        if( !benchmarkOption ) benchmarkOption = "all";
-        else {
-            benchmarkOption = benchmarkOption
-                .replace( /\.js$/, "" )
-                .replace( /[^a-zA-Z0-9_-]/g, "" );
-        }
-        benchmarkRun.call( this, benchmarkOption );
-    });
-
-    grunt.registerTask( "bench", ["concat", "build", "jshint", "benchrun"] );
     grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );
     grunt.registerTask( "default", ["concat", "build", "jshint"] );
     grunt.registerTask( "production", ["concat", "build-with-minify", "jshint"] );
