@@ -86,10 +86,10 @@ function tryCatch2( fn, receiver, arg, arg2 ) {
     }
 }
 
-function tryCatchApply( fn, args ) {
+function tryCatchApply( fn, args, receiver ) {
     ASSERT( typeof fn === "function" );
     try {
-        return fn.apply( void 0, args );
+        return fn.apply( receiver, args );
     }
     catch( e ) {
         errorObj.e = e;

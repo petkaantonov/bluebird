@@ -1,8 +1,8 @@
 var AnyPromiseArray = (function() {
 // the PromiseArray to use with Promise.any method
 
-function AnyPromiseArray( values, caller ) {
-    this.constructor$( values, caller );
+function AnyPromiseArray( values, caller, boundTo ) {
+    this.constructor$( values, caller, boundTo );
 }
 inherits( AnyPromiseArray, PromiseArray );
 

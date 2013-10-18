@@ -1,8 +1,9 @@
 var CatchFilter = (function() {
 
-function CatchFilter( instances, callback ) {
+function CatchFilter( instances, callback, boundTo ) {
     this._instances = instances;
     this._callback = callback;
+    this._boundTo = boundTo;
 }
 CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
     if( e === null || typeof e !== "object" ) {
@@ -12,7 +13,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
     for( var i = 0, len = this._instances.length; i < len; ++i ) {
         var item = this._instances[i];
         if( e instanceof item ) {
-            var ret = tryCatch1( cb, void 0, e );
+            var ret = tryCatch1( cb, this._boundTo, e );
             if( ret === errorObj ) {
                 throw ret.e;
             }

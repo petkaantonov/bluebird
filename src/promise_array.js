@@ -25,9 +25,13 @@ var isArray = Arr.isArray || function( obj ) {
     return obj instanceof Arr;
 };
 
-function PromiseArray( values, caller ) {
+function PromiseArray( values, caller, boundTo ) {
+    ASSERT( arguments.length === 3 );
     this._values = values;
     this._resolver = Promise.pending( caller );
+    if( boundTo !== void 0 ) {
+        this._resolver.promise._setBoundTo( boundTo );
+    }
     this._length = 0;
     this._totalResolved = 0;
     this._init( void 0, FULFILL_ARRAY );
