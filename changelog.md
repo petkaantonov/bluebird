@@ -1,3 +1,13 @@
+## 0.9.0-0 (2013-10-18)
+
+Features:
+
+ - Implement `.bind` and `Promise.bind`
+
+Bugfixes:
+
+ - Fix `.some()` when argument is a pending promise that later resolves to an array
+
 ## 0.8.5-1 (2013-10-17)
 
 Features:
