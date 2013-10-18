@@ -1,8 +1,8 @@
 var SettledPromiseArray = (function() {
 // the PromiseArray to use with Promise.settle method
 
-function SettledPromiseArray( values, caller ) {
-    this.constructor$( values, caller );
+function SettledPromiseArray( values, caller, boundTo ) {
+    this.constructor$( values, caller, boundTo );
 }
 inherits( SettledPromiseArray, PromiseArray );
 

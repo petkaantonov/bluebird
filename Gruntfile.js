@@ -1,3 +1,4 @@
+"use strict";
 var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
@@ -248,8 +249,14 @@ module.exports = function( grunt ) {
 
     }
 
+    String.prototype.contains = function String$contains( str ) {
+        return this.indexOf( str ) >= 0;
+    };
+
     function isSlowTest( file ) {
-        return file.indexOf("2.3.3") >= 0;
+        return file.contains("2.3.3") ||
+            file.contains("bind") ||
+            file.contains("unhandled_rejections");
     }
 
     function testRun( testOption ) {
