@@ -25,9 +25,13 @@ var isArray = Arr.isArray || function( obj ) {
     return obj instanceof Arr;
 };
 
-function PromiseArray( values, caller ) {
+function PromiseArray( values, caller, boundTo ) {
+    ASSERT( arguments.length === 3 );
     this._values = values;
     this._resolver = Promise.pending( caller );
+    if( boundTo !== void 0 ) {
+        this._resolver.promise._setBoundTo( boundTo );
+    }
     this._length = 0;
     this._totalResolved = 0;
     this._init( void 0, FULFILL_ARRAY );
@@ -53,7 +57,17 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     if( isPromise( values ) ) {
         //Expect the promise to be a promise
         //for an array
-        if( values.isPending() ) {
+        if( values.isFulfilled() ) {
+            //Fulfilled promise with hopefully
+            //an array as a resolution value
+            values = values._resolvedValue;
+            if( !isArray( values ) ) {
+                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+                return;
+            }
+            this._values = values;
+        }
+        else if( values.isPending() ) {
             values._then(
                 this._init,
                 this._reject,
@@ -64,21 +78,10 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             );
             return;
         }
-        else if( values.isRejected() ) {
+        else {
             this._reject( values._resolvedValue );
             return;
         }
-        else {
-            //Fulfilled promise with hopefully
-            //an array as a resolution value
-            values = values._resolvedValue;
-            if( !isArray( values ) ) {
-                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
-                return;
-            }
-            this._values = values;
-        }
-
     }
     if( values.length === 0 ) {
         this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
@@ -145,7 +148,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 PromiseArray.prototype._resolvePromiseAt =
 function PromiseArray$_resolvePromiseAt( i ) {
     var value = this._values[i];
-    if( !( value instanceof Promise ) ) {
+    if( !isPromise( value ) ) {
         this._promiseFulfilled( value, i );
     }
     else if( value.isFulfilled() ) {

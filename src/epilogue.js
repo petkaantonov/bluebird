@@ -8,21 +8,33 @@ else {
     global.Promise = Promise;
 }
 
+// Enable long stack traces in node when env.BLUEBIRD_DEBUG is defined
+if( typeof process !== "undefined" &&
+    typeof process.execPath === "string" &&
+    typeof process.env === "object" &&
+    process.env[ "BLUEBIRD_DEBUG" ] ) {
+    Promise.longStackTraces();
+}
 
 return Promise;})(
+    //shims for new Function("return this")()
+    //wihch cannot be used in e.g. extensions
     (function(){
-        //shims for new Function("return this")()
+        //Not in strict mode
         if( typeof this !== "undefined" ) {
             return this;
         }
+        //Strict mode, node
         if( typeof process !== "undefined" &&
             typeof global !== "undefined" &&
             typeof process.execPath === "string" ) {
             return global;
         }
+        //Strict mode, browser
         if( typeof window !== "undefined" &&
             typeof document !== "undefined" &&
-            document.defaultView === window ) {
+            typeof navigator !== "undefined" && navigator !== null &&
+            typeof navigator.appName === "string" ) {
             return window;
         }
     })(),

@@ -21,6 +21,9 @@ var isArray = Array.isArray || function( obj ) {
 var APPLY = {};
 var thenable = new Thenable( errorObj );
 
+CONSTANT(USE_BOUND, true);
+CONSTANT(DONT_USE_BOUND, false);
+
 CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
 CONSTANT(CALLBACK_REJECT_OFFSET, 1);
 CONSTANT(CALLBACK_PROGRESS_OFFSET, 2);
@@ -73,9 +76,20 @@ function Promise( resolver ) {
     this._resolvedValue = void 0;
     //Used in cancel propagation
     this._cancellationParent = void 0;
+    //for .bind
+    this._boundTo = void 0;
     if( longStackTraces ) this._traceParent = this._peekContext();
     if( typeof resolver === "function" ) this._resolveResolver( resolver );
+
 }
+
+Promise.prototype.bind = function Promise$bind( obj ) {
+    var ret = new Promise();
+    ret._setTrace( this.bind, this );
+    ret._assumeStateOf( this, true );
+    ret._setBoundTo( obj );
+    return ret;
+};
 
 /**
  * @return {string}
@@ -115,7 +129,7 @@ function Promise$catch( fn ) {
         }
         catchInstances.length = j;
         fn = arguments[i];
-        var catchFilter = new CatchFilter( catchInstances, fn );
+        var catchFilter = new CatchFilter( catchInstances, fn, this._boundTo );
         return this._then( void 0, catchFilter.doFilter, void 0,
             catchFilter, void 0, this.caught );
     }
@@ -159,7 +173,7 @@ function slowFinally( ret, reasonOrValue ) {
 Promise.prototype.lastly = Promise.prototype["finally"] =
 function Promise$finally( fn ) {
     var r = function( reasonOrValue ) {
-        var ret = fn();
+        var ret = this._isBound() ? fn.call( this._boundTo ) : fn();
         if( isPromise( ret ) ) {
             return slowFinally.call( this, ret, reasonOrValue );
         }
@@ -240,6 +254,7 @@ Promise.prototype.uncancellable = function Promise$uncancellable() {
     ret._setTrace( this.uncancellable, this );
     ret._unsetCancellable();
     ret._assumeStateOf( this, true );
+    ret._boundTo = this._boundTo;
     return ret;
 };
 
@@ -440,18 +455,18 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     return ret;
 };
 
-function Promise$_successAdapter( val ) {
+function Promise$_successAdapter( val, receiver ) {
     var nodeback = this;
     ASSERT( typeof nodeback == "function" );
-    var ret = tryCatch2( nodeback, void 0, null, val );
+    var ret = tryCatch2( nodeback, receiver, null, val );
     if( ret === errorObj ) {
         async.invokeLater( thrower, void 0, ret.e );
     }
 }
-function Promise$_errorAdapter( reason ) {
+function Promise$_errorAdapter( reason, receiver ) {
     var nodeback = this;
     ASSERT( typeof nodeback == "function" );
-    var ret = tryCatch1( nodeback, void 0, reason );
+    var ret = tryCatch1( nodeback, receiver, reason );
     if( ret === errorObj ) {
         async.invokeLater( thrower, void 0, ret.e );
     }
@@ -469,7 +484,7 @@ Promise.prototype.nodeify = function Promise$nodeify( nodeback ) {
             Promise$_errorAdapter,
             void 0,
             nodeback,
-            null,
+            this._isBound() ? this._boundTo : null,
             this.nodeify
         );
     }
@@ -491,8 +506,19 @@ function apiRejection( msg ) {
  *
  *
  */
+
 Promise.prototype.map = function Promise$map( fn ) {
-    return Promise.map( this, fn );
+    return Promise$_Map( this, fn, USE_BOUND, this.map );
+};
+
+
+/**
+ * Description.
+ *
+ *
+ */
+Promise.prototype.filter = function Promise$filter( fn ) {
+    return Promise$_Filter( this, fn, USE_BOUND, this.filter );
 };
 
 /**
@@ -501,7 +527,7 @@ Promise.prototype.map = function Promise$map( fn ) {
  *
  */
 Promise.prototype.all = function Promise$all() {
-    return Promise.all( this );
+    return Promise$_all( this, USE_BOUND, this.all );
 };
 
 /**
@@ -510,7 +536,7 @@ Promise.prototype.all = function Promise$all() {
  *
  */
 Promise.prototype.any = function Promise$any() {
-    return Promise.any( this );
+    return Promise$_Any( this, USE_BOUND, this.any );
 };
 
 /**
@@ -519,7 +545,7 @@ Promise.prototype.any = function Promise$any() {
  *
  */
 Promise.prototype.settle = function Promise$settle() {
-    return Promise.settle( this );
+    return Promise$_Settle( this, USE_BOUND, this.settle );
 };
 
 /**
@@ -528,7 +554,7 @@ Promise.prototype.settle = function Promise$settle() {
  *
  */
 Promise.prototype.some = function Promise$some( count ) {
-    return Promise.some( this, count );
+    return Promise$_Some( this, count, USE_BOUND, this.some );
 };
 
 /**
@@ -537,7 +563,7 @@ Promise.prototype.some = function Promise$some( count ) {
  *
  */
 Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
-    return Promise.reduce( this, fn, initialValue );
+    return Promise$_Reduce( this, fn, initialValue, USE_BOUND, this.reduce );
 };
 
 /**
@@ -546,7 +572,7 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
  *
  */
  Promise.prototype.props = function Promise$props() {
-    return Promise.props( this );
+    return Promise$_Props( this, USE_BOUND, this.props );
  };
 
 /**
@@ -558,135 +584,193 @@ Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
  */
 Promise.is = isPromise;
 
-/**
- * Description.
- *
- *
- */
+function Promise$_Settle( promises, useBound, caller ) {
+    return Promise$_All(
+        promises,
+        SettledPromiseArray,
+        caller,
+        useBound === USE_BOUND ? promises._boundTo : void 0
+    ).promise();
+}
 Promise.settle = function Promise$Settle( promises ) {
-    return Promise$_All( promises, SettledPromiseArray, Promise.settle )
-        .promise();
+    return Promise$_Settle( promises, DONT_USE_BOUND, Promise.settle );
 };
 
-/**
- * Description.
- *
- *
- */
+function Promise$_all( promises, useBound, caller ) {
+    return Promise$_All(
+        promises,
+        PromiseArray,
+        caller,
+        useBound === USE_BOUND ? promises._boundTo : void 0
+    ).promise();
+}
 Promise.all = function Promise$All( promises ) {
-    return Promise$_All( promises, PromiseArray, Promise.all )
-        .promise();
+    return Promise$_all( promises, DONT_USE_BOUND, Promise.all );
 };
 
-/**
- * Description.
- *
- *
- */
-Promise.props = function Promise$Props( promises ) {
+function Promise$_Props( promises, useBound, caller ) {
+    var ret;
     if( isPrimitive( promises ) ) {
-        return Promise.fulfilled( promises, Promise.props );
+        ret = Promise.fulfilled( promises, caller );
     }
     else if( isPromise( promises ) ) {
-        return promises._then( Promise.props, void 0, void 0,
-                        void 0, void 0, Promise.props);
+        ret = promises._then( Promise.props, void 0, void 0,
+                        void 0, void 0, caller );
     }
     else {
-        return new PropertiesPromiseArray( promises, Promise.props ).promise();
+        ret = new PropertiesPromiseArray(
+            promises,
+            caller,
+            useBound === USE_BOUND ? promises._boundTo : void 0
+        ).promise();
+        //The constructor took care of it
+        useBound = DONT_USE_BOUND;
     }
+    if( useBound === USE_BOUND ) {
+        ret._boundTo = promises._boundTo;
+    }
+    return ret;
+}
+
+Promise.props = function Promise$Props( promises ) {
+    return Promise$_Props( promises, DONT_USE_BOUND, Promise.props );
 };
 
-
-/**
- * Like Promise.all but instead of having to pass an array,
- * the array is generated from the passed variadic arguments.
- *
- * Promise.all([a, b, c]) <--> Promise.join(a, b, c);
- *
- * @return {Promise}
- *
- */
 Promise.join = function Promise$Join() {
     var ret = new Array( arguments.length );
     for( var i = 0, len = ret.length; i < len; ++i ) {
         ret[i] = arguments[i];
     }
-    return Promise$_All( ret, PromiseArray, Promise.join ).promise();
+    return Promise$_All( ret, PromiseArray, Promise.join, void 0 ).promise();
 };
 
-/**
- * Description.
- *
- *
- */
+function Promise$_Any( promises, useBound, caller ) {
+    return Promise$_All(
+        promises,
+        AnyPromiseArray,
+        caller,
+        useBound === USE_BOUND ? promises._boundTo : void 0
+    ).promise();
+}
 Promise.any = function Promise$Any( promises ) {
-    return Promise$_All( promises, AnyPromiseArray, Promise.any )
-        .promise();
+    return Promise$_Any( promises, DONT_USE_BOUND, Promise.any );
 };
 
-/**
- * Description.
- *
- *
- */
-Promise.some = function Promise$Some( promises, howMany ) {
+function Promise$_Some( promises, howMany, useBound, caller ) {
     if( ( howMany | 0 ) !== howMany ) {
         return apiRejection("howMany must be an integer");
     }
-    var ret = Promise$_All( promises, SomePromiseArray, Promise.some );
+    var ret = Promise$_All(
+        promises,
+        SomePromiseArray,
+        caller,
+        useBound === USE_BOUND ? promises._boundTo : void 0
+    );
     ASSERT( ret instanceof SomePromiseArray );
     ret.setHowMany( howMany );
     return ret.promise();
+}
+Promise.some = function Promise$Some( promises, howMany ) {
+    return Promise$_Some( promises, howMany, DONT_USE_BOUND, Promise.some );
 };
 
 
 function Promise$_mapper( fulfilleds ) {
     var fn = this;
+    var receiver = void 0;
+
+    if( typeof fn !== "function" )  {
+        receiver = fn.receiver;
+        fn = fn.fn;
+    }
+    ASSERT( typeof fn === "function" );
     var shouldDefer = false;
-    for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-        if( fulfilleds[i] === void 0 &&
-            !(i in fulfilleds) ) {
-            continue;
-        }
-        var fulfill = fn( fulfilleds[ i ], i, len );
-        if( !shouldDefer && isPromise( fulfill ) ) {
-            if( fulfill.isFulfilled() ) {
-                fulfilleds[i] = fulfill._resolvedValue;
+
+    if( receiver === void 0 ) {
+        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+            if( fulfilleds[i] === void 0 &&
+                !(i in fulfilleds) ) {
                 continue;
             }
-            else {
-                shouldDefer = true;
+            var fulfill = fn( fulfilleds[ i ], i, len );
+            if( !shouldDefer && isPromise( fulfill ) ) {
+                if( fulfill.isFulfilled() ) {
+                    fulfilleds[i] = fulfill._resolvedValue;
+                    continue;
+                }
+                else {
+                    shouldDefer = true;
+                }
             }
+            fulfilleds[i] = fulfill;
         }
-        fulfilleds[i] = fulfill;
+    }
+    else {
+        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+            if( fulfilleds[i] === void 0 &&
+                !(i in fulfilleds) ) {
+                continue;
+            }
+            var fulfill = fn.call( receiver, fulfilleds[ i ], i, len );
+            if( !shouldDefer && isPromise( fulfill ) ) {
+                if( fulfill.isFulfilled() ) {
+                    fulfilleds[i] = fulfill._resolvedValue;
+                    continue;
+                }
+                else {
+                    shouldDefer = true;
+                }
+            }
+            fulfilleds[i] = fulfill;
+        }
     }
     return shouldDefer
-        ? Promise$_All( fulfilleds, PromiseArray, Promise$_mapper ).promise()
+        ? Promise$_All( fulfilleds, PromiseArray,
+            Promise$_mapper, void 0 ).promise()
         : fulfilleds;
 }
-/**
- * Description.
- *
- *
- */
-Promise.map = function Promise$Map( promises, fn ) {
+
+function Promise$_Map( promises, fn, useBound, caller ) {
     if( typeof fn !== "function" ) {
         return apiRejection( "fn is not a function" );
     }
-    return Promise$_All( promises, PromiseArray, Promise.map )
-        .promise()
-        ._then(
-            Promise$_mapper,
-            void 0,
-            void 0,
-            fn,
-            void 0,
-            Promise.map
+
+    if( useBound === USE_BOUND ) {
+        fn = {
+            fn: fn,
+            receiver: promises._boundTo
+        };
+    }
+
+    return Promise$_All(
+        promises,
+        PromiseArray,
+        caller,
+        useBound === USE_BOUND ? promises._boundTo : void 0
+    ).promise()
+    ._then(
+        Promise$_mapper,
+        void 0,
+        void 0,
+        fn,
+        void 0,
+        caller
     );
+
+
+}
+Promise.map = function Promise$Map( promises, fn ) {
+    return Promise$_Map( promises, fn, DONT_USE_BOUND, Promise.map );
 };
 
 function Promise$_reducer( fulfilleds, initialValue ) {
     var fn = this;
+    var receiver = void 0;
+    if( typeof fn !== "function" )  {
+        receiver = fn.receiver;
+        fn = fn.fn;
+    }
+    ASSERT( typeof fn === "function" );
     var len = fulfilleds.length;
     var accum = void 0;
     var startIndex = 0;
@@ -709,12 +793,23 @@ function Promise$_reducer( fulfilleds, initialValue ) {
             }
         }
     }
-    for( var i = startIndex; i < len; ++i ) {
-        if( fulfilleds[i] === void 0 &&
-            !(i in fulfilleds) ) {
-            continue;
+    if( receiver === void 0 ) {
+        for( var i = startIndex; i < len; ++i ) {
+            if( fulfilleds[i] === void 0 &&
+                !(i in fulfilleds) ) {
+                continue;
+            }
+            accum = fn( accum, fulfilleds[i], i, len );
         }
-        accum = fn( accum, fulfilleds[i], i, len );
+    }
+    else {
+        for( var i = startIndex; i < len; ++i ) {
+            if( fulfilleds[i] === void 0 &&
+                !(i in fulfilleds) ) {
+                continue;
+            }
+            accum = fn.call( receiver, accum, fulfilleds[i], i, len );
+        }
     }
     return accum;
 }
@@ -725,44 +820,116 @@ function Promise$_unpackReducer( fulfilleds ) {
     return Promise$_reducer.call( fn, fulfilleds, initialValue );
 }
 
-function Promise$_slowReduce( promises, fn, initialValue ) {
-    return initialValue._then( function( initialValue ) {
-        return Promise.reduce( promises, fn, initialValue );
-    }, void 0, void 0, void 0, void 0, Promise.reduce );
+function Promise$_slowReduce( promises, fn, initialValue, useBound, caller ) {
+    return initialValue._then( function callee( initialValue ) {
+        return Promise$_Reduce( promises, fn, initialValue, useBound, callee );
+    }, void 0, void 0, void 0, void 0, caller);
 }
-/**
- * Description.
- *
- *
- */
-Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
+
+function Promise$_Reduce( promises, fn, initialValue, useBound, caller ) {
     if( typeof fn !== "function" ) {
         return apiRejection( "fn is not a function" );
     }
+
+    if( useBound === USE_BOUND ) {
+        fn = {
+            fn: fn,
+            receiver: promises._boundTo
+        };
+    }
+
     if( initialValue !== void 0 ) {
         if( isPromise( initialValue ) ) {
             if( initialValue.isFulfilled() ) {
                 initialValue = initialValue._resolvedValue;
             }
             else {
-                return Promise$_slowReduce( promises, fn, initialValue );
+                return Promise$_slowReduce( promises,
+                    fn, initialValue, useBound, caller );
             }
-
         }
-        return Promise$_All( promises, PromiseArray, Promise.reduce )
+
+        return Promise$_All( promises, PromiseArray, caller,
+            useBound === USE_BOUND ? promises._boundTo : void 0 )
             .promise()
             ._then( Promise$_unpackReducer, void 0, void 0, {
                 fn: fn,
                 initialValue: initialValue
             }, void 0, Promise.reduce );
     }
-    return Promise$_All( promises, PromiseArray, Promise.reduce ).promise()
-    //Currently smuggling internal data has a limitation
-    //in that no promises can be chained after it.
-    //One needs to be able to chain to get at
-    //the reduced results, so fast case is only possible
-    //when there is no initialValue.
-        ._then( Promise$_reducer, void 0, void 0, fn, void 0, Promise.reduce );
+    return Promise$_All( promises, PromiseArray, caller,
+            useBound === USE_BOUND ? promises._boundTo : void 0 ).promise()
+        //Currently smuggling internal data has a limitation
+        //in that no promises can be chained after it.
+        //One needs to be able to chain to get at
+        //the reduced results, so fast case is only possible
+        //when there is no initialValue.
+        ._then( Promise$_reducer, void 0, void 0, fn, void 0, caller );
+}
+
+Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
+    return Promise$_Reduce( promises, fn,
+        initialValue, DONT_USE_BOUND, Promise.reduce);
+};
+
+function Promise$_filterer( fulfilleds ) {
+    var fn = this;
+    var receiver = void 0;
+    if( typeof fn !== "function" )  {
+        receiver = fn.receiver;
+        fn = fn.fn;
+    }
+    ASSERT( typeof fn === "function" );
+    var ret = new Array( fulfilleds.length );
+    var j = 0;
+    if( receiver === void 0 ) {
+         for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+            var item = fulfilleds[i];
+            if( item === void 0 &&
+                !( i in fulfilleds ) ) {
+                continue;
+            }
+            if( fn( item, i, len ) ) {
+                ret[j++] = item;
+            }
+        }
+    }
+    else {
+        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
+            var item = fulfilleds[i];
+            if( item === void 0 &&
+                !( i in fulfilleds ) ) {
+                continue;
+            }
+            if( fn.call( receiver, item, i, len ) ) {
+                ret[j++] = item;
+            }
+        }
+    }
+    ret.length = j;
+    return ret;
+}
+
+function Promise$_Filter( promises, fn, useBound, caller ) {
+    if( typeof fn !== "function" ) {
+        return apiRejection( "fn is not a function" );
+    }
+
+    if( useBound === USE_BOUND ) {
+        fn = {
+            fn: fn,
+            receiver: promises._boundTo
+        };
+    }
+
+    return Promise$_All( promises, PromiseArray, caller,
+            useBound === USE_BOUND ? promises._boundTo : void 0 )
+        .promise()
+        ._then( Promise$_filterer, void 0, void 0, fn, void 0, caller );
+}
+
+Promise.filter = function Promise$Filter( promises, fn ) {
+    return Promise$_Filter( promises, fn, DONT_USE_BOUND, Promise.filter );
 };
 
 /**
@@ -818,6 +985,14 @@ Promise.pending = function Promise$Pending( caller ) {
     promise._setTrace( typeof caller === "function"
                               ? caller : Promise.pending, void 0 );
     return new PromiseResolver( promise );
+};
+
+Promise.bind = function Promise$Bind( obj ) {
+    var ret = new Promise();
+    ret._setTrace( Promise.bind, void 0 );
+    ret._setFulfilled();
+    ret._setBoundTo( obj );
+    return ret;
 };
 
 
@@ -1044,6 +1219,10 @@ function Promise$_then(
 
     }
 
+    if( !haveInternalData ) {
+        ret._boundTo = this._boundTo;
+    }
+
     var callbackIndex =
         this._addCallbacks( didFulfill, didReject, didProgress, ret, receiver );
 
@@ -1129,8 +1308,19 @@ Promise.prototype._receiverAt = function Promise$_receiverAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
     ASSERT( index % CALLBACK_SIZE === 0 );
-    if( index === 0 ) return this._receiver0;
-    return this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
+
+    var ret;
+    if( index === 0 ) {
+        ret = this._receiver0;
+    }
+    else {
+        ret = this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
+    }
+    //Only use the bound value when not calling internal methods
+    if( this._isBound() && ret === void 0 ) {
+        return this._boundTo;
+    }
+    return ret;
 };
 
 Promise.prototype._promiseAt = function Promise$_promiseAt( index ) {
@@ -1235,17 +1425,27 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
 };
 
 Promise.prototype._spreadSlowCase =
-function Promise$_spreadSlowCase( targetFn, promise, values ) {
+function Promise$_spreadSlowCase( targetFn, promise, values, boundTo ) {
     ASSERT( isArray( values ) || isPromise( values ) );
     ASSERT( typeof targetFn === "function" );
     ASSERT( isPromise( promise ) );
     promise._assumeStateOf(
-            Promise$_All( values, PromiseArray, this._spreadSlowCase )
+            Promise$_All( values, PromiseArray, this._spreadSlowCase, boundTo )
             .promise()
-            ._then( targetFn, void 0, void 0, APPLY, void 0,
+            ._then( function() {
+                return targetFn.apply( boundTo, arguments );
+            }, void 0, void 0, APPLY, void 0,
                     this._spreadSlowCase ),
         false
     );
+};
+
+Promise.prototype._setBoundTo = function Promise$_setBoundTo( obj ) {
+    this._boundTo = obj;
+};
+
+Promise.prototype._isBound = function Promise$_isBound() {
+    return this._boundTo !== void 0;
 };
 
 
@@ -1470,18 +1670,20 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
-                        value
+                        value,
+                        this._boundTo
                     );
                     return;
                 }
             }
             promise._pushContext();
-            x = tryCatchApply( onFulfilledOrRejected, value );
+            x = tryCatchApply( onFulfilledOrRejected, value, this._boundTo );
         }
         else {
             //(TODO) Spreading a promise that eventually returns
             //an array could be a common usage
-            this._spreadSlowCase( onFulfilledOrRejected, promise, value );
+            this._spreadSlowCase( onFulfilledOrRejected, promise,
+                    value, this._boundTo );
             return;
         }
     }
@@ -1548,7 +1750,7 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             this._resolveReject,
             this._resolveProgress,
             this,
-            void 0,
+            void 0, //TODO: is it necessary to go full paths
             this._tryAssumeStateOf
         );
     }
@@ -1875,19 +2077,25 @@ Promise.prototype._popContext = function Promise$_popContext() {
 };
 
 
-function Promise$_All( promises, PromiseArray, caller ) {
+function Promise$_All( promises, PromiseArray, caller, boundTo ) {
+    ASSERT( arguments.length === 4 );
     ASSERT( typeof PromiseArray === "function" );
     if( isPromise( promises ) ||
         isArray( promises ) ) {
 
-        return new PromiseArray( promises,
+        return new PromiseArray(
+            promises,
             typeof caller === "function"
-            ? caller
-            : Promise$_All
+                ? caller
+                : Promise$_All,
+            boundTo
         );
     }
     return new PromiseArray(
-        [ apiRejection( "expecting an array or a promise" ) ] );
+        [ apiRejection( "expecting an array or a promise" ) ],
+        caller,
+        boundTo
+    );
 }
 
 var old = global.Promise;

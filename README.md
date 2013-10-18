@@ -20,7 +20,19 @@ Features:
 
 Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [promises_unwrapping](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/promises_unwrapping.js) (Just in time thenables), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
 
-[API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+#Topics
+
+- [Quick start](#quick-start)
+- [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+- [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
+- [Error handling](#error-handling)
+- [Development](#development)
+    - [Testing](#testing)
+    - [Benchmarking](#benchmarks)
+- [What is the sync build?](#what-is-the-sync-build)
+- [License](#license)
+- [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
+- [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
 
 #Quick start
 
@@ -91,6 +103,14 @@ If you want to also enable long stack traces, call:
 ```js
 Promise.longStackTraces();
 ```
+
+In node.js use the environment flag `BLUEBIRD_DEBUG`:
+
+```
+BLUEBIRD_DEBUG=1 node server.js
+```
+
+to enable long stack traces in all instances of bluebird.
 
 right after the library is loaded. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, even after using every trick to optimize them.
 
@@ -164,7 +184,7 @@ Install [node](http://nodejs.org/), [npm](https://npmjs.org/), and [grunt](http:
 
 ##Testing
 
-To run all tests, run `grunt test`. Note that new process is created for each test file, which means 40 processes as of now. The stdout of tests is ignored by default and everything will stop at the first failure.
+To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The stdout of tests is ignored by default and everything will stop at the first failure.
 
 Individual files can be run with `grunt test --run=filename` where `filename` is a test file name in `/test` folder or `/test/mocha` folder. The `.js` prefix is not needed. The dots for AP compliance tests are not needed, so to run `/test/mocha/2.3.3.js` for instance:
 

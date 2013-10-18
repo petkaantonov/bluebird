@@ -1,3 +1,4 @@
+"use strict";
 var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
@@ -153,7 +154,7 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-bump');
 
-    function runIndependentTest( file, cb ) {
+    function runIndependentTest( file, cb , env) {
         var fs = require("fs");
         var path = require("path");
         var sys = require('sys');
@@ -169,16 +170,18 @@ module.exports = function( grunt ) {
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', flags.concat(["../mocharun.js", file]), {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["../mocharun.js", file]),
+                             {cwd: p, stdio: stdio, env: env});
         }
         else {
-            var node = spawn('node', flags.concat(["./"+file]), {cwd: p, stdio: stdio});
+            var node = spawn('node', flags.concat(["./"+file]),
+                             {cwd: p, stdio: stdio, env:env});
         }
         node.on('exit', exit );
 
         function exit( code ) {
             if( code !== 0 ) {
-                throw new Error("process didn't exit normally");
+                cb(new Error("process didn't exit normally. Code: " + code));
             }
             else {
                 cb(null);
@@ -246,6 +249,16 @@ module.exports = function( grunt ) {
 
     }
 
+    String.prototype.contains = function String$contains( str ) {
+        return this.indexOf( str ) >= 0;
+    };
+
+    function isSlowTest( file ) {
+        return file.contains("2.3.3") ||
+            file.contains("bind") ||
+            file.contains("unhandled_rejections");
+    }
+
     function testRun( testOption ) {
         var fs = require("fs");
         var path = require("path");
@@ -293,54 +306,38 @@ module.exports = function( grunt ) {
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
         });
 
-        for( var i = 0, len = files.length; i < len; ++i ) {
-            (function(file, i) {
-                totalTests++;
-                grunt.log.writeln("Running test " + files[i] );
-                runIndependentTest(file, function(err) {
-                    if( err ) throw new Error(err + " " + file + " failed");
-                    grunt.log.writeln("Test " + files[i] + " succeeded");
-                    testDone();
-                });
-            })(files[i], i);
-        }
 
-    }
-
-    function benchmarkRun( benchmarkOption ) {
-        var fs = require("fs");
-        var path = require("path");
-        var done = this.async();
-        var files = benchmarkOption === "all"
-            ? fs.readdirSync('benchmark')
-            : [benchmarkOption + ".js"];
-
-        files = files.filter(function( fileName ){
-            return /\.js$/.test(fileName);
-        }).map(function(fileName){
-            return "./" + path.join( "benchmark", fileName );
+        var slowTests = files.filter(isSlowTest);
+        files = files.filter(function(file){
+            return !isSlowTest(file);
         });
 
-        (function runner(files, i){
-            if( i >= files.length ) {
-                done();
+        function runFile(file) {
+            totalTests++;
+            grunt.log.writeln("Running test " + file );
+            var env = undefined;
+            if (file.indexOf("bluebird-debug-env-flag") >= 0) {
+                env = Object.create(process.env);
+                env["BLUEBIRD_DEBUG"] = true;
             }
-            else {
-                var file = files[i];
-                grunt.log.writeln("Running benchmark " + file );
-                if( file.indexOf( "matcha" ) !== -1 ) {
-                    grunt.log.writeln("Run matcha benchmarks with match");
-                    runner(files, i + 1 );
+            runIndependentTest(file, function(err) {
+                if( err ) throw new Error(err + " " + file + " failed");
+                grunt.log.writeln("Test " + file + " succeeded");
+                testDone();
+                if( files.length > 0 ) {
+                    runFile( files.shift() );
                 }
-                else {
-                    require(file)(function(){
-                        runner(files, i + 1 );
-                    });
-                }
-            }
-        })(files, 0);
-    }
+            }, env);
+        }
 
+        slowTests.forEach(runFile);
+
+        var maxParallelProcesses = 10;
+        var len = Math.min( files.length, maxParallelProcesses );
+        for( var i = 0; i < len; ++i ) {
+            runFile(files[i]);
+        }
+    }
 
     grunt.registerTask( "build-with-minify", function() {
         return build.call( this, true );
@@ -362,18 +359,6 @@ module.exports = function( grunt ) {
         testRun.call( this, testOption );
     });
 
-    grunt.registerTask( "benchrun", function(){
-        var benchmarkOption = grunt.option("run");
-        if( !benchmarkOption ) benchmarkOption = "all";
-        else {
-            benchmarkOption = benchmarkOption
-                .replace( /\.js$/, "" )
-                .replace( /[^a-zA-Z0-9_-]/g, "" );
-        }
-        benchmarkRun.call( this, benchmarkOption );
-    });
-
-    grunt.registerTask( "bench", ["concat", "build", "jshint", "benchrun"] );
     grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );
     grunt.registerTask( "default", ["concat", "build", "jshint"] );
     grunt.registerTask( "production", ["concat", "build-with-minify", "jshint"] );

@@ -1,12 +1,12 @@
 var PropertiesPromiseArray = (function(){
 
-function PropertiesPromiseArray( obj, caller ) {
+function PropertiesPromiseArray( obj, caller, boundTo ) {
     var keys = Object.keys( obj );
     var values = new Array( keys.length );
     for( var i = 0, len = values.length; i < len; ++i ) {
         values[i] = obj[keys[i]];
     }
-    this.constructor$( values, caller );
+    this.constructor$( values, caller, boundTo );
     if( !this._isResolved() ) {
         for( var i = 0, len = keys.length; i < len; ++i ) {
             values.push( keys[i] );

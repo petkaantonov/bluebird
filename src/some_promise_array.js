@@ -6,19 +6,29 @@ var isArray = Arr.isArray || function( obj ) {
     return obj instanceof Arr;
 };
 
-function SomePromiseArray( values, caller ) {
-    this.constructor$( values, caller );
+function SomePromiseArray( values, caller, boundTo ) {
+    this.constructor$( values, caller, boundTo );
+    this._howMany = 0;
+
 }
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     this._init$( void 0, FULFILL_ARRAY );
-    this._howMany = 0;
+
+    var isArrayResolved = isArray( this._values );
     //Need to keep track of holes in the array so
     //we know where rejection values start
-    this._holes = isArray( this._values )
+    this._holes = isArrayResolved
         ? this._values.length - this.length()
         : 0;
+
+    if( !this._isResolved() && isArrayResolved ) {
+        this._howMany = Math.max(0, Math.min( this._howMany, this.length() ) );
+        if( this.howMany() > this._canPossiblyFulfill()  ) {
+            this._reject( [] );
+        }
+    }
 };
 
 SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
@@ -28,11 +38,7 @@ SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
 SomePromiseArray.prototype.setHowMany =
 function SomePromiseArray$setHowMany( count ) {
     if( this._isResolved() ) return;
-
-    this._howMany = Math.max(0, Math.min( count, this.length() ) );
-    if( this.howMany() > this._canPossiblyFulfill()  ) {
-        this._reject( [] );
-    }
+    this._howMany = count;
 };
 
 //override
@@ -40,7 +46,6 @@ SomePromiseArray.prototype._promiseFulfilled =
 function SomePromiseArray$_promiseFulfilled( value ) {
     if( this._isResolved() ) return;
     this._addFulfilled( value );
-
     if( this._fulfilled() === this.howMany() ) {
         this._values.length = this.howMany();
         this._fulfill( this._values );
