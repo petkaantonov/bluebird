@@ -2368,7 +2368,7 @@ function Promise$_notifyUnhandledRejection( reason ) {
     if( !isHandled( reason["__promiseHandled__"] ) ) {
         reason["__promiseHandled__"] =
             withHandledMarked( reason["__promiseHandled__"] );
-        CapturedTrace.possiblyUnhandledRejection( reason );
+        CapturedTrace.possiblyUnhandledRejection( reason, this );
     }
 };
 

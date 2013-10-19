@@ -1,10 +1,12 @@
 module.exports = Test;
 
+var reportType = "bluebird-dev";
+
 // TODO: Abstract test reporting and create CSV reporter
 
 
-
-function Test(testName, iterations, description) {
+function Test(testName, iterations, parallelism, description) {
+    this.parallelism = parallelism;
     this.name = testName;
     this.iterations = iterations;
     this.description = description;
@@ -13,9 +15,17 @@ function Test(testName, iterations, description) {
     this.byLib = {};
 }
 
+Test.memNow = function() {
+    return process.memoryUsage().rss;
+};
+
+Test.memDiff = function(prev) {
+    return process.memoryUsage().rss - prev;
+}
+
 Test.prototype = {
-    addResult: function(libName, elapsed, computed) {
-        var result = new Result(libName, this.iterations, elapsed, computed);
+    addResult: function(libName, elapsed, mem) {
+        var result = new Result(libName, this.iterations, elapsed, void 0, mem);
 
         this.byLib[libName] = result;
         this.results.push(result);
@@ -30,7 +40,6 @@ Test.prototype = {
     },
 
     run: function(testCases, exitWhenDone) {
-        console.log("\n###Running### "+this.name+"\n");
         if(testCases.length === 0) {
             console.error("0 test cases");
             return;
@@ -52,44 +61,21 @@ Test.prototype = {
         }
 
         function exitS() {
-            console.log( "Exiting " + self.name + " successfully.");
             process.exit(0);
         }
     },
 
     report: function() {
-        console.log('');
-        console.log('==========================================================');
-        console.log('Test:', this.name, 'x', this.iterations);
-
-        if(this.description) {
-            console.log(this.description);
-        }
-
-        console.log('----------------------------------------------------------');
-        console.log(columns([
-            'Name',
-            'Time ms',
-            'Avg ms',
-            'Diff %'
-        ], 8));
-        var results = this.getSortedResults();
-
-        results.forEach(function(r) {
-            var diff = difference(results[0].total, r.total);
-            console.log(columns([
-                r.name,
-                formatNumber(r.total, 0),
-                formatNumber(r.avg, 4),
-                formatNumber(diff, 2)
-            ], 8));
-        });
-
-        if(this.errors.length) {
-            this.errors.forEach(function(e) {
-                console.log(e.name, e.error);
-            });
-        }
+        var results = this.getSortedResults().map(function(result){
+            return {
+                ms: result.total,
+                name: result.name + "-" + this.name,
+                parallelism: this.parallelism,
+                iterations: this.iterations,
+                mem: result.mem
+            };
+        }, this)
+        console.log(JSON.stringify(results));
 
     }
 };
@@ -102,11 +88,12 @@ function formatNumber(x, n) {
     return x === 0 ? '-' : Number(x).toFixed(n);
 }
 
-function Result(name, iterations, time, value) {
+function Result(name, iterations, time, value, mem) {
     this.name = name;
     this.total = time;
     this.avg = time/iterations;
     this.value = value;
+    this.mem = mem;
 }
 
 function difference(r1, r2) {

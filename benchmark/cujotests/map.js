@@ -5,9 +5,11 @@
 
 var libs, Test, test, i, array, iterations;
 
+var all = require("../../js/bluebird.js").all;
 libs = require('../cujodep/libs.js');
 Test = require('../cujodep/test.js');
 
+var parallelism = 1000;
 iterations = 10000;
 
 array = [];
@@ -15,7 +17,7 @@ for(i = 1; i<iterations; i++) {
     array.push(i);
 }
 
-test = new Test('map', iterations);
+test = new Test('map', iterations, parallelism);
 test.run(Object.keys(libs).filter(function(name) {
     return libs[name].map;
 }).map(function(name) {
@@ -37,11 +39,19 @@ function runTest(name, lib) {
         lib.map(a, function (value) {
             return lib.fulfilled(value * 2);
         }).then(function () {
+            var promises = new Array(parallelism);
+
             var start = Date.now();
-            lib.map(a, function (value) {
-                return lib.fulfilled(value * 2);
-            }).then(function (a) {
-                test.addResult(name, Date.now() - start);
+            var memNow = Test.memNow();
+
+            for( var j = 0; j < parallelism; ++j ) {
+                promises[j] = lib.map(a, function (value) {
+                    return lib.fulfilled(value * 2);
+                });
+            }
+
+            all(promises).then(function (a) {
+                test.addResult(name, Date.now() - start, Test.memDiff(memNow));
                 ret.fulfill(a);
             });
         });
