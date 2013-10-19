@@ -1027,7 +1027,7 @@ var promise = Bluebird.cast(new Promise());
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
 
 ```html
-Promise.onPossiblyUnhandledRejection(function(e){
+Promise.onPossiblyUnhandledRejection(function(e, promise){
     throw e;
 });
 ```
