@@ -7,7 +7,7 @@ trap 'cd "$cwd"' EXIT
 if [ "$benchmark" = "spion" ]; then
     cd "$cwd/benchmark/async-compare"
     npm install
-    node performance.js --n 10000 --t 1 ./examples/*.js --harmony
+    node performance.js --n 10000 --t 1 ./dev-bluebird/*.js --harmony
     exit 0
 elif [ "$benchmark" = "cujojs" ]; then
     cd "$cwd/benchmark"
