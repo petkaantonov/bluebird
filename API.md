@@ -262,7 +262,7 @@ Create a promise that follows this promise, but is bound to the given `thisArg` 
 
 <hr>
 
-Without arrow function that provide lexical `this`, the correspondence between async and sync code breaks down when writing object-oriented code. `.bind()` alleviates this.
+Without arrow functions that provide lexical `this`, the correspondence between async and sync code breaks down when writing object-oriented code. `.bind()` alleviates this.
 
 Consider:
 
@@ -335,7 +335,7 @@ However, there are many differences when you look closer:
 
 - Requires a statement so cannot be used in an expression context
 - If not there already, an additional wrapper function is required to avoid leaking or sharing `scope`
-- The handler functions are now closures, thus more inefficient and not reusable
+- The handler functions are now closures, thus less efficient and not reusable
 
 <hr>
 
@@ -355,6 +355,7 @@ something().bind(var1).then(function(){
 
 However, if you are utilizing the full bluebird API offering, you will *almost never* need to resort to nesting promises in the first place. The above should be written more like:
 
+```js
 something().bind(var1).then(function() {
     //`this` is var1 here
     return getStuff();
@@ -364,6 +365,7 @@ something().bind(var1).then(function() {
 }).then(function(){
     //`this` is var1 here
 });
+```
 
 Also see [this Stackoverflow answer](http://stackoverflow.com/a/19467053/995876) on a good example on how utilizing the collection instance methods like [`.map()`](#mapfunction-mapper---promise) can clean up code.
 
