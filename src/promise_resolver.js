@@ -44,7 +44,7 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
  *
  */
 PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
-    if( this.promise._tryAssumeStateOf( value, false ) ) {
+    if( this.promise._tryAssumeStateOf( value, MAY_SYNC ) ) {
         return;
     }
     async.invoke( this.promise._fulfill, this.promise, value );
