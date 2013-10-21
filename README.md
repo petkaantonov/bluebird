@@ -32,6 +32,7 @@ Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [
 - [What is the sync build?](#what-is-the-sync-build)
 - [License](#license)
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
+- [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 - [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
 
 #Quick start
