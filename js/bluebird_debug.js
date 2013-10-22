@@ -252,6 +252,15 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
         "break;";
     }
 
+    function getArgs() {
+        return "var args = new Array( len + 1 );" +
+        "var i = 0;" +
+        "for( var i = 0; i < len; ++i ) { " +
+        "   args[i] = arguments[i];" +
+        "}" +
+        "args[i] = fn;";
+    }
+
     var callbackName = ( typeof originalName === "string" ?
         originalName + "Async" :
         "promisified" );
@@ -271,12 +280,12 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
         "case 0:" + getCall(0) +
         "case 4:" + getCall(4) +
         "case 5:" + getCall(5) +
-        "default: " + (typeof callback === "string"
+        "default: " + getArgs() + (typeof callback === "string"
             ? "this['" + callback + "'].apply("
             : "callback.apply("
         ) +
             ( receiver === THIS ? "this" : "receiver" ) +
-        ", withAppended( arguments, fn ) ); break;" +
+        ", args ); break;" +
         "}" +
         "}" +
         "catch(e){ " +
@@ -1754,6 +1763,30 @@ Promise.rejected = function Promise$Rejected( reason ) {
     return ret;
 };
 
+Promise["try"] = Promise.attempt = function Promise$Try( fn, args, ctx ) {
+    var ret = new Promise();
+    ret._setTrace( Promise.attempt, void 0 );
+    ret._cleanValues();
+    if( typeof fn !== "function" ) {
+        ret._setRejected();
+        ret._resolvedValue = new TypeError("fn must be a function");
+        return ret;
+    }
+    var value = isArray( args )
+        ? tryCatchApply( fn, args, ctx )
+        : tryCatch1( fn, ctx, args );
+
+    if( value === errorObj ) {
+        ret._setRejected();
+        ret._resolvedValue = value.e;
+    }
+    else {
+        ret._setFulfilled();
+        ret._resolvedValue = value;
+    }
+    return ret;
+};
+
 Promise.pending = function Promise$Pending( caller ) {
     var promise = new Promise();
     promise._setTrace( typeof caller === "function"
@@ -1777,10 +1810,6 @@ Promise.cast = function Promise$Cast( obj, caller ) {
         return Promise.fulfilled( ret, caller );
     }
     return ret;
-};
-
-Promise["try"] = Promise.attempt = function( fn ) {
-    return Promise.fulfilled().then( fn );
 };
 
 Promise.onPossiblyUnhandledRejection =
@@ -2440,8 +2469,8 @@ Promise.prototype._assumeStateOf =
 function Promise$_assumeStateOf( promise, mustAsync ) {
     ASSERT(isPromise(promise),
     "isPromise( promise )");
-    ASSERT(((typeof mustAsync) === "boolean"),
-    "typeof mustAsync === \u0022boolean\u0022");
+    ASSERT(((mustAsync === true) || (mustAsync === false)),
+    "mustAsync === MUST_ASYNC || mustAsync === MAY_SYNC");
     ASSERT((this._isFollowingOrFulfilledOrRejected() === false),
     "this._isFollowingOrFulfilledOrRejected() === false");
     this._setFollowing();
@@ -2458,13 +2487,13 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
         );
     }
     else if( promise.isFulfilled() ) {
-        if( mustAsync )
+        if( mustAsync === true )
             async.invoke( this._resolveFulfill, this, promise._resolvedValue );
         else
             this._resolveFulfill( promise._resolvedValue );
     }
     else {
-        if( mustAsync )
+        if( mustAsync === true )
             async.invoke( this._resolveReject, this, promise._resolvedValue );
         else
             this._resolveReject( promise._resolvedValue );
@@ -2549,7 +2578,7 @@ function Promise$_notifyUnhandledRejection( reason ) {
     if( !isHandled( reason["__promiseHandled__"] ) ) {
         reason["__promiseHandled__"] =
             withHandledMarked( reason["__promiseHandled__"] );
-        CapturedTrace.possiblyUnhandledRejection( reason );
+        CapturedTrace.possiblyUnhandledRejection( reason, this );
     }
 };
 

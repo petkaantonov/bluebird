@@ -1,3 +1,10 @@
+## 0.9.1-0 (2013-10-22)
+
+Features:
+
+ - Improve performance of `Promise.try`
+ - Extend `Promise.try` to accept arguments and ctx to make it more usable in promisification of synchronous functions.
+
 ## 0.9.0-0 (2013-10-18)
 
 Features:

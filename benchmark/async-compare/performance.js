@@ -46,7 +46,7 @@ var perf = module.exports = function(args, done) {
     var warmedUp = 0;
     var tot =  Math.min( 350, times );
     for (var k = 0, kn = tot; k < kn; ++k)
-        fn('a','b','c', warmup);
+        fn(k,'b','c', warmup);
 
     var memMax; var memStart; var start;
     function warmup() {
@@ -56,7 +56,7 @@ var perf = module.exports = function(args, done) {
 
             memStart = process.memoryUsage().rss;
             for (var k = 0, kn = args.n; k < kn; ++k)
-                fn('a','b','c', cb);
+                fn(k, 'b', 'c', cb);
             memMax = process.memoryUsage().rss;
         }
     }
@@ -67,7 +67,8 @@ var perf = module.exports = function(args, done) {
             lastErr = err;
         }
         memMax = Math.max(memMax, process.memoryUsage().rss);
-        if (!--times) {
+        if (!--times) { 
+            fn.end && fn.end();
             done(null, {
                 time: Date.now() - start,
                 mem: (memMax - memStart)/1024/1024,

@@ -6,13 +6,15 @@
     - [`.catch(Function handler)`](#catchfunction-handler---promise)
     - [`.catch([Function ErrorClass...], Function handler)`](#catchfunction-errorclass-function-handler---promise)
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
+    - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`Promise.try(Function fn)`](#promisetryfunction-fn---promise)
+    - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
     - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
     - [`Promise.pending()`](#promisepending---promiseresolver)
     - [`Promise.cast(dynamic value)`](#promisecastdynamic-value---promise)
+    - [`Promise.bind(dynamic thisArg)`](#promisebinddynamic-thisarg---promise)
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
 - [Promise resolution](#promise-resolution)
@@ -29,14 +31,16 @@
     - [`.spread([Function fulfilledHandler] [, Function rejectedHandler ])`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise)
     - [`.map(Function mapper)`](#mapfunction-mapper---promise)
     - [`.reduce(Function reducer [, dynamic initialValue])`](#reducefunction-reducer--dynamic-initialvalue---promise)
-    - [`Promise.all(Array<dynamic> values)`](#promiseallarraydynamic-values---promise)
-    - [`Promise.props(Object object)`](#promisepropsobject-object---promise)
-    - [`Promise.settle(Array<dynamic> values)`](#promisesettlearraydynamic-values---promise)
-    - [`Promise.any(Array<dynamic> values)`](#promiseanyarraydynamic-values---promise)
-    - [`Promise.some(Array<dynamic> values, int count)`](#promisesomearraydynamic-values-int-count---promise)
+    - [`.filter(Function filterer)`](#filterfunction-filterer---promise)
+    - [`Promise.all(Array<dynamic>|Promise values)`](#promiseallarraydynamicpromise-values---promise)
+    - [`Promise.props(Object|Promise object)`](#promisepropsobjectpromise-object---promise)
+    - [`Promise.settle(Array<dynamic>|Promise values)`](#promisesettlearraydynamicpromise-values---promise)
+    - [`Promise.any(Array<dynamic>|Promise values)`](#promiseanyarraydynamicpromise-values---promise)
+    - [`Promise.some(Array<dynamic>|Promise values, int count)`](#promisesomearraydynamicpromise-values-int-count---promise)
     - [`Promise.join([dynamic value...])`](#promisejoindynamic-value---promise)
-    - [`Promise.map(Array<dynamic> values, Function mapper)`](#promisemaparraydynamic-values-function-mapper---promise)
-    - [`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])`](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise)
+    - [`Promise.map(Array<dynamic>|Promise values, Function mapper)`](#promisemaparraydynamicpromise-values-function-mapper---promise)
+    - [`Promise.reduce(Array<dynamic>|Promise values, Function reducer [, dynamic initialValue])`](#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise)
+    - [`Promise.filter(Array<dynamic>|Promise values, Function filterer)`](#promisefilterarraydynamicpromise-values-function-filterer---promise)
 - [Cancellation](#cancellation)
     - [`.cancel()`](#cancel---promise)
     - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
@@ -252,6 +256,150 @@ The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wi
 
 *For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.*
 
+#####`.bind(dynamic thisArg)` -> `Promise`
+
+Create a promise that follows this promise, but is bound to the given `thisArg` value. A bound promise will call its handlers with the bound value set to `this`. Additionally promises derived from a bound promise will also be bound promises with the same `thisArg` binding as the original promise.
+
+<hr>
+
+Without arrow functions that provide lexical `this`, the correspondence between async and sync code breaks down when writing object-oriented code. `.bind()` alleviates this.
+
+Consider:
+
+```js
+MyClass.prototype.method = function() {
+    try {
+        var contents = fs.readFileSync(this.file);
+        var url = urlParse(contents);
+        var result = this.httpGetSync(url);
+        var refined = this.refine(result);
+        return this.writeRefinedSync(refined);
+    }
+    catch (e) {
+        this.error(e.stack);
+    }
+};
+```
+
+The above has a direct translation:
+
+```js
+MyClass.prototype.method = function() {
+    return fs.readFileAsync(this.file).bind(this)
+    .then(function(contents) {
+        var url = urlParse(contents);
+        return this.httpGetAsync(url);
+    }).then(function(result){
+        var refined = this.refine(result);
+        return this.writeRefinedAsync(refined);
+    }).catch(function(e){
+        this.error(e.stack);
+    });
+};
+```
+
+`.bind()` is the most efficient way of utilizing `this` with promises. The handler functions in the above code are not closures and can therefore even be hoisted out if needed. There is literally no overhead when propagating the bound value from one promise to another.
+
+<hr>
+
+`.bind()` also has a useful side purpose - promise handlers don't need to share a function to use shared state:
+
+```js
+somethingAsync().bind({})
+.then(function (aValue, bValue) {
+    this.aValue = aValue;
+    this.bValue = bValue;
+    return somethingElseAsync(aValue, bValue);
+})
+.then(function (cValue) {
+    return this.aValue + this.bValue + cValue;
+});
+```
+
+The above without `.bind()` could be achieved with:
+
+```js
+var scope = {};
+somethingAsync()
+.then(function (aValue, bValue) {
+    scope.aValue = aValue;
+    scope.bValue = bValue;
+    return somethingElseAsync(aValue, bValue);
+})
+.then(function (cValue) {
+    return scope.aValue + scope.bValue + cValue;
+});
+```
+
+However, there are many differences when you look closer:
+
+- Requires a statement so cannot be used in an expression context
+- If not there already, an additional wrapper function is required to avoid leaking or sharing `scope`
+- The handler functions are now closures, thus less efficient and not reusable
+
+<hr>
+
+Note that bind is only propagated with promise transformation. If you create new promise chains inside a handler, those chains are not bound to the "upper" `this`:
+
+```js
+something().bind(var1).then(function(){
+    //`this` is var1 here
+    return Promise.all(getStuff()).then(function(results){
+        //`this` is undefined here
+        //refine results here etc
+    });
+}).then(function(){
+    //`this` is var1 here
+});
+```
+
+However, if you are utilizing the full bluebird API offering, you will *almost never* need to resort to nesting promises in the first place. The above should be written more like:
+
+```js
+something().bind(var1).then(function() {
+    //`this` is var1 here
+    return getStuff();
+}).map(function(result){
+    //`this` is var1 here
+    //refine result here
+}).then(function(){
+    //`this` is var1 here
+});
+```
+
+Also see [this Stackoverflow answer](http://stackoverflow.com/a/19467053/995876) on a good example on how utilizing the collection instance methods like [`.map()`](#mapfunction-mapper---promise) can clean up code.
+
+<hr>
+
+If you don't want to return a bound promise to the consumers of a promise, you can rebind the chain at the end:
+
+```js
+MyClass.prototype.method = function() {
+    return fs.readFileAsync(this.file).bind(this)
+    .then(function(contents) {
+        var url = urlParse(contents);
+        return this.httpGetAsync(url);
+    }).then(function(result){
+        var refined = this.refine(result);
+        return this.writeRefinedAsync(refined);
+    }).catch(function(e){
+        this.error(e.stack);
+    }).bind(); //The `thisArg` is implicitly undefined - I.E. the default promise `this` value
+};
+```
+
+Rebinding can also be abused to do something gratuitous like this:
+
+```js
+Promise.fulfilled("my-element")
+    .bind(document)
+    .then(document.getElementById)
+    .bind(console)
+    .then(console.log);
+```
+
+The above does `console.log(document.getElementById("my-element"));`. The `.bind()`s are necessary because in browser neither of the methods can be called as a stand-alone function.
+
 #####`.progressed(Function handler)` -> `Promise`
 
 Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
@@ -260,7 +408,7 @@ Shorthand for `.then(null, null, handler);`. Attach a progress handler that will
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
-#####`Promise.try(Function fn)` -> `Promise`
+#####`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )` -> `Promise`
 
 Start the chain of promises with `Promise.try`. Any synchronous exceptions will be turned into rejections on the returned promise.
 
@@ -276,6 +424,8 @@ function getUserById(id) {
 ```
 
 Now if someone uses this function, they will catch all errors in their Promise `.catch` handlers instead of having to handle both synchronous and asynchronous exception flows.
+
+Note about second argument: if it's specifically a true array, its values become respective arguments for the function call. Otherwise it is passed as is as the first argument for the function call.
 
 *For compatibility with earlier ECMAScript version, an alias `Promise.attempt()` is provided for `Promise.try()`.*
 
@@ -309,6 +459,10 @@ Promise.cast($.get("http://www.google.com")).then(function(){
     console.log(e.statusText);
 });
 ```
+
+#####`Promise.bind(dynamic thisArg)` -> `Promise`
+
+Sugar for `Promise.fulfilled(undefined).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
 
 #####`Promise.is(dynamic value)` -> `boolean`
 
@@ -446,23 +600,23 @@ collections of promises or mixed promises and values.
 
 #####`.all()` -> `Promise`
 
-Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise)
+Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.props()` -> `Promise`
 
-Same as calling [Promise.props\(thisPromise\)](#promisepropsobject-object---promise)
+Same as calling [Promise.props\(thisPromise\)](#promisepropsobject-object---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.settle()` -> `Promise`
 
-Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise).
+Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.any()` -> `Promise`
 
-Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---promise).
+Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.some(int count)` -> `Promise`
 
-Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise)
+Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
@@ -488,13 +642,47 @@ This is useful when the `results` array contains items that are not conceptually
 
 #####`.map(Function mapper)` -> `Promise`
 
-Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamic-values-function-mapper---promise).
+Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamic-values-function-mapper---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 #####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
-Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise).
+Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
-#####`Promise.all(Array<dynamic> values)` -> `Promise`
+#####`.filter(Function filterer)` -> `Promise`
+
+Same as calling [`Promise.filter(thisPromise, filterer)`](#promisefilterarraydynamicpromise-values-function-filterer---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+In this example, a list of websites are pinged with 100ms timeout. [`.settle()`](#settle---promise) is used to wait until all pings are either fulfilled or rejected. Then the settled
+list of [`PromiseInspections`](#inspect---promiseinspection) is filtered for those that fulfilled (responded in under 100ms) and [`mapped`](#promisemaparraydynamicpromise-values-function-mapper---promise) to the actual fulfillment value.
+
+```js
+pingWebsitesAsync({timeout: 100}).settle()
+.filter(function(inspection){
+    return inspection.isFulfilled();
+})
+.map(function(inspection){
+    return inspection.value();
+})
+.then(function(websites){
+   //List of website names which answered
+});
+```
+
+The above pattern is actually reusable and can be captured in a method:
+
+```js
+Promise.prototype.settledWithFulfill = function() {
+    return this.settle()
+        .filter(function(inspection){
+            return inspection.isFulfilled();
+        })
+        .map(function(inspection){
+            return inspection.value();
+        });
+};
+```
+
+#####`Promise.all(Array<dynamic>|Promise values)` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are fulfilled. The promise's fulfillment value is an array with fulfillment values at respective positions to the original array. If any promise in the array rejects, the returned promise is rejected with the rejection reason.
 
@@ -515,7 +703,7 @@ See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler--
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
 
-#####`Promise.props(Object object)` -> `Promise`
+#####`Promise.props(Object|Promise object)` -> `Promise`
 
 Like [`Promise.all`](#promiseallarraydynamic-values---promise) but for object properties instead of array items. Returns a promise that is fulfilled when all the properties of the object are fulfilled. The promise's fulfillment value is an object with fulfillment values at respective keys to the original object. If any promise in the object rejects, the returned promise is rejected with the rejection reason.
 
@@ -542,17 +730,17 @@ Promise.all([getPictures(), getComments(), getTweets()])
 
 *The original object is not modified.*
 
-#####`Promise.settle(Array<dynamic> values)` -> `Promise`
+#####`Promise.settle(Array<dynamic>|Promise values)` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#inspect---promiseinspection) instances at respective positions in relation to the input array.
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
 
-#####`Promise.any(Array<dynamic> values)` -> `Promise`
+#####`Promise.any(Array<dynamic>|Promise values)` -> `Promise`
 
 Like [`Promise.some\(\)`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
 
-#####`Promise.some(Array<dynamic> values, int count)` -> `Promise`
+#####`Promise.some(Array<dynamic>|Promise values, int count)` -> `Promise`
 
 Initiate a competetive race between multiple promises or values (values will become immediately fulfilled promises). When `count` amount of promises have been fulfilled, the returned promise is fulfilled with an array that contains the fulfillment values of the winners in order of resolution.
 
@@ -593,7 +781,7 @@ Promise.join(a, b).spread(function(aResult, bResult) {
 });
 ```
 
-#####`Promise.map(Array<dynamic> values, Function mapper)` -> `Promise`
+#####`Promise.map(Array<dynamic>|Promise values, Function mapper)` -> `Promise`
 
 Map an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
@@ -603,13 +791,21 @@ If the `mapper` function returns promises, the returned promise will wait for al
 
 *The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.*
 
-#####`Promise.reduce(Array<dynamic> values, Function reducer [, dynamic initialValue])` -> `Promise`
+#####`Promise.reduce(Array<dynamic>|Promise values, Function reducer [, dynamic initialValue])` -> `Promise`
 
 Reduce an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, current, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
 *(TODO: an example where this is useful)*
 
 *The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
+
+#####`Promise.filter(Array<dynamic>|Promise values, Function filterer)` -> `Promise`
+
+Filter an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `filterer` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
+
+[See the instance method `.filter()` for an example.](#filterfunction-filterer---promise)
+
+*The original array is not modified. Sparse array holes are not visited.
 
 ##Cancellation
 
@@ -1027,7 +1223,7 @@ var promise = Bluebird.cast(new Promise());
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
 
 ```html
-Promise.onPossiblyUnhandledRejection(function(e){
+Promise.onPossiblyUnhandledRejection(function(e, promise){
     throw e;
 });
 ```

@@ -14,7 +14,8 @@ libs = require('../cujodep/libs.js');
 Test = require('../cujodep/test.js');
 
 iterations = 10000;
-test = new Test('promise-fulfill', iterations);
+var parallelism = 1000;
+test = new Test('promise-fulfill', iterations, parallelism);
 
 for(var lib in libs) {
     runTest(lib, libs[lib].fulfilled);
@@ -30,9 +31,12 @@ function runTest(name, createPromise) {
     }
 
     start = Date.now();
-    for(i = 0; i<iterations; i++) {
-        createPromise(i);
+    var memNow = Test.memNow();
+    for( var j = 0; j < parallelism; ++j ) {
+        for(i = 0; i<iterations; i++) {
+            createPromise(i);
+        }
     }
 
-    test.addResult(name,  Math.max(Date.now() - start, 0.01));
+    test.addResult(name,  Math.max(Date.now() - start, 0.01), Test.memDiff(memNow));
 }

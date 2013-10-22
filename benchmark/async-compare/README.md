@@ -1,6 +1,6 @@
 # async-compare
 
-This project aims compare various node.js async patterns by their
+This project aims to compare various node.js async patterns by their
 
 - complexity (number of necessary tokens)
 - performance when executing in parallel (time and memory)

@@ -11,9 +11,11 @@
 
 var libs, Test, test, i, array, iterations;
 
+var all = require("../../js/bluebird.js").all;
 libs = require('../cujodep/libs.js');
 Test = require('../cujodep/test.js');
 
+var parallelism = 10;
 iterations = 10000;
 
 array = [];
@@ -21,7 +23,7 @@ for(i = 1; i<iterations; i++) {
     array.push(i);
 }
 
-test = new Test('defer-sequence', iterations);
+test = new Test('defer-sequence', iterations, parallelism);
 
 test.run(Object.keys(libs).map(function mapper(name) {
     return function returned() {
@@ -35,10 +37,12 @@ function runTest(name, lib) {
     d = lib.pending();
     d.fulfill(0);
 
+    var ret = lib.pending();
+
     // Use reduce to chain <iteration> number of promises back
     // to back.  The final result will only be computed after
     // all promises have resolved
-    return array.reduce(function outer(promise, nextVal) {
+    array.reduce(function outer(promise, nextVal) {
         return promise.then(function inner(currentVal) {
             // Uncomment if you want progress indication:
             //if(nextVal % 1000 === 0) console.log(name, nextVal);
@@ -47,29 +51,35 @@ function runTest(name, lib) {
             return d.promise;
         });
     }, d.promise).then(function(){
-
-        // Start timer
-        start = Date.now();
+        var promises = new Array(parallelism);
 
         d = lib.pending();
         d.fulfill(0);
 
+        // Start timer
+        start = Date.now();
+        var memNow = Test.memNow();
         // Use reduce to chain <iteration> number of promises back
         // to back.  The final result will only be computed after
         // all promises have resolved
-        return array.reduce(function outer(promise, nextVal) {
-            return promise.then(function inner(currentVal) {
-                // Uncomment if you want progress indication:
-                //if(nextVal % 1000 === 0) console.log(name, nextVal);
-                var d = lib.pending();
-                d.fulfill(currentVal + nextVal);
-                return d.promise;
-            });
-        }, d.promise).then(function result() {
-            test.addResult(name, Date.now() - start);
+        for( var j = 0; j < parallelism; ++j ) {
+            promises[j] = array.reduce(function outer(promise, nextVal) {
+                return promise.then(function inner(currentVal) {
+                    // Uncomment if you want progress indication:
+                    //if(nextVal % 1000 === 0) console.log(name, nextVal);
+                    var d = lib.pending();
+                    d.fulfill(currentVal + nextVal);
+                    return d.promise;
+                });
+            }, d.promise);
+        }
+
+        all(promises).then(function result() {
+            test.addResult(name, Date.now() - start, Test.memDiff(memNow));
+            ret.fulfill();
         });
 
     });
 
-
+    return ret.promise;
 }

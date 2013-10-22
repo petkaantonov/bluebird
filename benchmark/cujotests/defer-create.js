@@ -20,7 +20,8 @@ libs = require('../cujodep/libs.js');
 Test = require('../cujodep/test.js');
 
 iterations = 10000;
-test = new Test('defer-create', iterations);
+var parallelism = 1000;
+test = new Test('defer-create', iterations, parallelism);
 
 test.run(Object.keys(libs).map(function(name) {
     return function() {
@@ -36,10 +37,13 @@ function runTest(name, lib) {
     }
 
     start = Date.now();
-    for(i = 0; i<iterations; i++) {
-        lib.pending();
+    var memNow = Test.memNow();
+    for( var j = 0; j < parallelism; ++j ) {
+        for(i = 0; i<iterations; i++) {
+            lib.pending();
+        }
     }
 
-    test.addResult(name, Date.now() - start);
+    test.addResult(name, Date.now() - start, Test.memDiff(memNow));
     return lib.fulfilled();
 }

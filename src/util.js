@@ -205,6 +205,15 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
         "break;";
     }
 
+    function getArgs() {
+        return "var args = new Array( len + 1 );" +
+        "var i = 0;" +
+        "for( var i = 0; i < len; ++i ) { " +
+        "   args[i] = arguments[i];" +
+        "}" +
+        "args[i] = fn;";
+    }
+
     var callbackName = ( typeof originalName === "string" ?
         originalName + "Async" :
         "promisified" );
@@ -224,12 +233,12 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
         "case 0:" + getCall(0) +
         "case 4:" + getCall(4) +
         "case 5:" + getCall(5) +
-        "default: " + (typeof callback === "string"
+        "default: " + getArgs() + (typeof callback === "string"
             ? "this['" + callback + "'].apply("
             : "callback.apply("
         ) +
             ( receiver === THIS ? "this" : "receiver" ) +
-        ", withAppended( arguments, fn ) ); break;" +
+        ", args ); break;" +
         "}" +
         "}" +
         "catch(e){ " +

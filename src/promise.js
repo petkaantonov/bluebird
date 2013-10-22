@@ -23,6 +23,8 @@ var thenable = new Thenable( errorObj );
 
 CONSTANT(USE_BOUND, true);
 CONSTANT(DONT_USE_BOUND, false);
+CONSTANT(MUST_ASYNC, true);
+CONSTANT(MAY_SYNC, false);
 
 CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
 CONSTANT(CALLBACK_REJECT_OFFSET, 1);
@@ -30,7 +32,6 @@ CONSTANT(CALLBACK_PROGRESS_OFFSET, 2);
 CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
-
 //Layout for .bitField
 //DDWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
 //D = isDelegated - To implement just in time thenable assimilation
@@ -86,7 +87,7 @@ function Promise( resolver ) {
 Promise.prototype.bind = function Promise$bind( obj ) {
     var ret = new Promise();
     ret._setTrace( this.bind, this );
-    ret._assumeStateOf( this, true );
+    ret._assumeStateOf( this, MUST_ASYNC );
     ret._setBoundTo( obj );
     return ret;
 };
@@ -253,7 +254,7 @@ Promise.prototype.uncancellable = function Promise$uncancellable() {
     var ret = new Promise();
     ret._setTrace( this.uncancellable, this );
     ret._unsetCancellable();
-    ret._assumeStateOf( this, true );
+    ret._assumeStateOf( this, MUST_ASYNC );
     ret._boundTo = this._boundTo;
     return ret;
 };
@@ -947,7 +948,7 @@ Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     ret._setTrace( typeof caller === "function"
         ? caller
         : Promise.fulfilled, void 0 );
-    if( ret._tryAssumeStateOf( value, false ) ) {
+    if( ret._tryAssumeStateOf( value, MAY_SYNC ) ) {
         return ret;
     }
     ret._cleanValues();
@@ -972,6 +973,30 @@ Promise.rejected = function Promise$Rejected( reason ) {
     ret._cleanValues();
     ret._setRejected();
     ret._resolvedValue = reason;
+    return ret;
+};
+
+Promise["try"] = Promise.attempt = function Promise$Try( fn, args, ctx ) {
+    var ret = new Promise();
+    ret._setTrace( Promise.attempt, void 0 );
+    ret._cleanValues();
+    if( typeof fn !== "function" ) {
+        ret._setRejected();
+        ret._resolvedValue = new TypeError("fn must be a function");
+        return ret;
+    }
+    var value = isArray( args )
+        ? tryCatchApply( fn, args, ctx )
+        : tryCatch1( fn, ctx, args );
+
+    if( value === errorObj ) {
+        ret._setRejected();
+        ret._resolvedValue = value.e;
+    }
+    else {
+        ret._setFulfilled();
+        ret._resolvedValue = value;
+    }
     return ret;
 };
 
@@ -1033,10 +1058,6 @@ Promise.cast = function Promise$Cast( obj, caller ) {
         return Promise.fulfilled( ret, caller );
     }
     return ret;
-};
-
-Promise["try"] = Promise.attempt = function( fn ) {
-    return Promise.fulfilled().then( fn );
 };
 
 /**
@@ -1436,7 +1457,7 @@ function Promise$_spreadSlowCase( targetFn, promise, values, boundTo ) {
                 return targetFn.apply( boundTo, arguments );
             }, void 0, void 0, APPLY, void 0,
                     this._spreadSlowCase ),
-        false
+        MAY_SYNC
     );
 };
 
@@ -1510,7 +1531,7 @@ function cast( obj, caller ) {
 Promise.prototype._resolveThenable =
 function Promise$_resolveThenable( x, ref ) {
     if( ref.promise != null ) {
-        this._assumeStateOf( ref.promise, true );
+        this._assumeStateOf( ref.promise, MUST_ASYNC );
         return;
     }
      //3.2 If retrieving the property x.then
@@ -1713,7 +1734,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        if( promise._tryAssumeStateOf( x, true ) ) {
+        if( promise._tryAssumeStateOf( x, MUST_ASYNC ) ) {
             //2. If x is a promise, adopt its state
             return;
         }
@@ -1738,7 +1759,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
 Promise.prototype._assumeStateOf =
 function Promise$_assumeStateOf( promise, mustAsync ) {
     ASSERT( isPromise( promise ) );
-    ASSERT( typeof mustAsync === "boolean" );
+    ASSERT( mustAsync === MUST_ASYNC || mustAsync === MAY_SYNC );
     ASSERT( this._isFollowingOrFulfilledOrRejected() === false );
     this._setFollowing();
     if( promise.isPending() ) {
@@ -1755,13 +1776,13 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
         );
     }
     else if( promise.isFulfilled() ) {
-        if( mustAsync )
+        if( mustAsync === MUST_ASYNC )
             async.invoke( this._resolveFulfill, this, promise._resolvedValue );
         else
             this._resolveFulfill( promise._resolvedValue );
     }
     else {
-        if( mustAsync )
+        if( mustAsync === MUST_ASYNC )
             async.invoke( this._resolveReject, this, promise._resolvedValue );
         else
             this._resolveReject( promise._resolvedValue );
@@ -1844,7 +1865,7 @@ function Promise$_notifyUnhandledRejection( reason ) {
     if( !isHandled( reason[ERROR_HANDLED_KEY] ) ) {
         reason[ERROR_HANDLED_KEY] =
             withHandledMarked( reason[ERROR_HANDLED_KEY] );
-        CapturedTrace.possiblyUnhandledRejection( reason );
+        CapturedTrace.possiblyUnhandledRejection( reason, this );
     }
 };
 

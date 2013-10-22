@@ -335,7 +335,7 @@ module.exports = function( grunt ) {
         var maxParallelProcesses = 10;
         var len = Math.min( files.length, maxParallelProcesses );
         for( var i = 0; i < len; ++i ) {
-            runFile(files[i]);
+            runFile( files.shift() );
         }
     }
 
