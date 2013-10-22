@@ -976,6 +976,30 @@ Promise.rejected = function Promise$Rejected( reason ) {
     return ret;
 };
 
+Promise["try"] = Promise.attempt = function Promise$Try( fn, args, ctx ) {
+    var ret = new Promise();
+    ret._setTrace( Promise.attempt, void 0 );
+    ret._cleanValues();
+    if( typeof fn !== "function" ) {
+        ret._setRejected();
+        ret._resolvedValue = new TypeError("fn must be a function");
+        return ret;
+    }
+    var value = isArray( args )
+        ? tryCatchApply( fn, args, ctx )
+        : tryCatch1( fn, ctx, args );
+
+    if( value === errorObj ) {
+        ret._setRejected();
+        ret._resolvedValue = value.e;
+    }
+    else {
+        ret._setFulfilled();
+        ret._resolvedValue = value;
+    }
+    return ret;
+};
+
 /**
  * Create a pending promise and a resolver for the promise.
  *
@@ -1034,10 +1058,6 @@ Promise.cast = function Promise$Cast( obj, caller ) {
         return Promise.fulfilled( ret, caller );
     }
     return ret;
-};
-
-Promise["try"] = Promise.attempt = function( fn ) {
-    return Promise.fulfilled().then( fn );
 };
 
 /**

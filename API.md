@@ -9,7 +9,7 @@
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`Promise.try(Function fn)`](#promisetryfunction-fn---promise)
+    - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
     - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
     - [`Promise.pending()`](#promisepending---promiseresolver)
@@ -408,7 +408,7 @@ Shorthand for `.then(null, null, handler);`. Attach a progress handler that will
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
-#####`Promise.try(Function fn)` -> `Promise`
+#####`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )` -> `Promise`
 
 Start the chain of promises with `Promise.try`. Any synchronous exceptions will be turned into rejections on the returned promise.
 
@@ -424,6 +424,8 @@ function getUserById(id) {
 ```
 
 Now if someone uses this function, they will catch all errors in their Promise `.catch` handlers instead of having to handle both synchronous and asynchronous exception flows.
+
+Note about second argument: if it's specifically a true array, its values become respective arguments for the function call. Otherwise it is passed as is as the first argument for the function call.
 
 *For compatibility with earlier ECMAScript version, an alias `Promise.attempt()` is provided for `Promise.try()`.*
 
