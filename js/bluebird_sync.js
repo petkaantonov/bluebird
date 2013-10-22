@@ -2264,6 +2264,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     promise._popContext();
 
     if( x === errorObj ) {
+        ensureNotHandled(x.e);
         if( onFulfilledOrRejected !== ignore ) {
             promise._attachExtraTrace( x.e );
         }
