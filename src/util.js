@@ -14,6 +14,9 @@ var haveGetters = (function(){
 
 })();
 
+//If the property cannot be added on the object
+//returns a shallow clone of the object with the property
+//attached which is fine
 var ensurePropertyExpansion = function( obj, prop, value ) {
     try {
         notEnumerableProp( obj, prop, value );
