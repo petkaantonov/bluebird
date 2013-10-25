@@ -1118,7 +1118,7 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
-var longStackTraces = __DEBUG__ || (
+var longStackTraces = __DEBUG__ || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
