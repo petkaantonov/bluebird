@@ -1,5 +1,5 @@
 
-var Promise = require('../../js/bluebird');
+var Promise = require('../../js/main/promise.js');
 
 var assert = require("assert");
 

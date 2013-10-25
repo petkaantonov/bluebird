@@ -49,13 +49,13 @@ var Promise = require("bluebird");
 ```
 ##Browsers
 
-Download the [bluebird_debug.js](https://github.com/petkaantonov/bluebird/blob/master/js/bluebird_debug.js) file. And then use a script tag:
+Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/js/browser) file. And then use a script tag:
 
 ```html
-<script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
+<script type="text/javascript" src="/scripts/bluebird.js"></script>
 ```
 
-The global variable `Promise` becomes available after the above script tag. The debug file has long stack traces and assertions enabled, which degrade performance substantially but not enough to matter for anything you could do with promises on the browser.
+The global variable `Promise` becomes available after the above script tag.
 
 After quick start, see [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 

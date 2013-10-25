@@ -8,7 +8,7 @@
 
 var libs, Test, test, i, array, expected, iterations;
 
-var all = require("../../js/bluebird.js").all;
+var all = require("../../js/main/promise.js").all;
 libs = require('../cujodep/libs.js');
 Test = require('../cujodep/test.js');
 

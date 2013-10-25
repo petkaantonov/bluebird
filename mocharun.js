@@ -1,6 +1,6 @@
 var file = process.argv[2];
 
-global.adapter = require("./js/bluebird_debug.js");
+global.adapter = require("./js/debug/promise.js");
 
 var Mocha = require("mocha");
 var mochaOpts = {

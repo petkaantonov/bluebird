@@ -1,5 +1,5 @@
-var PromiseInspection = (function() {
-
+"use strict";
+var TypeError = require( "./errors.js" ).TypeError;
 
 //Based on
 //https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
@@ -8,12 +8,18 @@ var PromiseInspection = (function() {
 //whereas calls to short functions don't have any penalty and are just
 //easier to use than properties (error on mistyping for example).
 function PromiseInspection( promise ) {
-    this._bitField = promise._bitField;
-    this._resolvedValue = promise.isResolved()
-        ? promise._resolvedValue
-        //Don't keep a reference to something that will never be
-        //used
-        : void 0;
+    if( promise !== void 0 ) {
+        this._bitField = promise._bitField;
+        this._resolvedValue = promise.isResolved()
+            ? promise._resolvedValue
+            //Don't keep a reference to something that will never be
+            //used
+            : void 0;
+    }
+    else {
+        this._bitField = 0;
+        this._resolvedValue = void 0;
+    }
 }
 /**
  * See if the underlying promise was fulfilled at the creation time of this
@@ -79,4 +85,4 @@ PromiseInspection.prototype.error = function PromiseInspection$error() {
     return this._resolvedValue;
 };
 
-return PromiseInspection;})();
+module.exports = PromiseInspection;

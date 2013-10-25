@@ -1,8 +1,6 @@
+"use strict";
+var ASSERT = require("./assert.js");
 //http://jsperf.com/deque-vs-array-2
-var Queue = (function() {
-CONSTANT(QUEUE_MAX_CAPACITY, (1 << 30) | 0);
-CONSTANT(QUEUE_MIN_CAPACITY, 16);
-
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {
         dst[ j + dstIndex ] = src[ j + srcIndex ];
@@ -122,4 +120,4 @@ Queue.prototype._resizeTo = function Queue$_resizeTo( capacity ) {
     }
 };
 
-return Queue;})();
+module.exports = Queue;

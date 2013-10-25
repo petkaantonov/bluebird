@@ -1,6 +1,9 @@
-var AnyPromiseArray = (function() {
+"use strict";
+var ASSERT = require("./assert.js");
+var PromiseArray = require( "./promise_array.js" );
+var util = require("./util.js");
+var inherits = util.inherits;
 // the PromiseArray to use with Promise.any method
-
 function AnyPromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );
 }
@@ -32,4 +35,4 @@ function AnyPromiseArray$_promiseRejected( reason, index ) {
 
 };
 
-return AnyPromiseArray;})();
+module.exports = AnyPromiseArray;

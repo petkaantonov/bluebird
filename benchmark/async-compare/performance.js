@@ -67,7 +67,7 @@ var perf = module.exports = function(args, done) {
             lastErr = err;
         }
         memMax = Math.max(memMax, process.memoryUsage().rss);
-        if (!--times) { 
+        if (!--times) {
             fn.end && fn.end();
             done(null, {
                 time: Date.now() - start,
@@ -187,6 +187,7 @@ function measure(files, requests, time, callback) {
         var r = { file: f, data: [] };
         p.stdout.on('data', function(d) { r.data.push(d.toString()); });
         p.stdout.pipe(process.stdout);
+        p.stderr.pipe(process.stderr);
         p.stdout.on('end', function(code) {
             complete = true;
             try {

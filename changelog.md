@@ -1,3 +1,9 @@
+## 0.9.1-1 (2013-10-22)
+
+Bugfixes:
+
+ - Fix unhandled rethrown exceptions not reported
+
 ## 0.9.1-0 (2013-10-22)
 
 Features:
