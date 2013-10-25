@@ -12,6 +12,22 @@ module.exports = function( grunt ) {
     var CONSTANTS_FILE = './src/constants.js';
     var BUILD_DEBUG_DEST = "./js/main/promise.js";
 
+    var license;
+    function getLicense() {
+        if( !license ) {
+            var fs = require("fs");
+            var text = fs.readFileSync("LICENSE", "utf8");
+            text = text.split("\n").map(function(line, index){
+                if( index === 0 ) {
+                    return " * @preserve " + line;
+                }
+                return " * " + line;
+            }).join("\n")
+            license = "/**\n" + text + "\n */\n";
+        }
+        return license;
+    }
+
     function writeFile( dest, content ) {
         grunt.file.write( dest, content );
         grunt.log.writeln('File "' + dest + '" created.');
@@ -237,6 +253,7 @@ module.exports = function( grunt ) {
     }
 
     function buildBrowser() {
+        var fs = require("fs");
         var browserify = require("browserify");
         var b = browserify("./js/main/promise.js");
 
@@ -244,7 +261,8 @@ module.exports = function( grunt ) {
             detectGlobals: false,
             standalone: "Promise"
         }).then(function(src) {
-            return writeFileAsync( "./js/browser/bluebird.js", src)
+            return writeFileAsync( "./js/browser/bluebird.js",
+                getLicense() + src )
         });
 
     }
@@ -296,6 +314,7 @@ module.exports = function( grunt ) {
             sources.forEach( function( source ) {
                 var src = source.sourceCode
                 src = astPasses.removeComments(src, source.fileName);
+                src = getLicense() + src;
                 source.sourceCode = src;
             });
             return Q.all([
