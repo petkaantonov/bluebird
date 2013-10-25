@@ -42,7 +42,7 @@
 })(function () {var define,module,exports;
 return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,7 @@ module.exports = AnyPromiseArray;
 
 },{"./assert.js":2,"./promise_array.js":10,"./util.js":20}],2:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -148,7 +148,7 @@ module.exports = (function(){
 
 },{}],3:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -245,7 +245,7 @@ module.exports = new Async();
 
 },{"./assert.js":2,"./queue.js":15,"./schedule.js":16,"./util.js":20}],4:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -442,7 +442,7 @@ module.exports = CapturedTrace;
 
 },{"./assert.js":2,"./util.js":20}],5:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -496,7 +496,7 @@ module.exports = CatchFilter;
 
 },{"./errors.js":6,"./util.js":20}],6:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -612,7 +612,7 @@ module.exports = {
 
 },{"./global.js":8,"./util.js":20}],7:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -645,7 +645,7 @@ module.exports = {
 
 },{}],8:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -685,7 +685,7 @@ module.exports = (function(){
 
 },{}],9:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2417,7 +2417,7 @@ module.exports = Promise;
 
 },{"./any_promise_array.js":1,"./assert.js":2,"./async.js":3,"./captured_trace.js":4,"./catch_filter.js":5,"./errors.js":6,"./get_promise.js":7,"./global.js":8,"./promise_array.js":10,"./promise_inspection.js":11,"./promise_resolver.js":12,"./promise_spawn.js":13,"./properties_promise_array.js":14,"./settled_promise_array.js":17,"./some_promise_array.js":18,"./thenable.js":19,"./util.js":20}],10:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2631,7 +2631,7 @@ module.exports = PromiseArray;
 
 },{"./assert.js":2,"./async.js":3,"./errors.js":6,"./get_promise":7,"./util.js":20}],11:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2700,7 +2700,7 @@ module.exports = PromiseInspection;
 
 },{"./errors.js":6}],12:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2789,7 +2789,7 @@ module.exports = PromiseResolver;
 
 },{"./async.js":3,"./errors.js":6,"./util.js":20}],13:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2885,7 +2885,7 @@ module.exports = PromiseSpawn;
 
 },{"./errors.js":6,"./get_promise.js":7,"./util.js":20}],14:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2963,7 +2963,7 @@ module.exports = PropertiesPromiseArray;
 
 },{"./assert.js":2,"./get_promise.js":7,"./promise_array.js":10,"./util.js":20}],15:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3100,7 +3100,7 @@ module.exports = Queue;
 
 },{"./assert.js":2}],16:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3232,7 +3232,7 @@ module.exports = schedule;
 
 },{"./assert.js":2,"./global.js":8}],17:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3293,7 +3293,7 @@ module.exports = SettledPromiseArray;
 
 },{"./assert.js":2,"./promise_array.js":10,"./promise_inspection.js":11,"./util.js":20}],18:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3403,7 +3403,7 @@ module.exports = SomePromiseArray;
 
 },{"./promise_array.js":10,"./util.js":20}],19:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3546,7 +3546,7 @@ module.exports = Thenable;
 
 },{"./assert.js":2,"./async.js":3,"./util.js":20}],20:[function(require,module,exports){
 /**
- * @preserve Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

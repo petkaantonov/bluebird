@@ -18,14 +18,27 @@ module.exports = function( grunt ) {
             var fs = require("fs");
             var text = fs.readFileSync("LICENSE", "utf8");
             text = text.split("\n").map(function(line, index){
+                return " * " + line;
+            }).join("\n")
+            license = "/**\n" + text + "\n */\n";
+        }
+        return license
+    }
+
+    var preserved;
+    function getLicensePreserve() {
+        if( !preserved ) {
+            var fs = require("fs");
+            var text = fs.readFileSync("LICENSE", "utf8");
+            text = text.split("\n").map(function(line, index){
                 if( index === 0 ) {
                     return " * @preserve " + line;
                 }
                 return " * " + line;
             }).join("\n")
-            license = "/**\n" + text + "\n */\n";
+            preserved = "/**\n" + text + "\n */\n";
         }
-        return license;
+        return preserved;
     }
 
     function writeFile( dest, content ) {
@@ -262,7 +275,7 @@ module.exports = function( grunt ) {
             standalone: "Promise"
         }).then(function(src) {
             return writeFileAsync( "./js/browser/bluebird.js",
-                getLicense() + src )
+                getLicensePreserve() + src )
         });
 
     }
