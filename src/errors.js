@@ -1,9 +1,7 @@
-CONSTANT(ERROR_HANDLED_KEY, "__promiseHandled__");
-
-CONSTANT(DEFAULT_STATE, 0);
-CONSTANT(STACK_ATTACHED, 1);
-CONSTANT(ERROR_HANDLED, 2);
-
+var util = require( "./util");
+var inherits = util.inherits;
+var isObject = util.isObject;
+var notEnumerableProp = util.notEnumerableProp;
 
 function isStackAttached( val ) {
     return ( val & STACK_ATTACHED ) > 0;
@@ -76,4 +74,18 @@ if( typeof TypeError !== "function" ) {
 }
 var CancellationError = subError( "CancellationError", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "timeout error" );
+
+module.exports = {
+    TypeError: TypeError,
+    CancellationError: CancellationError,
+    TimeoutError: TimeoutError,
+    attachDefaultState: attachDefaultState,
+    ensureNotHandled: ensureNotHandled,
+    withHandledUnmarked: withHandledUnmarked,
+    withHandledMarked: withHandledMarked,
+    withStackAttached: withStackAttached,
+    isStackAttached: isStackAttached,
+    isHandled: isHandled,
+    canAttach: canAttach
+};
 

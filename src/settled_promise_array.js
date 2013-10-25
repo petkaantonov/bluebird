@@ -1,4 +1,7 @@
-var SettledPromiseArray = (function() {
+var PromiseArray = require( "./promise_array" );
+var PromiseInspection = require( "./promise_inspection" );
+var util = require("./util");
+var inherits = util.inherits;
 // the PromiseArray to use with Promise.settle method
 
 function SettledPromiseArray( values, caller, boundTo ) {
@@ -16,16 +19,12 @@ function SettledPromiseArray$_promiseResolved( index, inspection ) {
     }
 };
 
-var throwawayPromise = new Promise()._setTrace();
 //override
 SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     ASSERT( typeof index === "number" );
-    //Pretty ugly hack
-    //but keeps the PromiseInspection constructor
-    //simple
-    var ret = new PromiseInspection( throwawayPromise );
+    var ret = new PromiseInspection();
     ret._bitField = IS_FULFILLED;
     ret._resolvedValue = value;
     this._promiseResolved( index, ret );
@@ -35,13 +34,10 @@ SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     ASSERT( typeof index === "number" );
-    //Pretty ugly hack
-    //but keeps the PromiseInspection constructor
-    //simple
-    var ret = new PromiseInspection( throwawayPromise );
+    var ret = new PromiseInspection();
     ret._bitField = IS_REJECTED;
     ret._resolvedValue = reason;
     this._promiseResolved( index, ret );
 };
 
-return SettledPromiseArray;})();
+module.exports = SettledPromiseArray;

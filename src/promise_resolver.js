@@ -1,4 +1,9 @@
-var PromiseResolver = (function() {
+var util = require( "./util" );
+var errors = require( "./errors");
+var TimeoutError = errors.TimeoutError;
+var async = require( "./async" );
+var haveGetters = util.haveGetters;
+var nodebackForResolver = util.nodebackForResolver;
 
 /**
  * Wraps a promise object and can be used to control
@@ -107,5 +112,4 @@ PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
     return this.promise.toJSON();
 };
 
-
-return PromiseResolver;})();
+module.exports = PromiseResolver;

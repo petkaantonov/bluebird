@@ -1,4 +1,7 @@
-var PropertiesPromiseArray = (function(){
+var Promise = require("./get_promise").get();
+var PromiseArray = require( "./promise_array" );
+var util = require("./util");
+var inherits = util.inherits;
 
 function PropertiesPromiseArray( obj, caller, boundTo ) {
     var keys = Object.keys( obj );
@@ -50,4 +53,6 @@ function PropertiesPromiseArray$_promiseProgressed( value, index ) {
     });
 };
 
-return PropertiesPromiseArray;})();
+PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
+
+module.exports = PropertiesPromiseArray;

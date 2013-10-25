@@ -1,66 +1,55 @@
-var Promise = (function() {
+//Circular requirements hack
+var getPromise = require("./get_promise");
+getPromise.set( Promise );
+var util = require( "./util" );
+var async = require( "./async" );
 
-function isObject( value ) {
-    if( value === null ) {
-        return false;
-    }
-    return ( typeof value === "object" ||
-            typeof value === "function" );
-}
+var errors = require( "./errors" );
+
+var PromiseArray = require( "./promise_array" );
+var SomePromiseArray = require( "./some_promise_array" );
+var AnyPromiseArray = require( "./any_promise_array" );
+var PropertiesPromiseArray = require( "./properties_promise_array" );
+var SettledPromiseArray = require( "./settled_promise_array" );
+
+var CapturedTrace = require( "./captured_trace");
+var CatchFilter = require( "./catch_filter");
+var PromiseInspection = require( "./promise_inspection" );
+var PromiseResolver = require( "./promise_resolver" );
+var PromiseSpawn = require( "./promise_spawn" );
+var Thenable = require( "./thenable" );
+
+var isArray = util.isArray;
+var makeNodePromisified = util.makeNodePromisified;
+var THIS = util.THIS;
+var notEnumerableProp = util.notEnumerableProp;
+var isPrimitive = util.isPrimitive;
+var isObject = util.isObject;
+var ensurePropertyExpansion = util.ensurePropertyExpansion;
+var deprecated = util.deprecated;
+var errorObj = util.errorObj;
+var tryCatch1 = util.tryCatch1;
+var tryCatch2 = util.tryCatch2;
+var tryCatchApply = util.tryCatchApply;
+
+var TypeError = errors.TypeError;
+var CancellationError = errors.CancellationError;
+var TimeoutError = errors.TimeoutError;
+var ensureNotHandled = errors.ensureNotHandled;
+var withHandledMarked = errors.withHandledMarked;
+var withStackAttached = errors.withStackAttached;
+var isStackAttached = errors.isStackAttached;
+var isHandled = errors.isHandled;
+var canAttach = errors.canAttach;
+
+var APPLY = {};
+var thenable = new Thenable( errorObj );
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
 }
 
-var isArray = Array.isArray || function( obj ) {
-    return obj instanceof Array;
-};
-
-
-var APPLY = {};
-var thenable = new Thenable( errorObj );
-
-CONSTANT(USE_BOUND, true);
-CONSTANT(DONT_USE_BOUND, false);
-CONSTANT(MUST_ASYNC, true);
-CONSTANT(MAY_SYNC, false);
-
-CONSTANT(CALLBACK_FULFILL_OFFSET, 0);
-CONSTANT(CALLBACK_REJECT_OFFSET, 1);
-CONSTANT(CALLBACK_PROGRESS_OFFSET, 2);
-CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
-CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
-CONSTANT(CALLBACK_SIZE, 5);
-//Layout for .bitField
-//DDWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
-//D = isDelegated - To implement just in time thenable assimilation
-//Both of the DD bits must be either 0 or 1
-//W = isFollowing (The promise that is being followed is not stored explicitly)
-//F = isFulfilled
-//N = isRejected
-//C = isCancellable
-//T = isFinal (used for .done() implementation)
-
-//R = [Reserved]
-//L = Length, 24 bit unsigned
-CONSTANT(IS_DELEGATED, 0xC0000000|0);
-CONSTANT(IS_FOLLOWING, 0x20000000|0);
-CONSTANT(IS_FULFILLED, 0x10000000|0);
-CONSTANT(IS_REJECTED, 0x8000000|0);
-CONSTANT(IS_CANCELLABLE, 0x4000000|0);
-CONSTANT(IS_FINAL, 0x2000000|0);
-CONSTANT(LENGTH_MASK, 0xFFFFFF|0);
-CONSTANT(LENGTH_CLEAR_MASK, ~LENGTH_MASK);
-CONSTANT(MAX_LENGTH, LENGTH_MASK);
-CONSTANT(IS_REJECTED_OR_FULFILLED, IS_REJECTED | IS_FULFILLED);
-CONSTANT(IS_FOLLOWING_OR_REJECTED_OR_FULFILLED, IS_REJECTED_OR_FULFILLED | IS_FOLLOWING);
-
-/**
- * Description.
- *
- *
- */
 function Promise( resolver ) {
     this._bitField = IS_CANCELLABLE;
     //Since most promises have exactly 1 parallel handler
@@ -1153,8 +1142,6 @@ function isPromisified( fn ) {
     return fn.__isPromisified__ === true;
 }
 var hasProp = {}.hasOwnProperty;
-CONSTANT(BEFORE_PROMISIFIED_SUFFIX, "__beforePromisified__");
-CONSTANT(AFTER_PROMISIFIED_SUFFIX, "Async");
 var roriginal = new RegExp( BEFORE_PROMISIFIED_SUFFIX + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
@@ -2142,4 +2129,4 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
-return Promise;})();
+module.exports = Promise;

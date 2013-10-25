@@ -1,4 +1,4 @@
-var CapturedTrace = (function() {
+var inherits = require( "./util ").inherits;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
@@ -40,7 +40,6 @@ function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     }
 };
 
-CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
     var curLast = current.length - 1;
     //Eliminate common roots
@@ -185,4 +184,4 @@ var captureStackTrace = (function stackDetection() {
     }
 })();
 
-return CapturedTrace;})();
+module.exports = CapturedTrace;

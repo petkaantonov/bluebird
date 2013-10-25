@@ -1,5 +1,6 @@
-var Thenable = (function() {
-
+var util = require( "./util" );
+var async = require(" ./async");
+var errorObj = util.errorObj;
 //Pending promises are not garbage collected anyway
 //so this works as a weak map as addition and deletion
 //are all done from internal code
@@ -137,4 +138,4 @@ function Thenable$_thenableSlowCase( ret, ref ) {
     }
 };
 
-return Thenable;})();
+module.exports = Thenable;

@@ -1,3 +1,5 @@
+var getPromise = require("./get_promise");
+
 var haveGetters = (function(){
     try {
         var o = {};
@@ -62,6 +64,11 @@ function deprecated( msg ) {
         console.warn( "Bluebird: " + msg );
     }
 }
+
+var isArray = Array.isArray || function( obj ) {
+    return obj instanceof Array;
+};
+
 
 
 var errorObj = {e: {}};
@@ -187,6 +194,7 @@ function notEnumerableProp( obj, name, value ) {
 
 var THIS = {};
 function makeNodePromisifiedEval( callback, receiver, originalName ) {
+    var Promise = getPromise.get();
 
     function getCall(count) {
         var args = new Array(count);
@@ -256,6 +264,7 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
 }
 
 function makeNodePromisifiedClosure( callback, receiver ) {
+    var Promise = getPromise.get();
     function promisified() {
         var _receiver = receiver;
         if( receiver === THIS ) _receiver = this;
@@ -280,3 +289,26 @@ function makeNodePromisifiedClosure( callback, receiver ) {
 var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
+
+
+module.exports ={
+    isArray: isArray,
+    makeNodePromisified: makeNodePromisified,
+    haveGetters: haveGetters,
+    THIS: THIS,
+    notEnumerableProp: notEnumerableProp,
+    isPrimitive: isPrimitive,
+    isObject: isObject,
+    ensurePropertyExpansion: ensurePropertyExpansion,
+    canEvaluate: canEvaluate,
+    deprecated: deprecated,
+    errorObj: errorObj,
+    tryCatch1: tryCatch1,
+    tryCatch2: tryCatch2,
+    tryCatchApply: tryCatchApply,
+    inherits: inherits,
+    withAppended: withAppended,
+    asString: asString,
+    maybeWrapAsError: maybeWrapAsError,
+    nodebackForResolver: nodebackForResolver
+};

@@ -219,34 +219,30 @@ function safeToEmbedString( str ) {
     return str.replace( rescape, replacer );
 }
 
+function parse( src, opts, fileName) {
+    if( !fileName ) {
+        fileName = opts;
+        opts = void 0;
+    }
+    try {
+        return jsp.parse(src, opts);
+    }
+    catch(e) {
+        e.fileName = fileName;
+        throw e;
+    }
+}
+
+var constants = {};
+var ignore = [];
+
 var astPasses = module.exports = {
 
-    removeComments: function( src ) {
-        var results = [];
-        var rnoremove = /^[*\s\/]*(?:@preserve|jshint|global)/;
-        opts.onComment = function( block, text, start, end ) {
-            if( rnoremove.test(text) ) {
-                return;
-            }
-            var e = end + 1;
-            var s = start - 1;
-            while(rhorizontalws.test(src.charAt(s--)));
-            while(rlineterm.test(src.charAt(e++)));
-            results.push( new Empty( s + 2, e - 1 ) );
-        };
-        var ast = jsp.parse(src, opts);
-        return convertSrc( src, results );
-    },
-
-    expandConstants: function( src ) {
-        var constants = {};
-        var results = [];
-        var identifiers = [];
-        var ignore =[];
-        var ast = jsp.parse(src);
+    //Parse constants in from constants.js
+    readConstants: function( src, fileName ) {
+        var ast = parse(src, fileName);
         walk.simple(ast, {
             ExpressionStatement: function( node ) {
-
                 if( node.expression.type !== 'CallExpression' ) {
                     return;
                 }
@@ -271,12 +267,6 @@ var astPasses = module.exports = {
                     }
 
                     var args = node.arguments;
-                    var e = end + 1;
-                    var s = start - 1;
-
-                    while(rhorizontalws.test(src.charAt(s--)));
-                    while(rlineterm.test(src.charAt(e++)));
-                    results.push( new Empty( s + 2, e - 1 ) );
 
                     var name = args[0];
                     var nameStr = name.name;
@@ -294,8 +284,16 @@ var astPasses = module.exports = {
                     });
                     global[nameStr] = constants[nameStr].value;
                 }
-            },
+            }
+        });
+    },
 
+    //Expand constants in normal source files
+    expandConstants: function( src, fileName ) {
+        var results = [];
+        var identifiers = [];
+        var ast = parse(src, fileName);
+        walk.simple(ast, {
             Identifier: function( node ) {
                 identifiers.push( node );
             }
@@ -320,8 +318,25 @@ var astPasses = module.exports = {
         return convertSrc( src, results );
     },
 
-    expandAsserts: function( src ) {
-        var ast = jsp.parse(src);
+    removeComments: function( src, fileName ) {
+        var results = [];
+        var rnoremove = /^[*\s\/]*(?:@preserve|jshint|global)/;
+        opts.onComment = function( block, text, start, end ) {
+            if( rnoremove.test(text) ) {
+                return;
+            }
+            var e = end + 1;
+            var s = start - 1;
+            while(rhorizontalws.test(src.charAt(s--)));
+            while(rlineterm.test(src.charAt(e++)));
+            results.push( new Empty( s + 2, e - 1 ) );
+        };
+        var ast = parse(src, opts, fileName);
+        return convertSrc( src, results );
+    },
+
+    expandAsserts: function( src, fileName ) {
+        var ast = parse( src, fileName );
         var results = [];
         walk.simple(ast, {
             CallExpression: function( node ) {
@@ -350,8 +365,8 @@ var astPasses = module.exports = {
         return convertSrc( src, results );
     },
 
-    removeAsserts: function( src ) {
-        var ast = jsp.parse(src);
+    removeAsserts: function( src, fileName ) {
+        var ast = parse( src, fileName );
         var results = [];
         walk.simple(ast, {
             ExpressionStatement: function( node ) {
@@ -382,8 +397,8 @@ var astPasses = module.exports = {
         return convertSrc( src, results );
     },
 
-    asyncConvert: function( src, objName, fnProp ) {
-        var ast = jsp.parse(src);
+    asyncConvert: function( src, objName, fnProp, fileName ) {
+        var ast = parse( src, fileName );
 
         var results = [];
         walk.simple(ast, {
