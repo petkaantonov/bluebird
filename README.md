@@ -49,7 +49,7 @@ var Promise = require("bluebird");
 ```
 ##Browsers
 
-Download the [bluebird.js](https://github.com/petkaantonov/bluebird/blob/master/js/browser/bluebird.js) file. And then use a script tag:
+Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/js/browser) file. And then use a script tag:
 
 ```html
 <script type="text/javascript" src="/scripts/bluebird.js"></script>
