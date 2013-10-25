@@ -1,5 +1,5 @@
-var ensureNotHandled = require( "./errors" ).ensureNotHandled;
-var util = require( "./util");
+var ensureNotHandled = require( "./errors.js" ).ensureNotHandled;
+var util = require( "./util.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 

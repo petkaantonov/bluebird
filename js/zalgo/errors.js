@@ -1,4 +1,4 @@
-var util = require( "./util");
+var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;
 var notEnumerableProp = util.notEnumerableProp;

@@ -1,7 +1,7 @@
-var util = require( "./util" );
-var errors = require( "./errors");
+var util = require( "./util.js" );
+var errors = require( "./errors.js");
 var TimeoutError = errors.TimeoutError;
-var async = require( "./async" );
+var async = require( "./async.js" );
 var haveGetters = util.haveGetters;
 var nodebackForResolver = util.nodebackForResolver;
 

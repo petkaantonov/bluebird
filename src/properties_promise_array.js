@@ -1,6 +1,6 @@
-var Promise = require("./get_promise").get();
-var PromiseArray = require( "./promise_array" );
-var util = require("./util");
+var Promise = require("./get_promise.js").get();
+var PromiseArray = require( "./promise_array.js" );
+var util = require("./util.js");
 var inherits = util.inherits;
 
 function PropertiesPromiseArray( obj, caller, boundTo ) {

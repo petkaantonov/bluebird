@@ -1,5 +1,5 @@
-var PromiseArray = require( "./promise_array" );
-var util = require("./util");
+var PromiseArray = require( "./promise_array.js" );
+var util = require("./util.js");
 var inherits = util.inherits;
 // the PromiseArray to use with Promise.any method
 function AnyPromiseArray( values, caller, boundTo ) {

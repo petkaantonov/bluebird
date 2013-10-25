@@ -1,5 +1,5 @@
-var util = require( "./util" );
-var async = require(" ./async");
+var util = require( "./util.js" );
+var async = require( "./async.js" );
 var errorObj = util.errorObj;
 //Pending promises are not garbage collected anyway
 //so this works as a weak map as addition and deletion

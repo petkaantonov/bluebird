@@ -1,4 +1,4 @@
-var getPromise = require("./get_promise");
+var getPromise = require("./get_promise.js");
 
 var haveGetters = (function(){
     try {

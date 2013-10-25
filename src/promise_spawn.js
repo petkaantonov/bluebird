@@ -1,9 +1,9 @@
 
-var Promise = require("./get_promise").get();
-var errors = require( "./errors" );
+var Promise = require("./get_promise.js").get();
+var errors = require( "./errors.js" );
 var TypeError = errors.TypeError;
 var ensureNotHandled = errors.ensureNotHandled;
-var util = require("./util");
+var util = require("./util.js");
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 

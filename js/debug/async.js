@@ -1,7 +1,7 @@
-var schedule = require( "./schedule" );
-var Queue = require( "./queue" );
-var errorObj = require( "./util").errorObj;
-var tryCatch1 = require( "./util").tryCatch1;
+var schedule = require( "./schedule.js" );
+var Queue = require( "./queue.js" );
+var errorObj = require( "./util.js").errorObj;
+var tryCatch1 = require( "./util.js").tryCatch1;
 
 function Async() {
     this._isTickUsed = false;

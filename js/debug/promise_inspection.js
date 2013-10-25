@@ -1,4 +1,4 @@
-var TypeError = require( "./errors" ).TypeError;
+var TypeError = require( "./errors.js" ).TypeError;
 
 function PromiseInspection( promise ) {
     if( promise !== void 0 ) {

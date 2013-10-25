@@ -1,22 +1,50 @@
-var getPromise = require("./get_promise");
+
+    new Function("return this")().ASSERT = (function(){
+        var AssertionError = (function() {
+            function AssertionError( a ) {
+                this.constructor$( a );
+                this.message = a;
+                this.name = "AssertionError";
+            }
+            AssertionError.prototype = new Error();
+            AssertionError.prototype.constructor = AssertionError;
+            AssertionError.prototype.constructor$ = Error;
+            return AssertionError;
+        })();
+
+        return function assert( boolExpr, message ) {
+            if( boolExpr === true ) return;
+
+            var ret = new AssertionError( message );
+            if( Error.captureStackTrace ) {
+                Error.captureStackTrace( ret, assert );
+            }
+            if( console && console.error ) {
+                console.error( ret.stack + "" );
+            }
+            throw ret;
+
+        };
+    })();
+var getPromise = require("./get_promise.js");
 getPromise.set( Promise );
-var util = require( "./util" );
-var async = require( "./async" );
+var util = require( "./util.js" );
+var async = require( "./async.js" );
 
-var errors = require( "./errors" );
+var errors = require( "./errors.js" );
 
-var PromiseArray = require( "./promise_array" );
-var SomePromiseArray = require( "./some_promise_array" );
-var AnyPromiseArray = require( "./any_promise_array" );
-var PropertiesPromiseArray = require( "./properties_promise_array" );
-var SettledPromiseArray = require( "./settled_promise_array" );
+var PromiseArray = require( "./promise_array.js" );
+var SomePromiseArray = require( "./some_promise_array.js" );
+var AnyPromiseArray = require( "./any_promise_array.js" );
+var PropertiesPromiseArray = require( "./properties_promise_array.js" );
+var SettledPromiseArray = require( "./settled_promise_array.js" );
 
-var CapturedTrace = require( "./captured_trace");
-var CatchFilter = require( "./catch_filter");
-var PromiseInspection = require( "./promise_inspection" );
-var PromiseResolver = require( "./promise_resolver" );
-var PromiseSpawn = require( "./promise_spawn" );
-var Thenable = require( "./thenable" );
+var CapturedTrace = require( "./captured_trace.js");
+var CatchFilter = require( "./catch_filter.js");
+var PromiseInspection = require( "./promise_inspection.js" );
+var PromiseResolver = require( "./promise_resolver.js" );
+var PromiseSpawn = require( "./promise_spawn.js" );
+var Thenable = require( "./thenable.js" );
 
 var isArray = util.isArray;
 var makeNodePromisified = util.makeNodePromisified;
@@ -807,7 +835,13 @@ Promise.spawn = function Promise$Spawn( generatorFunction ) {
     return ret;
 };
 
-var longStackTraces = __DEBUG__;
+var longStackTraces = true || (
+    typeof process !== "undefined" &&
+    typeof process.execPath === "string" &&
+    typeof process.env === "object" &&
+    process.env[ "BLUEBIRD_DEBUG" ]
+);
+
 Promise.longStackTraces = function Promise$LongStackTraces() {
     if( async.haveItemsQueued() &&
         longStackTraces === false

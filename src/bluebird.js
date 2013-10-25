@@ -1,1 +1,1 @@
-module.exports = require("./promise");
+module.exports = require("./promise.js");

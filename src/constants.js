@@ -1,3 +1,5 @@
+//This is pretty lame but what you gonna do
+
 //async.js
 CONSTANT(BUFFER_STRIDE, 3);
 

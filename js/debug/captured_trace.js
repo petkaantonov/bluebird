@@ -1,4 +1,4 @@
-var inherits = require( "./util ").inherits;
+var inherits = require( "./util.js").inherits;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +

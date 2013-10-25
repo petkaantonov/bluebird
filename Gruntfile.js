@@ -6,15 +6,6 @@ var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var Q = require("q");
 Q.longStackSupport = true;
 
-var ccOptions = {
-    compilation_level: 'SIMPLE_OPTIMIZATIONS',
-    language_in: 'ECMASCRIPT5_STRICT',
-    charset: "UTF-8",
-    debug: false,
-    jar: '../closure_compiler/build/compiler.jar'
-};
-
-
 var assertionErrorCode = function() {
     new Function("return this")().ASSERT = (function(){
         var AssertionError = (function() {
@@ -45,14 +36,13 @@ var assertionErrorCode = function() {
     })();
 }.toString()
 .replace(/^\s*function\s*\(\s*\)\s\{/, "")
-.replace(/}\s*$/, "")
-//:D
-.replace('(function(){', '(function(){/* jshint -W014, -W116 */');
+.replace(/}\s*$/, "");
 
 module.exports = function( grunt ) {
 
 
     var CONSTANTS_FILE = './src/constants.js';
+    var BUILD_DEBUG_DEST = "./js/main/promise.js";
 
     function writeFile( dest, content ) {
         grunt.file.write( dest, content );
@@ -235,16 +225,6 @@ module.exports = function( grunt ) {
 
     }
 
-    function fixStrict( code ) {
-        //Fix global strict mode inserted by closure compiler
-        var useStrict = "'use strict';";
-        var firstFunctionHeaderAfter = '){';
-        var src = code;
-        src = src.replace(useStrict, "");
-        src = src.replace(firstFunctionHeaderAfter, firstFunctionHeaderAfter + '"use strict";' );
-        return src;
-    }
-
     function buildMain( sources ) {
         var fs = require("fs");
         var Q = require("q");
@@ -254,6 +234,8 @@ module.exports = function( grunt ) {
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
+            src = src.replace( /__DEBUG__/g, false );
+
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
@@ -267,6 +249,12 @@ module.exports = function( grunt ) {
         return Q.all(sources.map(function( source ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
+            src = src.replace( /__DEBUG__/g, true );
+
+            if( source.fileName.toLowerCase() === "promise.js" ) {
+                src = assertionErrorCode + src;
+            }
+
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
@@ -281,6 +269,8 @@ module.exports = function( grunt ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = astPasses.asyncConvert( src, "async", "invoke", source.fileName);
+            src = src.replace( /__DEBUG__/g, false );
+
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));

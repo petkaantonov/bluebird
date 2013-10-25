@@ -1,7 +1,7 @@
 var Promise = require("./get_promise").get();
-var ensureNotHandled = require( "./errors").ensureNotHandled;
-var util = require("./util");
-var async = require( "./async");
+var ensureNotHandled = require( "./errors.js").ensureNotHandled;
+var util = require("./util.js");
+var async = require( "./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 

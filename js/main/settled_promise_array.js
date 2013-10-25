@@ -1,6 +1,6 @@
-var PromiseArray = require( "./promise_array" );
-var PromiseInspection = require( "./promise_inspection" );
-var util = require("./util");
+var PromiseArray = require( "./promise_array.js" );
+var PromiseInspection = require( "./promise_inspection.js" );
+var util = require("./util.js");
 var inherits = util.inherits;
 function SettledPromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );

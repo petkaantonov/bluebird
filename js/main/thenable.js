@@ -1,5 +1,5 @@
-var util = require( "./util" );
-var async = require(" ./async");
+var util = require( "./util.js" );
+var async = require( "./async.js" );
 var errorObj = util.errorObj;
 function Thenable() {
     this.errorObj = errorObj;

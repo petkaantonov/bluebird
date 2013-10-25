@@ -1,4 +1,4 @@
-var TypeError = require( "./errors" ).TypeError;
+var TypeError = require( "./errors.js" ).TypeError;
 
 //Based on
 //https://github.com/promises-aplus/synchronous-inspection-spec/issues/6
