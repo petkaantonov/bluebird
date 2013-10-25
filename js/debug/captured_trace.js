@@ -31,14 +31,17 @@ var rignore = new RegExp(
 
 var rtraceline = null;
 var formatStack = null;
+var areNamesMangled = false;
 
 function CapturedTrace( ignoreUntil, isTopLevel ) {
     ASSERT(((typeof ignoreUntil) === "function"),
     "typeof ignoreUntil === \u0022function\u0022");
-    ASSERT(((typeof ignoreUntil.name) === "string"),
+    if( !areNamesMangled ) {
+        ASSERT(((typeof ignoreUntil.name) === "string"),
     "typeof ignoreUntil.name === \u0022string\u0022");
-    ASSERT((ignoreUntil.name.length > 0),
+        ASSERT((ignoreUntil.name.length > 0),
     "ignoreUntil.name.length > 0");
+    }
     this.captureStackTrace( ignoreUntil, isTopLevel );
 
 }
@@ -62,8 +65,9 @@ function CapturedTrace$PossiblyUnhandledRejection( reason ) {
         }
     }
 };
-var isMinified = typeof function(){}.name === "string" &&
-    CapturedTrace.prototype.captureStackTrace.name.length === 0;
+
+areNamesMangled = CapturedTrace.prototype.captureStackTrace.name !==
+    "CapturedTrace$captureStackTrace";
 
 CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
     var curLast = current.length - 1;
@@ -152,7 +156,7 @@ var captureStackTrace = (function stackDetection() {
     }
     var err = new Error();
 
-    if( !isMinified && typeof err.stack === "string" &&
+    if( !areNamesMangled && typeof err.stack === "string" &&
         typeof "".startsWith === "function" &&
         ( err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection" ) {
