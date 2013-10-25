@@ -240,6 +240,7 @@ module.exports = function( grunt ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
         var paths = [
+            "./src/bluebird.js",
             "./src/assert.js",
             "./src/global.js",
             "./src/get_promise.js",
