@@ -9,10 +9,10 @@ async
 sync
 mixed
 bench.json
-js/bluebird.min.js
-js/bluebird_sync.js
-js/bluebird_sync.min.js
-js/bluebird_debug.js
+js/browser
+js/browser/*
+js/debug
+js/debug/*
 reader.js
 read.txt
 bench
