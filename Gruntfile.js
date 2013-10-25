@@ -236,6 +236,19 @@ module.exports = function( grunt ) {
         }));
     }
 
+    function buildBrowser() {
+        var browserify = require("browserify");
+        var b = browserify("./js/main/promise.js");
+
+        return Q.nbind(b.bundle, b)({
+            detectGlobals: false,
+            standalone: "Promise"
+        }).then(function(src) {
+            return writeFileAsync( "./js/browser/bluebird.js", src)
+        });
+
+    }
+
     function build() {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
@@ -286,7 +299,7 @@ module.exports = function( grunt ) {
                 source.sourceCode = src;
             });
             return Q.all([
-                buildMain( sources ),
+                buildMain( sources ).then(buildBrowser),
                 buildDebug( sources ),
                 buildZalgo( sources )
             ]);

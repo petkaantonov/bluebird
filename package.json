@@ -45,7 +45,7 @@
     "closure-compiler": "~0.2.1",
     "sinon": "~1.7.3",
     "kew": "~0.2.2",
-    "browserify": "~2.33.1",
+    "browserify": "~2.35.0",
     "concurrent": "~0.3.2",
     "text-table": "~0.2.0"
   },
