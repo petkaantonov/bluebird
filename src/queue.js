@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 //http://jsperf.com/deque-vs-array-2
 function arrayCopy( src, srcIndex, dst, dstIndex, len ) {
     for( var j = 0; j < len; ++j ) {

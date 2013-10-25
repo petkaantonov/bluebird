@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 var util = require( "./util.js" );
 var async = require( "./async.js" );
 var errorObj = util.errorObj;

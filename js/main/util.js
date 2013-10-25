@@ -1,3 +1,6 @@
+"use strict";
+var global = require("./global.js");
+var ASSERT = require("./assert.js");
 var getPromise = require("./get_promise.js");
 
 var haveGetters = (function(){

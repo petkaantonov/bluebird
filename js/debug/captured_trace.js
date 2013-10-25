@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 var inherits = require( "./util.js").inherits;
 
 var rignore = new RegExp(

@@ -1,11 +1,12 @@
+"use strict";
+var global = require("./global.js");
+var ASSERT = require("./assert.js");
 //Circular requirements hack
 var getPromise = require("./get_promise.js");
 getPromise.set( Promise );
 var util = require( "./util.js" );
 var async = require( "./async.js" );
-
 var errors = require( "./errors.js" );
-
 var PromiseArray = require( "./promise_array.js" );
 var SomePromiseArray = require( "./some_promise_array.js" );
 var AnyPromiseArray = require( "./any_promise_array.js" );

@@ -1,3 +1,6 @@
+"use strict";
+var global = require("./global.js");
+var ASSERT = require("./assert.js");
 var schedule;
 if( typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" ) {

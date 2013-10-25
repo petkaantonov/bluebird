@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 var schedule = require( "./schedule.js" );
 var Queue = require( "./queue.js" );
 var errorObj = require( "./util.js").errorObj;

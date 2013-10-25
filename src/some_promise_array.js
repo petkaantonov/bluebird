@@ -1,3 +1,4 @@
+"use strict";
 var PromiseArray = require( "./promise_array.js" );
 var util = require("./util.js");
 var inherits = util.inherits;

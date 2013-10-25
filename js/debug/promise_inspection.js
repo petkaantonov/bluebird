@@ -1,3 +1,4 @@
+"use strict";
 var TypeError = require( "./errors.js" ).TypeError;
 
 function PromiseInspection( promise ) {

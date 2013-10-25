@@ -1,3 +1,4 @@
+"use strict";
 var util = require( "./util.js" );
 var errors = require( "./errors.js");
 var TimeoutError = errors.TimeoutError;

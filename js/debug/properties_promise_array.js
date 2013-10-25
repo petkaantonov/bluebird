@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 var Promise = require("./get_promise.js").get();
 var PromiseArray = require( "./promise_array.js" );
 var util = require("./util.js");

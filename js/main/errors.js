@@ -1,3 +1,5 @@
+"use strict";
+var global = require("./global.js");
 var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;

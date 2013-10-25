@@ -1,3 +1,5 @@
+"use strict";
+var ASSERT = require("./assert.js");
 var Promise = require("./get_promise").get();
 var ensureNotHandled = require( "./errors.js").ensureNotHandled;
 var util = require("./util.js");

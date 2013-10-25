@@ -6,38 +6,6 @@ var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var Q = require("q");
 Q.longStackSupport = true;
 
-var assertionErrorCode = function() {
-    new Function("return this")().ASSERT = (function(){
-        var AssertionError = (function() {
-            function AssertionError( a ) {
-                this.constructor$( a );
-                this.message = a;
-                this.name = "AssertionError";
-            }
-            AssertionError.prototype = new Error();
-            AssertionError.prototype.constructor = AssertionError;
-            AssertionError.prototype.constructor$ = Error;
-            return AssertionError;
-        })();
-
-        return function assert( boolExpr, message ) {
-            if( boolExpr === true ) return;
-
-            var ret = new AssertionError( message );
-            if( Error.captureStackTrace ) {
-                Error.captureStackTrace( ret, assert );
-            }
-            if( console && console.error ) {
-                console.error( ret.stack + "" );
-            }
-            throw ret;
-
-        };
-    })();
-}.toString()
-.replace(/^\s*function\s*\(\s*\)\s\{/, "")
-.replace(/}\s*$/, "");
-
 module.exports = function( grunt ) {
 
 
@@ -66,9 +34,7 @@ module.exports = function( grunt ) {
         var m;
         var globals = {
             TypeError: true,
-            ASSERT: false,
             __DEBUG__: false,
-            global: true,
             process: false,
             "console": false,
             "require": false,
@@ -138,8 +104,7 @@ module.exports = function( grunt ) {
                 '-W116': true,
                 '-W106': true,
                 '-W064': true,
-
-                reporter: "jslint"
+                '-W097': true
             },
 
             files: {
@@ -250,11 +215,6 @@ module.exports = function( grunt ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = src.replace( /__DEBUG__/g, true );
-
-            if( source.fileName.toLowerCase() === "promise.js" ) {
-                src = assertionErrorCode + src;
-            }
-
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
@@ -280,6 +240,8 @@ module.exports = function( grunt ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
         var paths = [
+            "./src/assert.js",
+            "./src/global.js",
             "./src/get_promise.js",
             "./src/util.js",
             "./src/schedule.js",

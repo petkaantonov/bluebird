@@ -1,4 +1,4 @@
-
+"use strict";
 var Promise = require("./get_promise.js").get();
 var errors = require( "./errors.js" );
 var TypeError = errors.TypeError;
