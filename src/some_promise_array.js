@@ -1,10 +1,9 @@
-var SomePromiseArray = (function() {
+"use strict";
+var PromiseArray = require( "./promise_array.js" );
+var util = require("./util.js");
+var inherits = util.inherits;
+var isArray = util.isArray;
 // the PromiseArray to use with Promise.some method
-
-var Arr = Array;
-var isArray = Arr.isArray || function( obj ) {
-    return obj instanceof Arr;
-};
 
 function SomePromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );
@@ -91,4 +90,5 @@ SomePromiseArray.prototype._canPossiblyFulfill =
 function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
-return SomePromiseArray;})();
+
+module.exports = SomePromiseArray;

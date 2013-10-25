@@ -1,133 +1,132 @@
 "use strict";
+Error.stackTraceLimit = 100;
 var astPasses = require("./ast_passes.js");
 var cc = require("closure-compiler");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
-
-var ccOptions = {
-    compilation_level: 'SIMPLE_OPTIMIZATIONS',
-    language_in: 'ECMASCRIPT5_STRICT',
-    charset: "UTF-8",
-    debug: false,
-    jar: '../closure_compiler/build/compiler.jar'
-};
-
-
-var assertionErrorCode = function() {
-    var ASSERT = (function(){
-        var AssertionError = (function() {
-            function AssertionError( a ) {
-                this.constructor$( a );
-                this.message = a;
-                this.name = "AssertionError";
-            }
-            AssertionError.prototype = new Error();
-            AssertionError.prototype.constructor = AssertionError;
-            AssertionError.prototype.constructor$ = Error;
-            return AssertionError;
-        })();
-
-        return function assert( boolExpr, message ) {
-            if( boolExpr === true ) return;
-
-            var ret = new AssertionError( message );
-            if( Error.captureStackTrace ) {
-                Error.captureStackTrace( ret, assert );
-            }
-            if( console && console.error ) {
-                console.error( ret.stack + "" );
-            }
-            throw ret;
-
-        };
-    })();
-
-}.toString()
-.replace(/^\s*function\s*\(\s*\)\s\{/, "")
-.replace(/}\s*$/, "")
-//:D
-.replace('(function(){', '(function(){/* jshint -W014, -W116 */');
+var Q = require("q");
+Q.longStackSupport = true;
 
 module.exports = function( grunt ) {
 
 
-
-
-    var SRC_DEST = './js/bluebird.js',
-        BUILD_DEBUG_DEST = './js/bluebird_debug.js',
-        BUILD_DEST = './js/bluebird.js',
-        BUILD_SYNC_DEST = './js/bluebird_sync.js',
-        MIN_SYNC_DEST = './js/bluebird_sync.min.js',
-        MIN_DEST = './js/bluebird.min.js'
-
-    var ZALGO_DEST = './zalgo.js';
+    var CONSTANTS_FILE = './src/constants.js';
+    var BUILD_DEBUG_DEST = "./js/main/promise.js";
 
     function writeFile( dest, content ) {
         grunt.file.write( dest, content );
         grunt.log.writeln('File "' + dest + '" created.');
     }
 
+    function writeFileAsync( dest, content ) {
+        var fs = require("fs");
+        return Q.nfcall(fs.writeFile, dest, content).then(function(){
+            grunt.log.writeln('File "' + dest + '" created.');
+        });
+    }
+
     var gruntConfig = {};
+
+    var getGlobals = function() {
+        var fs = require("fs");
+        var file = "./src/constants.js";
+        var contents = fs.readFileSync(file, "utf8");
+        var rconstantname = /CONSTANT\(\s*([^,]+)/g;
+        var m;
+        var globals = {
+            TypeError: true,
+            __DEBUG__: false,
+            process: false,
+            "console": false,
+            "require": false,
+            "module": false,
+            "define": false
+        };
+        while( ( m = rconstantname.exec( contents ) ) ) {
+            globals[m[1]] = false;
+        }
+        return globals;
+    }
 
     gruntConfig.pkg = grunt.file.readJSON("package.json");
 
     gruntConfig.jshint = {
         all: {
             options: {
-                jshintrc: "./.jshintrc"
+                globals: getGlobals(),
+
+                "bitwise": false,
+                "camelcase": true,
+                "curly": true,
+                "eqeqeq": true,
+                "es3": true,
+                "forin": true,
+                "immed": true,
+                "latedef": false,
+                "newcap": true,
+                "noarg": true,
+                "noempty": true,
+                "nonew": true,
+                "plusplus": false,
+                "quotmark": "double",
+                "undef": true,
+                "unused": true,
+                "strict": false,
+                "trailing": true,
+                "maxparams": 6,
+                "maxlen": 80,
+
+                "asi": false,
+                "boss": true,
+                "eqnull": true,
+                "evil": true,
+                "expr": false,
+                "funcscope": false,
+                "globalstrict": false,
+                "lastsemic": false,
+                "laxcomma": false,
+                "laxbreak": false,
+                "loopfunc": true,
+                "multistr": true,
+                "proto": false,
+                "scripturl": true,
+                "smarttabs": false,
+                "shadow": true,
+                "sub": true,
+                "supernew": false,
+                "validthis": true,
+
+                "browser": true,
+                "jquery": true,
+                "devel": true,
+
+
+                '-W014': true,
+                '-W116': true,
+                '-W106': true,
+                '-W064': true,
+                '-W097': true
             },
 
             files: {
                 src: [
-                    BUILD_DEST,
-                    BUILD_DEBUG_DEST
+                    "./src/util.js",
+                    "./src/schedule.js",
+                    "./src/queue.js",
+                    "./src/errors.js",
+                    "./src/captured_trace.js",
+                    "./src/async.js",
+                    "./src/thenable.js",
+                    "./src/catch_filter.js",
+                    "./src/promise.js",
+                    "./src/promise_array.js",
+                    "./src/settled_promise_array.js",
+                    "./src/any_promise_array.js",
+                    "./src/some_promise_array.js",
+                    "./src/properties_promise_array.js",
+                    "./src/promise_inspection.js",
+                    "./src/promise_resolver.js",
+                    "./src/promise_spawn.js"
                 ]
-            }
-        }
-    };
-
-    gruntConfig.concat = {
-        options: {
-            separator: '\n'
-        },
-
-        dist: {
-            src: [
-                "./src/prologue.js",
-                "./src/util.js",
-                "./src/queue.js",
-                "./src/errors.js",
-                "./src/captured_trace.js",
-                "./src/async.js",
-                "./src/thenable.js",
-                "./src/catch_filter.js",
-                "./src/promise.js",
-                "./src/promise_array.js",
-                "./src/settled_promise_array.js",
-                "./src/any_promise_array.js",
-                "./src/some_promise_array.js",
-                "./src/properties_promise_array.js",
-                "./src/promise_inspection.js",
-                "./src/promise_resolver.js",
-                "./src/promise_spawn.js",
-                "./src/epilogue.js"
-            ],
-
-            nonull: true,
-
-            dest: SRC_DEST
-        }
-
-    };
-
-    gruntConfig.watch = {
-            scripts: {
-            files: [
-                "./src/**/*"
-            ],
-            tasks: ["concat", "build"],
-            options: {
-              interrupt: true,
-              debounceDelay: 2500
             }
         }
     };
@@ -191,62 +190,120 @@ module.exports = function( grunt ) {
 
     }
 
-    function fixStrict( code ) {
-        //Fix global strict mode inserted by closure compiler
-        var useStrict = "'use strict';";
-        var firstFunctionHeaderAfter = '){';
-        var src = code;
-        src = src.replace(useStrict, "");
-        src = src.replace(firstFunctionHeaderAfter, firstFunctionHeaderAfter + '"use strict";' );
-        return src;
+    function buildMain( sources ) {
+        var fs = require("fs");
+        var Q = require("q");
+        var root = "./js/main/";
+
+
+        return Q.all(sources.map(function( source ) {
+            var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
+            src = astPasses.expandConstants( src, source.fileName );
+            src = src.replace( /__DEBUG__/g, false );
+
+            var path = root + source.fileName;
+            return writeFileAsync(path, src);
+        }));
     }
 
-    function build( shouldMinify ) {
+    function buildDebug( sources ) {
         var fs = require("fs");
-        var src = fs.readFileSync( SRC_DEST, "utf8" );
+        var Q = require("q");
+        var root = "./js/debug/";
 
-        function ccCompleted() {
-            runsDone++;
-            if( runsDone >= totalCCRuns ) {
-                done();
-            }
-        }
+        return Q.all(sources.map(function( source ) {
+            var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
+            src = astPasses.expandConstants( src, source.fileName );
+            src = src.replace( /__DEBUG__/g, true );
+            var path = root + source.fileName;
+            return writeFileAsync(path, src);
+        }));
+    }
 
-        var totalCCRuns = 2;
-        var runsDone = 0;
+    function buildZalgo( sources ) {
+        var fs = require("fs");
+        var Q = require("q");
+        var root = "./js/zalgo/";
 
-        if( shouldMinify ) {
-            var done = this.async();
-        }
+        return Q.all(sources.map(function( source ) {
+            var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
+            src = astPasses.expandConstants( src, source.fileName );
+            src = astPasses.asyncConvert( src, "async", "invoke", source.fileName);
+            src = src.replace( /__DEBUG__/g, false );
 
-        var debugSrc, asyncSrc, syncSrc;
+            var path = root + source.fileName;
+            return writeFileAsync(path, src);
+        }));
+    }
 
-        src = astPasses.removeComments( src );
-        debugSrc = assertionErrorCode + (astPasses.expandConstants( astPasses.expandAsserts( src ) )
-            .replace( /__DEBUG__/g, 'true'));
-        src = astPasses.expandConstants( astPasses.removeAsserts( src ) )
-            .replace( /__DEBUG__/g, 'false');
+    function buildBrowser() {
+        var browserify = require("browserify");
+        var b = browserify("./js/main/promise.js");
 
-        asyncSrc = src;
-        syncSrc = astPasses.asyncConvert( src, "async", "invoke");
+        return Q.nbind(b.bundle, b)({
+            detectGlobals: false,
+            standalone: "Promise"
+        }).then(function(src) {
+            return writeFileAsync( "./js/browser/bluebird.js", src)
+        });
 
-        writeFile( BUILD_DEST, asyncSrc );
-        writeFile( BUILD_SYNC_DEST, syncSrc );
-        writeFile( BUILD_DEBUG_DEST, debugSrc );
-        writeFile( ZALGO_DEST, syncSrc );
+    }
 
+    function build() {
+        var fs = require("fs");
+        astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
+        var paths = [
+            "./src/bluebird.js",
+            "./src/assert.js",
+            "./src/global.js",
+            "./src/get_promise.js",
+            "./src/util.js",
+            "./src/schedule.js",
+            "./src/queue.js",
+            "./src/errors.js",
+            "./src/captured_trace.js",
+            "./src/async.js",
+            "./src/thenable.js",
+            "./src/catch_filter.js",
+            "./src/promise.js",
+            "./src/promise_array.js",
+            "./src/settled_promise_array.js",
+            "./src/any_promise_array.js",
+            "./src/some_promise_array.js",
+            "./src/properties_promise_array.js",
+            "./src/promise_inspection.js",
+            "./src/promise_resolver.js",
+            "./src/promise_spawn.js"
+        ];
 
-        if( shouldMinify ) {
-            var ccDone = function( location, err, code ) {
-                if( err ) throw err;
-                code = fixStrict(code);
-                writeFile( location, code );
-                ccCompleted();
-            };
-            cc.compile( asyncSrc, ccOptions, ccDone.bind(0, MIN_DEST) );
-            cc.compile( syncSrc, ccOptions, ccDone.bind(0, MIN_SYNC_DEST ) );
-        }
+        var Q = require("q");
+        //spion this is why Promise.props is necessary
+        var promises = [];
+        var sources = paths.map(function(v){
+            var promise = Q.nfcall(fs.readFile, v, "utf8");
+            promises.push(promise);
+            var ret = {};
 
+            ret.fileName = v.replace("./src/", "");
+            ret.sourceCode = promise.then(function(v){
+                ret.sourceCode = v;
+            });
+            return ret;
+        });
+
+        //Perform common AST passes on all builds
+        return Q.all(promises.slice()).then(function(){
+            sources.forEach( function( source ) {
+                var src = source.sourceCode
+                src = astPasses.removeComments(src, source.fileName);
+                source.sourceCode = src;
+            });
+            return Q.all([
+                buildMain( sources ).then(buildBrowser),
+                buildDebug( sources ),
+                buildZalgo( sources )
+            ]);
+        });
     }
 
     String.prototype.contains = function String$contains( str ) {
@@ -339,12 +396,21 @@ module.exports = function( grunt ) {
         }
     }
 
-    grunt.registerTask( "build-with-minify", function() {
-        return build.call( this, true );
-    });
     grunt.registerTask( "build", function() {
-        var debug = !!grunt.option("debug");
-        return build.call( this, false );
+        var done = this.async();
+        build().then(function(){
+            done();
+        }).catch(function(e) {
+            if( e.fileName && e.stack ) {
+                var stack = e.stack.split("\n");
+                stack[0] = stack[0] + " " + e.fileName;
+                console.error(stack.join("\n"));
+            }
+            else {
+                console.error(e.stack);
+            }
+            done(false);
+        });
     });
 
     grunt.registerTask( "testrun", function(){
@@ -359,8 +425,7 @@ module.exports = function( grunt ) {
         testRun.call( this, testOption );
     });
 
-    grunt.registerTask( "test", ["concat", "build", "jshint", "testrun"] );
-    grunt.registerTask( "default", ["concat", "build", "jshint"] );
-    grunt.registerTask( "production", ["concat", "build-with-minify", "jshint"] );
+    grunt.registerTask( "test", ["jshint", "build", "testrun"] );
+    grunt.registerTask( "default", ["jshint", "build"] );
 
 };

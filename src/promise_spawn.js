@@ -1,4 +1,11 @@
-var PromiseSpawn = (function() {
+"use strict";
+var Promise = require("./get_promise.js").get();
+var errors = require( "./errors.js" );
+var TypeError = errors.TypeError;
+var ensureNotHandled = errors.ensureNotHandled;
+var util = require("./util.js");
+var errorObj = util.errorObj;
+var tryCatch1 = util.tryCatch1;
 
 function PromiseSpawn( generatorFunction, receiver, caller ) {
     this._resolver = Promise.pending( caller );
@@ -18,7 +25,6 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
     this._next( void 0 );
 };
 
-var cast = Promise._cast;
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     if( result === errorObj ) {
         this._generator = void 0;
@@ -32,7 +38,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        var maybePromise = cast( value, PromiseSpawn$_continue );
+        var maybePromise = Promise._cast( value, PromiseSpawn$_continue );
         if( !( maybePromise instanceof Promise ) ) {
             this._throw( new TypeError(
                 "A value was yielded that could not be treated as a promise"
@@ -66,4 +72,4 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
     );
 };
 
-return PromiseSpawn;})();
+module.exports = PromiseSpawn;

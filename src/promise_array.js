@@ -1,7 +1,11 @@
-var PromiseArray = (function() {
-CONSTANT(FULFILL_UNDEFINED, 0);
-CONSTANT(FULFILL_ARRAY, 1);
-CONSTANT(FULFILL_OBJECT, 2);
+"use strict";
+var ASSERT = require("./assert.js");
+var Promise = require("./get_promise").get();
+var ensureNotHandled = require( "./errors.js").ensureNotHandled;
+var util = require("./util.js");
+var async = require( "./async.js");
+var hasOwn = {}.hasOwnProperty;
+var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
 //and also because void 0 cannot be smuggled
@@ -13,17 +17,6 @@ function toFulfillmentValue( val ) {
     }
     ASSERT( false );
 }
-
-var hasOwn = {}.hasOwnProperty;
-function isPromise( obj ) {
-    if( typeof obj !== "object" ) return false;
-    return obj instanceof Promise;
-}
-
-var Arr = Array;
-var isArray = Arr.isArray || function( obj ) {
-    return obj instanceof Arr;
-};
 
 function PromiseArray( values, caller, boundTo ) {
     ASSERT( arguments.length === 3 );
@@ -44,7 +37,6 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
     return this._resolver.promise;
 };
 
-var cast = Promise._cast;
 PromiseArray.prototype._init =
             //when.some resolves to [] when empty
             //but when.any resolved to void 0 when empty :<
@@ -54,7 +46,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //all of this is due to when vs some having different semantics on
             //empty arrays
     var values = this._values;
-    if( isPromise( values ) ) {
+    if( Promise.is( values ) ) {
         //Expect the promise to be a promise
         //for an array
         if( values.isFulfilled() ) {
@@ -90,7 +82,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     var len = values.length;
     var newLen = len;
     var newValues;
-    if( this instanceof PropertiesPromiseArray ) {
+    if( this instanceof PromiseArray.PropertiesPromiseArray ) {
         newValues = this._values;
     }
     else {
@@ -105,7 +97,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        var maybePromise = cast( promise );
+        var maybePromise = Promise._cast( promise );
         if( maybePromise instanceof Promise &&
             maybePromise.isPending() ) {
             //Guaranteed to be called after the possible direct scan
@@ -148,7 +140,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
 PromiseArray.prototype._resolvePromiseAt =
 function PromiseArray$_resolvePromiseAt( i ) {
     var value = this._values[i];
-    if( !isPromise( value ) ) {
+    if( !Promise.is( value ) ) {
         this._promiseFulfilled( value, i );
     }
     else if( value.isFulfilled() ) {
@@ -231,4 +223,4 @@ function PromiseArray$_promiseRejected( reason ) {
     this._reject( reason );
 };
 
-return PromiseArray;})();
+module.exports = PromiseArray;
