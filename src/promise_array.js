@@ -29,6 +29,8 @@ function PromiseArray( values, caller, boundTo ) {
     this._totalResolved = 0;
     this._init( void 0, FULFILL_ARRAY );
 }
+PromiseArray.PropertiesPromiseArray = function() {};
+
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
 };

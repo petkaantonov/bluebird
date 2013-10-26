@@ -20,11 +20,13 @@
  * THE SOFTWARE.
  */
 "use strict";
+var getPromise = require( "./get_promise.js" );
 var global = require("./global.js");
 var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;
 var notEnumerableProp = util.notEnumerableProp;
+var Promise = getPromise.get();
 
 function isStackAttached( val ) {
     return ( val & 1 ) > 0;
@@ -52,6 +54,16 @@ function ensureNotHandled( reason ) {
         ( ( field = reason["__promiseHandled__"] ) !== void 0 ) ) {
         reason["__promiseHandled__"] = withHandledUnmarked( field );
     }
+}
+
+function apiRejection( msg ) {
+    var error = new TypeError( msg );
+    var ret = Promise.rejected( error );
+    var parent = ret._peekContext();
+    if( parent != null ) {
+        parent._attachExtraTrace( error );
+    }
+    return ret;
 }
 
 function attachDefaultState( obj ) {
@@ -109,6 +121,7 @@ module.exports = {
     withStackAttached: withStackAttached,
     isStackAttached: isStackAttached,
     isHandled: isHandled,
-    canAttach: canAttach
+    canAttach: canAttach,
+    apiRejection: apiRejection
 };
 

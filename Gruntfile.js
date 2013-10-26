@@ -8,6 +8,28 @@ Q.longStackSupport = true;
 
 module.exports = function( grunt ) {
 
+    var optionalModuleRequireMap = {
+        "any.js": true,
+        "call_get.js": true,
+        "filter.js": true,
+        "generators.js": true,
+        "map.js": true,
+        "nodeify.js": true,
+        "promisify.js": true,
+        "props.js": true,
+        "reduce.js": true,
+        "settle.js": true,
+        "some.js": true
+    };
+
+    function getOptionalRequireCode( srcs ) {
+        return srcs.reduce(function(ret, cur){
+            if( optionalModuleRequireMap[cur] ) {
+                ret += "require('./"+cur+"')(Promise, Promise$_All);\n";
+            }
+            return ret;
+        }, "");
+    }
 
     var CONSTANTS_FILE = './src/constants.js';
     var BUILD_DEBUG_DEST = "./js/main/promise.js";
@@ -138,6 +160,17 @@ module.exports = function( grunt ) {
 
             files: {
                 src: [
+                    "./src/any.js",
+                    "./src/call_get.js",
+                    "./src/filter.js",
+                    "./src/generators.js",
+                    "./src/map.js",
+                    "./src/nodeify.js",
+                    "./src/promisify.js",
+                    "./src/props.js",
+                    "./src/reduce.js",
+                    "./src/settle.js",
+                    "./src/some.js",
                     "./src/util.js",
                     "./src/schedule.js",
                     "./src/queue.js",
@@ -219,7 +252,7 @@ module.exports = function( grunt ) {
 
     }
 
-    function buildMain( sources ) {
+    function buildMain( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
         var root = "./js/main/";
@@ -229,13 +262,15 @@ module.exports = function( grunt ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = src.replace( /__DEBUG__/g, false );
-
+            if( source.fileName === "promise.js" ) {
+                src += optionalRequireCode;
+            }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
     }
 
-    function buildDebug( sources ) {
+    function buildDebug( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
         var root = "./js/debug/";
@@ -244,12 +279,15 @@ module.exports = function( grunt ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = src.replace( /__DEBUG__/g, true );
+            if( source.fileName === "promise.js" ) {
+                src += optionalRequireCode;
+            }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
     }
 
-    function buildZalgo( sources ) {
+    function buildZalgo( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
         var root = "./js/zalgo/";
@@ -259,7 +297,9 @@ module.exports = function( grunt ) {
             src = astPasses.expandConstants( src, source.fileName );
             src = astPasses.asyncConvert( src, "async", "invoke", source.fileName);
             src = src.replace( /__DEBUG__/g, false );
-
+            if( source.fileName === "promise.js" ) {
+                src += optionalRequireCode;
+            }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
         }));
@@ -280,35 +320,52 @@ module.exports = function( grunt ) {
 
     }
 
-    function build() {
+    function build( paths ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
-        var paths = [
-            "./src/bluebird.js",
-            "./src/assert.js",
-            "./src/global.js",
-            "./src/get_promise.js",
-            "./src/util.js",
-            "./src/schedule.js",
-            "./src/queue.js",
-            "./src/errors.js",
-            "./src/captured_trace.js",
-            "./src/async.js",
-            "./src/thenable.js",
-            "./src/catch_filter.js",
-            "./src/promise.js",
-            "./src/promise_array.js",
-            "./src/settled_promise_array.js",
-            "./src/any_promise_array.js",
-            "./src/some_promise_array.js",
-            "./src/properties_promise_array.js",
-            "./src/promise_inspection.js",
-            "./src/promise_resolver.js",
-            "./src/promise_spawn.js"
-        ];
+        if( !paths ) {
+            paths = [
+                "./src/any.js",
+                "./src/call_get.js",
+                "./src/filter.js",
+                "./src/generators.js",
+                "./src/map.js",
+                "./src/nodeify.js",
+                "./src/promisify.js",
+                "./src/props.js",
+                "./src/reduce.js",
+                "./src/settle.js",
+                "./src/some.js",
+                "./src/bluebird.js",
+                "./src/assert.js",
+                "./src/global.js",
+                "./src/get_promise.js",
+                "./src/util.js",
+                "./src/schedule.js",
+                "./src/queue.js",
+                "./src/errors.js",
+                "./src/captured_trace.js",
+                "./src/async.js",
+                "./src/thenable.js",
+                "./src/catch_filter.js",
+                "./src/promise.js",
+                "./src/promise_array.js",
+                "./src/settled_promise_array.js",
+                "./src/any_promise_array.js",
+                "./src/some_promise_array.js",
+                "./src/properties_promise_array.js",
+                "./src/promise_inspection.js",
+                "./src/promise_resolver.js",
+                "./src/promise_spawn.js"
+            ];
+        }
+
+        var optionalRequireCode = getOptionalRequireCode(paths.map(function(v) {
+            return v.replace("./src/", "");
+        }));
 
         var Q = require("q");
-        //spion this is why Promise.props is necessary
+
         var promises = [];
         var sources = paths.map(function(v){
             var promise = Q.nfcall(fs.readFile, v, "utf8");
@@ -331,9 +388,9 @@ module.exports = function( grunt ) {
                 source.sourceCode = src;
             });
             return Q.all([
-                buildMain( sources ).then(buildBrowser),
-                buildDebug( sources ),
-                buildZalgo( sources )
+                buildMain( sources, optionalRequireCode ).then(buildBrowser),
+                buildDebug( sources, optionalRequireCode ),
+                buildZalgo( sources, optionalRequireCode )
             ]);
         });
     }

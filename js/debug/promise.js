@@ -28,26 +28,17 @@ var util = require( "./util.js" );
 var async = require( "./async.js" );
 var errors = require( "./errors.js" );
 var PromiseArray = require( "./promise_array.js" );
-var SomePromiseArray = require( "./some_promise_array.js" );
-var AnyPromiseArray = require( "./any_promise_array.js" );
-var PropertiesPromiseArray = require( "./properties_promise_array.js" );
-var SettledPromiseArray = require( "./settled_promise_array.js" );
 
 var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
 var PromiseInspection = require( "./promise_inspection.js" );
 var PromiseResolver = require( "./promise_resolver.js" );
-var PromiseSpawn = require( "./promise_spawn.js" );
 var Thenable = require( "./thenable.js" );
 
 var isArray = util.isArray;
-var makeNodePromisified = util.makeNodePromisified;
-var THIS = util.THIS;
 var notEnumerableProp = util.notEnumerableProp;
-var isPrimitive = util.isPrimitive;
 var isObject = util.isObject;
 var ensurePropertyExpansion = util.ensurePropertyExpansion;
-var deprecated = util.deprecated;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
@@ -62,6 +53,7 @@ var withStackAttached = errors.withStackAttached;
 var isStackAttached = errors.isStackAttached;
 var isHandled = errors.isHandled;
 var canAttach = errors.canAttach;
+var apiRejection = errors.apiRejection;
 
 var APPLY = {};
 var thenable = new Thenable( errorObj );
@@ -206,42 +198,6 @@ function Promise$fork( didFulfill, didReject, didProgress ) {
     return ret;
 };
 
-Promise.prototype.call = function Promise$call( propertyName ) {
-    var len = arguments.length;
-
-    var args = new Array(len-1);
-    for( var i = 1; i < len; ++i ) {
-        args[ i - 1 ] = arguments[ i ];
-    }
-
-    return this._then( function( obj ) {
-            return obj[ propertyName ].apply( obj, args );
-        },
-        void 0,
-        void 0,
-        void 0,
-        void 0,
-        this.call
-    );
-};
-
-function Promise$getter( obj ) {
-    var prop = typeof this === "string"
-        ? this
-        : ("" + this);
-    return obj[ prop ];
-}
-Promise.prototype.get = function Promise$get( propertyName ) {
-    return this._then(
-        Promise$getter,
-        void 0,
-        void 0,
-        propertyName,
-        void 0,
-        this.get
-    );
-};
-
 Promise.prototype.then =
 function Promise$then( didFulfill, didReject, didProgress ) {
     return this._then( didFulfill, didReject, didProgress,
@@ -299,95 +255,11 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     return ret;
 };
 
-function Promise$_successAdapter( val, receiver ) {
-    var nodeback = this;
-    ASSERT(((typeof nodeback) == "function"),
-    "typeof nodeback == \u0022function\u0022");
-    var ret = tryCatch2( nodeback, receiver, null, val );
-    if( ret === errorObj ) {
-        async.invokeLater( thrower, void 0, ret.e );
-    }
-}
-function Promise$_errorAdapter( reason, receiver ) {
-    var nodeback = this;
-    ASSERT(((typeof nodeback) == "function"),
-    "typeof nodeback == \u0022function\u0022");
-    var ret = tryCatch1( nodeback, receiver, reason );
-    if( ret === errorObj ) {
-        async.invokeLater( thrower, void 0, ret.e );
-    }
-}
-
-Promise.prototype.nodeify = function Promise$nodeify( nodeback ) {
-    if( typeof nodeback == "function" ) {
-        this._then(
-            Promise$_successAdapter,
-            Promise$_errorAdapter,
-            void 0,
-            nodeback,
-            this._isBound() ? this._boundTo : null,
-            this.nodeify
-        );
-    }
-    return this;
-};
-
-function apiRejection( msg ) {
-    var error = new TypeError( msg );
-    var ret = Promise.rejected( error );
-    var parent = ret._peekContext();
-    if( parent != null ) {
-        parent._attachExtraTrace( error );
-    }
-    return ret;
-}
-
-Promise.prototype.map = function Promise$map( fn ) {
-    return Promise$_Map( this, fn, true, this.map );
-};
-
-
-Promise.prototype.filter = function Promise$filter( fn ) {
-    return Promise$_Filter( this, fn, true, this.filter );
-};
-
 Promise.prototype.all = function Promise$all() {
     return Promise$_all( this, true, this.all );
 };
 
-Promise.prototype.any = function Promise$any() {
-    return Promise$_Any( this, true, this.any );
-};
-
-Promise.prototype.settle = function Promise$settle() {
-    return Promise$_Settle( this, true, this.settle );
-};
-
-Promise.prototype.some = function Promise$some( count ) {
-    return Promise$_Some( this, count, true, this.some );
-};
-
-Promise.prototype.reduce = function Promise$reduce( fn, initialValue ) {
-    return Promise$_Reduce( this, fn, initialValue, true, this.reduce );
-};
-
- Promise.prototype.props = function Promise$props() {
-    return Promise$_Props( this, true, this.props );
- };
-
 Promise.is = isPromise;
-
-function Promise$_Settle( promises, useBound, caller ) {
-    return Promise$_All(
-        promises,
-        SettledPromiseArray,
-        caller,
-        useBound === true ? promises._boundTo : void 0
-    ).promise();
-}
-Promise.settle = function Promise$Settle( promises ) {
-    return Promise$_Settle( promises, false, Promise.settle );
-};
 
 function Promise$_all( promises, useBound, caller ) {
     return Promise$_All(
@@ -401,33 +273,6 @@ Promise.all = function Promise$All( promises ) {
     return Promise$_all( promises, false, Promise.all );
 };
 
-function Promise$_Props( promises, useBound, caller ) {
-    var ret;
-    if( isPrimitive( promises ) ) {
-        ret = Promise.fulfilled( promises, caller );
-    }
-    else if( isPromise( promises ) ) {
-        ret = promises._then( Promise.props, void 0, void 0,
-                        void 0, void 0, caller );
-    }
-    else {
-        ret = new PropertiesPromiseArray(
-            promises,
-            caller,
-            useBound === true ? promises._boundTo : void 0
-        ).promise();
-        useBound = false;
-    }
-    if( useBound === true ) {
-        ret._boundTo = promises._boundTo;
-    }
-    return ret;
-}
-
-Promise.props = function Promise$Props( promises ) {
-    return Promise$_Props( promises, false, Promise.props );
-};
-
 Promise.join = function Promise$Join() {
     var ret = new Array( arguments.length );
     for( var i = 0, len = ret.length; i < len; ++i ) {
@@ -435,294 +280,6 @@ Promise.join = function Promise$Join() {
     }
     return Promise$_All( ret, PromiseArray, Promise.join, void 0 ).promise();
 };
-
-function Promise$_Any( promises, useBound, caller ) {
-    return Promise$_All(
-        promises,
-        AnyPromiseArray,
-        caller,
-        useBound === true ? promises._boundTo : void 0
-    ).promise();
-}
-Promise.any = function Promise$Any( promises ) {
-    return Promise$_Any( promises, false, Promise.any );
-};
-
-function Promise$_Some( promises, howMany, useBound, caller ) {
-    if( ( howMany | 0 ) !== howMany ) {
-        return apiRejection("howMany must be an integer");
-    }
-    var ret = Promise$_All(
-        promises,
-        SomePromiseArray,
-        caller,
-        useBound === true ? promises._boundTo : void 0
-    );
-    ASSERT((ret instanceof SomePromiseArray),
-    "ret instanceof SomePromiseArray");
-    ret.setHowMany( howMany );
-    return ret.promise();
-}
-Promise.some = function Promise$Some( promises, howMany ) {
-    return Promise$_Some( promises, howMany, false, Promise.some );
-};
-
-
-function Promise$_mapper( fulfilleds ) {
-    var fn = this;
-    var receiver = void 0;
-
-    if( typeof fn !== "function" )  {
-        receiver = fn.receiver;
-        fn = fn.fn;
-    }
-    ASSERT(((typeof fn) === "function"),
-    "typeof fn === \u0022function\u0022");
-    var shouldDefer = false;
-
-    if( receiver === void 0 ) {
-        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            if( fulfilleds[i] === void 0 &&
-                !(i in fulfilleds) ) {
-                continue;
-            }
-            var fulfill = fn( fulfilleds[ i ], i, len );
-            if( !shouldDefer && isPromise( fulfill ) ) {
-                if( fulfill.isFulfilled() ) {
-                    fulfilleds[i] = fulfill._resolvedValue;
-                    continue;
-                }
-                else {
-                    shouldDefer = true;
-                }
-            }
-            fulfilleds[i] = fulfill;
-        }
-    }
-    else {
-        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            if( fulfilleds[i] === void 0 &&
-                !(i in fulfilleds) ) {
-                continue;
-            }
-            var fulfill = fn.call( receiver, fulfilleds[ i ], i, len );
-            if( !shouldDefer && isPromise( fulfill ) ) {
-                if( fulfill.isFulfilled() ) {
-                    fulfilleds[i] = fulfill._resolvedValue;
-                    continue;
-                }
-                else {
-                    shouldDefer = true;
-                }
-            }
-            fulfilleds[i] = fulfill;
-        }
-    }
-    return shouldDefer
-        ? Promise$_All( fulfilleds, PromiseArray,
-            Promise$_mapper, void 0 ).promise()
-        : fulfilleds;
-}
-
-function Promise$_Map( promises, fn, useBound, caller ) {
-    if( typeof fn !== "function" ) {
-        return apiRejection( "fn is not a function" );
-    }
-
-    if( useBound === true ) {
-        fn = {
-            fn: fn,
-            receiver: promises._boundTo
-        };
-    }
-
-    return Promise$_All(
-        promises,
-        PromiseArray,
-        caller,
-        useBound === true ? promises._boundTo : void 0
-    ).promise()
-    ._then(
-        Promise$_mapper,
-        void 0,
-        void 0,
-        fn,
-        void 0,
-        caller
-    );
-
-
-}
-Promise.map = function Promise$Map( promises, fn ) {
-    return Promise$_Map( promises, fn, false, Promise.map );
-};
-
-function Promise$_reducer( fulfilleds, initialValue ) {
-    var fn = this;
-    var receiver = void 0;
-    if( typeof fn !== "function" )  {
-        receiver = fn.receiver;
-        fn = fn.fn;
-    }
-    ASSERT(((typeof fn) === "function"),
-    "typeof fn === \u0022function\u0022");
-    var len = fulfilleds.length;
-    var accum = void 0;
-    var startIndex = 0;
-
-    if( initialValue !== void 0 ) {
-        accum = initialValue;
-        startIndex = 0;
-    }
-    else {
-        startIndex = 1;
-        if( len > 0 ) {
-            for( var i = 0; i < len; ++i ) {
-                if( fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds) ) {
-                    continue;
-                }
-                accum = fulfilleds[i];
-                startIndex = i + 1;
-                break;
-            }
-        }
-    }
-    if( receiver === void 0 ) {
-        for( var i = startIndex; i < len; ++i ) {
-            if( fulfilleds[i] === void 0 &&
-                !(i in fulfilleds) ) {
-                continue;
-            }
-            accum = fn( accum, fulfilleds[i], i, len );
-        }
-    }
-    else {
-        for( var i = startIndex; i < len; ++i ) {
-            if( fulfilleds[i] === void 0 &&
-                !(i in fulfilleds) ) {
-                continue;
-            }
-            accum = fn.call( receiver, accum, fulfilleds[i], i, len );
-        }
-    }
-    return accum;
-}
-
-function Promise$_unpackReducer( fulfilleds ) {
-    var fn = this.fn;
-    var initialValue = this.initialValue;
-    return Promise$_reducer.call( fn, fulfilleds, initialValue );
-}
-
-function Promise$_slowReduce( promises, fn, initialValue, useBound, caller ) {
-    return initialValue._then( function callee( initialValue ) {
-        return Promise$_Reduce( promises, fn, initialValue, useBound, callee );
-    }, void 0, void 0, void 0, void 0, caller);
-}
-
-function Promise$_Reduce( promises, fn, initialValue, useBound, caller ) {
-    if( typeof fn !== "function" ) {
-        return apiRejection( "fn is not a function" );
-    }
-
-    if( useBound === true ) {
-        fn = {
-            fn: fn,
-            receiver: promises._boundTo
-        };
-    }
-
-    if( initialValue !== void 0 ) {
-        if( isPromise( initialValue ) ) {
-            if( initialValue.isFulfilled() ) {
-                initialValue = initialValue._resolvedValue;
-            }
-            else {
-                return Promise$_slowReduce( promises,
-                    fn, initialValue, useBound, caller );
-            }
-        }
-
-        return Promise$_All( promises, PromiseArray, caller,
-            useBound === true ? promises._boundTo : void 0 )
-            .promise()
-            ._then( Promise$_unpackReducer, void 0, void 0, {
-                fn: fn,
-                initialValue: initialValue
-            }, void 0, Promise.reduce );
-    }
-    return Promise$_All( promises, PromiseArray, caller,
-            useBound === true ? promises._boundTo : void 0 ).promise()
-        ._then( Promise$_reducer, void 0, void 0, fn, void 0, caller );
-}
-
-Promise.reduce = function Promise$Reduce( promises, fn, initialValue ) {
-    return Promise$_Reduce( promises, fn,
-        initialValue, false, Promise.reduce);
-};
-
-function Promise$_filterer( fulfilleds ) {
-    var fn = this;
-    var receiver = void 0;
-    if( typeof fn !== "function" )  {
-        receiver = fn.receiver;
-        fn = fn.fn;
-    }
-    ASSERT(((typeof fn) === "function"),
-    "typeof fn === \u0022function\u0022");
-    var ret = new Array( fulfilleds.length );
-    var j = 0;
-    if( receiver === void 0 ) {
-         for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            var item = fulfilleds[i];
-            if( item === void 0 &&
-                !( i in fulfilleds ) ) {
-                continue;
-            }
-            if( fn( item, i, len ) ) {
-                ret[j++] = item;
-            }
-        }
-    }
-    else {
-        for( var i = 0, len = fulfilleds.length; i < len; ++i ) {
-            var item = fulfilleds[i];
-            if( item === void 0 &&
-                !( i in fulfilleds ) ) {
-                continue;
-            }
-            if( fn.call( receiver, item, i, len ) ) {
-                ret[j++] = item;
-            }
-        }
-    }
-    ret.length = j;
-    return ret;
-}
-
-function Promise$_Filter( promises, fn, useBound, caller ) {
-    if( typeof fn !== "function" ) {
-        return apiRejection( "fn is not a function" );
-    }
-
-    if( useBound === true ) {
-        fn = {
-            fn: fn,
-            receiver: promises._boundTo
-        };
-    }
-
-    return Promise$_All( promises, PromiseArray, caller,
-            useBound === true ? promises._boundTo : void 0 )
-        .promise()
-        ._then( Promise$_filterer, void 0, void 0, fn, void 0, caller );
-}
-
-Promise.filter = function Promise$Filter( promises, fn ) {
-    return Promise$_Filter( promises, fn, false, Promise.filter );
-};
-
 Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     var ret = new Promise();
     ret._setTrace( typeof caller === "function"
@@ -805,30 +362,6 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-     if( typeof generatorFunction !== "function" ) {
-        throw new TypeError( "generatorFunction must be a function" );
-    }
-    var PromiseSpawn$ = PromiseSpawn;
-    return function anonymous() {
-        var generator = generatorFunction.apply( this, arguments );
-        var spawn = new PromiseSpawn$( void 0, void 0, anonymous );
-        spawn._generator = generator;
-        spawn._next( void 0 );
-        return spawn.promise();
-    };
-};
-
-Promise.spawn = function Promise$Spawn( generatorFunction ) {
-    if( typeof generatorFunction !== "function" ) {
-        return apiRejection( "generatorFunction must be a function" );
-    }
-    var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
-    var ret = spawn.promise();
-    spawn._run( Promise.spawn );
-    return ret;
-};
-
 var longStackTraces = true || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
@@ -848,72 +381,6 @@ Promise.longStackTraces = function Promise$LongStackTraces() {
 
 Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
     return longStackTraces;
-};
-
-function f(){}
-function isPromisified( fn ) {
-    return fn.__isPromisified__ === true;
-}
-var hasProp = {}.hasOwnProperty;
-var roriginal = new RegExp( "__beforePromisified__" + "$" );
-function _promisify( callback, receiver, isAll ) {
-    if( isAll ) {
-        var changed = 0;
-        var o = {};
-        for( var key in callback ) {
-            if( !roriginal.test( key ) &&
-                !hasProp.call( callback,
-                    ( key + "__beforePromisified__" ) ) &&
-                typeof callback[ key ] === "function" ) {
-                var fn = callback[key];
-                if( !isPromisified( fn ) ) {
-                    changed++;
-                    var originalKey = key + "__beforePromisified__";
-                    var promisifiedKey = key + "Async";
-                    notEnumerableProp( callback, originalKey, fn );
-                    o[ promisifiedKey ] =
-                        makeNodePromisified( originalKey, THIS, key );
-                }
-            }
-        }
-        if( changed > 0 ) {
-            for( var key in o ) {
-                if( hasProp.call( o, key ) ) {
-                    callback[key] = o[key];
-                }
-            }
-            f.prototype = callback;
-        }
-
-        return callback;
-    }
-    else {
-        return makeNodePromisified( callback, receiver, void 0 );
-    }
-}
-Promise.promisify = function Promise$Promisify( callback, receiver ) {
-    if( typeof callback === "object" && callback !== null ) {
-        deprecated( "Promise.promisify for promisifying entire objects " +
-            "is deprecated. Use Promise.promisifyAll instead." );
-        return _promisify( callback, receiver, true );
-    }
-    if( typeof callback !== "function" ) {
-        throw new TypeError( "callback must be a function" );
-    }
-    if( isPromisified( callback ) ) {
-        return callback;
-    }
-    return _promisify(
-        callback,
-        arguments.length < 2 ? THIS : receiver,
-        false );
-};
-
-Promise.promisifyAll = function Promise$PromisifyAll( target ) {
-    if( typeof target !== "function" && typeof target !== "object" ) {
-        throw new TypeError( "Cannot promisify " + typeof target );
-    }
-    return _promisify( target, void 0, true );
 };
 
 Promise.prototype._then =
@@ -1837,3 +1304,14 @@ Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
 module.exports = Promise;
+require('./any.js')(Promise, Promise$_All);
+require('./call_get.js')(Promise, Promise$_All);
+require('./filter.js')(Promise, Promise$_All);
+require('./generators.js')(Promise, Promise$_All);
+require('./map.js')(Promise, Promise$_All);
+require('./nodeify.js')(Promise, Promise$_All);
+require('./promisify.js')(Promise, Promise$_All);
+require('./props.js')(Promise, Promise$_All);
+require('./reduce.js')(Promise, Promise$_All);
+require('./settle.js')(Promise, Promise$_All);
+require('./some.js')(Promise, Promise$_All);
