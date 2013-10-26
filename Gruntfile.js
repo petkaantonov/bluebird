@@ -320,44 +320,57 @@ module.exports = function( grunt ) {
 
     }
 
+    function getOptionalPathsFromOption( opt ) {
+        opt = (opt + "").toLowerCase().split(" ");
+        return optionalPaths.filter(function(v){
+            v = v.replace("./src/", "").replace( ".js", "" ).toLowerCase();
+            return opt.indexOf(v) > -1;
+        });
+    }
+
+    var optionalPaths = [
+        "./src/any.js",
+        "./src/call_get.js",
+        "./src/filter.js",
+        "./src/generators.js",
+        "./src/map.js",
+        "./src/nodeify.js",
+        "./src/promisify.js",
+        "./src/props.js",
+        "./src/reduce.js",
+        "./src/settle.js",
+        "./src/some.js"
+    ];
+
+    var mandatoryPaths = [
+        "./src/bluebird.js",
+        "./src/assert.js",
+        "./src/global.js",
+        "./src/get_promise.js",
+        "./src/util.js",
+        "./src/schedule.js",
+        "./src/queue.js",
+        "./src/errors.js",
+        "./src/captured_trace.js",
+        "./src/async.js",
+        "./src/thenable.js",
+        "./src/catch_filter.js",
+        "./src/promise.js",
+        "./src/promise_array.js",
+        "./src/settled_promise_array.js",
+        "./src/any_promise_array.js",
+        "./src/some_promise_array.js",
+        "./src/properties_promise_array.js",
+        "./src/promise_inspection.js",
+        "./src/promise_resolver.js",
+        "./src/promise_spawn.js"
+    ];
+
     function build( paths ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
         if( !paths ) {
-            paths = [
-                "./src/any.js",
-                "./src/call_get.js",
-                "./src/filter.js",
-                "./src/generators.js",
-                "./src/map.js",
-                "./src/nodeify.js",
-                "./src/promisify.js",
-                "./src/props.js",
-                "./src/reduce.js",
-                "./src/settle.js",
-                "./src/some.js",
-                "./src/bluebird.js",
-                "./src/assert.js",
-                "./src/global.js",
-                "./src/get_promise.js",
-                "./src/util.js",
-                "./src/schedule.js",
-                "./src/queue.js",
-                "./src/errors.js",
-                "./src/captured_trace.js",
-                "./src/async.js",
-                "./src/thenable.js",
-                "./src/catch_filter.js",
-                "./src/promise.js",
-                "./src/promise_array.js",
-                "./src/settled_promise_array.js",
-                "./src/any_promise_array.js",
-                "./src/some_promise_array.js",
-                "./src/properties_promise_array.js",
-                "./src/promise_inspection.js",
-                "./src/promise_resolver.js",
-                "./src/promise_spawn.js"
-            ];
+            paths = optionalPaths.concat(mandatoryPaths);
         }
 
         var optionalRequireCode = getOptionalRequireCode(paths.map(function(v) {
@@ -487,7 +500,14 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( "build", function() {
         var done = this.async();
-        build().then(function(){
+
+        var features = grunt.option("features");
+        var paths = null;
+        if( features ) {
+            paths = getOptionalPathsFromOption( features ).concat( mandatoryPaths );
+        }
+
+        build( paths ).then(function(){
             done();
         }).catch(function(e) {
             if( e.fileName && e.stack ) {
