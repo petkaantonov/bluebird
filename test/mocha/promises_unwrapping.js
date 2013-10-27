@@ -3,7 +3,7 @@
 
 var assert = require("assert");
 
-var adapter = require("../../js/debug/promise.js");
+var adapter = require("../../js/debug/bluebird.js");
 
 adapter.done = function (promise, onFulfilled, onRejected) {
     promise.then(onFulfilled, onRejected).caught(function (reason) {

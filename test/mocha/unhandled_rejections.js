@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert");
-var Promise = require("../../js/debug/promise.js");
-var adapter = require("../../js/debug/promise.js");
+var Promise = require("../../js/debug/bluebird.js");
+var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;

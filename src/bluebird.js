@@ -1,2 +1,3 @@
 "use strict";
-module.exports = require("./promise.js");
+var Promise = require("./promise.js")();
+module.exports = Promise;

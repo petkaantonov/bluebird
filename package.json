@@ -50,5 +50,5 @@
     "text-table": "~0.2.0"
   },
   "readmeFilename": "README.md",
-  "main": "./js/main/promise.js"
+  "main": "./js/main/bluebird.js"
 }

@@ -34,7 +34,7 @@ module.exports = function( grunt ) {
                 ret += "require('./"+cur+"')(Promise, Promise$_All);\n";
             }
             return ret;
-        }, "") + "\nPromise.prototype = Promise.prototype;\n";
+        }, "") + "\nPromise.prototype = Promise.prototype;\nreturn Promise;\n";
     }
 
     function getBrowserBuildHeader( sources ) {
@@ -61,8 +61,12 @@ module.exports = function( grunt ) {
         return header;
     }
 
+    function applyOptionalRequires( src, optionalRequireCode ) {
+        return src.replace( /};([^}]*)$/, optionalRequireCode + "\n};$1");
+    }
+
     var CONSTANTS_FILE = './src/constants.js';
-    var BUILD_DEBUG_DEST = "./js/main/promise.js";
+    var BUILD_DEBUG_DEST = "./js/main/bluebird.js";
 
     var license;
     function getLicense() {
@@ -299,7 +303,7 @@ module.exports = function( grunt ) {
             src = src.replace( /__DEBUG__/g, "false" );
             src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
-                src += optionalRequireCode;
+                src = applyOptionalRequires( src, optionalRequireCode );
             }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
@@ -317,7 +321,7 @@ module.exports = function( grunt ) {
             src = src.replace( /__DEBUG__/g, "true" );
             src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
-                src += optionalRequireCode;
+                src = applyOptionalRequires( src, optionalRequireCode );
             }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
@@ -336,7 +340,7 @@ module.exports = function( grunt ) {
             src = src.replace( /__DEBUG__/g, "false" );
             src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
-                src += optionalRequireCode;
+                src = applyOptionalRequires( src, optionalRequireCode );
             }
             var path = root + source.fileName;
             return writeFileAsync(path, src);
@@ -346,7 +350,7 @@ module.exports = function( grunt ) {
     function buildBrowser( sources ) {
         var fs = require("fs");
         var browserify = require("browserify");
-        var b = browserify("./js/main/promise.js");
+        var b = browserify("./js/main/bluebird.js");
         var dest = "./js/browser/bluebird.js";
 
         var header = getBrowserBuildHeader( sources );

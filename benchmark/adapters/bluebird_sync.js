@@ -1,4 +1,4 @@
-var Promise = require('../../js/bluebird_sync.js');
+var Promise = require('../../js/zalgo/bluebird.js');
 
 
 exports.pending = function() {

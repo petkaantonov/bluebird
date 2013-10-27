@@ -39,5 +39,5 @@ var code = "(" + (function(){
 
 var all = "\n;window.tests = ["+mochaTests.map(toReqFn).join(",\n") + "];";
 
-var promise = 'var Promise = require("../js/debug/promise.js");\n';
+var promise = 'var Promise = require("../js/debug/bluebird.js");\n';
 write(promise + code + all);
