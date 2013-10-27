@@ -34,7 +34,7 @@ module.exports = function( grunt ) {
                 ret += "require('./"+cur+"')(Promise, Promise$_All);\n";
             }
             return ret;
-        }, "") + "\nPromise.prototype = Promise.prototype;\nreturn Promise;\n";
+        }, "") + "\nPromise.prototype = Promise.prototype;\n";
     }
 
     function getBrowserBuildHeader( sources ) {

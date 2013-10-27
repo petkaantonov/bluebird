@@ -1041,4 +1041,3 @@ require('./cancel.js')(Promise, Promise$_All);
 require('./complex_thenables.js')(Promise, Promise$_All);
 
 Promise.prototype = Promise.prototype;
-return Promise;

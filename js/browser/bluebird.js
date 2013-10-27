@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.3-0
+ * bluebird build version 0.9.4-0
  * Features enabled: core, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -2612,7 +2612,6 @@ require('./cancel.js')(Promise, Promise$_All);
 require('./complex_thenables.js')(Promise, Promise$_All);
 
 Promise.prototype = Promise.prototype;
-return Promise;
 
 },{"./any.js":1,"./assert.js":3,"./async.js":4,"./call_get.js":6,"./cancel.js":7,"./captured_trace.js":8,"./catch_filter.js":9,"./complex_thenables.js":10,"./errors.js":11,"./filter.js":12,"./generators.js":13,"./get_promise.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":22,"./promisify.js":24,"./props.js":26,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./util.js":35}],20:[function(require,module,exports){
 /**
