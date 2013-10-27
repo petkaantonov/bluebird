@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function() {
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var getPromise = require("./get_promise.js");
@@ -30,7 +29,7 @@ var async = require( "./async.js" );
 var errors = require( "./errors.js" );
 var PromiseArray = require( "./promise_array.js" );
 
-var CapturedTrace = require( "./captured_trace.js")();
+var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
 var PromiseResolver = require( "./promise_resolver.js" );
 
@@ -939,6 +938,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
+module.exports = Promise;
 require('./synchronous_inspection.js')(Promise, Promise$_All);
 require('./any.js')(Promise, Promise$_All);
 require('./call_get.js')(Promise, Promise$_All);
@@ -957,5 +957,3 @@ require('./complex_thenables.js')(Promise, Promise$_All);
 
 Promise.prototype = Promise.prototype;
 return Promise;
-
-};

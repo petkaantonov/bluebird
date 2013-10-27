@@ -1,4 +1,4 @@
-var Promise = require('../../js/main/bluebird.js');
+var Promise = require('../../js/main/promise.js')();
 
 exports.pending = function() {
     var a = Promise.pending();

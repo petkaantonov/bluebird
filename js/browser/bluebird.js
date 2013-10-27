@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.2-1
+ * bluebird build version 0.9.3-0
  * Features enabled: core, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -317,7 +317,7 @@ module.exports = new Async();
  * THE SOFTWARE.
  */
 "use strict";
-var Promise = require("./promise.js")();
+var Promise = require("./promise.js");
 module.exports = Promise;
 
 },{"./promise.js":19}],6:[function(require,module,exports){
@@ -467,7 +467,6 @@ module.exports = function( Promise ) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function() {
 var ASSERT = require("./assert.js");
 var inherits = require( "./util.js").inherits;
 
@@ -646,8 +645,7 @@ var captureStackTrace = (function stackDetection() {
     }
 })();
 
-return CapturedTrace;
-};
+module.exports = CapturedTrace;
 
 },{"./assert.js":3,"./util.js":35}],9:[function(require,module,exports){
 /**
@@ -1674,7 +1672,6 @@ module.exports = function( Promise ) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function() {
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var getPromise = require("./get_promise.js");
@@ -1684,7 +1681,7 @@ var async = require( "./async.js" );
 var errors = require( "./errors.js" );
 var PromiseArray = require( "./promise_array.js" );
 
-var CapturedTrace = require( "./captured_trace.js")();
+var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
 var PromiseResolver = require( "./promise_resolver.js" );
 
@@ -2597,6 +2594,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
+module.exports = Promise;
 require('./synchronous_inspection.js')(Promise, Promise$_All);
 require('./any.js')(Promise, Promise$_All);
 require('./call_get.js')(Promise, Promise$_All);
@@ -2615,8 +2613,6 @@ require('./complex_thenables.js')(Promise, Promise$_All);
 
 Promise.prototype = Promise.prototype;
 return Promise;
-
-};
 
 },{"./any.js":1,"./assert.js":3,"./async.js":4,"./call_get.js":6,"./cancel.js":7,"./captured_trace.js":8,"./catch_filter.js":9,"./complex_thenables.js":10,"./errors.js":11,"./filter.js":12,"./generators.js":13,"./get_promise.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":22,"./promisify.js":24,"./props.js":26,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./util.js":35}],20:[function(require,module,exports){
 /**

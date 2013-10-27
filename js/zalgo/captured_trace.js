@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function() {
 var ASSERT = require("./assert.js");
 var inherits = require( "./util.js").inherits;
 
@@ -199,5 +198,4 @@ var captureStackTrace = (function stackDetection() {
     }
 })();
 
-return CapturedTrace;
-};
+module.exports = CapturedTrace;

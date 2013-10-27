@@ -1,5 +1,4 @@
 "use strict";
-module.exports = function() {
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 //Circular requirements hack
@@ -10,7 +9,7 @@ var async = require( "./async.js" );
 var errors = require( "./errors.js" );
 var PromiseArray = require( "./promise_array.js" );
 
-var CapturedTrace = require( "./captured_trace.js")();
+var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
 var PromiseResolver = require( "./promise_resolver.js" );
 
@@ -1138,4 +1137,4 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
-};
+module.exports = Promise;

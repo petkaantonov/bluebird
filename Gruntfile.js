@@ -62,7 +62,7 @@ module.exports = function( grunt ) {
     }
 
     function applyOptionalRequires( src, optionalRequireCode ) {
-        return src.replace( /};([^}]*)$/, optionalRequireCode + "\n};$1");
+        return src + optionalRequireCode;
     }
 
     var CONSTANTS_FILE = './src/constants.js';
