@@ -11,9 +11,7 @@ var PromiseArray = require( "./promise_array.js" );
 
 var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
-var PromiseInspection = require( "./promise_inspection.js" );
 var PromiseResolver = require( "./promise_resolver.js" );
-var Thenable = require( "./thenable.js" );
 
 var isArray = util.isArray;
 var notEnumerableProp = util.notEnumerableProp;
@@ -36,7 +34,7 @@ var canAttach = errors.canAttach;
 var apiRejection = errors.apiRejection;
 
 var APPLY = {};
-var thenable = new Thenable( errorObj );
+
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
@@ -119,17 +117,6 @@ function Promise$catch( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0, this.caught );
 };
 
-/**
- * Convenience Promise.prototype for .then( null, null, fn );
- *
- * @param {Function} fn The callback to call if this promise is progressed
- * @return {Promise}
- */
-Promise.prototype.progressed = function Promise$progressed( fn ) {
-    return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
-};
-
-
 function thrower( r ) {
     throw r;
 }
@@ -168,98 +155,6 @@ function Promise$finally( fn ) {
         return reasonOrValue;
     };
     return this._then( r, r, void 0, this, void 0, this.lastly );
-};
-
-/**
- * Synchronously inspect the state of this promise. Returns
- * A snapshot reflecting this promise's state exactly at the time of
- * call.
- *
- * If this promise is resolved, the inspection can be used to gain
- * access to this promise's rejection reason or fulfillment value
- * synchronously.
- *
- * (TODO) Based on inspection spec
- *
- * @return {PromiseInspection}
- */
-Promise.prototype.inspect = function Promise$inspect() {
-    return new PromiseInspection( this );
-};
-
-/**
- * Cancel this promise. The cancellation will propagate
- * to farthest ancestor promise which is still pending.
- *
- * That ancestor will then be rejected with a CancellationError
- * object as the rejection reason.
- *
- * In a promise rejection handler you may check for a cancellation
- * by seeing if the reason object has `.name === "Cancel"`.
- *
- * Promises are by default cancellable. If you want to restrict
- * the cancellability of a promise before handing it out to a
- * client, call `.uncancellable()` which returns an uncancellable
- * promise.
- *
- * (TODO) Based on cancellation spec.
- *
- * @return {Promise}
- */
-Promise.prototype.cancel = function Promise$cancel() {
-    if( !this.isCancellable() ) return this;
-    var cancelTarget = this;
-    //Propagate to the last parent that is still pending
-    //Resolved promises always have ._cancellationParent === void 0
-    while( cancelTarget._cancellationParent !== void 0 ) {
-        cancelTarget = cancelTarget._cancellationParent;
-    }
-    //The propagated parent or original and had no parents
-    if( cancelTarget === this ) {
-        var err = new CancellationError();
-        this._attachExtraTrace( err );
-        this._reject( err );
-    }
-    else {
-        //Have pending parents, call cancel on the oldest
-        async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
-    }
-    return this;
-};
-
-/**
- * Create an uncancellable promise based on this promise
- *
- * @return {Promise}
- */
-Promise.prototype.uncancellable = function Promise$uncancellable() {
-    var ret = new Promise();
-    ret._setTrace( this.uncancellable, this );
-    ret._unsetCancellable();
-    ret._assumeStateOf( this, MUST_ASYNC );
-    ret._boundTo = this._boundTo;
-    return ret;
-};
-
-/**
- * Like .then, but cancellation of the the returned promise
- * or any of its descendant will not propagate cancellation
- * to this promise or this promise's ancestors.
- *
- * @param {=Function} didFulfill The callback to call if this promise
- *  is fulfilled.
- * @param {=Function} didReject The callback to call if this promise
- *  is rejected.
- * @param {=Function} didProgress The callback to call if this promise is
- *  notified of progress.
- * @return {Promise}
- */
-Promise.prototype.fork =
-function Promise$fork( didFulfill, didReject, didProgress ) {
-    var ret = this._then( didFulfill, didReject, didProgress,
-        void 0, void 0, this.fork );
-    ret._cancellationParent = void 0;
-    return ret;
 };
 
 /**
@@ -365,25 +260,19 @@ Promise.prototype.isCancellable = function Promise$isCancellable() {
         this._cancellable();
 };
 
-/**
- * For JSON serialization.
- *
- * @return {dynamic}
- */
 Promise.prototype.toJSON = function Promise$toJSON() {
-    var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
         isRejected: false,
         fulfillmentValue: void 0,
         rejectionReason: void 0
     };
-    if( inspection.isFulfilled() ) {
-        ret.fulfillmentValue = inspection.value();
+    if( this.isFulfilled() ) {
+        ret.fulfillmentValue = this._resolvedValue;
         ret.isFulfilled = true;
     }
-    else if( inspection.isRejected() ) {
-        ret.rejectionReason = inspection.error();
+    else if( this.isRejected() ) {
+        ret.rejectionReason = this._resolvedValue;
         ret.isRejected = true;
     }
     return ret;
@@ -508,40 +397,8 @@ Promise.bind = function Promise$Bind( obj ) {
     return ret;
 };
 
-
-/**
- * Casts the object to a trusted Promise. If the
- * object is a "thenable", then the trusted promise will
- * assimilate it. Otherwise the trusted promise is immediately
- * fulfilled with obj as the fulfillment value.
- *
- * It is recommended to use just one promise library at a time,
- * so you don't have to call this Promise.prototype.
- *
- * Example: ($ is jQuery)
- *
- * Promise.cast($.get("http://www.google.com")).catch(function(){
- *     //will catch to same-origin policy error here..
- *     //... unless you are running this on google website
- * });
- *
- * Note that if you return an untrusted promise inside a then e.g.:
- *
- * somePromise.then(function(url) {
- *     return $.get(url);
- * });
- *
- * Then the returned untrusted promise is autocast per Promises/A+
- * specification. In any other situation, you will need to use
- * explicit casting through Promise.cast
- *
- * @param {dynamic} obj The object to cast to a trusted Promise
- * @return {Promise}
- *
- */
-Promise._cast = cast;
 Promise.cast = function Promise$Cast( obj, caller ) {
-    var ret = cast( obj, caller );
+    var ret = Promise._cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
         return Promise.fulfilled( ret, caller );
     }
@@ -590,7 +447,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = __DEBUG__ || !!(
+var longStackTraces = __DEBUG__ || __BROWSER__ || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
@@ -760,14 +617,6 @@ Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
     return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
 };
 
-Promise.prototype._progressAt = function Promise$_progressAt( index ) {
-    ASSERT( typeof index === "number" );
-    ASSERT( index >= 0 );
-    ASSERT( index % CALLBACK_SIZE === 0 );
-    if( index === 0 ) return this._progress0;
-    return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
-};
-
 Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     ASSERT( typeof index === "number" );
     ASSERT( index >= 0 );
@@ -862,186 +711,6 @@ Promise.prototype._isBound = function Promise$_isBound() {
 };
 
 
-function cast( obj, caller ) {
-    if( isObject( obj ) ) {
-        if( obj instanceof Promise ) {
-            return obj;
-        }
-        var ref = { ref: null, promise: null };
-        if( thenable.is( obj, ref ) ) {
-            if( ref.promise != null ) {
-                return ref.promise;
-            }
-            var resolver = Promise.pending( caller );
-            var result = ref.ref;
-            if( result === errorObj ) {
-                resolver.reject( result.e );
-                return resolver.promise;
-            }
-            thenable.addCache( obj, resolver.promise );
-            var called = false;
-            var ret = tryCatch2( result, obj, function t( a ) {
-                if( called ) return;
-                called = true;
-                async.invoke( thenable.deleteCache, thenable, obj );
-                var b = cast( a );
-                if( b === a ) {
-                    resolver.fulfill( a );
-                }
-                else {
-                    if( a === obj ) {
-                        ASSERT( resolver.promise.isPending() );
-                        resolver.promise._resolveFulfill( a );
-                    }
-                    else {
-                        b._then(
-                            resolver.fulfill,
-                            resolver.reject,
-                            void 0,
-                            resolver,
-                            void 0,
-                            t
-                        );
-                    }
-                }
-            }, function t( a ) {
-                if( called ) return;
-                called = true;
-                async.invoke( thenable.deleteCache, thenable, obj );
-                resolver.reject( a );
-            });
-            if( ret === errorObj && !called ) {
-                resolver.reject( ret.e );
-                async.invoke( thenable.deleteCache, thenable, obj );
-            }
-            return resolver.promise;
-        }
-    }
-    return obj;
-}
-
-Promise.prototype._resolveThenable =
-function Promise$_resolveThenable( x, ref ) {
-    if( ref.promise != null ) {
-        this._assumeStateOf( ref.promise, MUST_ASYNC );
-        return;
-    }
-     //3.2 If retrieving the property x.then
-    //results in a thrown exception e,
-    //reject promise with e as the reason.
-    if( ref.ref === errorObj ) {
-        this._attachExtraTrace( ref.ref.e );
-        async.invoke( this._reject, this, ref.ref.e );
-    }
-    else {
-        thenable.addCache( x, this );
-        //3.1. Let then be x.then
-        var then = ref.ref;
-        var localX = x;
-        var localP = this;
-        var key = {};
-        var called = false;
-        //3.3 If then is a function, call it with x as this,
-        //first argument resolvePromise, and
-        //second argument rejectPromise
-        var t = function t( v ) {
-            if( called && this !== key ) return;
-            called = true;
-            var fn = localP._fulfill;
-            var b = cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    //Thenable used itself as the value
-                    async.invoke( fn, localP, v );
-                    async.invoke( thenable.deleteCache, thenable, localX );
-                }
-                else {
-                    b._then( t, r, void 0, key, void 0, t);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                ASSERT( b.isResolved() );
-                v = v._resolvedValue;
-                b = cast( v );
-                ASSERT( b instanceof Promise || b === v );
-                if( b !== v ||
-                    ( b instanceof Promise && b !== v ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
-                    return;
-                }
-            }
-            async.invoke( fn, localP, v );
-            async.invoke( thenable.deleteCache,
-                    thenable, localX );
-        };
-
-        var r = function r( v ) {
-            if( called && this !== key ) return;
-            var fn = localP._reject;
-            called = true;
-
-            var b = cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    //Thenable used itself as the reason
-                    async.invoke( fn, localP, v );
-                    async.invoke( thenable.deleteCache, thenable, localX );
-                }
-                else {
-                    b._then( t, r, void 0, key, void 0, t);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                ASSERT( b.isResolved() );
-                v = v._resolvedValue;
-                b = cast( v );
-                if( b !== v ||
-                    ( b instanceof Promise && b.isPending() ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
-                    return;
-                }
-            }
-
-            async.invoke( fn, localP, v );
-            async.invoke( thenable.deleteCache,
-                thenable, localX );
-
-        };
-        var threw = tryCatch2( then, x, t, r);
-        //3.3.4 If calling then throws an exception e,
-        if( threw === errorObj &&
-            !called ) {
-            this._attachExtraTrace( threw.e );
-            //3.3.4.2 Otherwise, reject promise with e as the reason.
-            async.invoke( this._reject, this, threw.e );
-            async.invoke( thenable.deleteCache, thenable, x );
-        }
-    }
-};
-
-Promise.prototype._tryThenable = function Promise$_tryThenable( x ) {
-    var ref;
-    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
-        return false;
-    }
-    this._resolveThenable( x, ref );
-    return true;
-};
-
 var ignore = CatchFilter.prototype.doFilter;
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
@@ -1132,7 +801,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
             return;
         }
         //3. Otherwise, if x is an object or function,
-        else if( thenable.couldBe( x ) ) {
+        else if( Promise._couldBeThenable( x ) ) {
 
             if( promise._length() === 0 ) {
                 promise._resolvedValue = x;
@@ -1284,12 +953,6 @@ Promise.prototype._reject = function Promise$_reject( reason ) {
     this._resolveReject( reason );
 };
 
-Promise.prototype._progress = function Promise$_progress( progressValue ) {
-    if( this._isFollowingOrFulfilledOrRejected() ) return;
-    this._resolveProgress( progressValue );
-
-};
-
 Promise.prototype._doResolveAt = function Promise$_doResolveAt( i ) {
     var fn = this.isFulfilled()
         ? this._fulfillAt( i )
@@ -1409,65 +1072,6 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
         }
     }
 
-};
-
-Promise.prototype._resolveProgress =
-function Promise$_resolveProgress( progressValue ) {
-    ASSERT( this.isPending() );
-    var len = this._length();
-    for( var i = 0; i < len; i += CALLBACK_SIZE ) {
-        var fn = this._progressAt( i );
-        var promise = this._promiseAt( i );
-        //if promise is not instanceof Promise
-        //it is internally smuggled data
-        if( !isPromise( promise ) ) {
-            fn.call( this._receiverAt( i ), progressValue, promise );
-            continue;
-        }
-        var ret = progressValue;
-        if( fn !== void 0 ) {
-            this._pushContext();
-            ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-            this._popContext();
-            if( ret === errorObj ) {
-                //2.4 if the onProgress callback throws an exception
-                //with a name property equal to 'StopProgressPropagation',
-                //then the error is silenced.
-                if( ret.e != null &&
-                    ret.e.name === "StopProgressPropagation" ) {
-                    ret.e[ERROR_HANDLED_KEY] = ERROR_HANDLED;
-                }
-                else {
-                    //2.3 Unless the onProgress callback throws an exception
-                    //with a name property equal to 'StopProgressPropagation',
-                    // the result of the function is used as the progress
-                    //value to propagate.
-                    promise._attachExtraTrace( ret.e );
-                    async.invoke( promise._progress, promise, ret.e );
-                }
-            }
-            //2.2 The onProgress callback may return a promise.
-            else if( isPromise( ret ) ) {
-                //2.2.1 The callback is not considered complete
-                //until the promise is fulfilled.
-
-                //2.2.2 The fulfillment value of the promise is the value
-                //to be propagated.
-
-                //2.2.3 If the promise is rejected, the rejection reason
-                //should be treated as if it was thrown by the callback
-                //directly.
-                ret._then( promise._progress, null, null, promise, void 0,
-                    this._progress );
-            }
-            else {
-                async.invoke( promise._progress, promise, ret );
-            }
-        }
-        else {
-            async.invoke( promise._progress, promise, ret );
-        }
-    }
 };
 
 var contextStack = [];

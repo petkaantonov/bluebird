@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function( Promise ) {
     var THIS = {};
     var util = require( "./util.js");

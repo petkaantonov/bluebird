@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+"use strict";
 module.exports = function( Promise, Promise$_All ) {
 
     var SettledPromiseArray = require( "./settled_promise_array.js" );

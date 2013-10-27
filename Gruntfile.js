@@ -19,7 +19,13 @@ module.exports = function( grunt ) {
         "props.js": true,
         "reduce.js": true,
         "settle.js": true,
-        "some.js": true
+        "some.js": true,
+        "progress.js": true,
+        "cancel.js": true,
+        "simple_thenables.js": true,
+        "complex_thenables.js": true,
+        "synchronous_inspection.js": true
+
     };
 
     function getOptionalRequireCode( srcs ) {
@@ -28,7 +34,31 @@ module.exports = function( grunt ) {
                 ret += "require('./"+cur+"')(Promise, Promise$_All);\n";
             }
             return ret;
-        }, "");
+        }, "") + "\nPromise.prototype = Promise.prototype;\n";
+    }
+
+    function getBrowserBuildHeader( sources ) {
+        var header = "/**\n * bluebird build version " + gruntConfig.pkg.version + "\n";
+        var enabledFeatures = ["core"];
+        var disabledFeatures = [];
+        featureLoop: for( var key in optionalModuleRequireMap ) {
+            for( var i = 0, len = sources.length; i < len; ++i ) {
+                var source = sources[i];
+                if( source.fileName === key ) {
+                    enabledFeatures.push( key.replace( ".js", "") );
+                    continue featureLoop;
+                }
+            }
+            disabledFeatures.push( key.replace( ".js", "") );
+        }
+
+        header += ( " * Features enabled: " + enabledFeatures.join(", ") + "\n" );
+
+        if( disabledFeatures.length ) {
+            header += " * Features disabled: " + disabledFeatures.join(", ") + "\n";
+        }
+        header += "*/\n";
+        return header;
     }
 
     var CONSTANTS_FILE = './src/constants.js';
@@ -86,6 +116,7 @@ module.exports = function( grunt ) {
         var globals = {
             TypeError: true,
             __DEBUG__: false,
+            __BROWSER__: false,
             process: false,
             "console": false,
             "require": false,
@@ -160,6 +191,11 @@ module.exports = function( grunt ) {
 
             files: {
                 src: [
+                    "./src/synchronous_inspection.js",
+                    "./src/simple_thenables.js",
+                    "./src/complex_thenables.js",
+                    "./src/progress.js",
+                    "./src/cancel.js",
                     "./src/any.js",
                     "./src/call_get.js",
                     "./src/filter.js",
@@ -177,7 +213,6 @@ module.exports = function( grunt ) {
                     "./src/errors.js",
                     "./src/captured_trace.js",
                     "./src/async.js",
-                    "./src/thenable.js",
                     "./src/catch_filter.js",
                     "./src/promise.js",
                     "./src/promise_array.js",
@@ -261,7 +296,8 @@ module.exports = function( grunt ) {
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
-            src = src.replace( /__DEBUG__/g, false );
+            src = src.replace( /__DEBUG__/g, "false" );
+            src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
                 src += optionalRequireCode;
             }
@@ -278,7 +314,8 @@ module.exports = function( grunt ) {
         return Q.all(sources.map(function( source ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
-            src = src.replace( /__DEBUG__/g, true );
+            src = src.replace( /__DEBUG__/g, "true" );
+            src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
                 src += optionalRequireCode;
             }
@@ -296,7 +333,8 @@ module.exports = function( grunt ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = astPasses.asyncConvert( src, "async", "invoke", source.fileName);
-            src = src.replace( /__DEBUG__/g, false );
+            src = src.replace( /__DEBUG__/g, "false" );
+            src = src.replace( /__BROWSER__/g, "false" );
             if( source.fileName === "promise.js" ) {
                 src += optionalRequireCode;
             }
@@ -305,23 +343,31 @@ module.exports = function( grunt ) {
         }));
     }
 
-    function buildBrowser() {
+    function buildBrowser( sources ) {
         var fs = require("fs");
         var browserify = require("browserify");
         var b = browserify("./js/main/promise.js");
+        var dest = "./js/browser/bluebird.js";
+
+        var header = getBrowserBuildHeader( sources );
 
         return Q.nbind(b.bundle, b)({
-            detectGlobals: false,
-            standalone: "Promise"
+                detectGlobals: false,
+                standalone: "Promise"
         }).then(function(src) {
-            return writeFileAsync( "./js/browser/bluebird.js",
+            return writeFileAsync( dest,
                 getLicensePreserve() + src )
+        }).then(function() {
+            return Q.nfcall(fs.readFile, dest, "utf8" );
+        }).then(function( src ) {
+            src = header + src;
+            src = src.replace( "longStackTraces = false", "longStackTraces = true" );
+            return Q.nfcall(fs.writeFile, dest, src );
         });
-
     }
 
     function getOptionalPathsFromOption( opt ) {
-        opt = (opt + "").toLowerCase().split(" ");
+        opt = (opt + "").toLowerCase().split(/\s+/g);
         return optionalPaths.filter(function(v){
             v = v.replace("./src/", "").replace( ".js", "" ).toLowerCase();
             return opt.indexOf(v) > -1;
@@ -329,6 +375,7 @@ module.exports = function( grunt ) {
     }
 
     var optionalPaths = [
+        "./src/synchronous_inspection.js",
         "./src/any.js",
         "./src/call_get.js",
         "./src/filter.js",
@@ -339,7 +386,9 @@ module.exports = function( grunt ) {
         "./src/props.js",
         "./src/reduce.js",
         "./src/settle.js",
-        "./src/some.js"
+        "./src/some.js",
+        "./src/progress.js",
+        "./src/cancel.js"
     ];
 
     var mandatoryPaths = [
@@ -353,7 +402,6 @@ module.exports = function( grunt ) {
         "./src/errors.js",
         "./src/captured_trace.js",
         "./src/async.js",
-        "./src/thenable.js",
         "./src/catch_filter.js",
         "./src/promise.js",
         "./src/promise_array.js",
@@ -366,13 +414,35 @@ module.exports = function( grunt ) {
         "./src/promise_spawn.js"
     ];
 
+    var mutExPaths = [
+        {
+            feature: "simple_thenables",
+            featureDisabled: "./src/complex_thenables.js",
+            featureEnabled: "./src/simple_thenables.js"
+        }
+    ];
+
+    function applyMutExPaths( paths, features ) {
+        if( !Array.isArray( features ) ) {
+            features = features.toLowerCase().split( /\s+/g );
+        }
+        mutExPaths.forEach(function( mutExPath ){
+            if( features.indexOf( mutExPath.feature ) > -1 ) {
+                paths.push( mutExPath.featureEnabled );
+            }
+            else {
+                paths.push( mutExPath.featureDisabled );
+            }
+        });
+        return paths;
+    }
+
     function build( paths ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
         if( !paths ) {
-            paths = optionalPaths.concat(mandatoryPaths);
+            paths = applyMutExPaths( optionalPaths.concat(mandatoryPaths), [] );
         }
-
         var optionalRequireCode = getOptionalRequireCode(paths.map(function(v) {
             return v.replace("./src/", "");
         }));
@@ -400,8 +470,11 @@ module.exports = function( grunt ) {
                 src = getLicense() + src;
                 source.sourceCode = src;
             });
+
             return Q.all([
-                buildMain( sources, optionalRequireCode ).then(buildBrowser),
+                buildMain( sources, optionalRequireCode ).then( function() {
+                    return buildBrowser( sources );
+                }),
                 buildDebug( sources, optionalRequireCode ),
                 buildZalgo( sources, optionalRequireCode )
             ]);
@@ -505,9 +578,10 @@ module.exports = function( grunt ) {
         var paths = null;
         if( features ) {
             paths = getOptionalPathsFromOption( features ).concat( mandatoryPaths );
+            applyMutExPaths( paths, features );
         }
 
-        build( paths ).then(function(){
+        build( paths ).then(function() {
             done();
         }).catch(function(e) {
             if( e.fileName && e.stack ) {

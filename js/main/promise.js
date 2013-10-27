@@ -31,9 +31,7 @@ var PromiseArray = require( "./promise_array.js" );
 
 var CapturedTrace = require( "./captured_trace.js");
 var CatchFilter = require( "./catch_filter.js");
-var PromiseInspection = require( "./promise_inspection.js" );
 var PromiseResolver = require( "./promise_resolver.js" );
-var Thenable = require( "./thenable.js" );
 
 var isArray = util.isArray;
 var notEnumerableProp = util.notEnumerableProp;
@@ -56,7 +54,7 @@ var canAttach = errors.canAttach;
 var apiRejection = errors.apiRejection;
 
 var APPLY = {};
-var thenable = new Thenable( errorObj );
+
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
@@ -122,11 +120,6 @@ function Promise$catch( fn ) {
     return this._then( void 0, fn, void 0, void 0, void 0, this.caught );
 };
 
-Promise.prototype.progressed = function Promise$progressed( fn ) {
-    return this._then( void 0, void 0, fn, void 0, void 0, this.progressed );
-};
-
-
 function thrower( r ) {
     throw r;
 }
@@ -158,44 +151,6 @@ function Promise$finally( fn ) {
         return reasonOrValue;
     };
     return this._then( r, r, void 0, this, void 0, this.lastly );
-};
-
-Promise.prototype.inspect = function Promise$inspect() {
-    return new PromiseInspection( this );
-};
-
-Promise.prototype.cancel = function Promise$cancel() {
-    if( !this.isCancellable() ) return this;
-    var cancelTarget = this;
-    while( cancelTarget._cancellationParent !== void 0 ) {
-        cancelTarget = cancelTarget._cancellationParent;
-    }
-    if( cancelTarget === this ) {
-        var err = new CancellationError();
-        this._attachExtraTrace( err );
-        this._reject( err );
-    }
-    else {
-        async.invoke( cancelTarget.cancel, cancelTarget, void 0 );
-    }
-    return this;
-};
-
-Promise.prototype.uncancellable = function Promise$uncancellable() {
-    var ret = new Promise();
-    ret._setTrace( this.uncancellable, this );
-    ret._unsetCancellable();
-    ret._assumeStateOf( this, true );
-    ret._boundTo = this._boundTo;
-    return ret;
-};
-
-Promise.prototype.fork =
-function Promise$fork( didFulfill, didReject, didProgress ) {
-    var ret = this._then( didFulfill, didReject, didProgress,
-        void 0, void 0, this.fork );
-    ret._cancellationParent = void 0;
-    return ret;
 };
 
 Promise.prototype.then =
@@ -237,19 +192,18 @@ Promise.prototype.isCancellable = function Promise$isCancellable() {
 };
 
 Promise.prototype.toJSON = function Promise$toJSON() {
-    var inspection = this.inspect();
     var ret = {
         isFulfilled: false,
         isRejected: false,
         fulfillmentValue: void 0,
         rejectionReason: void 0
     };
-    if( inspection.isFulfilled() ) {
-        ret.fulfillmentValue = inspection.value();
+    if( this.isFulfilled() ) {
+        ret.fulfillmentValue = this._resolvedValue;
         ret.isFulfilled = true;
     }
-    else if( inspection.isRejected() ) {
-        ret.rejectionReason = inspection.error();
+    else if( this.isRejected() ) {
+        ret.rejectionReason = this._resolvedValue;
         ret.isRejected = true;
     }
     return ret;
@@ -342,10 +296,8 @@ Promise.bind = function Promise$Bind( obj ) {
     return ret;
 };
 
-
-Promise._cast = cast;
 Promise.cast = function Promise$Cast( obj, caller ) {
-    var ret = cast( obj, caller );
+    var ret = Promise._cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
         return Promise.fulfilled( ret, caller );
     }
@@ -362,7 +314,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = false || !!(
+var longStackTraces = false || false || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
@@ -514,11 +466,6 @@ Promise.prototype._rejectAt = function Promise$_rejectAt( index ) {
     return this[ index + 1 - 5 ];
 };
 
-Promise.prototype._progressAt = function Promise$_progressAt( index ) {
-    if( index === 0 ) return this._progress0;
-    return this[ index + 2 - 5 ];
-};
-
 Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     if( index === 0 ) {
         this._fulfill0 =
@@ -606,171 +553,6 @@ Promise.prototype._isBound = function Promise$_isBound() {
 };
 
 
-function cast( obj, caller ) {
-    if( isObject( obj ) ) {
-        if( obj instanceof Promise ) {
-            return obj;
-        }
-        var ref = { ref: null, promise: null };
-        if( thenable.is( obj, ref ) ) {
-            if( ref.promise != null ) {
-                return ref.promise;
-            }
-            var resolver = Promise.pending( caller );
-            var result = ref.ref;
-            if( result === errorObj ) {
-                resolver.reject( result.e );
-                return resolver.promise;
-            }
-            thenable.addCache( obj, resolver.promise );
-            var called = false;
-            var ret = tryCatch2( result, obj, function t( a ) {
-                if( called ) return;
-                called = true;
-                async.invoke( thenable.deleteCache, thenable, obj );
-                var b = cast( a );
-                if( b === a ) {
-                    resolver.fulfill( a );
-                }
-                else {
-                    if( a === obj ) {
-                        resolver.promise._resolveFulfill( a );
-                    }
-                    else {
-                        b._then(
-                            resolver.fulfill,
-                            resolver.reject,
-                            void 0,
-                            resolver,
-                            void 0,
-                            t
-                        );
-                    }
-                }
-            }, function t( a ) {
-                if( called ) return;
-                called = true;
-                async.invoke( thenable.deleteCache, thenable, obj );
-                resolver.reject( a );
-            });
-            if( ret === errorObj && !called ) {
-                resolver.reject( ret.e );
-                async.invoke( thenable.deleteCache, thenable, obj );
-            }
-            return resolver.promise;
-        }
-    }
-    return obj;
-}
-
-Promise.prototype._resolveThenable =
-function Promise$_resolveThenable( x, ref ) {
-    if( ref.promise != null ) {
-        this._assumeStateOf( ref.promise, true );
-        return;
-    }
-    if( ref.ref === errorObj ) {
-        this._attachExtraTrace( ref.ref.e );
-        async.invoke( this._reject, this, ref.ref.e );
-    }
-    else {
-        thenable.addCache( x, this );
-        var then = ref.ref;
-        var localX = x;
-        var localP = this;
-        var key = {};
-        var called = false;
-        var t = function t( v ) {
-            if( called && this !== key ) return;
-            called = true;
-            var fn = localP._fulfill;
-            var b = cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    async.invoke( fn, localP, v );
-                    async.invoke( thenable.deleteCache, thenable, localX );
-                }
-                else {
-                    b._then( t, r, void 0, key, void 0, t);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                v = v._resolvedValue;
-                b = cast( v );
-                if( b !== v ||
-                    ( b instanceof Promise && b !== v ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
-                    return;
-                }
-            }
-            async.invoke( fn, localP, v );
-            async.invoke( thenable.deleteCache,
-                    thenable, localX );
-        };
-
-        var r = function r( v ) {
-            if( called && this !== key ) return;
-            var fn = localP._reject;
-            called = true;
-
-            var b = cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    async.invoke( fn, localP, v );
-                    async.invoke( thenable.deleteCache, thenable, localX );
-                }
-                else {
-                    b._then( t, r, void 0, key, void 0, t);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                v = v._resolvedValue;
-                b = cast( v );
-                if( b !== v ||
-                    ( b instanceof Promise && b.isPending() ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
-                    return;
-                }
-            }
-
-            async.invoke( fn, localP, v );
-            async.invoke( thenable.deleteCache,
-                thenable, localX );
-
-        };
-        var threw = tryCatch2( then, x, t, r);
-        if( threw === errorObj &&
-            !called ) {
-            this._attachExtraTrace( threw.e );
-            async.invoke( this._reject, this, threw.e );
-            async.invoke( thenable.deleteCache, thenable, x );
-        }
-    }
-};
-
-Promise.prototype._tryThenable = function Promise$_tryThenable( x ) {
-    var ref;
-    if( !thenable.is( x, ref = {ref: null, promise: null} ) ) {
-        return false;
-    }
-    this._resolveThenable( x, ref );
-    return true;
-};
-
 var ignore = CatchFilter.prototype.doFilter;
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
@@ -846,7 +628,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         if( promise._tryAssumeStateOf( x, true ) ) {
             return;
         }
-        else if( thenable.couldBe( x ) ) {
+        else if( Promise._couldBeThenable( x ) ) {
 
             if( promise._length() === 0 ) {
                 promise._resolvedValue = x;
@@ -990,12 +772,6 @@ Promise.prototype._reject = function Promise$_reject( reason ) {
     this._resolveReject( reason );
 };
 
-Promise.prototype._progress = function Promise$_progress( progressValue ) {
-    if( this._isFollowingOrFulfilledOrRejected() ) return;
-    this._resolveProgress( progressValue );
-
-};
-
 Promise.prototype._doResolveAt = function Promise$_doResolveAt( i ) {
     var fn = this.isFulfilled()
         ? this._fulfillAt( i )
@@ -1105,45 +881,6 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
 
 };
 
-Promise.prototype._resolveProgress =
-function Promise$_resolveProgress( progressValue ) {
-    var len = this._length();
-    for( var i = 0; i < len; i += 5 ) {
-        var fn = this._progressAt( i );
-        var promise = this._promiseAt( i );
-        if( !isPromise( promise ) ) {
-            fn.call( this._receiverAt( i ), progressValue, promise );
-            continue;
-        }
-        var ret = progressValue;
-        if( fn !== void 0 ) {
-            this._pushContext();
-            ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-            this._popContext();
-            if( ret === errorObj ) {
-                if( ret.e != null &&
-                    ret.e.name === "StopProgressPropagation" ) {
-                    ret.e["__promiseHandled__"] = 2;
-                }
-                else {
-                    promise._attachExtraTrace( ret.e );
-                    async.invoke( promise._progress, promise, ret.e );
-                }
-            }
-            else if( isPromise( ret ) ) {
-                ret._then( promise._progress, null, null, promise, void 0,
-                    this._progress );
-            }
-            else {
-                async.invoke( promise._progress, promise, ret );
-            }
-        }
-        else {
-            async.invoke( promise._progress, promise, ret );
-        }
-    }
-};
-
 var contextStack = [];
 Promise.prototype._peekContext = function Promise$_peekContext() {
     var lastIndex = contextStack.length - 1;
@@ -1207,6 +944,7 @@ Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 
 module.exports = Promise;
+require('./synchronous_inspection.js')(Promise, Promise$_All);
 require('./any.js')(Promise, Promise$_All);
 require('./call_get.js')(Promise, Promise$_All);
 require('./filter.js')(Promise, Promise$_All);
@@ -1218,3 +956,8 @@ require('./props.js')(Promise, Promise$_All);
 require('./reduce.js')(Promise, Promise$_All);
 require('./settle.js')(Promise, Promise$_All);
 require('./some.js')(Promise, Promise$_All);
+require('./progress.js')(Promise, Promise$_All);
+require('./cancel.js')(Promise, Promise$_All);
+require('./complex_thenables.js')(Promise, Promise$_All);
+
+Promise.prototype = Promise.prototype;

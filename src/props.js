@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function( Promise ) {
     var PropertiesPromiseArray = require( "./properties_promise_array.js" );
     var util = require( "./util.js" );

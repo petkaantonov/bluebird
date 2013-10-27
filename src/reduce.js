@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function( Promise, Promise$_All ) {
 
     var ASSERT = require( "./assert.js" );

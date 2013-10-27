@@ -7,7 +7,6 @@
     - [`.catch([Function ErrorClass...], Function handler)`](#catchfunction-errorclass-function-handler---promise)
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
-    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
@@ -22,6 +21,8 @@
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.asCallback`](#ascallback---function)
+- [Progression](#progression)
+    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -400,10 +401,6 @@ Promise.fulfilled("my-element")
 
 The above does `console.log(document.getElementById("my-element"));`. The `.bind()`s are necessary because in browser neither of the methods can be called as a stand-alone function.
 
-#####`.progressed(Function handler)` -> `Promise`
-
-Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
-
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
@@ -526,6 +523,12 @@ While with long stack traces disabled, you would get:
         at MutationObserver.Promise$_Deferred (<anonymous>:433:17)
 
 On client side, long stack traces currently only work in Firefox and Chrome.
+
+##Progression
+
+#####`.progressed(Function handler)` -> `Promise`
+
+Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
 
 ##Promise resolution
 
