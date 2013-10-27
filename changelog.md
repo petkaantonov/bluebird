@@ -1,3 +1,18 @@
+## 0.9.3-0 (2013-10-27)
+
+Features:
+
+ - Allow fresh copies of the library to be made
+ - Add more components to customized builds
+
+## 0.9.2-1 (2013-10-25)
+
+## 0.9.2-0 (2013-10-25)
+
+Features:
+
+ - Allow custom builds
+
 ## 0.9.1-1 (2013-10-22)
 
 Bugfixes:
