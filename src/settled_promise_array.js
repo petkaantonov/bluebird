@@ -1,6 +1,6 @@
 "use strict";
+module.exports = function( Promise, PromiseArray ) {
 var ASSERT = require("./assert.js");
-var PromiseArray = require( "./promise_array.js" );
 var PromiseInspection = require( "./promise_inspection.js" );
 var util = require("./util.js");
 var inherits = util.inherits;
@@ -42,4 +42,5 @@ function SettledPromiseArray$_promiseRejected( reason, index ) {
     this._promiseResolved( index, ret );
 };
 
-module.exports = SettledPromiseArray;
+return SettledPromiseArray;
+};

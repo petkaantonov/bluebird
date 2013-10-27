@@ -1,15 +1,14 @@
 "use strict";
+module.exports = function() {
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
-//Circular requirements hack
-var getPromise = require("./get_promise.js");
-getPromise.set( Promise );
+
 var util = require( "./util.js" );
 var async = require( "./async.js" );
 var errors = require( "./errors.js" );
-var PromiseArray = require( "./promise_array.js" );
+var PromiseArray = require( "./promise_array.js" )(Promise);
 
-var CapturedTrace = require( "./captured_trace.js");
+var CapturedTrace = require( "./captured_trace.js")();
 var CatchFilter = require( "./catch_filter.js");
 var PromiseResolver = require( "./promise_resolver.js" );
 
@@ -31,7 +30,7 @@ var withStackAttached = errors.withStackAttached;
 var isStackAttached = errors.isStackAttached;
 var isHandled = errors.isHandled;
 var canAttach = errors.canAttach;
-var apiRejection = errors.apiRejection;
+var apiRejection = require("./errors_api_rejection")(Promise);
 
 var APPLY = {};
 
@@ -1136,5 +1135,4 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
-
-module.exports = Promise;
+};

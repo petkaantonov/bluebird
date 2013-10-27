@@ -1,6 +1,6 @@
 "use strict";
+module.exports = function( PromiseArray ) {
 var ASSERT = require("./assert.js");
-var PromiseArray = require( "./promise_array.js" );
 var util = require("./util.js");
 var inherits = util.inherits;
 // the PromiseArray to use with Promise.any method
@@ -35,4 +35,5 @@ function AnyPromiseArray$_promiseRejected( reason, index ) {
 
 };
 
-module.exports = AnyPromiseArray;
+return AnyPromiseArray;
+};
