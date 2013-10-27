@@ -20,9 +20,8 @@
  * THE SOFTWARE.
  */
 "use strict";
+module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
-var Promise = require("./get_promise.js").get();
-var PromiseArray = require( "./promise_array.js" );
 var util = require("./util.js");
 var inherits = util.inherits;
 
@@ -73,4 +72,5 @@ function PropertiesPromiseArray$_promiseProgressed( value, index ) {
 
 PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 
-module.exports = PropertiesPromiseArray;
+return PropertiesPromiseArray;
+};

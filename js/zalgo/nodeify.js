@@ -21,7 +21,6 @@
  */
 "use strict";
 module.exports = function( Promise ) {
-
     var util = require( "./util.js" );
     var async = require( "./async.js" );
     var ASSERT = require( "./assert.js" );

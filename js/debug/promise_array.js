@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 "use strict";
+module.exports = function( Promise ) {
 var ASSERT = require("./assert.js");
-var Promise = require("./get_promise").get();
 var ensureNotHandled = require( "./errors.js").ensureNotHandled;
 var util = require("./util.js");
 var async = require( "./async.js");
@@ -232,4 +232,5 @@ function PromiseArray$_promiseRejected( reason ) {
     this._reject( reason );
 };
 
-module.exports = PromiseArray;
+return PromiseArray;
+};

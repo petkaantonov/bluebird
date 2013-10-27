@@ -20,8 +20,9 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, Promise$_All ) {
-    var AnyPromiseArray = require( "./any_promise_array.js" );
+module.exports = function( Promise, Promise$_All, PromiseArray ) {
+
+    var AnyPromiseArray = require( "./any_promise_array.js" )(PromiseArray);
 
     function Promise$_Any( promises, useBound, caller ) {
         return Promise$_All(

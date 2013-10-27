@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 "use strict";
+module.exports = function( PromiseArray ) {
 var ASSERT = require("./assert.js");
-var PromiseArray = require( "./promise_array.js" );
 var util = require("./util.js");
 var inherits = util.inherits;
 function AnyPromiseArray( values, caller, boundTo ) {
@@ -51,4 +51,5 @@ function AnyPromiseArray$_promiseRejected( reason, index ) {
 
 };
 
-module.exports = AnyPromiseArray;
+return AnyPromiseArray;
+};

@@ -316,7 +316,5 @@ module.exports = function( Promise ) {
         return true;
     };
 
-
     Promise._cast = Promise$_Cast;
 };
-

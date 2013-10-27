@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 "use strict";
-var Promise = require("./get_promise.js").get();
+module.exports = function( Promise ) {
 var errors = require( "./errors.js" );
 var TypeError = errors.TypeError;
 var ensureNotHandled = errors.ensureNotHandled;
@@ -91,4 +91,5 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
     );
 };
 
-module.exports = PromiseSpawn;
+return PromiseSpawn;
+};

@@ -20,11 +20,10 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
-    var PromiseSpawn = require( "./promise_spawn.js" );
+module.exports = function( Promise, apiRejection ) {
+    var PromiseSpawn = require( "./promise_spawn.js" )(Promise);
     var errors = require( "./errors.js");
     var TypeError = errors.TypeError;
-    var apiRejection = errors.apiRejection;
 
     Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
          if( typeof generatorFunction !== "function" ) {

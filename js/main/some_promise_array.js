@@ -20,10 +20,11 @@
  * THE SOFTWARE.
  */
 "use strict";
-var PromiseArray = require( "./promise_array.js" );
+module.exports = function ( PromiseArray ) {
 var util = require("./util.js");
 var inherits = util.inherits;
 var isArray = util.isArray;
+
 function SomePromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );
     this._howMany = 0;
@@ -105,4 +106,5 @@ function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
 
-module.exports = SomePromiseArray;
+return SomePromiseArray;
+};
