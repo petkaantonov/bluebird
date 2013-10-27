@@ -47,6 +47,14 @@ Then:
 ```js
 var Promise = require("bluebird");
 ```
+
+If you want to ensure you get your own fresh copy of bluebird, do instead:
+
+```js
+                                        //Note the extra function call
+var Promise = require("bluebird/js/main/promise")();
+```
+
 ##Browsers
 
 Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/js/browser) file. And then use a script tag:
