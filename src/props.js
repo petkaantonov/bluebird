@@ -1,6 +1,7 @@
 "use strict";
-module.exports = function( Promise ) {
-    var PropertiesPromiseArray = require( "./properties_promise_array.js" );
+module.exports = function( Promise, PromiseArray ) {
+    var PropertiesPromiseArray = require("./properties_promise_array.js")(
+        Promise, PromiseArray);
     var util = require( "./util.js" );
     var isPrimitive = util.isPrimitive;
 
@@ -36,5 +37,3 @@ module.exports = function( Promise ) {
         return Promise$_Props( promises, DONT_USE_BOUND, Promise.props );
     };
 };
-
-

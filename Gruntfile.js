@@ -8,6 +8,26 @@ Q.longStackSupport = true;
 
 module.exports = function( grunt ) {
 
+    var optionalModuleDependencyMap = {
+        "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
+        "call_get.js": ['Promise'],
+        "filter.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "generators.js": ['Promise', 'apiRejection'],
+        "map.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "nodeify.js": ['Promise'],
+        "promisify.js": ['Promise'],
+        "props.js": ['Promise', 'PromiseArray'],
+        "reduce.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "settle.js": ['Promise', 'Promise$_All', 'PromiseArray'],
+        "some.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "progress.js": ['Promise'],
+        "cancel.js": ['Promise'],
+        "simple_thenables.js": ['Promise'],
+        "complex_thenables.js": ['Promise'],
+        "synchronous_inspection.js": ['Promise']
+
+    };
+
     var optionalModuleRequireMap = {
         "any.js": true,
         "call_get.js": true,
@@ -29,12 +49,12 @@ module.exports = function( grunt ) {
     };
 
     function getOptionalRequireCode( srcs ) {
-        return srcs.reduce(function(ret, cur){
+        return srcs.reduce(function(ret, cur, i){
             if( optionalModuleRequireMap[cur] ) {
-                ret += "require('./"+cur+"')(Promise, Promise$_All);\n";
+                ret += "require('./"+cur+"')("+ optionalModuleDependencyMap[cur] +");\n";
             }
             return ret;
-        }, "") + "\nPromise.prototype = Promise.prototype;\n";
+        }, "") + "\nPromise.prototype = Promise.prototype;\nreturn Promise;\n";
     }
 
     function getBrowserBuildHeader( sources ) {
@@ -62,7 +82,7 @@ module.exports = function( grunt ) {
     }
 
     function applyOptionalRequires( src, optionalRequireCode ) {
-        return src + optionalRequireCode;
+        return src + src.replace( /};([^}]*)$/, optionalRequireCode + "\n};$1");
     }
 
     var CONSTANTS_FILE = './src/constants.js';
@@ -399,11 +419,11 @@ module.exports = function( grunt ) {
         "./src/bluebird.js",
         "./src/assert.js",
         "./src/global.js",
-        "./src/get_promise.js",
         "./src/util.js",
         "./src/schedule.js",
         "./src/queue.js",
         "./src/errors.js",
+        "./src/errors_api_rejection.js",
         "./src/captured_trace.js",
         "./src/async.js",
         "./src/catch_filter.js",

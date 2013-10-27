@@ -1,8 +1,7 @@
 "use strict";
-module.exports = function( Promise, Promise$_All ) {
-    var errors = require( "./errors.js" );
-    var apiRejection = errors.apiRejection;
-    var SomePromiseArray = require( "./some_promise_array.js" );
+module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
+
+    var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
     var ASSERT = require( "./assert.js" );
 
     function Promise$_Some( promises, howMany, useBound, caller ) {
@@ -27,5 +26,5 @@ module.exports = function( Promise, Promise$_All ) {
     Promise.prototype.some = function Promise$some( count ) {
         return Promise$_Some( this, count, USE_BOUND, this.some );
     };
-};
 
+};

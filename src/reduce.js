@@ -1,10 +1,7 @@
 "use strict";
-module.exports = function( Promise, Promise$_All ) {
+module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
 
     var ASSERT = require( "./assert.js" );
-    var errors = require( "./errors.js");
-    var PromiseArray = require( "./promise_array.js" );
-    var apiRejection = errors.apiRejection;
 
     function Promise$_reducer( fulfilleds, initialValue ) {
         var fn = this;

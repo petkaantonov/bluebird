@@ -1,9 +1,9 @@
 "use strict";
-var PromiseArray = require( "./promise_array.js" );
+// the PromiseArray to use with Promise.some method
+module.exports = function ( PromiseArray ) {
 var util = require("./util.js");
 var inherits = util.inherits;
 var isArray = util.isArray;
-// the PromiseArray to use with Promise.some method
 
 function SomePromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );
@@ -91,4 +91,5 @@ function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
 
-module.exports = SomePromiseArray;
+return SomePromiseArray;
+};

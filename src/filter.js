@@ -1,9 +1,6 @@
 "use strict";
-module.exports = function( Promise, Promise$_All ) {
+module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
 
-    var errors = require( "./errors.js");
-    var apiRejection = errors.apiRejection;
-    var PromiseArray = require( "./promise_array.js" );
     var ASSERT = require( "./assert.js" );
 
     function Promise$_filterer( fulfilleds ) {
