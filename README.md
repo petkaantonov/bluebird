@@ -108,7 +108,7 @@ readFile("file.json").then(JSON.parse).then(function(val) {
 });
 ```
 
-Actually you might notice the latter has a lot of in common with code that would do the same using synchronous I/O:
+Actually you might notice the latter has a lot in common with code that would do the same using synchronous I/O:
 
 ```js
 try {
@@ -163,7 +163,7 @@ mapSeries(URLs, function (URL, done) {
 });
 ```
 
-Is more pleasant to the eys when done with promises:
+Is more pleasing to the eye when done with promises:
 
 ```js
 Promise.promisifyAll(needle);
