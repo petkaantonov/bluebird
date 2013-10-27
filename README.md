@@ -75,11 +75,126 @@ IE8 (ECMAS-262, edition 3) is supported if you include [es5-shim.js](https://git
 
 #What are promises and why should I use them?
 
-You should use promises to make robust asynchronous programming a joy.
+You should use promises to turn this:
 
-More info:
+```js
+readFile("file.json", function(err, val) {
+    if( err ) {
+        console.error("unable to read file");
+    }
+    else {
+        try {
+            val = JSON.parse(val);
+            console.log(val.success);
+        }
+        catch( e ) {
+            console.error("invalid json in file");
+        }
+    }
+});
+```
 
-- [You're missing the point of promises](http://domenic.me/2012/10/14/youre-missing-the-point-of-promises/).
+Into this:
+
+```js
+readFile("file.json").then(JSON.parse).then(function(val) {
+    console.log(val.success);
+})
+.catch(SyntaxError, function(e) {
+    console.error("invalid json in file");
+})
+.catch(function(e){
+    console.error("unable to read file")
+});
+```
+
+Actually you might notice the latter has a lot of in common with code that would do the same using synchronous I/O:
+
+```js
+try {
+    var val = JSON.parse(readFile("file.json"));
+    console.log(val.success);
+}
+//Syntax actually not supported in JS but drives the point
+catch(SyntaxError e) {
+    console.error("invalid json in file");
+}
+catch(Error e) {
+    console.error("unable to read file")
+}
+```
+
+And that is the point - being able to have something that is a lot like `return` and `throw` in synchronous code.
+
+You can also use promises to improve code that was written with callback helpers:
+
+
+```js
+//Copyright Plato http://stackoverflow.com/a/19385911/995876
+//CC BY-SA 2.5
+mapSeries(URLs, function (URL, done) {
+    var options = {};
+    needle.get(URL, options, function (error, response, body) {
+        if (error) {
+            return done(error)
+        }
+        try {
+            var ret = JSON.parse(body);
+            return done(null, ret);
+        }
+        catch (e) {
+            done(e);
+        }
+    });
+}, function (err, results) {
+    if (err) {
+        console.log(err)
+    } else {
+        console.log('All Needle requests successful');
+        // results is a 1 to 1 mapping in order of URLs > needle.body
+        processAndSaveAllInDB(results, function (err) {
+            if (err) {
+                return done(err)
+            }
+            console.log('All Needle requests saved');
+            done(null);
+        });
+    }
+});
+```
+
+Is more pleasant to the eys when done with promises:
+
+```js
+Promise.promisifyAll(needle);
+var options = {};
+
+var current = Promise.fulfilled();
+Promise.map(URLs, function(URL) {
+    current = current.then(function () {
+        return needle.getAsync(URL, options);
+    });
+    return current;
+}).map(function(responseAndBody){
+    return JSON.parse(responseAndBody[1]);
+}).then(function (results) {
+    return processAndSaveAllInDB(results);
+}).then(function(){
+    console.log('All Needle requests saved');
+}).catch(function (e) {
+    console.log(e);
+});
+```
+
+Also promises don't just give you correspodences for synchronous features but can also be used as limited event emitters or callback aggregators.
+
+More reading:
+
+ - [Promise nuggets](http://spion.github.io/promise-nuggets/)
+ - [Why I am switching to promises](http://spion.github.io/posts/why-i-am-switching-to-promises.html)
+ - [What is the the point of promises](http://domenic.me/2012/10/14/youre-missing-the-point-of-promises/#toc_1)
+ - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
+ - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 
 #Error handling
 
