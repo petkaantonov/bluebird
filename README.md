@@ -242,6 +242,77 @@ Long stack traces cannot be disabled after being enabled, and cannot be enabled 
 
 Long stack traces are enabled by default in the debug build.
 
+####Expected and unexpected errors
+
+A practical problem with Promises/A+ is that it models Javascript `try-catch` too closely for its own good. Therefore by default promises inherit `try-catch` warts such as the inability to specify the error types that the catch block is eligible for. It is an anti-pattern in every other language to use catch-all handlers because they swallow exceptions that you might not know about.
+
+Now, Javascript does have a perfectly fine and working way of creating error type hierarchies. It is still quite awkward to use them with the built-in `try-catch` however:
+
+```js
+try {
+    //code
+}
+catch(e) {
+    if( e instanceof WhatIWantError) {
+        //handle
+    }
+    else {
+        throw e;
+    }
+}
+```
+
+Without such checking, unexpected errors would be silently swallowed. However, with promises, bluebird brings the future (hopefully) here now and extends the `.catch` to accept potential error types.
+
+For instance here it is expected that some evil or incompetent entity will try to crash our server from `SyntaxError` by providing syntactically invalid JSON:
+
+```js
+getJSONFromSomewhere().then(function(jsonString) {
+    return JSON.parse(jsonString);
+}).then(function(object) {
+    console.log("it was valid json: ", object);
+}).catch(SyntaxError, function(e){
+    console.log("don't be evil");
+});
+```
+
+Here any kind of unexpected error will automatically reported on stderr along with a stack trace because we only register a handler for the expected `SyntaxError`.
+
+Ok, so, that's pretty neat. But actually not many libraries define error types and it's in fact a complete ghetto out there with ad hoc strings being attached as some arbitrary property name like `.name`, `.type`, `.code`, not having any property at all or even throwing strings as errors and so on. So how can we still listen for expected errors?
+
+Bluebird defines a special error type `RejectionError` (you can get a reference from `Promise.RejectionError`). This type of error is given as rejection reason by promisified methods when
+their underlying library gives an untyped, but expected error. Primitives such as strings, and error objects that are directly created like `new Error("database didn't respond")` are considered untyped.
+
+Example of such library is the node core library `fs`. So if we promisify it, we can catch just the errors we want pretty easily and have programmer errors be redirected to unhandled rejection handler so that we notice them:
+
+```js
+//Read more about promisification in the API Reference:
+//https://github.com/petkaantonov/bluebird/blob/master/API.md
+var fs = Promise.promisifyAll(require("fs"));
+
+fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
+    console.log("Successful json")
+}).catch(SyntaxError, function (e) {
+    console.error("file contains invalid json");
+}).catch(Promise.RejectionError, function (e) {
+    console.error("unable to read file, because: ", e.message);
+});
+```
+
+The last `catch` handler is only invoked when the `fs` module explicitly used the `err` argument convention of async callbacks to inform of an expected error. The `RejectionError` instance will contain the original error in its `.cause` property but it does have a direct copy of the `.message` and `.stack` too. In this code any unexpected error - be it in our code or the `fs` module - would not be caught by these handlers and therefore not swallowed.
+
+Since a `catch` handler typed to `Promise.RejectionError` is expected to be used very often, it has a neat shorthand:
+
+```js
+.error(function (e) {
+    console.error("unable to read file, because: ", e.message);
+});
+```
+
+See [API documentation for `.error()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#error-rejectedhandler----promise)
+
+<hr>
+
 ####How do long stack traces differ from e.g. Q?
 
 Bluebird attempts to have more elaborate traces. Consider:
@@ -298,6 +369,8 @@ Promise.fulfilled().then(function outer() {
 
 A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability).
 
+<hr>
+
 ####Can I use long stack traces in production?
 
 Probably yes. Bluebird uses multiple innovative techniques to optimize long stack traces. Even with long stack traces, it is still way faster than similarly featured implementations that don't have long stack traces enabled and about same speed as minimal implementations. A slowdown of 4-5x is expected, not 50x.
@@ -306,7 +379,7 @@ What techniques are used?
 
 #####V8 API second argument
 
-This technique utilizes the [slightly misleadingly documented](https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi#Stack_trace_collection_for_custom_exceptions) second argument of V8 `Error.captureStackTrace`. It turns out you can that the second argument can actually be used to make V8 skip all library internal stack frames [for free](https://github.com/v8/v8/blob/b5fabb9225e1eb1c20fd527b037e3f877296e52a/src/isolate.cc#L665). It only requires propagation of callers manually in library internals but this is not visible to you as user at all.
+This technique utilizes the [slightly under-documented](https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi#Stack_trace_collection_for_custom_exceptions) second argument of V8 `Error.captureStackTrace`. It turns out you can that the second argument can actually be used to make V8 skip all library internal stack frames [for free](https://github.com/v8/v8/blob/b5fabb9225e1eb1c20fd527b037e3f877296e52a/src/isolate.cc#L665). It only requires propagation of callers manually in library internals but this is not visible to you as user at all.
 
 Without this technique, every promise (well not every, see second technique) created would have to waste time creating and collecting library internal frames which will just be thrown away anyway. It also allows one to use smaller stack trace limits because skipped frames are not counted towards the limit whereas with collecting everything upfront and filtering afterwards would likely have to use higher limits to get more user stack frames in.
 
@@ -360,6 +433,8 @@ FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - process out of memory
 So the problem with this is how much absolute memory is used per promise - not whether long traces are enabled or not.
 
 For some purpose, let's say 100000 parallel pending promises in memory at the same time is the maximum. You would then roughly use 100MB for them instead of 10MB with stack traces disabled.For comparison, just creating 100000 functions alone will use 14MB if they're closures. All numbers can be halved for 32-bit node.
+
+<hr>
 
 #Development
 
