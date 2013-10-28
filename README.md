@@ -5,23 +5,11 @@
 
 #Introduction
 
-Bluebird is a full featured [promise](#what-are-promises-and-why-should-i-use-them) library with unmatched performance.
-
-Features:
-
-- [Promises A+ 3.x.x](https://github.com/promises-aplus/promises-spec)
-- [Promises A+ 2.x.x](https://github.com/domenic/promises-unwrapping)
-- [Cancellation](https://github.com/promises-aplus)
-- [Progression](https://github.com/promises-aplus/progress-spec)
-- [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
-- All, any, some, settle, map, reduce, spread, join...
-- [Unhandled rejections and long, relevant stack traces](#error-handling)
-- [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
-
-Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [promises_unwrapping](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/promises_unwrapping.js) (Just in time thenables), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
+Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance.
 
 #Topics
 
+- [Features](#features)
 - [Quick start](#quick-start)
 - [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 - [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
@@ -34,6 +22,23 @@ Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
 - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 - [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
+
+#Features:
+
+- [Promises A+ 3.x.x](https://github.com/promises-aplus/promises-spec)
+- [Promises A+ 2.x.x](https://github.com/domenic/promises-unwrapping)
+- [Cancellation](https://github.com/promises-aplus)
+- [Progression](https://github.com/promises-aplus/progress-spec)
+- [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
+- [`.bind`](https://github.com/petkaantonov/bluebird/blob/master/API.md#binddynamic-thisarg---promise)
+- [Complete parallel for C# 5.0 async and await](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
+- [Collection methods](https://github.com/petkaantonov/bluebird/blob/master/API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join...
+- [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
+- [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
+
+Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [promises_unwrapping](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/promises_unwrapping.js) (Just in time thenables), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
+
+<hr>
 
 #Quick start
 
@@ -262,7 +267,7 @@ catch(e) {
 }
 ```
 
-Without such checking, unexpected errors would be silently swallowed. However, with promises, bluebird brings the future (hopefully) here now and extends the `.catch` to accept potential error types.
+Without such checking, unexpected errors would be silently swallowed. However, with promises, bluebird brings the future (hopefully) here now and extends the `.catch` to [accept potential error type eligibility](https://github.com/petkaantonov/bluebird/blob/master/API.md#catchfunction-errorclass-function-handler---promise).
 
 For instance here it is expected that some evil or incompetent entity will try to crash our server from `SyntaxError` by providing syntactically invalid JSON:
 
@@ -278,7 +283,7 @@ getJSONFromSomewhere().then(function(jsonString) {
 
 Here any kind of unexpected error will automatically reported on stderr along with a stack trace because we only register a handler for the expected `SyntaxError`.
 
-Ok, so, that's pretty neat. But actually not many libraries define error types and it's in fact a complete ghetto out there with ad hoc strings being attached as some arbitrary property name like `.name`, `.type`, `.code`, not having any property at all or even throwing strings as errors and so on. So how can we still listen for expected errors?
+Ok, so, that's pretty neat. But actually not many libraries define error types and it is in fact a complete ghetto out there with ad hoc strings being attached as some arbitrary property name like `.name`, `.type`, `.code`, not having any property at all or even throwing strings as errors and so on. So how can we still listen for expected errors?
 
 Bluebird defines a special error type `RejectionError` (you can get a reference from `Promise.RejectionError`). This type of error is given as rejection reason by promisified methods when
 their underlying library gives an untyped, but expected error. Primitives such as strings, and error objects that are directly created like `new Error("database didn't respond")` are considered untyped.
