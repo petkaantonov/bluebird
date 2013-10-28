@@ -113,6 +113,8 @@ The above will only create 1 function identity and a context object and wasn't t
 
 Note that it isn't really about raw memory - I know you have plenty. It's about the additional GC work which uses CPU.
 
+<hr>
+
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
@@ -129,11 +131,15 @@ promptAsync("Which url to visit?").then(function(url){
 });
 ```
 
+<hr>
+
 #####`.catch(Function handler)` -> `Promise`
 
 This is a catch-all exception handler, shortcut for calling `.then(null, handler)` on this promise. Any exception happening in a `.then`-chain will propagate to nearest `.catch` handler.
 
 *For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
+
+<hr>
 
 #####`.catch([Function ErrorClass...], Function handler)` -> `Promise`
 
@@ -213,6 +219,8 @@ class MyCustomError extends Error
 
 *For compatibility with earlier ECMAScript version, an alias `.caught()` is provided for `.catch()`.*
 
+<hr>
+
 #####`.finally(Function handler)` -> `Promise`
 
 Pass a handler that will be called regardless of this promise's fate. Returns a new promise chained from this promise. There are special semantics for `.finally()` in that the final value cannot be modified from the handler.
@@ -258,6 +266,8 @@ Now the animation is hidden but an exception or the actual return value will aut
 The `.finally` works like [Q's finally method](https://github.com/kriskowal/q/wiki/API-Reference#promisefinallycallback).
 
 *For compatibility with earlier ECMAScript version, an alias `.lastly()` is provided for `.finally()`.*
+
+<hr>
 
 #####`.bind(dynamic thisArg)` -> `Promise`
 
@@ -403,9 +413,13 @@ Promise.fulfilled("my-element")
 
 The above does `console.log(document.getElementById("my-element"));`. The `.bind()`s are necessary because in browser neither of the methods can be called as a stand-alone function.
 
+<hr>
+
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
+
+<hr>
 
 #####`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )` -> `Promise`
 
@@ -428,17 +442,25 @@ Note about second argument: if it's specifically a true array, its values become
 
 *For compatibility with earlier ECMAScript version, an alias `Promise.attempt()` is provided for `Promise.try()`.*
 
+<hr>
+
 #####`Promise.fulfilled(dynamic value)` -> `Promise`
 
 Create a promise that is fulfilled with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
+
+<hr>
 
 #####`Promise.rejected(dynamic reason)` -> `Promise`
 
 Create a promise that is rejected with the given `reason`. The promise is synchronously rejected.
 
+<hr>
+
 #####`Promise.pending()` -> `PromiseResolver`
 
 Create a promise with undecided fate and return a `PromiseResolver` to control it. See [Promise resultion](#promise-resolution).
+
+<hr>
 
 #####`Promise.cast(dynamic value)` -> `Promise`
 
@@ -459,9 +481,13 @@ Promise.cast($.get("http://www.google.com")).then(function(){
 });
 ```
 
+<hr>
+
 #####`Promise.bind(dynamic thisArg)` -> `Promise`
 
 Sugar for `Promise.fulfilled(undefined).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
+
+<hr>
 
 #####`Promise.is(dynamic value)` -> `boolean`
 
@@ -471,6 +497,8 @@ See if `value` is a trusted Promise.
 Promise.is($.get("http://www.google.com")); //false
 Promise.is(Promise.cast($.get("http://www.google.com"))) //true
 ```
+
+<hr>
 
 #####`Promise.longStackTraces()` -> `void`
 
@@ -526,11 +554,15 @@ While with long stack traces disabled, you would get:
 
 On client side, long stack traces currently only work in Firefox and Chrome.
 
+<hr>
+
 ##Progression
 
 #####`.progressed(Function handler)` -> `Promise`
 
 Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
+
+<hr>
 
 ##Promise resolution
 
@@ -538,13 +570,19 @@ A `PromiseResolver` can be used to control the fate of a promise. It is like "De
 
 The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
 
+<hr>
+
 #####`.fulfill(dynamic value)` -> `undefined`
 
 Fulfill the underlying promise with `value` as the fulfillment value. If `value` is a trusted `Promise`, the underlying promise will instead follow that promise, adapting to its state.
 
+<hr>
+
 #####`.reject(dynamic reason)` -> `undefined`
 
 Reject the underlying promise with `reason` as the rejection reason.
+
+<hr>
 
 #####`.progress(dynamic value)` -> `undefined`
 
@@ -566,6 +604,8 @@ delay(500).then(function(ms){
     console.log(ms + " ms passed");
 });
 ```
+
+<hr>
 
 #####`.asCallback` -> `Function`
 
@@ -597,6 +637,8 @@ This example is an alternative to automatic promisification of node functions.
 The `asCallback` is actually an accessor property (except on legacy browsers where it's eager data property) - so save the result if you need to call it multiple times.
 
 This is more efficient way of promisification than using `new Promise`.
+
+<hr>
 
 ##Promisification
 
@@ -650,9 +692,13 @@ request("http://www.google.com").spread(function(request, body) {
 
 The above uses [request](https://github.com/mikeal/request) library which has a callback signature of multiple success values.
 
+<hr>
+
 #####`Promise.promisify(Object target)` -> `Object`
 
 This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
+
+<hr>
 
 #####`Promise.promisifyAll(Object target)` -> `Object`
 
@@ -703,6 +749,8 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
+
+<hr>
 
 #####`.error( [rejectedHandler] )` -> `Promise`
 
@@ -762,6 +810,8 @@ And if the `fs` module causes an error like file not found:
 unable to read file, because:  ENOENT, open 'not_there.txt'
 ```
 
+<hr>
+
 ##Collections
 
 Methods of `Promise` instances and core static methods of the Promise class to deal with
@@ -771,21 +821,31 @@ collections of promises or mixed promises and values.
 
 Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
+<hr>
+
 #####`.props()` -> `Promise`
 
 Same as calling [Promise.props\(thisPromise\)](#promisepropsobject-object---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+<hr>
 
 #####`.settle()` -> `Promise`
 
 Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
+<hr>
+
 #####`.any()` -> `Promise`
 
 Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
+<hr>
+
 #####`.some(int count)` -> `Promise`
 
 Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+<hr>
 
 #####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
@@ -809,13 +869,19 @@ Promise.all([task1, task2, task3]).then(function(results){
 
 This is useful when the `results` array contains items that are not conceptually items of the same list.
 
+<hr>
+
 #####`.map(Function mapper)` -> `Promise`
 
 Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamic-values-function-mapper---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
+<hr>
+
 #####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
 Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+<hr>
 
 #####`.filter(Function filterer)` -> `Promise`
 
@@ -851,6 +917,8 @@ Promise.prototype.settledWithFulfill = function() {
 };
 ```
 
+<hr>
+
 #####`Promise.all(Array<dynamic>|Promise values)` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are fulfilled. The promise's fulfillment value is an array with fulfillment values at respective positions to the original array. If any promise in the array rejects, the returned promise is rejected with the rejection reason.
@@ -871,6 +939,8 @@ Promise.all([getPictures(), getComments(), getTweets()].then(function(results){
 See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
+
+<hr>
 
 #####`Promise.props(Object|Promise object)` -> `Promise`
 
@@ -899,15 +969,21 @@ Promise.all([getPictures(), getComments(), getTweets()])
 
 *The original object is not modified.*
 
+<hr>
+
 #####`Promise.settle(Array<dynamic>|Promise values)` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#inspect---promiseinspection) instances at respective positions in relation to the input array.
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
 
+<hr>
+
 #####`Promise.any(Array<dynamic>|Promise values)` -> `Promise`
 
 Like [`Promise.some\(\)`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
+
+<hr>
 
 #####`Promise.some(Array<dynamic>|Promise values, int count)` -> `Promise`
 
@@ -930,6 +1006,8 @@ If too many promises are rejected so that the promise can never become fulfilled
 
 *The original array is not modified.*
 
+<hr>
+
 #####`Promise.join([dynamic value...])` -> `Promise`
 
 Like [`Promise.all\(\)`](#promiseallarraydynamic-values---promise) but instead of having to pass an array, the array is generated from the passed variadic arguments.
@@ -950,6 +1028,8 @@ Promise.join(a, b).spread(function(aResult, bResult) {
 });
 ```
 
+<hr>
+
 #####`Promise.map(Array<dynamic>|Promise values, Function mapper)` -> `Promise`
 
 Map an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
@@ -960,6 +1040,8 @@ If the `mapper` function returns promises, the returned promise will wait for al
 
 *The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.*
 
+<hr>
+
 #####`Promise.reduce(Array<dynamic>|Promise values, Function reducer [, dynamic initialValue])` -> `Promise`
 
 Reduce an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, current, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
@@ -968,6 +1050,8 @@ Reduce an array, or a promise of an array, which contains a promises (or a mix o
 
 *The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
 
+<hr>
+
 #####`Promise.filter(Array<dynamic>|Promise values, Function filterer)` -> `Promise`
 
 Filter an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `filterer` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
@@ -975,6 +1059,8 @@ Filter an array, or a promise of an array, which contains a promises (or a mix o
 [See the instance method `.filter()` for an example.](#filterfunction-filterer---promise)
 
 *The original array is not modified. Sparse array holes are not visited.
+
+<hr>
 
 ##Cancellation
 
@@ -997,6 +1083,8 @@ function ajaxGetAsync(url) {
 }
 ```
 
+<hr>
+
 #####`.cancel()` -> `Promise`
 
 Cancel this promise. The cancellation will propagate
@@ -1013,19 +1101,27 @@ the cancellability of a promise before handing it out to a
 client, call `.uncancellable()` which returns an uncancellable
 promise.
 
+<hr>
+
 #####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but cancellation of the the returned promise
 or any of its descendant will not propagate cancellation
 to this promise or this promise's ancestors.
 
+<hr>
+
 #####`.uncancellable()` -> `Promise`
 
-Create an uncancellable promise based on this promise
+Create an uncancellable promise based on this promise.
+
+<hr>
 
 #####`.isCancellable()` -> `boolean`
 
 See if this promise can be cancelled.
+
+<hr>
 
 ##Synchronous inspection
 
@@ -1055,21 +1151,31 @@ if(inspection.isFulfilled()){
 }
 ```
 
+<hr>
+
 #####`.isFulfilled()` -> `boolean`
 
 See if this `promise` has been fulfilled.
+
+<hr>
 
 #####`.isRejected()` -> `boolean`
 
 See if this `promise` has been rejected.
 
+<hr>
+
 #####`.isPending()` -> `boolean`
 
 See if this `promise` is still pending.
 
+<hr>
+
 #####`.isResolved()` -> `boolean`
 
 See if this `promise` is resolved -> either fulfilled or rejected.
+
+<hr>
 
 #####`.inspect()` -> `PromiseInspection`
 
@@ -1095,6 +1201,7 @@ Get the fulfillment value of the underlying promise. Throws if the promise wasn'
 
 Get the rejection reason for the underlying promise. Throws if the promise wasn't rejected at the creation time of this inspection object.
 
+<hr>
 
 ##Utility
 
@@ -1110,6 +1217,8 @@ promise.then(function(obj){
 });
 ```
 
+<hr>
+
 #####`.get(String propertyName)` -> `Promise`
 
 This is a convenience method for doing:
@@ -1119,6 +1228,8 @@ promise.then(function(obj){
     return obj[propertyName];
 });
 ```
+
+<hr>
 
 #####`.nodeify([Function callback])` -> `Promise`
 
@@ -1157,12 +1268,17 @@ getDataFor("me", function(err, dataForMe) {
 
 There is no effect on peformance if the user doesn't actually pass a node-style callback function.
 
+<hr>
 
 #####`.toString()` -> `String`
+
+<hr>
 
 #####`.toJSON()` -> `Object`
 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
+
+<hr>
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 
@@ -1217,6 +1333,8 @@ When called, the coroutine function will start an instance of the generator and 
 
 Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
 
+<hr>
+
 #####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
 
 Spawn a coroutine which may yield promises to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
@@ -1263,6 +1381,8 @@ room.addUser(2);
 
 In the above example, all the methods of `ChatRoom` can avoid the `var self = this` prologue and just use `this` normally inside the generator.
 
+<hr>
+
 #####`Promise.noConflict()` -> `Object`
 
 This is relevant to browser environments with no module loader.
@@ -1282,6 +1402,8 @@ var promise = Bluebird.cast(new Promise());
 </script>
 ```
 
+<hr>
+
 #####`Promise.onPossiblyUnhandledRejection(Function handler)` -> `undefined`
 
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
@@ -1293,3 +1415,5 @@ Promise.onPossiblyUnhandledRejection(function(e, promise){
 ```
 
 Passing no value or a non-function will have the effect of removing any kind of handling for possibly unhandled rejections.
+
+<hr>
