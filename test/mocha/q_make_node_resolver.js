@@ -51,7 +51,7 @@ describe("PromiseResolver.asCallback", function () {
         var exception = new Error("Holy Exception of Anitoch");
         resolver.asCallback(exception);
         resolver.promise.then(assert.fail, function (_exception) {
-            assert( exception === _exception );
+            assert( exception === _exception.cause );
             done();
         });
     });

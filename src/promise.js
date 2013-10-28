@@ -24,6 +24,7 @@ var tryCatchApply = util.tryCatchApply;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
+var RejectionError = errors.RejectionError;
 var ensureNotHandled = errors.ensureNotHandled;
 var withHandledMarked = errors.withHandledMarked;
 var withStackAttached = errors.withStackAttached;
@@ -1135,4 +1136,6 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+Promise.RejectionError = RejectionError;
+
 };

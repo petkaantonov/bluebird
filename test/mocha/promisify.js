@@ -7,6 +7,7 @@ var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
+var RejectionError = Promise.RejectionError;
 
 var erroneusNode = function(a, b, c, cb) {
     setTimeout(function(){
@@ -15,7 +16,7 @@ var erroneusNode = function(a, b, c, cb) {
 };
 
 var sentinel = {};
-var sentinelError = new Error();
+var sentinelError = new RejectionError();
 
 var successNode = function(a, b, c, cb) {
     setTimeout(function(){
@@ -43,7 +44,7 @@ var syncSuccessNodeMultipleValues = function(a, b, c, cb) {
 
 var errToThrow;
 var thrower = Promise.promisify(function(a, b, c, cb) {
-    errToThrow = new Error();
+    errToThrow = new RejectionError();
     throw errToThrow;
 });
 
@@ -538,3 +539,84 @@ if( Promise.hasLongStackTraces() ) {
         });
     });
 }
+
+describe("RejectionError wrapping", function() {
+
+    var CustomError = function(){
+
+    }
+    CustomError.prototype = Object.create(Error.prototype);
+
+    function stringback(cb) {
+        cb("Primitive as error");
+    }
+
+    function errback(cb) {
+        cb(new Error("error as error"));
+    }
+
+    function typeback(cb) {
+        cb(new CustomError());
+    }
+
+    function stringthrow(cb) {
+        throw("Primitive as error");
+    }
+
+    function errthrow(cb) {
+        throw(new Error("error as error"));
+    }
+
+    function typethrow(cb) {
+        throw(new CustomError());
+    }
+
+    stringback = Promise.promisify(stringback);
+    errback = Promise.promisify(errback);
+    typeback = Promise.promisify(typeback);
+    stringthrow = Promise.promisify(stringthrow);
+    errthrow = Promise.promisify(errthrow);
+    typethrow = Promise.promisify(typethrow);
+
+    specify("should wrap stringback", function(done) {
+        stringback().error(function(e) {
+            assert(e instanceof RejectionError);
+            done();
+        });
+    });
+
+    specify("should wrap errback", function(done) {
+        errback().error(function(e) {
+            assert(e instanceof RejectionError);
+            done();
+        });
+    });
+
+    specify("should not wrap typeback", function(done) {
+        typeback().error(assert.fail)
+            .caught(CustomError, function(e){
+                done();
+            });
+    });
+
+    specify("should not wrap stringthrow", function(done) {
+        stringthrow().error(assert.fail).caught(function(e){
+            assert(e instanceof Error);
+            done();
+        });
+    });
+
+    specify("should not wrap errthrow", function(done) {
+        errthrow().error(assert.fail).caught(function(e) {
+            assert(e instanceof Error);
+            done();
+        });
+    });
+
+    specify("should not wrap typethrow", function(done) {
+        typethrow().error(assert.fail)
+            .caught(CustomError, function(e){
+                done();
+            });
+    });
+});

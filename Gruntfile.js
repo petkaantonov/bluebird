@@ -138,6 +138,7 @@ module.exports = function( grunt ) {
         var rconstantname = /CONSTANT\(\s*([^,]+)/g;
         var m;
         var globals = {
+            Error: true,
             TypeError: true,
             __DEBUG__: false,
             __BROWSER__: false,

@@ -1,10 +1,45 @@
 "use strict";
 var util = require( "./util.js" );
+var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require( "./errors.js");
 var TimeoutError = errors.TimeoutError;
+var RejectionError = errors.RejectionError;
 var async = require( "./async.js" );
 var haveGetters = util.haveGetters;
-var nodebackForResolver = util.nodebackForResolver;
+
+function isUntypedError( obj ) {
+    return obj instanceof Error &&
+        Object.getPrototypeOf( obj ) === Error.prototype;
+}
+
+function wrapAsRejectionError( obj ) {
+    if( isUntypedError( obj ) ) {
+        return new RejectionError( obj );
+    }
+    return obj;
+}
+
+function nodebackForResolver( resolver ) {
+    function PromiseResolver$_callback( err, value ) {
+        if( err ) {
+            resolver.reject( wrapAsRejectionError( maybeWrapAsError( err ) ) );
+        }
+        else {
+            if( arguments.length > 2 ) {
+                var len = arguments.length;
+                var val = new Array( len - 1 );
+                for( var i = 1; i < len; ++i ) {
+                    val[ i - 1 ] = arguments[ i ];
+                }
+
+                value = val;
+            }
+            resolver.fulfill( value );
+        }
+    }
+    return PromiseResolver$_callback;
+}
+
 
 /**
  * Wraps a promise object and can be used to control
@@ -34,6 +69,8 @@ if( haveGetters ) {
         }
     });
 }
+
+PromiseResolver._nodebackForResolver = nodebackForResolver;
 
 /**
  * @return {string}

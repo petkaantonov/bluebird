@@ -8,7 +8,14 @@ var Promise2 = require( "../../js/debug/promise.js")();
 var err1 = new Error();
 var err2 = new Error();
 
-describe("Separate instances of bluebird", function(){
+describe("Separate instances of bluebird", function() {
+
+    specify("Should have identical Error types", function( done ) {
+        assert( Promise1.CancellationError === Promise2.CancellationError );
+        assert( Promise1.RejectionError === Promise2.RejectionError );
+        assert( Promise1.TimeoutError === Promise2.TimeoutError );
+        done();
+    });
 
     specify("Should not be identical", function( done ) {
         assert( Promise1.onPossiblyUnhandledRejection !==
