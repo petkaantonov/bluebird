@@ -515,7 +515,7 @@ Custom builds for browsers are supported through a command-line utility.
     </thead>
     <tbody>
 
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#any---promise"><code>.any</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any()</code></a></td><td><code>any</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#any---promise"><code>.any</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any</code></a></td><td><code>any</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#callstring-propertyname--dynamic-arg---promise"><code>.call</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#getstring-propertyname---promise"><code>.get</code></a></td><td><code>call_get</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#filterfunction-filterer---promise"><code>.filter</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisefilterarraydynamicpromise-values-function-filterer---promise"><code>Promise.filter</code></a></td><td><code>filter</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#mapfunction-mapper---promise"><code>.map</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisemaparraydynamicpromise-values-function-mapper---promise"><code>Promise.map</code></a></td><td><code>map</code></td></tr>
@@ -542,11 +542,11 @@ After that you can run:
     grunt build --features="core simple_thenables"
 
 
-The above builds the minimal build you can get. You can add more features separated by spaces from the above list:
+The above builds the most minimal build you can get. You can add more features separated by spaces from the above list:
 
     grunt build --features="core simple_thenables filter map reduce"
 
-The custom build file will be found from `/js/browser/bluebird.js`. It will have a comment that lists the disabled and enabled feautures.
+The custom build file will be found from `/js/browser/bluebird.js`. It will have a comment that lists the disabled and enabled features.
 
 Note that the build leaves the `/js/main` etc folders with same features so if you use the folder for node.js at the same time, don't forget to build
 a full version afterwards (after having taken a copy of the bluebird.js somewhere):
@@ -570,10 +570,10 @@ request is complete.
 
 However the specification in A+ 2.x.x requires handling of many theoretical edge cases that will never be seen in practice, such as:
 
-    - Trying to retrieve the `.then` property from object to see if it's a function might throw.
-    - Retrieving `.then` property multiple times from an object might return different result every time, or might be deleted after some time
-    - Calling the `.then` property of an object before necessary (just in time thenables) might cause problems
-    - etc.
+- Trying to retrieve the `.then` property from object to see if it's a function might throw.
+- Retrieving `.then` property multiple times from an object might return different result every time, or might be deleted after some time
+- Calling the `.then` property of an object before necessary (just in time thenables) might cause problems
+- etc.
 
 What you want in a browser is pretty much that the `return $.get` line works. Can you imagine jQuery defining a getter on `.then` property that throws?
 
