@@ -716,7 +716,9 @@ somePromise.catch(Promise.RejectionError, function(e){
 
 If a promisified function errbacks the node-style callback with an untyped error or a primitive, it will be automatically wrapped as `RejectionError` which has `.cause` property storing the original error. This is essentially providing separation between expected errors and unexpected errors.
 
-You might want to handle just the `SyntaxError` from JSON.parse and Filesystem errors from `fs` but let programmer errors bubble as unhandled rejections:
+This method is expected to be used when wrapping libraries such as `fs` that don't use typed errors. If a library provides typed errors when an expected error happens, you can just use typed catches for them.
+
+In the following example you might want to handle just the `SyntaxError` from JSON.parse and Filesystem errors from `fs` but let programmer errors bubble as unhandled rejections:
 
 ```js
 var fs = Promise.promisifyAll(require("fs"));
