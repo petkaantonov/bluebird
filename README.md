@@ -333,9 +333,9 @@ Everytime you call this function it creates 4 promises and in a straight-forward
 After a stack trace has been collected on an object, one must be careful not to reference the `.stack` property until necessary. Referencing the property causes
 an expensive format call and the stack property is turned into a string which uses much more memory.
 
-What about #111?
+What about [Q #111](https://github.com/kriskowal/q/issues/111)?
 
-Long stack traces is not inherently the problem. For example with latest Q:
+Long stack traces is not inherently the problem. For example with latest Q with stack traces disabled:
 
 ```js
 var Q = require("q");
@@ -359,9 +359,7 @@ FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - process out of memory
 
 So the problem with this is how much absolute memory is used per promise - not whether long traces are enabled or not.
 
-For general purpose, let's say 100000 pending promises in memory at the same time is the maximum. You would then roughly use 100MB for them instead of 10MB with stack traces disabled. For comparison, just creating 100000 functions alone will use 14MB if they're closures and this number is very easy to reach if you don't hoist functions. All numbers can be halved for 32-bit node.
-
-
+For some purpose, let's say 100000 parallel pending promises in memory at the same time is the maximum. You would then roughly use 100MB for them instead of 10MB with stack traces disabled.For comparison, just creating 100000 functions alone will use 14MB if they're closures. All numbers can be halved for 32-bit node.
 
 #Development
 
