@@ -16,13 +16,18 @@
     - [`Promise.bind(dynamic thisArg)`](#promisebinddynamic-thisarg---promise)
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
+- [Progression](#progression)
+    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Promise resolution](#promise-resolution)
     - [`.fulfill(dynamic value)`](#fulfilldynamic-value---undefined)
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.asCallback`](#ascallback---function)
-- [Progression](#progression)
-    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
+- [Promisification](#promisification)
+    - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
+    - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
+    - [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
+    - [`.error( [rejectedHandler] )`](#error-rejectedhandler----promise)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -59,9 +64,6 @@
     - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
     - [`.toString()`](#tostring---string)
     - [`.toJSON()`](#tojson---object)
-    - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
-    - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
-    - [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
     - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
     - [`Promise.spawn(GeneratorFunction generatorFunction)`](#promisespawngeneratorfunction-generatorfunction---promise)
     - [`Promise.noConflict()`](#promisenoconflict---object)
@@ -596,6 +598,168 @@ The `asCallback` is actually an accessor property (except on legacy browsers whe
 
 This is more efficient way of promisification than using `new Promise`.
 
+##Promisification
+
+#####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
+
+Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
+
+If the `nodeFunction` calls its callback with multiple success values, the fulfillment value will be an array of them.
+
+If you pass a `receiver`, the `nodeFunction` will be called as a method on the `receiver`.
+
+Example of promisifying the asynchronous `readFile` of node.js `fs`-module:
+
+```js
+var readFile = Promise.promisify(require("fs").readFile);
+
+readFile("myfile.js", "utf8").then(function(contents){
+    return eval(contents);
+}).then(function(result){
+    console.log("The result of evaluating myfile.js", result);
+}).catch(SyntaxError, function(e){
+    console.log("File had syntax error", e);
+//Catch any other error
+}).catch(function(e){
+    console.log("Error reading file", e);
+});
+```
+
+Note that if the node function is a method of some object, you need to pass the object as the second argument like so:
+
+```js
+var redisGet = Promise.promisify(redisClient.get, redisClient);
+redisGet.then(function(){
+    //...
+});
+```
+
+**Tip**
+
+Use [`.spread`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) with APIs that have multiple success values:
+
+```js
+var Promise = require("bluebird");
+var request = Promise.promisify(require('request'));
+request("http://www.google.com").spread(function(request, body) {
+    console.log(body);
+}).catch(function(err) {
+    console.error(err);
+});
+```
+
+The above uses [request](https://github.com/mikeal/request) library which has a callback signature of multiple success values.
+
+#####`Promise.promisify(Object target)` -> `Object`
+
+This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
+
+#####`Promise.promisifyAll(Object target)` -> `Object`
+
+Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+
+Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
+
+Example:
+
+```js
+Promise.promisifyAll(RedisClient.prototype);
+
+//Later on, all redis client instances have promise returning functions:
+
+redisClient.hexistsAsync("myhash", "field").then(function(v){
+
+}).catch(function(e){
+
+});
+```
+
+If you don't want to write on foreign prototypes, you can sub-class the target and promisify your subclass:
+
+```js
+function MyRedisClient() {
+    RedisClient.apply(this, arguments);
+}
+MyRedisClient.prototype = Object.create(RedisClient.prototype);
+MyRedisClient.prototype.constructor = MyRedisClient;
+Promise.promisify(MyRedisClient.prototype);
+```
+
+The promisified methods will be written on the `MyRedisClient.prototype` instead. This specific example doesn't actually work with `node_redis` because the `createClient` factory is hardcoded to instantiate `RedisClient` from closure.
+
+
+It also works on singletons or specific instances:
+
+```js
+var fs = Promise.promisifyAll(require("fs"));
+
+fs.readFileAsync("myfile.js", "utf8").then(function(contents){
+    console.log(contents);
+}).catch(function(e){
+    console.error(e.stack);
+});
+```
+
+The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
+
+If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
+
+#####`.error( [rejectedHandler] )` -> `Promise`
+
+Sugar method for:
+
+```js
+somePromise.catch(Promise.RejectionError, function(e){
+
+});
+```
+
+If a promisified function errbacks the node-style callback with an untyped error or a primitive, it will be automatically wrapped as `RejectionError` which has `.cause` property storing the original error. This is essentially providing separation between expected errors and unexpected errors.
+
+You might want to handle just the `SyntaxError` from JSON.parse and Filesystem errors from `fs` but let programmer errors bubble as unhandled rejections:
+
+```js
+var fs = Promise.promisifyAll(require("fs"));
+
+fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
+    console.log("Successful json")
+}).catch(SyntaxError, function (e) {
+    console.error("file contains invalid json");
+}).error(function (e) {
+    console.error("unable to read file, because: ", e.message);
+});
+```
+
+Now, because there is no catch-all handler, if you typed `console.lag` (causes an error you don't expect), you will see:
+
+```
+Possibly unhandled TypeError: Object #<Console> has no method 'lag'
+    at application.js:8:13
+From previous event:
+    at Object.<anonymous> (application.js:7:4)
+    at Module._compile (module.js:449:26)
+    at Object.Module._extensions..js (module.js:467:10)
+    at Module.load (module.js:349:32)
+    at Function.Module._load (module.js:305:12)
+    at Function.Module.runMain (module.js:490:10)
+    at startup (node.js:121:16)
+    at node.js:761:3
+```
+
+*( If you don't get the above - you need to enable [long stack traces](#promiselongstacktraces---void) )*
+
+And if the file contains invalid JSON:
+
+```
+file contains invalid json
+```
+
+And if the `fs` module causes an error like file not found:
+
+```
+unable to read file, because:  ENOENT, open 'not_there.txt'
+```
+
 ##Collections
 
 Methods of `Promise` instances and core static methods of the Promise class to deal with
@@ -997,111 +1161,6 @@ There is no effect on peformance if the user doesn't actually pass a node-style 
 #####`.toJSON()` -> `Object`
 
 This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
-
-
-#####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
-
-Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
-
-If the `nodeFunction` calls its callback with multiple success values, the fulfillment value will be an array of them.
-
-If you pass a `receiver`, the `nodeFunction` will be called as a method on the `receiver`.
-
-Example of promisifying the asynchronous `readFile` of node.js `fs`-module:
-
-```js
-var readFile = Promise.promisify(require("fs").readFile);
-
-readFile("myfile.js", "utf8").then(function(contents){
-    return eval(contents);
-}).then(function(result){
-    console.log("The result of evaluating myfile.js", result);
-}).catch(SyntaxError, function(e){
-    console.log("File had syntax error", e);
-//Catch any other error
-}).catch(function(e){
-    console.log("Error reading file", e);
-});
-```
-
-Note that if the node function is a method of some object, you need to pass the object as the second argument like so:
-
-```js
-var redisGet = Promise.promisify(redisClient.get, redisClient);
-redisGet.then(function(){
-    //...
-});
-```
-
-**Tip**
-
-Use [`.spread`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) with APIs that have multiple success values:
-
-```js
-var Promise = require("bluebird");
-var request = Promise.promisify(require('request'));
-request("http://www.google.com").spread(function(request, body) {
-    console.log(body);
-}).catch(function(err) {
-    console.error(err);
-});
-```
-
-The above uses [request](https://github.com/mikeal/request) library which has a callback signature of multiple success values.
-
-#####`Promise.promisify(Object target)` -> `Object`
-
-This overload has been **deprecated**. The overload will continue working for now. The recommended method for promisifying multiple methods at once is [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
-
-#####`Promise.promisifyAll(Object target)` -> `Object`
-
-Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
-
-Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
-
-Example:
-
-```js
-Promise.promisifyAll(RedisClient.prototype);
-
-//Later on, all redis client instances have promise returning functions:
-
-redisClient.hexistsAsync("myhash", "field").then(function(v){
-
-}).catch(function(e){
-
-});
-```
-
-If you don't want to write on foreign prototypes, you can sub-class the target and promisify your subclass:
-
-```js
-function MyRedisClient() {
-    RedisClient.apply(this, arguments);
-}
-MyRedisClient.prototype = Object.create(RedisClient.prototype);
-MyRedisClient.prototype.constructor = MyRedisClient;
-Promise.promisify(MyRedisClient.prototype);
-```
-
-The promisified methods will be written on the `MyRedisClient.prototype` instead. This specific example doesn't actually work with `node_redis` because the `createClient` factory is hardcoded to instantiate `RedisClient` from closure.
-
-
-It also works on singletons or specific instances:
-
-```js
-var fs = Promise.promisifyAll(require("fs"));
-
-fs.readFileAsync("myfile.js", "utf8").then(function(contents){
-    console.log(contents);
-}).catch(function(e){
-    console.error(e.stack);
-});
-```
-
-The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
-
-If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 
