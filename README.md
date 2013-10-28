@@ -296,11 +296,11 @@ Promise.fulfilled().then(function outer() {
         at Object.InjectedScript.evaluate (<anonymous>:450:21)
 
 
-A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability). (for `--error` and `--throw`, promises don't actually need to handle `--athrow` since that is something someone using a promises would never do)
+A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability).
 
 ####Can I use long stack traces in production?
 
-Probably yes. Bluebird uses multiple innovative techniques to optimize long stack traces. Even with long stack traces, it is still way faster than similarly featured implementations that don't have long stack traces enabled and about same speed as minimal implementations. A slowdown of 4-5x is expected, not 50x. Note also that's a 4-5x on something that is far faster than you will probably ever need.
+Probably yes. Bluebird uses multiple innovative techniques to optimize long stack traces. Even with long stack traces, it is still way faster than similarly featured implementations that don't have long stack traces enabled and about same speed as minimal implementations. A slowdown of 4-5x is expected, not 50x.
 
 What techniques are used?
 
