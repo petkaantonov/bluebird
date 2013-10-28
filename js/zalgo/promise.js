@@ -45,6 +45,7 @@ var tryCatchApply = util.tryCatchApply;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
+var RejectionError = errors.RejectionError;
 var ensureNotHandled = errors.ensureNotHandled;
 var withHandledMarked = errors.withHandledMarked;
 var withStackAttached = errors.withStackAttached;
@@ -937,7 +938,10 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
-};/**
+Promise.RejectionError = RejectionError;
+
+};
+/**
  * Copyright (c) 2013 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -984,6 +988,7 @@ var tryCatchApply = util.tryCatchApply;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
+var RejectionError = errors.RejectionError;
 var ensureNotHandled = errors.ensureNotHandled;
 var withHandledMarked = errors.withHandledMarked;
 var withStackAttached = errors.withStackAttached;
@@ -1876,6 +1881,8 @@ if( !CapturedTrace.isSupported() ) {
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
+Promise.RejectionError = RejectionError;
+
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_All,PromiseArray);
 require('./call_get.js')(Promise);

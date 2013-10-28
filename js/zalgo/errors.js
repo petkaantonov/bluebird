@@ -21,10 +21,12 @@
  */
 "use strict";
 var global = require("./global.js");
+var Objectfreeze = global.Object.freeze;
 var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;
 var notEnumerableProp = util.notEnumerableProp;
+var Error = global.Error;
 
 function isStackAttached( val ) {
     return ( val & 1 ) > 0;
@@ -98,10 +100,39 @@ if( typeof TypeError !== "function" ) {
 var CancellationError = subError( "CancellationError", "cancellation error" );
 var TimeoutError = subError( "TimeoutError", "timeout error" );
 
+function RejectionError( message ) {
+    this.name = "RejectionError";
+    this.message = message;
+    this.cause = message;
+
+    if( message instanceof Error ) {
+        this.message = message.message;
+        this.stack = message.stack;
+    }
+    else if( Error.captureStackTrace ) {
+        Error.captureStackTrace( this, this.constructor );
+    }
+
+}
+inherits( RejectionError, Error );
+
+var key = "__BluebirdErrorTypes__";
+var errorTypes = global[key];
+if( !errorTypes ) {
+    errorTypes = Objectfreeze({
+        CancellationError: CancellationError,
+        TimeoutError: TimeoutError,
+        RejectionError: RejectionError
+    });
+    notEnumerableProp( global, key, errorTypes );
+}
+
 module.exports = {
+    Error: Error,
     TypeError: TypeError,
-    CancellationError: CancellationError,
-    TimeoutError: TimeoutError,
+    CancellationError: errorTypes.CancellationError,
+    RejectionError: errorTypes.RejectionError,
+    TimeoutError: errorTypes.TimeoutError,
     attachDefaultState: attachDefaultState,
     ensureNotHandled: ensureNotHandled,
     withHandledUnmarked: withHandledUnmarked,

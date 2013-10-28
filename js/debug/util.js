@@ -160,27 +160,6 @@ function maybeWrapAsError( maybeError ) {
     return new Error( asString( maybeError ) );
 }
 
-function nodebackForResolver( resolver ) {
-    function PromiseResolver$_callback( err, value ) {
-        if( err ) {
-            resolver.reject( maybeWrapAsError( err ) );
-        }
-        else {
-            if( arguments.length > 2 ) {
-                var len = arguments.length;
-                var val = new Array( len - 1 );
-                for( var i = 1; i < len; ++i ) {
-                    val[ i - 1 ] = arguments[ i ];
-                }
-
-                value = val;
-            }
-            resolver.fulfill( value );
-        }
-    }
-    return PromiseResolver$_callback;
-}
-
 function withAppended( target, appendee ) {
     var len = target.length;
     var ret = new Array( len + 1 );
@@ -220,6 +199,5 @@ module.exports ={
     inherits: inherits,
     withAppended: withAppended,
     asString: asString,
-    maybeWrapAsError: maybeWrapAsError,
-    nodebackForResolver: nodebackForResolver
+    maybeWrapAsError: maybeWrapAsError
 };

@@ -100,9 +100,18 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
 };
 
 var captureStackTrace = (function stackDetection() {
+    function snip( str ) {
+        var maxChars = 41;
+        if( str.length < maxChars ) {
+            return str;
+        }
+        return str.substr(0, maxChars - 3) + "...";
+    }
+
     function formatNonError( obj ) {
         var str = obj.toString();
-        if( str === "[object Object]") {
+        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
+        if( ruselessToString.test( str ) ) {
             try {
                 var newStr = JSON.stringify(obj);
                 str = newStr;
@@ -111,7 +120,7 @@ var captureStackTrace = (function stackDetection() {
 
             }
         }
-        return ("(<" + str + ">, no stack trace)");
+        return ("(<" + snip( str ) + ">, no stack trace)");
     }
 
     if( typeof Error.stackTraceLimit === "number" &&
