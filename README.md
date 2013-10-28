@@ -17,6 +17,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Development](#development)
     - [Testing](#testing)
     - [Benchmarking](#benchmarks)
+    - [Custom builds](#custom-builds)
 - [What is the sync build?](#what-is-the-sync-build)
 - [License](#license)
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
@@ -496,6 +497,89 @@ Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.co
     bench cujojs
 
 While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
+
+##Custom builds
+
+Custom builds for browsers are supported through a command-line utility.
+
+
+
+
+<table>
+    <caption>The following features can be disabled</caption>
+    <thead>
+        <tr>
+            <th>Feature(s)</th>
+            <th>Command line identifier</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#any---promise"><code>.any</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any()</code></a></td><td><code>any</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#callstring-propertyname--dynamic-arg---promise"><code>.call</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#getstring-propertyname---promise"><code>.get</code></a></td><td><code>call_get</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#filterfunction-filterer---promise"><code>.filter</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisefilterarraydynamicpromise-values-function-filterer---promise"><code>Promise.filter</code></a></td><td><code>filter</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#mapfunction-mapper---promise"><code>.map</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisemaparraydynamicpromise-values-function-mapper---promise"><code>Promise.map</code></a></td><td><code>map</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#reducefunction-reducer--dynamic-initialvalue---promise"><code>.reduce</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise"><code>Promise.reduce</code></a></td><td><code>reduce</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#props---promise"><code>.props</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepropsobjectpromise-object---promise"><code>Promise.props</code></a></td><td><code>props</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#settle---promise"><code>.settle</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisesettlearraydynamicpromise-values---promise"><code>Promise.settle</code></a></td><td><code>settle</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#someint-count---promise"><code>.some</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisesomearraydynamicpromise-values-int-count---promise"><code>Promise.some</code></a></td><td><code>some</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise"><code>.nodeify</code></a></td><td><code>nodeify</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function"><code>Promise.coroutine</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisespawngeneratorfunction-generatorfunction---promise"><code>Promise.spawn</code></a></td><td><code>generators</code></td></tr>
+        <tr><td><a href="#complex-thenables">Complex thenables</a></td><td><code>simple_thenables</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#progression">Progression</a></td><td><code>progress</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#synchronous-inspection">Synchronous inspection</a></td><td><code>synchronous_inspection</code></td></tr>
+
+    </tbody>
+</table>
+
+
+Make sure you have cloned the repo somewhere and did `npm install` successfully.
+
+After that you can run:
+
+    grunt build --features="core simple_thenables"
+
+
+The above builds the minimal build you can get. You can add more features separated by spaces from the above list:
+
+    grunt build --features="core simple_thenables filter map reduce"
+
+The custom build file will be found from `/js/browser/bluebird.js`. It will have a comment that lists the disabled and enabled feautures.
+
+Note that the build leaves the `/js/main` etc folders with same features so if you use the folder for node.js at the same time, don't forget to build
+a full version afterwards (after having taken a copy of the bluebird.js somewhere):
+
+    grunt build
+
+####Complex thenables
+
+In order to provide smooth interoperability experience, Promises/A+ requires supporting "thenables" which are promise-like objects but not trusted bluebird promises.
+
+For example this should work:
+
+```js
+bluebirdPromise.then(function(){
+    return $.get("/file.php");
+});
+```
+
+Even though the handler returns a jQuery promise, it should work as if it returned a real bluebird promise, that is, the next `.then()` will wait until the ajax
+request is complete.
+
+However the specification in A+ 2.x.x requires handling of many theoretical edge cases that will never be seen in practice, such as:
+
+    - Trying to retrieve the `.then` property from object to see if it's a function might throw.
+    - Retrieving `.then` property multiple times from an object might return different result every time, or might be deleted after some time
+    - Calling the `.then` property of an object before necessary (just in time thenables) might cause problems
+    - etc.
+
+What you want in a browser is pretty much that the `return $.get` line works. Can you imagine jQuery defining a getter on `.then` property that throws?
+
+Handling such cases requires a lot of code in bluebird. You can use the `simple_thenables` feature which matches what other libraries such as Q are doing.
+
+<hr>
 
 ##What is the sync build?
 
