@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.5-0
+ * bluebird build version 0.9.6-0
  * Features enabled: core, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -1336,7 +1336,7 @@ module.exports = function( Promise, apiRejection ) {
     var TypeError = errors.TypeError;
 
     Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-         if( typeof generatorFunction !== "function" ) {
+        if( typeof generatorFunction !== "function" ) {
             throw new TypeError( "generatorFunction must be a function" );
         }
         var PromiseSpawn$ = PromiseSpawn;

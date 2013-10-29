@@ -5,8 +5,8 @@ module.exports = function( Promise, apiRejection ) {
     var TypeError = errors.TypeError;
 
     Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-        //Throw synchronously because Promise.coroutine is semantically something
-        //you call at "compile time" to annotate static functions
+        //Throw synchronously because Promise.coroutine is semantically
+        //something you call at "compile time" to annotate static functions
         if( typeof generatorFunction !== "function" ) {
             throw new TypeError( "generatorFunction must be a function" );
         }

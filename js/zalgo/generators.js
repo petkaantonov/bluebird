@@ -26,7 +26,7 @@ module.exports = function( Promise, apiRejection ) {
     var TypeError = errors.TypeError;
 
     Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-         if( typeof generatorFunction !== "function" ) {
+        if( typeof generatorFunction !== "function" ) {
             throw new TypeError( "generatorFunction must be a function" );
         }
         var PromiseSpawn$ = PromiseSpawn;
