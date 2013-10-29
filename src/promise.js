@@ -454,7 +454,6 @@ var longStackTraces = __DEBUG__ || __BROWSER__ || !!(
     process.env[ "BLUEBIRD_DEBUG" ]
 );
 
-console.log("have long", longStackTraces);
 
 Promise.longStackTraces = function Promise$LongStackTraces() {
     if( async.haveItemsQueued() &&
@@ -1127,19 +1126,15 @@ Promise.noConflict = function() {
     return Promise;
 };
 
-console.log("have long", longStackTraces);
 if( !CapturedTrace.isSupported() ) {
-    console.log("have long", longStackTraces);
     Promise.longStackTraces = function(){};
     CapturedTrace.possiblyUnhandledRejection = function(){};
     Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
-    console.log("have long", longStackTraces);
 }
 
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
-console.log("have long", longStackTraces);
 };
