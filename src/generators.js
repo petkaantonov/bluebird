@@ -5,7 +5,9 @@ module.exports = function( Promise, apiRejection ) {
     var TypeError = errors.TypeError;
 
     Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-         if( typeof generatorFunction !== "function" ) {
+        //Throw synchronously because Promise.coroutine is semantically something
+        //you call at "compile time" to annotate static functions
+        if( typeof generatorFunction !== "function" ) {
             throw new TypeError( "generatorFunction must be a function" );
         }
         //(TODO) Check if v8 traverses the contexts or inlines the context slot
@@ -21,6 +23,8 @@ module.exports = function( Promise, apiRejection ) {
     };
 
     Promise.spawn = function Promise$Spawn( generatorFunction ) {
+        //Return rejected promise because Promise.spawn is semantically
+        //something that will be called at runtime with possibly dynamic values
         if( typeof generatorFunction !== "function" ) {
             return apiRejection( "generatorFunction must be a function" );
         }
