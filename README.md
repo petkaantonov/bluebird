@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/petkaantonov/bluebird.png?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
+
 <a href="http://promisesaplus.com/">
     <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
          title="Promises/A+ 1.0 compliant" align="right" />
