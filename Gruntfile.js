@@ -1,7 +1,6 @@
 "use strict";
 Error.stackTraceLimit = 100;
 var astPasses = require("./ast_passes.js");
-var cc = require("closure-compiler");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var Q = require("q");
 Q.longStackSupport = true;
