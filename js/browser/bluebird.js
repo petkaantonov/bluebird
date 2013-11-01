@@ -1929,26 +1929,33 @@ Promise.rejected = function Promise$Rejected( reason ) {
 };
 
 Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
-    var ret = new Promise();
-    ret._setTrace( Promise.attempt, void 0 );
-    ret._cleanValues();
+
     if( typeof fn !== "function" ) {
-        ret._setRejected();
-        ret._resolvedValue = new TypeError("fn must be a function");
-        return ret;
+        return apiRejection("fn must be a function");
     }
     var value = isArray( args )
         ? tryCatchApply( fn, args, ctx )
         : tryCatch1( fn, ctx, args );
 
+    var ret = new Promise();
+    ret._setTrace( Promise.attempt, void 0 );
     if( value === errorObj ) {
+        ret._cleanValues();
         ret._setRejected();
         ret._resolvedValue = value.e;
+        return ret;
+    }
+
+    var maybePromise = Promise._cast(value);
+    if( maybePromise instanceof Promise ) {
+        ret._assumeStateOf( maybePromise, true );
     }
     else {
+        ret._cleanValues();
         ret._setFulfilled();
         ret._resolvedValue = value;
     }
+
     return ret;
 };
 
