@@ -74,4 +74,32 @@ describe("Promise.try", function(){
         }, assert.fail);
         async = true;
     });
+
+    specify("should unwrap returned promise", function(done){
+        var d = Promise.pending();
+
+        tryy(function(){
+            return d.promise;
+        }).then(function(v){
+            assert(v === 3);
+            done();
+        })
+
+        setTimeout(function(){
+            d.fulfill(3);
+        }, 13);
+    });
+    specify("should unwrap returned thenable", function(done){
+
+        tryy(function(){
+            return {
+                then: function(f, v) {
+                    f(3);
+                }
+            }
+        }).then(function(v){
+            assert(v === 3);
+            done();
+        });
+    });
 });
