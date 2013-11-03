@@ -25,6 +25,16 @@ function assertSameSparsity(input) {
     }
 }
 
+function assertEmptySparsity(input) {
+    assert(input !== arrSparseEmpty);
+    assert(input.length === arrSparseEmpty.length);
+    for( var i = 0, len = input.length; i < len; ++i ) {
+        assert( !( i in input ) );
+    }
+}
+
+var arrSparseEmpty = [,,,,,,,,,,];
+
 var arrCopy = [,,,arr[3],,,]
 
 describe("When using a sparse array the resulting array should have equal sparsity when using", function() {
@@ -77,6 +87,29 @@ describe("When using a sparse array the resulting array should have equal sparsi
             assert.equal(indices[0], 3);
             assert.equal(ret, 5);
             semidone();
+        });
+    });
+
+    specify("Settle with empty", function(done) {
+        Promise.settle(arrSparseEmpty).then(function(c){
+            assertEmptySparsity(c);
+            done();
+        });
+    });
+
+    specify("All with empty", function(done) {
+        Promise.all(arrSparseEmpty).then(function(c){
+            assertEmptySparsity(c);
+            done();
+        });
+    });
+
+    specify("Map with empty", function(done) {
+        Promise.map(arrSparseEmpty, function( v ){
+            assert.fail();
+        }).then(function(c){
+            assertEmptySparsity(c);
+            done();
         });
     });
 
