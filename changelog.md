@@ -1,3 +1,36 @@
+## 0.9.8-0 (2013-11-01)
+
+Bugfixes:
+
+ - Fix bug with `Promise.try` not unwrapping returned promises and thenables
+
+## 0.9.7-0 (2013-10-29)
+
+Bugfixes:
+
+ - Fix bug with build files containing duplicated code for promise.js
+
+## 0.9.6-0 (2013-10-28)
+
+Features:
+
+ - Improve output of reporting unhandled non-errors
+ - Implement RejectionError wrapping and `.error()` method
+
+## 0.9.5-0 (2013-10-27)
+
+Features:
+
+ - Allow fresh copies of the library to be made
+
+## 0.9.4-1 (2013-10-27)
+
+## 0.9.4-0 (2013-10-27)
+
+Bugfixes:
+
+ - Rollback non-working multiple fresh copies feature
+
 ## 0.9.3-0 (2013-10-27)
 
 Features:
