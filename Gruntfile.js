@@ -6,6 +6,7 @@ var Q = require("q");
 Q.longStackSupport = true;
 
 module.exports = function( grunt ) {
+    var isCI = !!grunt.option("ci");
 
     var optionalModuleDependencyMap = {
         "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
@@ -251,6 +252,10 @@ module.exports = function( grunt ) {
             }
         }
     };
+
+    if( !isCI ) {
+        gruntConfig.jshint.all.options.reporter = require("jshint-stylish");
+    }
 
     gruntConfig.bump = {
       options: {
@@ -601,7 +606,7 @@ module.exports = function( grunt ) {
     }
 
     grunt.registerTask( "build", function() {
-        var isCI = !!grunt.option("ci");
+
         var done = this.async();
         var features = grunt.option("features");
         var paths = null;
