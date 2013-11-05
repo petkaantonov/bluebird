@@ -35,7 +35,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
 - [`.bind`](https://github.com/petkaantonov/bluebird/blob/master/API.md#binddynamic-thisarg---promise)
 - [Complete parallel for C# 5.0 async and await](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
-- [Collection methods](https://github.com/petkaantonov/bluebird/blob/master/API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join...
+- [Collection methods](https://github.com/petkaantonov/bluebird/blob/master/API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join, race...
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
@@ -518,6 +518,7 @@ Custom builds for browsers are supported through a command-line utility.
     <tbody>
 
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#any---promise"><code>.any</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any</code></a></td><td><code>any</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#race---promise"><code>.race</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseracearraypromise-promises---promise"><code>Promise.race</code></a></td><td><code>race</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#callstring-propertyname--dynamic-arg---promise"><code>.call</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#getstring-propertyname---promise"><code>.get</code></a></td><td><code>call_get</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#filterfunction-filterer---promise"><code>.filter</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisefilterarraydynamicpromise-values-function-filterer---promise"><code>Promise.filter</code></a></td><td><code>filter</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#mapfunction-mapper---promise"><code>.map</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisemaparraydynamicpromise-values-function-mapper---promise"><code>Promise.map</code></a></td><td><code>map</code></td></tr>

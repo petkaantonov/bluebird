@@ -1,15 +1,18 @@
 "use strict";
 module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
-    var AnyPromiseArray = require( "./any_promise_array.js" )(PromiseArray);
+    var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
 
     function Promise$_Any( promises, useBound, caller ) {
-        return Promise$_All(
+        var ret = Promise$_All(
             promises,
-            AnyPromiseArray,
+            SomePromiseArray,
             caller,
             useBound === USE_BOUND ? promises._boundTo : void 0
-        ).promise();
+        );
+        ret.setHowMany( 1 );
+        ret.setUnwrap();
+        return ret.promise();
     }
 
     Promise.any = function Promise$Any( promises ) {

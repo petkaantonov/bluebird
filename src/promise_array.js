@@ -126,7 +126,12 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     }
     //Array full of holes
     if( newLen === 0 ) {
-        this._fulfill( newValues );
+        if( fulfillValueIfEmpty === FULFILL_ARRAY ) {
+            this._fulfill( newValues );
+        }
+        else {
+            this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+        }
         return;
     }
     this._values = newValues;

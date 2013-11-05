@@ -8,13 +8,12 @@ var isArray = util.isArray;
 function SomePromiseArray( values, caller, boundTo ) {
     this.constructor$( values, caller, boundTo );
     this._howMany = 0;
-
+    this._unwrap = false;
 }
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     this._init$( void 0, FULFILL_ARRAY );
-
     var isArrayResolved = isArray( this._values );
     //Need to keep track of holes in the array so
     //we know where rejection values start
@@ -28,6 +27,10 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
             this._reject( [] );
         }
     }
+};
+
+SomePromiseArray.prototype.setUnwrap = function SomePromiseArray$setUnwrap() {
+    this._unwrap = true;
 };
 
 SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
@@ -47,7 +50,12 @@ function SomePromiseArray$_promiseFulfilled( value ) {
     this._addFulfilled( value );
     if( this._fulfilled() === this.howMany() ) {
         this._values.length = this.howMany();
-        this._fulfill( this._values );
+        if( this.howMany() === 1 && this._unwrap ) {
+            this._fulfill( this._values[0] );
+        }
+        else {
+            this._fulfill( this._values );
+        }
     }
 
 };

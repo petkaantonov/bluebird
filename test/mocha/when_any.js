@@ -62,10 +62,12 @@ function contains(arr, result) {
 
 describe("when.any-test", function () {
 
-    specify("should resolve to undefined with empty input array", function(done) {
-        when.any([]).then(
+    specify("should resolve to empty array with empty input array", function(done) {
+        var a = [];
+        when.any(a).then(
             function(result) {
-                refute.defined(result);
+                assert(result !== a);
+                assert.deepEqual(result, []);
                 done();
             }, fail
         );
@@ -126,10 +128,10 @@ describe("when.any-test", function () {
         );
     });
 
-    specify("should resolve to undefined when input promise does not resolve to array", function(done) {
+    specify("should resolve to empty array when input promise does not resolve to array", function(done) {
         when.any(resolved(1)).then(
             function(result) {
-                refute.defined(result);
+                assert.deepEqual(result, []);
                 done();
             }, fail
         );

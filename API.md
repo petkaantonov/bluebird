@@ -33,6 +33,7 @@
     - [`.props()`](#props---promise)
     - [`.settle()`](#settle---promise)
     - [`.any()`](#any---promise)
+    - [`.race()`](#race---promise)
     - [`.some(int count)`](#someint-count---promise)
     - [`.spread([Function fulfilledHandler] [, Function rejectedHandler ])`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise)
     - [`.map(Function mapper)`](#mapfunction-mapper---promise)
@@ -42,6 +43,7 @@
     - [`Promise.props(Object|Promise object)`](#promisepropsobjectpromise-object---promise)
     - [`Promise.settle(Array<dynamic>|Promise values)`](#promisesettlearraydynamicpromise-values---promise)
     - [`Promise.any(Array<dynamic>|Promise values)`](#promiseanyarraydynamicpromise-values---promise)
+    - [`Promise.race(Array|Promise promises)`](#promiseracearraypromise-promises---promise)
     - [`Promise.some(Array<dynamic>|Promise values, int count)`](#promisesomearraydynamicpromise-values-int-count---promise)
     - [`Promise.join([dynamic value...])`](#promisejoindynamic-value---promise)
     - [`Promise.map(Array<dynamic>|Promise values, Function mapper)`](#promisemaparraydynamicpromise-values-function-mapper---promise)
@@ -841,6 +843,13 @@ Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---pr
 
 <hr>
 
+#####`.race()` -> `Promise`
+
+Same as calling [Promise.race\(thisPromise\)](#promiseracearraypromise-promises---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+<hr>
+
+
 #####`.some(int count)` -> `Promise`
 
 Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
@@ -982,6 +991,40 @@ Given an array, or a promise of an array, which contains promises (or a mix of p
 #####`Promise.any(Array<dynamic>|Promise values)` -> `Promise`
 
 Like [`Promise.some\(\)`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
+
+<hr>
+
+#####`Promise.race(Array|Promise promises)` -> `Promise`
+
+Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled or rejected as soon as a promise in the array is fulfilled or rejected with the respective rejection reason or fulfillment value.
+
+Example of implementing a timeout in terms of `Promise.race`:
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+
+function delay(ms) {
+    return new Promise(function (v) {
+        setTimeout(v, ms);
+    });
+}
+
+function timeout(promise, time) {
+    var timeout = delay(time).then(function () {
+        throw new Promise.TimeoutError("Operation timed out after " + time + " ms");
+    });
+
+    return Promise.race([promise, timeout]);
+}
+
+timeout(fs.readFileAsync("slowfile.txt"), 300).then(function (contents) {
+    console.log("Here are the contents", contents);
+}).
+catch(Promise.TimeoutError, function (e) {
+    console.error("Sorry retrieving file took too long");
+});
+```
 
 <hr>
 
