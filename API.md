@@ -4,7 +4,7 @@
     - [`new Promise(Function<Function resolve, Function reject> resolver)`](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
     - [`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
     - [`.catch(Function handler)`](#catchfunction-handler---promise)
-    - [`.catch([Function ErrorClass...], Function handler)`](#catchfunction-errorclass-function-handler---promise)
+    - [`.catch([Function ErrorClass|Function predicate...], Function handler)`](#catchfunction-errorclass-function-handler---promise)
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
@@ -143,9 +143,18 @@ This is a catch-all exception handler, shortcut for calling `.then(null, handler
 
 <hr>
 
-#####`.catch([Function ErrorClass...], Function handler)` -> `Promise`
+#####`.catch([Function ErrorClass|Function predicate...], Function handler)` -> `Promise`
 
 This extends `.catch` to work more like catch-clauses in languages like Java or C#. Instead of manually checking `instanceof` or `.name === "SomeError"`, you may specify a number of error constructors which are eligible for this catch handler. The catch handler that is first met that has eligible constructors specified, is the one that will be called.
+
+This method also supports predicate-based filters. If you pass a 
+predicate function instead of an error constructor, the predicate will receive
+the error as an argument. The return result of the predicate will be used 
+determine whether the error handler should be called. 
+
+Predicates should allow for very fine grained control over caught errors:
+pattern matching, error-type sets with set operations and many other techniques
+can be implemented on top of them.
 
 Example:
 
