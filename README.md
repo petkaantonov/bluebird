@@ -317,6 +317,16 @@ Since a `catch` handler typed to `Promise.RejectionError` is expected to be used
 });
 ```
 
+Finally, Bluebird also supports predicate-based filters. If you pass a 
+predicate function instead of an error type, the predicate will receive
+the error as an argument. The return result will be used determine whether 
+the error handler should be called. 
+
+Predicates should allow for very fine grained control over caught errors:
+pattern matching, error typesets with set operations and many other techniques
+can be implemented on top of them.
+
+
 See [API documentation for `.error()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#error-rejectedhandler----promise)
 
 <hr>

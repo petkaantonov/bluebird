@@ -97,15 +97,14 @@ function Promise$catch( fn ) {
             j = 0, i;
         for( i = 0; i < len - 1; ++i ) {
             var item = arguments[i];
-            if( typeof item === "function" &&
-                ( item.prototype instanceof Error ||
-                item === Error ) ) {
+            if( typeof item === "function" ) {
                 catchInstances[j++] = item;
             }
             else {
                 var catchFilterTypeError =
                     new TypeError(
-                        "A catch filter must be an error constructor");
+                        "A catch filter must be an error constructor "
+                        + "or a filter function");
 
                 this._attachExtraTrace( catchFilterTypeError );
                 this._reject(catchFilterTypeError);
@@ -114,7 +113,7 @@ function Promise$catch( fn ) {
         }
         catchInstances.length = j;
         fn = arguments[i];
-        var catchFilter = new CatchFilter( catchInstances, fn, this._boundTo );
+        var catchFilter = new CatchFilter( catchInstances, fn, this );
         return this._then( void 0, catchFilter.doFilter, void 0,
             catchFilter, void 0, this.caught );
     }

@@ -12,6 +12,15 @@ var CustomError = function(){};
 
 CustomError.prototype = new Error();
 
+var predicateFilter = function(e) {
+    return (/invalid/).test(e.message);
+}
+
+function BadError(msg) {
+    this.message = msg;
+    return this;
+}
+
 describe("A promise handler that throws a TypeError must be caught", function() {
 
     specify("in a middle.caught filter", function(done) {
@@ -293,3 +302,66 @@ describe("A promise handler that is caught in a filter", function() {
          }, 200 );
     });
 });
+
+describe("A promise handler with a predicate filter", function() {
+
+    specify("will catch a thrown thing matching the filter", function(done) {
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw new Error("horrible invalid error string");
+        }).caught(predicateFilter, function(e){
+            done();
+        }).caught(function(e){
+            assert.fail();
+        });
+        a.fulfill(3);
+
+    });
+    specify("will NOT catch a thrown thing not matching the filter", function(done) {
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw new Error("horrible valid error string");
+        }).caught(predicateFilter, function(e){
+            assert.fail();
+        }).caught(function(e){
+            done();
+        });
+        a.fulfill(3);
+
+    });
+
+    specify("will fail when a predicate is a bad error class", function(done) {
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw new Error("horrible custom error");
+        }).caught(BadError, function(e){
+            assert.fail();
+        }).caught(function(e){
+            // Comment-out to show the TypeError stack
+            //console.error(e.stack);
+            done();
+        });
+        a.fulfill(3);
+
+
+    });
+
+    specify("will fail when a predicate throws", function(done) {
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw new CustomError("error happens");
+        }).caught(function(e) { return e.f.g; }, function(e){
+            assert.fail();
+        }).caught(TypeError, function(e){
+            done();
+        }).caught(function(e) {
+            assert.fail();
+        });
+        a.fulfill(3);
+
+
+    });
+
+
+});
+
