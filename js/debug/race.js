@@ -22,26 +22,24 @@
 "use strict";
 module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
-    var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
+    var RacePromiseArray =
+        require( "./race_promise_array.js" )(Promise, PromiseArray);
 
-    function Promise$_Any( promises, useBound, caller ) {
-        var ret = Promise$_All(
+    function Promise$_Race( promises, useBound, caller ) {
+        return Promise$_All(
             promises,
-            SomePromiseArray,
+            RacePromiseArray,
             caller,
             useBound === true ? promises._boundTo : void 0
-        );
-        ret.setHowMany( 1 );
-        ret.setUnwrap();
-        return ret.promise();
+        ).promise();
     }
 
-    Promise.any = function Promise$Any( promises ) {
-        return Promise$_Any( promises, false, Promise.any );
+    Promise.race = function Promise$Race( promises ) {
+        return Promise$_Race( promises, false, Promise.race );
     };
 
-    Promise.prototype.any = function Promise$any() {
-        return Promise$_Any( this, true, this.any );
+    Promise.prototype.race = function Promise$race() {
+        return Promise$_Race( this, true, this.race );
     };
 
 };

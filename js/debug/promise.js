@@ -1033,6 +1033,7 @@ Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_All,PromiseArray);
+require('./race.js')(Promise,Promise$_All,PromiseArray);
 require('./call_get.js')(Promise);
 require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection);

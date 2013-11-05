@@ -20,28 +20,30 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, Promise$_All, PromiseArray ) {
+module.exports = function( Promise, PromiseArray ) {
+var util = require("./util.js");
+var inherits = util.inherits;
+function RacePromiseArray( values, caller, boundTo ) {
+    this.constructor$( values, caller, boundTo );
+}
+inherits( RacePromiseArray, PromiseArray );
 
-    var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
+RacePromiseArray.prototype._init =
+function RacePromiseArray$_init() {
+    this._init$( void 0, 0 );
+};
 
-    function Promise$_Any( promises, useBound, caller ) {
-        var ret = Promise$_All(
-            promises,
-            SomePromiseArray,
-            caller,
-            useBound === true ? promises._boundTo : void 0
-        );
-        ret.setHowMany( 1 );
-        ret.setUnwrap();
-        return ret.promise();
-    }
+RacePromiseArray.prototype._promiseFulfilled =
+function RacePromiseArray$_promiseFulfilled( value ) {
+    if( this._isResolved() ) return;
+    this._fulfill( value );
 
-    Promise.any = function Promise$Any( promises ) {
-        return Promise$_Any( promises, false, Promise.any );
-    };
+};
+RacePromiseArray.prototype._promiseRejected =
+function RacePromiseArray$_promiseRejected( reason ) {
+    if( this._isResolved() ) return;
+    this._reject( reason );
+};
 
-    Promise.prototype.any = function Promise$any() {
-        return Promise$_Any( this, true, this.any );
-    };
-
+return RacePromiseArray;
 };

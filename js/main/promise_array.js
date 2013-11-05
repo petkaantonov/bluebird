@@ -121,7 +121,12 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         newValues[i] = maybePromise;
     }
     if( newLen === 0 ) {
-        this._fulfill( newValues );
+        if( fulfillValueIfEmpty === 1 ) {
+            this._fulfill( newValues );
+        }
+        else {
+            this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+        }
         return;
     }
     this._values = newValues;
