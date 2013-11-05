@@ -21,6 +21,14 @@ function BadError(msg) {
     return this;
 }
 
+function predicatesUndefined(e) {
+    return e === void 0;
+}
+
+function predicatesPrimitiveString(e) {
+    return /^asd$/.test(e);
+}
+
 describe("A promise handler that throws a TypeError must be caught", function() {
 
     specify("in a middle.caught filter", function(done) {
@@ -344,6 +352,34 @@ describe("A promise handler with a predicate filter", function() {
         a.fulfill(3);
 
 
+    });
+
+    specify("will catch a thrown undefiend", function(done){
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw void 0;
+        }).caught(function(e) { return false }, function(e){
+            assert.fail();
+        }).caught(predicatesUndefined, function(e){
+            done();
+        }).caught(function(e) {
+            assert.fail();
+        });
+        a.fulfill(3);
+    });
+
+    specify("will catch a thrown string", function(done){
+        var a = Promise.pending();
+        a.promise.then(function(){
+            throw "asd";
+        }).caught(function(e) { return false }, function(e){
+            assert.fail();
+        }).caught(predicatesPrimitiveString, function(e){
+            done();
+        }).caught(function(e) {
+            assert.fail();
+        });
+        a.fulfill(3);
     });
 
     specify("will fail when a predicate throws", function(done) {
