@@ -86,7 +86,7 @@ Promise.prototype.toString = function Promise$toString() {
  * @return {Promise}
  */
 Promise.prototype.caught = Promise.prototype["catch"] =
-function Promise$_catch( fn ) {
+function Promise$catch( fn ) {
     var len = arguments.length;
     if( len > 1 ) {
         var catchInstances = new Array( len - 1 ),
@@ -110,7 +110,7 @@ function Promise$_catch( fn ) {
         catchInstances.length = j;
         fn = arguments[i];
 
-        this._resetTrace();
+        this._resetTrace( this.caught );
         var catchFilter = new CatchFilter( catchInstances, fn, this );
         return this._then( void 0, catchFilter.doFilter, void 0,
             catchFilter, void 0, this.caught );
