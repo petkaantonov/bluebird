@@ -5,7 +5,7 @@ var inherits = require( "./util.js").inherits;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|makeNodePromisified|processImmediate|nextTick" +
+    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|nextTick" +
     "|Async\\$\\w+)\\b"
 );
 
@@ -62,6 +62,7 @@ CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
             break;
         }
     }
+
     current.push( FROM_PREVIOUS_EVENT );
     var lines = current.concat( prev );
 

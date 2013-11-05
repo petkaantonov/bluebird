@@ -350,8 +350,6 @@ describe("A promise handler with a predicate filter", function() {
             done();
         });
         a.fulfill(3);
-
-
     });
 
     specify("will catch a thrown undefiend", function(done){
@@ -389,6 +387,7 @@ describe("A promise handler with a predicate filter", function() {
         }).caught(function(e) { return e.f.g; }, function(e){
             assert.fail();
         }).caught(TypeError, function(e){
+            //console.error(e.stack);
             done();
         }).caught(function(e) {
             assert.fail();
