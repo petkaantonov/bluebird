@@ -90,7 +90,7 @@ Promise.prototype.toString = function Promise$toString() {
 };
 
 Promise.prototype.caught = Promise.prototype["catch"] =
-function Promise$catch( fn ) {
+function Promise$_catch( fn ) {
     var len = arguments.length;
     if( len > 1 ) {
         var catchInstances = new Array( len - 1 ),
@@ -113,6 +113,8 @@ function Promise$catch( fn ) {
         }
         catchInstances.length = j;
         fn = arguments[i];
+
+        this._resetTrace();
         var catchFilter = new CatchFilter( catchInstances, fn, this );
         return this._then( void 0, catchFilter.doFilter, void 0,
             catchFilter, void 0, this.caught );
@@ -692,6 +694,19 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
 
     this._assumeStateOf( value, mustAsync );
     return true;
+};
+
+Promise.prototype._resetTrace = function Promise$_resetTrace( caller ) {
+    if( longStackTraces ) {
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
+        this._trace = new CapturedTrace(
+            typeof caller === "function"
+            ? caller
+            : this._resetTrace,
+            isTopLevel
+        );
+    }
 };
 
 Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {

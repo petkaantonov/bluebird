@@ -32,7 +32,7 @@ function CatchFilter( instances, callback, promise ) {
 }
 
 
-function safePredicate( predicate, e ) {
+function CatchFilter$_safePredicate( predicate, e ) {
     var safeObject = {};
     var retfilter = tryCatch1( predicate, safeObject, e );
 
@@ -48,7 +48,7 @@ function safePredicate( predicate, e ) {
     return retfilter;
 }
 
-CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
+CatchFilter.prototype.doFilter = function CatchFilter$_doFilter( e ) {
     var cb = this._callback;
 
     for( var i = 0, len = this._instances.length; i < len; ++i ) {
@@ -63,7 +63,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
             }
             return ret;
         } else if( typeof item === "function" && !itemIsErrorType ) {
-            var shouldHandle = safePredicate(item, e);
+            var shouldHandle = CatchFilter$_safePredicate(item, e);
             if( shouldHandle === errorObj ) {
                 this._promise._attachExtraTrace( errorObj.e );
                 e = errorObj.e;

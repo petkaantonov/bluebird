@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.9-0
+ * bluebird build version 0.9.10-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -420,7 +420,7 @@ var inherits = require( "./util.js").inherits;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|makeNodePromisified|processImmediate|nextTick" +
+    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|nextTick" +
     "|Async\\$\\w+)\\b"
 );
 
@@ -470,6 +470,7 @@ CapturedTrace.combine = function CapturedTrace$Combine( current, prev ) {
             break;
         }
     }
+
     current.push( "From previous event:" );
     var lines = current.concat( prev );
 
@@ -640,7 +641,7 @@ function CatchFilter( instances, callback, promise ) {
 }
 
 
-function safePredicate( predicate, e ) {
+function CatchFilter$_safePredicate( predicate, e ) {
     var safeObject = {};
     var retfilter = tryCatch1( predicate, safeObject, e );
 
@@ -656,7 +657,7 @@ function safePredicate( predicate, e ) {
     return retfilter;
 }
 
-CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
+CatchFilter.prototype.doFilter = function CatchFilter$_doFilter( e ) {
     var cb = this._callback;
 
     for( var i = 0, len = this._instances.length; i < len; ++i ) {
@@ -671,7 +672,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$doFilter( e ) {
             }
             return ret;
         } else if( typeof item === "function" && !itemIsErrorType ) {
-            var shouldHandle = safePredicate(item, e);
+            var shouldHandle = CatchFilter$_safePredicate(item, e);
             if( shouldHandle === errorObj ) {
                 this._promise._attachExtraTrace( errorObj.e );
                 e = errorObj.e;
@@ -1741,7 +1742,7 @@ Promise.prototype.toString = function Promise$toString() {
 };
 
 Promise.prototype.caught = Promise.prototype["catch"] =
-function Promise$catch( fn ) {
+function Promise$_catch( fn ) {
     var len = arguments.length;
     if( len > 1 ) {
         var catchInstances = new Array( len - 1 ),
@@ -1764,6 +1765,8 @@ function Promise$catch( fn ) {
         }
         catchInstances.length = j;
         fn = arguments[i];
+
+        this._resetTrace();
         var catchFilter = new CatchFilter( catchInstances, fn, this );
         return this._then( void 0, catchFilter.doFilter, void 0,
             catchFilter, void 0, this.caught );
@@ -2343,6 +2346,19 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
 
     this._assumeStateOf( value, mustAsync );
     return true;
+};
+
+Promise.prototype._resetTrace = function Promise$_resetTrace( caller ) {
+    if( longStackTraces ) {
+        var context = this._peekContext();
+        var isTopLevel = context === void 0;
+        this._trace = new CapturedTrace(
+            typeof caller === "function"
+            ? caller
+            : this._resetTrace,
+            isTopLevel
+        );
+    }
 };
 
 Promise.prototype._setTrace = function Promise$_setTrace( caller, parent ) {
