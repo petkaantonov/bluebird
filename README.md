@@ -317,17 +317,35 @@ Since a `catch` handler typed to `Promise.RejectionError` is expected to be used
 });
 ```
 
-Finally, Bluebird also supports predicate-based filters. If you pass a 
+See [API documentation for `.error()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#error-rejectedhandler----promise)
+
+Finally, Bluebird also supports predicate-based filters. If you pass a
 predicate function instead of an error type, the predicate will receive
-the error as an argument. The return result will be used determine whether 
-the error handler should be called. 
+the error as an argument. The return result will be used determine whether
+the error handler should be called.
 
 Predicates should allow for very fine grained control over caught errors:
 pattern matching, error typesets with set operations and many other techniques
 can be implemented on top of them.
 
+Example of using a predicate-based filter:
 
-See [API documentation for `.error()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#error-rejectedhandler----promise)
+```js
+var Promise = require("bluebird");
+var request = Promise.promisify(require("request"));
+
+function clientError(e) {
+    return e.code >= 400 && e.code < 500;
+}
+
+request("http://www.google.com").then(function(contents){
+    console.log(contents);
+}).catch(clientError, function(e){
+   //A client error like 400 Bad Request happened
+});
+```
+
+
 
 <hr>
 
