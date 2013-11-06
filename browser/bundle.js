@@ -3178,7 +3178,7 @@ process.chdir = function (dir) {
 
 },{}],16:[function(require,module,exports){
 var Promise = require("../js/debug/bluebird.js");
-(function (){
+Promise.onPossiblyUnhandledRejection();(function (){
     var global = window;
     global.adapter = Promise;
     global.sinon = require("sinon");
