@@ -20,6 +20,27 @@
   "scripts": {
     "test": "grunt test"
   },
+  "testling": {
+    "scripts": [
+      "browser/have_getters.js",
+      "browser/mocha.js",
+      "browser/mocha_init.js",
+      "browser/es5-shim.js",
+      "browser/es5-sham.js",
+      "browser/bundle.js",
+      "browser/init_run.js",
+      "browser/do_run.js"
+    ],
+    "browsers": {
+      "ie": [8, 9, 10],
+      "chrome": [28, "canary"],
+      "firefox": [3, 3.5, 4.0, 24, "nightly"],
+      "opera": [10.0, 15.0, "next"],
+      "safari": [5.1, 6.0],
+      "android-browser": [4.2],
+      "iphone": [6.0]
+    }
+  },
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
     "type": "git",

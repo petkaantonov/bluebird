@@ -1,0 +1,1 @@
+var runner = mocha.run();

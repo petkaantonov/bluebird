@@ -27,7 +27,6 @@ describe("Separate instances of bluebird", function() {
     specify("Should have different unhandled rejection handlers", function(done) {
         var dones = 0;
         var donecall = function() {
-            console.log('done');
             if( ++dones === 2 ) {
                 done();
             }
