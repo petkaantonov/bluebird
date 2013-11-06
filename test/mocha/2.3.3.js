@@ -764,13 +764,13 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                         savedResolvePromise(dummy);
                         savedRejectPromise(dummy);
                         savedRejectPromise(dummy);
-                    }, 50);
+                    }, 4);
 
                     setTimeout(function () {
                         assert.strictEqual(timesFulfilled, 1);
                         assert.strictEqual(timesRejected, 0);
                         done();
-                    }, 100);
+                    }, 60);
                 });
             });
         });

@@ -1036,8 +1036,6 @@ Promise.noConflict = function() {
 
 if( !CapturedTrace.isSupported() ) {
     Promise.longStackTraces = function(){};
-    CapturedTrace.possiblyUnhandledRejection = function(){};
-    Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
 }
 

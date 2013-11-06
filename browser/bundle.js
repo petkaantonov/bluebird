@@ -3663,10 +3663,12 @@ function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
         var message = "Possibly unhandled " + formatStack( stack, reason );
-        if( typeof console.error === "function" ) {
+        if( typeof console.error === "function" ||
+            typeof console.error === "object" ) {
             console.error( message );
         }
-        else if( typeof console.log === "function" ) {
+        else if( typeof console.log === "function" ||
+            typeof console.error === "object" ) {
             console.log( message );
         }
     }
@@ -3823,6 +3825,18 @@ var captureStackTrace = (function stackDetection() {
         };
     }
     else {
+        formatStack = function( stack, error ) {
+            if( typeof stack === "string" ) return stack;
+
+            if( ( typeof error === "object" ||
+                typeof error === "function" ) &&
+                error.name !== void 0 &&
+                error.message !== void 0 ) {
+                return error.name + ". " + error.message;
+            }
+            return formatNonError( error );
+        };
+
         return null;
     }
 })();
@@ -5948,8 +5962,6 @@ Promise.noConflict = function() {
 
 if( !CapturedTrace.isSupported() ) {
     Promise.longStackTraces = function(){};
-    CapturedTrace.possiblyUnhandledRejection = function(){};
-    Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
 }
 
@@ -8070,10 +8082,12 @@ function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     if( typeof console === "object" ) {
         var stack = reason.stack;
         var message = "Possibly unhandled " + formatStack( stack, reason );
-        if( typeof console.error === "function" ) {
+        if( typeof console.error === "function" ||
+            typeof console.error === "object" ) {
             console.error( message );
         }
-        else if( typeof console.log === "function" ) {
+        else if( typeof console.log === "function" ||
+            typeof console.error === "object" ) {
             console.log( message );
         }
     }
@@ -8223,6 +8237,18 @@ var captureStackTrace = (function stackDetection() {
         };
     }
     else {
+        formatStack = function( stack, error ) {
+            if( typeof stack === "string" ) return stack;
+
+            if( ( typeof error === "object" ||
+                typeof error === "function" ) &&
+                error.name !== void 0 &&
+                error.message !== void 0 ) {
+                return error.name + ". " + error.message;
+            }
+            return formatNonError( error );
+        };
+
         return null;
     }
 })();
@@ -9878,8 +9904,6 @@ Promise.noConflict = function() {
 
 if( !CapturedTrace.isSupported() ) {
     Promise.longStackTraces = function(){};
-    CapturedTrace.possiblyUnhandledRejection = function(){};
-    Promise.onPossiblyUnhandledRejection = function(){};
     longStackTraces = false;
 }
 
@@ -16773,13 +16797,13 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                         savedResolvePromise(dummy);
                         savedRejectPromise(dummy);
                         savedRejectPromise(dummy);
-                    }, 50);
+                    }, 4);
 
                     setTimeout(function () {
                         assert.strictEqual(timesFulfilled, 1);
                         assert.strictEqual(timesRejected, 0);
                         done();
-                    }, 100);
+                    }, 60);
                 });
             });
         });
@@ -19350,76 +19374,82 @@ if( isNodeJS ) {
 }
 
 },{"../../js/main/bluebird.js":56,"__browserify_process":15,"assert":2}],127:[function(require,module,exports){
-"use strict";
+var process=require("__browserify_process");"use strict";
+
+var isNodeJS = typeof process !== "undefined" && process !== null &&
+    typeof process.execPath === "string";
 
 var assert = require("assert");
 
-var Promise1 = require( "../../js/debug/promise.js")();
-var Promise2 = require( "../../js/debug/promise.js")();
+if( isNodeJS ) {
+    var Promise1 = require( "../../js/debug/promise.js")();
+    var Promise2 = require( "../../js/debug/promise.js")();
 
-var err1 = new Error();
-var err2 = new Error();
+    var err1 = new Error();
+    var err2 = new Error();
 
-describe("Separate instances of bluebird", function() {
+    describe("Separate instances of bluebird", function() {
 
-    specify("Should have identical Error types", function( done ) {
-        assert( Promise1.CancellationError === Promise2.CancellationError );
-        assert( Promise1.RejectionError === Promise2.RejectionError );
-        assert( Promise1.TimeoutError === Promise2.TimeoutError );
-        done();
-    });
+        specify("Should have identical Error types", function( done ) {
+            assert( Promise1.CancellationError === Promise2.CancellationError );
+            assert( Promise1.RejectionError === Promise2.RejectionError );
+            assert( Promise1.TimeoutError === Promise2.TimeoutError );
+            done();
+        });
 
-    specify("Should not be identical", function( done ) {
-        assert( Promise1.onPossiblyUnhandledRejection !==
-                Promise2.onPossiblyUnhandledRejection );
-        assert( Promise1 !== Promise2 );
-        done();
-    });
+        specify("Should not be identical", function( done ) {
+            assert( Promise1.onPossiblyUnhandledRejection !==
+                    Promise2.onPossiblyUnhandledRejection );
+            assert( Promise1 !== Promise2 );
+            done();
+        });
 
-    specify("Should have different unhandled rejection handlers", function(done) {
-        var dones = 0;
-        var donecall = function() {
-            if( ++dones === 2 ) {
-                done();
+        specify("Should have different unhandled rejection handlers", function(done) {
+            var dones = 0;
+            var donecall = function() {
+                if( ++dones === 2 ) {
+                    done();
+                }
             }
-        }
-        Promise1.onPossiblyUnhandledRejection(function(e, promise) {
-            assert( promise instanceof Promise1 );
-            assert( !(promise instanceof Promise2) );
-            assert(e === err1);
-            donecall();
+            Promise1.onPossiblyUnhandledRejection(function(e, promise) {
+                assert( promise instanceof Promise1 );
+                assert( !(promise instanceof Promise2) );
+                assert(e === err1);
+                donecall();
+            });
+
+            Promise2.onPossiblyUnhandledRejection(function(e, promise) {
+                assert( promise instanceof Promise2 );
+                assert( !(promise instanceof Promise1) );
+                assert(e === err2);
+                donecall();
+            });
+
+            assert( Promise1.onPossiblyUnhandledRejection !==
+                    Promise2.onPossiblyUnhandledRejection );
+
+            var d1 = Promise1.pending();
+            var d2 = Promise2.pending();
+
+            d1.promise.then(function(){
+                throw err1;
+            });
+
+            d2.promise.then(function(){
+                throw err2;
+            });
+
+            setTimeout(function(){
+                d1.fulfill();
+                d2.fulfill();
+            }, 13);
         });
 
-        Promise2.onPossiblyUnhandledRejection(function(e, promise) {
-            assert( promise instanceof Promise2 );
-            assert( !(promise instanceof Promise1) );
-            assert(e === err2);
-            donecall();
-        });
-
-        assert( Promise1.onPossiblyUnhandledRejection !==
-                Promise2.onPossiblyUnhandledRejection );
-
-        var d1 = Promise1.pending();
-        var d2 = Promise2.pending();
-
-        d1.promise.then(function(){
-            throw err1;
-        });
-
-        d2.promise.then(function(){
-            throw err2;
-        });
-
-        setTimeout(function(){
-            d1.fulfill();
-            d2.fulfill();
-        }, 13);
     });
 
-});
+}
 
-},{"../../js/debug/promise.js":34,"assert":2}],128:[function(require,module,exports){
+},{"../../js/debug/promise.js":34,"__browserify_process":15,"assert":2}],128:[function(require,module,exports){
 /*global describe specify require global*/
 //TODO include the copyright
     "use strict";
