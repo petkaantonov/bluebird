@@ -545,7 +545,22 @@ describe("RejectionError wrapping", function() {
     var CustomError = function(){
 
     }
-    CustomError.prototype = Object.create(Error.prototype);
+    CustomError.prototype = new Error();
+    CustomError.prototype.constructor = CustomError;
+
+    function isUntypedError( obj ) {
+        return obj instanceof Error &&
+            Object.getPrototypeOf( obj ) === Error.prototype;
+    }
+
+
+    if(!isUntypedError(new Error())) {
+        console.log("error must be untyped");
+    }
+
+    if(isUntypedError(new CustomError())) {
+        console.log("customerror must be typed");
+    }
 
     function stringback(cb) {
         cb("Primitive as error");

@@ -12,7 +12,7 @@ if( isNodeJS ) {
         it("should enable long stack traces", function(done) {
             Promise.fulfilled().then(function() {
                 throw new Error("Oops");
-            }).catch(function(err) {
+            }).caught(function(err) {
                 process.nextTick(function() {
                     assert(err.stack.indexOf("From previous event") >= 0,
                            "env flag should enable long stack traces");

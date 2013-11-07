@@ -6562,7 +6562,7 @@ var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require( "./assert.js" );
 
-Promise.prototype.error = function( fn ) {
+Promise.prototype.error = function Promise$_error( fn ) {
     return this.caught( RejectionError, fn );
 };
 
@@ -7647,7 +7647,6 @@ SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected( reason ) {
     if( this._isResolved() ) return;
     this._addRejected( reason );
-
     if( this.howMany() > this._canPossiblyFulfill() ) {
         if( this._values.length === this.length() ) {
             this._reject([]);
@@ -10198,7 +10197,7 @@ var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require( "./assert.js" );
 
-Promise.prototype.error = function( fn ) {
+Promise.prototype.error = function Promise$_error( fn ) {
     return this.caught( RejectionError, fn );
 };
 
@@ -19362,7 +19361,7 @@ if( isNodeJS ) {
         it("should enable long stack traces", function(done) {
             Promise.fulfilled().then(function() {
                 throw new Error("Oops");
-            }).catch(function(err) {
+            }).caught(function(err) {
                 process.nextTick(function() {
                     assert(err.stack.indexOf("From previous event") >= 0,
                            "env flag should enable long stack traces");
@@ -21355,7 +21354,22 @@ describe("RejectionError wrapping", function() {
     var CustomError = function(){
 
     }
-    CustomError.prototype = Object.create(Error.prototype);
+    CustomError.prototype = new Error();
+    CustomError.prototype.constructor = CustomError;
+
+    function isUntypedError( obj ) {
+        return obj instanceof Error &&
+            Object.getPrototypeOf( obj ) === Error.prototype;
+    }
+
+
+    if(!isUntypedError(new Error())) {
+        console.log("error must be untyped");
+    }
+
+    if(isUntypedError(new CustomError())) {
+        console.log("customerror must be typed");
+    }
 
     function stringback(cb) {
         cb("Primitive as error");
@@ -24828,10 +24842,16 @@ describe("when.any-test", function () {
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
         var input = [rejected(1), rejected(2), rejected(3)];
-        when.any(input).then(
+        var promise = when.any(input);
+
+        promise.then(
             fail,
             function(result) {
-                assert.deepEqual(result, [1, 2, 3]);
+                //Cannot use deep equality in IE8 because non-enumerable properties are not
+                //supported
+                assert(result[0] === 1);
+                assert(result[1] === 2);
+                assert(result[2] === 3);
                 done();
             }
         );
@@ -26397,7 +26417,10 @@ describe("when.some-test", function () {
         when.some(input, 2).then(
             fail,
             function(failed) {
-                assert.deepEqual(failed, [2, 3]);
+                //Cannot use deep equality in IE8 because non-enumerable properties are not
+                //supported
+                assert(failed[0] === 2);
+                assert(failed[1] === 3);
                 done();
             }
         )
@@ -26439,7 +26462,11 @@ describe("when.some-test", function () {
         when.some(arr, 2).then(assert.fail, function(rejectionReasons){
             //Should be apparent after 2 rejections that
             //it could never be fulfilled
-            assert.deepEqual(rejectionReasons, [1,2]);
+
+            //Cannot use deep equality in IE8 because non-enumerable properties are not
+            //supported
+            assert(rejectionReasons[0] === 1);
+            assert(rejectionReasons[1] === 2);
             done();
         });
 

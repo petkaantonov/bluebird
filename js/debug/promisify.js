@@ -34,7 +34,7 @@ var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require( "./assert.js" );
 
-Promise.prototype.error = function( fn ) {
+Promise.prototype.error = function Promise$_error( fn ) {
     return this.caught( RejectionError, fn );
 };
 

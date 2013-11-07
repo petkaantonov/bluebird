@@ -167,7 +167,10 @@ describe("when.some-test", function () {
         when.some(input, 2).then(
             fail,
             function(failed) {
-                assert.deepEqual(failed, [2, 3]);
+                //Cannot use deep equality in IE8 because non-enumerable properties are not
+                //supported
+                assert(failed[0] === 2);
+                assert(failed[1] === 3);
                 done();
             }
         )
@@ -209,7 +212,11 @@ describe("when.some-test", function () {
         when.some(arr, 2).then(assert.fail, function(rejectionReasons){
             //Should be apparent after 2 rejections that
             //it could never be fulfilled
-            assert.deepEqual(rejectionReasons, [1,2]);
+
+            //Cannot use deep equality in IE8 because non-enumerable properties are not
+            //supported
+            assert(rejectionReasons[0] === 1);
+            assert(rejectionReasons[1] === 2);
             done();
         });
 

@@ -95,10 +95,16 @@ describe("when.any-test", function () {
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
         var input = [rejected(1), rejected(2), rejected(3)];
-        when.any(input).then(
+        var promise = when.any(input);
+
+        promise.then(
             fail,
             function(result) {
-                assert.deepEqual(result, [1, 2, 3]);
+                //Cannot use deep equality in IE8 because non-enumerable properties are not
+                //supported
+                assert(result[0] === 1);
+                assert(result[1] === 2);
+                assert(result[2] === 3);
                 done();
             }
         );
