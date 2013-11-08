@@ -5,7 +5,7 @@ install: npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli gr
   grunt-saucelabs
 before_script:
 - git submodule update --init --recursive
-script: grunt test --ci
+script: 'grunt test --ci && grunt test-browser'
 env:
   global:
   - secure: lFeRife2Lr6vaiVAKjRg2VyTP8Gu+1z6i0JeQ4w6BfAbIkpAgFLOsyVH5QGlnmOLclBtMIHMcNGOCH3RfozVd26TPZMPslPCgh4zal0hCYQHE1n0Cpqsq/m7aA8WlhYd2RGx4A/zZaJ5ZVhUPLnpAAnEocslMsW4aRzkb3aJHIs=
