@@ -2,6 +2,6 @@ mocha.setup({
     //reporter: mocha.reporters.TAP,
     ignoreLeaks: true,
     ui: "bdd",
-    timeout: 2500,
+    timeout: 25000,
     slow: Infinity
 });
