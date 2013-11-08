@@ -1,5 +1,12 @@
 language: node_js
 node_js:
-    - "0.10"
-install: "npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli"
-script: "grunt test --ci"
+- '0.10'
+install: npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli grunt-contrib-connect
+  grunt-saucelabs
+before_script:
+- git submodule update --init --recursive
+script: grunt test --ci
+env:
+  global:
+  - secure: lFeRife2Lr6vaiVAKjRg2VyTP8Gu+1z6i0JeQ4w6BfAbIkpAgFLOsyVH5QGlnmOLclBtMIHMcNGOCH3RfozVd26TPZMPslPCgh4zal0hCYQHE1n0Cpqsq/m7aA8WlhYd2RGx4A/zZaJ5ZVhUPLnpAAnEocslMsW4aRzkb3aJHIs=
+  - secure: U4//Sr89P3kGimkmxRr7gqYRtvaoy4HQXtPIORAlIX1BPXxS4EJ63JCgbEtqNSnIZ0/ybjTlpT7AHcBkMUX7BWjQojTj4sEmUeYe4jorK8NVCpam3r99q5XhsdFzJ3t2R0pLiC4q9GyuTyUitJmZ4U7jHbrXkfh7UJ3FdqIECv4=

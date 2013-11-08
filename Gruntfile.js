@@ -8,6 +8,45 @@ Q.longStackSupport = true;
 module.exports = function( grunt ) {
     var isCI = !!grunt.option("ci");
 
+
+    function getBrowsers() {
+        //Terse format to generate the verbose format required by sauce
+        var browsers = {
+            "internet explorer|Windows 7": ["8", "9", "10"],
+            "internet explorer|Windows 8.1": ["11"],
+            "firefox|Windows 7": ["3.5", "3.6", "4", "25"],
+            "chrome|Windows 7": null,
+            "safari|Windows 7": ["5"],
+            "safari|OS X 10.8": ["6"],
+            "iphone|OS X 10.8": ["6.0"]
+        };
+
+        var ret = [];
+        for( var browserAndPlatform in browsers) {
+            var split = browserAndPlatform.split("|");
+            var browser = split[0];
+            var platform = split[1];
+            var versions = browsers[browserAndPlatform];
+            if( versions != null ) {
+                for( var i = 0, len = versions.length; i < len; ++i ) {
+                    ret.push({
+                        browserName: browser,
+                        platform: platform,
+                        version: versions[i]
+                    });
+                }
+            }
+            else {
+                ret.push({
+                    browserName: browser,
+                    platform: platform
+                });
+            }
+        }
+        return ret;
+    }
+
+
     var optionalModuleDependencyMap = {
         "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
         "race.js": ['Promise', 'Promise$_All', 'PromiseArray'],
@@ -260,6 +299,31 @@ module.exports = function( grunt ) {
         gruntConfig.jshint.all.options.reporter = require("jshint-stylish");
     }
 
+    gruntConfig.connect = {
+        server: {
+            options: {
+                base: "./browser",
+                port: 9999
+            }
+        }
+    };
+
+    gruntConfig.watch = {};
+
+    gruntConfig["saucelabs-mocha"] = {
+        all: {
+            options: {
+                urls: ["http://127.0.0.1:9999/index.html"],
+                tunnelTimeout: 5,
+                build: process.env.TRAVIS_JOB_ID,
+                concurrency: 3,
+                browsers: getBrowsers(),
+                testname: "mocha tests",
+                tags: ["master"]
+            }
+        }
+    };
+
     gruntConfig.bump = {
       options: {
         files: ['package.json'],
@@ -277,6 +341,8 @@ module.exports = function( grunt ) {
     };
 
     grunt.initConfig(gruntConfig);
+    grunt.loadNpmTasks("grunt-contrib-connect");
+    grunt.loadNpmTasks("grunt-saucelabs");
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -649,6 +715,8 @@ module.exports = function( grunt ) {
     });
 
     grunt.registerTask( "test", ["jshint", "build", "testrun"] );
+    grunt.registerTask( "test-browser", ["connect", "saucelabs-mocha"]);
     grunt.registerTask( "default", ["jshint", "build"] );
+    grunt.registerTask( "dev", ["connect", "watch"] );
 
 };

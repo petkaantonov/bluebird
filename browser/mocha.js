@@ -1722,7 +1722,7 @@ exports = module.exports = HTML;
  * Stats template.
  */
 
-var statsTemplate = '<ul id="stats">'
+var statsTemplate = '<ul id="mocha-stats">'
   + '<li class="progress"><canvas width="40" height="40"></canvas></li>'
   + '<li class="passes"><a href="#">passes:</a> <em>0</em></li>'
   + '<li class="failures"><a href="#">failures:</a> <em>0</em></li>'
@@ -3419,7 +3419,6 @@ Runnable.prototype.run = function(fn){
     try {
       this.fn.call(ctx, function(err){
         if (err instanceof Error) return done(err);
-        if (null != err) return done(new Error('done() invoked with non-Error: ' + err));
         done();
       });
     } catch (err) {
