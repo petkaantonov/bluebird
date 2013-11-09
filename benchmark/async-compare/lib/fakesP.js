@@ -23,6 +23,9 @@ else if (global.useKew) {
 else if( global.useRSVP ) {
     var lifter = require("rsvp").denodeify;
 }
+else if( global.useDeferred) {
+    var lifter = require("deferred").promisify;
+}
 else {
     var lifter = require('when/node/function').lift
 }

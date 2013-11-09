@@ -5,6 +5,7 @@
   "main": "perf.js",
   "dependencies": {
     "optimist": "latest",
+    "deferred": "latest",
     "when": "latest",
     "esprima": "latest",
     "async": "latest",

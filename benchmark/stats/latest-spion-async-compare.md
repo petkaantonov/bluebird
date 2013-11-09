@@ -1,7 +1,8 @@
-    $ npm ls kew q when rsvp async bluebird
+    $ npm ls kew q when rsvp async bluebird deferred
     async-compare@0.1.0 c:\Users\Petka Antonov\bluebird\benchmark\async-compare
     ├── async@0.2.9
     ├── bluebird@0.9.10-1
+    ├── deferred@0.6.6
     ├── kew@0.3.0
     ├── q@0.9.7
     ├── rsvp@2.0.4
@@ -10,14 +11,15 @@
     results for 10000 parallel executions, 1 ms per I/O op
 
     file                                 time(ms)  memory(MB)
-    callbacks-baseline.js                     172       35.10
-    promises-bluebird-generator.js            234       39.98
-    promises-bluebird.js                      374       56.70
-    callbacks-caolan-async-waterfall.js       687       76.50
-    promises-obvious-kew.js                  1123      122.36
-    promises-cujojs-when.js                  4899      289.62
-    promises-tildeio-rsvp.js                 6630      357.94
-    promises-kriskowal-q.js                 24695      717.38
+    callbacks-baseline.js                     172       35.23
+    promises-bluebird-generator.js            218       38.39
+    promises-bluebird.js                      421       58.43
+    callbacks-caolan-async-waterfall.js       639       76.95
+    promises-obvious-kew.js                  1154      139.08
+    promises-medikoo-deferred.js             2574      335.59
+    promises-cujojs-when.js                  5101      290.52
+    promises-tildeio-rsvp.js                 6848      395.65
+    promises-kriskowal-q.js                 24664      716.84
 
     Platform info:
     Windows_NT 6.1.7601 x64
