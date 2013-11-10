@@ -20,6 +20,9 @@ else if (global.useKew) {
         }
     }
 }
+else if( global.useLiar) {
+    var lifter = require("liar").denodify;
+}
 else if( global.useRSVP ) {
     var lifter = require("rsvp").denodeify;
 }
