@@ -25,6 +25,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
 - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 - [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
+- [Optimization guide](#optimization-guide)
 
 #Features:
 
@@ -665,7 +666,9 @@ function guessWhatItPrints( url ) {
 
 #Optimization guide
 
-todo
+Articles about optimization will be periodically posted in [the wiki section](https://github.com/petkaantonov/bluebird/wiki), polishing edits are welcome.
+
+A single cohesive guide compiled from the articles will probably be done eventually.
 
 #License
 
