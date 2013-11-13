@@ -230,11 +230,8 @@ Promise.all = function Promise$All( promises ) {
 };
 
 Promise.join = function Promise$Join() {
-    var ret = new Array( arguments.length );
-    for( var i = 0, len = ret.length; i < len; ++i ) {
-        ret[i] = arguments[i];
-    }
-    return Promise$_All( ret, PromiseArray, Promise.join, void 0 ).promise();
+    var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+    return Promise$_All( args, PromiseArray, Promise.join, void 0 ).promise();
 };
 Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     var ret = new Promise();

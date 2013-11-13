@@ -47,15 +47,12 @@ function nodebackForResolver( resolver ) {
         }
         else {
             if( arguments.length > 2 ) {
-                var len = arguments.length;
-                var val = new Array( len - 1 );
-                for( var i = 1; i < len; ++i ) {
-                    val[ i - 1 ] = arguments[ i ];
-                }
-
-                value = val;
+                var $_len = arguments.length;var args = new Array($_len - 1); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];}
+                resolver.fulfill( args );
             }
-            resolver.fulfill( value );
+            else {
+                resolver.fulfill( value );
+            }
         }
     }
     return PromiseResolver$_callback;

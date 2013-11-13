@@ -22,12 +22,7 @@
 "use strict";
 module.exports = function( Promise ) {
     Promise.prototype.call = function Promise$call( propertyName ) {
-        var len = arguments.length;
-
-        var args = new Array(len-1);
-        for( var i = 1; i < len; ++i ) {
-            args[ i - 1 ] = arguments[ i ];
-        }
+        var $_len = arguments.length;var args = new Array($_len - 1); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];}
 
         return this._then( function( obj ) {
                 return obj[ propertyName ].apply( obj, args );
