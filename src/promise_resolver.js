@@ -26,15 +26,12 @@ function nodebackForResolver( resolver ) {
         }
         else {
             if( arguments.length > 2 ) {
-                var len = arguments.length;
-                var val = new Array( len - 1 );
-                for( var i = 1; i < len; ++i ) {
-                    val[ i - 1 ] = arguments[ i ];
-                }
-
-                value = val;
+                INLINE_SLICE(args, arguments, 1);
+                resolver.fulfill( args );
             }
-            resolver.fulfill( value );
+            else {
+                resolver.fulfill( value );
+            }
         }
     }
     return PromiseResolver$_callback;

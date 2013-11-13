@@ -180,6 +180,8 @@ module.exports = function( grunt ) {
         var m;
         var globals = {
             Error: true,
+            args: true,
+            INLINE_SLICE: false,
             TypeError: true,
             __DEBUG__: false,
             __BROWSER__: false,
@@ -393,6 +395,7 @@ module.exports = function( grunt ) {
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
+            src = astPasses.inlineExpansion( src, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = src.replace( /__DEBUG__/g, "false" );
             src = src.replace( /__BROWSER__/g, "false" );
@@ -411,6 +414,7 @@ module.exports = function( grunt ) {
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
+            src = astPasses.inlineExpansion( src, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = src.replace( /__DEBUG__/g, "true" );
             src = src.replace( /__BROWSER__/g, "false" );
@@ -429,6 +433,7 @@ module.exports = function( grunt ) {
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
+            src = astPasses.inlineExpansion( src, source.fileName );
             src = astPasses.expandConstants( src, source.fileName );
             src = astPasses.asyncConvert( src, "async", "invoke", source.fileName);
             src = src.replace( /__DEBUG__/g, "false" );

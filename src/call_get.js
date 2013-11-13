@@ -1,12 +1,7 @@
 "use strict";
 module.exports = function( Promise ) {
     Promise.prototype.call = function Promise$call( propertyName ) {
-        var len = arguments.length;
-
-        var args = new Array(len-1);
-        for( var i = 1; i < len; ++i ) {
-            args[ i - 1 ] = arguments[ i ];
-        }
+        INLINE_SLICE(args, arguments, 1);
 
         return this._then( function( obj ) {
                 return obj[ propertyName ].apply( obj, args );

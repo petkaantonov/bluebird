@@ -163,6 +163,88 @@ Assertion.prototype.toString = function() {
     return 'ASSERT('+nodeToString(this.expr)+',\n    '+this.exprStr+')';
 };
 
+function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end) {
+    this.varExpr = varExpr;
+    this.collectionExpression = collectionExpression;
+    this.startExpression = startExpression;
+    this.endExpression = endExpression;
+    this.start = start;
+    this.end = end;
+}
+
+InlineSlice.prototype.hasSimpleStartExpression =
+function InlineSlice$hasSimpleStartExpression() {
+    return this.startExpression.type === "Identifier" ||
+        this.startExpression.type === "Literal";
+};
+
+InlineSlice.prototype.hasSimpleEndExpression =
+function InlineSlice$hasSimpleEndExpression() {
+    return this.endExpression.type === "Identifier" ||
+        this.endExpression.type === "Literal";
+};
+
+InlineSlice.prototype.hasSimpleCollection = function InlineSlice$hasSimpleCollection() {
+    return this.collectionExpression.type === "Identifier";
+};
+
+InlineSlice.prototype.toString = function InlineSlice$toString() {
+    var init = this.hasSimpleCollection()
+        ? ""
+        : "var $_collection = " + nodeToString(this.collectionExpression) + ";";
+
+    var collectionExpression = this.hasSimpleCollection()
+        ? nodeToString(this.collectionExpression)
+        : "$_collection";
+
+
+    init += "var $_len = " + collectionExpression + ".length;";
+
+    var varExpr = nodeToString(this.varExpr);
+
+    //No offset arguments at all
+    if( this.startExpression === firstElement ) {
+            return init + "var " + varExpr + " = new Array($_len); " +
+            "for(var $_i = 0; $_i < $_len; ++$_i) {" +
+                    varExpr + "[$_i] = " + collectionExpression + "[$_i];" +
+            "}";
+    }
+    else {
+        if( !this.hasSimpleStartExpression() ) {
+            init += "var $_start = " + nodeToString(this.startExpression) + ";";
+        }
+        var startExpression = this.hasSimpleStartExpression()
+            ? nodeToString(this.startExpression)
+            : "$_start";
+
+            //Start offset argument given
+        if( this.endExpression === lastElement ) {
+            return init + "var " + varExpr + " = new Array($_len - " +
+             startExpression + "); " +
+            "for(var $_i = " + startExpression + "; $_i < $_len; ++$_i) {" +
+                    varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
+            "}";
+        }
+            //Start and end offset argument given
+        else {
+
+            if( !this.hasSimpleEndExpression() ) {
+                init += "var $_end = " + nodeToString(this.endExpression) + ";";
+            }
+            var endExpression = this.hasSimpleEndExpression()
+                ? nodeToString(this.endExpression)
+                : "$_end";
+
+            return init + "var " + varExpr + " = new Array(" + endExpression + " - " +
+             startExpression + "); " +
+            "for(var $_i = " + startExpression + "; $_i < " + endExpression + "; ++$_i) {" +
+                    varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
+            "}";
+        }
+
+    }
+};
+
 var opts = {
     ecmaVersion: 5,
     strictSemicolons: false,
@@ -233,10 +315,61 @@ function parse( src, opts, fileName) {
     }
 }
 
+var inlinedFunctions = Object.create(null);
+
+var lastElement = jsp.parse("___input.length").body[0].expression;
+var firstElement = jsp.parse("0").body[0].expression;
+inlinedFunctions.INLINE_SLICE = function( node ) {
+    var statement = node;
+    node = node.expression;
+    var args = node.arguments;
+
+    if( !(2 <= args.length && args.length <= 4 ) ) {
+        throw new Error("INLINE_SLICE must have exactly 2, 3 or 4 arguments");
+    }
+
+    var varExpression = args[0];
+    var collectionExpression = args[1];
+    var startExpression = args.length < 3
+        ? firstElement
+        : args[2];
+    var endExpression = args.length < 4
+        ? lastElement
+        : args[3];
+    return new InlineSlice(varExpression, collectionExpression,
+        startExpression, endExpression, statement.start, statement.end);
+};
+
 var constants = {};
 var ignore = [];
 
 var astPasses = module.exports = {
+
+    inlineExpansion: function( src, fileName ) {
+        var ast = parse(src, fileName);
+        var results = [];
+        walk.simple(ast, {
+            ExpressionStatement: function( node ) {
+                if( node.expression.type !== 'CallExpression' ) {
+                    return;
+                }
+
+                var name = node.expression.callee.name;
+
+                if( typeof inlinedFunctions[ name ] === "function" ) {
+                    try {
+                        results.push( inlinedFunctions[ name ]( node ) );
+                    }
+                    catch(e) {
+                        e.fileName = fileName;
+                        throw e;
+                    }
+
+                }
+            }
+        });
+        return convertSrc( src, results );
+    },
 
     //Parse constants in from constants.js
     readConstants: function( src, fileName ) {
