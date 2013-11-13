@@ -136,6 +136,26 @@ describe("spread", function () {
         return promise;
     });
 
+    it("spreads arrays of thenables across arguments", function () {
+        var p1 = {
+            then: function(v) {
+                v(10);
+            }
+        };
+        var p2 = {
+            then: function(v) {
+                v(20);
+            }
+        };
+
+        var promise = Q.spread([p1, p2],
+                               function (a, b) {
+            assert.equal(a,10);
+            assert.equal(b,20);
+        });
+        return promise;
+    });
+
     it("calls the errback when given a rejected promise", function (done) {
         var err = new Error();
         var abc = [fulfilled(10), rejected(err)];

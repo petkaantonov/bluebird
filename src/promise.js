@@ -754,7 +754,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
             //since the spread target callback will have
             //a formal parameter for each item in the array
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
+                if( isPromise( Promise._cast( value[i] ) ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
