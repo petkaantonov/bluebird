@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.10-1
+ * bluebird build version 0.9.10-2
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -2249,7 +2249,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
+                if( isPromise( Promise._cast( value[i] ) ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,

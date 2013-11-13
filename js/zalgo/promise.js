@@ -588,7 +588,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
+                if( isPromise( Promise._cast( value[i] ) ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
