@@ -1723,7 +1723,7 @@ exports = module.exports = HTML;
  */
 
 var statsTemplate = '<ul id="mocha-stats">'
-  + '<li class="progress"><canvas width="40" height="40"></canvas></li>'
+  + '<li class="progress"></li>'
   + '<li class="passes"><a href="#">passes:</a> <em>0</em></li>'
   + '<li class="failures"><a href="#">failures:</a> <em>0</em></li>'
   + '<li class="duration">duration: <em>0</em>s</li>'
@@ -1756,7 +1756,7 @@ function HTML(runner) {
     , progress
     , ctx
 
-  if (canvas.getContext) {
+  if (canvas && canvas.getContext) {
     ctx = canvas.getContext('2d');
     progress = new Progress;
   }

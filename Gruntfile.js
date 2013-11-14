@@ -12,7 +12,7 @@ module.exports = function( grunt ) {
     function getBrowsers() {
         //Terse format to generate the verbose format required by sauce
         var browsers = {
-            "internet explorer|Windows XP": ["6", "7"],
+            "internet explorer|Windows XP": ["7"],
             "internet explorer|Windows 7": ["8", "9", "10"],
             "internet explorer|Windows 8.1": ["11"],
             "firefox|Windows 7": ["3.5", "3.6", "4", "25"],
