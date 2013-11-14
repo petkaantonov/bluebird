@@ -140,5 +140,5 @@ exports.rejected = {
             tuple.reject(reason);
         }, 50);
         return tuple.promise;
-    },
+    }
 };

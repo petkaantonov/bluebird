@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.9.10-2
+ * bluebird build version 0.9.11-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */

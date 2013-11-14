@@ -5556,7 +5556,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
+                if( isPromise( Promise._cast( value[i] ) ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
@@ -9525,7 +9525,7 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( value[i] ) ) {
+                if( isPromise( Promise._cast( value[i] ) ) ) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
@@ -20526,7 +20526,7 @@ exports.rejected = {
             tuple.reject(reason);
         }, 50);
         return tuple.promise;
-    },
+    }
 };
 
 },{}],135:[function(require,module,exports){
@@ -23730,6 +23730,26 @@ describe("spread", function () {
             deferredB.resolve(20);
         });
 
+        return promise;
+    });
+
+    it("spreads arrays of thenables across arguments", function () {
+        var p1 = {
+            then: function(v) {
+                v(10);
+            }
+        };
+        var p2 = {
+            then: function(v) {
+                v(20);
+            }
+        };
+
+        var promise = Q.spread([p1, p2],
+                               function (a, b) {
+            assert.equal(a,10);
+            assert.equal(b,20);
+        });
         return promise;
     });
 
