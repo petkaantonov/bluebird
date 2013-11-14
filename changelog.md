@@ -1,3 +1,44 @@
+## 0.9.11-1 (2013-11-14)
+
+Features:
+
+ - Implicit `Promise.all()` when yielding an array from generators
+
+## 0.9.11-0 (2013-11-13)
+
+Bugfixes:
+
+ - Fix `.spread` not unwrapping thenables
+
+## 0.9.10-2 (2013-11-13)
+
+Features:
+
+ - Improve performance of promisified functions on V8
+
+Bugfixes:
+
+ - Report unhandled rejections even when long stack traces are disabled
+ - Fix `.error()` showing up in stack traces
+
+## 0.9.10-1 (2013-11-05)
+
+Bugfixes:
+
+ - Catch filter method calls showing in stack traces
+
+## 0.9.10-0 (2013-11-05)
+
+Bugfixes:
+
+ - Support primitives in catch filters
+
+## 0.9.9-0 (2013-11-05)
+
+Features:
+
+ - Add `Promise.race()` and `.race()`
+
 ## 0.9.8-0 (2013-11-01)
 
 Bugfixes:
