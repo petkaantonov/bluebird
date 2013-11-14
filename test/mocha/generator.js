@@ -34,7 +34,7 @@ var error = new Error("asd");
 
 describe("yielding", function() {
 
-    specify("non-promise should throw", function(done){
+    specify("non-promise should throw", function(done) {
 
         Promise.spawn(function*(){
 
@@ -48,7 +48,32 @@ describe("yielding", function() {
         });
     });
 
-    specify("non-promise should throw but be catchable", function(done){
+    specify("an array should implicitly Promise.all them", function(done) {
+        var a = Promise.pending();
+        var ap = a.promise;
+        var b = Promise.pending();
+        var bp = b.promise;
+        var c = Promise.pending();
+        var cp = c.promise;
+        Promise.spawn(function*(){
+            return yield [ap, bp, cp];
+        }).then(function(r) {
+            //.spread will also implicitly use .all() so that cannot be used here
+            var a = r[0]; var b = r[1]; var c = r[2];
+            assert( a === 1 );
+            assert( b === 2 );
+            assert( c === 3);
+            done();
+        });
+
+        setTimeout(function(){
+            a.fulfill(1);
+            b.fulfill(2);
+            c.fulfill(3);
+        }, 13);
+    });
+
+    specify("non-promise should throw but be catchable", function(done) {
 
         Promise.spawn(function*(){
             try {

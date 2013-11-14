@@ -1402,6 +1402,31 @@ When called, the coroutine function will start an instance of the generator and 
 
 Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
 
+**Tip**
+
+If you yield an array then its elements are implicitly waited for.
+
+You can combine it with ES6 destructing for some neat syntax:
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
+    //use resultA
+    //use resultB
+});
+```
+
+You might wonder why not just do this?
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    var resultA = yield http.getAsync(urlA);
+    var resultB = yield http.getAsync(urlB);
+});
+```
+
+The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
+
 <hr>
 
 #####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
@@ -1449,6 +1474,31 @@ room.addUser(2);
 ```
 
 In the above example, all the methods of `ChatRoom` can avoid the `var self = this` prologue and just use `this` normally inside the generator.
+
+**Tip**
+
+If you yield an array then its elements are implicitly waited for.
+
+You can combine it with ES6 destructing for some neat syntax:
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
+    //use resultA
+    //use resultB
+});
+```
+
+You might wonder why not just do this?
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    var resultA = yield http.getAsync(urlA);
+    var resultB = yield http.getAsync(urlB);
+});
+```
+
+The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
 
 <hr>
 
