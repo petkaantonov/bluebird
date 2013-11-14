@@ -6446,6 +6446,7 @@ var errors = require( "./errors.js" );
 var TypeError = errors.TypeError;
 var ensureNotHandled = errors.ensureNotHandled;
 var util = require("./util.js");
+var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 
@@ -6482,10 +6483,15 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
     else {
         var maybePromise = Promise._cast( value, PromiseSpawn$_continue );
         if( !( maybePromise instanceof Promise ) ) {
-            this._throw( new TypeError(
-                "A value was yielded that could not be treated as a promise"
-            ) );
-            return;
+            if( isArray( maybePromise ) ) {
+                maybePromise = Promise.all( maybePromise );
+            }
+            else {
+                this._throw( new TypeError(
+                    "A value was yielded that could not be treated as a promise"
+                ) );
+                return;
+            }
         }
         maybePromise._then(
             this._next,
@@ -6514,6 +6520,7 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
 
 return PromiseSpawn;
 };
+
 },{"./errors.js":26,"./util.js":52}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
@@ -7319,6 +7326,12 @@ else if( ( typeof MutationObserver === "function" ||
         };
 
     })();
+} else if( global.navigator &&
+        navigator.appName === "Microsoft Internet Explorer" &&
+        global.setTimeout ) {
+    schedule = function Promise$_Scheduler( fn ) {
+        setTimeout( fn, 4 );
+    };
 }
 else if ( typeof global.postMessage === "function" &&
     typeof global.importScripts !== "function" &&
@@ -10781,6 +10794,12 @@ else if( ( typeof MutationObserver === "function" ||
         };
 
     })();
+} else if( global.navigator &&
+        navigator.appName === "Microsoft Internet Explorer" &&
+        global.setTimeout ) {
+    schedule = function Promise$_Scheduler( fn ) {
+        setTimeout( fn, 4 );
+    };
 }
 else if ( typeof global.postMessage === "function" &&
     typeof global.importScripts !== "function" &&
