@@ -14,7 +14,6 @@ module.exports = function( grunt ) {
         var browsers = {
             "internet explorer|Windows XP": ["7"],
             "internet explorer|Windows 7": ["8"],
-            "internet explorer|Windows 8": ["10"],
             "internet explorer|WIN8": ["10"],
             "internet explorer|WIN8.1": ["11"],
             "firefox|Windows 7": ["3.5", "3.6", "4", "25"],
