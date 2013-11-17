@@ -60,3 +60,7 @@ CONSTANT(QUEUE_MIN_CAPACITY, 16);
 
 //captured_trace.js
 CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
+
+//direct_resolve.js
+CONSTANT(THROW, 1);
+CONSTANT(RETURN, 2);

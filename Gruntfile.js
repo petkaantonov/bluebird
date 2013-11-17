@@ -261,6 +261,7 @@ module.exports = function( grunt ) {
 
             files: {
                 src: [
+                    "./src/direct_resolve.js",
                     "./src/synchronous_inspection.js",
                     "./src/simple_thenables.js",
                     "./src/complex_thenables.js",
@@ -517,7 +518,8 @@ module.exports = function( grunt ) {
         "./src/properties_promise_array.js",
         "./src/promise_inspection.js",
         "./src/promise_resolver.js",
-        "./src/promise_spawn.js"
+        "./src/promise_spawn.js",
+        "./src/direct_resolve.js"
     ];
 
     var mutExPaths = [

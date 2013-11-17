@@ -1163,6 +1163,7 @@ if( !CapturedTrace.isSupported() ) {
     longStackTraces = false;
 }
 
+require( "./direct_resolve.js" )( Promise );
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;

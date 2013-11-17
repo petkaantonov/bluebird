@@ -8,6 +8,8 @@
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [`.return(dynamic value)`](#returndynamic-value---promise)
+    - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
     - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
@@ -446,6 +448,52 @@ The above does `console.log(document.getElementById("my-element"));`. The `.bind
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
+
+<hr>
+
+#####`.return(dynamic value)` -> `Promise`
+
+Convenience method for:
+
+```js
+.then(function() {
+   return value;
+});
+```
+
+in the case where `value` doesn't change its value.
+
+That means `value` is bound at the time of calling `.return()` so this will not work as expected:
+
+```js
+function getData() {
+    var data;
+
+    return query().then(function(result) {
+        data = result;
+    }).return(data);
+}
+```
+
+because `data` is `undefined` at the time `.return` is called.
+
+*For compatibility with earlier ECMAScript version, an alias `.thenReturn()` is provided for `.return()`.*
+
+<hr>
+
+#####`.throw(dynamic reason)` -> `Promise`
+
+Convenience method for:
+
+```js
+.then(function() {
+   throw reason;
+});
+```
+
+Same limitations apply as with `.return()`.
+
+*For compatibility with earlier ECMAScript version, an alias `.thenThrow()` is provided for `.throw()`.*
 
 <hr>
 
