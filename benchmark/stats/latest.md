@@ -25,20 +25,20 @@ bench doxbee-sequential
     promises-tildeio-rsvp.js                 6536      301.55
     promises-kriskowal-q.js                 23322      713.96
 
-bench parallel (`--p 15`)
+bench parallel (`--p 25`)
 
     results for 10000 parallel executions, 1 ms per I/O op
 
     file                                time(ms)  memory(MB)
-    callbacks-baseline.js                    406       29.43
-    promises-bluebird-generator.js           421       90.12
-    promises-bluebird.js                     421       98.18
-    callbacks-caolan-async-parallel.js       764      151.31
-    promises-obvious-kew.js                 2075      542.27
-    promises-calvinmetcalf-liar.js          2886      453.70
-    promises-medikoo-deferred.js            2933      434.21
-    promises-cujojs-when.js                 6427     1229.53
-    promises-tildeio-rsvp.js               11169     1359.55
+    callbacks-baseline.js                    281       45.21
+    promises-bluebird-generator.js           546      126.87
+    promises-bluebird.js                     593      136.80
+    callbacks-caolan-async-parallel.js      1077      202.25
+    promises-obvious-kew.js                 2964      892.09
+    promises-medikoo-deferred.js            4649      590.28
+    promises-calvinmetcalf-liar.js          5913      798.02
+    promises-cujojs-when.js                  OOM         OOM
+    promises-tildeio-rsvp.js                 OOM         OOM
     promises-kriskowal-q.js                  OOM         OOM
 
     Platform info:

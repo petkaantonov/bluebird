@@ -14,7 +14,7 @@ elif [ "$benchmark" = "parallel" ]; then
     cd "$cwd/benchmark"
     npm install
     echo "Madeup parallel"
-    node performance.js --n 10000 --t 1 --p 15 ./madeup-parallel/*.js --harmony
+    node performance.js --n 10000 --t 1 --p 25 ./madeup-parallel/*.js --harmony
     exit 0
 else
     echo "Invalid benchmark name $benchmark"
