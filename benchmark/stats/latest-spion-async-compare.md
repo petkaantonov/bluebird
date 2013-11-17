@@ -12,16 +12,16 @@
     results for 10000 parallel executions, 1 ms per I/O op
 
     file                                 time(ms)  memory(MB)
-    callbacks-baseline.js                     156       34.59
-    promises-bluebird-generator.js            203       38.53
-    promises-bluebird.js                      375       56.79
-    callbacks-caolan-async-waterfall.js       609       74.71
-    promises-obvious-kew.js                  1061      106.02
-    promises-medikoo-deferred.js             2434      337.29
-    promises-calvinmetcalf-liar.js           2527      279.33
-    promises-cujojs-when.js                  5008      294.05
-    promises-tildeio-rsvp.js                 6692      502.84
-    promises-kriskowal-q.js                 23837      717.39
+    callbacks-baseline.js                     172       34.69
+    promises-bluebird-generator.js            234       39.63
+    promises-bluebird.js                      312       48.68
+    callbacks-caolan-async-waterfall.js       609       75.96
+    promises-obvious-kew.js                  1061      120.68
+    promises-medikoo-deferred.js             2434      337.46
+    promises-calvinmetcalf-liar.js           2605      343.23
+    promises-cujojs-when.js                  4820      285.99
+    promises-tildeio-rsvp.js                 6536      301.55
+    promises-kriskowal-q.js                 23322      713.96
 
     Platform info:
     Windows_NT 6.1.7601 x64
