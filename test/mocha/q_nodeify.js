@@ -177,13 +177,11 @@ if( isNodeJS ) {
         it("throws normally in the node process if the function throws", function (done) {
             clearHandlers();
             var promise = Q(10);
-            promise.nodeify(thrower);
             var turns = 0;
             process.nextTick(function(){
-
                 turns++;
             });
-            var doneCalls = 0;
+            promise.nodeify(thrower);
             process.addListener("uncaughtException", function(err) {
                 clearHandlersNoRestore();
                 assert( err === e );
