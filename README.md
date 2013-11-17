@@ -509,21 +509,21 @@ Keep the test tab active because some tests are timing-sensitive and will fail i
 
 ##Benchmarks
 
-Currently the most relevant benchmark is @gorkikosev's benchmark in the article [Analysis of generators and other async patterns in node](http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html). The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action. The benchmark has been modified to include a warm-up phase to minimize any JITing during timed sections.
-
-You can run the benchmark with:
-
-    bench spion
-
-While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
+To run a benchmark, run the given command for a benchmark while on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 Node 0.11.2+ is required to run the generator examples.
 
-Another benchmark to run is the [When.js benchmarks by CujoJS](https://github.com/cujojs/promise-perf-tests). The reduce and map have been modified from the original. The benchmarks also include warmup-phases.
+###1\. DoxBee sequential
 
-    bench cujojs
+Currently the most relevant benchmark is @gorkikosev's benchmark in the article [Analysis of generators and other async patterns in node](http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html). The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action. The benchmark has been modified to include a warm-up phase to minimize any JITing during timed sections.
 
-While on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
+Command: `bench doxbee`
+
+###2\. Made-up parallel
+
+This made-up scenario runs 15 shimmed queries in parallel.
+
+Command: `bench parallel`
 
 ##Custom builds
 

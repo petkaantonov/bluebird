@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../node_modules/curl/src/curl.js"></script>
+    <script type="text/javascript">
+        curl.config({
+            packages: {
+                when: { location: '..', main: 'when' },
+                benchmark: {
+                    location: '../node_modules/benchmark', main: 'benchmark'
+                }
+            }
+        });
+
+        curl(['./promise.js']);
+    </script>
+</head>
+<body>
+
+</body>
+</html>

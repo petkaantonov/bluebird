@@ -1,0 +1,48 @@
+@root
+
+module
+es5
+
+indent 2
+maxlen 80
+tabs
+
+ass
+nomen
+plusplus
+stupid
+
+predef+ setTimeout, clearTimeout
+
+./benchmark
+predef+ console, __filename, process
+
+./examples
+predef+ console
+
+./examples/test-with-mocha-and-should.js
+predef+ describe, it
+
+./lib/ext/array/map.js
+bitwise
+
+./lib/ext/array/reduce.js
+bitwise
+
+./lib/ext/array/some.js
+bitwise
+
+./lib/ext/function/promisify-sync.js
+bitwise
+
+./lib/ext/function/promisify.js
+bitwise
+
+./lib/monitor.js
+predef+ console
+
+./lib/profiler.js
+predef+ console
+
+./test/index.js
+predef+ __dirname

@@ -1,0 +1,17 @@
+---
+language: node_js
+node_js:
+- '0.10'
+before_install:
+- npm install -g grunt-cli
+after_success: grunt build s3:dev
+env:
+  global:
+  - secure: |-
+      d59CLXVX6GiFNo9z2vzCt/l/3p2/RjvjgYvrE3Tx7Ose6H7BBOuV6fSGOQ2n
+      MK4RHcA+2TIhNshldeX6ZCXNaRIMY3dixfJBF7eb2N7wDBj2hA17oxvE0MzE
+      rOWXzvAmxA53/xvr4bShoCbsa06WDGScEkcdJRCnFG+ReAyG/WU=
+  - secure: |-
+      mrNGoG5AycW+d5jlghF9PJHQW1ETT9jWI7bGe9QX1QRpoSLkGAvxavrujmhu
+      UNRP/pe5AJBh3zDED38nD/ZGtrcSYQ5CC6QbFLx5mLtqn7mNTo1m3C5lr+55
+      Sb6mnyLLz2eoPBUMcXwY1i9Qisy40uhfV9VuD5B/gvVud2+oJWI=

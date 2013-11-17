@@ -4,14 +4,17 @@ cwd=${PWD}
 
 trap 'cd "$cwd"' EXIT
 
-if [ "$benchmark" = "spion" ]; then
-    cd "$cwd/benchmark/async-compare"
-    npm install
-    node performance.js --n 10000 --t 1 ./dev-bluebird/*.js --harmony
-    exit 0
-elif [ "$benchmark" = "cujojs" ]; then
+if [ "$benchmark" = "doxbee" ]; then
     cd "$cwd/benchmark"
-    node cujojs.js
+    npm install
+    echo "Doxbee sequential"
+    node performance.js --n 10000 --t 1 ./doxbee-sequential/*.js --harmony
+    exit 0
+elif [ "$benchmark" = "parallel" ]; then
+    cd "$cwd/benchmark"
+    npm install
+    echo "Madeup parallel"
+    node performance.js --n 10000 --t 1 --p 15 ./madeup-parallel/*.js --harmony
     exit 0
 else
     echo "Invalid benchmark name $benchmark"
