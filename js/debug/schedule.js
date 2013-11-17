@@ -24,17 +24,9 @@ var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var schedule;
 if( typeof process !== "undefined" && process !== null &&
-    typeof process.cwd === "function" ) {
-    if( typeof global.setImmediate !== "undefined" ) {
-        schedule = function Promise$_Scheduler( fn ) {
-            global.setImmediate( fn );
-        };
-    }
-    else {
-        schedule = function Promise$_Scheduler( fn ) {
-            process.nextTick( fn );
-        };
-    }
+    typeof process.cwd === "function" &&
+    typeof process.nextTick === "function" ) {
+    schedule = process.nextTick;
 }
 else if( ( typeof MutationObserver === "function" ||
         typeof WebkitMutationObserver === "function" ||
