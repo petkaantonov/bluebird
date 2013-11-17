@@ -69,12 +69,6 @@ else if( ( typeof MutationObserver === "function" ||
         };
 
     })();
-} else if( global.navigator &&
-        navigator.appName === "Microsoft Internet Explorer" &&
-        global.setTimeout ) {
-    schedule = function Promise$_Scheduler( fn ) {
-        setTimeout( fn, 4 );
-    };
 }
 else if ( typeof global.postMessage === "function" &&
     typeof global.importScripts !== "function" &&

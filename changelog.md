@@ -1,3 +1,15 @@
+## 0.10.0-0 (2013-11-17)
+
+Features:
+
+ - Implement `Promise.method()`
+ - Implement `.return()`
+ - Implement `.throw()`
+
+Bugfixes:
+
+ - Fix promises being able to use themselves as resolution or follower value
+
 ## 0.9.11-1 (2013-11-14)
 
 Features:

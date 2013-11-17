@@ -56,6 +56,9 @@ var apiRejection = require("./errors_api_rejection")(Promise);
 
 var APPLY = {};
 
+var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
+    return new TypeError( "Resolving promises cyclically" );
+};
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
@@ -256,6 +259,16 @@ Promise.rejected = function Promise$Rejected( reason ) {
     return ret;
 };
 
+Promise.method = function Promise$_Method( fn ) {
+    if( typeof fn !== "function" ) {
+        throw new TypeError( "fn must be a function" );
+    }
+    return function PromiseMethod() {
+        var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+        return Promise.attempt( fn, args, this );
+    };
+};
+
 Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
 
     if( typeof fn !== "function" ) {
@@ -309,6 +322,7 @@ Promise.cast = function Promise$Cast( obj, caller ) {
     }
     return ret;
 };
+
 
 Promise.onPossiblyUnhandledRejection =
 function Promise$OnPossiblyUnhandledRejection( fn ) {
@@ -622,13 +636,12 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         async.invoke( promise._reject, promise, x.e );
     }
     else if( x === promise ) {
-        var selfResolutionError =
-            new TypeError( "Circular thenable chain" );
-        this._attachExtraTrace( selfResolutionError );
+        var err = makeSelfResolutionError();
+        this._attachExtraTrace( err );
         async.invoke(
             promise._reject,
             promise,
-            selfResolutionError
+            err
         );
     }
     else {
@@ -687,7 +700,8 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
 Promise.prototype._tryAssumeStateOf =
 function Promise$_tryAssumeStateOf( value, mustAsync ) {
     if( !isPromise( value ) ||
-        this._isFollowingOrFulfilledOrRejected() ) return false;
+        this._isFollowingOrFulfilledOrRejected() ||
+        value === this ) return false;
 
     this._assumeStateOf( value, mustAsync );
     return true;
@@ -803,25 +817,6 @@ Promise.prototype._doResolveAt = function Promise$_doResolveAt( i ) {
     this._resolvePromise( fn, receiver, value, promise );
 };
 
-Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
-    this._cleanValues();
-    this._setFulfilled();
-    this._resolvedValue = value;
-    var len = this._length();
-    this._setLength( 0 );
-    for( var i = 0; i < len; i+= 5 ) {
-        if( this._fulfillAt( i ) !== void 0 ) {
-            async.invoke( this._doResolveAt, this, i );
-        }
-        else {
-            var promise = this._promiseAt( i );
-            this._unsetAt( i );
-            async.invoke( promise._fulfill, promise, value );
-        }
-    }
-
-};
-
 Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
     this._setLength( 0 );
     var fn;
@@ -849,7 +844,36 @@ Promise.prototype._resolveLast = function Promise$_resolveLast( index ) {
 
 };
 
+Promise.prototype._resolveFulfill = function Promise$_resolveFulfill( value ) {
+    if( value === this ) {
+        var err = makeSelfResolutionError();
+        this._attachExtraTrace( err );
+        return this._resolveReject( err );
+    }
+    this._cleanValues();
+    this._setFulfilled();
+    this._resolvedValue = value;
+    var len = this._length();
+    this._setLength( 0 );
+    for( var i = 0; i < len; i+= 5 ) {
+        if( this._fulfillAt( i ) !== void 0 ) {
+            async.invoke( this._doResolveAt, this, i );
+        }
+        else {
+            var promise = this._promiseAt( i );
+            this._unsetAt( i );
+            async.invoke( promise._fulfill, promise, value );
+        }
+    }
+
+};
+
 Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
+    if( reason === this ) {
+        var err = makeSelfResolutionError();
+        this._attachExtraTrace( err );
+        return this._resolveReject( err );
+    }
     this._cleanValues();
     this._setRejected();
     this._resolvedValue = reason;
@@ -955,6 +979,7 @@ if( !CapturedTrace.isSupported() ) {
     longStackTraces = false;
 }
 
+require( "./direct_resolve.js" )( Promise );
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
