@@ -354,6 +354,16 @@ Promise.rejected = function Promise$Rejected( reason ) {
     return ret;
 };
 
+Promise.method = function Promise$_Method( fn ) {
+    if( typeof fn !== "function" ) {
+        throw new TypeError( "fn must be a function" );
+    }
+    return function PromiseMethod() {
+        INLINE_SLICE(args, arguments);
+        return Promise.attempt( fn, args, this );
+    };
+};
+
 Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
 
     if( typeof fn !== "function" ) {
@@ -412,6 +422,7 @@ Promise.cast = function Promise$Cast( obj, caller ) {
     }
     return ret;
 };
+
 
 /**
  * If `fn` is a function, will set that function as a callback to call
