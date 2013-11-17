@@ -11,6 +11,7 @@
     - [`.return(dynamic value)`](#returndynamic-value---promise)
     - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
+    - [`Promise.method(Function fn)`](#promisemethodfunction-fn---function)
     - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
     - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
     - [`Promise.pending()`](#promisepending---promiseresolver)
