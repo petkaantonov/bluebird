@@ -624,7 +624,7 @@ module.exports = require("bluebird/js/main/promise")();
 
 Your library can then use `var Promise = require("bluebird-extended");` and do whatever it wants with it. Then if the application or other library uses their own bluebird promises they will all play well together because of Promises/A+ thenable assimilation magic.
 
-You should also know about `[.nodeify()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise) which makes it easy to provide a dual callback/promise API.
+You should also know about [`.nodeify()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise) which makes it easy to provide a dual callback/promise API.
 
 <hr>
 
