@@ -1,3 +1,11 @@
+## 0.10.1-0 (2013-11-21)
+
+Features:
+
+ - Add methods `Promise.resolve()`, `Promise.reject()`, `Promise.defer()` and `.resolve()`.
+
+## 0.10.0-1 (2013-11-17)
+
 ## 0.10.0-0 (2013-11-17)
 
 Features:
