@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.0-0
+ * bluebird build version 0.10.0-1
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -1986,11 +1986,13 @@ Promise.join = function Promise$Join() {
     var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
     return Promise$_All( args, PromiseArray, Promise.join, void 0 ).promise();
 };
-Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
+
+Promise.resolve = Promise.fulfilled =
+function Promise$Resolve( value, caller ) {
     var ret = new Promise();
     ret._setTrace( typeof caller === "function"
         ? caller
-        : Promise.fulfilled, void 0 );
+        : Promise.resolve, void 0 );
     if( ret._tryAssumeStateOf( value, false ) ) {
         return ret;
     }
@@ -2000,9 +2002,9 @@ Promise.fulfilled = function Promise$Fulfilled( value, caller ) {
     return ret;
 };
 
-Promise.rejected = function Promise$Rejected( reason ) {
+Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
     var ret = new Promise();
-    ret._setTrace( Promise.rejected, void 0 );
+    ret._setTrace( Promise.reject, void 0 );
     ret._cleanValues();
     ret._setRejected();
     ret._resolvedValue = reason;
@@ -2050,10 +2052,10 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
     return ret;
 };
 
-Promise.pending = function Promise$Pending( caller ) {
+Promise.defer = Promise.pending = function Promise$Defer( caller ) {
     var promise = new Promise();
     promise._setTrace( typeof caller === "function"
-                              ? caller : Promise.pending, void 0 );
+                              ? caller : Promise.defer, void 0 );
     return new PromiseResolver( promise );
 };
 
@@ -2068,7 +2070,7 @@ Promise.bind = function Promise$Bind( obj ) {
 Promise.cast = function Promise$Cast( obj, caller ) {
     var ret = Promise._cast( obj, caller );
     if( !( ret instanceof Promise ) ) {
-        return Promise.fulfilled( ret, caller );
+        return Promise.resolve( ret, caller );
     }
     return ret;
 };
@@ -3135,7 +3137,8 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
 };
 
-PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
+PromiseResolver.prototype.resolve =
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
