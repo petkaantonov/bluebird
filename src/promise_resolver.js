@@ -83,7 +83,8 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
  * @param {dynamic} value The value to fulfill the promise with.
  *
  */
-PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
+PromiseResolver.prototype.resolve =
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
     if( this.promise._tryAssumeStateOf( value, MAY_SYNC ) ) {
         return;
     }

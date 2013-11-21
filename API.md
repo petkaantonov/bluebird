@@ -12,9 +12,9 @@
     - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.method(Function fn)`](#promisemethodfunction-fn---function)
-    - [`Promise.fulfilled(dynamic value)`](#promisefulfilleddynamic-value---promise)
-    - [`Promise.rejected(dynamic reason)`](#promiserejecteddynamic-reason---promise)
-    - [`Promise.pending()`](#promisepending---promiseresolver)
+    - [`Promise.resolve(dynamic value)`](#promiseresolvedynamic-value---promise)
+    - [`Promise.reject(dynamic reason)`](#promiserejectdynamic-reason---promise)
+    - [`Promise.defer()`](#promisedefer---promiseresolver)
     - [`Promise.cast(dynamic value)`](#promisecastdynamic-value---promise)
     - [`Promise.bind(dynamic thisArg)`](#promisebinddynamic-thisarg---promise)
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
@@ -22,7 +22,7 @@
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Promise resolution](#promise-resolution)
-    - [`.fulfill(dynamic value)`](#fulfilldynamic-value---undefined)
+    - [`.resolve(dynamic value)`](#resolvedynamic-value---undefined)
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.asCallback`](#ascallback---function)
@@ -60,7 +60,7 @@
 - [Synchronous inspection](#synchronous-inspection)
     - [`.isFulfilled()`](#isfulfilled---boolean)
     - [`.isRejected()`](#isrejected---boolean)
-    - [`.isPending()`](#ispending---boolean)
+    - [`.isPending()`](#isdefer---boolean)
     - [`.isResolved()`](#isresolved---boolean)
     - [`.inspect()`](#inspect---promiseinspection)
 - [Utility](#utility)
@@ -106,9 +106,9 @@ For instance when implementing a `delay` function, it's possible to just do this
 
 ```js
 function delay(ms, value) {
-    var resolver = Promise.pending();
+    var resolver = Promise.defer();
     setTimeout(function(){
-        resolver.fulfill(value);
+        resolver.resolve(value);
     }, ms);
     return resolver.promise;
 }
@@ -122,7 +122,7 @@ Note that it isn't really about raw memory - I know you have plenty. It's about 
 
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
-[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
+[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved dedefer on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
 Example:
 
@@ -192,7 +192,7 @@ MyCustomError.prototype = Object.create(Error.prototype);
 Using it:
 
 ```js
-Promise.fulfilled().then(function(){
+Promise.resolve().then(function(){
     throw new MyCustomError();
 }).catch(MyCustomError, function(e){
     //will end up here now
@@ -435,7 +435,7 @@ MyClass.prototype.method = function() {
 Rebinding can also be abused to do something gratuitous like this:
 
 ```js
-Promise.fulfilled("my-element")
+Promise.resolve("my-element")
     .bind(document)
     .then(document.getElementById)
     .bind(console)
@@ -532,11 +532,11 @@ Example without using `Promise.method`:
 ```js
 MyClass.prototype.method = function(input) {
     if (!this.isValid(input)) {
-        return Promise.rejected(new TypeError("input is not valid"));
+        return Promise.reject(new TypeError("input is not valid"));
     }
 
     if (this.cache(input)) {
-        return Promise.fulfilled(this.someCachedValue);
+        return Promise.resolve(this.someCachedValue);
     }
 
     return db.queryAsync(input).then(function(value) {
@@ -567,19 +567,19 @@ MyClass.prototype.method = Promise.method(function(input) {
 
 <hr>
 
-#####`Promise.fulfilled(dynamic value)` -> `Promise`
+#####`Promise.resolve(dynamic value)` -> `Promise`
 
-Create a promise that is fulfilled with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
+Create a promise that is resolved with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
 
 <hr>
 
-#####`Promise.rejected(dynamic reason)` -> `Promise`
+#####`Promise.reject(dynamic reason)` -> `Promise`
 
 Create a promise that is rejected with the given `reason`. The promise is synchronously rejected.
 
 <hr>
 
-#####`Promise.pending()` -> `PromiseResolver`
+#####`Promise.defer()` -> `PromiseResolver`
 
 Create a promise with undecided fate and return a `PromiseResolver` to control it. See [Promise resultion](#promise-resolution).
 
@@ -608,7 +608,7 @@ Promise.cast($.get("http://www.google.com")).then(function(){
 
 #####`Promise.bind(dynamic thisArg)` -> `Promise`
 
-Sugar for `Promise.fulfilled(undefined).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
+Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
 
 <hr>
 
@@ -639,9 +639,9 @@ You should enabled long stack traces if you want better debugging experience. Fo
 
 ```js
 Promise.longStackTraces();
-Promise.fulfilled().then(function outer() {
-    return Promise.fulfilled().then(function inner() {
-        return Promise.fulfilled().then(function evenMoreInner() {
+Promise.resolve().then(function outer() {
+    return Promise.resolve().then(function inner() {
+        return Promise.resolve().then(function evenMoreInner() {
             a.b.c.d()
         }).catch(function catcher(e){
             console.error(e.stack);
@@ -695,9 +695,9 @@ The methods of a `PromiseResolver` have no effect if the fate of the underlying 
 
 <hr>
 
-#####`.fulfill(dynamic value)` -> `undefined`
+#####`.resolve(dynamic value)` -> `undefined`
 
-Fulfill the underlying promise with `value` as the fulfillment value. If `value` is a trusted `Promise`, the underlying promise will instead follow that promise, adapting to its state.
+Resolve the underlying promise with `value` as the resolution value. If `value` is a trusted `Promise`, the underlying promise will instead follow that promise, adapting to its state.
 
 <hr>
 
@@ -715,10 +715,10 @@ Example
 
 ```js
 function delay(ms) {
-    var resolver = Promise.pending();
+    var resolver = Promise.defer();
     var now = Date.now();
     setTimeout(function(){
-        resolver.fulfill(Date.now() - now);
+        resolver.resolve(Date.now() - now);
     }, ms);
     return resolver.promise;
 }
@@ -739,7 +739,7 @@ If the the callback is called with multiple success values, the resolver fullfil
 ```js
 var fs = require("fs");
 function readAbc() {
-    var resolver = Promise.pending();
+    var resolver = Promise.defer();
     fs.readFile("abc.txt", resolver.asCallback);
     return resolver.promise;
 }
@@ -1228,7 +1228,7 @@ Filter an array, or a promise of an array, which contains a promises (or a mix o
 
 ##Cancellation
 
-By default, all Promises are cancellable. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7)
+By default, all Promises are cancellable. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest ancestor of the target promise that is still defer, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7)
 
 If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
 
@@ -1252,7 +1252,7 @@ function ajaxGetAsync(url) {
 #####`.cancel()` -> `Promise`
 
 Cancel this promise. The cancellation will propagate
-to farthest ancestor promise which is still pending.
+to farthest ancestor promise which is still defer.
 
 That ancestor will then be rejected with a CancellationError
 object as the rejection reason.
@@ -1331,7 +1331,7 @@ See if this `promise` has been rejected.
 
 #####`.isPending()` -> `boolean`
 
-See if this `promise` is still pending.
+See if this `promise` is still defer.
 
 <hr>
 
@@ -1355,7 +1355,7 @@ See if the underlying promise was rejected at the creation time of this inspecti
 
 `.isPending()` -> `boolean`
 
-See if the underlying promise was pending at the creation time of this inspection object.
+See if the underlying promise was defer at the creation time of this inspection object.
 
 `.value()` -> `dynamic`, throws `TypeError`
 
