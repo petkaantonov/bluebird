@@ -20,6 +20,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
     - [Testing](#testing)
     - [Benchmarking](#benchmarks)
     - [Custom builds](#custom-builds)
+    - [For library authors](#for-library-authors)
 - [What is the sync build?](#what-is-the-sync-build)
 - [License](#license)
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
@@ -606,6 +607,24 @@ However the specification in A+ 2.x.x requires handling of many theoretical edge
 What you want in a browser is pretty much that the `return $.get` line works. Can you imagine jQuery defining a getter on `.then` property that throws?
 
 Handling such cases requires a lot of code in bluebird. You can use the `simple_thenables` feature which matches what other libraries such as Q are doing.
+
+<hr>
+
+##For library authors
+
+Building a library that depends on bluebird? You should know about a few features.
+
+If your library needs to do something obtrusive like adding or modifying methods on the `Promise` prototype, uses long stack traces or uses a custom unhandled rejection handler then... that's totally ok as long as you don't use `require("bluebird")`. Instead you should create a file
+that creates an isolated copy. For example, creating a file called `bluebird-extended.js` that contains:
+
+```js
+                //NOTE the function call right after
+module.exports = require("bluebird/js/main/promise")();
+```
+
+Your library can then use `var Promise = require("bluebird-extended");` and do whatever it wants with it. Then if the application or other library uses their own bluebird promises they will all play well together because of Promises/A+ thenable assimilation magic.
+
+You should also know about `[.nodeify()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise) which makes it easy to provide a dual callback/promise API.
 
 <hr>
 
