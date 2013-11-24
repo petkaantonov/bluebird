@@ -30,8 +30,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 
 #Features:
 
-- [Promises A+ 3.x.x](https://github.com/promises-aplus/promises-spec)
-- [Promises A+ 2.x.x](https://github.com/domenic/promises-unwrapping)
+- [Promises A+ 2.0.2](http://promisesaplus.com)
 - [Cancellation](https://github.com/promises-aplus)
 - [Progression](https://github.com/promises-aplus/progress-spec)
 - [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
@@ -41,7 +40,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
-Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [promises_unwrapping](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/promises_unwrapping.js) (Just in time thenables), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
+Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
 
 <hr>
 
@@ -603,7 +602,6 @@ However the specification in A+ 2.x.x requires handling of many theoretical edge
 
 - Trying to retrieve the `.then` property from object to see if it's a function might throw.
 - Retrieving `.then` property multiple times from an object might return different result every time, or might be deleted after some time
-- Calling the `.then` property of an object before necessary (just in time thenables) might cause problems
 - etc.
 
 What you want in a browser is pretty much that the `return $.get` line works. Can you imagine jQuery defining a getter on `.then` property that throws?
