@@ -311,6 +311,7 @@ function parse( src, opts, fileName) {
     }
     catch(e) {
         e.fileName = fileName;
+        e.scriptSrc = src;
         throw e;
     }
 }

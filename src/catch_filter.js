@@ -3,6 +3,7 @@ var ensureNotHandled = require( "./errors.js" ).ensureNotHandled;
 var util = require( "./util.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
+var keys = require("./es5.js").keys;
 
 function CatchFilter( instances, callback, promise ) {
     this._instances = instances;
@@ -17,7 +18,7 @@ function CatchFilter$_safePredicate( predicate, e ) {
 
     if( retfilter === errorObj ) return retfilter;
 
-    var safeKeys = Object.keys(safeObject);
+    var safeKeys = keys(safeObject);
     if( safeKeys.length ) {
         errorObj.e = new TypeError(
             "Catch filter must inherit from Error "

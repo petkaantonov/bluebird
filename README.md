@@ -69,11 +69,13 @@ The global variable `Promise` becomes available after the above script tag.
 
 ####Browser support
 
-Browsers that [implement ECMA-262, edition 5](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
+Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/petka_antonov.svg)](https://saucelabs.com/u/petka_antonov)
 
-IE8 (ECMAS-262, edition 3) is supported if you include [es5-shim.js](https://github.com/kriskowal/es5-shim/blob/master/es5-shim.js) and [es5-sham.js](https://github.com/kriskowal/es5-shim/blob/master/es5-sham.js).
+**Note** that in ECMA-262, edition 3 (IE7, IE8 etc) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](https://github.com/petkaantonov/bluebird/blob/master/API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
+
+<sub>Previously bluebird required es5-shim.js and es5-sham.js to support Edition 3 - these are **no longer required** as of **0.10.4**.</sub>
 
 After quick start, see [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 

@@ -499,6 +499,7 @@ module.exports = function( grunt ) {
     ];
 
     var mandatoryPaths = [
+        "./src/es5.js",
         "./src/bluebird.js",
         "./src/assert.js",
         "./src/global.js",
@@ -698,9 +699,14 @@ module.exports = function( grunt ) {
             done();
         }).catch(function(e) {
             if( e.fileName && e.stack ) {
+                console.log(e.scriptSrc);
                 var stack = e.stack.split("\n");
                 stack[0] = stack[0] + " " + e.fileName;
                 console.error(stack.join("\n"));
+                if (!grunt.option("verbose")) {
+                    console.error("use --verbose to see the source code");
+                }
+
             }
             else {
                 console.error(e.stack);

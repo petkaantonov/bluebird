@@ -3,9 +3,10 @@ module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var inherits = util.inherits;
+var es5 = require("./es5.js");
 
 function PropertiesPromiseArray( obj, caller, boundTo ) {
-    var keys = Object.keys( obj );
+    var keys = es5.keys( obj );
     var values = new Array( keys.length );
     for( var i = 0, len = values.length; i < len; ++i ) {
         values[i] = obj[keys[i]];

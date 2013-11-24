@@ -6,10 +6,11 @@ var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
 var async = require( "./async.js" );
 var haveGetters = util.haveGetters;
+var es5 = require("./es5.js");
 
 function isUntypedError( obj ) {
     return obj instanceof Error &&
-        Object.getPrototypeOf( obj ) === Error.prototype;
+        es5.getPrototypeOf(obj) === Error.prototype;
 }
 
 function wrapAsRejectionError( obj ) {
@@ -66,8 +67,8 @@ if( haveGetters ) {
             return nodebackForResolver( this );
         }
     };
-    Object.defineProperty(PromiseResolver.prototype, "asCallback", prop);
-    Object.defineProperty(PromiseResolver.prototype, "callback", prop);
+    es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);
+    es5.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
 PromiseResolver._nodebackForResolver = nodebackForResolver;
