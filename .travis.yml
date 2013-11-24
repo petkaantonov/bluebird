@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- '0.10.21'
+- '0.10'
 install: 'npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli grunt-contrib-connect grunt-saucelabs'
 before_script:
 - git submodule update --init --recursive
