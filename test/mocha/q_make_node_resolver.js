@@ -26,11 +26,11 @@ IN THE SOFTWARE.
 */
 
 
-describe("PromiseResolver.asCallback", function () {
+describe("PromiseResolver.callback", function () {
 
     it("fulfills a promise with a single callback argument", function (done) {
         var resolver = pending();
-        resolver.asCallback(null, 10);
+        resolver.callback(null, 10);
         resolver.promise.then(function (value) {
             assert( value === 10 );
             done();
@@ -39,7 +39,7 @@ describe("PromiseResolver.asCallback", function () {
 
     it("fulfills a promise with multiple callback arguments", function (done) {
         var resolver = pending();
-        resolver.asCallback(null, 10, 20);
+        resolver.callback(null, 10, 20);
         resolver.promise.then(function (value) {
             assert.deepEqual( value, [ 10, 20 ] );
             done();
@@ -49,7 +49,7 @@ describe("PromiseResolver.asCallback", function () {
     it("rejects a promise", function (done) {
         var resolver = pending();
         var exception = new Error("Holy Exception of Anitoch");
-        resolver.asCallback(exception);
+        resolver.callback(exception);
         resolver.promise.then(assert.fail, function (_exception) {
             assert( exception === _exception.cause );
             done();

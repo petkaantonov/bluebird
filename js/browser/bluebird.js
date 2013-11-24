@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.1-0
+ * bluebird build version 0.10.2-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -2999,6 +2999,7 @@ if( !haveGetters ) {
     PromiseResolver = function PromiseResolver( promise ) {
         this.promise = promise;
         this.asCallback = nodebackForResolver( this );
+        this.callback = this.asCallback;
     };
 }
 else {
@@ -3007,11 +3008,13 @@ else {
     };
 }
 if( haveGetters ) {
-    Object.defineProperty( PromiseResolver.prototype, "asCallback", {
+    var prop = {
         get: function() {
             return nodebackForResolver( this );
         }
-    });
+    };
+    Object.defineProperty(PromiseResolver.prototype, "asCallback", prop);
+    Object.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
 PromiseResolver._nodebackForResolver = nodebackForResolver;

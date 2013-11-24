@@ -25,7 +25,7 @@
     - [`.resolve(dynamic value)`](#resolvedynamic-value---undefined)
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
-    - [`.asCallback`](#ascallback---function)
+    - [`.callback`](#callback---function)
 - [Promisification](#promisification)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
@@ -730,7 +730,7 @@ delay(500).then(function(ms){
 
 <hr>
 
-#####`.asCallback` -> `Function`
+#####`.callback` -> `Function`
 
 Gives you a callback representation of the `PromiseResolver`. Note that this is not a method but a property. The callback accepts error object in first argument and success values on the 2nd parameter and the rest, I.E. node js conventions.
 
@@ -740,7 +740,7 @@ If the the callback is called with multiple success values, the resolver fullfil
 var fs = require("fs");
 function readAbc() {
     var resolver = Promise.defer();
-    fs.readFile("abc.txt", resolver.asCallback);
+    fs.readFile("abc.txt", resolver.callback);
     return resolver.promise;
 }
 
@@ -757,7 +757,7 @@ This example is an alternative to automatic promisification of node functions.
 
 *Performance tips*
 
-The `asCallback` is actually an accessor property (except on legacy browsers where it's eager data property) - so save the result if you need to call it multiple times.
+The `callback` is actually an accessor property (except on legacy browsers where it's eager data property) - so save the result if you need to call it multiple times.
 
 This is more efficient way of promisification than using `new Promise`.
 

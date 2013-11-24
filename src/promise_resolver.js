@@ -52,6 +52,7 @@ if( !haveGetters ) {
     PromiseResolver = function PromiseResolver( promise ) {
         this.promise = promise;
         this.asCallback = nodebackForResolver( this );
+        this.callback = this.asCallback;
     };
 }
 else {
@@ -60,11 +61,13 @@ else {
     };
 }
 if( haveGetters ) {
-    Object.defineProperty( PromiseResolver.prototype, "asCallback", {
+    var prop = {
         get: function() {
             return nodebackForResolver( this );
         }
-    });
+    };
+    Object.defineProperty(PromiseResolver.prototype, "asCallback", prop);
+    Object.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
 PromiseResolver._nodebackForResolver = nodebackForResolver;
