@@ -34,6 +34,37 @@ var rtraceline = null;
 var formatStack = null;
 var areNamesMangled = false;
 
+function formatNonError( obj ) {
+    var str;
+    if (typeof obj === "function") {
+        str = "[function " +
+            (obj.name || "anonymous") +
+            "]";
+    }
+    else {
+        str = obj.toString();
+        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
+        if( ruselessToString.test( str ) ) {
+            try {
+                var newStr = JSON.stringify(obj);
+                str = newStr;
+            }
+            catch( e ) {
+
+            }
+        }
+    }
+    return ("(<" + snip( str ) + ">, no stack trace)");
+}
+
+function snip( str ) {
+    var maxChars = 41;
+    if( str.length < maxChars ) {
+        return str;
+    }
+    return str.substr(0, maxChars - 3) + "...";
+}
+
 function CapturedTrace( ignoreUntil, isTopLevel ) {
     if( !areNamesMangled ) {
     }
@@ -50,8 +81,14 @@ function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
 CapturedTrace.possiblyUnhandledRejection =
 function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     if( typeof console === "object" ) {
-        var stack = reason.stack;
-        var message = "Possibly unhandled " + formatStack( stack, reason );
+        var message;
+        if (typeof reason === "object" || typeof reason === "function") {
+            var stack = reason.stack;
+            message = "Possibly unhandled " + formatStack( stack, reason );
+        }
+        else {
+            message = "Possibly unhandled " + String(reason);
+        }
         if( typeof console.error === "function" ||
             typeof console.error === "object" ) {
             console.error( message );
@@ -103,29 +140,6 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
 };
 
 var captureStackTrace = (function stackDetection() {
-    function snip( str ) {
-        var maxChars = 41;
-        if( str.length < maxChars ) {
-            return str;
-        }
-        return str.substr(0, maxChars - 3) + "...";
-    }
-
-    function formatNonError( obj ) {
-        var str = obj.toString();
-        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
-        if( ruselessToString.test( str ) ) {
-            try {
-                var newStr = JSON.stringify(obj);
-                str = newStr;
-            }
-            catch( e ) {
-
-            }
-        }
-        return ("(<" + snip( str ) + ">, no stack trace)");
-    }
-
     if( typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function" ) {
         rtraceline = /^\s*at\s*/;

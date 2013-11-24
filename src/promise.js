@@ -82,12 +82,6 @@ Promise.prototype.toString = function Promise$toString() {
     return "[object Promise]";
 };
 
-/**
- * Convenience Promise.prototype for .then( null, fn, null );
- *
- * @param {Function} fn The callback to call if this promise is rejected
- * @return {Promise}
- */
 Promise.prototype.caught = Promise.prototype["catch"] =
 function Promise$catch( fn ) {
     var len = arguments.length;
@@ -400,39 +394,6 @@ Promise.cast = function Promise$Cast( obj, caller ) {
     return ret;
 };
 
-
-/**
- * If `fn` is a function, will set that function as a callback to call
- * when an possibly unhandled rejection happens. Passing anything other
- * than a function will have the effect of removing any callback
- * and possible errors can be lost forever.
- *
- * If a promise is rejected with a Javascript Error and is not handled
- * in a timely fashion, that promise's rejection is then possibly
- * unhandled. This can happen for example due to buggy code causing
- * a runtime Javascript error.
- *
- * The rejection system implemented must swallow all errors
- * thrown. However, if some promise doesn't have, or will not have,
- * a rejection handler anywhere in its chain, then this implies that
- * the error would be silently lost.
- *
- * By default, all such errors are reported on console but you may
- * use this function to override that behavior with your own handler.
- *
- * Example:
- *
- *     Promise.onPossiblyUnhandledRejection(function( err ) {
- *         throw err;
- *     });
- *
- * The above will throw any unhandled rejection and for example
- * crash a node process.
- *
- * @param {Function|dynamic} fn The callback function. If fn is not
- * a function, no rejections will be reported as possibly unhandled.
- *
- */
 Promise.onPossiblyUnhandledRejection =
 function Promise$OnPossiblyUnhandledRejection( fn ) {
     if( typeof fn === "function" ) {
@@ -500,14 +461,6 @@ function Promise$_then(
         ret._cancellationParent = this;
     }
 
-    if( this._isDelegated() ) {
-        this._unsetDelegated();
-        ASSERT( !this.isResolved() );
-        var x = this._resolvedValue;
-        if( !this._tryThenable( x ) ) {
-            async.invoke( this._fulfill, this, x );
-        }
-    }
     return ret;
 };
 
@@ -543,24 +496,12 @@ Promise.prototype._setFollowing = function Promise$_setFollowing() {
     this._bitField = this._bitField | IS_FOLLOWING;
 };
 
-Promise.prototype._setDelegated = function Promise$_setDelegated() {
-    this._bitField = this._bitField | IS_DELEGATED;
-};
-
 Promise.prototype._setIsFinal = function Promise$_setIsFinal() {
     this._bitField = this._bitField | IS_FINAL;
 };
 
 Promise.prototype._isFinal = function Promise$_isFinal() {
     return ( this._bitField & IS_FINAL ) > 0;
-};
-
-Promise.prototype._isDelegated = function Promise$_isDelegated() {
-    return ( this._bitField & IS_DELEGATED ) === IS_DELEGATED;
-};
-
-Promise.prototype._unsetDelegated = function Promise$_unsetDelegated() {
-    this._bitField = this._bitField & ( ~IS_DELEGATED );
 };
 
 Promise.prototype._setCancellable = function Promise$_setCancellable() {
@@ -709,6 +650,7 @@ Promise.prototype._isBound = function Promise$_isBound() {
 
 
 var ignore = CatchFilter.prototype.doFilter;
+var ref = {ref: null};
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -797,20 +739,27 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
             return;
         }
         //3. Otherwise, if x is an object or function,
-        else if( Promise._couldBeThenable( x ) ) {
-
-            if( promise._length() === 0 ) {
-                promise._resolvedValue = x;
-                promise._setDelegated();
-                return;
-            }
-            else if( promise._tryThenable( x ) ) {
-                return;
-            }
+        else if( Promise._isThenable( x, ref ) ) {
+            var then = ref.ref;
+            ref.ref = null;
+            promise._resolveThenable(x, then);
+            return;
         }
-        // 3.4 If then is not a function, fulfill promise with x.
-        // 4. If x is not an object or function, fulfill promise with x.
-        async.invoke( promise._fulfill, promise, x );
+
+
+        if (ref.ref === errorObj) {
+            ref.ref = null;
+            var e = errorObj.e;
+            promise._attachExtraTrace(e);
+            async.invoke(promise._reject, promise, e);
+        }
+        else {
+            ref.ref = null;
+            // 3.4 If then is not a function, fulfill promise with x.
+            // 4. If x is not an object or function, fulfill promise with x.
+            async.invoke( promise._fulfill, promise, x );
+        }
+
     }
 };
 

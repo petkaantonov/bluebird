@@ -325,7 +325,6 @@ Promise.cast = function Promise$Cast( obj, caller ) {
     return ret;
 };
 
-
 Promise.onPossiblyUnhandledRejection =
 function Promise$OnPossiblyUnhandledRejection( fn ) {
     if( typeof fn === "function" ) {
@@ -392,13 +391,6 @@ function Promise$_then(
         ret._cancellationParent = this;
     }
 
-    if( this._isDelegated() ) {
-        this._unsetDelegated();
-        var x = this._resolvedValue;
-        if( !this._tryThenable( x ) ) {
-            this._fulfill(x);
-        }
-    }
     return ret;
 };
 
@@ -432,24 +424,12 @@ Promise.prototype._setFollowing = function Promise$_setFollowing() {
     this._bitField = this._bitField | 536870912;
 };
 
-Promise.prototype._setDelegated = function Promise$_setDelegated() {
-    this._bitField = this._bitField | -1073741824;
-};
-
 Promise.prototype._setIsFinal = function Promise$_setIsFinal() {
     this._bitField = this._bitField | 33554432;
 };
 
 Promise.prototype._isFinal = function Promise$_isFinal() {
     return ( this._bitField & 33554432 ) > 0;
-};
-
-Promise.prototype._isDelegated = function Promise$_isDelegated() {
-    return ( this._bitField & -1073741824 ) === -1073741824;
-};
-
-Promise.prototype._unsetDelegated = function Promise$_unsetDelegated() {
-    this._bitField = this._bitField & ( ~-1073741824 );
 };
 
 Promise.prototype._setCancellable = function Promise$_setCancellable() {
@@ -577,6 +557,7 @@ Promise.prototype._isBound = function Promise$_isBound() {
 
 
 var ignore = CatchFilter.prototype.doFilter;
+var ref = {ref: null};
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -646,18 +627,25 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         if( promise._tryAssumeStateOf( x, true ) ) {
             return;
         }
-        else if( Promise._couldBeThenable( x ) ) {
-
-            if( promise._length() === 0 ) {
-                promise._resolvedValue = x;
-                promise._setDelegated();
-                return;
-            }
-            else if( promise._tryThenable( x ) ) {
-                return;
-            }
+        else if( Promise._isThenable( x, ref ) ) {
+            var then = ref.ref;
+            ref.ref = null;
+            promise._resolveThenable(x, then);
+            return;
         }
-        promise._fulfill(x);
+
+
+        if (ref.ref === errorObj) {
+            ref.ref = null;
+            var e = errorObj.e;
+            promise._attachExtraTrace(e);
+            promise._reject(e);
+        }
+        else {
+            ref.ref = null;
+            promise._fulfill(x);
+        }
+
     }
 };
 

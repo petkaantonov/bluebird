@@ -13,6 +13,37 @@ var rtraceline = null;
 var formatStack = null;
 var areNamesMangled = false;
 
+function formatNonError( obj ) {
+    var str;
+    if (typeof obj === "function") {
+        str = "[function " +
+            (obj.name || "anonymous") +
+            "]";
+    }
+    else {
+        str = obj.toString();
+        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
+        if( ruselessToString.test( str ) ) {
+            try {
+                var newStr = JSON.stringify(obj);
+                str = newStr;
+            }
+            catch( e ) {
+
+            }
+        }
+    }
+    return ("(<" + snip( str ) + ">, no stack trace)");
+}
+
+function snip( str ) {
+    var maxChars = 41;
+    if( str.length < maxChars ) {
+        return str;
+    }
+    return str.substr(0, maxChars - 3) + "...";
+}
+
 function CapturedTrace( ignoreUntil, isTopLevel ) {
     ASSERT( typeof ignoreUntil === "function" );
     if( !areNamesMangled ) {
@@ -35,15 +66,19 @@ function CapturedTrace$captureStackTrace( ignoreUntil, isTopLevel ) {
 CapturedTrace.possiblyUnhandledRejection =
 function CapturedTrace$PossiblyUnhandledRejection( reason ) {
     if( typeof console === "object" ) {
-        var stack = reason.stack;
-        var message = "Possibly unhandled " + formatStack( stack, reason );
+        var message;
+        if (typeof reason === "object" || typeof reason === "function") {
+            var stack = reason.stack;
+            message = "Possibly unhandled " + formatStack( stack, reason );
+        }
+        else {
+            message = "Possibly unhandled " + String(reason);
+        }
         if( typeof console.error === "function" ||
-            //IE9 gives "object"
             typeof console.error === "object" ) {
             console.error( message );
         }
         else if( typeof console.log === "function" ||
-            //IE9 gives "object"
             typeof console.error === "object" ) {
             console.log( message );
         }
@@ -93,36 +128,12 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
 };
 
 var captureStackTrace = (function stackDetection() {
-    function snip( str ) {
-        var maxChars = 41;
-        if( str.length < maxChars ) {
-            return str;
-        }
-        return str.substr(0, maxChars - 3) + "...";
-    }
-
-    function formatNonError( obj ) {
-        var str = obj.toString();
-        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
-        if( ruselessToString.test( str ) ) {
-            try {
-                var newStr = JSON.stringify(obj);
-                str = newStr;
-            }
-            catch( e ) {
-
-            }
-        }
-        return ("(<" + snip( str ) + ">, no stack trace)");
-    }
-
     //V8
     if( typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function" ) {
         rtraceline = /^\s*at\s*/;
         formatStack = function( stack, error ) {
-            ASSERT( typeof error === "object");
-            ASSERT( error !== null );
+            ASSERT(error !== null );
 
             if( typeof stack === "string" ) return stack;
 

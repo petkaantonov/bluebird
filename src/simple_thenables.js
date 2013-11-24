@@ -1,5 +1,6 @@
 "use strict";
 module.exports = function( Promise ) {
+    var ASSERT = require("./assert.js");
     var util = require( "./util.js" );
     var isPrimitive = util.isPrimitive;
     var async = require( "./async.js" );
@@ -9,12 +10,12 @@ module.exports = function( Promise ) {
 
 
     function doThenable( obj, caller ) {
-        var resolver = Promise.pending( caller );
+        var resolver = Promise.defer( caller );
         var called = false;
         var ret = tryCatch2( obj.then, obj, function( x ) {
             if( called ) return;
             called = true;
-            resolver.fulfill( x );
+            resolver.resolve( x );
         }, function( e ) {
             if( called ) return;
             called = true;
@@ -27,12 +28,17 @@ module.exports = function( Promise ) {
         return resolver.promise;
     }
 
-    Promise._couldBeThenable = function( ret ) {
-        if( isPrimitive( ret ) ) {
+    function isThenable(obj, ref) {
+        if (isPrimitive(obj)) {
             return false;
         }
-        return ("then" in ret);
-    };
+        var then = obj.then;
+        if (typeof then === "function") {
+            ref.ref = then;
+            return true;
+        }
+        return false;
+    }
 
     function Promise$_Cast( obj, caller ) {
         if( isObject( obj ) ) {
@@ -47,20 +53,16 @@ module.exports = function( Promise ) {
         return obj;
     }
 
-    Promise.prototype._tryThenable = function Promise$_tryThenable( x ) {
-        if( typeof x.then !== "function" ) {
-            return false;
-        }
-        this._resolveThenable( x );
-        return true;
-    };
+    Promise._cast = Promise$_Cast;
+    Promise._isThenable = isThenable;
 
     Promise.prototype._resolveThenable =
-    function Promise$_resolveThenable( x ) {
+    function Promise$_resolveThenable(x, then) {
+        ASSERT(typeof then === "function");
         var self = this;
         var called = false;
 
-        var ret = tryCatch2(x.then, x, function( x ) {
+        var ret = tryCatch2(then, x, function( x ) {
             if( called ) return;
             called = true;
             async.invoke( self._fulfill, self, x );
@@ -76,6 +78,6 @@ module.exports = function( Promise ) {
         }
     };
 
-    Promise._cast = Promise$_Cast;
+
 };
 

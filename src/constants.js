@@ -22,9 +22,7 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for .bitField
-//DDWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
-//D = isDelegated - To implement just in time thenable assimilation
-//Both of the DD bits must be either 0 or 1
+//RRWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
@@ -33,7 +31,6 @@ CONSTANT(CALLBACK_SIZE, 5);
 
 //R = [Reserved]
 //L = Length, 24 bit unsigned
-CONSTANT(IS_DELEGATED, 0xC0000000|0);
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
 CONSTANT(IS_FULFILLED, 0x10000000|0);
 CONSTANT(IS_REJECTED, 0x8000000|0);
