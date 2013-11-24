@@ -1,3 +1,33 @@
+## 0.10.4-1 (2013-11-24)
+
+Bugfixes:
+
+ - Fix a file missing from build. (Critical fix)
+
+## 0.10.4-0 (2013-11-24)
+
+Features:
+
+ - Remove dependency of es5-shim and es5-sham when using ES3.
+
+## 0.10.3-0 (2013-11-24)
+
+Features:
+
+ - Improve performance of `Promise.method`
+
+## 0.10.2-1 (2013-11-24)
+
+Features:
+
+ - Rename PromiseResolver#asCallback to PromiseResolver#callback
+
+## 0.10.2-0 (2013-11-24)
+
+Features:
+
+ - Remove memoization of thenables
+
 ## 0.10.1-0 (2013-11-21)
 
 Features:
