@@ -85,7 +85,8 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
 };
 
-PromiseResolver.prototype.fulfill = function PromiseResolver$fulfill( value ) {
+PromiseResolver.prototype.resolve =
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
     if( this.promise._tryAssumeStateOf( value, false ) ) {
         return;
     }
