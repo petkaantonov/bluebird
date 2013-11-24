@@ -539,7 +539,7 @@ MyClass.prototype.method = function(input) {
         return Promise.resolve(this.someCachedValue);
     }
 
-    return db.queryAsync(input).then(function(value) {
+    return db.queryAsync(input).bind(this).then(function(value) {
         this.someCachedValue = value;
         return value;
     });
