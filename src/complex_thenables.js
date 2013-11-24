@@ -63,37 +63,44 @@ module.exports = function( Promise ) {
 
     function doThenable( x, then, caller ) {
         ASSERT(typeof then === "function");
-        var resolver = Promise.defer( caller );
 
-        var called = false;
-        var ret = tryCatch2( then, x, function t( a ) {
+        function resolveFromThenable( a ) {
             if( called ) return;
             called = true;
+
+            if (a === x) {
+                ASSERT( resolver.promise.isPending() );
+                resolver.promise._resolveFulfill( a );
+                return;
+            }
             var b = Promise$_Cast( a );
             if( b === a ) {
                 resolver.resolve( a );
             }
             else {
-                if( a === x ) {
-                    ASSERT( resolver.promise.isPending() );
-                    resolver.promise._resolveFulfill( a );
-                }
-                else {
-                    b._then(
-                        resolver.resolve,
-                        resolver.reject,
-                        void 0,
-                        resolver,
-                        void 0,
-                        t
-                    );
-                }
+                b._then(
+                    resolver.resolve,
+                    resolver.reject,
+                    void 0,
+                    resolver,
+                    void 0,
+                    resolveFromThenable
+                );
             }
-        }, function t( a ) {
+
+        }
+
+        function rejectFromThenable( a ) {
             if( called ) return;
             called = true;
             resolver.reject( a );
-        });
+        }
+
+
+        var resolver = Promise.defer( caller );
+
+        var called = false;
+        var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
         if( ret === errorObj && !called ) {
             resolver.reject( ret.e );
         }
@@ -106,10 +113,8 @@ module.exports = function( Promise ) {
         var localP = this;
         var key = {};
         var called = false;
-        //3.3 If then is a function, call it with x as this,
-        //first argument resolvePromise, and
-        //second argument rejectPromise
-        var t = function t( v ) {
+
+        function resolveFromThenable( v ) {
             if( called && this !== key ) return;
             called = true;
             var fn = localP._fulfill;
@@ -122,7 +127,8 @@ module.exports = function( Promise ) {
                     async.invoke( fn, localP, v );
                 }
                 else {
-                    b._then( t, r, void 0, key, void 0, t);
+                    b._then( resolveFromThenable, rejectFromThenable, void 0,
+                        key, void 0, resolveFromThenable);
                 }
                 return;
             }
@@ -137,14 +143,15 @@ module.exports = function( Promise ) {
                 ASSERT( b instanceof Promise || b === v );
                 if( b !== v ||
                     ( b instanceof Promise && b !== v ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
+                    b._then(resolveFromThenable, rejectFromThenable, void 0,
+                        key, void 0, resolveFromThenable);
                     return;
                 }
             }
             async.invoke( fn, localP, v );
-        };
+        }
 
-        var r = function r( v ) {
+        function rejectFromThenable( v ) {
             if( called && this !== key ) return;
             var fn = localP._reject;
             called = true;
@@ -158,7 +165,8 @@ module.exports = function( Promise ) {
                     async.invoke( fn, localP, v );
                 }
                 else {
-                    b._then( t, r, void 0, key, void 0, t);
+                    b._then(resolveFromThenable, rejectFromThenable, void 0,
+                        key, void 0, resolveFromThenable);
                 }
                 return;
             }
@@ -172,14 +180,16 @@ module.exports = function( Promise ) {
                 b = Promise$_Cast( v );
                 if( b !== v ||
                     ( b instanceof Promise && b.isPending() ) ) {
-                    b._then( t, r, void 0, key, void 0, t);
+                    b._then(resolveFromThenable, rejectFromThenable, void 0,
+                        key, void 0, resolveFromThenable);
                     return;
                 }
             }
 
             async.invoke( fn, localP, v );
-        };
-        var threw = tryCatch2( then, x, t, r);
+        }
+        var threw = tryCatch2( then, x,
+                resolveFromThenable, rejectFromThenable);
 
         //3.3.4 If calling then throws an exception e,
         if( threw === errorObj &&
