@@ -23,6 +23,7 @@
 module.exports = function() {
 var ASSERT = require("./assert.js");
 var inherits = require( "./util.js").inherits;
+var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
@@ -186,7 +187,7 @@ var captureStackTrace = (function stackDetection() {
         ( err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection" ) {
 
-        Object.defineProperty( Error, "stackTraceLimit", {
+        defineProperty( Error, "stackTraceLimit", {
             writable: true,
             enumerable: false,
             configurable: false,

@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.2-1
+ * bluebird build version 0.10.3-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, complex_thenables, synchronous_inspection
  * Features disabled: simple_thenables
 */
@@ -94,7 +94,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
 };
 
-},{"./some_promise_array.js":35}],2:[function(require,module,exports){
+},{"./some_promise_array.js":36}],2:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -242,7 +242,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./assert.js":2,"./queue.js":27,"./schedule.js":31,"./util.js":37}],4:[function(require,module,exports){
+},{"./assert.js":2,"./queue.js":28,"./schedule.js":32,"./util.js":38}],4:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -267,7 +267,7 @@ module.exports = new Async();
 "use strict";
 var Promise = require("./promise.js")();
 module.exports = Promise;
-},{"./promise.js":19}],5:[function(require,module,exports){
+},{"./promise.js":20}],5:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -412,6 +412,7 @@ module.exports = function( Promise ) {
 module.exports = function() {
 var ASSERT = require("./assert.js");
 var inherits = require( "./util.js").inherits;
+var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
@@ -566,7 +567,7 @@ var captureStackTrace = (function stackDetection() {
         ( err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection" ) {
 
-        Object.defineProperty( Error, "stackTraceLimit", {
+        defineProperty( Error, "stackTraceLimit", {
             writable: true,
             enumerable: false,
             configurable: false,
@@ -629,7 +630,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./assert.js":2,"./util.js":37}],8:[function(require,module,exports){
+},{"./assert.js":2,"./es5.js":13,"./util.js":38}],8:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -656,6 +657,7 @@ var ensureNotHandled = require( "./errors.js" ).ensureNotHandled;
 var util = require( "./util.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
+var keys = require("./es5.js").keys;
 
 function CatchFilter( instances, callback, promise ) {
     this._instances = instances;
@@ -670,7 +672,7 @@ function CatchFilter$_safePredicate( predicate, e ) {
 
     if( retfilter === errorObj ) return retfilter;
 
-    var safeKeys = Object.keys(safeObject);
+    var safeKeys = keys(safeObject);
     if( safeKeys.length ) {
         errorObj.e = new TypeError(
             "Catch filter must inherit from Error "
@@ -715,7 +717,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter( e ) {
 
 module.exports = CatchFilter;
 
-},{"./errors.js":11,"./util.js":37}],9:[function(require,module,exports){
+},{"./errors.js":11,"./es5.js":13,"./util.js":38}],9:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -917,7 +919,7 @@ module.exports = function( Promise ) {
     };
 };
 
-},{"./assert.js":2,"./async.js":3,"./util.js":37}],10:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./util.js":38}],10:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1006,7 +1008,7 @@ function Promise$thenThrow( reason ) {
 };
 };
 
-},{"./assert.js":2,"./util.js":37}],11:[function(require,module,exports){
+},{"./assert.js":2,"./util.js":38}],11:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1030,7 +1032,7 @@ function Promise$thenThrow( reason ) {
  */
 "use strict";
 var global = require("./global.js");
-var Objectfreeze = global.Object.freeze;
+var Objectfreeze = require("./es5.js").freeze;
 var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;
@@ -1152,7 +1154,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./global.js":15,"./util.js":37}],12:[function(require,module,exports){
+},{"./es5.js":13,"./global.js":16,"./util.js":38}],12:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1191,6 +1193,94 @@ function apiRejection( msg ) {
 return apiRejection;
 };
 },{"./errors.js":11}],13:[function(require,module,exports){
+/**
+ * Copyright (c) 2013 Petka Antonov
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:</p>
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+var isES5 = (function(){
+    "use strict";
+    return this === void 0;
+})();
+
+if (isES5) {
+    module.exports = {
+        freeze: Object.freeze,
+        defineProperty: Object.defineProperty,
+        keys: Object.keys,
+        getPrototypeOf: Object.getPrototypeOf,
+        isArray: Array.isArray
+    };
+}
+
+else {
+    var has = {}.hasOwnProperty;
+    var str = {}.toString;
+    var proto = {}.constructor.prototype;
+
+    function ObjectKeys(o) {
+        var ret = [];
+        for (var key in o) {
+            if (has.call(o, key)) {
+                ret.push(key);
+            }
+        }
+        return ret;
+    }
+
+    function ObjectDefineProperty(o, key, desc) {
+        o[key] = desc.value;
+        return o;
+    }
+
+    function ObjectFreeze(obj) {
+        return obj;
+    }
+
+    function ObjectGetPrototypeOf(obj) {
+        try {
+            return Object(obj).constructor.prototype;
+        }
+        catch (e) {
+            return proto;
+        }
+    }
+
+    function ArrayIsArray(obj) {
+        try {
+            return str.call(obj) === "[object Array]";
+        }
+        catch(e) {
+            return false;
+        }
+    }
+
+    module.exports = {
+        isArray: ArrayIsArray,
+        keys: ObjectKeys,
+        defineProperty: ObjectDefineProperty,
+        freeze: ObjectFreeze,
+        getPrototypeOf: ObjectGetPrototypeOf
+    };
+}
+
+},{}],14:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1281,7 +1371,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
     };
 };
 
-},{"./assert.js":2}],14:[function(require,module,exports){
+},{"./assert.js":2}],15:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1334,7 +1424,7 @@ module.exports = function( Promise, apiRejection ) {
     };
 };
 
-},{"./errors.js":11,"./promise_spawn.js":23}],15:[function(require,module,exports){
+},{"./errors.js":11,"./promise_spawn.js":24}],16:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1374,7 +1464,7 @@ module.exports = (function(){
     }
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1492,7 +1582,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
     };
 };
 
-},{"./assert.js":2}],17:[function(require,module,exports){
+},{"./assert.js":2}],18:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1557,7 +1647,7 @@ module.exports = function( Promise ) {
     };
 };
 
-},{"./assert.js":2,"./async.js":3,"./util.js":37}],18:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./util.js":38}],19:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1642,7 +1732,7 @@ module.exports = function( Promise ) {
         }
     };
 };
-},{"./assert.js":2,"./async.js":3,"./util.js":37}],19:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./util.js":38}],20:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -2656,7 +2746,7 @@ return Promise;
 
 };
 
-},{"./any.js":1,"./assert.js":2,"./async.js":3,"./call_get.js":5,"./cancel.js":6,"./captured_trace.js":7,"./catch_filter.js":8,"./complex_thenables.js":9,"./direct_resolve.js":10,"./errors.js":11,"./errors_api_rejection":12,"./filter.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":22,"./promisify.js":24,"./props.js":26,"./race.js":28,"./reduce.js":30,"./settle.js":32,"./some.js":34,"./synchronous_inspection.js":36,"./util.js":37}],20:[function(require,module,exports){
+},{"./any.js":1,"./assert.js":2,"./async.js":3,"./call_get.js":5,"./cancel.js":6,"./captured_trace.js":7,"./catch_filter.js":8,"./complex_thenables.js":9,"./direct_resolve.js":10,"./errors.js":11,"./errors_api_rejection":12,"./filter.js":14,"./generators.js":15,"./global.js":16,"./map.js":17,"./nodeify.js":18,"./progress.js":19,"./promise_array.js":21,"./promise_resolver.js":23,"./promisify.js":25,"./props.js":27,"./race.js":29,"./reduce.js":31,"./settle.js":33,"./some.js":35,"./synchronous_inspection.js":37,"./util.js":38}],21:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -2878,7 +2968,7 @@ function PromiseArray$_promiseRejected( reason ) {
 return PromiseArray;
 };
 
-},{"./assert.js":2,"./async.js":3,"./errors.js":11,"./util.js":37}],21:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./errors.js":11,"./util.js":38}],22:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -2947,7 +3037,7 @@ PromiseInspection.prototype.error = function PromiseInspection$error() {
 
 module.exports = PromiseInspection;
 
-},{"./errors.js":11}],22:[function(require,module,exports){
+},{"./errors.js":11}],23:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -2977,10 +3067,11 @@ var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
 var async = require( "./async.js" );
 var haveGetters = util.haveGetters;
+var es5 = require("./es5.js");
 
 function isUntypedError( obj ) {
     return obj instanceof Error &&
-        Object.getPrototypeOf( obj ) === Error.prototype;
+        es5.getPrototypeOf(obj) === Error.prototype;
 }
 
 function wrapAsRejectionError( obj ) {
@@ -3028,8 +3119,8 @@ if( haveGetters ) {
             return nodebackForResolver( this );
         }
     };
-    Object.defineProperty(PromiseResolver.prototype, "asCallback", prop);
-    Object.defineProperty(PromiseResolver.prototype, "callback", prop);
+    es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);
+    es5.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
 PromiseResolver._nodebackForResolver = nodebackForResolver;
@@ -3074,7 +3165,7 @@ PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":3,"./errors.js":11,"./util.js":37}],23:[function(require,module,exports){
+},{"./async.js":3,"./errors.js":11,"./es5.js":13,"./util.js":38}],24:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3177,7 +3268,7 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next( value ) {
 return PromiseSpawn;
 };
 
-},{"./errors.js":11,"./util.js":37}],24:[function(require,module,exports){
+},{"./errors.js":11,"./util.js":38}],25:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3381,7 +3472,7 @@ Promise.promisifyAll = function Promise$PromisifyAll( target ) {
 };
 
 
-},{"./assert.js":2,"./errors.js":11,"./promise_resolver.js":22,"./util.js":37}],25:[function(require,module,exports){
+},{"./assert.js":2,"./errors.js":11,"./promise_resolver.js":23,"./util.js":38}],26:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3408,9 +3499,10 @@ module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var inherits = util.inherits;
+var es5 = require("./es5.js");
 
 function PropertiesPromiseArray( obj, caller, boundTo ) {
-    var keys = Object.keys( obj );
+    var keys = es5.keys( obj );
     var values = new Array( keys.length );
     for( var i = 0, len = values.length; i < len; ++i ) {
         values[i] = obj[keys[i]];
@@ -3458,7 +3550,8 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 
 return PropertiesPromiseArray;
 };
-},{"./assert.js":2,"./util.js":37}],26:[function(require,module,exports){
+
+},{"./assert.js":2,"./es5.js":13,"./util.js":38}],27:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3518,7 +3611,7 @@ module.exports = function( Promise, PromiseArray ) {
         return Promise$_Props( promises, false, Promise.props );
     };
 };
-},{"./properties_promise_array.js":25,"./util.js":37}],27:[function(require,module,exports){
+},{"./properties_promise_array.js":26,"./util.js":38}],28:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3655,7 +3748,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo( capacity ) {
 
 module.exports = Queue;
 
-},{"./assert.js":2}],28:[function(require,module,exports){
+},{"./assert.js":2}],29:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3702,7 +3795,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
 };
 
-},{"./race_promise_array.js":29}],29:[function(require,module,exports){
+},{"./race_promise_array.js":30}],30:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3753,7 +3846,7 @@ function RacePromiseArray$_promiseRejected( reason ) {
 return RacePromiseArray;
 };
 
-},{"./util.js":37}],30:[function(require,module,exports){
+},{"./util.js":38}],31:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3892,7 +3985,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
     };
 };
 
-},{"./assert.js":2}],31:[function(require,module,exports){
+},{"./assert.js":2}],32:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4016,7 +4109,7 @@ else {
 
 module.exports = schedule;
 
-},{"./assert.js":2,"./global.js":15}],32:[function(require,module,exports){
+},{"./assert.js":2,"./global.js":16}],33:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4062,7 +4155,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
     };
 
 };
-},{"./settled_promise_array.js":33}],33:[function(require,module,exports){
+},{"./settled_promise_array.js":34}],34:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4123,7 +4216,7 @@ function SettledPromiseArray$_promiseRejected( reason, index ) {
 
 return SettledPromiseArray;
 };
-},{"./assert.js":2,"./promise_inspection.js":21,"./util.js":37}],34:[function(require,module,exports){
+},{"./assert.js":2,"./promise_inspection.js":22,"./util.js":38}],35:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4174,7 +4267,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
     };
 
 };
-},{"./assert.js":2,"./some_promise_array.js":35}],35:[function(require,module,exports){
+},{"./assert.js":2,"./some_promise_array.js":36}],36:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4293,7 +4386,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./util.js":37}],36:[function(require,module,exports){
+},{"./util.js":38}],37:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4324,7 +4417,7 @@ module.exports = function( Promise ) {
     };
 };
 
-},{"./promise_inspection.js":21}],37:[function(require,module,exports){
+},{"./promise_inspection.js":22}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4349,10 +4442,11 @@ module.exports = function( Promise ) {
 "use strict";
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
+var es5 = require("./es5.js");
 var haveGetters = (function(){
     try {
         var o = {};
-        Object.defineProperty(o, "f", {
+        es5.defineProperty(o, "f", {
             get: function () {
                 return 3;
             }
@@ -4372,7 +4466,7 @@ var ensurePropertyExpansion = function( obj, prop, value ) {
     }
     catch( e ) {
         var ret = {};
-        var keys = Object.keys( obj );
+        var keys = es5.keys( obj );
         for( var i = 0, len = keys.length; i < len; ++i ) {
             try {
                 var key = keys[i];
@@ -4404,12 +4498,6 @@ function deprecated( msg ) {
         console.warn( "Bluebird: " + msg );
     }
 }
-
-var isArray = Array.isArray || function( obj ) {
-    return obj instanceof Array;
-};
-
-
 
 var errorObj = {e: {}};
 function tryCatch1( fn, receiver, arg ) {
@@ -4500,12 +4588,12 @@ function notEnumerableProp( obj, name, value ) {
         enumerable: false,
         writable: true
     };
-    Object.defineProperty( obj, name, descriptor );
+    es5.defineProperty( obj, name, descriptor );
     return obj;
 }
 
 module.exports ={
-    isArray: isArray,
+    isArray: es5.isArray,
     haveGetters: haveGetters,
     notEnumerableProp: notEnumerableProp,
     isPrimitive: isPrimitive,
@@ -4523,7 +4611,7 @@ module.exports ={
     maybeWrapAsError: maybeWrapAsError
 };
 
-},{"./assert.js":2,"./global.js":15}]},{},[4])
+},{"./assert.js":2,"./es5.js":13,"./global.js":16}]},{},[4])
 (4)
 //trick uglify-js into not minifying
 });

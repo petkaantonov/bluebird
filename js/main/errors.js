@@ -21,7 +21,7 @@
  */
 "use strict";
 var global = require("./global.js");
-var Objectfreeze = global.Object.freeze;
+var Objectfreeze = require("./es5.js").freeze;
 var util = require( "./util.js");
 var inherits = util.inherits;
 var isObject = util.isObject;
