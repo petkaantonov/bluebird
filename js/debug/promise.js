@@ -261,13 +261,44 @@ Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
     return ret;
 };
 
+Promise.prototype._resolveFromSyncValue =
+function Promise$_resolveFromSyncValue(value) {
+    if (value === errorObj) {
+        this._cleanValues();
+        this._setRejected();
+        this._resolvedValue = value.e;
+    }
+    else {
+        var maybePromise = Promise._cast(value);
+        if (maybePromise instanceof Promise) {
+            this._assumeStateOf(maybePromise, true);
+        }
+        else {
+            this._cleanValues();
+            this._setFulfilled();
+            this._resolvedValue = value;
+        }
+    }
+};
+
 Promise.method = function Promise$_Method( fn ) {
     if( typeof fn !== "function" ) {
         throw new TypeError( "fn must be a function" );
     }
-    return function PromiseMethod() {
-        var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-        return Promise.attempt( fn, args, this );
+    return function Promise$_method() {
+        var value;
+        switch(arguments.length) {
+        case 0: value = tryCatch1(fn, this, void 0); break;
+        case 1: value = tryCatch1(fn, this, arguments[0]); break;
+        case 2: value = tryCatch2(fn, this, arguments[0], arguments[1]); break;
+        default:
+            var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+            value = tryCatchApply(fn, args, this); break;
+        }
+        var ret = new Promise();
+        ret._setTrace(Promise$_method, void 0);
+        ret._resolveFromSyncValue(value);
+        return ret;
     };
 };
 
@@ -281,24 +312,8 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
         : tryCatch1( fn, ctx, args );
 
     var ret = new Promise();
-    ret._setTrace( Promise.attempt, void 0 );
-    if( value === errorObj ) {
-        ret._cleanValues();
-        ret._setRejected();
-        ret._resolvedValue = value.e;
-        return ret;
-    }
-
-    var maybePromise = Promise._cast(value);
-    if( maybePromise instanceof Promise ) {
-        ret._assumeStateOf( maybePromise, true );
-    }
-    else {
-        ret._cleanValues();
-        ret._setFulfilled();
-        ret._resolvedValue = value;
-    }
-
+    ret._setTrace(Promise.attempt, void 0);
+    ret._resolveFromSyncValue(value);
     return ret;
 };
 
