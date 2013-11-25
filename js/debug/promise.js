@@ -617,7 +617,6 @@ Promise.prototype._isBound = function Promise$_isBound() {
 
 
 var ignore = CatchFilter.prototype.doFilter;
-var ref = {ref: null};
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -688,28 +687,18 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        if( promise._tryAssumeStateOf( x, true ) ) {
-            return;
-        }
-        else if( Promise._isThenable( x, ref ) ) {
-            var then = ref.ref;
-            ref.ref = null;
-            promise._resolveThenable(x, then);
-            return;
-        }
+        var castValue = Promise._cast(x);
+        var isThenable = castValue !== x;
 
-
-        if (ref.ref === errorObj) {
-            ref.ref = null;
-            var e = errorObj.e;
-            promise._attachExtraTrace(e);
-            async.invoke(promise._reject, promise, e);
+        if (isThenable || isPromise(castValue)) {
+            if (castValue.isRejected()) {
+                promise._attachExtraTrace(castValue._resolvedValue);
+            }
+            promise._assumeStateOf(castValue, true);
         }
         else {
-            ref.ref = null;
-            async.invoke( promise._fulfill, promise, x );
+            async.invoke(promise._fulfill, promise, x);
         }
-
     }
 };
 
@@ -733,7 +722,8 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             this._resolveReject,
             this._resolveProgress,
             this,
-            void 0,            this._tryAssumeStateOf
+            null,
+            this._assumeStateOf
         );
     }
     else if( promise.isFulfilled() ) {
@@ -757,11 +747,15 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
 
 Promise.prototype._tryAssumeStateOf =
 function Promise$_tryAssumeStateOf( value, mustAsync ) {
-    if( !isPromise( value ) ||
-        this._isFollowingOrFulfilledOrRejected() ||
-        value === this ) return false;
-
-    this._assumeStateOf( value, mustAsync );
+    if (this._isFollowingOrFulfilledOrRejected() ||
+        value === this) {
+        return false;
+    }
+    var maybePromise = Promise._cast(value);
+    if (!isPromise(maybePromise)) {
+        return false;
+    }
+    this._assumeStateOf(maybePromise, mustAsync);
     return true;
 };
 
@@ -1065,7 +1059,8 @@ if( !CapturedTrace.isSupported() ) {
     longStackTraces = false;
 }
 
-require( "./direct_resolve.js" )( Promise );
+require( "./direct_resolve.js" )(Promise);
+require( "./thenables.js")(Promise);
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
@@ -1085,7 +1080,6 @@ require('./settle.js')(Promise,Promise$_All,PromiseArray);
 require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./progress.js')(Promise);
 require('./cancel.js')(Promise);
-require('./complex_thenables.js')(Promise);
 
 Promise.prototype = Promise.prototype;
 return Promise;

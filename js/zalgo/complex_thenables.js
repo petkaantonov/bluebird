@@ -22,9 +22,7 @@
 "use strict";
 module.exports = function( Promise ) {
     var ASSERT = require("./assert.js");
-    var async = require( "./async.js" );
     var util = require( "./util.js" );
-    var isPrimitive = util.isPrimitive;
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
@@ -39,48 +37,22 @@ module.exports = function( Promise ) {
         }
     }
 
-    function isThenable(obj, ref) {
-        if (isPrimitive(obj)) {
-            return false;
-        }
-        var then = getThen(obj);
-
-        if (then === errorObj) {
-            ref.ref = errorObj;
-            return false;
-        }
-
-        if (typeof then === "function") {
-            ref.ref = then;
-            return true;
-        }
-        return false;
-    }
-
-    var ref = {ref: null};
     function Promise$_Cast( obj, caller ) {
         if( isObject( obj ) ) {
             if( obj instanceof Promise ) {
                 return obj;
             }
-
-            if( isThenable( obj, ref ) ) {
+            var then = getThen(obj);
+            if (then === errorObj) {
+                return Promise.reject(then.e);
+            }
+            else if (typeof then === "function") {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
-                var then = ref.ref;
-                ref.ref = null;
-                return doThenable( obj, then, caller );
+                return doThenable(obj, then, caller);
             }
-            else if (ref.ref === errorObj) {
-                ref.ref = null;
-                return Promise.reject(errorObj.e);
-            }
-            ref.ref = null;
         }
         return obj;
     }
-
-    Promise._cast = Promise$_Cast;
-    Promise._isThenable = isThenable;
 
     function doThenable( x, then, caller ) {
         function resolveFromThenable( a ) {
@@ -101,7 +73,7 @@ module.exports = function( Promise ) {
                     resolver.reject,
                     void 0,
                     resolver,
-                    void 0,
+                    null,
                     resolveFromThenable
                 );
             }
@@ -115,7 +87,7 @@ module.exports = function( Promise ) {
         }
 
 
-        var resolver = Promise.defer( caller );
+        var resolver = Promise.defer(caller);
 
         var called = false;
         var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
@@ -125,88 +97,5 @@ module.exports = function( Promise ) {
         return resolver.promise;
     }
 
-    Promise.prototype._resolveThenable =
-    function Promise$_resolveThenable(x, then) {
-        var localP = this;
-        var key = {};
-        var called = false;
-
-        function resolveFromThenable( v ) {
-            if( called && this !== key ) return;
-            called = true;
-            var fn = localP._fulfill;
-            var b = Promise$_Cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    fn.call(localP, v);
-                }
-                else {
-                    b._then( resolveFromThenable, rejectFromThenable, void 0,
-                        key, void 0, resolveFromThenable);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                v = v._resolvedValue;
-                b = Promise$_Cast( v );
-                if( b !== v ||
-                    ( b instanceof Promise && b !== v ) ) {
-                    b._then(resolveFromThenable, rejectFromThenable, void 0,
-                        key, void 0, resolveFromThenable);
-                    return;
-                }
-            }
-            fn.call(localP, v);
-        }
-
-        function rejectFromThenable( v ) {
-            if( called && this !== key ) return;
-            var fn = localP._reject;
-            called = true;
-
-            var b = Promise$_Cast( v );
-
-            if( b !== v ||
-                ( b instanceof Promise && b.isPending() ) ) {
-                if( v === x ) {
-                    fn.call(localP, v);
-                }
-                else {
-                    b._then(resolveFromThenable, rejectFromThenable, void 0,
-                        key, void 0, resolveFromThenable);
-                }
-                return;
-            }
-
-
-            if( b instanceof Promise ) {
-                var fn = b.isFulfilled()
-                    ? localP._fulfill : localP._reject;
-                v = v._resolvedValue;
-                b = Promise$_Cast( v );
-                if( b !== v ||
-                    ( b instanceof Promise && b.isPending() ) ) {
-                    b._then(resolveFromThenable, rejectFromThenable, void 0,
-                        key, void 0, resolveFromThenable);
-                    return;
-                }
-            }
-
-            fn.call(localP, v);
-        }
-        var threw = tryCatch2( then, x,
-                resolveFromThenable, rejectFromThenable);
-
-        if( threw === errorObj &&
-            !called ) {
-            this._attachExtraTrace( threw.e );
-            this._reject(threw.e);
-        }
-    };
+    Promise._cast = Promise$_Cast;
 };
