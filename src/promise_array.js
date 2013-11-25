@@ -8,12 +8,17 @@ var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
-//and also because void 0 cannot be smuggled
-function toFulfillmentValue( val ) {
+//and also because void 0 or promises cannot be smuggled
+function toResolutionValue( val ) {
     switch( val ) {
-    case FULFILL_UNDEFINED: return void 0;
-    case FULFILL_ARRAY: return [];
-    case FULFILL_OBJECT: return {};
+    case RESOLVE_UNDEFINED: return void 0;
+    case RESOLVE_ARRAY: return [];
+    case RESOLVE_OBJECT: return {};
+    case RESOLVE_FOREVER_PENDING:
+        //Passive aggressive comment: many agree that
+        //this memory leak is better than rejecting
+        //when empty array is passed to Promise.race
+        return Promise.defer().promise;
     }
     ASSERT( false );
 }
@@ -27,7 +32,7 @@ function PromiseArray( values, caller, boundTo ) {
     }
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, FULFILL_ARRAY );
+    this._init( void 0, RESOLVE_ARRAY );
 }
 PromiseArray.PropertiesPromiseArray = function() {};
 
@@ -56,7 +61,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+                this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -78,7 +83,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
     }
     if( values.length === 0 ) {
-        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+        this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
@@ -126,11 +131,11 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     }
     //Array full of holes
     if( newLen === 0 ) {
-        if( fulfillValueIfEmpty === FULFILL_ARRAY ) {
+        if( fulfillValueIfEmpty === RESOLVE_ARRAY ) {
             this._fulfill( newValues );
         }
         else {
-            this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+            this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         }
         return;
     }

@@ -11,18 +11,23 @@ var Promise = adapter;
 
 
 describe("Promise.race", function(){
-    it("fulfills when passed an empty array", function (done) {
-        Promise.race([]).then(function(v){
-            assert.deepEqual(v, void 0);
+    it("remains forever pending when passed an empty array", function (done) {
+        var p = Promise.race([]);
+
+        setTimeout(function() {
+            assert(p.isPending());
             done();
-        });
+        }, 100);
     });
 
-    it("fulfills when passed an empty sparse array", function (done) {
-        Promise.race([,,,,,]).then(function(v){
-            assert.deepEqual(v, void 0);
+    it("remains forever pending when passed an empty sparse array", function (done) {
+        var p = Promise.race([,,,,,]);
+
+
+        setTimeout(function() {
+            assert(p.isPending());
             done();
-        });
+        }, 100);
     });
 
     it("fulfills when passed an immediate value", function (done) {

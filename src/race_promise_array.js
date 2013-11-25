@@ -11,7 +11,7 @@ inherits( RacePromiseArray, PromiseArray );
 //override
 RacePromiseArray.prototype._init =
 function RacePromiseArray$_init() {
-    this._init$( void 0, FULFILL_UNDEFINED );
+    this._init$(void 0, RESOLVE_FOREVER_PENDING);
 };
 
 //override

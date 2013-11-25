@@ -24,7 +24,7 @@ inherits( PropertiesPromiseArray, PromiseArray );
 //Override
 PropertiesPromiseArray.prototype._init =
 function PropertiesPromiseArray$_init() {
-    this._init$( void 0, FULFILL_OBJECT ) ;
+    this._init$( void 0, RESOLVE_OBJECT ) ;
 };
 
 //Override
