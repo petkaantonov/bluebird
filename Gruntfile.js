@@ -64,8 +64,6 @@ module.exports = function( grunt ) {
         "some.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise'],
         "cancel.js": ['Promise'],
-        "simple_thenables.js": ['Promise'],
-        "complex_thenables.js": ['Promise'],
         "synchronous_inspection.js": ['Promise']
 
     };
@@ -85,8 +83,6 @@ module.exports = function( grunt ) {
         "some.js": true,
         "progress.js": true,
         "cancel.js": true,
-        "simple_thenables.js": true,
-        "complex_thenables.js": true,
         "synchronous_inspection.js": true
 
     };
@@ -263,8 +259,7 @@ module.exports = function( grunt ) {
                 src: [
                     "./src/direct_resolve.js",
                     "./src/synchronous_inspection.js",
-                    "./src/simple_thenables.js",
-                    "./src/complex_thenables.js",
+                    "./src/thenables.js",
                     "./src/progress.js",
                     "./src/cancel.js",
                     "./src/any.js",
@@ -501,6 +496,7 @@ module.exports = function( grunt ) {
     var mandatoryPaths = [
         "./src/es5.js",
         "./src/bluebird.js",
+        "./src/thenables.js",
         "./src/assert.js",
         "./src/global.js",
         "./src/util.js",
@@ -523,34 +519,13 @@ module.exports = function( grunt ) {
         "./src/direct_resolve.js"
     ];
 
-    var mutExPaths = [
-        {
-            feature: "simple_thenables",
-            featureDisabled: "./src/complex_thenables.js",
-            featureEnabled: "./src/simple_thenables.js"
-        }
-    ];
 
-    function applyMutExPaths( paths, features ) {
-        if( !Array.isArray( features ) ) {
-            features = features.toLowerCase().split( /\s+/g );
-        }
-        mutExPaths.forEach(function( mutExPath ){
-            if( features.indexOf( mutExPath.feature ) > -1 ) {
-                paths.push( mutExPath.featureEnabled );
-            }
-            else {
-                paths.push( mutExPath.featureDisabled );
-            }
-        });
-        return paths;
-    }
 
     function build( paths, isCI ) {
         var fs = require("fs");
         astPasses.readConstants(fs.readFileSync(CONSTANTS_FILE, "utf8"), CONSTANTS_FILE);
         if( !paths ) {
-            paths = applyMutExPaths( optionalPaths.concat(mandatoryPaths), [] );
+            paths = optionalPaths.concat(mandatoryPaths);
         }
         var optionalRequireCode = getOptionalRequireCode(paths.map(function(v) {
             return v.replace("./src/", "");
@@ -692,7 +667,6 @@ module.exports = function( grunt ) {
         var paths = null;
         if( features ) {
             paths = getOptionalPathsFromOption( features ).concat( mandatoryPaths );
-            applyMutExPaths( paths, features );
         }
 
         build( paths, isCI ).then(function() {

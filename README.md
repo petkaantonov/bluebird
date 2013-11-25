@@ -555,7 +555,6 @@ Custom builds for browsers are supported through a command-line utility.
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#someint-count---promise"><code>.some</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisesomearraydynamicpromise-values-int-count---promise"><code>Promise.some</code></a></td><td><code>some</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise"><code>.nodeify</code></a></td><td><code>nodeify</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function"><code>Promise.coroutine</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisespawngeneratorfunction-generatorfunction---promise"><code>Promise.spawn</code></a></td><td><code>generators</code></td></tr>
-        <tr><td><a href="#complex-thenables">Complex thenables</a></td><td><code>simple_thenables</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#progression">Progression</a></td><td><code>progress</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
@@ -569,12 +568,12 @@ Make sure you have cloned the repo somewhere and did `npm install` successfully.
 
 After that you can run:
 
-    grunt build --features="core simple_thenables"
+    grunt build --features="core"
 
 
 The above builds the most minimal build you can get. You can add more features separated by spaces from the above list:
 
-    grunt build --features="core simple_thenables filter map reduce"
+    grunt build --features="core filter map reduce"
 
 The custom build file will be found from `/js/browser/bluebird.js`. It will have a comment that lists the disabled and enabled features.
 
@@ -582,31 +581,6 @@ Note that the build leaves the `/js/main` etc folders with same features so if y
 a full version afterwards (after having taken a copy of the bluebird.js somewhere):
 
     grunt build
-
-####Complex thenables
-
-In order to provide smooth interoperability experience, Promises/A+ requires supporting "thenables" which are promise-like objects but not trusted bluebird promises.
-
-For example this should work:
-
-```js
-bluebirdPromise.then(function(){
-    return $.get("/file.php");
-});
-```
-
-Even though the handler returns a jQuery promise, it should work as if it returned a real bluebird promise, that is, the next `.then()` will wait until the ajax
-request is complete.
-
-However the specification in A+ 2.x.x requires handling of many theoretical edge cases that will never be seen in practice, such as:
-
-- Trying to retrieve the `.then` property from object to see if it's a function might throw.
-- Retrieving `.then` property multiple times from an object might return different result every time, or might be deleted after some time
-- etc.
-
-What you want in a browser is pretty much that the `return $.get` line works. Can you imagine jQuery defining a getter on `.then` property that throws?
-
-Handling such cases requires a lot of code in bluebird. You can use the `simple_thenables` feature which matches what other libraries such as Q are doing.
 
 <hr>
 

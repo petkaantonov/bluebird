@@ -665,7 +665,6 @@ Promise.prototype._isBound = function Promise$_isBound() {
 
 
 var ignore = CatchFilter.prototype.doFilter;
-var ref = {ref: null};
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
@@ -749,32 +748,18 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        if( promise._tryAssumeStateOf( x, MUST_ASYNC ) ) {
-            //2. If x is a promise, adopt its state
-            return;
-        }
-        //3. Otherwise, if x is an object or function,
-        else if( Promise._isThenable( x, ref ) ) {
-            var then = ref.ref;
-            ref.ref = null;
-            promise._resolveThenable(x, then);
-            return;
-        }
+        var castValue = Promise._cast(x);
+        var isThenable = castValue !== x;
 
-
-        if (ref.ref === errorObj) {
-            ref.ref = null;
-            var e = errorObj.e;
-            promise._attachExtraTrace(e);
-            async.invoke(promise._reject, promise, e);
+        if (isThenable || isPromise(castValue)) {
+            if (castValue.isRejected()) {
+                promise._attachExtraTrace(castValue._resolvedValue);
+            }
+            promise._assumeStateOf(castValue, MUST_ASYNC);
         }
         else {
-            ref.ref = null;
-            // 3.4 If then is not a function, fulfill promise with x.
-            // 4. If x is not an object or function, fulfill promise with x.
-            async.invoke( promise._fulfill, promise, x );
+            async.invoke(promise._fulfill, promise, x);
         }
-
     }
 };
 
@@ -794,8 +779,8 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
             this._resolveReject,
             this._resolveProgress,
             this,
-            void 0, //TODO: is it necessary to go full paths
-            this._tryAssumeStateOf
+            null,
+            this._assumeStateOf
         );
     }
     else if( promise.isFulfilled() ) {
@@ -819,11 +804,15 @@ function Promise$_assumeStateOf( promise, mustAsync ) {
 
 Promise.prototype._tryAssumeStateOf =
 function Promise$_tryAssumeStateOf( value, mustAsync ) {
-    if( !isPromise( value ) ||
-        this._isFollowingOrFulfilledOrRejected() ||
-        value === this ) return false;
-
-    this._assumeStateOf( value, mustAsync );
+    if (this._isFollowingOrFulfilledOrRejected() ||
+        value === this) {
+        return false;
+    }
+    var maybePromise = Promise._cast(value);
+    if (!isPromise(maybePromise)) {
+        return false;
+    }
+    this._assumeStateOf(maybePromise, mustAsync);
     return true;
 };
 
@@ -1115,7 +1104,8 @@ if( !CapturedTrace.isSupported() ) {
     longStackTraces = false;
 }
 
-require( "./direct_resolve.js" )( Promise );
+require( "./direct_resolve.js" )(Promise);
+require( "./thenables.js")(Promise);
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
