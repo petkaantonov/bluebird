@@ -30,7 +30,7 @@ inherits( RacePromiseArray, PromiseArray );
 
 RacePromiseArray.prototype._init =
 function RacePromiseArray$_init() {
-    this._init$( void 0, 0 );
+    this._init$(void 0, 3);
 };
 
 RacePromiseArray.prototype._promiseFulfilled =

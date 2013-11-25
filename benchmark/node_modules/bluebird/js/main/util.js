@@ -22,10 +22,11 @@
 "use strict";
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
+var es5 = require("./es5.js");
 var haveGetters = (function(){
     try {
         var o = {};
-        Object.defineProperty(o, "f", {
+        es5.defineProperty(o, "f", {
             get: function () {
                 return 3;
             }
@@ -45,7 +46,7 @@ var ensurePropertyExpansion = function( obj, prop, value ) {
     }
     catch( e ) {
         var ret = {};
-        var keys = Object.keys( obj );
+        var keys = es5.keys( obj );
         for( var i = 0, len = keys.length; i < len; ++i ) {
             try {
                 var key = keys[i];
@@ -77,12 +78,6 @@ function deprecated( msg ) {
         console.warn( "Bluebird: " + msg );
     }
 }
-
-var isArray = Array.isArray || function( obj ) {
-    return obj instanceof Array;
-};
-
-
 
 var errorObj = {e: {}};
 function tryCatch1( fn, receiver, arg ) {
@@ -173,12 +168,12 @@ function notEnumerableProp( obj, name, value ) {
         enumerable: false,
         writable: true
     };
-    Object.defineProperty( obj, name, descriptor );
+    es5.defineProperty( obj, name, descriptor );
     return obj;
 }
 
 module.exports ={
-    isArray: isArray,
+    isArray: es5.isArray,
     haveGetters: haveGetters,
     notEnumerableProp: notEnumerableProp,
     isPrimitive: isPrimitive,
