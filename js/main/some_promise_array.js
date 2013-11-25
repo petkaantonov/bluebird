@@ -33,7 +33,7 @@ function SomePromiseArray( values, caller, boundTo ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, 1 );
+    this._init$(void 0, 1);
     var isArrayResolved = isArray( this._values );
     this._holes = isArrayResolved
         ? this._values.length - this.length()

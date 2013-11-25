@@ -57,8 +57,10 @@ var apiRejection = require("./errors_api_rejection")(Promise);
 var APPLY = {};
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
-    return new TypeError( "Resolving promises cyclically" );
+    return new TypeError( "Circular promise resolution chain" );
 };
+
+Promise._makeSelfResolutionError = makeSelfResolutionError;
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
@@ -262,14 +264,14 @@ Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
 };
 
 Promise.prototype._resolveFromSyncValue =
-function Promise$_resolveFromSyncValue(value) {
+function Promise$_resolveFromSyncValue(value, caller) {
     if (value === errorObj) {
         this._cleanValues();
         this._setRejected();
         this._resolvedValue = value.e;
     }
     else {
-        var maybePromise = Promise._cast(value);
+        var maybePromise = Promise._cast(value, caller, void 0);
         if (maybePromise instanceof Promise) {
             this._assumeStateOf(maybePromise, true);
         }
@@ -297,7 +299,7 @@ Promise.method = function Promise$_Method( fn ) {
         }
         var ret = new Promise();
         ret._setTrace(Promise$_method, void 0);
-        ret._resolveFromSyncValue(value);
+        ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
     };
 };
@@ -313,7 +315,7 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
 
     var ret = new Promise();
     ret._setTrace(Promise.attempt, void 0);
-    ret._resolveFromSyncValue(value);
+    ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
@@ -332,10 +334,13 @@ Promise.bind = function Promise$Bind( obj ) {
     return ret;
 };
 
-Promise.cast = function Promise$Cast( obj, caller ) {
-    var ret = Promise._cast( obj, caller );
-    if( !( ret instanceof Promise ) ) {
-        return Promise.resolve( ret, caller );
+Promise.cast = function Promise$_Cast(obj, caller) {
+    if (typeof caller !== "function") {
+        caller = Promise.cast;
+    }
+    var ret = Promise._cast(obj, caller, void 0);
+    if (!(ret instanceof Promise)) {
+        return Promise.resolve(ret, caller);
     }
     return ret;
 };
@@ -575,6 +580,12 @@ var ignore = CatchFilter.prototype.doFilter;
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
+
+    if( !isPromise( promise ) ) {
+        onFulfilledOrRejected.call( receiver, value, promise );
+        return;
+    }
+
     var isRejected = this.isRejected();
 
     if( isRejected &&
@@ -591,15 +602,12 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         }
     }
 
-    if( !isPromise( promise ) ) {
-        return onFulfilledOrRejected.call( receiver, value, promise );
-    }
-
     var x;
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
+            var caller = this._resolvePromise;
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( Promise._cast( value[i] ) ) ) {
+                if (isPromise(Promise._cast(value[i], caller, void 0))) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
@@ -638,13 +646,10 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         promise._reject(err);
     }
     else {
-        var castValue = Promise._cast(x);
+        var castValue = Promise._cast(x, this._resolvePromise, promise);
         var isThenable = castValue !== x;
 
         if (isThenable || isPromise(castValue)) {
-            if (castValue.isRejected()) {
-                promise._attachExtraTrace(castValue._resolvedValue);
-            }
             promise._assumeStateOf(castValue, true);
         }
         else {
@@ -694,7 +699,7 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
         value === this) {
         return false;
     }
-    var maybePromise = Promise._cast(value);
+    var maybePromise = Promise._cast(value, this._tryAssumeStateOf, void 0);
     if (!isPromise(maybePromise)) {
         return false;
     }
@@ -880,7 +885,8 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     this._setLength( 0 );
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
-        if( this._rejectAt( i ) !== void 0 ) {
+        var onRejected = this._rejectAt(i);
+        if (onRejected !== void 0) {
             rejectionWasHandled = true;
             this._doResolveAt(i);
         }

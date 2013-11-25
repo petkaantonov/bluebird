@@ -415,8 +415,8 @@ var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|nextTick" +
-    "|Async\\$\\w+)\\b"
+    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|process._tic" +
+    "kCallback|nextTick|Async\\$\\w+)\\b"
 );
 
 var rtraceline = null;
@@ -1589,8 +1589,10 @@ var apiRejection = require("./errors_api_rejection")(Promise);
 var APPLY = {};
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
-    return new TypeError( "Resolving promises cyclically" );
+    return new TypeError( "Circular promise resolution chain" );
 };
+
+Promise._makeSelfResolutionError = makeSelfResolutionError;
 
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
@@ -1794,14 +1796,14 @@ Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
 };
 
 Promise.prototype._resolveFromSyncValue =
-function Promise$_resolveFromSyncValue(value) {
+function Promise$_resolveFromSyncValue(value, caller) {
     if (value === errorObj) {
         this._cleanValues();
         this._setRejected();
         this._resolvedValue = value.e;
     }
     else {
-        var maybePromise = Promise._cast(value);
+        var maybePromise = Promise._cast(value, caller, void 0);
         if (maybePromise instanceof Promise) {
             this._assumeStateOf(maybePromise, true);
         }
@@ -1829,7 +1831,7 @@ Promise.method = function Promise$_Method( fn ) {
         }
         var ret = new Promise();
         ret._setTrace(Promise$_method, void 0);
-        ret._resolveFromSyncValue(value);
+        ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
     };
 };
@@ -1845,7 +1847,7 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
 
     var ret = new Promise();
     ret._setTrace(Promise.attempt, void 0);
-    ret._resolveFromSyncValue(value);
+    ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
@@ -1864,10 +1866,13 @@ Promise.bind = function Promise$Bind( obj ) {
     return ret;
 };
 
-Promise.cast = function Promise$Cast( obj, caller ) {
-    var ret = Promise._cast( obj, caller );
-    if( !( ret instanceof Promise ) ) {
-        return Promise.resolve( ret, caller );
+Promise.cast = function Promise$_Cast(obj, caller) {
+    if (typeof caller !== "function") {
+        caller = Promise.cast;
+    }
+    var ret = Promise._cast(obj, caller, void 0);
+    if (!(ret instanceof Promise)) {
+        return Promise.resolve(ret, caller);
     }
     return ret;
 };
@@ -2107,6 +2112,12 @@ var ignore = CatchFilter.prototype.doFilter;
 Promise.prototype._resolvePromise = function Promise$_resolvePromise(
     onFulfilledOrRejected, receiver, value, promise
 ) {
+
+    if( !isPromise( promise ) ) {
+        onFulfilledOrRejected.call( receiver, value, promise );
+        return;
+    }
+
     var isRejected = this.isRejected();
 
     if( isRejected &&
@@ -2123,15 +2134,12 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         }
     }
 
-    if( !isPromise( promise ) ) {
-        return onFulfilledOrRejected.call( receiver, value, promise );
-    }
-
     var x;
     if( !isRejected && receiver === APPLY ) {
         if( isArray( value ) ) {
+            var caller = this._resolvePromise;
             for( var i = 0, len = value.length; i < len; ++i ) {
-                if( isPromise( Promise._cast( value[i] ) ) ) {
+                if (isPromise(Promise._cast(value[i], caller, void 0))) {
                     this._spreadSlowCase(
                         onFulfilledOrRejected,
                         promise,
@@ -2174,13 +2182,10 @@ Promise.prototype._resolvePromise = function Promise$_resolvePromise(
         );
     }
     else {
-        var castValue = Promise._cast(x);
+        var castValue = Promise._cast(x, this._resolvePromise, promise);
         var isThenable = castValue !== x;
 
         if (isThenable || isPromise(castValue)) {
-            if (castValue.isRejected()) {
-                promise._attachExtraTrace(castValue._resolvedValue);
-            }
             promise._assumeStateOf(castValue, true);
         }
         else {
@@ -2230,7 +2235,7 @@ function Promise$_tryAssumeStateOf( value, mustAsync ) {
         value === this) {
         return false;
     }
-    var maybePromise = Promise._cast(value);
+    var maybePromise = Promise._cast(value, this._tryAssumeStateOf, void 0);
     if (!isPromise(maybePromise)) {
         return false;
     }
@@ -2416,7 +2421,8 @@ Promise.prototype._resolveReject = function Promise$_resolveReject( reason ) {
     this._setLength( 0 );
     var rejectionWasHandled = false;
     for( var i = 0; i < len; i+= 5 ) {
-        if( this._rejectAt( i ) !== void 0 ) {
+        var onRejected = this._rejectAt(i);
+        if (onRejected !== void 0) {
             rejectionWasHandled = true;
             async.invoke( this._doResolveAt, this, i );
         }
@@ -2568,11 +2574,13 @@ var async = require( "./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
-function toFulfillmentValue( val ) {
+function toResolutionValue( val ) {
     switch( val ) {
     case 0: return void 0;
     case 1: return [];
     case 2: return {};
+    case 3:
+        return Promise.defer().promise;
     }
 }
 
@@ -2603,7 +2611,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         if( values.isFulfilled() ) {
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+                this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -2625,7 +2633,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
     }
     if( values.length === 0 ) {
-        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+        this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
@@ -2644,7 +2652,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        var maybePromise = Promise._cast( promise );
+        var maybePromise = Promise._cast(promise, void 0, void 0);
         if( maybePromise instanceof Promise &&
             maybePromise.isPending() ) {
             maybePromise._then(
@@ -2665,7 +2673,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._fulfill( newValues );
         }
         else {
-            this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+            this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         }
         return;
     }
@@ -3019,7 +3027,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        var maybePromise = Promise._cast( value, PromiseSpawn$_continue );
+        var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
         if( !( maybePromise instanceof Promise ) ) {
             if( isArray( maybePromise ) ) {
                 maybePromise = Promise.all( maybePromise );
@@ -3619,7 +3627,7 @@ inherits( RacePromiseArray, PromiseArray );
 
 RacePromiseArray.prototype._init =
 function RacePromiseArray$_init() {
-    this._init$( void 0, 0 );
+    this._init$(void 0, 3);
 };
 
 RacePromiseArray.prototype._promiseFulfilled =
@@ -4094,7 +4102,7 @@ function SomePromiseArray( values, caller, boundTo ) {
 inherits( SomePromiseArray, PromiseArray );
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
-    this._init$( void 0, 1 );
+    this._init$(void 0, 1);
     var isArrayResolved = isArray( this._values );
     this._holes = isArrayResolved
         ? this._values.length - this.length()
@@ -4237,7 +4245,6 @@ module.exports = function( Promise ) {
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
-
     function getThen(obj) {
         try {
             return obj.then;
@@ -4248,49 +4255,64 @@ module.exports = function( Promise ) {
         }
     }
 
-    function Promise$_Cast( obj, caller ) {
+    function Promise$_Cast(obj, caller, originalPromise) {
         if( isObject( obj ) ) {
             if( obj instanceof Promise ) {
                 return obj;
             }
             var then = getThen(obj);
             if (then === errorObj) {
-                return Promise.reject(then.e);
+                caller = typeof caller === "function" ? caller : Promise$_Cast;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(then.e);
+                }
+                return Promise.reject(then.e, caller);
             }
             else if (typeof then === "function") {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
-                return doThenable(obj, then, caller);
+                return Promise$_doThenable(obj, then, caller, originalPromise);
             }
         }
         return obj;
     }
 
-    function doThenable( x, then, caller ) {
+    function Promise$_doThenable(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
 
         var called = false;
-        var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
+        var ret = tryCatch2(then, x,
+            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
+
         if (ret === errorObj && !called) {
             called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(ret.e);
+            }
             resolver.reject(ret.e);
         }
         return resolver.promise;
 
-
-        function resolveFromThenable(y) {
+        function Promise$_resolveFromThenable(y) {
             if( called ) return;
             called = true;
 
             if (x === y) {
-                resolver.promise._resolveFulfill(y);
+                var e = Promise._makeSelfResolutionError();
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.reject(e);
                 return;
             }
             resolver.resolve(y);
         }
 
-        function rejectFromThenable(r) {
+        function Promise$_rejectFromThenable(r) {
             if( called ) return;
             called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(r);
+            }
             resolver.reject(r);
         }
     }

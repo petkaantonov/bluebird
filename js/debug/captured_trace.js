@@ -27,8 +27,8 @@ var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|nextTick" +
-    "|Async\\$\\w+)\\b"
+    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|process._tic" +
+    "kCallback|nextTick|Async\\$\\w+)\\b"
 );
 
 var rtraceline = null;

@@ -28,11 +28,13 @@ var async = require( "./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
-function toFulfillmentValue( val ) {
+function toResolutionValue( val ) {
     switch( val ) {
     case 0: return void 0;
     case 1: return [];
     case 2: return {};
+    case 3:
+        return Promise.defer().promise;
     }
     ASSERT(false,
     "false");
@@ -67,7 +69,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         if( values.isFulfilled() ) {
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+                this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
                 return;
             }
             this._values = values;
@@ -89,7 +91,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         }
     }
     if( values.length === 0 ) {
-        this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+        this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         return;
     }
     var len = values.length;
@@ -108,7 +110,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        var maybePromise = Promise._cast( promise );
+        var maybePromise = Promise._cast(promise, void 0, void 0);
         if( maybePromise instanceof Promise &&
             maybePromise.isPending() ) {
             maybePromise._then(
@@ -129,7 +131,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             this._fulfill( newValues );
         }
         else {
-            this._fulfill( toFulfillmentValue( fulfillValueIfEmpty ) );
+            this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
         }
         return;
     }

@@ -26,7 +26,6 @@ module.exports = function( Promise ) {
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
-
     function getThen(obj) {
         try {
             return obj.then;
@@ -37,53 +36,70 @@ module.exports = function( Promise ) {
         }
     }
 
-    function Promise$_Cast( obj, caller ) {
+    function Promise$_Cast(obj, caller, originalPromise) {
+        ASSERT((arguments.length === 3),
+    "arguments.length === 3");
         if( isObject( obj ) ) {
             if( obj instanceof Promise ) {
                 return obj;
             }
             var then = getThen(obj);
             if (then === errorObj) {
-                return Promise.reject(then.e);
+                caller = typeof caller === "function" ? caller : Promise$_Cast;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(then.e);
+                }
+                return Promise.reject(then.e, caller);
             }
             else if (typeof then === "function") {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
-                return doThenable(obj, then, caller);
+                return Promise$_doThenable(obj, then, caller, originalPromise);
             }
         }
         return obj;
     }
 
-    function doThenable( x, then, caller ) {
+    function Promise$_doThenable(x, then, caller, originalPromise) {
         ASSERT(((typeof then) === "function"),
     "typeof then === \u0022function\u0022");
+        ASSERT((arguments.length === 4),
+    "arguments.length === 4");
         var resolver = Promise.defer(caller);
 
         var called = false;
-        var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
+        var ret = tryCatch2(then, x,
+            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
+
         if (ret === errorObj && !called) {
             called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(ret.e);
+            }
             resolver.reject(ret.e);
         }
         return resolver.promise;
 
-
-        function resolveFromThenable(y) {
+        function Promise$_resolveFromThenable(y) {
             if( called ) return;
             called = true;
 
             if (x === y) {
-                ASSERT(resolver.promise.isPending(),
-    "resolver.promise.isPending()");
-                resolver.promise._resolveFulfill(y);
+                var e = Promise._makeSelfResolutionError();
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.reject(e);
                 return;
             }
             resolver.resolve(y);
         }
 
-        function rejectFromThenable(r) {
+        function Promise$_rejectFromThenable(r) {
             if( called ) return;
             called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(r);
+            }
             resolver.reject(r);
         }
     }
