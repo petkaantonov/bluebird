@@ -1147,6 +1147,8 @@ catch(Promise.TimeoutError, function (e) {
 });
 ```
 
+**Note** If you pass empty array or a sparse array with no values, or a promise/thenable for such, it will be forever pending.
+
 <hr>
 
 #####`Promise.some(Array<dynamic>|Promise values, int count)` -> `Promise`

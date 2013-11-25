@@ -1079,11 +1079,24 @@ Promise.prototype._popContext = function Promise$_popContext() {
 function Promise$_All( promises, PromiseArray, caller, boundTo ) {
     ASSERT( arguments.length === 4 );
     ASSERT( typeof PromiseArray === "function" );
-    if( isPromise( promises ) ||
-        isArray( promises ) ) {
 
+    var list = null;
+    if (isArray(promises)) {
+        list = promises;
+    }
+    /*else if ( isIterable... )*/
+    else {
+        list = Promise._cast(promises, caller, void 0);
+        if (list !== promises) {
+            list._setBoundTo(boundTo);
+        }
+        else if (!isPromise(list)) {
+            list = null;
+        }
+    }
+    if (list !== null) {
         return new PromiseArray(
-            promises,
+            list,
             typeof caller === "function"
                 ? caller
                 : Promise$_All,
@@ -1091,7 +1104,7 @@ function Promise$_All( promises, PromiseArray, caller, boundTo ) {
         );
     }
     return new PromiseArray(
-        [ apiRejection( "expecting an array or a promise" ) ],
+        [ apiRejection( "expecting an array, a promise or a thenable" ) ],
         caller,
         boundTo
     );
