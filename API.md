@@ -569,13 +569,13 @@ MyClass.prototype.method = Promise.method(function(input) {
 
 #####`Promise.resolve(dynamic value)` -> `Promise`
 
-Create a promise that is resolved with the given `value`. If `value` is a trusted `Promise`, the promise will instead follow that promise, adapting to its state. The promise is synchronously fulfilled in the former case.
+Create a promise that is resolved with the given `value`. If `value` is a thenable or promise, the returned promise will assume its state.
 
 <hr>
 
 #####`Promise.reject(dynamic reason)` -> `Promise`
 
-Create a promise that is rejected with the given `reason`. The promise is synchronously rejected.
+Create a promise that is rejected with the given `reason`.
 
 <hr>
 
@@ -697,7 +697,7 @@ The methods of a `PromiseResolver` have no effect if the fate of the underlying 
 
 #####`.resolve(dynamic value)` -> `undefined`
 
-Resolve the underlying promise with `value` as the resolution value. If `value` is a trusted `Promise`, the underlying promise will instead follow that promise, adapting to its state.
+Resolve the underlying promise with `value` as the resolution value. If `value` is a thenable or a promise, the underlying promise will assume its state.
 
 <hr>
 

@@ -1,3 +1,15 @@
+## 0.10.6-0 (2013-11-25)
+
+Bugfixes:
+
+ - Promise.resolve and PromiseResolver.resolve follow thenables too.
+
+## 0.10.5-0 (2013-11-24)
+
+Bugfixes:
+
+ - Fix infinite loop when thenable resolves with itself
+
 ## 0.10.4-1 (2013-11-24)
 
 Bugfixes:
