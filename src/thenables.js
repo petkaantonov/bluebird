@@ -5,6 +5,7 @@ module.exports = function( Promise ) {
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
+    //var ensureNotHandled = require("./errors.js").ensureNotHandled;
 
     function getThen(obj) {
         try {
@@ -16,67 +17,69 @@ module.exports = function( Promise ) {
         }
     }
 
-    function Promise$_Cast( obj, caller ) {
+    function Promise$_Cast(obj, caller, originalPromise) {
+        ASSERT(arguments.length === 3);
         if( isObject( obj ) ) {
             if( obj instanceof Promise ) {
                 return obj;
             }
             var then = getThen(obj);
             if (then === errorObj) {
-                return Promise.reject(then.e);
+                caller = typeof caller === "function" ? caller : Promise$_Cast;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(then.e);
+                }
+                return Promise.reject(then.e, caller);
             }
             else if (typeof then === "function") {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
-                return doThenable(obj, then, caller);
+                return Promise$_doThenable(obj, then, caller, originalPromise);
             }
         }
         return obj;
     }
 
-    function doThenable( x, then, caller ) {
+    function Promise$_doThenable(x, then, caller, originalPromise) {
         ASSERT(typeof then === "function");
-
-        function resolveFromThenable( a ) {
-            if( called ) return;
-            called = true;
-
-            if (a === x) {
-                ASSERT( resolver.promise.isPending() );
-                resolver.promise._resolveFulfill( a );
-                return;
-            }
-            var b = Promise$_Cast( a );
-            if( b === a ) {
-                resolver.resolve( a );
-            }
-            else {
-                b._then(
-                    resolver.resolve,
-                    resolver.reject,
-                    void 0,
-                    resolver,
-                    null,
-                    resolveFromThenable
-                );
-            }
-
-        }
-
-        function rejectFromThenable( a ) {
-            if( called ) return;
-            called = true;
-            resolver.reject( a );
-        }
-
-
+        ASSERT(arguments.length === 4);
         var resolver = Promise.defer(caller);
 
         var called = false;
-        var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
-        if( ret === errorObj && !called ) {
-            resolver.reject( ret.e );
+        var ret = tryCatch2(then, x,
+            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
+
+        if (ret === errorObj && !called) {
+            called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(ret.e);
+            }
+            resolver.reject(ret.e);
         }
         return resolver.promise;
+
+        function Promise$_resolveFromThenable(y) {
+            if( called ) return;
+            called = true;
+
+            if (x === y) {
+                var e = Promise._makeSelfResolutionError();
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.reject(e);
+                return;
+            }
+            resolver.resolve(y);
+        }
+
+        function Promise$_rejectFromThenable(r) {
+            if( called ) return;
+            called = true;
+            if (originalPromise !== void 0) {
+                originalPromise._attachExtraTrace(r);
+            }
+            resolver.reject(r);
+        }
     }
 
     Promise._cast = Promise$_Cast;

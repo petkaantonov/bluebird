@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.5-0
+ * bluebird build version 0.10.6-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -4266,46 +4266,33 @@ module.exports = function( Promise ) {
     }
 
     function doThenable( x, then, caller ) {
-        function resolveFromThenable( a ) {
-            if( called ) return;
-            called = true;
-
-            if (a === x) {
-                resolver.promise._resolveFulfill( a );
-                return;
-            }
-            var b = Promise$_Cast( a );
-            if( b === a ) {
-                resolver.resolve( a );
-            }
-            else {
-                b._then(
-                    resolver.resolve,
-                    resolver.reject,
-                    void 0,
-                    resolver,
-                    null,
-                    resolveFromThenable
-                );
-            }
-
-        }
-
-        function rejectFromThenable( a ) {
-            if( called ) return;
-            called = true;
-            resolver.reject( a );
-        }
-
-
         var resolver = Promise.defer(caller);
 
         var called = false;
         var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
-        if( ret === errorObj && !called ) {
-            resolver.reject( ret.e );
+        if (ret === errorObj && !called) {
+            called = true;
+            resolver.reject(ret.e);
         }
         return resolver.promise;
+
+
+        function resolveFromThenable(y) {
+            if( called ) return;
+            called = true;
+
+            if (x === y) {
+                resolver.promise._resolveFulfill(y);
+                return;
+            }
+            resolver.resolve(y);
+        }
+
+        function rejectFromThenable(r) {
+            if( called ) return;
+            called = true;
+            resolver.reject(r);
+        }
     }
 
     Promise._cast = Promise$_Cast;

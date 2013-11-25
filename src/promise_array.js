@@ -99,7 +99,7 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             newLen--;
             continue;
         }
-        var maybePromise = Promise._cast( promise );
+        var maybePromise = Promise._cast(promise, void 0, void 0);
         if( maybePromise instanceof Promise &&
             maybePromise.isPending() ) {
             //Guaranteed to be called after the possible direct scan

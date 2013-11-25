@@ -39,7 +39,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue( result ) {
         this._resolver.fulfill( value );
     }
     else {
-        var maybePromise = Promise._cast( value, PromiseSpawn$_continue );
+        var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
         if( !( maybePromise instanceof Promise ) ) {
             if( isArray( maybePromise ) ) {
                 maybePromise = Promise.all( maybePromise );

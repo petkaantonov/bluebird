@@ -57,49 +57,35 @@ module.exports = function( Promise ) {
     function doThenable( x, then, caller ) {
         ASSERT(((typeof then) === "function"),
     "typeof then === \u0022function\u0022");
-
-        function resolveFromThenable( a ) {
-            if( called ) return;
-            called = true;
-
-            if (a === x) {
-                ASSERT(resolver.promise.isPending(),
-    "resolver.promise.isPending()");
-                resolver.promise._resolveFulfill( a );
-                return;
-            }
-            var b = Promise$_Cast( a );
-            if( b === a ) {
-                resolver.resolve( a );
-            }
-            else {
-                b._then(
-                    resolver.resolve,
-                    resolver.reject,
-                    void 0,
-                    resolver,
-                    null,
-                    resolveFromThenable
-                );
-            }
-
-        }
-
-        function rejectFromThenable( a ) {
-            if( called ) return;
-            called = true;
-            resolver.reject( a );
-        }
-
-
         var resolver = Promise.defer(caller);
 
         var called = false;
         var ret = tryCatch2(then, x, resolveFromThenable, rejectFromThenable);
-        if( ret === errorObj && !called ) {
-            resolver.reject( ret.e );
+        if (ret === errorObj && !called) {
+            called = true;
+            resolver.reject(ret.e);
         }
         return resolver.promise;
+
+
+        function resolveFromThenable(y) {
+            if( called ) return;
+            called = true;
+
+            if (x === y) {
+                ASSERT(resolver.promise.isPending(),
+    "resolver.promise.isPending()");
+                resolver.promise._resolveFulfill(y);
+                return;
+            }
+            resolver.resolve(y);
+        }
+
+        function rejectFromThenable(r) {
+            if( called ) return;
+            called = true;
+            resolver.reject(r);
+        }
     }
 
     Promise._cast = Promise$_Cast;

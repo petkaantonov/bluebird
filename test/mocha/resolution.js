@@ -111,9 +111,8 @@ describe("Cast thenable", function() {
     specify("fulfills with itself", function(done) {
         var promise = Promise.cast(a);
 
-        promise.then(function(v){
-           assert(v === a);
-           done();
+        promise.then(assert.fail).caught(Promise.TypeError, function(){
+            done();
         });
     });
 
@@ -144,8 +143,7 @@ describe("Implicitly cast thenable", function() {
     specify("fulfills with itself", function(done) {
         Promise.fulfilled().then(function(){
             return a;
-        }).then(function(v){
-            assert(v === a);
+        }).caught(Promise.TypeError, function(){
             done();
         });
     });
