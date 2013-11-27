@@ -172,13 +172,17 @@ describe("Using collection methods with thenables", function() {
     });
     testRejectSync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
-            assert.deepEqual(v, [1,2,3]);
+            assert(v[0] === 1);
+            assert(v[1] === 2);
+            assert(v[2] === 3);
             done();
         });
     });
     testRejectAsync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
-            assert.deepEqual(v, [1,2,3]);
+            assert(v[0] === 1);
+            assert(v[1] === 2);
+            assert(v[2] === 3);
             done();
         });
     });
@@ -200,13 +204,17 @@ describe("Using collection methods with thenables", function() {
     }, 1);
     testRejectSync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
-            assert.deepEqual(v, [1,2,3]);
+            assert(v[0] === 1);
+            assert(v[1] === 2);
+            assert(v[2] === 3);
             done();
         });
     }, 1);
     testRejectAsync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
-            assert.deepEqual(v, [1,2,3]);
+            assert(v[0] === 1);
+            assert(v[1] === 2);
+            assert(v[2] === 3);
             done();
         });
     }, 1);

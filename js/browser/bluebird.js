@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.8-0
+ * bluebird build version 0.10.9-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
