@@ -1,3 +1,23 @@
+## 0.10.9-0 (2013-11-27)
+
+Bugfixes:
+
+ - Promise.props now takes a [thenable-for-collection](https://github.com/petkaantonov/bluebird/blob/f41edac61b7c421608ff439bb5a09b7cffeadcf9/test/mocha/props.js#L197-L217)
+ - All promise collection methods now reject when a promise-or-thenable-for-collection turns out not to give a collection
+
+## 0.10.8-0 (2013-11-25)
+
+Features:
+
+ - All static collection methods take thenable-for-collection
+
+## 0.10.7-0 (2013-11-25)
+
+Features:
+
+ - throw TypeError when thenable resolves with itself
+ - Make .race() and Promise.race() forever pending on empty collections
+
 ## 0.10.6-0 (2013-11-25)
 
 Bugfixes:
