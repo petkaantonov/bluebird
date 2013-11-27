@@ -135,11 +135,8 @@ describe("when.any-test", function () {
     });
 
     specify("should resolve to empty array when input promise does not resolve to array", function(done) {
-        when.any(resolved(1)).then(
-            function(result) {
-                assert.deepEqual(result, []);
-                done();
-            }, fail
-        );
+        when.any(resolved(1)).caught(TypeError, function(e){
+            done();
+        });
     });
 });

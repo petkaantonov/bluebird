@@ -191,14 +191,10 @@ describe("when.some-test", function () {
         )
     });
 
-    specify("should resolve to empty array when input promise does not resolve to array", function(done) {
-        when.some(resolved(1), 1).then(
-            function(result) {
-                assert.deepEqual(result, []);
-                done();
-            },
-            fail
-        )
+    specify("should reject when input promise does not resolve to array", function(done) {
+        when.some(resolved(1), 1).caught(TypeError, function(e){
+            done();
+        });
     });
 
     specify("should give sparse rejection reasons", function(done) {

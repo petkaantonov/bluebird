@@ -25,10 +25,14 @@ function toResolutionValue( val ) {
 
 function PromiseArray( values, caller, boundTo ) {
     ASSERT( arguments.length === 3 );
+    var d = this._resolver = Promise.defer( caller );
+    if (Promise.hasLongStackTraces() &&
+        Promise.is(values)) {
+        d.promise._traceParent = values;
+    }
     this._values = values;
-    this._resolver = Promise.pending( caller );
     if( boundTo !== void 0 ) {
-        this._resolver.promise._setBoundTo( boundTo );
+        d.promise._setBoundTo( boundTo );
     }
     this._length = 0;
     this._totalResolved = 0;
@@ -61,7 +65,8 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
             //an array as a resolution value
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
+                var err = new Promise.TypeError(COLLECTION_ERROR);
+                this.__hardReject__(err);
                 return;
             }
             this._values = values;
@@ -197,6 +202,8 @@ PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
     this._resolver.fulfill( value );
 };
 
+
+PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ASSERT( !this._isResolved() );
     ensureNotHandled( reason );

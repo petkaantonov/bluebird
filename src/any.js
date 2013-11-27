@@ -2,6 +2,7 @@
 module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
     var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
+    var ASSERT = require( "./assert.js" );
 
     function Promise$_Any( promises, useBound, caller ) {
         var ret = Promise$_All(
@@ -10,9 +11,14 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
             caller,
             useBound === USE_BOUND ? promises._boundTo : void 0
         );
+        var promise = ret.promise();
+        if (promise.isRejected()) {
+            return promise;
+        }
+        ASSERT( ret instanceof SomePromiseArray );
         ret.setHowMany( 1 );
         ret.setUnwrap();
-        return ret.promise();
+        return promise;
     }
 
     Promise.any = function Promise$Any( promises ) {

@@ -54,18 +54,16 @@ Q.all = Promise.all;
 
 describe("Promise.props", function () {
 
-    specify("should resolve undefined to undefined", function(done) {
-        adapter.props().then(function(v){
-            assert( v === void 0 );
+    specify("should reject undefined", function(done) {
+        adapter.props().caught(TypeError, function(){
             done();
-        });
+        })
     });
 
-    specify("should resolve primitive to primitive", function(done) {
-        adapter.props("str").then(function(v){
-            assert( v === "str" );
+    specify("should reject primitive", function(done) {
+        adapter.props("str").caught(TypeError, function(){
             done();
-        });
+        })
     });
 
     specify("should resolve to new object", function(done) {
@@ -166,10 +164,9 @@ describe("Promise.props", function () {
         }, 13);
     });
 
-    specify("should accept a promise for a primitive", function(done) {
+    specify("should reject a promise for a primitive", function(done) {
         var d1 = pending();
-        adapter.props(d1.promise).then(function(v){
-            assert(v === "text");
+        adapter.props(d1.promise).caught(TypeError, function(){
             done();
         });
         setTimeout(function(){
@@ -185,6 +182,38 @@ describe("Promise.props", function () {
             one: t1,
             two: t2,
             three: t3
+        };
+        adapter.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+            done();
+        });
+    });
+
+    specify("should accept a thenable for thenables in properties", function(done) {
+        var o = {
+          then: function (f) {
+            f({
+              one: {
+                then: function (cb) {
+                  cb(1);
+                }
+              },
+              two: {
+                then: function (cb) {
+                  cb(2);
+                }
+              },
+              three: {
+                then: function (cb) {
+                  cb(3);
+                }
+              }
+            });
+          }
         };
         adapter.props(o).then(function(v){
             assert.deepEqual({

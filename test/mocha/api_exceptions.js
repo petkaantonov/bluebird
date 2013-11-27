@@ -12,6 +12,69 @@ function assertErrorHasLongTraces(e) {
     assert( e.stack.indexOf( "From previous event:" ) > -1 );
 }
 
+function testCollection(name, a1, a2, a3) {
+
+    function getPromise(obj, val) {
+        return obj === void 0
+            ? Promise.resolve(val)[name](a1, a2, a3)
+            : Promise[name](val, a1, a2, a3);
+    }
+
+    function thenable(obj) {
+        var o = {
+            then: function(f) {
+                setTimeout(function(){
+                    f(3);
+                }, 13);
+            }
+        }
+        specify("thenable for non-collection value", function(done) {
+            getPromise(obj, o).then(function(){
+                assert.fail();
+            }).caught(Promise.TypeError, function(e) {
+                done();
+            });
+        });
+    };
+
+    function immediate(obj) {
+        specify("immediate for non-collection value", function(done){
+            getPromise(obj, 3).then(function(){
+                assert.fail();
+            }).caught(Promise.TypeError, function(e) {
+                done();
+            });
+        });
+    }
+
+    function promise(obj) {
+        var d = Promise.defer();
+        setTimeout(function(){
+            d.resolve(3);
+        }, 13);
+        specify("promise for non-collection value", function(done) {
+
+            getPromise(obj, d.promise).then(function(){
+                assert.fail();
+            }).caught(Promise.TypeError, function(e) {
+                done();
+            });
+        });
+    }
+
+    describe("When passing non-collection argument to Promise."+name + "() it should reject", function() {
+        immediate(Promise);
+        thenable(Promise);
+        promise(Promise);
+    });
+
+    describe("When calling ."+name + "() on a promise that resolves to a non-collection it should reject", function() {
+        immediate();
+        thenable();
+        promise();
+    });
+}
+
 if( Promise.hasLongStackTraces() ) {
 
 
@@ -196,4 +259,14 @@ if( Promise.hasLongStackTraces() ) {
         });
 
     });
+
+    testCollection("race");
+    testCollection("all");
+    testCollection("settle");
+    testCollection("any");
+    testCollection("some", 1);
+    testCollection("map", function(){});
+    testCollection("reduce", function(){});
+    testCollection("filter", function(){});
+    testCollection("props", function(){});
 }

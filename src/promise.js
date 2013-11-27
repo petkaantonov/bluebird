@@ -1075,8 +1075,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-
 function Promise$_All( promises, PromiseArray, caller, boundTo ) {
+
     ASSERT( arguments.length === 4 );
     ASSERT( typeof PromiseArray === "function" );
 
@@ -1103,11 +1103,9 @@ function Promise$_All( promises, PromiseArray, caller, boundTo ) {
             boundTo
         );
     }
-    return new PromiseArray(
-        [ apiRejection( "expecting an array, a promise or a thenable" ) ],
-        caller,
-        boundTo
-    );
+    return {
+        promise: function() {return apiRejection(COLLECTION_ERROR);}
+    };
 }
 
 var old = global.Promise;

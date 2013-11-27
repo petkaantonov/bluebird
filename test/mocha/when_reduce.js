@@ -248,13 +248,9 @@ describe("when.reduce-test", function () {
     });
 
     specify("should resolve to initialValue when input promise does not resolve to an array", function(done) {
-        when.reduce(resolved(123), plus, 1).then(
-            function(result) {
-                assert.deepEqual(result, 1);
-                done();
-            },
-            fail
-        );
+        when.reduce(resolved(123), plus, 1).caught(TypeError, function(e){
+            done();
+        });
     });
 
     specify("should provide correct basis value", function(done) {

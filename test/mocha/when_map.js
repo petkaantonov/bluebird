@@ -152,13 +152,9 @@ describe("when.map-test", function () {
     });
 
     specify("should resolve to empty array when input promise does not resolve to an array", function(done) {
-        when.map(resolved(123), mapper).then(
-            function(result) {
-                assert.deepEqual(result, []);
-                done();
-            },
-            fail
-        );
+        when.map(resolved(123), mapper).caught(TypeError, function(e){
+            done();
+        });
     });
 
     specify("should map input promises when mapper returns a promise", function(done) {

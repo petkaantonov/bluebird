@@ -62,3 +62,5 @@ CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 //direct_resolve.js
 CONSTANT(THROW, 1);
 CONSTANT(RETURN, 2);
+
+CONSTANT(COLLECTION_ERROR,  "expecting an array, a promise or a thenable" );
