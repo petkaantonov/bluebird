@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.7-0
+ * bluebird build version 0.10.8-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -70,6 +70,7 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
 module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
     var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
+    var ASSERT = require( "./assert.js" );
 
     function Promise$_Any( promises, useBound, caller ) {
         var ret = Promise$_All(
@@ -78,9 +79,13 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
             caller,
             useBound === true ? promises._boundTo : void 0
         );
+        var promise = ret.promise();
+        if (promise.isRejected()) {
+            return promise;
+        }
         ret.setHowMany( 1 );
         ret.setUnwrap();
-        return ret.promise();
+        return promise;
     }
 
     Promise.any = function Promise$Any( promises ) {
@@ -93,7 +98,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray ) {
 
 };
 
-},{"./some_promise_array.js":35}],2:[function(require,module,exports){
+},{"./assert.js":2,"./some_promise_array.js":35}],2:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -414,9 +419,11 @@ var inherits = require( "./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|process._tic" +
-    "kCallback|nextTick|Async\\$\\w+)\\b"
+    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$\\w+|" +
+    "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
+    "\\w*PromiseArray\\.\\w*PromiseArray|" +
+    "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
+    "process._tickCallback|nextTick|Async\\$\\w+)\\b"
 );
 
 var rtraceline = null;
@@ -545,18 +552,8 @@ var captureStackTrace = (function stackDetection() {
         };
         var captureStackTrace = Error.captureStackTrace;
         return function CapturedTrace$_captureStackTrace(
-            receiver, ignoreUntil, isTopLevel ) {
-            var prev = -1;
-            if( !isTopLevel ) {
-                prev = Error.stackTraceLimit;
-                Error.stackTraceLimit =
-                    Math.max(1, Math.min(10000, prev) / 3 | 0);
-            }
+            receiver, ignoreUntil) {
             captureStackTrace( receiver, ignoreUntil );
-
-            if( !isTopLevel ) {
-                Error.stackTraceLimit = prev;
-            }
         };
     }
     var err = new Error();
@@ -2482,8 +2479,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-
 function Promise$_All( promises, PromiseArray, caller, boundTo ) {
+
     var list = null;
     if (isArray(promises)) {
         list = promises;
@@ -2506,11 +2503,9 @@ function Promise$_All( promises, PromiseArray, caller, boundTo ) {
             boundTo
         );
     }
-    return new PromiseArray(
-        [ apiRejection( "expecting an array, a promise or a thenable" ) ],
-        caller,
-        boundTo
-    );
+    return {
+        promise: function() {return apiRejection("expecting an array, a promise or a thenable");}
+    };
 }
 
 var old = global.Promise;
@@ -2596,10 +2591,14 @@ function toResolutionValue( val ) {
 }
 
 function PromiseArray( values, caller, boundTo ) {
+    var d = this._resolver = Promise.defer( caller );
+    if (Promise.hasLongStackTraces() &&
+        Promise.is(values)) {
+        d.promise._traceParent = values;
+    }
     this._values = values;
-    this._resolver = Promise.pending( caller );
     if( boundTo !== void 0 ) {
-        this._resolver.promise._setBoundTo( boundTo );
+        d.promise._setBoundTo( boundTo );
     }
     this._length = 0;
     this._totalResolved = 0;
@@ -2622,7 +2621,8 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
         if( values.isFulfilled() ) {
             values = values._resolvedValue;
             if( !isArray( values ) ) {
-                this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
+                var err = new Promise.TypeError("expecting an array, a promise or a thenable");
+                this.__hardReject__(err);
                 return;
             }
             this._values = values;
@@ -2743,6 +2743,8 @@ PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
     this._resolver.fulfill( value );
 };
 
+
+PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
     ensureNotHandled( reason );
     this._values = null;
@@ -3388,27 +3390,30 @@ module.exports = function( Promise, PromiseArray ) {
     var PropertiesPromiseArray = require("./properties_promise_array.js")(
         Promise, PromiseArray);
     var util = require( "./util.js" );
-    var isPrimitive = util.isPrimitive;
+    var apiRejection = require("./errors_api_rejection")(Promise);
+    var isObject = util.isObject;
 
     function Promise$_Props( promises, useBound, caller ) {
         var ret;
-        if( isPrimitive( promises ) ) {
-            ret = Promise.fulfilled( promises, caller );
+        var castValue = Promise._cast(promises, caller, void 0);
+
+        if (!isObject(castValue)) {
+            return apiRejection(".props cannot be used on a primitive value");
         }
-        else if( Promise.is( promises ) ) {
-            ret = promises._then( Promise.props, void 0, void 0,
+        else if( Promise.is( castValue ) ) {
+            ret = castValue._then( Promise.props, void 0, void 0,
                             void 0, void 0, caller );
         }
         else {
             ret = new PropertiesPromiseArray(
-                promises,
+                castValue,
                 caller,
-                useBound === true ? promises._boundTo : void 0
+                useBound === true ? castValue._boundTo : void 0
             ).promise();
             useBound = false;
         }
         if( useBound === true ) {
-            ret._boundTo = promises._boundTo;
+            ret._boundTo = castValue._boundTo;
         }
         return ret;
     }
@@ -3421,7 +3426,8 @@ module.exports = function( Promise, PromiseArray ) {
         return Promise$_Props( promises, false, Promise.props );
     };
 };
-},{"./properties_promise_array.js":25,"./util.js":38}],27:[function(require,module,exports){
+
+},{"./errors_api_rejection":11,"./properties_promise_array.js":25,"./util.js":38}],27:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4064,8 +4070,12 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
             caller,
             useBound === true ? promises._boundTo : void 0
         );
+        var promise = ret.promise();
+        if (promise.isRejected()) {
+            return promise;
+        }
         ret.setHowMany( howMany );
-        return ret.promise();
+        return promise;
     }
 
     Promise.some = function Promise$Some( promises, howMany ) {
@@ -4077,6 +4087,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
     };
 
 };
+
 },{"./assert.js":2,"./some_promise_array.js":35}],35:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov

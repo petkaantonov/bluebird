@@ -26,9 +26,11 @@ var inherits = require( "./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:Promise(?:Array|Spawn)?\\$_\\w+|tryCatch(?:1|2|Apply)|setTimeout" +
-    "|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|process._tic" +
-    "kCallback|nextTick|Async\\$\\w+)\\b"
+    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$\\w+|" +
+    "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
+    "\\w*PromiseArray\\.\\w*PromiseArray|" +
+    "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
+    "process._tickCallback|nextTick|Async\\$\\w+)\\b"
 );
 
 var rtraceline = null;
@@ -166,18 +168,8 @@ var captureStackTrace = (function stackDetection() {
         };
         var captureStackTrace = Error.captureStackTrace;
         return function CapturedTrace$_captureStackTrace(
-            receiver, ignoreUntil, isTopLevel ) {
-            var prev = -1;
-            if( !isTopLevel ) {
-                prev = Error.stackTraceLimit;
-                Error.stackTraceLimit =
-                    Math.max(1, Math.min(10000, prev) / 3 | 0);
-            }
+            receiver, ignoreUntil) {
             captureStackTrace( receiver, ignoreUntil );
-
-            if( !isTopLevel ) {
-                Error.stackTraceLimit = prev;
-            }
         };
     }
     var err = new Error();

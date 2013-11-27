@@ -946,8 +946,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-
 function Promise$_All( promises, PromiseArray, caller, boundTo ) {
+
     var list = null;
     if (isArray(promises)) {
         list = promises;
@@ -970,11 +970,9 @@ function Promise$_All( promises, PromiseArray, caller, boundTo ) {
             boundTo
         );
     }
-    return new PromiseArray(
-        [ apiRejection( "expecting an array, a promise or a thenable" ) ],
-        caller,
-        boundTo
-    );
+    return {
+        promise: function() {return apiRejection("expecting an array, a promise or a thenable");}
+    };
 }
 
 var old = global.Promise;

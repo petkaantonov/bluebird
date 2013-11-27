@@ -35,10 +35,14 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
             caller,
             useBound === true ? promises._boundTo : void 0
         );
+        var promise = ret.promise();
+        if (promise.isRejected()) {
+            return promise;
+        }
         ASSERT((ret instanceof SomePromiseArray),
     "ret instanceof SomePromiseArray");
         ret.setHowMany( howMany );
-        return ret.promise();
+        return promise;
     }
 
     Promise.some = function Promise$Some( promises, howMany ) {

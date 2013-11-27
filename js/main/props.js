@@ -24,27 +24,30 @@ module.exports = function( Promise, PromiseArray ) {
     var PropertiesPromiseArray = require("./properties_promise_array.js")(
         Promise, PromiseArray);
     var util = require( "./util.js" );
-    var isPrimitive = util.isPrimitive;
+    var apiRejection = require("./errors_api_rejection")(Promise);
+    var isObject = util.isObject;
 
     function Promise$_Props( promises, useBound, caller ) {
         var ret;
-        if( isPrimitive( promises ) ) {
-            ret = Promise.fulfilled( promises, caller );
+        var castValue = Promise._cast(promises, caller, void 0);
+
+        if (!isObject(castValue)) {
+            return apiRejection(".props cannot be used on a primitive value");
         }
-        else if( Promise.is( promises ) ) {
-            ret = promises._then( Promise.props, void 0, void 0,
+        else if( Promise.is( castValue ) ) {
+            ret = castValue._then( Promise.props, void 0, void 0,
                             void 0, void 0, caller );
         }
         else {
             ret = new PropertiesPromiseArray(
-                promises,
+                castValue,
                 caller,
-                useBound === true ? promises._boundTo : void 0
+                useBound === true ? castValue._boundTo : void 0
             ).promise();
             useBound = false;
         }
         if( useBound === true ) {
-            ret._boundTo = promises._boundTo;
+            ret._boundTo = castValue._boundTo;
         }
         return ret;
     }
