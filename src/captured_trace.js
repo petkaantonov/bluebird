@@ -5,7 +5,7 @@ var inherits = require( "./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$\\w+|" +
+    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$_\\w+|" +
     "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
     "\\w*PromiseArray\\.\\w*PromiseArray|" +
     "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
