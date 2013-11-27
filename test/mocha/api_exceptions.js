@@ -223,6 +223,18 @@ if( Promise.hasLongStackTraces() ) {
 
 
     describe("static API misuse should just throw right away", function(){
+
+        specify("non-function to promise constructor", function(done) {
+            try {
+                new Promise();
+                assert.fail();
+            }
+            catch(e) {
+                assert(e instanceof Promise.TypeError);
+                done();
+            }
+        });
+
         specify( "non-function to coroutine", function(done) {
             try {
                 Promise.coroutine();

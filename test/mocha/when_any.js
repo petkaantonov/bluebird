@@ -39,7 +39,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 
 function fail() {
     assert.fail();

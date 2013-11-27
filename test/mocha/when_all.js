@@ -34,7 +34,7 @@ var pending = adapter.pending;
 var when = adapter;
 var resolved = when.fulfilled;
 var rejected = when.rejected;
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 
 function fail() {
     assert.fail();
