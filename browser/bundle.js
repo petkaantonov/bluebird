@@ -3567,7 +3567,7 @@ module.exports = function( Promise ) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
+module.exports = function(Promise, INTERNAL) {
     var errors = require( "./errors.js" );
     var async = require( "./async.js" );
     var CancellationError = errors.CancellationError;
@@ -3590,7 +3590,7 @@ module.exports = function( Promise ) {
     };
 
     Promise.prototype.uncancellable = function Promise$uncancellable() {
-        var ret = new Promise();
+        var ret = new Promise(INTERNAL);
         ret._setTrace( this.uncancellable, this );
         ret._unsetCancellable();
         ret._assumeStateOf( this, true );
@@ -3636,7 +3636,7 @@ var inherits = require( "./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$\\w+|" +
+    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$_\\w+|" +
     "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
     "\\w*PromiseArray\\.\\w*PromiseArray|" +
     "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
@@ -4837,12 +4837,18 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 
+var INTERNAL = function(){};
+
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
 }
 
-function Promise( resolver ) {
+function Promise(resolver) {
+    if (typeof resolver !== "function") {
+        throw new TypeError("You must pass a resolver function " +
+            "as the sole argument to the promise constructor");
+    }
     this._bitField = 67108864;
     this._fulfill0 = void 0;
     this._reject0 = void 0;
@@ -4852,13 +4858,12 @@ function Promise( resolver ) {
     this._resolvedValue = void 0;
     this._cancellationParent = void 0;
     this._boundTo = void 0;
-    if( longStackTraces ) this._traceParent = this._peekContext();
-    if( typeof resolver === "function" ) this._resolveResolver( resolver );
-
+    if (longStackTraces) this._traceParent = this._peekContext();
+    if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
 Promise.prototype.bind = function Promise$bind( obj ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( this.bind, this );
     ret._assumeStateOf( this, true );
     ret._setBoundTo( obj );
@@ -5016,7 +5021,7 @@ Promise.join = function Promise$Join() {
 
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve( value, caller ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( typeof caller === "function"
         ? caller
         : Promise.resolve, void 0 );
@@ -5030,7 +5035,7 @@ function Promise$Resolve( value, caller ) {
 };
 
 Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( Promise.reject, void 0 );
     ret._cleanValues();
     ret._setRejected();
@@ -5072,7 +5077,7 @@ Promise.method = function Promise$_Method( fn ) {
             var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
             value = tryCatchApply(fn, args, this); break;
         }
-        var ret = new Promise();
+        var ret = new Promise(INTERNAL);
         ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
@@ -5088,21 +5093,21 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
         ? tryCatchApply( fn, args, ctx )
         : tryCatch1( fn, ctx, args );
 
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace(Promise.attempt, void 0);
     ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer( caller ) {
-    var promise = new Promise();
+    var promise = new Promise(INTERNAL);
     promise._setTrace( typeof caller === "function"
                               ? caller : Promise.defer, void 0 );
     return new PromiseResolver( promise );
 };
 
 Promise.bind = function Promise$Bind( obj ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( Promise.bind, void 0 );
     ret._setFulfilled();
     ret._setBoundTo( obj );
@@ -5164,7 +5169,7 @@ function Promise$_then(
     ASSERT((arguments.length === 6),
     "arguments.length === 6");
     var haveInternalData = internalData !== void 0;
-    var ret = haveInternalData ? internalData : new Promise();
+    var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if( longStackTraces && !haveInternalData ) {
         var haveSameContext = this._peekContext() === this._traceParent;
@@ -5318,11 +5323,11 @@ Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     }
 };
 
-Promise.prototype._resolveResolver =
-function Promise$_resolveResolver( resolver ) {
+Promise.prototype._resolveFromResolver =
+function Promise$_resolveFromResolver( resolver ) {
     ASSERT(((typeof resolver) === "function"),
     "typeof resolver === \u0022function\u0022");
-    this._setTrace( this._resolveResolver, void 0 );
+    this._setTrace( this._resolveFromResolver, void 0 );
     var p = new PromiseResolver( this );
     this._pushContext();
     var r = tryCatch2( resolver, this, function Promise$_fulfiller( val ) {
@@ -5871,7 +5876,7 @@ require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./settle.js')(Promise,Promise$_All,PromiseArray);
 require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./progress.js')(Promise);
-require('./cancel.js')(Promise);
+require('./cancel.js')(Promise,INTERNAL);
 
 Promise.prototype = Promise.prototype;
 return Promise;
@@ -8120,7 +8125,7 @@ var inherits = require( "./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$\\w+|" +
+    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$_\\w+|" +
     "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
     "\\w*PromiseArray\\.\\w*PromiseArray|" +
     "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
@@ -8852,12 +8857,18 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 
+var INTERNAL = function(){};
+
 function isPromise( obj ) {
     if( typeof obj !== "object" ) return false;
     return obj instanceof Promise;
 }
 
-function Promise( resolver ) {
+function Promise(resolver) {
+    if (typeof resolver !== "function") {
+        throw new TypeError("You must pass a resolver function " +
+            "as the sole argument to the promise constructor");
+    }
     this._bitField = 67108864;
     this._fulfill0 = void 0;
     this._reject0 = void 0;
@@ -8867,13 +8878,12 @@ function Promise( resolver ) {
     this._resolvedValue = void 0;
     this._cancellationParent = void 0;
     this._boundTo = void 0;
-    if( longStackTraces ) this._traceParent = this._peekContext();
-    if( typeof resolver === "function" ) this._resolveResolver( resolver );
-
+    if (longStackTraces) this._traceParent = this._peekContext();
+    if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
 Promise.prototype.bind = function Promise$bind( obj ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( this.bind, this );
     ret._assumeStateOf( this, true );
     ret._setBoundTo( obj );
@@ -9031,7 +9041,7 @@ Promise.join = function Promise$Join() {
 
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve( value, caller ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( typeof caller === "function"
         ? caller
         : Promise.resolve, void 0 );
@@ -9045,7 +9055,7 @@ function Promise$Resolve( value, caller ) {
 };
 
 Promise.reject = Promise.rejected = function Promise$Reject( reason ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( Promise.reject, void 0 );
     ret._cleanValues();
     ret._setRejected();
@@ -9087,7 +9097,7 @@ Promise.method = function Promise$_Method( fn ) {
             var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
             value = tryCatchApply(fn, args, this); break;
         }
-        var ret = new Promise();
+        var ret = new Promise(INTERNAL);
         ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
@@ -9103,21 +9113,21 @@ Promise["try"] = Promise.attempt = function Promise$_Try( fn, args, ctx ) {
         ? tryCatchApply( fn, args, ctx )
         : tryCatch1( fn, ctx, args );
 
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace(Promise.attempt, void 0);
     ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer( caller ) {
-    var promise = new Promise();
+    var promise = new Promise(INTERNAL);
     promise._setTrace( typeof caller === "function"
                               ? caller : Promise.defer, void 0 );
     return new PromiseResolver( promise );
 };
 
 Promise.bind = function Promise$Bind( obj ) {
-    var ret = new Promise();
+    var ret = new Promise(INTERNAL);
     ret._setTrace( Promise.bind, void 0 );
     ret._setFulfilled();
     ret._setBoundTo( obj );
@@ -9177,7 +9187,7 @@ function Promise$_then(
     caller
 ) {
     var haveInternalData = internalData !== void 0;
-    var ret = haveInternalData ? internalData : new Promise();
+    var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if( longStackTraces && !haveInternalData ) {
         var haveSameContext = this._peekContext() === this._traceParent;
@@ -9296,9 +9306,9 @@ Promise.prototype._unsetAt = function Promise$_unsetAt( index ) {
     }
 };
 
-Promise.prototype._resolveResolver =
-function Promise$_resolveResolver( resolver ) {
-    this._setTrace( this._resolveResolver, void 0 );
+Promise.prototype._resolveFromResolver =
+function Promise$_resolveFromResolver( resolver ) {
+    this._setTrace( this._resolveFromResolver, void 0 );
     var p = new PromiseResolver( this );
     this._pushContext();
     var r = tryCatch2( resolver, this, function Promise$_fulfiller( val ) {
@@ -9803,7 +9813,7 @@ require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./settle.js')(Promise,Promise$_All,PromiseArray);
 require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./progress.js')(Promise);
-require('./cancel.js')(Promise);
+require('./cancel.js')(Promise,INTERNAL);
 
 Promise.prototype = Promise.prototype;
 return Promise;
@@ -18342,6 +18352,18 @@ if( Promise.hasLongStackTraces() ) {
 
 
     describe("static API misuse should just throw right away", function(){
+
+        specify("non-function to promise constructor", function(done) {
+            try {
+                new Promise();
+                assert.fail();
+            }
+            catch(e) {
+                assert(e instanceof Promise.TypeError);
+                done();
+            }
+        });
+
         specify( "non-function to coroutine", function(done) {
             try {
                 Promise.coroutine();
@@ -25394,7 +25416,7 @@ var pending = adapter.pending;
 var when = adapter;
 var resolved = when.fulfilled;
 var rejected = when.rejected;
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 
 function fail() {
     assert.fail();
@@ -25516,7 +25538,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 
 function fail() {
     assert.fail();
@@ -25660,7 +25682,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -26188,7 +26210,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -26327,7 +26349,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -26572,7 +26594,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -26844,7 +26866,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -27010,7 +27032,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -27237,7 +27259,7 @@ when.reject = rejected;
 when.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when().constructor.prototype;
+var p = new when(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
