@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.9-0
+ * bluebird build version 0.10.9-1
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -1889,7 +1889,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = true || false || !!(
+var longStackTraces = false || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&

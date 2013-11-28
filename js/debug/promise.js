@@ -360,7 +360,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = true || false || !!(
+var longStackTraces = true || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
