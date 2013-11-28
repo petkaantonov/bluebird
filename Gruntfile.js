@@ -462,7 +462,6 @@ module.exports = function( grunt ) {
             return Q.nfcall(fs.readFile, dest, "utf8" );
         }).then(function( src ) {
             src = header + src;
-            src = src.replace( "longStackTraces = false", "longStackTraces = true" );
             return Q.nfcall(fs.writeFile, dest, src );
         });
     }

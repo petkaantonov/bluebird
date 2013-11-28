@@ -429,7 +429,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = __DEBUG__ || __BROWSER__ || !!(
+var longStackTraces = __DEBUG__ || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
