@@ -4249,7 +4249,8 @@ if (isES5) {
         defineProperty: Object.defineProperty,
         keys: Object.keys,
         getPrototypeOf: Object.getPrototypeOf,
-        isArray: Array.isArray
+        isArray: Array.isArray,
+        isES5: isES5
     };
 }
 
@@ -4300,7 +4301,8 @@ else {
         keys: ObjectKeys,
         defineProperty: ObjectDefineProperty,
         freeze: ObjectFreeze,
-        getPrototypeOf: ObjectGetPrototypeOf
+        getPrototypeOf: ObjectGetPrototypeOf,
+        isES5: isES5
     };
 }
 
@@ -5135,7 +5137,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = true || false || !!(
+var longStackTraces = true || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
@@ -6461,6 +6463,7 @@ return PromiseSpawn;
 module.exports = function( Promise ) {
 var THIS = {};
 var util = require( "./util.js");
+var es5 = require("./es5.js");
 var errors = require( "./errors.js" );
 var nodebackForResolver = require( "./promise_resolver.js" )
     ._nodebackForResolver;
@@ -6471,6 +6474,63 @@ var canEvaluate = util.canEvaluate;
 var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require( "./assert.js" );
+
+
+var roriginal = new RegExp( "__beforePromisified__" + "$" );
+var hasProp = {}.hasOwnProperty;
+function isPromisified( fn ) {
+    return fn.__isPromisified__ === true;
+}
+var inheritedMethods = (function() {
+    if (es5.isES5) {
+        var create = Object.create;
+        var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+        return function(cur) {
+            var original = cur;
+            var ret = [];
+            var visitedKeys = create(null);
+            while (cur !== null) {
+                var keys = es5.keys(cur);
+                for( var i = 0, len = keys.length; i < len; ++i ) {
+                    var key = keys[i];
+                    if (visitedKeys[key] ||
+                        roriginal.test(key) ||
+                        hasProp.call(original, key + "__beforePromisified__")
+                    ) {
+                        continue;
+                    }
+                    visitedKeys[key] = true;
+                    var desc = getOwnPropertyDescriptor(cur, key);
+                    if (desc != null &&
+                        typeof desc.value === "function" &&
+                        !isPromisified(desc.value)) {
+                        ret.push(key, desc.value);
+                    }
+                }
+                cur = es5.getPrototypeOf(cur);
+            }
+            return ret;
+        };
+    }
+    else {
+        return function(obj) {
+            var ret = [];
+            /*jshint forin:false */
+            for (var key in obj) {
+                if (roriginal.test(key) ||
+                    hasProp.call(obj, key + "__beforePromisified__")) {
+                    continue;
+                }
+                var fn = obj[key];
+                if (typeof fn === "function" &&
+                    !isPromisified(fn)) {
+                    ret.push(key, fn);
+                }
+            }
+            return ret;
+        };
+    }
+})();
 
 Promise.prototype.error = function Promise$_error( fn ) {
     return this.caught( RejectionError, fn );
@@ -6573,44 +6633,23 @@ var makeNodePromisified = canEvaluate
     : makeNodePromisifiedClosure;
 
 function f(){}
-function isPromisified( fn ) {
-    return fn.__isPromisified__ === true;
-}
-var hasProp = {}.hasOwnProperty;
-var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
-        var changed = 0;
-        var o = {};
-        for( var key in callback ) {
-            if( !roriginal.test( key ) &&
-                !hasProp.call( callback,
-                    ( key + "__beforePromisified__" ) ) &&
-                typeof callback[ key ] === "function" ) {
-                var fn = callback[key];
-                if( !isPromisified( fn ) ) {
-                    changed++;
-                    var originalKey = key + "__beforePromisified__";
-                    var promisifiedKey = key + "Async";
-                    notEnumerableProp( callback, originalKey, fn );
-                    o[ promisifiedKey ] =
-                        makeNodePromisified( originalKey, THIS, key );
-                }
-            }
+        var methods = inheritedMethods(callback);
+        for (var i = 0, len = methods.length; i < len; i+= 2) {
+            var key = methods[i];
+            var fn = methods[i+1];
+            var originalKey = key + "__beforePromisified__";
+            var promisifiedKey = key + "Async";
+            notEnumerableProp(callback, originalKey, fn);
+            callback[promisifiedKey] =
+                makeNodePromisified(originalKey, THIS, key);
         }
-        if( changed > 0 ) {
-            for( var key in o ) {
-                if( hasProp.call( o, key ) ) {
-                    callback[key] = o[key];
-                }
-            }
-            f.prototype = callback;
-        }
-
+        if (methods.length > 16) f.prototype = callback;
         return callback;
     }
     else {
-        return makeNodePromisified( callback, receiver, void 0 );
+        return makeNodePromisified(callback, receiver, void 0);
     }
 }
 
@@ -6641,7 +6680,7 @@ Promise.promisifyAll = function Promise$PromisifyAll( target ) {
 };
 
 
-},{"./assert.js":18,"./errors.js":26,"./promise_resolver.js":38,"./util.js":54}],41:[function(require,module,exports){
+},{"./assert.js":18,"./errors.js":26,"./es5.js":28,"./promise_resolver.js":38,"./util.js":54}],41:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -9155,7 +9194,7 @@ function Promise$OnPossiblyUnhandledRejection( fn ) {
     }
 };
 
-var longStackTraces = false || false || !!(
+var longStackTraces = false || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
@@ -10083,6 +10122,7 @@ arguments[4][39][0].apply(exports,arguments)
 module.exports = function( Promise ) {
 var THIS = {};
 var util = require( "./util.js");
+var es5 = require("./es5.js");
 var errors = require( "./errors.js" );
 var nodebackForResolver = require( "./promise_resolver.js" )
     ._nodebackForResolver;
@@ -10093,6 +10133,63 @@ var canEvaluate = util.canEvaluate;
 var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require( "./assert.js" );
+
+
+var roriginal = new RegExp( "__beforePromisified__" + "$" );
+var hasProp = {}.hasOwnProperty;
+function isPromisified( fn ) {
+    return fn.__isPromisified__ === true;
+}
+var inheritedMethods = (function() {
+    if (es5.isES5) {
+        var create = Object.create;
+        var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+        return function(cur) {
+            var original = cur;
+            var ret = [];
+            var visitedKeys = create(null);
+            while (cur !== null) {
+                var keys = es5.keys(cur);
+                for( var i = 0, len = keys.length; i < len; ++i ) {
+                    var key = keys[i];
+                    if (visitedKeys[key] ||
+                        roriginal.test(key) ||
+                        hasProp.call(original, key + "__beforePromisified__")
+                    ) {
+                        continue;
+                    }
+                    visitedKeys[key] = true;
+                    var desc = getOwnPropertyDescriptor(cur, key);
+                    if (desc != null &&
+                        typeof desc.value === "function" &&
+                        !isPromisified(desc.value)) {
+                        ret.push(key, desc.value);
+                    }
+                }
+                cur = es5.getPrototypeOf(cur);
+            }
+            return ret;
+        };
+    }
+    else {
+        return function(obj) {
+            var ret = [];
+            /*jshint forin:false */
+            for (var key in obj) {
+                if (roriginal.test(key) ||
+                    hasProp.call(obj, key + "__beforePromisified__")) {
+                    continue;
+                }
+                var fn = obj[key];
+                if (typeof fn === "function" &&
+                    !isPromisified(fn)) {
+                    ret.push(key, fn);
+                }
+            }
+            return ret;
+        };
+    }
+})();
 
 Promise.prototype.error = function Promise$_error( fn ) {
     return this.caught( RejectionError, fn );
@@ -10193,44 +10290,23 @@ var makeNodePromisified = canEvaluate
     : makeNodePromisifiedClosure;
 
 function f(){}
-function isPromisified( fn ) {
-    return fn.__isPromisified__ === true;
-}
-var hasProp = {}.hasOwnProperty;
-var roriginal = new RegExp( "__beforePromisified__" + "$" );
 function _promisify( callback, receiver, isAll ) {
     if( isAll ) {
-        var changed = 0;
-        var o = {};
-        for( var key in callback ) {
-            if( !roriginal.test( key ) &&
-                !hasProp.call( callback,
-                    ( key + "__beforePromisified__" ) ) &&
-                typeof callback[ key ] === "function" ) {
-                var fn = callback[key];
-                if( !isPromisified( fn ) ) {
-                    changed++;
-                    var originalKey = key + "__beforePromisified__";
-                    var promisifiedKey = key + "Async";
-                    notEnumerableProp( callback, originalKey, fn );
-                    o[ promisifiedKey ] =
-                        makeNodePromisified( originalKey, THIS, key );
-                }
-            }
+        var methods = inheritedMethods(callback);
+        for (var i = 0, len = methods.length; i < len; i+= 2) {
+            var key = methods[i];
+            var fn = methods[i+1];
+            var originalKey = key + "__beforePromisified__";
+            var promisifiedKey = key + "Async";
+            notEnumerableProp(callback, originalKey, fn);
+            callback[promisifiedKey] =
+                makeNodePromisified(originalKey, THIS, key);
         }
-        if( changed > 0 ) {
-            for( var key in o ) {
-                if( hasProp.call( o, key ) ) {
-                    callback[key] = o[key];
-                }
-            }
-            f.prototype = callback;
-        }
-
+        if (methods.length > 16) f.prototype = callback;
         return callback;
     }
     else {
-        return makeNodePromisified( callback, receiver, void 0 );
+        return makeNodePromisified(callback, receiver, void 0);
     }
 }
 
@@ -10261,7 +10337,7 @@ Promise.promisifyAll = function Promise$PromisifyAll( target ) {
 };
 
 
-},{"./assert.js":56,"./errors.js":64,"./promise_resolver.js":76,"./util.js":92}],79:[function(require,module,exports){
+},{"./assert.js":56,"./errors.js":64,"./es5.js":66,"./promise_resolver.js":76,"./util.js":92}],79:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -21745,7 +21821,9 @@ describe("promisify on objects", function(){
 });
 
 
-describe( "Promisify from prototype to object", function(){
+describe( "Promisify from prototype to object", function() {
+    var getterCalled = 0;
+
     function makeClass() {
         var Test = (function() {
 
@@ -21757,6 +21835,29 @@ describe( "Promisify from prototype to object", function(){
         method.test = function() {
 
         };
+
+        if (Object.defineProperty) {
+            Object.defineProperty(method, "thrower", {
+                enumerable: true,
+                configurable: true,
+                get: function() {
+                    throw new Error("getter called");
+                },
+                set: function() {
+                    throw new Error("setter called");
+                }
+            });
+            Object.defineProperty(method, "counter", {
+                enumerable: true,
+                configurable: true,
+                get: function() {
+                    getterCalled++;
+                },
+                set: function() {
+                    throw new Error("setter called");
+                }
+            });
+        }
 
         return Test;})();
 
@@ -21774,7 +21875,7 @@ describe( "Promisify from prototype to object", function(){
         assert( typeof a.testAsync === "function" );
         assert( a.hasOwnProperty("testAsync"));
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
-
+        assert(getterCalled === 0);
         done();
     });
 
@@ -21789,7 +21890,7 @@ describe( "Promisify from prototype to object", function(){
         assert( typeof a.testAsync === "function" );
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype.test).sort(), origKeys );
         assert( Promise.promisify( a.test ) !== a.testAsync );
-
+        assert(getterCalled === 0);
         done();
     });
 
@@ -21803,6 +21904,7 @@ describe( "Promisify from prototype to object", function(){
         Promise.promisifyAll( instance );
         assert.deepEqual( origKeys, Object.getOwnPropertyNames(Test.prototype).sort() );
         assert.notDeepEqual( origInstanceKeys,  Object.getOwnPropertyNames(instance).sort() );
+        assert(getterCalled === 0);
         done();
     });
 
@@ -21818,6 +21920,7 @@ describe( "Promisify from prototype to object", function(){
 
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
         assert( instance.test__beforePromisified__ === instance.test );
+        assert(getterCalled === 0);
         done();
     });
 

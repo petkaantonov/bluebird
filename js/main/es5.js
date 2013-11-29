@@ -30,7 +30,8 @@ if (isES5) {
         defineProperty: Object.defineProperty,
         keys: Object.keys,
         getPrototypeOf: Object.getPrototypeOf,
-        isArray: Array.isArray
+        isArray: Array.isArray,
+        isES5: isES5
     };
 }
 
@@ -81,6 +82,7 @@ else {
         keys: ObjectKeys,
         defineProperty: ObjectDefineProperty,
         freeze: ObjectFreeze,
-        getPrototypeOf: ObjectGetPrototypeOf
+        getPrototypeOf: ObjectGetPrototypeOf,
+        isES5: isES5
     };
 }
