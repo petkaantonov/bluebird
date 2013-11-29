@@ -22,6 +22,9 @@ module.exports = function(Promise, INTERNAL) {
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(caller, parent);
+        if (parent !== void 0) {
+            ret._setBoundTo(parent._boundTo);
+        }
         var fulfill = ret._fulfill;
         var reject = ret._reject;
         for( var i = 0, len = promises.length; i < len; ++i ) {
