@@ -33,8 +33,6 @@ function toResolutionValue( val ) {
     case 0: return void 0;
     case 1: return [];
     case 2: return {};
-    case 3:
-        return Promise.defer().promise;
     }
     ASSERT(false,
     "false");
