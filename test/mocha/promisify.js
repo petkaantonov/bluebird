@@ -395,7 +395,9 @@ describe("promisify on objects", function(){
 });
 
 
-describe( "Promisify from prototype to object", function(){
+describe( "Promisify from prototype to object", function() {
+    var getterCalled = 0;
+
     function makeClass() {
         var Test = (function() {
 
@@ -407,6 +409,29 @@ describe( "Promisify from prototype to object", function(){
         method.test = function() {
 
         };
+
+        if (Object.defineProperty) {
+            Object.defineProperty(method, "thrower", {
+                enumerable: true,
+                configurable: true,
+                get: function() {
+                    throw new Error("getter called");
+                },
+                set: function() {
+                    throw new Error("setter called");
+                }
+            });
+            Object.defineProperty(method, "counter", {
+                enumerable: true,
+                configurable: true,
+                get: function() {
+                    getterCalled++;
+                },
+                set: function() {
+                    throw new Error("setter called");
+                }
+            });
+        }
 
         return Test;})();
 
@@ -424,7 +449,7 @@ describe( "Promisify from prototype to object", function(){
         assert( typeof a.testAsync === "function" );
         assert( a.hasOwnProperty("testAsync"));
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
-
+        assert(getterCalled === 0);
         done();
     });
 
@@ -439,7 +464,7 @@ describe( "Promisify from prototype to object", function(){
         assert( typeof a.testAsync === "function" );
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype.test).sort(), origKeys );
         assert( Promise.promisify( a.test ) !== a.testAsync );
-
+        assert(getterCalled === 0);
         done();
     });
 
@@ -453,6 +478,7 @@ describe( "Promisify from prototype to object", function(){
         Promise.promisifyAll( instance );
         assert.deepEqual( origKeys, Object.getOwnPropertyNames(Test.prototype).sort() );
         assert.notDeepEqual( origInstanceKeys,  Object.getOwnPropertyNames(instance).sort() );
+        assert(getterCalled === 0);
         done();
     });
 
@@ -468,6 +494,7 @@ describe( "Promisify from prototype to object", function(){
 
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
         assert( instance.test__beforePromisified__ === instance.test );
+        assert(getterCalled === 0);
         done();
     });
 
