@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.11-1
+ * bluebird build version 0.10.11-3
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -3633,18 +3633,18 @@ module.exports = function(Promise, INTERNAL) {
     var apiRejection = require("./errors_api_rejection.js")(Promise);
     var isArray = require("./util.js").isArray;
 
-    function raceLater(promise, caller) {
-        return promise.then(function(array) {
-            return Promise$_Race(array, caller, promise);
+    var raceLater = function Promise$_raceLater(promise) {
+        return promise.then(function Promise$_lateRacer(array) {
+            return Promise$_Race(array, Promise$_lateRacer, promise);
         });
-    }
+    };
 
     var hasOwn = {}.hasOwnProperty;
     function Promise$_Race(promises, caller, parent) {
         var maybePromise = Promise._cast(promises, caller, void 0);
 
         if (Promise.is(maybePromise)) {
-            return raceLater(maybePromise, caller);
+            return raceLater(maybePromise);
         }
         else if (!isArray(promises)) {
             return apiRejection("expecting an array, a promise or a thenable");

@@ -27,3 +27,4 @@ bluebird.sublime-project
 changelog.js
 .travis.yml
 sauce_connect.log
+bump.js
