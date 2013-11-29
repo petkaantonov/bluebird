@@ -8,17 +8,12 @@ var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
-//and also because void 0 or promises cannot be smuggled
+//and also because void 0 cannot be smuggled
 function toResolutionValue( val ) {
     switch( val ) {
     case RESOLVE_UNDEFINED: return void 0;
     case RESOLVE_ARRAY: return [];
     case RESOLVE_OBJECT: return {};
-    case RESOLVE_FOREVER_PENDING:
-        //Passive aggressive comment: many agree that
-        //this memory leak is better than rejecting
-        //when empty array is passed to Promise.race
-        return Promise.defer().promise;
     }
     ASSERT( false );
 }

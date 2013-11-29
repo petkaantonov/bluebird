@@ -51,7 +51,7 @@ module.exports = function( grunt ) {
 
     var optionalModuleDependencyMap = {
         "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
-        "race.js": ['Promise', 'Promise$_All', 'PromiseArray'],
+        "race.js": ['Promise', 'INTERNAL'],
         "call_get.js": ['Promise'],
         "filter.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "generators.js": ['Promise', 'apiRejection'],
@@ -264,7 +264,6 @@ module.exports = function( grunt ) {
                     "./src/cancel.js",
                     "./src/any.js",
                     "./src/race.js",
-                    "./src/race_promise_array.js",
                     "./src/call_get.js",
                     "./src/filter.js",
                     "./src/generators.js",
@@ -509,7 +508,6 @@ module.exports = function( grunt ) {
         "./src/promise.js",
         "./src/promise_array.js",
         "./src/settled_promise_array.js",
-        "./src/race_promise_array.js",
         "./src/some_promise_array.js",
         "./src/properties_promise_array.js",
         "./src/promise_inspection.js",
