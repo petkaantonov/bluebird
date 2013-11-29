@@ -7014,6 +7014,9 @@ module.exports = function(Promise, INTERNAL) {
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(caller, parent);
+        if (parent !== void 0) {
+            ret._setBoundTo(parent._boundTo);
+        }
         var fulfill = ret._fulfill;
         var reject = ret._reject;
         for( var i = 0, len = promises.length; i < len; ++i ) {
@@ -19253,6 +19256,61 @@ describe("when using .bind", function() {
         });
     });
 
+
+    describe("With race", function() {
+        describe("this should refer to the bound object", function() {
+            specify( "after race with immediate values", function(done) {
+                fulfilled([1,2,3]).bind(THIS).race().then(function(v){
+                    assert( v === 1 );
+                    assert( this === THIS );
+                    done();
+                });
+            });
+            specify( "after race with eventual values", function(done) {
+                var d1 = pending();
+                var p1 = d1.promise;
+
+                var d2 = pending();
+                var p2 = d2.promise;
+
+                var d3 = pending();
+                var p3 = d3.promise;
+
+                fulfilled([p1, p2, p3]).bind(THIS).race().then(function(v){
+                    assert(v === 1);
+                    assert( this === THIS );
+                    done();
+                });
+
+                setTimeout(function(){
+                    d1.fulfill(1);
+                    d2.fulfill(2);
+                    d3.fulfill(3);
+                }, 50);
+            });
+        });
+
+        describe("this should not refer to the bound object", function() {
+            specify( "in the promises created within the handler", function(done) {
+                var d1 = pending();
+                var p1 = d1.promise;
+
+                fulfilled([1,2,3]).bind(THIS).filter(function(){
+                    return Promise.race([p1]).then(function(){
+                        assert( this !== THIS );
+                        return 1;
+                    })
+                }).then(function(){
+                    assert( this === THIS );
+                    done();
+                });
+
+                setTimeout(function(){
+                    d1.fulfill(1);
+                }, 50);
+            });
+        });
+    });
 
     describe("With settle", function() {
         describe("this should refer to the bound object", function() {

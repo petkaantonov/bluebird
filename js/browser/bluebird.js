@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.11-0
+ * bluebird build version 0.10.11-1
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -3652,6 +3652,9 @@ module.exports = function(Promise, INTERNAL) {
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(caller, parent);
+        if (parent !== void 0) {
+            ret._setBoundTo(parent._boundTo);
+        }
         var fulfill = ret._fulfill;
         var reject = ret._reject;
         for( var i = 0, len = promises.length; i < len; ++i ) {
