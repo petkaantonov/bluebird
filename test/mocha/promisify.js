@@ -410,7 +410,7 @@ describe( "Promisify from prototype to object", function() {
 
         };
 
-        if (Object.defineProperty) {
+        if ((function(){"use strict"; return this === void 0})()) {
             Object.defineProperty(method, "thrower", {
                 enumerable: true,
                 configurable: true,
