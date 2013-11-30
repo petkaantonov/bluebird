@@ -395,4 +395,27 @@ describe("progress", function () {
 
         return deferred.promise;
     });
+
+    specify("should not choke when internal functions are registered on the promise", function(done) {
+        var d = adapter.defer();
+        var progress = 0;
+
+        //calls ._then on the d.promise with smuggled data and void 0 progress handler
+        Promise.race([d.promise]).then(function(v){
+            assert(v === 3);
+            assert(progress === 1);
+            done();
+        });
+
+        d.promise.progressed(function(v){
+            assert(v === 5);
+            progress++;
+        });
+
+        d.progress(5);
+
+        setTimeout(function(){
+            d.fulfill(3);
+        }, 13);
+    });
 });

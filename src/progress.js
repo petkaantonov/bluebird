@@ -35,7 +35,10 @@ module.exports = function( Promise ) {
             //if promise is not instanceof Promise
             //it is internally smuggled data
             if( !Promise.is( promise ) ) {
-                fn.call( this._receiverAt( i ), progressValue, promise );
+                //internal progress handler is usually undefined
+                if (fn !== void 0) {
+                    fn.call( this._receiverAt( i ), progressValue, promise );
+                }
                 continue;
             }
             var ret = progressValue;
