@@ -1,37 +1,37 @@
 "use strict";
-var util = require( "./util.js" );
+var util = require("./util.js");
 var maybeWrapAsError = util.maybeWrapAsError;
-var errors = require( "./errors.js");
+var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
-var async = require( "./async.js" );
+var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
 
-function isUntypedError( obj ) {
+function isUntypedError(obj) {
     return obj instanceof Error &&
         es5.getPrototypeOf(obj) === Error.prototype;
 }
 
-function wrapAsRejectionError( obj ) {
-    if( isUntypedError( obj ) ) {
-        return new RejectionError( obj );
+function wrapAsRejectionError(obj) {
+    if(isUntypedError(obj)) {
+        return new RejectionError(obj);
     }
     return obj;
 }
 
-function nodebackForResolver( resolver ) {
-    function PromiseResolver$_callback( err, value ) {
-        if( err ) {
-            resolver.reject( wrapAsRejectionError( maybeWrapAsError( err ) ) );
+function nodebackForResolver(resolver) {
+    function PromiseResolver$_callback(err, value) {
+        if(err) {
+            resolver.reject(wrapAsRejectionError(maybeWrapAsError(err)));
         }
         else {
-            if( arguments.length > 2 ) {
+            if(arguments.length > 2) {
                 INLINE_SLICE(args, arguments, 1);
-                resolver.fulfill( args );
+                resolver.fulfill(args);
             }
             else {
-                resolver.fulfill( value );
+                resolver.fulfill(value);
             }
         }
     }
@@ -49,22 +49,22 @@ function nodebackForResolver( resolver ) {
  * @constructor
  */
 var PromiseResolver;
-if( !haveGetters ) {
-    PromiseResolver = function PromiseResolver( promise ) {
+if(!haveGetters) {
+    PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
-        this.asCallback = nodebackForResolver( this );
+        this.asCallback = nodebackForResolver(this);
         this.callback = this.asCallback;
     };
 }
 else {
-    PromiseResolver = function PromiseResolver( promise ) {
+    PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
     };
 }
-if( haveGetters ) {
+if(haveGetters) {
     var prop = {
         get: function() {
-            return nodebackForResolver( this );
+            return nodebackForResolver(this);
         }
     };
     es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);

@@ -27,7 +27,7 @@ module.exports = function(Promise, INTERNAL) {
         }
         var fulfill = ret._fulfill;
         var reject = ret._reject;
-        for( var i = 0, len = promises.length; i < len; ++i ) {
+        for(var i = 0, len = promises.length; i < len; ++i) {
             var val = promises[i];
 
             if (val === void 0 && !(hasOwn.call(promises, i))) {
@@ -41,13 +41,13 @@ module.exports = function(Promise, INTERNAL) {
                 ret,
                 null,
                 caller
-            );
+           );
         }
         //Yes, if promises were empty, it will be forever pending :-)
         return ret;
     }
 
-    Promise.race = function Promise$Race( promises ) {
+    Promise.race = function Promise$Race(promises) {
         return Promise$_Race(promises, Promise.race, void 0);
     };
 

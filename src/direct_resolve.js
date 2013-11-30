@@ -3,7 +3,7 @@ var util = require("./util.js");
 var ASSERT = require("./assert.js");
 var isPrimitive = util.isPrimitive;
 
-module.exports = function( Promise ) {
+module.exports = function(Promise) {
 
 var wrapsPrimitiveReceiver = (function() {
     return this !== "string";
@@ -16,13 +16,13 @@ var thrower = function Promise$_thrower() {
     throw this;
 };
 
-var wrapper = function Promise$_wrapper( value, action ) {
-    if( action === THROW ) {
+var wrapper = function Promise$_wrapper(value, action) {
+    if(action === THROW) {
         return function Promise$_thrower() {
             throw value;
         };
     }
-    else if( action === RETURN ) {
+    else if(action === RETURN) {
         return function Promise$_returner() {
             return value;
         };
@@ -33,35 +33,35 @@ var wrapper = function Promise$_wrapper( value, action ) {
 
 Promise.prototype["return"] =
 Promise.prototype.thenReturn =
-function Promise$thenReturn( value ) {
-    if( wrapsPrimitiveReceiver && isPrimitive( value ) ) {
+function Promise$thenReturn(value) {
+    if(wrapsPrimitiveReceiver && isPrimitive(value)) {
         return this._then(
-            wrapper( value, RETURN ),
+            wrapper(value, RETURN),
             void 0,
             void 0,
             void 0,
             void 0,
             this.thenReturn
-        );
+       );
     }
-    return this._then( returner, void 0, void 0,
-                        value, void 0, this.thenReturn );
+    return this._then(returner, void 0, void 0,
+                        value, void 0, this.thenReturn);
 };
 
 Promise.prototype["throw"] =
 Promise.prototype.thenThrow =
-function Promise$thenThrow( reason ) {
-    if( wrapsPrimitiveReceiver && isPrimitive( reason ) ) {
+function Promise$thenThrow(reason) {
+    if(wrapsPrimitiveReceiver && isPrimitive(reason)) {
         return this._then(
-            wrapper( reason, THROW ),
+            wrapper(reason, THROW),
             void 0,
             void 0,
             void 0,
             void 0,
             this.thenThrow
-        );
+       );
     }
-    return this._then( thrower, void 0, void 0,
-                        reason, void 0, this.thenThrow );
+    return this._then(thrower, void 0, void 0,
+                        reason, void 0, this.thenThrow);
 };
 };
