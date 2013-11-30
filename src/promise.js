@@ -433,7 +433,7 @@ var debugging = __DEBUG__ || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
     typeof process.env === "object" &&
-    (process.env[ "BLUEBIRD_DEBUG" ] ||
+    (process.env["BLUEBIRD_DEBUG"] ||
         process.env["NODE_ENV"] === "development")
 );
 
@@ -548,7 +548,7 @@ Promise.prototype._receiverAt = function Promise$_receiverAt(index) {
         ret = this._receiver0;
     }
     else {
-        ret = this[ index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE ];
+        ret = this[index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE];
     }
     //Only use the bound value when not calling internal methods
     if(this._isBound() && ret === void 0) {
@@ -562,7 +562,7 @@ Promise.prototype._promiseAt = function Promise$_promiseAt(index) {
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
     if(index === 0) return this._promise0;
-    return this[ index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE ];
+    return this[index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE];
 };
 
 Promise.prototype._fulfillmentHandlerAt =
@@ -571,7 +571,7 @@ function Promise$_fulfillmentHandlerAt(index) {
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
     if(index === 0) return this._fulfillmentHandler0;
-    return this[ index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE ];
+    return this[index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE];
 };
 
 Promise.prototype._rejectionHandlerAt =
@@ -580,7 +580,7 @@ function Promise$_rejectionHandlerAt(index) {
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
     if(index === 0) return this._rejectionHandler0;
-    return this[ index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE ];
+    return this[index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE];
 };
 
 Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
@@ -595,11 +595,11 @@ Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
         this._receiver0 = void 0;
     }
     else {
-        this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] =
-        this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] =
-        this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] =
-        this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] =
-        this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = void 0;
+        this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] =
+        this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] =
+        this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] =
+        this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] =
+        this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = void 0;
     }
 };
 
@@ -642,11 +642,11 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
         return index;
     }
 
-    this[ index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET ] = fulfill;
-    this[ index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET ] = reject;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET ] = progress;
-    this[ index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET ] = promise;
-    this[ index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET ] = receiver;
+    this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] = fulfill;
+    this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] = reject;
+    this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] = progress;
+    this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] = promise;
+    this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = receiver;
 
     this._setLength(index + CALLBACK_SIZE);
     return index;
@@ -1056,7 +1056,7 @@ var contextStack = [];
 Promise.prototype._peekContext = function Promise$_peekContext() {
     var lastIndex = contextStack.length - 1;
     if(lastIndex >= 0) {
-        return contextStack[ lastIndex ];
+        return contextStack[lastIndex];
     }
     return void 0;
 

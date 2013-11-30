@@ -115,7 +115,7 @@ var inherits = function(Child, Parent) {
             if (hasProp.call(Parent.prototype, propertyName) &&
                 propertyName.charAt(propertyName.length-1) !== "$"
            ) {
-                this[ propertyName + "$"] = Parent.prototype[propertyName];
+                this[propertyName + "$"] = Parent.prototype[propertyName];
             }
         }
     }
@@ -149,9 +149,9 @@ function withAppended(target, appendee) {
     var ret = new Array(len + 1);
     var i;
     for(i = 0; i < len; ++i) {
-        ret[ i ] = target[ i ];
+        ret[i] = target[i];
     }
-    ret[ i ] = appendee;
+    ret[i] = appendee;
     return ret;
 }
 

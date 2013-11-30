@@ -23,7 +23,7 @@ module.exports = function(Promise) {
         ASSERT(index >= 0);
         ASSERT(index % CALLBACK_SIZE === 0);
         if(index === 0) return this._progressHandler0;
-        return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
+        return this[index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE];
     };
 
     Promise.prototype._doProgressWith =

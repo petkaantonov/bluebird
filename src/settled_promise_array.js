@@ -14,7 +14,7 @@ inherits(SettledPromiseArray, PromiseArray);
 SettledPromiseArray.prototype._promiseResolved =
 function SettledPromiseArray$_promiseResolved(index, inspection) {
     ASSERT(typeof index === "number");
-    this._values[ index ] = inspection;
+    this._values[index] = inspection;
     var totalResolved = ++this._totalResolved;
     if(totalResolved >= this._length) {
         this._resolve(this._values);

@@ -32,7 +32,7 @@ PropertiesPromiseArray.prototype._promiseFulfilled =
 function PropertiesPromiseArray$_promiseFulfilled(value, index) {
     if(this._isResolved()) return;
     ASSERT(!(value instanceof Promise));
-    this._values[ index ] = value;
+    this._values[index] = value;
     var totalResolved = ++this._totalResolved;
     if(totalResolved >= this._length) {
         var val = {};
@@ -50,7 +50,7 @@ function PropertiesPromiseArray$_promiseProgressed(value, index) {
     if(this._isResolved()) return;
 
     this._resolver.progress({
-        key: this._values[ index + this.length() ],
+        key: this._values[index + this.length()],
         value: value
     });
 };

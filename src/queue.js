@@ -3,7 +3,7 @@ var ASSERT = require("./assert.js");
 //http://jsperf.com/deque-vs-array-2
 function arrayCopy(src, srcIndex, dst, dstIndex, len) {
     for(var j = 0; j < len; ++j) {
-        dst[ j + dstIndex ] = src[ j + srcIndex ];
+        dst[j + dstIndex] = src[j + srcIndex];
     }
 }
 
@@ -61,18 +61,18 @@ Queue.prototype.push = function Queue$push(fn, receiver, arg) {
     var j = this._front + length - 3;
     this._checkCapacity(length);
     var wrapMask = this._capacity - 1;
-    this[ (j + 0) & wrapMask ] = fn;
-    this[ (j + 1) & wrapMask ] = receiver;
-    this[ (j + 2) & wrapMask ] = arg;
+    this[(j + 0) & wrapMask] = fn;
+    this[(j + 1) & wrapMask] = receiver;
+    this[(j + 2) & wrapMask] = arg;
     this._length = length;
 };
 
 Queue.prototype.shift = function Queue$shift() {
     ASSERT(this.length() > 0);
     var front = this._front,
-        ret = this[ front ];
+        ret = this[front];
 
-    this[ front ] = void 0;
+    this[front] = void 0;
     this._front = (front + 1) & (this._capacity - 1);
     this._length--;
     return ret;

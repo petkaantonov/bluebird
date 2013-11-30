@@ -90,7 +90,7 @@ function SomePromiseArray$_addRejected(reason) {
 
 SomePromiseArray.prototype._addFulfilled =
 function SomePromiseArray$_addFulfilled(value) {
-    this._values[ this._totalResolved++ ] = value;
+    this._values[this._totalResolved++] = value;
 };
 
 SomePromiseArray.prototype._canPossiblyFulfill =

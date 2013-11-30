@@ -4,7 +4,7 @@ module.exports = function(Promise) {
         INLINE_SLICE(args, arguments, 1);
 
         return this._then(function(obj) {
-                return obj[ propertyName ].apply(obj, args);
+                return obj[propertyName].apply(obj, args);
             },
             void 0,
             void 0,
@@ -18,7 +18,7 @@ module.exports = function(Promise) {
         var prop = typeof this === "string"
             ? this
             : ("" + this);
-        return obj[ prop ];
+        return obj[prop];
     }
     Promise.prototype.get = function Promise$get(propertyName) {
         return this._then(

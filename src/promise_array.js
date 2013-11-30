@@ -222,7 +222,7 @@ function PromiseArray$_promiseFulfilled(value, index) {
     if(this._isResolved()) return;
     ASSERT(isArray(this._values));
     ASSERT(typeof index === "number");
-    this._values[ index ] = value;
+    this._values[index] = value;
     var totalResolved = ++this._totalResolved;
     if(totalResolved >= this._length) {
         this._resolve(this._values);

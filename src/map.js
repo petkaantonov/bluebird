@@ -20,7 +20,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     !(i in fulfilleds)) {
                     continue;
                 }
-                var fulfill = fn(fulfilleds[ i ], i, len);
+                var fulfill = fn(fulfilleds[i], i, len);
                 if(!shouldDefer && Promise.is(fulfill)) {
                     if(fulfill.isFulfilled()) {
                         fulfilleds[i] = fulfill._settledValue;
@@ -39,7 +39,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     !(i in fulfilleds)) {
                     continue;
                 }
-                var fulfill = fn.call(receiver, fulfilleds[ i ], i, len);
+                var fulfill = fn.call(receiver, fulfilleds[i], i, len);
                 if(!shouldDefer && Promise.is(fulfill)) {
                     if(fulfill.isFulfilled()) {
                         fulfilleds[i] = fulfill._settledValue;

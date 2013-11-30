@@ -96,7 +96,7 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     //Eliminate common roots
     for(var i = prev.length - 1; i >= 0; --i) {
         var line = prev[i];
-        if(current[ curLast ] === line) {
+        if(current[curLast] === line) {
             current.pop();
             curLast--;
         }
