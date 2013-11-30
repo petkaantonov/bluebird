@@ -90,29 +90,31 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 };
 
 PromiseResolver.prototype.resolve =
-PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
-    if( this.promise._tryAssumeStateOf( value, false ) ) {
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
+    var promise = this.promise;
+    if (promise._tryFollow(value, false)) {
         return;
     }
-    async.invoke( this.promise._fulfill, this.promise, value );
+    async.invoke(promise._fulfill, promise, value);
 };
 
-PromiseResolver.prototype.reject = function PromiseResolver$reject( reason ) {
-    this.promise._attachExtraTrace( reason );
-    async.invoke( this.promise._reject, this.promise, reason );
+PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
+    var promise = this.promise;
+    promise._attachExtraTrace(reason);
+    async.invoke(promise._reject, promise, reason);
 };
 
 PromiseResolver.prototype.progress =
-function PromiseResolver$progress( value ) {
-    async.invoke( this.promise._progress, this.promise, value );
+function PromiseResolver$progress(value) {
+    async.invoke(this.promise._progress, this.promise, value);
 };
 
 PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
-    async.invoke( this.promise.cancel, this.promise, void 0 );
+    async.invoke(this.promise.cancel, this.promise, void 0);
 };
 
 PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
-    this.reject( new TimeoutError( "timeout" ) );
+    this.reject(new TimeoutError("timeout"));
 };
 
 PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {

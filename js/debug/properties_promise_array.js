@@ -61,7 +61,7 @@ function PropertiesPromiseArray$_promiseFulfilled( value, index ) {
         for( var i = 0, len = this.length(); i < len; ++i ) {
             val[this._values[i + keyOffset]] = this._values[i];
         }
-        this._fulfill( val );
+        this._resolve( val );
     }
 };
 

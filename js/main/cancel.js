@@ -46,7 +46,7 @@ module.exports = function(Promise, INTERNAL) {
         var ret = new Promise(INTERNAL);
         ret._setTrace( this.uncancellable, this );
         ret._unsetCancellable();
-        ret._assumeStateOf( this, true );
+        ret._follow( this, true );
         ret._boundTo = this._boundTo;
         return ret;
     };

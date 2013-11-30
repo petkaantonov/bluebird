@@ -43,7 +43,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
                 var fulfill = fn( fulfilleds[ i ], i, len );
                 if( !shouldDefer && Promise.is( fulfill ) ) {
                     if( fulfill.isFulfilled() ) {
-                        fulfilleds[i] = fulfill._resolvedValue;
+                        fulfilleds[i] = fulfill._settledValue;
                         continue;
                     }
                     else {
@@ -62,7 +62,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
                 var fulfill = fn.call( receiver, fulfilleds[ i ], i, len );
                 if( !shouldDefer && Promise.is( fulfill ) ) {
                     if( fulfill.isFulfilled() ) {
-                        fulfilleds[i] = fulfill._resolvedValue;
+                        fulfilleds[i] = fulfill._settledValue;
                         continue;
                     }
                     else {

@@ -62,16 +62,16 @@ function SomePromiseArray$setHowMany( count ) {
 };
 
 SomePromiseArray.prototype._promiseFulfilled =
-function SomePromiseArray$_promiseFulfilled( value ) {
-    if( this._isResolved() ) return;
+function SomePromiseArray$_promiseFulfilled(value) {
+    if (this._isResolved()) return;
     this._addFulfilled( value );
-    if( this._fulfilled() === this.howMany() ) {
+    if (this._fulfilled() === this.howMany()) {
         this._values.length = this.howMany();
-        if( this.howMany() === 1 && this._unwrap ) {
-            this._fulfill( this._values[0] );
+        if (this.howMany() === 1 && this._unwrap) {
+            this._resolve(this._values[0]);
         }
         else {
-            this._fulfill( this._values );
+            this._resolve(this._values);
         }
     }
 

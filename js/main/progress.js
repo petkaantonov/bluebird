@@ -27,19 +27,19 @@ module.exports = function( Promise ) {
     var tryCatch1 = util.tryCatch1;
     var errorObj = util.errorObj;
 
-    Promise.prototype.progressed = function Promise$progressed( fn ) {
-        return this._then( void 0, void 0, fn,
-                            void 0, void 0, this.progressed );
+    Promise.prototype.progressed = function Promise$progressed(fn) {
+        return this._then(void 0, void 0, fn,
+                            void 0, void 0, this.progressed);
     };
 
-    Promise.prototype._progress = function Promise$_progress( progressValue ) {
+    Promise.prototype._progress = function Promise$_progress(progressValue) {
         if( this._isFollowingOrFulfilledOrRejected() ) return;
-        this._resolveProgress( progressValue );
+        this._progressUnchecked(progressValue);
 
     };
 
     Promise.prototype._progressAt = function Promise$_progressAt( index ) {
-        if( index === 0 ) return this._progress0;
+        if( index === 0 ) return this._progressHandler0;
         return this[ index + 2 - 5 ];
     };
 
@@ -74,8 +74,8 @@ module.exports = function( Promise ) {
     };
 
 
-    Promise.prototype._resolveProgress =
-    function Promise$_resolveProgress( progressValue ) {
+    Promise.prototype._progressUnchecked =
+    function Promise$_progressUnchecked( progressValue ) {
         var len = this._length();
 
         for( var i = 0; i < len; i += 5 ) {

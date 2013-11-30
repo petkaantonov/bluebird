@@ -25,13 +25,13 @@ var TypeError = require( "./errors.js" ).TypeError;
 function PromiseInspection( promise ) {
     if( promise !== void 0 ) {
         this._bitField = promise._bitField;
-        this._resolvedValue = promise.isResolved()
-            ? promise._resolvedValue
+        this._settledValue = promise.isResolved()
+            ? promise._settledValue
             : void 0;
     }
     else {
         this._bitField = 0;
-        this._resolvedValue = void 0;
+        this._settledValue = void 0;
     }
 }
 PromiseInspection.prototype.isFulfilled =
@@ -53,7 +53,7 @@ PromiseInspection.prototype.value = function PromiseInspection$value() {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
     }
-    return this._resolvedValue;
+    return this._settledValue;
 };
 
 PromiseInspection.prototype.error = function PromiseInspection$error() {
@@ -61,7 +61,7 @@ PromiseInspection.prototype.error = function PromiseInspection$error() {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");
     }
-    return this._resolvedValue;
+    return this._settledValue;
 };
 
 module.exports = PromiseInspection;

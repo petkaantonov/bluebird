@@ -90,20 +90,22 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 };
 
 PromiseResolver.prototype.resolve =
-PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
-    if( this.promise._tryAssumeStateOf( value, false ) ) {
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
+    var promise = this.promise;
+    if (promise._tryFollow(value, false)) {
         return;
     }
-    this.promise._fulfill(value);
+    promise._fulfill(value);
 };
 
-PromiseResolver.prototype.reject = function PromiseResolver$reject( reason ) {
-    this.promise._attachExtraTrace( reason );
-    this.promise._reject(reason);
+PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
+    var promise = this.promise;
+    promise._attachExtraTrace(reason);
+    promise._reject(reason);
 };
 
 PromiseResolver.prototype.progress =
-function PromiseResolver$progress( value ) {
+function PromiseResolver$progress(value) {
     this.promise._progress(value);
 };
 
@@ -112,7 +114,7 @@ PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
 };
 
 PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
-    this.reject( new TimeoutError( "timeout" ) );
+    this.reject(new TimeoutError("timeout"));
 };
 
 PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {

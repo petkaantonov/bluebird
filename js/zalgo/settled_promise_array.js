@@ -35,7 +35,7 @@ function SettledPromiseArray$_promiseResolved( index, inspection ) {
     this._values[ index ] = inspection;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
-        this._fulfill( this._values );
+        this._resolve( this._values );
     }
 };
 
@@ -44,7 +44,7 @@ function SettledPromiseArray$_promiseFulfilled( value, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection();
     ret._bitField = 268435456;
-    ret._resolvedValue = value;
+    ret._settledValue = value;
     this._promiseResolved( index, ret );
 };
 SettledPromiseArray.prototype._promiseRejected =
@@ -52,7 +52,7 @@ function SettledPromiseArray$_promiseRejected( reason, index ) {
     if( this._isResolved() ) return;
     var ret = new PromiseInspection();
     ret._bitField = 134217728;
-    ret._resolvedValue = reason;
+    ret._settledValue = reason;
     this._promiseResolved( index, ret );
 };
 
