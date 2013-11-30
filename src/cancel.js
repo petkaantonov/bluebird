@@ -29,7 +29,7 @@ module.exports = function(Promise, INTERNAL) {
         var ret = new Promise(INTERNAL);
         ret._setTrace( this.uncancellable, this );
         ret._unsetCancellable();
-        ret._assumeStateOf( this, MUST_ASYNC );
+        ret._follow( this, MUST_ASYNC );
         ret._boundTo = this._boundTo;
         return ret;
     };

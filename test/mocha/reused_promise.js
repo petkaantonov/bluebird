@@ -26,9 +26,9 @@ describe("If promise is reused to get at the value many times over the course of
                 assert( three[i] === void 0 );
             }
             assert( three._promise0 === void 0 );
-            assert( three._fulfill0 === void 0 );
-            assert( three._reject0 === void 0 );
-            assert( three._progress0 === void 0 );
+            assert( three._fulfillmentHandler0 === void 0 );
+            assert( three._rejectionHandler0 === void 0 );
+            assert( three._progressHandler0 === void 0 );
             assert( three._receiver0 === void 0 );
             done();
         });
@@ -43,9 +43,9 @@ describe("If promise is reused to get at the value many times over the course of
         three.then(fn, fn, fn);
 
         assert( three._promise0 === prom );
-        assert( three._fulfill0 === fn );
-        assert( three._reject0 === fn );
-        assert( three._progress0 === fn );
+        assert( three._fulfillmentHandler0 === fn );
+        assert( three._rejectionHandler0 === fn );
+        assert( three._progressHandler0 === fn );
         assert( three._receiver0 === void 0 );
 
         three.then(function(){

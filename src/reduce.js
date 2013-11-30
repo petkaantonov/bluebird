@@ -83,7 +83,7 @@ module.exports = function( Promise, Promise$_All, PromiseArray, apiRejection ) {
         if( initialValue !== void 0 ) {
             if( Promise.is( initialValue ) ) {
                 if( initialValue.isFulfilled() ) {
-                    initialValue = initialValue._resolvedValue;
+                    initialValue = initialValue._settledValue;
                 }
                 else {
                     return Promise$_slowReduce( promises,

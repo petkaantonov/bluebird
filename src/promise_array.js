@@ -46,19 +46,19 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
 PromiseArray.prototype._init =
             //when.some resolves to [] when empty
             //but when.any resolved to void 0 when empty :<
-function PromiseArray$_init( _, fulfillValueIfEmpty ) {
+function PromiseArray$_init( _, resolveValueIfEmpty ) {
             //_ must be intentionally empty because smuggled
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
             //empty arrays
     var values = this._values;
-    if( Promise.is( values ) ) {
+    if(Promise.is(values)) {
         //Expect the promise to be a promise
         //for an array
         if( values.isFulfilled() ) {
             //Fulfilled promise with hopefully
             //an array as a resolution value
-            values = values._resolvedValue;
+            values = values._settledValue;
             if( !isArray( values ) ) {
                 var err = new Promise.TypeError(COLLECTION_ERROR);
                 this.__hardReject__(err);
@@ -72,18 +72,18 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
                 this._reject,
                 void 0,
                 this,
-                fulfillValueIfEmpty,
+                resolveValueIfEmpty,
                 this.constructor
             );
             return;
         }
         else {
-            this._reject( values._resolvedValue );
+            this._reject( values._settledValue );
             return;
         }
     }
     if( values.length === 0 ) {
-        this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
+        this._resolve( toResolutionValue( resolveValueIfEmpty ) );
         return;
     }
     var len = values.length;
@@ -131,11 +131,11 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     }
     //Array full of holes
     if( newLen === 0 ) {
-        if( fulfillValueIfEmpty === RESOLVE_ARRAY ) {
-            this._fulfill( newValues );
+        if( resolveValueIfEmpty === RESOLVE_ARRAY ) {
+            this._resolve( newValues );
         }
         else {
-            this._fulfill( toResolutionValue( fulfillValueIfEmpty ) );
+            this._resolve( toResolutionValue( resolveValueIfEmpty ) );
         }
         return;
     }
@@ -149,17 +149,17 @@ function PromiseArray$_init( _, fulfillValueIfEmpty ) {
     }
 };
 
-PromiseArray.prototype._resolvePromiseAt =
-function PromiseArray$_resolvePromiseAt( i ) {
-    var value = this._values[i];
-    if( !Promise.is( value ) ) {
-        this._promiseFulfilled( value, i );
+PromiseArray.prototype._settlePromiseAt =
+function PromiseArray$_settlePromiseAt(index) {
+    var value = this._values[index];
+    if (!Promise.is(value)) {
+        this._promiseFulfilled(value, index);
     }
-    else if( value.isFulfilled() ) {
-        this._promiseFulfilled( value._resolvedValue, i );
+    else if (value.isFulfilled()) {
+        this._promiseFulfilled(value._settledValue, index);
     }
-    else if( value.isRejected() ) {
-        this._promiseRejected( value._resolvedValue, i );
+    else if (value.isRejected()) {
+        this._promiseRejected(value._settledValue, index);
     }
 };
 
@@ -171,7 +171,7 @@ function PromiseArray$_scanDirectValuesHoled( len ) {
             break;
         }
         if( hasOwn.call( this._values, i ) ) {
-            this._resolvePromiseAt( i );
+            this._settlePromiseAt( i );
         }
     }
 };
@@ -183,7 +183,7 @@ function PromiseArray$_scanDirectValues( len ) {
         if( this._isResolved() ) {
             break;
         }
-        this._resolvePromiseAt( i );
+        this._settlePromiseAt( i );
     }
 };
 
@@ -191,10 +191,10 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-PromiseArray.prototype._fulfill = function PromiseArray$_fulfill( value ) {
+PromiseArray.prototype._resolve = function PromiseArray$_resolve( value ) {
     ASSERT( !this._isResolved() );
     this._values = null;
-    this._resolver.fulfill( value );
+    this._resolver.resolve( value );
 };
 
 
@@ -225,7 +225,7 @@ function PromiseArray$_promiseFulfilled( value, index ) {
     this._values[ index ] = value;
     var totalResolved = ++this._totalResolved;
     if( totalResolved >= this._length ) {
-        this._fulfill( this._values );
+        this._resolve( this._values );
     }
 };
 

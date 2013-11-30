@@ -6,14 +6,14 @@ module.exports = function( Promise ) {
     var tryCatch1 = util.tryCatch1;
     var errorObj = util.errorObj;
 
-    Promise.prototype.progressed = function Promise$progressed( fn ) {
-        return this._then( void 0, void 0, fn,
-                            void 0, void 0, this.progressed );
+    Promise.prototype.progressed = function Promise$progressed(fn) {
+        return this._then(void 0, void 0, fn,
+                            void 0, void 0, this.progressed);
     };
 
-    Promise.prototype._progress = function Promise$_progress( progressValue ) {
+    Promise.prototype._progress = function Promise$_progress(progressValue) {
         if( this._isFollowingOrFulfilledOrRejected() ) return;
-        this._resolveProgress( progressValue );
+        this._progressUnchecked(progressValue);
 
     };
 
@@ -21,7 +21,7 @@ module.exports = function( Promise ) {
         ASSERT( typeof index === "number" );
         ASSERT( index >= 0 );
         ASSERT( index % CALLBACK_SIZE === 0 );
-        if( index === 0 ) return this._progress0;
+        if( index === 0 ) return this._progressHandler0;
         return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
     };
 
@@ -77,8 +77,8 @@ module.exports = function( Promise ) {
     };
 
 
-    Promise.prototype._resolveProgress =
-    function Promise$_resolveProgress( progressValue ) {
+    Promise.prototype._progressUnchecked =
+    function Promise$_progressUnchecked( progressValue ) {
         ASSERT( this.isPending() );
         var len = this._length();
 
