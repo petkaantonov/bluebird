@@ -58,7 +58,9 @@ module.exports = function( Promise ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
             if( !Promise.is( promise ) ) {
-                fn.call( this._receiverAt( i ), progressValue, promise );
+                if (fn !== void 0) {
+                    fn.call( this._receiverAt( i ), progressValue, promise );
+                }
                 continue;
             }
             var ret = progressValue;

@@ -4742,7 +4742,9 @@ module.exports = function( Promise ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
             if( !Promise.is( promise ) ) {
-                fn.call( this._receiverAt( i ), progressValue, promise );
+                if (fn !== void 0) {
+                    fn.call( this._receiverAt( i ), progressValue, promise );
+                }
                 continue;
             }
             var ret = progressValue;
@@ -4774,6 +4776,7 @@ module.exports = function( Promise ) {
         }
     };
 };
+
 },{"./assert.js":18,"./async.js":19,"./util.js":53}],35:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright (c) 2013 Petka Antonov
@@ -8779,7 +8782,9 @@ module.exports = function( Promise ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
             if( !Promise.is( promise ) ) {
-                fn.call( this._receiverAt( i ), progressValue, promise );
+                if (fn !== void 0) {
+                    fn.call( this._receiverAt( i ), progressValue, promise );
+                }
                 continue;
             }
             var ret = progressValue;
@@ -8811,6 +8816,7 @@ module.exports = function( Promise ) {
         }
     };
 };
+
 },{"./assert.js":55,"./async.js":56,"./util.js":90}],72:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright (c) 2013 Petka Antonov
@@ -23923,6 +23929,29 @@ describe("progress", function () {
         def.notify();
 
         return deferred.promise;
+    });
+
+    specify("should not choke when internal functions are registered on the promise", function(done) {
+        var d = adapter.defer();
+        var progress = 0;
+
+        //calls ._then on the d.promise with smuggled data and void 0 progress handler
+        Promise.race([d.promise]).then(function(v){
+            assert(v === 3);
+            assert(progress === 1);
+            done();
+        });
+
+        d.promise.progressed(function(v){
+            assert(v === 5);
+            progress++;
+        });
+
+        d.progress(5);
+
+        setTimeout(function(){
+            d.fulfill(3);
+        }, 13);
     });
 });
 

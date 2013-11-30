@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.10.11-4
+ * bluebird build version 0.10.12-0
  * Features enabled: core, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -1496,7 +1496,9 @@ module.exports = function( Promise ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
             if( !Promise.is( promise ) ) {
-                fn.call( this._receiverAt( i ), progressValue, promise );
+                if (fn !== void 0) {
+                    fn.call( this._receiverAt( i ), progressValue, promise );
+                }
                 continue;
             }
             var ret = progressValue;
@@ -1528,6 +1530,7 @@ module.exports = function( Promise ) {
         }
     };
 };
+
 },{"./assert.js":2,"./async.js":3,"./util.js":37}],19:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
