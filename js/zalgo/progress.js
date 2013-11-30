@@ -43,43 +43,59 @@ module.exports = function( Promise ) {
         return this[ index + 2 - 5 ];
     };
 
+    Promise.prototype._doProgressWith =
+    function Promise$_doProgressWith(progression) {
+        var progressValue = progression.value;
+        var fn = progression.fn;
+        var promise = progression.promise;
+        var receiver = progression.receiver;
+
+        this._pushContext();
+        var ret = tryCatch1(fn, receiver, progressValue);
+        this._popContext();
+
+        if( ret === errorObj ) {
+            if( ret.e != null &&
+                ret.e.name === "StopProgressPropagation" ) {
+                ret.e["__promiseHandled__"] = 2;
+            }
+            else {
+                promise._attachExtraTrace( ret.e );
+                promise._progress(ret.e);
+            }
+        }
+        else if( Promise.is( ret ) ) {
+            ret._then( promise._progress, null, null, promise, void 0,
+                this._progress );
+        }
+        else {
+            promise._progress(ret);
+        }
+    };
+
+
     Promise.prototype._resolveProgress =
     function Promise$_resolveProgress( progressValue ) {
         var len = this._length();
+
         for( var i = 0; i < len; i += 5 ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
-            if( !Promise.is( promise ) ) {
+            if (!Promise.is(promise)) {
                 if (fn !== void 0) {
-                    fn.call( this._receiverAt( i ), progressValue, promise );
+                    fn.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
-            var ret = progressValue;
-            if( fn !== void 0 ) {
-                this._pushContext();
-                ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-                this._popContext();
-                if( ret === errorObj ) {
-                    if( ret.e != null &&
-                        ret.e.name === "StopProgressPropagation" ) {
-                        ret.e["__promiseHandled__"] = 2;
-                    }
-                    else {
-                        promise._attachExtraTrace( ret.e );
-                        promise._progress(ret.e);
-                    }
-                }
-                else if( Promise.is( ret ) ) {
-                    ret._then( promise._progress, null, null, promise, void 0,
-                        this._progress );
-                }
-                else {
-                    promise._progress(ret);
-                }
+
+            if(fn !== void 0) {
+                this._doProgressWith(({fn: fn,
+promise: promise,
+receiver: this._receiverAt(i),
+value: progressValue}));
             }
             else {
-                promise._progress(ret);
+                promise._progress(progressValue);
             }
         }
     };

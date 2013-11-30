@@ -4733,45 +4733,68 @@ module.exports = function( Promise ) {
         return this[ index + 2 - 5 ];
     };
 
+    Promise.prototype._doProgressWith =
+    function Promise$_doProgressWith(progression) {
+        var progressValue = progression.value;
+        var fn = progression.fn;
+        var promise = progression.promise;
+        var receiver = progression.receiver;
+
+        ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+        ASSERT(Promise.is(promise),
+    "Promise.is(promise)");
+
+        this._pushContext();
+        var ret = tryCatch1(fn, receiver, progressValue);
+        this._popContext();
+
+        if( ret === errorObj ) {
+            if( ret.e != null &&
+                ret.e.name === "StopProgressPropagation" ) {
+                ret.e["__promiseHandled__"] = 2;
+            }
+            else {
+                promise._attachExtraTrace( ret.e );
+                promise._progress(ret.e);
+            }
+        }
+        else if( Promise.is( ret ) ) {
+            ret._then( promise._progress, null, null, promise, void 0,
+                this._progress );
+        }
+        else {
+            promise._progress(ret);
+        }
+    };
+
+
     Promise.prototype._resolveProgress =
     function Promise$_resolveProgress( progressValue ) {
         ASSERT(this.isPending(),
     "this.isPending()");
         var len = this._length();
+
         for( var i = 0; i < len; i += 5 ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
-            if( !Promise.is( promise ) ) {
+            if (!Promise.is(promise)) {
                 if (fn !== void 0) {
-                    fn.call( this._receiverAt( i ), progressValue, promise );
+                    fn.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
-            var ret = progressValue;
-            if( fn !== void 0 ) {
-                this._pushContext();
-                ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-                this._popContext();
-                if( ret === errorObj ) {
-                    if( ret.e != null &&
-                        ret.e.name === "StopProgressPropagation" ) {
-                        ret.e["__promiseHandled__"] = 2;
-                    }
-                    else {
-                        promise._attachExtraTrace( ret.e );
-                        async.invoke( promise._progress, promise, ret.e );
-                    }
-                }
-                else if( Promise.is( ret ) ) {
-                    ret._then( promise._progress, null, null, promise, void 0,
-                        this._progress );
-                }
-                else {
-                    async.invoke( promise._progress, promise, ret );
-                }
+
+            if(fn !== void 0) {
+                async.invoke(this._doProgressWith, this, {
+                    fn: fn,
+                    promise: promise,
+                    receiver: this._receiverAt(i),
+                    value: progressValue
+                });
             }
             else {
-                async.invoke( promise._progress, promise, ret );
+                async.invoke(promise._progress, promise, progressValue);
             }
         }
     };
@@ -8775,43 +8798,61 @@ module.exports = function( Promise ) {
         return this[ index + 2 - 5 ];
     };
 
+    Promise.prototype._doProgressWith =
+    function Promise$_doProgressWith(progression) {
+        var progressValue = progression.value;
+        var fn = progression.fn;
+        var promise = progression.promise;
+        var receiver = progression.receiver;
+
+        this._pushContext();
+        var ret = tryCatch1(fn, receiver, progressValue);
+        this._popContext();
+
+        if( ret === errorObj ) {
+            if( ret.e != null &&
+                ret.e.name === "StopProgressPropagation" ) {
+                ret.e["__promiseHandled__"] = 2;
+            }
+            else {
+                promise._attachExtraTrace( ret.e );
+                promise._progress(ret.e);
+            }
+        }
+        else if( Promise.is( ret ) ) {
+            ret._then( promise._progress, null, null, promise, void 0,
+                this._progress );
+        }
+        else {
+            promise._progress(ret);
+        }
+    };
+
+
     Promise.prototype._resolveProgress =
     function Promise$_resolveProgress( progressValue ) {
         var len = this._length();
+
         for( var i = 0; i < len; i += 5 ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
-            if( !Promise.is( promise ) ) {
+            if (!Promise.is(promise)) {
                 if (fn !== void 0) {
-                    fn.call( this._receiverAt( i ), progressValue, promise );
+                    fn.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
-            var ret = progressValue;
-            if( fn !== void 0 ) {
-                this._pushContext();
-                ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-                this._popContext();
-                if( ret === errorObj ) {
-                    if( ret.e != null &&
-                        ret.e.name === "StopProgressPropagation" ) {
-                        ret.e["__promiseHandled__"] = 2;
-                    }
-                    else {
-                        promise._attachExtraTrace( ret.e );
-                        async.invoke( promise._progress, promise, ret.e );
-                    }
-                }
-                else if( Promise.is( ret ) ) {
-                    ret._then( promise._progress, null, null, promise, void 0,
-                        this._progress );
-                }
-                else {
-                    async.invoke( promise._progress, promise, ret );
-                }
+
+            if(fn !== void 0) {
+                async.invoke(this._doProgressWith, this, {
+                    fn: fn,
+                    promise: promise,
+                    receiver: this._receiverAt(i),
+                    value: progressValue
+                });
             }
             else {
-                async.invoke( promise._progress, promise, ret );
+                async.invoke(promise._progress, promise, progressValue);
             }
         }
     };
@@ -21051,6 +21092,7 @@ describe("Rejecting a promise A with promise B", function(){
         done();
     });
 });
+
 },{"../../js/debug/bluebird.js":20,"assert":2}],136:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
@@ -23951,6 +23993,35 @@ describe("progress", function () {
 
         setTimeout(function(){
             d.fulfill(3);
+        }, 13);
+    });
+
+    specify("GH-36", function(done) {
+        var order = [];
+        var p = Promise.resolve();
+
+        var _d = Promise.defer();
+        var progress = 0;
+
+        _d.progress(progress)
+        _d.resolve()
+        _d.promise.progressed(function() {
+            order.push(1);
+            p.then(function() {
+                order.push(3);
+            })
+        })
+
+        _d.promise.then(function() {
+            order.push(2);
+            p.then(function() {
+                order.push(4);
+            });
+        });
+
+        setTimeout(function(){
+            assert.deepEqual(order, [1,2,3,4]);
+            done();
         }, 13);
     });
 });
