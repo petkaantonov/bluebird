@@ -418,4 +418,33 @@ describe("progress", function () {
             d.fulfill(3);
         }, 13);
     });
+
+    specify("GH-36", function(done) {
+        var order = [];
+        var p = Promise.resolve();
+
+        var _d = Promise.defer();
+        var progress = 0;
+
+        _d.progress(progress)
+        _d.resolve()
+        _d.promise.progressed(function() {
+            order.push(1);
+            p.then(function() {
+                order.push(3);
+            })
+        })
+
+        _d.promise.then(function() {
+            order.push(2);
+            p.then(function() {
+                order.push(4);
+            });
+        });
+
+        setTimeout(function(){
+            assert.deepEqual(order, [1,2,3,4]);
+            done();
+        }, 13);
+    });
 });

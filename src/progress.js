@@ -25,65 +25,85 @@ module.exports = function( Promise ) {
         return this[ index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE ];
     };
 
+    Promise.prototype._doProgressWith =
+    function Promise$_doProgressWith(progression) {
+        var progressValue = progression.value;
+        var fn = progression.fn;
+        var promise = progression.promise;
+        var receiver = progression.receiver;
+
+        ASSERT(typeof fn === "function");
+        ASSERT(Promise.is(promise));
+
+        this._pushContext();
+        var ret = tryCatch1(fn, receiver, progressValue);
+        this._popContext();
+
+        if( ret === errorObj ) {
+            //2.4 if the onProgress callback throws an exception
+            //with a name property equal to 'StopProgressPropagation',
+            //then the error is silenced.
+            if( ret.e != null &&
+                ret.e.name === "StopProgressPropagation" ) {
+                ret.e[ERROR_HANDLED_KEY] = ERROR_HANDLED;
+            }
+            else {
+                //2.3 Unless the onProgress callback throws an exception
+                //with a name property equal to
+                //'StopProgressPropagation',
+                // the result of the function is used as the progress
+                //value to propagate.
+                promise._attachExtraTrace( ret.e );
+                promise._progress(ret.e);
+            }
+        }
+        //2.2 The onProgress callback may return a promise.
+        else if( Promise.is( ret ) ) {
+            //2.2.1 The callback is not considered complete
+            //until the promise is fulfilled.
+
+            //2.2.2 The fulfillment value of the promise is the value
+            //to be propagated.
+
+            //2.2.3 If the promise is rejected, the rejection reason
+            //should be treated as if it was thrown by the callback
+            //directly.
+            ret._then( promise._progress, null, null, promise, void 0,
+                this._progress );
+        }
+        else {
+            promise._progress(ret);
+        }
+    };
+
+
     Promise.prototype._resolveProgress =
     function Promise$_resolveProgress( progressValue ) {
         ASSERT( this.isPending() );
         var len = this._length();
+
         for( var i = 0; i < len; i += CALLBACK_SIZE ) {
             var fn = this._progressAt( i );
             var promise = this._promiseAt( i );
             //if promise is not instanceof Promise
             //it is internally smuggled data
-            if( !Promise.is( promise ) ) {
-                //internal progress handler is usually undefined
+            if (!Promise.is(promise)) {
                 if (fn !== void 0) {
-                    fn.call( this._receiverAt( i ), progressValue, promise );
+                    fn.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
-            var ret = progressValue;
-            if( fn !== void 0 ) {
-                this._pushContext();
-                ret = tryCatch1( fn, this._receiverAt( i ), progressValue );
-                this._popContext();
-                if( ret === errorObj ) {
-                    //2.4 if the onProgress callback throws an exception
-                    //with a name property equal to 'StopProgressPropagation',
-                    //then the error is silenced.
-                    if( ret.e != null &&
-                        ret.e.name === "StopProgressPropagation" ) {
-                        ret.e[ERROR_HANDLED_KEY] = ERROR_HANDLED;
-                    }
-                    else {
-                        //2.3 Unless the onProgress callback throws an exception
-                        //with a name property equal to
-                        //'StopProgressPropagation',
-                        // the result of the function is used as the progress
-                        //value to propagate.
-                        promise._attachExtraTrace( ret.e );
-                        async.invoke( promise._progress, promise, ret.e );
-                    }
-                }
-                //2.2 The onProgress callback may return a promise.
-                else if( Promise.is( ret ) ) {
-                    //2.2.1 The callback is not considered complete
-                    //until the promise is fulfilled.
 
-                    //2.2.2 The fulfillment value of the promise is the value
-                    //to be propagated.
-
-                    //2.2.3 If the promise is rejected, the rejection reason
-                    //should be treated as if it was thrown by the callback
-                    //directly.
-                    ret._then( promise._progress, null, null, promise, void 0,
-                        this._progress );
-                }
-                else {
-                    async.invoke( promise._progress, promise, ret );
-                }
+            if(fn !== void 0) {
+                async.invoke(this._doProgressWith, this, {
+                    fn: fn,
+                    promise: promise,
+                    receiver: this._receiverAt(i),
+                    value: progressValue
+                });
             }
             else {
-                async.invoke( promise._progress, promise, ret );
+                async.invoke(promise._progress, promise, progressValue);
             }
         }
     };

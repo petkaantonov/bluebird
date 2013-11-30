@@ -70,6 +70,15 @@ function nodeToString( expr ) {
     else if( expr.type === "ThisExpression" ) {
         return "this";
     }
+    else if( expr.type === "ObjectExpression") {
+        var props = expr.properties;
+        var ret = [];
+        for( var i = 0, len = props.length; i < len; ++i ) {
+            var prop = props[i];
+            ret.push( nodeToString(prop.key) + ": " + nodeToString(prop.value));
+        }
+        return "({"+ret.join(",\n")+"})";
+    }
     else if( expr.type === "NewExpression" ) {
         return "new " + nodeToString(expr.callee) + "(" + nodeToString(expr.arguments) +")";
     }
