@@ -8,8 +8,6 @@
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`.return(dynamic value)`](#returndynamic-value---promise)
-    - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.method(Function fn)`](#promisemethodfunction-fn---function)
     - [`Promise.resolve(dynamic value)`](#promiseresolvedynamic-value---promise)
@@ -26,11 +24,40 @@
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.callback`](#callback---function)
+- [Timers](#timers)
+    - [`.delay(int ms)`](#delayint-ms---promise)
+    - [`.timeout(int ms [, String message])`](#timeoutint-ms--string-message---promise)
+    - [`Promise.delay([dynamic value], int ms)`](#promisedelaydynamic-value-int-ms---promise)
 - [Promisification](#promisification)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [`Promise.promisify(Object target)`](#promisepromisifyobject-target---object)
     - [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
     - [`.error( [rejectedHandler] )`](#error-rejectedhandler----promise)
+    - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
+- [Cancellation](#cancellation)
+    - [`.cancellable()`](#cancellable---promise)
+    - [`.cancel()`](#cancel---promise)
+    - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [`.uncancellable()`](#uncancellable---promise)
+    - [`.isCancellable()`](#iscancellable---boolean)
+- [Synchronous inspection](#synchronous-inspection)
+    - [`.isFulfilled()`](#isfulfilled---boolean)
+    - [`.isRejected()`](#isrejected---boolean)
+    - [`.isPending()`](#isdefer---boolean)
+    - [`.isResolved()`](#isresolved---boolean)
+    - [`.inspect()`](#inspect---promiseinspection)
+- [Generators](#generators)
+    - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
+    - [`Promise.spawn(GeneratorFunction generatorFunction)`](#promisespawngeneratorfunction-generatorfunction---promise)
+- [Utility](#utility)
+    - [`.call(String propertyName [, dynamic arg...])`](#callstring-propertyname--dynamic-arg---promise)
+    - [`.get(String propertyName)`](#getstring-propertyname---promise)
+    - [`.return(dynamic value)`](#returndynamic-value---promise)
+    - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
+    - [`.toString()`](#tostring---string)
+    - [`.toJSON()`](#tojson---object)
+    - [`Promise.noConflict()`](#promisenoconflict---object)
+    - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -52,27 +79,6 @@
     - [`Promise.map(Array<dynamic>|Promise values, Function mapper)`](#promisemaparraydynamicpromise-values-function-mapper---promise)
     - [`Promise.reduce(Array<dynamic>|Promise values, Function reducer [, dynamic initialValue])`](#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise)
     - [`Promise.filter(Array<dynamic>|Promise values, Function filterer)`](#promisefilterarraydynamicpromise-values-function-filterer---promise)
-- [Cancellation](#cancellation)
-    - [`.cancel()`](#cancel---promise)
-    - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`.uncancellable()`](#uncancellable---promise)
-    - [`.isCancellable()`](#iscancellable---boolean)
-- [Synchronous inspection](#synchronous-inspection)
-    - [`.isFulfilled()`](#isfulfilled---boolean)
-    - [`.isRejected()`](#isrejected---boolean)
-    - [`.isPending()`](#isdefer---boolean)
-    - [`.isResolved()`](#isresolved---boolean)
-    - [`.inspect()`](#inspect---promiseinspection)
-- [Utility](#utility)
-    - [`.call(String propertyName [, dynamic arg...])`](#callstring-propertyname--dynamic-arg---promise)
-    - [`.get(String propertyName)`](#getstring-propertyname---promise)
-    - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
-    - [`.toString()`](#tostring---string)
-    - [`.toJSON()`](#tojson---object)
-    - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
-    - [`Promise.spawn(GeneratorFunction generatorFunction)`](#promisespawngeneratorfunction-generatorfunction---promise)
-    - [`Promise.noConflict()`](#promisenoconflict---object)
-    - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
 
 ##Core
 
@@ -452,52 +458,6 @@ Like `.then()`, but any unhandled rejection that ends up here will be thrown as 
 
 <hr>
 
-#####`.return(dynamic value)` -> `Promise`
-
-Convenience method for:
-
-```js
-.then(function() {
-   return value;
-});
-```
-
-in the case where `value` doesn't change its value.
-
-That means `value` is bound at the time of calling `.return()` so this will not work as expected:
-
-```js
-function getData() {
-    var data;
-
-    return query().then(function(result) {
-        data = result;
-    }).return(data);
-}
-```
-
-because `data` is `undefined` at the time `.return` is called.
-
-*For compatibility with earlier ECMAScript version, an alias `.thenReturn()` is provided for `.return()`.*
-
-<hr>
-
-#####`.throw(dynamic reason)` -> `Promise`
-
-Convenience method for:
-
-```js
-.then(function() {
-   throw reason;
-});
-```
-
-Same limitations apply as with `.return()`.
-
-*For compatibility with earlier ECMAScript version, an alias `.thenThrow()` is provided for `.throw()`.*
-
-<hr>
-
 #####`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )` -> `Promise`
 
 Start the chain of promises with `Promise.try`. Any synchronous exceptions will be turned into rejections on the returned promise.
@@ -763,6 +723,67 @@ This is more efficient way of promisification than using `new Promise`.
 
 <hr>
 
+##Timers
+
+Methods to delay and time promises out.
+
+#####`.delay(int ms)` -> `Promise`
+
+Same as calling [`Promise.delay(this, ms)`](#promisedelaydynamic-value-int-ms---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+
+<hr>
+
+#####`.timeout(int ms [, String message])` -> `Promise`
+
+Returns a promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is fulfilled with `TimeoutError` (get reference from `Promise.TimeoutError`).
+
+You may specify a custom error message with the `message` parameter.
+
+The example function `fetchContent` tries to fetch the contents of a web page with a 50ms timeout and sleeping 100ms between each retry. If there is no response after 5 retries, then the returned promise is rejected with a `ServerError` (made up error type). Additionally the whole process can be cancelled from outside at any point.
+
+```js
+function fetchContent(retries) {
+    if (!retries) retries = 0;
+    var jqXHR = $.get("http://www.slowpage.com");
+    //Cast the jQuery promise into a bluebird promise
+    return Promise.cast(jqXHR)
+        .cancellable()
+        .timeout(50)
+        .catch(Promise.TimeoutError, function() {
+            if (retries < 5) {
+                return Promise.delay(100).then(function(){
+                    return fetchContent(retries+1);
+                });
+            }
+            else {
+                throw new ServerError("not responding after 5 retries");
+            }
+        })
+        .catch(Promise.CancellationError, function(er) {
+            jqXHR.abort();
+            throw er; //Don't swallow it
+        });
+}
+```
+
+<hr>
+
+#####`Promise.delay([dynamic value], int ms)` -> `Promise`
+
+Returns a promise that will be fulfilled with `value` (or `undefined`) after given `ms` milliseconds. If `value` is a promise, the delay will start counting down when it is fulfilled and the returned promise will be fulfilled with the fulfillment value of the `value` promise.
+
+```js
+Promise.delay(500).then(function(){
+    console.log("500 ms passed");
+    return "Hello world";
+}).delay(500).then(function(helloWorldString) {
+    console.log(helloWorldString);
+    console.log("another 500 ms passed") ;
+});
+```
+
+<hr>
+
 ##Promisification
 
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
@@ -932,6 +953,470 @@ And if the `fs` module causes an error like file not found:
 ```
 unable to read file, because:  ENOENT, open 'not_there.txt'
 ```
+
+<hr>
+
+#####`.nodeify([Function callback])` -> `Promise`
+
+Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
+
+Returns back this promise instead of creating a new one. If the `callback` argument is not a function, this method does not do anything.
+
+This can be used to create APIs that both accept node-style callbacks and return promises:
+
+```js
+function getDataFor(input, callback) {
+    return dataFromDataBase(input).nodeify(callback);
+}
+```
+
+The above function can then make everyone happy.
+
+Promises:
+
+```js
+getDataFor("me").then(function(dataForMe) {
+    console.log(dataForMe);
+});
+```
+
+Normal callbacks:
+
+```js
+getDataFor("me", function(err, dataForMe) {
+    if( err ) {
+        console.error( err );
+    }
+    console.log(dataForMe);
+});
+```
+
+There is no effect on peformance if the user doesn't actually pass a node-style callback function.
+
+<hr>
+
+##Cancellation
+
+By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
+
+Promises marked with `.cancellable()` return cancellable promises automatically.
+
+If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
+
+```js
+function ajaxGetAsync(url) {
+    var xhr = new XMLHttpRequest;
+    return new Promise(function (resolve, reject) {
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    }).cancellable().catch(Promise.CancellationError, function(e) {
+        xhr.abort();
+        throw e; //Don't swallow it
+    });
+}
+```
+
+<hr>
+
+#####`.cancellable()` -> `Promise`
+
+Marks this promise as cancellable. Promises by default are not cancellable after v0.10.15 and must be marked as such for [`.cancel()`](#cancel---promise) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
+
+If you have code written prior v0.10.15 using cancellation, add calls to `.cancellable()` at the starts of promise chains that need to support
+cancellation in themselves or somewhere in their descendants.
+
+<hr>
+
+#####`.cancel()` -> `Promise`
+
+Cancel this promise. The cancellation will propagate
+to farthest ancestor promise which is still defer.
+
+That ancestor will then be rejected with a CancellationError
+object as the rejection reason.
+
+In a promise rejection handler you may check for a cancellation
+by seeing if the reason object has `.name === "Cancel"`.
+
+Promises are by default not cancellable. Use [`.cancellable()`](#cancellable---promise) to mark a promise as cancellable.
+
+<hr>
+
+#####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+
+Like `.then()`, but cancellation of the the returned promise
+or any of its descendant will not propagate cancellation
+to this promise or this promise's ancestors.
+
+<hr>
+
+#####`.uncancellable()` -> `Promise`
+
+Create an uncancellable promise based on this promise.
+
+<hr>
+
+#####`.isCancellable()` -> `boolean`
+
+See if this promise can be cancelled.
+
+<hr>
+
+##Synchronous inspection
+
+Because `.then()` must give asynchronous guarantees, it cannot be used to inspect a given promise's state synchronously. The following code won't work:
+
+```js
+var wasFulfilled = false;
+var wasRejected = false;
+var resolutionValueOrRejectionReason = null;
+somePromise.then(function(v){
+    wasFulfilled = true;
+    resolutionValueOrRejectionReason = v
+}).catch(function(v){
+    wasRejected = true;
+    resolutionValueOrRejectionReason = v
+});
+//Using the variables won't work here because .then must be called asynchronously
+```
+
+Synchronous inspection API allows you to do this like so:
+
+```js
+var inspection = somePromise.inspect();
+
+if(inspection.isFulfilled()){
+    console.log("Was fulfilled with", inspection.value());
+}
+```
+
+<hr>
+
+#####`.isFulfilled()` -> `boolean`
+
+See if this `promise` has been fulfilled.
+
+<hr>
+
+#####`.isRejected()` -> `boolean`
+
+See if this `promise` has been rejected.
+
+<hr>
+
+#####`.isPending()` -> `boolean`
+
+See if this `promise` is still defer.
+
+<hr>
+
+#####`.isResolved()` -> `boolean`
+
+See if this `promise` is resolved -> either fulfilled or rejected.
+
+<hr>
+
+#####`.inspect()` -> `PromiseInspection`
+
+Synchronously inspect the state of this `promise`. The `PromiseInspection` will represent the state of the promise as snapshotted at the time of calling `.inspect()`. It will have the following methods:
+
+`.isFulfilled()` -> `boolean`
+
+See if the underlying promise was fulfilled at the creation time of this inspection object.
+
+`.isRejected()` -> `boolean`
+
+See if the underlying promise was rejected at the creation time of this inspection object.
+
+`.isPending()` -> `boolean`
+
+See if the underlying promise was defer at the creation time of this inspection object.
+
+`.value()` -> `dynamic`, throws `TypeError`
+
+Get the fulfillment value of the underlying promise. Throws if the promise wasn't fulfilled at the creation time of this inspection object.
+
+`.error()` -> `dynamic`, throws `TypeError`
+
+Get the rejection reason for the underlying promise. Throws if the promise wasn't rejected at the creation time of this inspection object.
+
+<hr>
+
+##Generators
+
+Using ECMAScript6 generators feature to implement C# 5.0 `async/await` like syntax.
+
+#####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
+
+Returns a function that can use `yield` to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
+
+This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of new anonymous function identities at runtime can be completely avoided without obfuscating your code.
+
+```js
+var Promise = require("bluebird");
+
+function delay(ms) {
+    return new Promise(function(f){
+        setTimeout(f, ms);
+    });
+}
+
+function PingPong() {
+
+}
+
+PingPong.prototype.ping = Promise.coroutine(function* (val) {
+    console.log("Ping?", val)
+    yield delay(500)
+    this.pong(val+1)
+});
+
+PingPong.prototype.pong = Promise.coroutine(function* (val) {
+    console.log("Pong!", val)
+    yield delay(500);
+    this.ping(val+1)
+});
+
+var a = new PingPong();
+a.ping(0);
+```
+
+Running the example with node version at least 0.11.2:
+
+    $ node --harmony test.js
+    Ping? 0
+    Pong! 1
+    Ping? 2
+    Pong! 3
+    Ping? 4
+    Pong! 5
+    Ping? 6
+    Pong! 7
+    Ping? 8
+    ...
+
+When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
+
+Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
+
+**Tip**
+
+If you yield an array then its elements are implicitly waited for.
+
+You can combine it with ES6 destructing for some neat syntax:
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
+    //use resultA
+    //use resultB
+});
+```
+
+You might wonder why not just do this?
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    var resultA = yield http.getAsync(urlA);
+    var resultB = yield http.getAsync(urlB);
+});
+```
+
+The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
+
+<hr>
+
+#####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
+
+Spawn a coroutine which may yield promises to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
+
+```js
+Promise.spawn(function* () {
+    var data = yield $.get("http://www.example.com");
+    var moreUrls = data.split("\n");
+    var contents = [];
+    for( var i = 0, len = moreUrls.length; i < len; ++i ) {
+        contents.push(yield $.get(moreUrls[i]));
+    }
+    return contents;
+});
+```
+
+In the example is returned a promise that will eventually have the contents of the urls separated by newline on example.com.
+
+Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
+
+**Tip:**
+
+When `Promise.spawn` is called as a method of an object, that object becomes the receiver of the generator function too.
+
+```js
+function ChatRoom(roomId) {
+    this.roomId = roomId
+}
+ChatRoom.prototype.spawn = Promise.spawn;
+
+ChatRoom.prototype.addUser = function( userId ) {
+    return this.spawn(function* () {
+        var isBanned = yield chatStore.userIsBannedForRoom(this.roomId, userId);
+        if (isBanned) {
+            throw new ChatError("You have been banned from this room");
+        }
+        return chatStore.addUserToRoom(this.roomId, userId);
+    });
+};
+
+var room = new ChatRoom(1);
+room.addUser(2);
+```
+
+In the above example, all the methods of `ChatRoom` can avoid the `var self = this` prologue and just use `this` normally inside the generator.
+
+**Tip**
+
+If you yield an array then its elements are implicitly waited for.
+
+You can combine it with ES6 destructing for some neat syntax:
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
+    //use resultA
+    //use resultB
+});
+```
+
+You might wonder why not just do this?
+
+```js
+var getData = Promise.coroutine(function* (urlA, urlB) {
+    var resultA = yield http.getAsync(urlA);
+    var resultB = yield http.getAsync(urlB);
+});
+```
+
+The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
+
+<hr>
+
+##Utility
+
+Functions that could potentially be handy in some situations.
+
+#####`.call(String propertyName [, dynamic arg...])` -> `Promise`
+
+This is a convenience method for doing:
+
+```js
+promise.then(function(obj){
+    return obj[propertyName].call(obj, arg...);
+});
+```
+
+<hr>
+
+#####`.get(String propertyName)` -> `Promise`
+
+This is a convenience method for doing:
+
+```js
+promise.then(function(obj){
+    return obj[propertyName];
+});
+```
+
+<hr>
+
+#####`.return(dynamic value)` -> `Promise`
+
+Convenience method for:
+
+```js
+.then(function() {
+   return value;
+});
+```
+
+in the case where `value` doesn't change its value.
+
+That means `value` is bound at the time of calling `.return()` so this will not work as expected:
+
+```js
+function getData() {
+    var data;
+
+    return query().then(function(result) {
+        data = result;
+    }).return(data);
+}
+```
+
+because `data` is `undefined` at the time `.return` is called.
+
+*For compatibility with earlier ECMAScript version, an alias `.thenReturn()` is provided for `.return()`.*
+
+<hr>
+
+#####`.throw(dynamic reason)` -> `Promise`
+
+Convenience method for:
+
+```js
+.then(function() {
+   throw reason;
+});
+```
+
+Same limitations apply as with `.return()`.
+
+*For compatibility with earlier ECMAScript version, an alias `.thenThrow()` is provided for `.throw()`.*
+
+<hr>
+
+#####`.toString()` -> `String`
+
+<hr>
+
+#####`.toJSON()` -> `Object`
+
+This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
+
+<hr>
+
+#####`Promise.noConflict()` -> `Object`
+
+This is relevant to browser environments with no module loader.
+
+Release control of the `Promise` namespace to whatever it was before this library was loaded. Returns a reference to the library namespace so you can attach it to something else.
+
+```html
+<!-- the other promise library must be loaded first -->
+<script type="text/javascript" src="/scripts/other_promise.js"></script>
+<script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
+<script type="text/javascript">
+//Release control right after
+var Bluebird = Promise.noConflict();
+
+//Cast a promise from some other Promise library using the Promise namespace to Bluebird:
+var promise = Bluebird.cast(new Promise());
+</script>
+```
+
+<hr>
+
+#####`Promise.onPossiblyUnhandledRejection(Function handler)` -> `undefined`
+
+Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
+
+```html
+Promise.onPossiblyUnhandledRejection(function(e, promise){
+    throw e;
+});
+```
+
+Passing no value or a non-function will have the effect of removing any kind of handling for possibly unhandled rejections.
 
 <hr>
 
@@ -1225,413 +1710,5 @@ Filter an array, or a promise of an array, which contains a promises (or a mix o
 [See the instance method `.filter()` for an example.](#filterfunction-filterer---promise)
 
 *The original array is not modified. Sparse array holes are not visited.
-
-<hr>
-
-##Cancellation
-
-By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
-
-Promises marked with `.cancellable()` return cancellable promises automatically.
-
-If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
-
-```js
-function ajaxGetAsync(url) {
-    var xhr = new XMLHttpRequest;
-    return new Promise(function (resolve, reject) {
-        xhr.addEventListener("error", reject);
-        xhr.addEventListener("load", resolve);
-        xhr.open("GET", url);
-        xhr.send(null);
-    }).catch(Promise.CancellationError, function(e) {
-        xhr.abort();
-        throw e; //Don't swallow it
-    });
-}
-```
-
-<hr>
-
-#####`.cancel()` -> `Promise`
-
-Cancel this promise. The cancellation will propagate
-to farthest ancestor promise which is still defer.
-
-That ancestor will then be rejected with a CancellationError
-object as the rejection reason.
-
-In a promise rejection handler you may check for a cancellation
-by seeing if the reason object has `.name === "Cancel"`.
-
-Promises are by default cancellable. If you want to restrict
-the cancellability of a promise before handing it out to a
-client, call `.uncancellable()` which returns an uncancellable
-promise.
-
-<hr>
-
-#####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
-
-Like `.then()`, but cancellation of the the returned promise
-or any of its descendant will not propagate cancellation
-to this promise or this promise's ancestors.
-
-<hr>
-
-#####`.uncancellable()` -> `Promise`
-
-Create an uncancellable promise based on this promise.
-
-<hr>
-
-#####`.isCancellable()` -> `boolean`
-
-See if this promise can be cancelled.
-
-<hr>
-
-##Synchronous inspection
-
-Because `.then()` must give asynchronous guarantees, it cannot be used to inspect a given promise's state synchronously. The following code won't work:
-
-```js
-var wasFulfilled = false;
-var wasRejected = false;
-var resolutionValueOrRejectionReason = null;
-somePromise.then(function(v){
-    wasFulfilled = true;
-    resolutionValueOrRejectionReason = v
-}).catch(function(v){
-    wasRejected = true;
-    resolutionValueOrRejectionReason = v
-});
-//Using the variables won't work here because .then must be called asynchronously
-```
-
-Synchronous inspection API allows you to do this like so:
-
-```js
-var inspection = somePromise.inspect();
-
-if(inspection.isFulfilled()){
-    console.log("Was fulfilled with", inspection.value());
-}
-```
-
-<hr>
-
-#####`.isFulfilled()` -> `boolean`
-
-See if this `promise` has been fulfilled.
-
-<hr>
-
-#####`.isRejected()` -> `boolean`
-
-See if this `promise` has been rejected.
-
-<hr>
-
-#####`.isPending()` -> `boolean`
-
-See if this `promise` is still defer.
-
-<hr>
-
-#####`.isResolved()` -> `boolean`
-
-See if this `promise` is resolved -> either fulfilled or rejected.
-
-<hr>
-
-#####`.inspect()` -> `PromiseInspection`
-
-Synchronously inspect the state of this `promise`. The `PromiseInspection` will represent the state of the promise as snapshotted at the time of calling `.inspect()`. It will have the following methods:
-
-`.isFulfilled()` -> `boolean`
-
-See if the underlying promise was fulfilled at the creation time of this inspection object.
-
-`.isRejected()` -> `boolean`
-
-See if the underlying promise was rejected at the creation time of this inspection object.
-
-`.isPending()` -> `boolean`
-
-See if the underlying promise was defer at the creation time of this inspection object.
-
-`.value()` -> `dynamic`, throws `TypeError`
-
-Get the fulfillment value of the underlying promise. Throws if the promise wasn't fulfilled at the creation time of this inspection object.
-
-`.error()` -> `dynamic`, throws `TypeError`
-
-Get the rejection reason for the underlying promise. Throws if the promise wasn't rejected at the creation time of this inspection object.
-
-<hr>
-
-##Utility
-
-Functions that could potentially be handy in some situations.
-
-#####`.call(String propertyName [, dynamic arg...])` -> `Promise`
-
-This is a convenience method for doing:
-
-```js
-promise.then(function(obj){
-    return obj[propertyName].call(obj, arg...);
-});
-```
-
-<hr>
-
-#####`.get(String propertyName)` -> `Promise`
-
-This is a convenience method for doing:
-
-```js
-promise.then(function(obj){
-    return obj[propertyName];
-});
-```
-
-<hr>
-
-#####`.nodeify([Function callback])` -> `Promise`
-
-Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
-
-Returns back this promise instead of creating a new one. If the `callback` argument is not a function, this method does not do anything.
-
-This can be used to create APIs that both accept node-style callbacks and return promises:
-
-```js
-function getDataFor(input, callback) {
-    return dataFromDataBase(input).nodeify(callback);
-}
-```
-
-The above function can then make everyone happy.
-
-Promises:
-
-```js
-getDataFor("me").then(function(dataForMe) {
-    console.log(dataForMe);
-});
-```
-
-Normal callbacks:
-
-```js
-getDataFor("me", function(err, dataForMe) {
-    if( err ) {
-        console.error( err );
-    }
-    console.log(dataForMe);
-});
-```
-
-There is no effect on peformance if the user doesn't actually pass a node-style callback function.
-
-<hr>
-
-#####`.toString()` -> `String`
-
-<hr>
-
-#####`.toJSON()` -> `Object`
-
-This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
-
-<hr>
-
-#####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
-
-Returns a function that can use `yield` to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
-
-This is the recommended, simplest and most performant way of using asynchronous generators with bluebird. It is even faster than typical promise code because the creation of new anonymous function identities at runtime can be completely avoided without obfuscating your code.
-
-```js
-var Promise = require("bluebird");
-
-function delay(ms) {
-    return new Promise(function(f){
-        setTimeout(f, ms);
-    });
-}
-
-function PingPong() {
-
-}
-
-PingPong.prototype.ping = Promise.coroutine(function* (val) {
-    console.log("Ping?", val)
-    yield delay(500)
-    this.pong(val+1)
-});
-
-PingPong.prototype.pong = Promise.coroutine(function* (val) {
-    console.log("Pong!", val)
-    yield delay(500);
-    this.ping(val+1)
-});
-
-var a = new PingPong();
-a.ping(0);
-```
-
-Running the example with node version at least 0.11.2:
-
-    $ node --harmony test.js
-    Ping? 0
-    Pong! 1
-    Ping? 2
-    Pong! 3
-    Ping? 4
-    Pong! 5
-    Ping? 6
-    Pong! 7
-    Ping? 8
-    ...
-
-When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
-
-Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
-
-**Tip**
-
-If you yield an array then its elements are implicitly waited for.
-
-You can combine it with ES6 destructing for some neat syntax:
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
-    //use resultA
-    //use resultB
-});
-```
-
-You might wonder why not just do this?
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    var resultA = yield http.getAsync(urlA);
-    var resultB = yield http.getAsync(urlB);
-});
-```
-
-The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
-
-<hr>
-
-#####`Promise.spawn(GeneratorFunction generatorFunction)` -> `Promise`
-
-Spawn a coroutine which may yield promises to run asynchronous code synchronously. This feature requires the support of generators which are drafted in the next version of the language. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
-
-```js
-Promise.spawn(function* () {
-    var data = yield $.get("http://www.example.com");
-    var moreUrls = data.split("\n");
-    var contents = [];
-    for( var i = 0, len = moreUrls.length; i < len; ++i ) {
-        contents.push(yield $.get(moreUrls[i]));
-    }
-    return contents;
-});
-```
-
-In the example is returned a promise that will eventually have the contents of the urls separated by newline on example.com.
-
-Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
-
-**Tip:**
-
-When `Promise.spawn` is called as a method of an object, that object becomes the receiver of the generator function too.
-
-```js
-function ChatRoom(roomId) {
-    this.roomId = roomId
-}
-ChatRoom.prototype.spawn = Promise.spawn;
-
-ChatRoom.prototype.addUser = function( userId ) {
-    return this.spawn(function* () {
-        var isBanned = yield chatStore.userIsBannedForRoom(this.roomId, userId);
-        if (isBanned) {
-            throw new ChatError("You have been banned from this room");
-        }
-        return chatStore.addUserToRoom(this.roomId, userId);
-    });
-};
-
-var room = new ChatRoom(1);
-room.addUser(2);
-```
-
-In the above example, all the methods of `ChatRoom` can avoid the `var self = this` prologue and just use `this` normally inside the generator.
-
-**Tip**
-
-If you yield an array then its elements are implicitly waited for.
-
-You can combine it with ES6 destructing for some neat syntax:
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
-    //use resultA
-    //use resultB
-});
-```
-
-You might wonder why not just do this?
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    var resultA = yield http.getAsync(urlA);
-    var resultB = yield http.getAsync(urlB);
-});
-```
-
-The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
-
-<hr>
-
-#####`Promise.noConflict()` -> `Object`
-
-This is relevant to browser environments with no module loader.
-
-Release control of the `Promise` namespace to whatever it was before this library was loaded. Returns a reference to the library namespace so you can attach it to something else.
-
-```html
-<!-- the other promise library must be loaded first -->
-<script type="text/javascript" src="/scripts/other_promise.js"></script>
-<script type="text/javascript" src="/scripts/bluebird_debug.js"></script>
-<script type="text/javascript">
-//Release control right after
-var Bluebird = Promise.noConflict();
-
-//Cast a promise from some other Promise library using the Promise namespace to Bluebird:
-var promise = Bluebird.cast(new Promise());
-</script>
-```
-
-<hr>
-
-#####`Promise.onPossiblyUnhandledRejection(Function handler)` -> `undefined`
-
-Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
-
-```html
-Promise.onPossiblyUnhandledRejection(function(e, promise){
-    throw e;
-});
-```
-
-Passing no value or a non-function will have the effect of removing any kind of handling for possibly unhandled rejections.
 
 <hr>
