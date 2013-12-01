@@ -172,7 +172,9 @@ function notEnumerableProp(obj, name, value) {
     return obj;
 }
 
-module.exports ={
+
+
+var ret = {
     isArray: es5.isArray,
     haveGetters: haveGetters,
     notEnumerableProp: notEnumerableProp,
@@ -190,3 +192,5 @@ module.exports ={
     asString: asString,
     maybeWrapAsError: maybeWrapAsError
 };
+
+module.exports = ret;

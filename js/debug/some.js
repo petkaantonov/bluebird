@@ -33,7 +33,9 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             promises,
             SomePromiseArray,
             caller,
-            useBound === true ? promises._boundTo : void 0
+            useBound === true && promises._isBound()
+                ? promises._boundTo
+                : void 0
        );
         var promise = ret.promise();
         if (promise.isRejected()) {

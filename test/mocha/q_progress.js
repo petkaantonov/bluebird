@@ -28,10 +28,7 @@ function resolver( fulfill ) {
     setTimeout(fulfill, freeMs );
 };
 
-Q.delay = function(ms) {
-    freeMs = ms;
-    return new Promise(resolver);
-};
+Q.delay = Promise.delay;
 
 Q.defer = function() {
     var ret = pending();

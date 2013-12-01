@@ -22,15 +22,8 @@ Q.progress = function(p, cb) {
 Q.when = function() {
     return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
 };
-var freeMs;
-function resolver( fulfill ) {
-    setTimeout(fulfill, freeMs );
-};
 
-Q.delay = function(ms) {
-    freeMs = ms;
-    return new Promise(resolver);
-};
+Q.delay = Promise.delay;
 
 Q.defer = function() {
     var ret = pending();
@@ -51,13 +44,6 @@ Q.defer = function() {
 };
 
 Q.all = Promise.all;
-
-Promise.prototype.timeout = function( ms ){
-    var self = this;
-    setTimeout(function(){
-        self._reject();
-    }, ms );
-};
 
 /*!
  *

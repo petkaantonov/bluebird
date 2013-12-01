@@ -42,12 +42,14 @@ module.exports = function(Promise, PromiseArray) {
             ret = new PropertiesPromiseArray(
                 castValue,
                 caller,
-                useBound === true ? castValue._boundTo : void 0
+                useBound === true && castValue._isBound()
+                            ? castValue._boundTo
+                            : void 0
            ).promise();
             useBound = false;
         }
-        if (useBound === true) {
-            ret._boundTo = castValue._boundTo;
+        if (useBound === true && castValue._isBound()) {
+            ret._setBoundTo(castValue._boundTo);
         }
         return ret;
     }

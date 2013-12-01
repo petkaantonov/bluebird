@@ -96,13 +96,13 @@ module.exports = function(Promise) {
             var handler = this._progressHandlerAt(i);
             var promise = this._promiseAt(i);
             if (!Promise.is(promise)) {
-                if (handler !== void 0) {
+                if (typeof handler === "function") {
                     handler.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
 
-            if (handler !== void 0) {
+            if (typeof handler === "function") {
                 async.invoke(this._doProgressWith, this, {
                     handler: handler,
                     promise: promise,

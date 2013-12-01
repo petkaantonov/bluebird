@@ -23,31 +23,45 @@
 module.exports = function(Promise, INTERNAL) {
     var errors = require("./errors.js");
     var async = require("./async.js");
+    var ASSERT = require("./assert.js");
     var CancellationError = errors.CancellationError;
+    var SYNC_TOKEN = {};
 
-    Promise.prototype.cancel = function Promise$cancel() {
+    Promise.prototype._cancel = function Promise$_cancel() {
         if (!this.isCancellable()) return this;
-        var cancelTarget = this;
-        while(cancelTarget._cancellationParent !== void 0) {
-            cancelTarget = cancelTarget._cancellationParent;
+        var parent;
+        if ((parent = this._cancellationParent) !== void 0) {
+            parent.cancel(SYNC_TOKEN);
+            return;
         }
-        if (cancelTarget === this) {
-            var err = new CancellationError();
-            this._attachExtraTrace(err);
-            this._reject(err);
+        var err = new CancellationError();
+        this._attachExtraTrace(err);
+        this._rejectUnchecked(err);
+    };
+
+    Promise.prototype.cancel = function Promise$cancel(token) {
+        if (!this.isCancellable()) return this;
+        if (token === SYNC_TOKEN) {
+            this._cancel();
+            return this;
         }
-        else {
-            cancelTarget.cancel((void 0));
-        }
+        async.invokeLater(this._cancel, this, void 0);
+        return this;
+    };
+
+    Promise.prototype.cancellable = function Promise$cancellable() {
+        if (this._cancellable()) return this;
+        this._setCancellable();
+        this._cancellationParent = void 0;
         return this;
     };
 
     Promise.prototype.uncancellable = function Promise$uncancellable() {
         var ret = new Promise(INTERNAL);
         ret._setTrace(this.uncancellable, this);
-        ret._unsetCancellable();
         ret._follow(this, true);
-        ret._boundTo = this._boundTo;
+        ret._unsetCancellable();
+        if (this._isBound()) ret._setBoundTo(this._boundTo);
         return ret;
     };
 
@@ -55,6 +69,8 @@ module.exports = function(Promise, INTERNAL) {
     function Promise$fork(didFulfill, didReject, didProgress) {
         var ret = this._then(didFulfill, didReject, didProgress,
             void 0, void 0, this.fork);
+
+        ret._setCancellable();
         ret._cancellationParent = void 0;
         return ret;
     };

@@ -29,17 +29,7 @@ function resolver( fulfill ) {
     setTimeout(fulfill, freeMs );
 };
 
-Q.delay = function(ms) {
-    freeMs = ms;
-    return new Promise(resolver);
-};
-
-Promise.prototype.delay = function(ms) {
-    return this.then(function(){
-        return Q.delay(ms);
-    });
-};
-
+Q.delay = Promise.delay;
 Q.defer = function() {
     var ret = pending();
     return {
