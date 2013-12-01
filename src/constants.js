@@ -22,27 +22,52 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for .bitField
-//QQWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
-//Q = isGcQueued
+//QQWF NCTR HHBL LLLL LLLL LLLL LLLL LLLL
+//Q = isGcQueued (Both bits are either on or off to represent
+//                    1 bit due to 31-bit integers in 32-bit v8)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
 //C = isCancellable
 //T = isFinal (used for .done() implementation)
+//HH = initialHandlerType
+//  Almost always promises have exactly 1 parallel handler for 1 type
+//  e.g. .then(fn) or .catch(fn) or .progressed(fn)
+//  so most efficient way is to have 1 property .handler that is the function
+//  and these bits telling us what kind of handler it is
+//
+//      00 = multiple //e.g. someone did .then(fn1, fn2) so this cannot optimize
+//      01 = fulfillment
+//      10 = rejection
+//      11 = progress
+//
+//  further parallel handlers, should such be attached, are stored contiguously
+//  in the promise's Elements[] array described by the various *_OFFSET constant
+//
+//B = isBound (to avoid property load misses
+//              that would come from reading ._boundTo === void 0)
 
 //R = [Reserved]
-//L = Length, 24 bit unsigned
+//L = Length, 21 bit unsigned
+CONSTANT(NO_STATE, 0x0|0);
 CONSTANT(IS_GC_QUEUED, 0xC0000000|0)
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
 CONSTANT(IS_FULFILLED, 0x10000000|0);
 CONSTANT(IS_REJECTED, 0x8000000|0);
 CONSTANT(IS_CANCELLABLE, 0x4000000|0);
 CONSTANT(IS_FINAL, 0x2000000|0);
-CONSTANT(LENGTH_MASK, 0xFFFFFF|0);
+CONSTANT(LENGTH_MASK, 0x1FFFFF|0);
 CONSTANT(LENGTH_CLEAR_MASK, ~LENGTH_MASK);
 CONSTANT(MAX_LENGTH, LENGTH_MASK);
 CONSTANT(IS_REJECTED_OR_FULFILLED, IS_REJECTED | IS_FULFILLED);
 CONSTANT(IS_FOLLOWING_OR_REJECTED_OR_FULFILLED, IS_REJECTED_OR_FULFILLED | IS_FOLLOWING);
+CONSTANT(INITIAL_MULTIPLE_HANDLERS, 0x0|0);
+CONSTANT(INITIAL_FULFILLMENT_HANDLER, 0x400000|0);
+CONSTANT(INITIAL_REJECTION_HANDLER, 0x800000|0);
+CONSTANT(INITIAL_PROGRESS_HANDLER, 0xC00000|0);
+CONSTANT(HANDLER_TYPE_MASK, 0xC00000|0);
+CONSTANT(HANDLER_TYPE_CLEAR_MASK, ~HANDLER_TYPE_MASK);
+
 
 CONSTANT(BEFORE_PROMISIFIED_SUFFIX, "__beforePromisified__");
 CONSTANT(AFTER_PROMISIFIED_SUFFIX, "Async");

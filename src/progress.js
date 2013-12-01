@@ -22,8 +22,15 @@ module.exports = function(Promise) {
         ASSERT(typeof index === "number");
         ASSERT(index >= 0);
         ASSERT(index % CALLBACK_SIZE === 0);
-        if (index === 0) return this._progressHandler0;
-        return this[index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE];
+        if (index === 0) {
+            var initialHandlerType = this._initialHandlerType();
+            if (initialHandlerType !== INITIAL_MULTIPLE_HANDLERS) {
+                return initialHandlerType === INITIAL_PROGRESS_HANDLER
+                    ? this._handler0
+                    : void 0;
+            }
+        }
+        return this[index + CALLBACK_PROGRESS_OFFSET];
     };
 
     Promise.prototype._doProgressWith =
@@ -89,13 +96,13 @@ module.exports = function(Promise) {
             //if promise is not instanceof Promise
             //it is internally smuggled data
             if (!Promise.is(promise)) {
-                if (handler !== void 0) {
+                if (typeof handler === "function") {
                     handler.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
 
-            if (handler !== void 0) {
+            if (typeof handler === "function") {
                 async.invoke(this._doProgressWith, this, {
                     handler: handler,
                     promise: promise,

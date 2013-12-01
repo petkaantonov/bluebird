@@ -53,15 +53,14 @@ function Promise(resolver) {
         throw new TypeError("You must pass a resolver function " +
             "as the sole argument to the promise constructor");
     }
+    //see constants.js for layout
     this._bitField = IS_CANCELLABLE;
     //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
     //The rest (if needed) are stored on the object's
     //elements array (this[0], this[1]...etc)
     //which has less indirection than when using external array
-    this._fulfillmentHandler0 = void 0;
-    this._rejectionHandler0 = void 0;
-    this._progressHandler0 = void 0;
+    this._handler0 = void 0;
     this._promise0 = void 0;
     this._receiver0 = void 0;
     //reason for rejection or fulfilled value
@@ -502,7 +501,7 @@ function Promise$_isFollowingOrFulfilledOrRejected() {
 
 Promise.prototype._setLength = function Promise$_setLength(len) {
     this._bitField = (this._bitField & LENGTH_CLEAR_MASK) |
-        (len & LENGTH_MASK) ;
+        (len & LENGTH_MASK);
 };
 
 Promise.prototype._cancellable = function Promise$_cancellable() {
@@ -547,7 +546,7 @@ Promise.prototype._receiverAt = function Promise$_receiverAt(index) {
         ret = this._receiver0;
     }
     else {
-        ret = this[index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE];
+        ret = this[index + CALLBACK_RECEIVER_OFFSET];
     }
     //Only use the bound value when not calling internal methods
     if (this._isBound() && ret === void 0) {
@@ -561,7 +560,7 @@ Promise.prototype._promiseAt = function Promise$_promiseAt(index) {
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
     if (index === 0) return this._promise0;
-    return this[index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE];
+    return this[index + CALLBACK_PROMISE_OFFSET];
 };
 
 Promise.prototype._fulfillmentHandlerAt =
@@ -569,8 +568,15 @@ function Promise$_fulfillmentHandlerAt(index) {
     ASSERT(typeof index === "number");
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) return this._fulfillmentHandler0;
-    return this[index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE];
+    if (index === 0) {
+        var initialHandlerType = this._initialHandlerType();
+        if (initialHandlerType !== INITIAL_MULTIPLE_HANDLERS) {
+            return initialHandlerType === INITIAL_FULFILLMENT_HANDLER
+                ? this._handler0
+                : void 0;
+        }
+    }
+    return this[index + CALLBACK_FULFILL_OFFSET];
 };
 
 Promise.prototype._rejectionHandlerAt =
@@ -578,28 +584,21 @@ function Promise$_rejectionHandlerAt(index) {
     ASSERT(typeof index === "number");
     ASSERT(index >= 0);
     ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) return this._rejectionHandler0;
-    return this[index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE];
+    if (index === 0) {
+        var initialHandlerType = this._initialHandlerType();
+        if (initialHandlerType !== INITIAL_MULTIPLE_HANDLERS) {
+            return initialHandlerType === INITIAL_REJECTION_HANDLER
+                ? this._handler0
+                : void 0;
+        }
+    }
+    return this[index + CALLBACK_REJECT_OFFSET];
 };
 
-Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) {
-        this._fulfillmentHandler0 =
-        this._rejectionHandler0 =
-        this._progressHandler0 =
-        this._promise0 =
-        this._receiver0 = void 0;
-    }
-    else {
-        this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = void 0;
-    }
+Promise.prototype._unsetInitial = function Promise$_unsetInitial() {
+    this._handler0 =
+    this._promise0 =
+    this._receiver0 = void 0;
 };
 
 Promise.prototype._resolveFromResolver =
@@ -626,9 +625,6 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     promise,
     receiver
 ) {
-    fulfill = typeof fulfill === "function" ? fulfill : void 0;
-    reject = typeof reject === "function" ? reject : void 0;
-    progress = typeof progress === "function" ? progress : void 0;
     var index = this._length();
 
     if (index >= MAX_LENGTH - CALLBACK_SIZE) {
@@ -636,24 +632,64 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
         this._setLength(0);
     }
 
+    var handlerCount = 0;
+    var handler = void 0;
+    var initialHandlerType = INITIAL_MULTIPLE_HANDLERS;
+
+    if (typeof fulfill === "function") {
+        handlerCount++;
+        handler = fulfill;
+        initialHandlerType = INITIAL_FULFILLMENT_HANDLER;
+    } else fulfill = void 0;
+
+    if (typeof reject === "function") {
+        handlerCount++;
+        handler = reject;
+        initialHandlerType = INITIAL_REJECTION_HANDLER;
+    } else reject = void 0;
+
+    if (typeof progress === "function") {
+        handlerCount++;
+        handler = progress;
+        initialHandlerType = INITIAL_PROGRESS_HANDLER;
+    } else progress = void 0;
+
     if (index === 0) {
-        this._fulfillmentHandler0 = fulfill;
-        this._rejectionHandler0  = reject;
-        this._progressHandler0 = progress;
         this._promise0 = promise;
         this._receiver0 = receiver;
-        this._setLength(index + CALLBACK_SIZE);
-        return index;
+        if (handlerCount <= 1) {
+            this._handler0 = handler;
+            this._setInitialHandlerType(initialHandlerType);
+            this._setLength(index + CALLBACK_SIZE);
+            ASSERT(this._initialHandlerType() === initialHandlerType);
+            return index;
+        }
+        else {
+            this._setInitialHandlerType(INITIAL_MULTIPLE_HANDLERS);
+            ASSERT(this._initialHandlerType() === INITIAL_MULTIPLE_HANDLERS);
+        }
     }
 
-    this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] = fulfill;
-    this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] = reject;
-    this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] = progress;
-    this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] = promise;
-    this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = receiver;
+    this[index + CALLBACK_FULFILL_OFFSET] = fulfill;
+    this[index + CALLBACK_REJECT_OFFSET] = reject;
+    this[index + CALLBACK_PROGRESS_OFFSET] = progress;
+
+    if (index !== 0) {
+        this[index + CALLBACK_PROMISE_OFFSET] = promise;
+        this[index + CALLBACK_RECEIVER_OFFSET] = receiver;
+    }
 
     this._setLength(index + CALLBACK_SIZE);
     return index;
+};
+
+Promise.prototype._setInitialHandlerType =
+function Promise$_setInitialHandlerType(handlerType) {
+    this._bitField = (this._bitField & HANDLER_TYPE_CLEAR_MASK) | handlerType;
+};
+
+Promise.prototype._initialHandlerType = function Promise$_initialHandlerType() {
+    return (this._bitField & HANDLER_TYPE_MASK);
 };
 
 Promise.prototype._spreadSlowCase =
@@ -923,7 +959,9 @@ function Promise$_unhandledRejection(reason) {
 };
 
 Promise.prototype._cleanValues = function Promise$_cleanValues() {
-    this._cancellationParent = void 0;
+    if (this._cancellable()) {
+        this._cancellationParent = void 0;
+    }
 };
 
 Promise.prototype._fulfill = function Promise$_fulfill(value) {
@@ -986,7 +1024,7 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 
 Promise.prototype._gc = function Promise$gc() {
     var len = this._length() - CALLBACK_SIZE;
-    this._unsetAt(0);
+    this._unsetInitial();
     for (var i = 0; i < len; i++) {
         //Delete is cool on array indexes
         delete this[i];
@@ -1044,7 +1082,7 @@ function Promise$_rejectUnchecked(reason) {
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
         var handler = this._rejectionHandlerAt(i);
         if (!rejectionWasHandled) {
-            rejectionWasHandled = handler !== void 0 ||
+            rejectionWasHandled = typeof handler === "function" ||
                                 this._promiseAt(i)._length() > 0;
         }
         async.invoke(this._settlePromiseAt, this, i);
