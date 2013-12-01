@@ -17,7 +17,6 @@ module.exports = function(Promise, INTERNAL) {
         var err = new CancellationError();
         this._attachExtraTrace(err);
         this._rejectUnchecked(err);
-        return;
     };
 
     Promise.prototype.cancel = function Promise$cancel(token) {

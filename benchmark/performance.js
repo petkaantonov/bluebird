@@ -134,6 +134,8 @@ function measure(files, requests, time, parg, callback) {
     async.mapSeries(files, function(f, done) {
         console.log("benchmarking", f);
 
+        console.log(f);
+
         var argsFork = [__filename,
             '--n', requests,
             '--t', time,
@@ -141,6 +143,14 @@ function measure(files, requests, time, parg, callback) {
             '--file', f];
         if (args.harmony) argsFork.unshift('--harmony');
         if (args.longStackSupport) argsFork.push('--longStackSupport');
+
+        if (f.indexOf("analysis") > -1) {
+            argsFork.unshift("--trace_opt", "--trace_deopt", "--trace_inlining",
+                "--trace_generalization", "--trace_array_abuse",
+                "--trace_gc_ignore_scavenger"
+
+                );
+        }
 
         var p = cp.spawn(process.execPath, argsFork);
 

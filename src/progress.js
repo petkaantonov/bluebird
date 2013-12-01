@@ -22,15 +22,8 @@ module.exports = function(Promise) {
         ASSERT(typeof index === "number");
         ASSERT(index >= 0);
         ASSERT(index % CALLBACK_SIZE === 0);
-        if (index === 0) {
-            var initialHandlerType = this._initialHandlerType();
-            if (initialHandlerType !== INITIAL_MULTIPLE_HANDLERS) {
-                return initialHandlerType === INITIAL_PROGRESS_HANDLER
-                    ? this._handler0
-                    : void 0;
-            }
-        }
-        return this[index + CALLBACK_PROGRESS_OFFSET];
+        if (index === 0) return this._progressHandler0;
+        return this[index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE];
     };
 
     Promise.prototype._doProgressWith =
