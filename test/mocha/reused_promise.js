@@ -29,9 +29,10 @@ describe("If promise is reused to get at the value many times over the course of
                 assert( three[i] === void 0 );
             }
             assert( three._promise0 === void 0 );
-            assert( three._fulfillmentHandler0 === void 0 );
-            assert( three._rejectionHandler0 === void 0 );
-            assert( three._progressHandler0 === void 0 );
+            assert( three[0] === void 0);
+            assert( three[1] === void 0);
+            assert( three[2] === void 0);
+            assert( three._handler0 === void 0 );
             assert( three._receiver0 === void 0 );
             done();
         }, 13);

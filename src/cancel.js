@@ -30,7 +30,7 @@ module.exports = function(Promise, INTERNAL) {
         ret._setTrace(this.uncancellable, this);
         ret._unsetCancellable();
         ret._follow(this, MUST_ASYNC);
-        ret._boundTo = this._boundTo;
+        if (this._isBound()) ret._setBoundTo(this._boundTo);
         return ret;
     };
 

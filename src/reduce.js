@@ -73,7 +73,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             return apiRejection("fn is not a function");
         }
 
-        if (useBound === USE_BOUND) {
+        if (useBound === USE_BOUND && promises._isBound()) {
             fn = {
                 fn: fn,
                 receiver: promises._boundTo
@@ -92,7 +92,9 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
 
             return Promise$_All(promises, PromiseArray, caller,
-                useBound === USE_BOUND ? promises._boundTo : void 0)
+                useBound === USE_BOUND && promises._isBound()
+                    ? promises._boundTo
+                    : void 0)
                 .promise()
                 ._then(Promise$_unpackReducer, void 0, void 0, {
                     fn: fn,
@@ -100,7 +102,9 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }, void 0, Promise.reduce);
         }
         return Promise$_All(promises, PromiseArray, caller,
-                useBound === USE_BOUND ? promises._boundTo : void 0).promise()
+                useBound === USE_BOUND && promises._isBound()
+                    ? promises._boundTo
+                    : void 0).promise()
             //Currently smuggling internal data has a limitation
             //in that no promises can be chained after it.
             //One needs to be able to chain to get at

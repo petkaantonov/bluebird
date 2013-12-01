@@ -12,7 +12,9 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             promises,
             SomePromiseArray,
             caller,
-            useBound === USE_BOUND ? promises._boundTo : void 0
+            useBound === USE_BOUND && promises._isBound()
+                ? promises._boundTo
+                : void 0
        );
         var promise = ret.promise();
         if (promise.isRejected()) {

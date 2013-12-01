@@ -21,13 +21,15 @@ module.exports = function(Promise, PromiseArray) {
             ret = new PropertiesPromiseArray(
                 castValue,
                 caller,
-                useBound === USE_BOUND ? castValue._boundTo : void 0
+                useBound === USE_BOUND && castValue._isBound()
+                            ? castValue._boundTo
+                            : void 0
            ).promise();
             //The constructor took care of it
             useBound = DONT_USE_BOUND;
         }
-        if (useBound === USE_BOUND) {
-            ret._boundTo = castValue._boundTo;
+        if (useBound === USE_BOUND && castValue._isBound()) {
+            ret._setBoundTo(castValue._boundTo);
         }
         return ret;
     }

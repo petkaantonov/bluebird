@@ -67,17 +67,15 @@ function Promise(resolver) {
     this._settledValue = void 0;
     //Used in cancel propagation
     this._cancellationParent = void 0;
-    //for .bind
-    this._boundTo = void 0;
     if (debugging) this._traceParent = this._peekContext();
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
-Promise.prototype.bind = function Promise$bind(obj) {
+Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
     ret._setTrace(this.bind, this);
     ret._follow(this, MUST_ASYNC);
-    ret._setBoundTo(obj);
+    ret._setBoundTo(thisArg);
     return ret;
 };
 
@@ -300,7 +298,9 @@ function Promise$_all(promises, useBound, caller) {
         promises,
         PromiseArray,
         caller,
-        useBound === USE_BOUND ? promises._boundTo : void 0
+        useBound === USE_BOUND && promises._isBound()
+            ? promises._boundTo
+            : void 0
    ).promise();
 }
 Promise.all = function Promise$All(promises) {
@@ -471,8 +471,8 @@ function Promise$_then(
             caller : this._then, this);
     }
 
-    if (!haveInternalData) {
-        ret._boundTo = this._boundTo;
+    if (!haveInternalData && this._isBound()) {
+        ret._setBoundTo(this._boundTo);
     }
 
     var callbackIndex =
@@ -709,11 +709,17 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
 };
 
 Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
-    this._boundTo = obj;
+    if (obj !== void 0) {
+        this._bitField = this._bitField | IS_BOUND;
+        this._boundTo = obj;
+    }
+    else {
+        this._bitField = this._bitField & (~IS_BOUND);
+    }
 };
 
 Promise.prototype._isBound = function Promise$_isBound() {
-    return this._boundTo !== void 0;
+    return (this._bitField & IS_BOUND) === IS_BOUND;
 };
 
 
@@ -752,30 +758,31 @@ function Promise$_settlePromiseFromHandler(
     if (!isRejected && receiver === APPLY) {
         //Array of non-promise values is fast case
         //.spread has a bit convoluted semantics otherwise
+        var boundTo = this._isBound() ? this._boundTo : void 0;
         if (isArray(value)) {
             //Shouldnt be many items to loop through
             //since the spread target callback will have
             //a formal parameter for each item in the array
             var caller = this._settlePromiseFromHandler;
+
             for (var i = 0, len = value.length; i < len; ++i) {
                 if (isPromise(Promise._cast(value[i], caller, void 0))) {
                     this._spreadSlowCase(
                         handler,
                         promise,
                         value,
-                        this._boundTo
+                        boundTo
                    );
                     return;
                 }
             }
             promise._pushContext();
-            x = tryCatchApply(handler, value, this._boundTo);
+            x = tryCatchApply(handler, value, boundTo);
         }
         else {
             //(TODO) Spreading a promise that eventually returns
             //an array could be a common usage
-            this._spreadSlowCase(handler, promise,
-                    value, this._boundTo);
+            this._spreadSlowCase(handler, promise, value, boundTo);
             return;
         }
     }
@@ -1023,7 +1030,7 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 };
 
 Promise.prototype._gc = function Promise$gc() {
-    var len = this._length() - CALLBACK_SIZE;
+    var len = this._length();
     this._unsetInitial();
     for (var i = 0; i < len; i++) {
         //Delete is cool on array indexes

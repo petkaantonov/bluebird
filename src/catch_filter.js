@@ -30,14 +30,15 @@ function CatchFilter$_safePredicate(predicate, e) {
 
 CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
     var cb = this._callback;
-
+    var promise = this._promise;
+    var boundTo = promise._isBound() ? promise._boundTo : void 0;
     for (var i = 0, len = this._instances.length; i < len; ++i) {
         var item = this._instances[i];
         var itemIsErrorType = item === Error ||
             (item != null && item.prototype instanceof Error);
 
         if (itemIsErrorType && e instanceof item) {
-            var ret = tryCatch1(cb, this._promise._boundTo, e);
+            var ret = tryCatch1(cb, boundTo, e);
             if (ret === errorObj) {
                 throw ret.e;
             }
@@ -49,7 +50,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
                 e = errorObj.e;
                 break;
             } else if (shouldHandle) {
-                var ret = tryCatch1(cb, this._promise._boundTo, e);
+                var ret = tryCatch1(cb, boundTo, e);
                 if (ret === errorObj) {
                     throw ret.e;
                 }
