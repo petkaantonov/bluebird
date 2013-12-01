@@ -54,7 +54,7 @@ function Promise(resolver) {
             "as the sole argument to the promise constructor");
     }
     //see constants.js for layout
-    this._bitField = IS_CANCELLABLE;
+    this._bitField = NO_STATE;
     //Since most promises have exactly 1 parallel handler
     //store the first ones directly on the object
     //The rest (if needed) are stored on the object's
@@ -65,8 +65,6 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     //reason for rejection or fulfilled value
     this._settledValue = void 0;
-    //Used in cancel propagation
-    this._cancellationParent = void 0;
     if (debugging) this._traceParent = this._peekContext();
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
@@ -478,11 +476,13 @@ function Promise$_then(
     var callbackIndex =
         this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
+    if (!haveInternalData && this._cancellable()) {
+        ret._setCancellable();
+        ret._cancellationParent = this;
+    }
+
     if (this.isResolved()) {
         async.invoke(this._queueSettleAt, this, callbackIndex);
-    }
-    else if (!haveInternalData && this.isCancellable()) {
-        ret._cancellationParent = this;
     }
 
     return ret;
@@ -497,6 +497,10 @@ Promise.prototype._length = function Promise$_length() {
 Promise.prototype._isFollowingOrFulfilledOrRejected =
 function Promise$_isFollowingOrFulfilledOrRejected() {
     return (this._bitField & IS_FOLLOWING_OR_REJECTED_OR_FULFILLED) > 0;
+};
+
+Promise.prototype._isFollowing = function Promise$_isFollowing() {
+    return (this._bitField & IS_FOLLOWING) === IS_FOLLOWING;
 };
 
 Promise.prototype._setLength = function Promise$_setLength(len) {
@@ -817,7 +821,11 @@ function Promise$_settlePromiseFromHandler(
         var isThenable = castValue !== x;
 
         if (isThenable || isPromise(castValue)) {
-            promise._follow(castValue, MUST_ASYNC);
+            promise._tryFollow(castValue, MUST_ASYNC);
+            if(castValue._cancellable()) {
+                promise._cancellationParent = castValue;
+                promise._setCancellable();
+            }
         }
         else {
             async.invoke(promise._fulfill, promise, x);
@@ -836,6 +844,7 @@ function Promise$_follow(promise, mustAsync) {
     if (promise.isPending()) {
         if (promise._cancellable() ) {
             this._cancellationParent = promise;
+            this._setCancellable();
         }
         promise._then(
             this._fulfillUnchecked,

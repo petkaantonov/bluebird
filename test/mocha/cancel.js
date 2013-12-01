@@ -24,7 +24,7 @@ function isCancellationError(error) {
 
 describe("If the promise is not cancellable the 'cancel' call has no effect.", function() {
     specify("single-parent", function(done) {
-        var parent = pending().promise;
+        var parent = pending().promise.cancellable();
         var promise = parent.uncancellable();
 
         parent.then(assert.fail, assert.fail, assert.fail);
@@ -41,7 +41,7 @@ describe("If the promise is not cancellable the 'cancel' call has no effect.", f
     });
 
     specify("2 parents", function(done) {
-        var grandParent = pending().promise;
+        var grandParent = pending().promise.cancellable();
         var parent = grandParent.then(assert.fail, assert.fail, assert.fail);
         var promise = parent.uncancellable();
 
@@ -63,7 +63,7 @@ describe("If the promise is not cancellable the 'cancel' call has no effect.", f
 
 describe("Cancel.1: If the promise is not pending the 'cancel' call has no effect.", function() {
     specify("already-fulfilled", function(done) {
-        var promise = fulfilled(sentinel);
+        var promise = fulfilled(sentinel).cancellable();
         var result = promise.then(function(value) {
             assert.strictEqual(value, sentinel);
             done();
@@ -73,7 +73,7 @@ describe("Cancel.1: If the promise is not pending the 'cancel' call has no effec
     });
 
     specify("already-rejected", function(done) {
-        var promise = rejected(sentinel);
+        var promise = rejected(sentinel).cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.strictEqual(reason, sentinel);
             done();
@@ -90,7 +90,7 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
     specify("parent pending", function(done) {
         var parentCancelled = false;
         var tuple = pending();
-        var parent = tuple.promise;
+        var parent = tuple.promise.cancellable();
         parent.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             parentCancelled = true;
@@ -112,10 +112,10 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
         var uncleCancelled = false;
 
         var tuple = pending();
-        var grandparent = tuple.promise;
+        var grandparent = tuple.promise.cancellable();
         var grandparentCancel = grandparent.cancel.bind(grandparent);
-        grandparent.cancel = function () {
-            grandparentCancel();
+        grandparent.cancel = function (arg) {
+            grandparentCancel(arg);
             grandparentCancelled = true;
         };
 
@@ -133,19 +133,23 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
 
         var promise = parent.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
-            assert.ok(grandparentCancelled);
-            assert.ok(uncleCancelled);
             assert.ok(parentCancelled);
+            assert.ok(uncleCancelled);
+            assert.ok(grandparentCancelled);
             done();
         });
+        assert(promise.isCancellable());
+        assert(parent.isCancellable());
+        assert(grandparent.isCancellable());
+        assert(promise._cancellationParent === parent);
+        assert(parent._cancellationParent === grandparent);
         promise.cancel();
-        return promise;
     });
 });
 
 describe("Cancel.4: Otherwise the promise is rejected with a CancellationError.", function() {
     specify("simple", function(done) {
-        var promise = pending().promise;
+        var promise = pending().promise.cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             done();
@@ -155,14 +159,14 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
 
     specify("then fulfilled assumption", function(done) {
         var assumedCancelled = false;
-        var assumed = pending().promise;
+        var assumed = pending().promise.cancellable();
         var assumedCancel = assumed.cancel.bind(assumed);
         assumed.cancel = function() {
             assumedCancel();
             assumedCancelled = true;
         };
 
-        var promise = fulfilled().then(function() {
+        var promise = fulfilled().cancellable().then(function() {
             return assumed;
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
@@ -170,19 +174,38 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             done();
         });
 
-        setImmediate(function(){promise.cancel();})
+        promise.cancel();
     });
+
+    specify("then rejected assumption", function(done) {
+        var assumedCancelled = false;
+        var assumed = pending().promise.cancellable();
+        assumed.then(null, function(reason) {
+            assert.ok(isCancellationError(reason));
+            assumedCancelled = true;
+        });
+        var promise = rejected().cancellable().then(null, function() {
+            return assumed;
+        }).then(assert.fail, function(reason) {
+            assert.ok(isCancellationError(reason));
+            assert.ok(assumedCancelled);
+            done();
+        });
+
+        promise.cancel();
+    });
+
 
     specify("then chain-fulfilled assumption", function(done) {
         var assumedCancelled = false;
-        var assumed = pending().promise;
+        var assumed = pending().promise.cancellable();
         var assumedCancel = assumed.cancel.bind(assumed);
         assumed.cancel = function() {
             assumedCancel();
             assumedCancelled = true;
         };
 
-        var promise = fulfilled().then(function() {
+        var promise = fulfilled().cancellable().then(function() {
             return fulfilled();
         }).then(function() {
             return assumed;
@@ -192,39 +215,20 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             done();
         });
 
-        setImmediate(function(){promise.cancel();});
-
-        return promise;
+        promise.cancel();
     });
 
-    specify("then rejected assumption", function(done) {
-        var assumedCancelled = false;
-        var assumed = pending().promise;
-        assumed.then(null, function(reason) {
-            assert.ok(isCancellationError(reason));
-            assumedCancelled = true;
-        });
-        var promise = rejected().then(null, function() {
-            return assumed;
-        }).then(assert.fail, function(reason) {
-            assert.ok(isCancellationError(reason));
-            assert.ok(assumedCancelled);
-            done();
-        });
-        setImmediate(function(){promise.cancel();})
-        return promise;
-    });
 
     specify("then chain-rejected assumption", function(done) {
         var assumedCancelled = false;
-        var assumed = pending().promise;
+        var assumed = pending().promise.cancellable();
         var assumedCancel = assumed.cancel.bind(assumed);
         assumed.cancel = function() {
             assumedCancel();
             assumedCancelled = true;
         };
 
-        var promise = rejected().then(null, function() {
+        var promise = rejected().cancellable().then(null, function() {
             return rejected();
         }).then(null, function() {
             return assumed;
@@ -233,8 +237,7 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
             assert.ok(assumedCancelled);
             done();
         });
-        setImmediate(function(){promise.cancel();});
-        return promise;
+        promise.cancel();
     });
 });
 
