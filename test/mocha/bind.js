@@ -47,6 +47,34 @@ describe("when using .bind", function() {
 
     });
 
+    describe("with timeout", function() {
+        describe("this should refer to the bound object", function() {
+            specify( "in straight-forward handler", function(done) {
+                fulfilled(3).bind(THIS).timeout(500).then(function(v) {
+                    assert(v === 3);
+                    assert(this === THIS);
+                    done();
+                });
+            });
+            specify( "in rejected handler", function(done) {
+                rejected(3).bind(THIS).timeout(500).then(assert.fail, function(v){
+                    assert(v === 3);
+                    assert(this === THIS);
+                    done();
+                });
+            });
+
+            specify( "in rejected handler after timeout", function(done) {
+                new Promise(function(){})
+                    .bind(THIS).timeout(10).caught(Promise.TimeoutError, function(err){
+                    assert(this === THIS);
+                    done();
+                });
+            });
+        })
+
+    });
+
     describe("With catch filters", function() {
         describe("this should refer to the bound object", function() {
             specify( "in an immediately trapped catch handler", function(done) {

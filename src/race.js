@@ -22,8 +22,14 @@ module.exports = function(Promise, INTERNAL) {
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(caller, parent);
-        if (parent !== void 0 && parent._isBound()) {
-            ret._setBoundTo(parent._boundTo);
+        if (parent !== void 0) {
+            if (parent._isBound()) {
+                ret._setBoundTo(parent._boundTo);
+            }
+            if (parent._cancellable()) {
+                ret._setCancellable();
+                ret._cancellationParent = parent;
+            }
         }
         var fulfill = ret._fulfill;
         var reject = ret._reject;

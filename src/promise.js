@@ -76,6 +76,10 @@ Promise.prototype.bind = function Promise$bind(thisArg) {
     ret._setTrace(this.bind, this);
     ret._follow(this, MUST_ASYNC);
     ret._setBoundTo(thisArg);
+    if (this._cancellable()) {
+        ret._setCancellable();
+        ret._cancellationParent = this;
+    }
     return ret;
 };
 

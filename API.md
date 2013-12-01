@@ -1230,7 +1230,9 @@ Filter an array, or a promise of an array, which contains a promises (or a mix o
 
 ##Cancellation
 
-By default, all Promises are cancellable. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest ancestor of the target promise that is still defer, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7)
+By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
+
+Promises marked with `.cancellable()` return cancellable promises automatically.
 
 If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
 

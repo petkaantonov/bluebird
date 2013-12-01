@@ -50,6 +50,7 @@ module.exports = function( grunt ) {
 
 
     var optionalModuleDependencyMap = {
+        "timers.js": ['Promise', 'INTERNAL'],
         "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
         "race.js": ['Promise', 'INTERNAL'],
         "call_get.js": ['Promise'],
@@ -69,6 +70,7 @@ module.exports = function( grunt ) {
     };
 
     var optionalModuleRequireMap = {
+        "timers.js": true,
         "race.js": true,
         "any.js": true,
         "call_get.js": true,
@@ -473,6 +475,7 @@ module.exports = function( grunt ) {
     }
 
     var optionalPaths = [
+        "./src/timers.js",
         "./src/synchronous_inspection.js",
         "./src/any.js",
         "./src/race.js",
