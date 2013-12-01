@@ -1022,9 +1022,9 @@ function ajaxGetAsync(url) {
 
 #####`.cancellable()` -> `Promise`
 
-Marks this promise as cancellable. Promises by default are not cancellable after v0.10.15 and must be marked as such for [`.cancel()`](#cancel---promise) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
+Marks this promise as cancellable. Promises by default are not cancellable after v0.11 and must be marked as such for [`.cancel()`](#cancel---promise) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
 
-If you have code written prior v0.10.15 using cancellation, add calls to `.cancellable()` at the starts of promise chains that need to support
+If you have code written prior v0.11 using cancellation, add calls to `.cancellable()` at the starts of promise chains that need to support
 cancellation in themselves or somewhere in their descendants.
 
 <hr>
