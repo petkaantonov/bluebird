@@ -559,6 +559,7 @@ Custom builds for browsers are supported through a command-line utility.
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#synchronous-inspection">Synchronous inspection</a></td><td><code>synchronous_inspection</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#timers">Timers</a></td><td><code>timers</code></td></tr>
 
     </tbody>
 </table>
