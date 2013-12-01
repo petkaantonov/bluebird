@@ -95,6 +95,25 @@ describe("delay", function () {
         }, 30);
     });
 
+    it("should not delay rejection", function (done) {
+        var promise = Q.reject(5).delay(50);
+
+        Q.delay(20).then(function () {
+            assert(!promise.isPending());
+            done();
+        });
+    });
+
+    it("should treat a single argument as a time", function (done) {
+        var promise = Q.delay(50);
+
+        setTimeout(function () {
+            assert(promise.isPending());
+            done();
+        }, 40);
+
+    });
+
     it("should treat two arguments as a value + a time", function (done) {
         var promise = Q.delay("what", 50);
 
@@ -105,6 +124,20 @@ describe("delay", function () {
         promise.then(function (value) {
             assert(value === "what");
             done();
+        });
+    });
+
+    it("should delay after resolution", function () {
+        var promise1 = Q.delay("what", 30);
+        var promise2 = promise1.delay(30);
+
+        setTimeout(function () {
+            assert(!promise1.isPending())
+            assert(promise2.isPending());
+        }, 40);
+
+        return promise2.then(function (value) {
+            assert(value === "what");
         });
     });
 
