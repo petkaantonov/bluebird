@@ -1032,9 +1032,9 @@ cancellation in themselves or somewhere in their descendants.
 #####`.cancel()` -> `Promise`
 
 Cancel this promise. The cancellation will propagate
-to farthest ancestor promise which is still defer.
+to farthest cancellable ancestor promise which is still pending.
 
-That ancestor will then be rejected with a CancellationError
+That ancestor will then be rejected with a `CancellationError` (get a reference from `Promise.CancellationError`)
 object as the rejection reason.
 
 In a promise rejection handler you may check for a cancellation
