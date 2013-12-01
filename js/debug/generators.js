@@ -20,32 +20,32 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, apiRejection ) {
-    var PromiseSpawn = require( "./promise_spawn.js" )(Promise);
-    var errors = require( "./errors.js");
+module.exports = function(Promise, apiRejection) {
+    var PromiseSpawn = require("./promise_spawn.js")(Promise);
+    var errors = require("./errors.js");
     var TypeError = errors.TypeError;
 
-    Promise.coroutine = function Promise$Coroutine( generatorFunction ) {
-        if( typeof generatorFunction !== "function" ) {
-            throw new TypeError( "generatorFunction must be a function" );
+    Promise.coroutine = function Promise$Coroutine(generatorFunction) {
+        if (typeof generatorFunction !== "function") {
+            throw new TypeError("generatorFunction must be a function");
         }
         var PromiseSpawn$ = PromiseSpawn;
         return function anonymous() {
-            var generator = generatorFunction.apply( this, arguments );
-            var spawn = new PromiseSpawn$( void 0, void 0, anonymous );
+            var generator = generatorFunction.apply(this, arguments);
+            var spawn = new PromiseSpawn$(void 0, void 0, anonymous);
             spawn._generator = generator;
-            spawn._next( void 0 );
+            spawn._next(void 0);
             return spawn.promise();
         };
     };
 
-    Promise.spawn = function Promise$Spawn( generatorFunction ) {
-        if( typeof generatorFunction !== "function" ) {
-            return apiRejection( "generatorFunction must be a function" );
+    Promise.spawn = function Promise$Spawn(generatorFunction) {
+        if (typeof generatorFunction !== "function") {
+            return apiRejection("generatorFunction must be a function");
         }
-        var spawn = new PromiseSpawn( generatorFunction, this, Promise.spawn );
+        var spawn = new PromiseSpawn(generatorFunction, this, Promise.spawn);
         var ret = spawn.promise();
-        spawn._run( Promise.spawn );
+        spawn._run(Promise.spawn);
         return ret;
     };
 };

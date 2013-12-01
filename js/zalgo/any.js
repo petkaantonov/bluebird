@@ -20,33 +20,33 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, Promise$_All, PromiseArray ) {
+module.exports = function(Promise, Promise$_All, PromiseArray) {
 
-    var SomePromiseArray = require( "./some_promise_array.js" )(PromiseArray);
-    var ASSERT = require( "./assert.js" );
+    var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
+    var ASSERT = require("./assert.js");
 
-    function Promise$_Any( promises, useBound, caller ) {
+    function Promise$_Any(promises, useBound, caller) {
         var ret = Promise$_All(
             promises,
             SomePromiseArray,
             caller,
             useBound === true ? promises._boundTo : void 0
-        );
+       );
         var promise = ret.promise();
         if (promise.isRejected()) {
             return promise;
         }
-        ret.setHowMany( 1 );
+        ret.setHowMany(1);
         ret.setUnwrap();
         return promise;
     }
 
-    Promise.any = function Promise$Any( promises ) {
-        return Promise$_Any( promises, false, Promise.any );
+    Promise.any = function Promise$Any(promises) {
+        return Promise$_Any(promises, false, Promise.any);
     };
 
     Promise.prototype.any = function Promise$any() {
-        return Promise$_Any( this, true, this.any );
+        return Promise$_Any(this, true, this.any);
     };
 
 };

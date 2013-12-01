@@ -33,94 +33,94 @@ var haveGetters = (function(){
         });
         return o.f === 3;
     }
-    catch(e) {
+    catch (e) {
         return false;
     }
 
 })();
 
-var ensurePropertyExpansion = function( obj, prop, value ) {
+var ensurePropertyExpansion = function(obj, prop, value) {
     try {
-        notEnumerableProp( obj, prop, value );
+        notEnumerableProp(obj, prop, value);
         return obj;
     }
-    catch( e ) {
+    catch (e) {
         var ret = {};
-        var keys = es5.keys( obj );
-        for( var i = 0, len = keys.length; i < len; ++i ) {
+        var keys = es5.keys(obj);
+        for (var i = 0, len = keys.length; i < len; ++i) {
             try {
                 var key = keys[i];
                 ret[key] = obj[key];
             }
-            catch( err ) {
+            catch (err) {
                 ret[key] = err;
             }
         }
-        notEnumerableProp( ret, prop, value );
+        notEnumerableProp(ret, prop, value);
         return ret;
     }
 };
 
 var canEvaluate = (function() {
-    if( typeof window !== "undefined" && window !== null &&
+    if (typeof window !== "undefined" && window !== null &&
         typeof window.document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string" &&
-        window === global ) {
+        window === global) {
         return false;
     }
     return true;
 })();
 
-function deprecated( msg ) {
-    if( typeof console !== "undefined" && console !== null &&
-        typeof console.warn === "function" ) {
-        console.warn( "Bluebird: " + msg );
+function deprecated(msg) {
+    if (typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function") {
+        console.warn("Bluebird: " + msg);
     }
 }
 
 var errorObj = {e: {}};
-function tryCatch1( fn, receiver, arg ) {
+function tryCatch1(fn, receiver, arg) {
     try {
-        return fn.call( receiver, arg );
+        return fn.call(receiver, arg);
     }
-    catch( e ) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
 }
 
-function tryCatch2( fn, receiver, arg, arg2 ) {
+function tryCatch2(fn, receiver, arg, arg2) {
     try {
-        return fn.call( receiver, arg, arg2 );
+        return fn.call(receiver, arg, arg2);
     }
-    catch( e ) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
 }
 
-function tryCatchApply( fn, args, receiver ) {
+function tryCatchApply(fn, args, receiver) {
     try {
-        return fn.apply( receiver, args );
+        return fn.apply(receiver, args);
     }
-    catch( e ) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
 }
 
-var inherits = function( Child, Parent ) {
+var inherits = function(Child, Parent) {
     var hasProp = {}.hasOwnProperty;
 
     function T() {
         this.constructor = Child;
         this.constructor$ = Parent;
         for (var propertyName in Parent.prototype) {
-            if (hasProp.call( Parent.prototype, propertyName) &&
+            if (hasProp.call(Parent.prototype, propertyName) &&
                 propertyName.charAt(propertyName.length-1) !== "$"
-            ) {
-                this[ propertyName + "$"] = Parent.prototype[propertyName];
+           ) {
+                this[propertyName + "$"] = Parent.prototype[propertyName];
             }
         }
     }
@@ -129,46 +129,46 @@ var inherits = function( Child, Parent ) {
     return Child.prototype;
 };
 
-function asString( val ) {
-    return typeof val === "string" ? val : ( "" + val );
+function asString(val) {
+    return typeof val === "string" ? val : ("" + val);
 }
 
-function isPrimitive( val ) {
+function isPrimitive(val) {
     return val == null || val === true || val === false ||
         typeof val === "string" || typeof val === "number";
 
 }
 
-function isObject( value ) {
-    return !isPrimitive( value );
+function isObject(value) {
+    return !isPrimitive(value);
 }
 
-function maybeWrapAsError( maybeError ) {
-    if( !isPrimitive( maybeError ) ) return maybeError;
+function maybeWrapAsError(maybeError) {
+    if (!isPrimitive(maybeError)) return maybeError;
 
-    return new Error( asString( maybeError ) );
+    return new Error(asString(maybeError));
 }
 
-function withAppended( target, appendee ) {
+function withAppended(target, appendee) {
     var len = target.length;
-    var ret = new Array( len + 1 );
+    var ret = new Array(len + 1);
     var i;
-    for( i = 0; i < len; ++i ) {
-        ret[ i ] = target[ i ];
+    for (i = 0; i < len; ++i) {
+        ret[i] = target[i];
     }
-    ret[ i ] = appendee;
+    ret[i] = appendee;
     return ret;
 }
 
 
-function notEnumerableProp( obj, name, value ) {
+function notEnumerableProp(obj, name, value) {
     var descriptor = {
         value: value,
         configurable: true,
         enumerable: false,
         writable: true
     };
-    es5.defineProperty( obj, name, descriptor );
+    es5.defineProperty(obj, name, descriptor);
     return obj;
 }
 

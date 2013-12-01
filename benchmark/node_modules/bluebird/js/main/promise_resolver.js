@@ -20,39 +20,39 @@
  * THE SOFTWARE.
  */
 "use strict";
-var util = require( "./util.js" );
+var util = require("./util.js");
 var maybeWrapAsError = util.maybeWrapAsError;
-var errors = require( "./errors.js");
+var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
-var async = require( "./async.js" );
+var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
 
-function isUntypedError( obj ) {
+function isUntypedError(obj) {
     return obj instanceof Error &&
         es5.getPrototypeOf(obj) === Error.prototype;
 }
 
-function wrapAsRejectionError( obj ) {
-    if( isUntypedError( obj ) ) {
-        return new RejectionError( obj );
+function wrapAsRejectionError(obj) {
+    if (isUntypedError(obj)) {
+        return new RejectionError(obj);
     }
     return obj;
 }
 
-function nodebackForResolver( resolver ) {
-    function PromiseResolver$_callback( err, value ) {
-        if( err ) {
-            resolver.reject( wrapAsRejectionError( maybeWrapAsError( err ) ) );
+function nodebackForResolver(resolver) {
+    function PromiseResolver$_callback(err, value) {
+        if (err) {
+            resolver.reject(wrapAsRejectionError(maybeWrapAsError(err)));
         }
         else {
-            if( arguments.length > 2 ) {
+            if (arguments.length > 2) {
                 var $_len = arguments.length;var args = new Array($_len - 1); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];}
-                resolver.fulfill( args );
+                resolver.fulfill(args);
             }
             else {
-                resolver.fulfill( value );
+                resolver.fulfill(value);
             }
         }
     }
@@ -61,22 +61,22 @@ function nodebackForResolver( resolver ) {
 
 
 var PromiseResolver;
-if( !haveGetters ) {
-    PromiseResolver = function PromiseResolver( promise ) {
+if (!haveGetters) {
+    PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
-        this.asCallback = nodebackForResolver( this );
+        this.asCallback = nodebackForResolver(this);
         this.callback = this.asCallback;
     };
 }
 else {
-    PromiseResolver = function PromiseResolver( promise ) {
+    PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
     };
 }
-if( haveGetters ) {
+if (haveGetters) {
     var prop = {
         get: function() {
-            return nodebackForResolver( this );
+            return nodebackForResolver(this);
         }
     };
     es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);
@@ -90,29 +90,31 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 };
 
 PromiseResolver.prototype.resolve =
-PromiseResolver.prototype.fulfill = function PromiseResolver$resolve( value ) {
-    if( this.promise._tryAssumeStateOf( value, false ) ) {
+PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
+    var promise = this.promise;
+    if (promise._tryFollow(value, false)) {
         return;
     }
-    async.invoke( this.promise._fulfill, this.promise, value );
+    async.invoke(promise._fulfill, promise, value);
 };
 
-PromiseResolver.prototype.reject = function PromiseResolver$reject( reason ) {
-    this.promise._attachExtraTrace( reason );
-    async.invoke( this.promise._reject, this.promise, reason );
+PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
+    var promise = this.promise;
+    promise._attachExtraTrace(reason);
+    async.invoke(promise._reject, promise, reason);
 };
 
 PromiseResolver.prototype.progress =
-function PromiseResolver$progress( value ) {
-    async.invoke( this.promise._progress, this.promise, value );
+function PromiseResolver$progress(value) {
+    async.invoke(this.promise._progress, this.promise, value);
 };
 
 PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
-    async.invoke( this.promise.cancel, this.promise, void 0 );
+    async.invoke(this.promise.cancel, this.promise, void 0);
 };
 
 PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
-    this.reject( new TimeoutError( "timeout" ) );
+    this.reject(new TimeoutError("timeout"));
 };
 
 PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {

@@ -20,53 +20,54 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
-    var ASSERT = require( "./assert.js");
-    var util = require( "./util.js" );
-    var async = require( "./async.js" );
+module.exports = function(Promise) {
+    var ASSERT = require("./assert.js");
+    var util = require("./util.js");
+    var async = require("./async.js");
     var tryCatch1 = util.tryCatch1;
     var errorObj = util.errorObj;
 
-    Promise.prototype.progressed = function Promise$progressed(fn) {
-        return this._then(void 0, void 0, fn,
+    Promise.prototype.progressed = function Promise$progressed(handler) {
+        return this._then(void 0, void 0, handler,
                             void 0, void 0, this.progressed);
     };
 
     Promise.prototype._progress = function Promise$_progress(progressValue) {
-        if( this._isFollowingOrFulfilledOrRejected() ) return;
+        if (this._isFollowingOrFulfilledOrRejected()) return;
         this._progressUnchecked(progressValue);
 
     };
 
-    Promise.prototype._progressAt = function Promise$_progressAt( index ) {
-        if( index === 0 ) return this._progressHandler0;
-        return this[ index + 2 - 5 ];
+    Promise.prototype._progressHandlerAt =
+    function Promise$_progressHandlerAt(index) {
+        if (index === 0) return this._progressHandler0;
+        return this[index + 2 - 5];
     };
 
     Promise.prototype._doProgressWith =
     function Promise$_doProgressWith(progression) {
         var progressValue = progression.value;
-        var fn = progression.fn;
+        var handler = progression.handler;
         var promise = progression.promise;
         var receiver = progression.receiver;
 
         this._pushContext();
-        var ret = tryCatch1(fn, receiver, progressValue);
+        var ret = tryCatch1(handler, receiver, progressValue);
         this._popContext();
 
-        if( ret === errorObj ) {
-            if( ret.e != null &&
-                ret.e.name === "StopProgressPropagation" ) {
+        if (ret === errorObj) {
+            if (ret.e != null &&
+                ret.e.name === "StopProgressPropagation") {
                 ret.e["__promiseHandled__"] = 2;
             }
             else {
-                promise._attachExtraTrace( ret.e );
+                promise._attachExtraTrace(ret.e);
                 promise._progress(ret.e);
             }
         }
-        else if( Promise.is( ret ) ) {
-            ret._then( promise._progress, null, null, promise, void 0,
-                this._progress );
+        else if (Promise.is(ret)) {
+            ret._then(promise._progress, null, null, promise, void 0,
+                this._progress);
         }
         else {
             promise._progress(ret);
@@ -75,21 +76,21 @@ module.exports = function( Promise ) {
 
 
     Promise.prototype._progressUnchecked =
-    function Promise$_progressUnchecked( progressValue ) {
+    function Promise$_progressUnchecked(progressValue) {
         var len = this._length();
 
-        for( var i = 0; i < len; i += 5 ) {
-            var fn = this._progressAt( i );
-            var promise = this._promiseAt( i );
+        for (var i = 0; i < len; i += 5) {
+            var handler = this._progressHandlerAt(i);
+            var promise = this._promiseAt(i);
             if (!Promise.is(promise)) {
-                if (fn !== void 0) {
-                    fn.call(this._receiverAt(i), progressValue, promise);
+                if (handler !== void 0) {
+                    handler.call(this._receiverAt(i), progressValue, promise);
                 }
                 continue;
             }
 
-            if(fn !== void 0) {
-                this._doProgressWith(({fn: fn,
+            if (handler !== void 0) {
+                this._doProgressWith(({handler: handler,
 promise: promise,
 receiver: this._receiverAt(i),
 value: progressValue}));

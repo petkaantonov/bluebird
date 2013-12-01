@@ -20,43 +20,43 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, PromiseArray ) {
+module.exports = function(Promise, PromiseArray) {
     var PropertiesPromiseArray = require("./properties_promise_array.js")(
         Promise, PromiseArray);
-    var util = require( "./util.js" );
+    var util = require("./util.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var isObject = util.isObject;
 
-    function Promise$_Props( promises, useBound, caller ) {
+    function Promise$_Props(promises, useBound, caller) {
         var ret;
         var castValue = Promise._cast(promises, caller, void 0);
 
         if (!isObject(castValue)) {
             return apiRejection(".props cannot be used on a primitive value");
         }
-        else if( Promise.is( castValue ) ) {
-            ret = castValue._then( Promise.props, void 0, void 0,
-                            void 0, void 0, caller );
+        else if (Promise.is(castValue)) {
+            ret = castValue._then(Promise.props, void 0, void 0,
+                            void 0, void 0, caller);
         }
         else {
             ret = new PropertiesPromiseArray(
                 castValue,
                 caller,
                 useBound === true ? castValue._boundTo : void 0
-            ).promise();
+           ).promise();
             useBound = false;
         }
-        if( useBound === true ) {
+        if (useBound === true) {
             ret._boundTo = castValue._boundTo;
         }
         return ret;
     }
 
     Promise.prototype.props = function Promise$props() {
-        return Promise$_Props( this, true, this.props );
+        return Promise$_Props(this, true, this.props);
     };
 
-    Promise.props = function Promise$Props( promises ) {
-        return Promise$_Props( promises, false, Promise.props );
+    Promise.props = function Promise$Props(promises) {
+        return Promise$_Props(promises, false, Promise.props);
     };
 };

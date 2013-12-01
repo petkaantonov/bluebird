@@ -23,16 +23,16 @@
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var schedule;
-if( typeof process !== "undefined" && process !== null &&
+if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
-    typeof process.nextTick === "function" ) {
+    typeof process.nextTick === "function") {
     schedule = process.nextTick;
 }
-else if( ( typeof MutationObserver === "function" ||
+else if ((typeof MutationObserver === "function" ||
         typeof WebkitMutationObserver === "function" ||
-        typeof WebKitMutationObserver === "function" ) &&
+        typeof WebKitMutationObserver === "function") &&
         typeof document !== "undefined" &&
-        typeof document.createElement === "function" ) {
+        typeof document.createElement === "function") {
 
 
     schedule = (function(){
@@ -47,32 +47,32 @@ else if( ( typeof MutationObserver === "function" ||
                 queuedFn = void 0;
                 fn();
             }
-        );
+       );
         var cur = true;
-        observer.observe( div, {
+        observer.observe(div, {
             attributes: true,
             childList: true,
             characterData: true
         });
-        return function Promise$_Scheduler( fn ) {
+        return function Promise$_Scheduler(fn) {
             queuedFn = fn;
             cur = !cur;
-            div.setAttribute( "class", cur ? "foo" : "bar" );
+            div.setAttribute("class", cur ? "foo" : "bar");
         };
 
     })();
 }
-else if ( typeof global.postMessage === "function" &&
+else if (typeof global.postMessage === "function" &&
     typeof global.importScripts !== "function" &&
     typeof global.addEventListener === "function" &&
-    typeof global.removeEventListener === "function" ) {
+    typeof global.removeEventListener === "function") {
 
     var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
     schedule = (function(){
         var queuedFn = void 0;
 
         function Promise$_Scheduler(e) {
-            if(e.source === global &&
+            if (e.source === global &&
                 e.data === MESSAGE_KEY) {
                 var fn = queuedFn;
                 queuedFn = void 0;
@@ -80,18 +80,18 @@ else if ( typeof global.postMessage === "function" &&
             }
         }
 
-        global.addEventListener( "message", Promise$_Scheduler, false );
+        global.addEventListener("message", Promise$_Scheduler, false);
 
-        return function Promise$_Scheduler( fn ) {
+        return function Promise$_Scheduler(fn) {
             queuedFn = fn;
             global.postMessage(
                 MESSAGE_KEY, "*"
-            );
+           );
         };
 
     })();
 }
-else if( typeof MessageChannel === "function" ) {
+else if (typeof MessageChannel === "function") {
     schedule = (function(){
         var queuedFn = void 0;
 
@@ -102,19 +102,19 @@ else if( typeof MessageChannel === "function" ) {
                 fn();
         };
 
-        return function Promise$_Scheduler( fn ) {
+        return function Promise$_Scheduler(fn) {
             queuedFn = fn;
-            channel.port2.postMessage( null );
+            channel.port2.postMessage(null);
         };
     })();
 }
-else if( global.setTimeout ) {
-    schedule = function Promise$_Scheduler( fn ) {
-        setTimeout( fn, 4 );
+else if (global.setTimeout) {
+    schedule = function Promise$_Scheduler(fn) {
+        setTimeout(fn, 4);
     };
 }
 else {
-    schedule = function Promise$_Scheduler( fn ) {
+    schedule = function Promise$_Scheduler(fn) {
         fn();
     };
 }

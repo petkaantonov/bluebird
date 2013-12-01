@@ -20,26 +20,26 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise, Promise$_All, PromiseArray ) {
+module.exports = function(Promise, Promise$_All, PromiseArray) {
 
-    var SettledPromiseArray = require( "./settled_promise_array.js" )(
+    var SettledPromiseArray = require("./settled_promise_array.js")(
         Promise, PromiseArray);
 
-    function Promise$_Settle( promises, useBound, caller ) {
+    function Promise$_Settle(promises, useBound, caller) {
         return Promise$_All(
             promises,
             SettledPromiseArray,
             caller,
             useBound === true ? promises._boundTo : void 0
-        ).promise();
+       ).promise();
     }
 
-    Promise.settle = function Promise$Settle( promises ) {
-        return Promise$_Settle( promises, false, Promise.settle );
+    Promise.settle = function Promise$Settle(promises) {
+        return Promise$_Settle(promises, false, Promise.settle);
     };
 
     Promise.prototype.settle = function Promise$settle() {
-        return Promise$_Settle( this, true, this.settle );
+        return Promise$_Settle(this, true, this.settle);
     };
 
 };

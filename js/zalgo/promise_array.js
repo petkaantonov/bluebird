@@ -20,35 +20,35 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
+module.exports = function(Promise) {
 var ASSERT = require("./assert.js");
-var ensureNotHandled = require( "./errors.js").ensureNotHandled;
+var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
-var async = require( "./async.js");
+var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
-function toResolutionValue( val ) {
-    switch( val ) {
+function toResolutionValue(val) {
+    switch(val) {
     case 0: return void 0;
     case 1: return [];
     case 2: return {};
     }
 }
 
-function PromiseArray( values, caller, boundTo ) {
-    var d = this._resolver = Promise.defer( caller );
+function PromiseArray(values, caller, boundTo) {
+    var d = this._resolver = Promise.defer(caller);
     if (Promise.hasLongStackTraces() &&
         Promise.is(values)) {
         d.promise._traceParent = values;
     }
     this._values = values;
-    if( boundTo !== void 0 ) {
-        d.promise._setBoundTo( boundTo );
+    if (boundTo !== void 0) {
+        d.promise._setBoundTo(boundTo);
     }
     this._length = 0;
     this._totalResolved = 0;
-    this._init( void 0, 1 );
+    this._init(void 0, 1);
 }
 PromiseArray.PropertiesPromiseArray = function() {};
 
@@ -61,19 +61,19 @@ PromiseArray.prototype.promise = function PromiseArray$promise() {
 };
 
 PromiseArray.prototype._init =
-function PromiseArray$_init( _, resolveValueIfEmpty ) {
+function PromiseArray$_init(_, resolveValueIfEmpty) {
     var values = this._values;
-    if(Promise.is(values)) {
-        if( values.isFulfilled() ) {
+    if (Promise.is(values)) {
+        if (values.isFulfilled()) {
             values = values._settledValue;
-            if( !isArray( values ) ) {
+            if (!isArray(values)) {
                 var err = new Promise.TypeError("expecting an array, a promise or a thenable");
                 this.__hardReject__(err);
                 return;
             }
             this._values = values;
         }
-        else if( values.isPending() ) {
+        else if (values.isPending()) {
             values._then(
                 this._init,
                 this._reject,
@@ -81,62 +81,62 @@ function PromiseArray$_init( _, resolveValueIfEmpty ) {
                 this,
                 resolveValueIfEmpty,
                 this.constructor
-            );
+           );
             return;
         }
         else {
-            this._reject( values._settledValue );
+            this._reject(values._settledValue);
             return;
         }
     }
-    if( values.length === 0 ) {
-        this._resolve( toResolutionValue( resolveValueIfEmpty ) );
+    if (values.length === 0) {
+        this._resolve(toResolutionValue(resolveValueIfEmpty));
         return;
     }
     var len = values.length;
     var newLen = len;
     var newValues;
-    if( this instanceof PromiseArray.PropertiesPromiseArray ) {
+    if (this instanceof PromiseArray.PropertiesPromiseArray) {
         newValues = this._values;
     }
     else {
-        newValues = new Array( len );
+        newValues = new Array(len);
     }
     var isDirectScanNeeded = false;
-    for( var i = 0; i < len; ++i ) {
+    for (var i = 0; i < len; ++i) {
         var promise = values[i];
-        if( promise === void 0 && !hasOwn.call( values, i ) ) {
+        if (promise === void 0 && !hasOwn.call(values, i)) {
             newLen--;
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if( maybePromise instanceof Promise &&
-            maybePromise.isPending() ) {
+        if (maybePromise instanceof Promise &&
+            maybePromise.isPending()) {
             maybePromise._then(
                 this._promiseFulfilled,
                 this._promiseRejected,
                 this._promiseProgressed,
 
                 this,                i,                 this._scanDirectValues
-            );
+           );
         }
         else {
             isDirectScanNeeded = true;
         }
         newValues[i] = maybePromise;
     }
-    if( newLen === 0 ) {
-        if( resolveValueIfEmpty === 1 ) {
-            this._resolve( newValues );
+    if (newLen === 0) {
+        if (resolveValueIfEmpty === 1) {
+            this._resolve(newValues);
         }
         else {
-            this._resolve( toResolutionValue( resolveValueIfEmpty ) );
+            this._resolve(toResolutionValue(resolveValueIfEmpty));
         }
         return;
     }
     this._values = newValues;
     this._length = newLen;
-    if( isDirectScanNeeded ) {
+    if (isDirectScanNeeded) {
         var scanMethod = newLen === len
             ? this._scanDirectValues
             : this._scanDirectValuesHoled;
@@ -159,24 +159,24 @@ function PromiseArray$_settlePromiseAt(index) {
 };
 
 PromiseArray.prototype._scanDirectValuesHoled =
-function PromiseArray$_scanDirectValuesHoled( len ) {
-    for( var i = 0; i < len; ++i ) {
-        if( this._isResolved() ) {
+function PromiseArray$_scanDirectValuesHoled(len) {
+    for (var i = 0; i < len; ++i) {
+        if (this._isResolved()) {
             break;
         }
-        if( hasOwn.call( this._values, i ) ) {
-            this._settlePromiseAt( i );
+        if (hasOwn.call(this._values, i)) {
+            this._settlePromiseAt(i);
         }
     }
 };
 
 PromiseArray.prototype._scanDirectValues =
-function PromiseArray$_scanDirectValues( len ) {
-    for( var i = 0; i < len; ++i ) {
-        if( this._isResolved() ) {
+function PromiseArray$_scanDirectValues(len) {
+    for (var i = 0; i < len; ++i) {
+        if (this._isResolved()) {
             break;
         }
-        this._settlePromiseAt( i );
+        this._settlePromiseAt(i);
     }
 };
 
@@ -184,22 +184,22 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
     return this._values === null;
 };
 
-PromiseArray.prototype._resolve = function PromiseArray$_resolve( value ) {
+PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
     this._values = null;
-    this._resolver.resolve( value );
+    this._resolver.resolve(value);
 };
 
 
 PromiseArray.prototype.__hardReject__ =
-PromiseArray.prototype._reject = function PromiseArray$_reject( reason ) {
-    ensureNotHandled( reason );
+PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
+    ensureNotHandled(reason);
     this._values = null;
-    this._resolver.reject( reason );
+    this._resolver.reject(reason);
 };
 
 PromiseArray.prototype._promiseProgressed =
-function PromiseArray$_promiseProgressed( progressValue, index ) {
-    if( this._isResolved() ) return;
+function PromiseArray$_promiseProgressed(progressValue, index) {
+    if (this._isResolved()) return;
     this._resolver.progress({
         index: index,
         value: progressValue
@@ -207,20 +207,20 @@ function PromiseArray$_promiseProgressed( progressValue, index ) {
 };
 
 PromiseArray.prototype._promiseFulfilled =
-function PromiseArray$_promiseFulfilled( value, index ) {
-    if( this._isResolved() ) return;
-    this._values[ index ] = value;
+function PromiseArray$_promiseFulfilled(value, index) {
+    if (this._isResolved()) return;
+    this._values[index] = value;
     var totalResolved = ++this._totalResolved;
-    if( totalResolved >= this._length ) {
-        this._resolve( this._values );
+    if (totalResolved >= this._length) {
+        this._resolve(this._values);
     }
 };
 
 PromiseArray.prototype._promiseRejected =
-function PromiseArray$_promiseRejected( reason ) {
-    if( this._isResolved() ) return;
+function PromiseArray$_promiseRejected(reason) {
+    if (this._isResolved()) return;
     this._totalResolved++;
-    this._reject( reason );
+    this._reject(reason);
 };
 
 return PromiseArray;

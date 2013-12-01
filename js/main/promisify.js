@@ -20,12 +20,12 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
+module.exports = function(Promise) {
 var THIS = {};
-var util = require( "./util.js");
+var util = require("./util.js");
 var es5 = require("./es5.js");
-var errors = require( "./errors.js" );
-var nodebackForResolver = require( "./promise_resolver.js" )
+var errors = require("./errors.js");
+var nodebackForResolver = require("./promise_resolver.js")
     ._nodebackForResolver;
 var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
@@ -33,12 +33,12 @@ var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
 var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
-var ASSERT = require( "./assert.js" );
+var ASSERT = require("./assert.js");
 
 
-var roriginal = new RegExp( "__beforePromisified__" + "$" );
+var roriginal = new RegExp("__beforePromisified__" + "$");
 var hasProp = {}.hasOwnProperty;
-function isPromisified( fn ) {
+function isPromisified(fn) {
     return fn.__isPromisified__ === true;
 }
 var inheritedMethods = (function() {
@@ -51,12 +51,12 @@ var inheritedMethods = (function() {
             var visitedKeys = create(null);
             while (cur !== null) {
                 var keys = es5.keys(cur);
-                for( var i = 0, len = keys.length; i < len; ++i ) {
+                for (var i = 0, len = keys.length; i < len; ++i) {
                     var key = keys[i];
                     if (visitedKeys[key] ||
                         roriginal.test(key) ||
                         hasProp.call(original, key + "__beforePromisified__")
-                    ) {
+                   ) {
                         continue;
                     }
                     visitedKeys[key] = true;
@@ -92,54 +92,54 @@ var inheritedMethods = (function() {
     }
 })();
 
-Promise.prototype.error = function Promise$_error( fn ) {
-    return this.caught( RejectionError, fn );
+Promise.prototype.error = function Promise$_error(fn) {
+    return this.caught(RejectionError, fn);
 };
 
-function makeNodePromisifiedEval( callback, receiver, originalName ) {
+function makeNodePromisifiedEval(callback, receiver, originalName) {
     function getCall(count) {
         var args = new Array(count);
-        for( var i = 0, len = args.length; i < len; ++i ) {
+        for (var i = 0, len = args.length; i < len; ++i) {
             args[i] = "a" + (i+1);
         }
         var comma = count > 0 ? "," : "";
 
-        if( typeof callback === "string" &&
-            receiver === THIS ) {
+        if (typeof callback === "string" &&
+            receiver === THIS) {
             return "this['" + callback + "']("+args.join(",") +
                 comma +" fn);"+
                 "break;";
         }
-        return ( receiver === void 0
+        return (receiver === void 0
             ? "callback("+args.join(",")+ comma +" fn);"
-            : "callback.call("+( receiver === THIS
+            : "callback.call("+(receiver === THIS
                 ? "this"
-                : "receiver" )+", "+args.join(",") + comma + " fn);" ) +
+                : "receiver")+", "+args.join(",") + comma + " fn);") +
         "break;";
     }
 
     function getArgs() {
-        return "var args = new Array( len + 1 );" +
+        return "var args = new Array(len + 1);" +
         "var i = 0;" +
-        "for( var i = 0; i < len; ++i ) { " +
+        "for (var i = 0; i < len; ++i) { " +
         "   args[i] = arguments[i];" +
         "}" +
         "args[i] = fn;";
     }
 
-    var callbackName = ( typeof originalName === "string" ?
+    var callbackName = (typeof originalName === "string" ?
         originalName + "Async" :
-        "promisified" );
+        "promisified");
 
     return new Function("Promise", "callback", "receiver",
             "withAppended", "maybeWrapAsError", "nodebackForResolver",
         "var ret = function " + callbackName +
-        "( a1, a2, a3, a4, a5 ) {\"use strict\";" +
+        "(a1, a2, a3, a4, a5) {\"use strict\";" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending( " + callbackName + " );" +
-        "var fn = nodebackForResolver( resolver );"+
+        "var resolver = Promise.pending(" + callbackName + ");" +
+        "var fn = nodebackForResolver(resolver);"+
         "try{" +
-        "switch( len ) {" +
+        "switch(len) {" +
         "case 1:" + getCall(1) +
         "case 2:" + getCall(2) +
         "case 3:" + getCall(3) +
@@ -149,36 +149,36 @@ function makeNodePromisifiedEval( callback, receiver, originalName ) {
         "default: " + getArgs() + (typeof callback === "string"
             ? "this['" + callback + "'].apply("
             : "callback.apply("
-        ) +
-            ( receiver === THIS ? "this" : "receiver" ) +
-        ", args ); break;" +
+       ) +
+            (receiver === THIS ? "this" : "receiver") +
+        ", args); break;" +
         "}" +
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject( maybeWrapAsError( e ) );" +
+        "resolver.reject(maybeWrapAsError(e));" +
         "}" +
         "return resolver.promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
-    )(Promise, callback, receiver, withAppended,
+   )(Promise, callback, receiver, withAppended,
         maybeWrapAsError, nodebackForResolver);
 }
 
-function makeNodePromisifiedClosure( callback, receiver ) {
+function makeNodePromisifiedClosure(callback, receiver) {
     function promisified() {
         var _receiver = receiver;
-        if( receiver === THIS ) _receiver = this;
-        if( typeof callback === "string" ) {
+        if (receiver === THIS) _receiver = this;
+        if (typeof callback === "string") {
             callback = _receiver[callback];
         }
-        var resolver = Promise.pending( promisified );
-        var fn = nodebackForResolver( resolver );
+        var resolver = Promise.pending(promisified);
+        var fn = nodebackForResolver(resolver);
         try {
-            callback.apply( _receiver, withAppended( arguments, fn ) );
+            callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            resolver.reject( maybeWrapAsError( e ) );
+            resolver.reject(maybeWrapAsError(e));
         }
         return resolver.promise;
     }
@@ -191,8 +191,8 @@ var makeNodePromisified = canEvaluate
     : makeNodePromisifiedClosure;
 
 function f(){}
-function _promisify( callback, receiver, isAll ) {
-    if( isAll ) {
+function _promisify(callback, receiver, isAll) {
+    if (isAll) {
         var methods = inheritedMethods(callback);
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
@@ -211,29 +211,29 @@ function _promisify( callback, receiver, isAll ) {
     }
 }
 
-Promise.promisify = function Promise$Promisify( callback, receiver ) {
-    if( typeof callback === "object" && callback !== null ) {
-        deprecated( "Promise.promisify for promisifying entire objects " +
-            "is deprecated. Use Promise.promisifyAll instead." );
-        return _promisify( callback, receiver, true );
+Promise.promisify = function Promise$Promisify(callback, receiver) {
+    if (typeof callback === "object" && callback !== null) {
+        deprecated("Promise.promisify for promisifying entire objects " +
+            "is deprecated. Use Promise.promisifyAll instead.");
+        return _promisify(callback, receiver, true);
     }
-    if( typeof callback !== "function" ) {
-        throw new TypeError( "callback must be a function" );
+    if (typeof callback !== "function") {
+        throw new TypeError("callback must be a function");
     }
-    if( isPromisified( callback ) ) {
+    if (isPromisified(callback)) {
         return callback;
     }
     return _promisify(
         callback,
         arguments.length < 2 ? THIS : receiver,
-        false );
+        false);
 };
 
-Promise.promisifyAll = function Promise$PromisifyAll( target ) {
-    if( typeof target !== "function" && typeof target !== "object" ) {
-        throw new TypeError( "Cannot promisify " + typeof target );
+Promise.promisifyAll = function Promise$PromisifyAll(target) {
+    if (typeof target !== "function" && typeof target !== "object") {
+        throw new TypeError("Cannot promisify " + typeof target);
     }
-    return _promisify( target, void 0, true );
+    return _promisify(target, void 0, true);
 };
 };
 

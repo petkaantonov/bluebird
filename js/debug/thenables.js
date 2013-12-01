@@ -20,9 +20,9 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
+module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
-    var util = require( "./util.js" );
+    var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
@@ -39,8 +39,8 @@ module.exports = function( Promise ) {
     function Promise$_Cast(obj, caller, originalPromise) {
         ASSERT((arguments.length === 3),
     "arguments.length === 3");
-        if( isObject( obj ) ) {
-            if( obj instanceof Promise ) {
+        if (isObject(obj)) {
+            if (obj instanceof Promise) {
                 return obj;
             }
             var then = getThen(obj);
@@ -80,7 +80,7 @@ module.exports = function( Promise ) {
         return resolver.promise;
 
         function Promise$_resolveFromThenable(y) {
-            if( called ) return;
+            if (called) return;
             called = true;
 
             if (x === y) {
@@ -95,7 +95,7 @@ module.exports = function( Promise ) {
         }
 
         function Promise$_rejectFromThenable(r) {
-            if( called ) return;
+            if (called) return;
             called = true;
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);

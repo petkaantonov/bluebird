@@ -20,28 +20,28 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function( Promise ) {
-    Promise.prototype.call = function Promise$call( propertyName ) {
+module.exports = function(Promise) {
+    Promise.prototype.call = function Promise$call(propertyName) {
         var $_len = arguments.length;var args = new Array($_len - 1); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];}
 
-        return this._then( function( obj ) {
-                return obj[ propertyName ].apply( obj, args );
+        return this._then(function(obj) {
+                return obj[propertyName].apply(obj, args);
             },
             void 0,
             void 0,
             void 0,
             void 0,
             this.call
-        );
+       );
     };
 
-    function Promise$getter( obj ) {
+    function Promise$getter(obj) {
         var prop = typeof this === "string"
             ? this
             : ("" + this);
-        return obj[ prop ];
+        return obj[prop];
     }
-    Promise.prototype.get = function Promise$get( propertyName ) {
+    Promise.prototype.get = function Promise$get(propertyName) {
         return this._then(
             Promise$getter,
             void 0,
@@ -49,6 +49,6 @@ module.exports = function( Promise ) {
             propertyName,
             void 0,
             this.get
-        );
+       );
     };
 };
