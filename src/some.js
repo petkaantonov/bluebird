@@ -5,7 +5,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     var ASSERT = require("./assert.js");
 
     function Promise$_Some(promises, howMany, useBound, caller) {
-        if((howMany | 0) !== howMany) {
+        if ((howMany | 0) !== howMany) {
             return apiRejection("howMany must be an integer");
         }
         var ret = Promise$_All(

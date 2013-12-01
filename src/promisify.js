@@ -33,7 +33,7 @@ var inheritedMethods = (function() {
             //only works if the property is exactly on the object
             while (cur !== null) {
                 var keys = es5.keys(cur);
-                for(var i = 0, len = keys.length; i < len; ++i) {
+                for (var i = 0, len = keys.length; i < len; ++i) {
                     var key = keys[i];
                     //For shadowing
                     if (visitedKeys[key] ||
@@ -82,12 +82,12 @@ Promise.prototype.error = function Promise$_error(fn) {
 function makeNodePromisifiedEval(callback, receiver, originalName) {
     function getCall(count) {
         var args = new Array(count);
-        for(var i = 0, len = args.length; i < len; ++i) {
+        for (var i = 0, len = args.length; i < len; ++i) {
             args[i] = "a" + (i+1);
         }
         var comma = count > 0 ? "," : "";
 
-        if(typeof callback === "string" &&
+        if (typeof callback === "string" &&
             receiver === THIS) {
             return "this['" + callback + "']("+args.join(",") +
                 comma +" fn);"+
@@ -104,7 +104,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
     function getArgs() {
         return "var args = new Array(len + 1);" +
         "var i = 0;" +
-        "for(var i = 0; i < len; ++i) { " +
+        "for (var i = 0; i < len; ++i) { " +
         "   args[i] = arguments[i];" +
         "}" +
         "args[i] = fn;";
@@ -151,8 +151,8 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
 function makeNodePromisifiedClosure(callback, receiver) {
     function promisified() {
         var _receiver = receiver;
-        if(receiver === THIS) _receiver = this;
-        if(typeof callback === "string") {
+        if (receiver === THIS) _receiver = this;
+        if (typeof callback === "string") {
             callback = _receiver[callback];
         }
         ASSERT(typeof callback === "function");
@@ -176,7 +176,7 @@ var makeNodePromisified = canEvaluate
 
 function f(){}
 function _promisify(callback, receiver, isAll) {
-    if(isAll) {
+    if (isAll) {
         var methods = inheritedMethods(callback);
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
@@ -199,15 +199,15 @@ function _promisify(callback, receiver, isAll) {
 }
 
 Promise.promisify = function Promise$Promisify(callback, receiver) {
-    if(typeof callback === "object" && callback !== null) {
+    if (typeof callback === "object" && callback !== null) {
         deprecated("Promise.promisify for promisifying entire objects " +
             "is deprecated. Use Promise.promisifyAll instead.");
         return _promisify(callback, receiver, true);
     }
-    if(typeof callback !== "function") {
+    if (typeof callback !== "function") {
         throw new TypeError("callback must be a function");
     }
-    if(isPromisified(callback)) {
+    if (isPromisified(callback)) {
         return callback;
     }
     return _promisify(
@@ -217,7 +217,7 @@ Promise.promisify = function Promise$Promisify(callback, receiver) {
 };
 
 Promise.promisifyAll = function Promise$PromisifyAll(target) {
-    if(typeof target !== "function" && typeof target !== "object") {
+    if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError("Cannot promisify " + typeof target);
     }
     return _promisify(target, void 0, true);

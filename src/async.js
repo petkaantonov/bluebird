@@ -61,7 +61,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
         var receiver = buffer.shift();
         var arg = buffer.shift();
         var res = tryCatch1(fn, receiver, arg);
-        if(res === errorObj) {
+        if (res === errorObj) {
             ASSERT(!this._isTickUsed);
             this._queueTick();
             throw res.e;
@@ -70,7 +70,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 };
 
 Async.prototype._queueTick = function Async$_queue() {
-    if(!this._isTickUsed) {
+    if (!this._isTickUsed) {
         schedule(this.consumeFunctionBuffer);
         this._isTickUsed = true;
     }

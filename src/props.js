@@ -13,7 +13,7 @@ module.exports = function(Promise, PromiseArray) {
         if (!isObject(castValue)) {
             return apiRejection(".props cannot be used on a primitive value");
         }
-        else if(Promise.is(castValue)) {
+        else if (Promise.is(castValue)) {
             ret = castValue._then(Promise.props, void 0, void 0,
                             void 0, void 0, caller);
         }
@@ -26,7 +26,7 @@ module.exports = function(Promise, PromiseArray) {
             //The constructor took care of it
             useBound = DONT_USE_BOUND;
         }
-        if(useBound === USE_BOUND) {
+        if (useBound === USE_BOUND) {
             ret._boundTo = castValue._boundTo;
         }
         return ret;

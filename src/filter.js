@@ -3,37 +3,37 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
-    function Promise$_filterer(fulfilleds) {
+    function Promise$_filterer(values) {
         var fn = this;
         var receiver = void 0;
-        if(typeof fn !== "function")  {
+        if (typeof fn !== "function")  {
             receiver = fn.receiver;
             fn = fn.fn;
         }
         ASSERT(typeof fn === "function");
-        var ret = new Array(fulfilleds.length);
+        var ret = new Array(values.length);
         var j = 0;
-        if(receiver === void 0) {
-             for(var i = 0, len = fulfilleds.length; i < len; ++i) {
-                var item = fulfilleds[i];
-                if(item === void 0 &&
-                    !(i in fulfilleds)) {
+        if (receiver === void 0) {
+             for (var i = 0, len = values.length; i < len; ++i) {
+                var value = values[i];
+                if (value === void 0 &&
+                    !(i in values)) {
                     continue;
                 }
-                if(fn(item, i, len)) {
-                    ret[j++] = item;
+                if (fn(value, i, len)) {
+                    ret[j++] = value;
                 }
             }
         }
         else {
-            for(var i = 0, len = fulfilleds.length; i < len; ++i) {
-                var item = fulfilleds[i];
-                if(item === void 0 &&
-                    !(i in fulfilleds)) {
+            for (var i = 0, len = values.length; i < len; ++i) {
+                var value = values[i];
+                if (value === void 0 &&
+                    !(i in values)) {
                     continue;
                 }
-                if(fn.call(receiver, item, i, len)) {
-                    ret[j++] = item;
+                if (fn.call(receiver, value, i, len)) {
+                    ret[j++] = value;
                 }
             }
         }
@@ -42,11 +42,11 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     }
 
     function Promise$_Filter(promises, fn, useBound, caller) {
-        if(typeof fn !== "function") {
+        if (typeof fn !== "function") {
             return apiRejection("fn is not a function");
         }
 
-        if(useBound === USE_BOUND) {
+        if (useBound === USE_BOUND) {
             fn = {
                 fn: fn,
                 receiver: promises._boundTo

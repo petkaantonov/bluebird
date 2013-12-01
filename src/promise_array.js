@@ -26,7 +26,7 @@ function PromiseArray(values, caller, boundTo) {
         d.promise._traceParent = values;
     }
     this._values = values;
-    if(boundTo !== void 0) {
+    if (boundTo !== void 0) {
         d.promise._setBoundTo(boundTo);
     }
     this._length = 0;
@@ -52,21 +52,21 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             //all of this is due to when vs some having different semantics on
             //empty arrays
     var values = this._values;
-    if(Promise.is(values)) {
+    if (Promise.is(values)) {
         //Expect the promise to be a promise
         //for an array
-        if(values.isFulfilled()) {
+        if (values.isFulfilled()) {
             //Fulfilled promise with hopefully
             //an array as a resolution value
             values = values._settledValue;
-            if(!isArray(values)) {
+            if (!isArray(values)) {
                 var err = new Promise.TypeError(COLLECTION_ERROR);
                 this.__hardReject__(err);
                 return;
             }
             this._values = values;
         }
-        else if(values.isPending()) {
+        else if (values.isPending()) {
             values._then(
                 this._init,
                 this._reject,
@@ -82,30 +82,30 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
     }
-    if(values.length === 0) {
+    if (values.length === 0) {
         this._resolve(toResolutionValue(resolveValueIfEmpty));
         return;
     }
     var len = values.length;
     var newLen = len;
     var newValues;
-    if(this instanceof PromiseArray.PropertiesPromiseArray) {
+    if (this instanceof PromiseArray.PropertiesPromiseArray) {
         newValues = this._values;
     }
     else {
         newValues = new Array(len);
     }
     var isDirectScanNeeded = false;
-    for(var i = 0; i < len; ++i) {
+    for (var i = 0; i < len; ++i) {
         var promise = values[i];
         //checking for undefined first (1 cycle instruction) in order not to
         //punish reasonable non-sparse arrays
-        if(promise === void 0 && !hasOwn.call(values, i)) {
+        if (promise === void 0 && !hasOwn.call(values, i)) {
             newLen--;
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if(maybePromise instanceof Promise &&
+        if (maybePromise instanceof Promise &&
             maybePromise.isPending()) {
             //Guaranteed to be called after the possible direct scan
             maybePromise._then(
@@ -130,8 +130,8 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         newValues[i] = maybePromise;
     }
     //Array full of holes
-    if(newLen === 0) {
-        if(resolveValueIfEmpty === RESOLVE_ARRAY) {
+    if (newLen === 0) {
+        if (resolveValueIfEmpty === RESOLVE_ARRAY) {
             this._resolve(newValues);
         }
         else {
@@ -141,7 +141,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     }
     this._values = newValues;
     this._length = newLen;
-    if(isDirectScanNeeded) {
+    if (isDirectScanNeeded) {
         var scanMethod = newLen === len
             ? this._scanDirectValues
             : this._scanDirectValuesHoled;
@@ -166,11 +166,11 @@ function PromiseArray$_settlePromiseAt(index) {
 PromiseArray.prototype._scanDirectValuesHoled =
 function PromiseArray$_scanDirectValuesHoled(len) {
     ASSERT(len > this.length());
-    for(var i = 0; i < len; ++i) {
-        if(this._isResolved()) {
+    for (var i = 0; i < len; ++i) {
+        if (this._isResolved()) {
             break;
         }
-        if(hasOwn.call(this._values, i)) {
+        if (hasOwn.call(this._values, i)) {
             this._settlePromiseAt(i);
         }
     }
@@ -179,8 +179,8 @@ function PromiseArray$_scanDirectValuesHoled(len) {
 PromiseArray.prototype._scanDirectValues =
 function PromiseArray$_scanDirectValues(len) {
     ASSERT(len >= this.length());
-    for(var i = 0; i < len; ++i) {
-        if(this._isResolved()) {
+    for (var i = 0; i < len; ++i) {
+        if (this._isResolved()) {
             break;
         }
         this._settlePromiseAt(i);
@@ -208,7 +208,7 @@ PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
 
 PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed(progressValue, index) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     ASSERT(isArray(this._values));
 
     this._resolver.progress({
@@ -219,19 +219,19 @@ function PromiseArray$_promiseProgressed(progressValue, index) {
 
 PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled(value, index) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     ASSERT(isArray(this._values));
     ASSERT(typeof index === "number");
     this._values[index] = value;
     var totalResolved = ++this._totalResolved;
-    if(totalResolved >= this._length) {
+    if (totalResolved >= this._length) {
         this._resolve(this._values);
     }
 };
 
 PromiseArray.prototype._promiseRejected =
 function PromiseArray$_promiseRejected(reason) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     ASSERT(isArray(this._values));
     this._totalResolved++;
     this._reject(reason);

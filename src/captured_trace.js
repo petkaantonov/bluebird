@@ -26,7 +26,7 @@ function formatNonError(obj) {
     else {
         str = obj.toString();
         var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
-        if(ruselessToString.test(str)) {
+        if (ruselessToString.test(str)) {
             try {
                 var newStr = JSON.stringify(obj);
                 str = newStr;
@@ -41,7 +41,7 @@ function formatNonError(obj) {
 
 function snip(str) {
     var maxChars = 41;
-    if(str.length < maxChars) {
+    if (str.length < maxChars) {
         return str;
     }
     return str.substr(0, maxChars - 3) + "...";
@@ -49,7 +49,7 @@ function snip(str) {
 
 function CapturedTrace(ignoreUntil, isTopLevel) {
     ASSERT(typeof ignoreUntil === "function");
-    if(!areNamesMangled) {
+    if (!areNamesMangled) {
         ASSERT(typeof ignoreUntil.name === "string");
         //Polyfills for V8's stacktrace API work on strings
         //instead of function identities so the function must have
@@ -68,7 +68,7 @@ function CapturedTrace$captureStackTrace(ignoreUntil, isTopLevel) {
 
 CapturedTrace.possiblyUnhandledRejection =
 function CapturedTrace$PossiblyUnhandledRejection(reason) {
-    if(typeof console === "object") {
+    if (typeof console === "object") {
         var message;
         if (typeof reason === "object" || typeof reason === "function") {
             var stack = reason.stack;
@@ -77,11 +77,11 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
         else {
             message = "Possibly unhandled " + String(reason);
         }
-        if(typeof console.error === "function" ||
+        if (typeof console.error === "function" ||
             typeof console.error === "object") {
             console.error(message);
         }
-        else if(typeof console.log === "function" ||
+        else if (typeof console.log === "function" ||
             typeof console.error === "object") {
             console.log(message);
         }
@@ -94,9 +94,9 @@ areNamesMangled = CapturedTrace.prototype.captureStackTrace.name !==
 CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     var curLast = current.length - 1;
     //Eliminate common roots
-    for(var i = prev.length - 1; i >= 0; --i) {
+    for (var i = prev.length - 1; i >= 0; --i) {
         var line = prev[i];
-        if(current[curLast] === line) {
+        if (current[curLast] === line) {
             current.pop();
             curLast--;
         }
@@ -113,9 +113,9 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
 
     //Eliminate library internal stuff and async callers
     //that nobody cares about
-    for(var i = 0, len = lines.length; i < len; ++i) {
+    for (var i = 0, len = lines.length; i < len; ++i) {
 
-        if((rignore.test(lines[i]) ||
+        if ((rignore.test(lines[i]) ||
             (i > 0 && !rtraceline.test(lines[i])) &&
             lines[i] !== FROM_PREVIOUS_EVENT)
        ) {
@@ -132,15 +132,15 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
 
 var captureStackTrace = (function stackDetection() {
     //V8
-    if(typeof Error.stackTraceLimit === "number" &&
+    if (typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function") {
         rtraceline = /^\s*at\s*/;
         formatStack = function(stack, error) {
             ASSERT(error !== null);
 
-            if(typeof stack === "string") return stack;
+            if (typeof stack === "string") return stack;
 
-            if(error.name !== void 0 &&
+            if (error.name !== void 0 &&
                 error.message !== void 0) {
                 return error.name + ". " + error.message;
             }
@@ -158,7 +158,7 @@ var captureStackTrace = (function stackDetection() {
 
     //SpiderMonkey
     //Relies on .name strings which must not be mangled
-    if(!areNamesMangled && typeof err.stack === "string" &&
+    if (!areNamesMangled && typeof err.stack === "string" &&
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
@@ -173,11 +173,11 @@ var captureStackTrace = (function stackDetection() {
         var rline = /[@\n]/;
 
         formatStack = function(stack, error) {
-            if(typeof stack === "string") {
+            if (typeof stack === "string") {
                 return (error.name + ". " + error.message + "\n" + stack);
             }
 
-            if(error.name !== void 0 &&
+            if (error.name !== void 0 &&
                 error.message !== void 0) {
                 return error.name + ". " + error.message;
             }
@@ -209,9 +209,9 @@ var captureStackTrace = (function stackDetection() {
     }
     else {
         formatStack = function(stack, error) {
-            if(typeof stack === "string") return stack;
+            if (typeof stack === "string") return stack;
 
-            if((typeof error === "object" ||
+            if ((typeof error === "object" ||
                 typeof error === "function") &&
                 error.name !== void 0 &&
                 error.message !== void 0) {

@@ -16,7 +16,7 @@ function SettledPromiseArray$_promiseResolved(index, inspection) {
     ASSERT(typeof index === "number");
     this._values[index] = inspection;
     var totalResolved = ++this._totalResolved;
-    if(totalResolved >= this._length) {
+    if (totalResolved >= this._length) {
         this._resolve(this._values);
     }
 };
@@ -24,7 +24,7 @@ function SettledPromiseArray$_promiseResolved(index, inspection) {
 //override
 SettledPromiseArray.prototype._promiseFulfilled =
 function SettledPromiseArray$_promiseFulfilled(value, index) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     ASSERT(typeof index === "number");
     var ret = new PromiseInspection();
     ret._bitField = IS_FULFILLED;
@@ -34,7 +34,7 @@ function SettledPromiseArray$_promiseFulfilled(value, index) {
 //override
 SettledPromiseArray.prototype._promiseRejected =
 function SettledPromiseArray$_promiseRejected(reason, index) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     ASSERT(typeof index === "number");
     var ret = new PromiseInspection();
     ret._bitField = IS_REJECTED;

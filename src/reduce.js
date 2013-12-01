@@ -6,7 +6,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     function Promise$_reducer(fulfilleds, initialValue) {
         var fn = this;
         var receiver = void 0;
-        if(typeof fn !== "function")  {
+        if (typeof fn !== "function")  {
             receiver = fn.receiver;
             fn = fn.fn;
         }
@@ -15,15 +15,15 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         var accum = void 0;
         var startIndex = 0;
 
-        if(initialValue !== void 0) {
+        if (initialValue !== void 0) {
             accum = initialValue;
             startIndex = 0;
         }
         else {
             startIndex = 1;
-            if(len > 0) {
-                for(var i = 0; i < len; ++i) {
-                    if(fulfilleds[i] === void 0 &&
+            if (len > 0) {
+                for (var i = 0; i < len; ++i) {
+                    if (fulfilleds[i] === void 0 &&
                         !(i in fulfilleds)) {
                         continue;
                     }
@@ -33,9 +33,9 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }
             }
         }
-        if(receiver === void 0) {
-            for(var i = startIndex; i < len; ++i) {
-                if(fulfilleds[i] === void 0 &&
+        if (receiver === void 0) {
+            for (var i = startIndex; i < len; ++i) {
+                if (fulfilleds[i] === void 0 &&
                     !(i in fulfilleds)) {
                     continue;
                 }
@@ -43,8 +43,8 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
         }
         else {
-            for(var i = startIndex; i < len; ++i) {
-                if(fulfilleds[i] === void 0 &&
+            for (var i = startIndex; i < len; ++i) {
+                if (fulfilleds[i] === void 0 &&
                     !(i in fulfilleds)) {
                     continue;
                 }
@@ -69,20 +69,20 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     }
 
     function Promise$_Reduce(promises, fn, initialValue, useBound, caller) {
-        if(typeof fn !== "function") {
+        if (typeof fn !== "function") {
             return apiRejection("fn is not a function");
         }
 
-        if(useBound === USE_BOUND) {
+        if (useBound === USE_BOUND) {
             fn = {
                 fn: fn,
                 receiver: promises._boundTo
             };
         }
 
-        if(initialValue !== void 0) {
-            if(Promise.is(initialValue)) {
-                if(initialValue.isFulfilled()) {
+        if (initialValue !== void 0) {
+            if (Promise.is(initialValue)) {
+                if (initialValue.isFulfilled()) {
                     initialValue = initialValue._settledValue;
                 }
                 else {

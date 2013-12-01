@@ -14,7 +14,7 @@ function isUntypedError(obj) {
 }
 
 function wrapAsRejectionError(obj) {
-    if(isUntypedError(obj)) {
+    if (isUntypedError(obj)) {
         return new RejectionError(obj);
     }
     return obj;
@@ -22,11 +22,11 @@ function wrapAsRejectionError(obj) {
 
 function nodebackForResolver(resolver) {
     function PromiseResolver$_callback(err, value) {
-        if(err) {
+        if (err) {
             resolver.reject(wrapAsRejectionError(maybeWrapAsError(err)));
         }
         else {
-            if(arguments.length > 2) {
+            if (arguments.length > 2) {
                 INLINE_SLICE(args, arguments, 1);
                 resolver.fulfill(args);
             }
@@ -49,7 +49,7 @@ function nodebackForResolver(resolver) {
  * @constructor
  */
 var PromiseResolver;
-if(!haveGetters) {
+if (!haveGetters) {
     PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
         this.asCallback = nodebackForResolver(this);
@@ -61,7 +61,7 @@ else {
         this.promise = promise;
     };
 }
-if(haveGetters) {
+if (haveGetters) {
     var prop = {
         get: function() {
             return nodebackForResolver(this);

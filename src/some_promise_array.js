@@ -21,9 +21,9 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
         ? this._values.length - this.length()
         : 0;
 
-    if(!this._isResolved() && isArrayResolved) {
+    if (!this._isResolved() && isArrayResolved) {
         this._howMany = Math.max(0, Math.min(this._howMany, this.length()));
-        if(this.howMany() > this._canPossiblyFulfill() ) {
+        if (this.howMany() > this._canPossiblyFulfill() ) {
             this._reject([]);
         }
     }
@@ -39,7 +39,7 @@ SomePromiseArray.prototype.howMany = function SomePromiseArray$howMany() {
 
 SomePromiseArray.prototype.setHowMany =
 function SomePromiseArray$setHowMany(count) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     this._howMany = count;
 };
 
@@ -62,10 +62,10 @@ function SomePromiseArray$_promiseFulfilled(value) {
 //override
 SomePromiseArray.prototype._promiseRejected =
 function SomePromiseArray$_promiseRejected(reason) {
-    if(this._isResolved()) return;
+    if (this._isResolved()) return;
     this._addRejected(reason);
-    if(this.howMany() > this._canPossiblyFulfill()) {
-        if(this._values.length === this.length()) {
+    if (this.howMany() > this._canPossiblyFulfill()) {
+        if (this._values.length === this.length()) {
             this._reject([]);
         }
         else {

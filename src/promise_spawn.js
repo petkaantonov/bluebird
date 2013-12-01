@@ -27,21 +27,21 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
 };
 
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
-    if(result === errorObj) {
+    if (result === errorObj) {
         this._generator = void 0;
         this._resolver.reject(result.e);
         return;
     }
 
     var value = result.value;
-    if(result.done === true) {
+    if (result.done === true) {
         this._generator = void 0;
         this._resolver.fulfill(value);
     }
     else {
         var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
-        if(!(maybePromise instanceof Promise)) {
-            if(isArray(maybePromise)) {
+        if (!(maybePromise instanceof Promise)) {
+            if (isArray(maybePromise)) {
                 maybePromise = Promise.all(maybePromise);
             }
             else {

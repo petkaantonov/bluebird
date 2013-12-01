@@ -5,7 +5,7 @@ module.exports = function(Promise, INTERNAL) {
     var CancellationError = errors.CancellationError;
 
     Promise.prototype.cancel = function Promise$cancel() {
-        if(!this.isCancellable()) return this;
+        if (!this.isCancellable()) return this;
         var cancelTarget = this;
         //Propagate to the last parent that is still pending
         //Resolved promises always have ._cancellationParent === void 0
@@ -13,7 +13,7 @@ module.exports = function(Promise, INTERNAL) {
             cancelTarget = cancelTarget._cancellationParent;
         }
         //The propagated parent or original and had no parents
-        if(cancelTarget === this) {
+        if (cancelTarget === this) {
             var err = new CancellationError();
             this._attachExtraTrace(err);
             this._reject(err);

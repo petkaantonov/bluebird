@@ -8,7 +8,7 @@ var TypeError = require("./errors.js").TypeError;
 //whereas calls to short functions don't have any penalty and are just
 //easier to use than properties (error on mistyping for example).
 function PromiseInspection(promise) {
-    if(promise !== void 0) {
+    if (promise !== void 0) {
         this._bitField = promise._bitField;
         this._settledValue = promise.isResolved()
             ? promise._settledValue
@@ -62,7 +62,7 @@ PromiseInspection.prototype.isPending = function PromiseInspection$isPending() {
  * @throws {TypeError}
  */
 PromiseInspection.prototype.value = function PromiseInspection$value() {
-    if(!this.isFulfilled()) {
+    if (!this.isFulfilled()) {
         throw new TypeError(
             "cannot get fulfillment value of a non-fulfilled promise");
     }
@@ -78,7 +78,7 @@ PromiseInspection.prototype.value = function PromiseInspection$value() {
  * @throws {TypeError}
  */
 PromiseInspection.prototype.error = function PromiseInspection$error() {
-    if(!this.isRejected()) {
+    if (!this.isRejected()) {
         throw new TypeError(
             "cannot get rejection reason of a non-rejected promise");
     }

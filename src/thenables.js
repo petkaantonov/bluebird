@@ -19,8 +19,8 @@ module.exports = function(Promise) {
 
     function Promise$_Cast(obj, caller, originalPromise) {
         ASSERT(arguments.length === 3);
-        if(isObject(obj)) {
-            if(obj instanceof Promise) {
+        if (isObject(obj)) {
+            if (obj instanceof Promise) {
                 return obj;
             }
             var then = getThen(obj);
@@ -58,7 +58,7 @@ module.exports = function(Promise) {
         return resolver.promise;
 
         function Promise$_resolveFromThenable(y) {
-            if(called) return;
+            if (called) return;
             called = true;
 
             if (x === y) {
@@ -73,7 +73,7 @@ module.exports = function(Promise) {
         }
 
         function Promise$_rejectFromThenable(r) {
-            if(called) return;
+            if (called) return;
             called = true;
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);

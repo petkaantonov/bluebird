@@ -2,7 +2,7 @@
 var ASSERT = require("./assert.js");
 //http://jsperf.com/deque-vs-array-2
 function arrayCopy(src, srcIndex, dst, dstIndex, len) {
-    for(var j = 0; j < len; ++j) {
+    for (var j = 0; j < len; ++j) {
         dst[j + dstIndex] = src[j + srcIndex];
     }
 }
@@ -19,7 +19,7 @@ function pow2AtLeast(n) {
 }
 
 function getCapacity(capacity) {
-    if(typeof capacity !== "number") return QUEUE_MIN_CAPACITY;
+    if (typeof capacity !== "number") return QUEUE_MIN_CAPACITY;
     return pow2AtLeast(
         Math.min(
             Math.max(QUEUE_MIN_CAPACITY, capacity), QUEUE_MAX_CAPACITY)
@@ -50,7 +50,7 @@ Queue.prototype.push = function Queue$push(fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     ASSERT(typeof fn === "function");
     var length = this.length() + 3;
-    if(this._willBeOverCapacity(length)) {
+    if (this._willBeOverCapacity(length)) {
         //The fast array copies expect the
         //underlying array to be filled completely
         this._pushOne(fn);
@@ -84,13 +84,13 @@ Queue.prototype.length = function Queue$length() {
 
 Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
     var len = this._capacity;
-    for(var i = 0; i < len; ++i) {
+    for (var i = 0; i < len; ++i) {
         this[i] = void 0;
     }
 };
 
 Queue.prototype._checkCapacity = function Queue$_checkCapacity(size) {
-    if(this._capacity < size) {
+    if (this._capacity < size) {
         this._resizeTo(this._capacity << 3);
     }
 };
@@ -106,7 +106,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
     this._makeCapacity();
     this._front = 0;
     //Can perform direct linear copy
-    if(oldFront + length <= oldCapacity) {
+    if (oldFront + length <= oldCapacity) {
         arrayCopy(oldQueue, oldFront, this, 0, length);
     }
     else {//Cannot perform copy directly, perform as much as possible

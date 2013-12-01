@@ -17,12 +17,12 @@ var thrower = function Promise$_thrower() {
 };
 
 var wrapper = function Promise$_wrapper(value, action) {
-    if(action === THROW) {
+    if (action === THROW) {
         return function Promise$_thrower() {
             throw value;
         };
     }
-    else if(action === RETURN) {
+    else if (action === RETURN) {
         return function Promise$_returner() {
             return value;
         };
@@ -34,7 +34,7 @@ var wrapper = function Promise$_wrapper(value, action) {
 Promise.prototype["return"] =
 Promise.prototype.thenReturn =
 function Promise$thenReturn(value) {
-    if(wrapsPrimitiveReceiver && isPrimitive(value)) {
+    if (wrapsPrimitiveReceiver && isPrimitive(value)) {
         return this._then(
             wrapper(value, RETURN),
             void 0,
@@ -51,7 +51,7 @@ function Promise$thenReturn(value) {
 Promise.prototype["throw"] =
 Promise.prototype.thenThrow =
 function Promise$thenThrow(reason) {
-    if(wrapsPrimitiveReceiver && isPrimitive(reason)) {
+    if (wrapsPrimitiveReceiver && isPrimitive(reason)) {
         return this._then(
             wrapper(reason, THROW),
             void 0,

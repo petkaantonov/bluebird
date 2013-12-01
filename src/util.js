@@ -12,7 +12,7 @@ var haveGetters = (function(){
         });
         return o.f === 3;
     }
-    catch(e) {
+    catch (e) {
         return false;
     }
 
@@ -26,15 +26,15 @@ var ensurePropertyExpansion = function(obj, prop, value) {
         notEnumerableProp(obj, prop, value);
         return obj;
     }
-    catch(e) {
+    catch (e) {
         var ret = {};
         var keys = es5.keys(obj);
-        for(var i = 0, len = keys.length; i < len; ++i) {
+        for (var i = 0, len = keys.length; i < len; ++i) {
             try {
                 var key = keys[i];
                 ret[key] = obj[key];
             }
-            catch(err) {
+            catch (err) {
                 ret[key] = err;
             }
         }
@@ -50,7 +50,7 @@ var canEvaluate = (function() {
     //So assume CSP if environment is browser. This is reasonable
     //because promise throughput doesn't matter in browser and
     //promisifcation is mostly interesting to node.js anyway
-    if(typeof window !== "undefined" && window !== null &&
+    if (typeof window !== "undefined" && window !== null &&
         typeof window.document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string" &&
@@ -61,7 +61,7 @@ var canEvaluate = (function() {
 })();
 
 function deprecated(msg) {
-    if(typeof console !== "undefined" && console !== null &&
+    if (typeof console !== "undefined" && console !== null &&
         typeof console.warn === "function") {
         console.warn("Bluebird: " + msg);
     }
@@ -75,7 +75,7 @@ function tryCatch1(fn, receiver, arg) {
     try {
         return fn.call(receiver, arg);
     }
-    catch(e) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
@@ -86,7 +86,7 @@ function tryCatch2(fn, receiver, arg, arg2) {
     try {
         return fn.call(receiver, arg, arg2);
     }
-    catch(e) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
@@ -97,7 +97,7 @@ function tryCatchApply(fn, args, receiver) {
     try {
         return fn.apply(receiver, args);
     }
-    catch(e) {
+    catch (e) {
         errorObj.e = e;
         return errorObj;
     }
@@ -139,7 +139,7 @@ function isObject(value) {
 }
 
 function maybeWrapAsError(maybeError) {
-    if(!isPrimitive(maybeError)) return maybeError;
+    if (!isPrimitive(maybeError)) return maybeError;
 
     return new Error(asString(maybeError));
 }
@@ -148,7 +148,7 @@ function withAppended(target, appendee) {
     var len = target.length;
     var ret = new Array(len + 1);
     var i;
-    for(i = 0; i < len; ++i) {
+    for (i = 0; i < len; ++i) {
         ret[i] = target[i];
     }
     ret[i] = appendee;

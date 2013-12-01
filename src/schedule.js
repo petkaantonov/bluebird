@@ -2,12 +2,12 @@
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var schedule;
-if(typeof process !== "undefined" && process !== null &&
+if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
     typeof process.nextTick === "function") {
     schedule = process.nextTick;
 }
-else if((typeof MutationObserver === "function" ||
+else if ((typeof MutationObserver === "function" ||
         typeof WebkitMutationObserver === "function" ||
         typeof WebKitMutationObserver === "function") &&
         typeof document !== "undefined" &&
@@ -53,7 +53,7 @@ else if (typeof global.postMessage === "function" &&
         var queuedFn = void 0;
 
         function Promise$_Scheduler(e) {
-            if(e.source === global &&
+            if (e.source === global &&
                 e.data === MESSAGE_KEY) {
                 ASSERT(queuedFn !== void 0);
                 var fn = queuedFn;
@@ -74,7 +74,7 @@ else if (typeof global.postMessage === "function" &&
 
     })();
 }
-else if(typeof MessageChannel === "function") {
+else if (typeof MessageChannel === "function") {
     schedule = (function(){
         var queuedFn = void 0;
 
@@ -93,7 +93,7 @@ else if(typeof MessageChannel === "function") {
         };
     })();
 }
-else if(global.setTimeout) {
+else if (global.setTimeout) {
     schedule = function Promise$_Scheduler(fn) {
         setTimeout(fn, 4);
     };

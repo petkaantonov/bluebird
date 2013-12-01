@@ -29,7 +29,7 @@ function withHandledUnmarked(val) {
 
 function ensureNotHandled(reason) {
     var field;
-    if(isObject(reason) &&
+    if (isObject(reason) &&
         ((field = reason[ERROR_HANDLED_KEY]) !== void 0)) {
         reason[ERROR_HANDLED_KEY] = withHandledUnmarked(field);
     }
@@ -50,9 +50,9 @@ function isError(obj) {
 }
 
 function canAttach(obj) {
-    if(isError(obj)) {
+    if (isError(obj)) {
         var handledState = obj[ERROR_HANDLED_KEY];
-        if(handledState === void 0) {
+        if (handledState === void 0) {
             return attachDefaultState(obj);
         }
         return !isStackAttached(handledState);
@@ -64,7 +64,7 @@ function subError(nameProperty, defaultMessage) {
     function SubError(message) {
         this.message = typeof message === "string" ? message : defaultMessage;
         this.name = nameProperty;
-        if(Error.captureStackTrace) {
+        if (Error.captureStackTrace) {
             Error.captureStackTrace(this, this.constructor);
         }
     }
@@ -73,7 +73,7 @@ function subError(nameProperty, defaultMessage) {
 }
 
 var TypeError = global.TypeError;
-if(typeof TypeError !== "function") {
+if (typeof TypeError !== "function") {
     TypeError = subError("TypeError", "type error");
 }
 var CancellationError = subError("CancellationError", "cancellation error");
@@ -84,11 +84,11 @@ function RejectionError(message) {
     this.message = message;
     this.cause = message;
 
-    if(message instanceof Error) {
+    if (message instanceof Error) {
         this.message = message.message;
         this.stack = message.stack;
     }
-    else if(Error.captureStackTrace) {
+    else if (Error.captureStackTrace) {
         Error.captureStackTrace(this, this.constructor);
     }
 
@@ -98,7 +98,7 @@ inherits(RejectionError, Error);
 //Ensure all copies of the library throw the same error types
 var key = "__BluebirdErrorTypes__";
 var errorTypes = global[key];
-if(!errorTypes) {
+if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
         TimeoutError: TimeoutError,

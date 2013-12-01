@@ -15,7 +15,7 @@ module.exports = function(Promise) {
         var nodeback = this;
         ASSERT(typeof nodeback == "function");
         var ret = tryCatch2(nodeback, receiver, null, val);
-        if(ret === errorObj) {
+        if (ret === errorObj) {
             async.invokeLater(thrower, void 0, ret.e);
         }
     }
@@ -23,13 +23,13 @@ module.exports = function(Promise) {
         var nodeback = this;
         ASSERT(typeof nodeback == "function");
         var ret = tryCatch1(nodeback, receiver, reason);
-        if(ret === errorObj) {
+        if (ret === errorObj) {
             async.invokeLater(thrower, void 0, ret.e);
         }
     }
 
     Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
-        if(typeof nodeback == "function") {
+        if (typeof nodeback == "function") {
             this._then(
                 Promise$_successAdapter,
                 Promise$_errorAdapter,
