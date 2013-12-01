@@ -15,13 +15,16 @@ describe("If promise is reused to get at the value many times over the course of
 
     specify("It will not keep references to anything", function(done){
         var fn = function(){};
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
+        var l = 256;
+        while(l--) {
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+        }
 
-        three.then(function(){
+        setTimeout(function(){
             for( var i = 0; i < three._length() - 5; ++i) {
                 assert( three[i] === void 0 );
             }
@@ -31,16 +34,21 @@ describe("If promise is reused to get at the value many times over the course of
             assert( three._progressHandler0 === void 0 );
             assert( three._receiver0 === void 0 );
             done();
-        });
+        }, 13);
     });
 
     specify("It will be able to reuse the space", function(done) {
         var fn = function(){};
         var prom = three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
+
+        var l = 256;
+        while(l--) {
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+        }
+
 
         assert( three._promise0 === prom );
         assert( three._fulfillmentHandler0 === fn );

@@ -470,7 +470,6 @@ function Promise$_then(
         ret._traceParent = haveSameContext ? this._traceParent : this;
         ret._setTrace(typeof caller === "function" ?
             caller : this._then, this);
-
     }
 
     if (!haveInternalData) {
@@ -632,6 +631,11 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     progress = typeof progress === "function" ? progress : void 0;
     var index = this._length();
 
+    if (index >= MAX_LENGTH - CALLBACK_SIZE) {
+        index = 0;
+        this._setLength(0);
+    }
+
     if (index === 0) {
         this._fulfillmentHandler0 = fulfill;
         this._rejectionHandler0  = reject;
@@ -785,6 +789,7 @@ function Promise$_follow(promise, mustAsync) {
     ASSERT(this._isFollowingOrFulfilledOrRejected() === false);
     ASSERT(promise !== this);
     this._setFollowing();
+
     if (promise.isPending()) {
         if (promise._cancellable() ) {
             this._cancellationParent = promise;
@@ -942,7 +947,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
     var promise = this._promiseAt(index);
-    this._unsetAt(index);
+
     if (typeof handler === "function") {
         this._settlePromiseFromHandler(handler, receiver, value, promise);
     }
@@ -952,13 +957,48 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
     else {
         promise._reject(value);
     }
+
+    //this is only necessary against index inflation with long lived promises
+    //that accumulate the index size over time,
+    //not because the data wouldn't be GCd otherwise
+    if (index >= 256) {
+        this._queueGC();
+    }
+};
+
+Promise.prototype._isGcQueued = function Promise$_isGcQueued() {
+    return (this._bitField & IS_GC_QUEUED) === IS_GC_QUEUED;
+};
+
+Promise.prototype._setGcQueued = function Promise$_setGcQueued() {
+    this._bitField = this._bitField | IS_GC_QUEUED;
+};
+
+Promise.prototype._unsetGcQueued = function Promise$_unsetGcQueued() {
+    this._bitField = this._bitField & (~IS_GC_QUEUED);
+};
+
+Promise.prototype._queueGC = function Promise$_queueGC() {
+    if (this._isGcQueued()) return;
+    this._setGcQueued();
+    async.invokeLater(this._gc, this, void 0);
+};
+
+Promise.prototype._gc = function Promise$gc() {
+    var len = this._length() - CALLBACK_SIZE;
+    this._unsetAt(0);
+    for (var i = 0; i < len; i++) {
+        //Delete is cool on array indexes
+        delete this[i];
+    }
+    this._setLength(0);
+    this._unsetGcQueued();
 };
 
 Promise.prototype._queueSettleAt = function Promise$_queueSettleAt(index) {
     ASSERT(typeof index === "number");
     ASSERT(index >= 0);
     ASSERT(this.isFulfilled() || this.isRejected());
-    this._setLength(0);
     async.invoke(this._settlePromiseAt, this, index);
 };
 
@@ -974,17 +1014,9 @@ function Promise$_fulfillUnchecked(value) {
     this._setFulfilled();
     this._settledValue = value;
     var len = this._length();
-    this._setLength(0);
+
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
-        if (this._fulfillmentHandlerAt(i) !== void 0) {
-            ASSERT(typeof this._fulfillmentHandlerAt(i) === "function");
-            async.invoke(this._settlePromiseAt, this, i);
-        }
-        else {
-            var promise = this._promiseAt(i);
-            this._unsetAt(i);
-            async.invoke(promise._fulfill, promise, value);
-        }
+        async.invoke(this._settlePromiseAt, this, i);
     }
 
 };
@@ -1008,21 +1040,14 @@ function Promise$_rejectUnchecked(reason) {
         return;
     }
     var len = this._length();
-    this._setLength(0);
     var rejectionWasHandled = false;
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
         var handler = this._rejectionHandlerAt(i);
-        if (handler !== void 0) {
-            rejectionWasHandled = true;
-            async.invoke(this._settlePromiseAt, this, i);
+        if (!rejectionWasHandled) {
+            rejectionWasHandled = handler !== void 0 ||
+                                this._promiseAt(i)._length() > 0;
         }
-        else {
-            var promise = this._promiseAt(i);
-            this._unsetAt(i);
-            if (!rejectionWasHandled)
-                rejectionWasHandled = promise._length() > 0;
-            async.invoke(promise._reject, promise, reason);
-        }
+        async.invoke(this._settlePromiseAt, this, i);
     }
 
     if (!rejectionWasHandled &&

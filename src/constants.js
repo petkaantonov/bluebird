@@ -22,7 +22,8 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for .bitField
-//RRWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
+//QQWF NCTR LLLL LLLL LLLL LLLL LLLL LLLL
+//Q = isGcQueued
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
@@ -31,6 +32,7 @@ CONSTANT(CALLBACK_SIZE, 5);
 
 //R = [Reserved]
 //L = Length, 24 bit unsigned
+CONSTANT(IS_GC_QUEUED, 0xC0000000|0)
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
 CONSTANT(IS_FULFILLED, 0x10000000|0);
 CONSTANT(IS_REJECTED, 0x8000000|0);

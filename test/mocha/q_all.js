@@ -98,10 +98,10 @@ describe("all", function () {
         });
 
         return Q.delay(250)
-        .then(function () {
-            assert.equal(promise.isRejected(), true);
-        })
-        .timeout(1000);
+            .then(function () {
+                assert.equal(promise.isRejected(), true);
+            })
+            .timeout(1000);
 
 
     });
