@@ -1,3 +1,65 @@
+## 0.11.0-0 (2013-12-02)
+
+Features:
+
+ - Improve overall performance when not using `.bind()` or cancellation.
+ - Promises are now not cancellable by default. This is backwards incompatible change - see [`.cancellable()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellable---promise)
+ - [`Promise.delay`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisedelaydynamic-value-int-ms---promise)
+ - [`.delay()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#delayint-ms---promise)
+ - [`.timeout()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#timeoutint-ms--string-message---promise)
+
+## 0.10.14-0 (2013-12-01)
+
+Bugfixes:
+
+ - Fix race condition when mixing 3rd party asynchrony.
+
+## 0.10.13-1 (2013-11-30)
+
+## 0.10.13-0 (2013-11-30)
+
+Bugfixes:
+
+ - Fix another bug with progression.
+
+## 0.10.12-0 (2013-11-30)
+
+Bugfixes:
+
+ - Fix bug with progression.
+
+## 0.10.11-4 (2013-11-29)
+
+## 0.10.11-2 (2013-11-29)
+
+Bugfixes:
+
+ - Fix `.race()` not propagating bound values.
+
+## 0.10.11-1 (2013-11-29)
+
+Features:
+
+ - Improve performance of `Promise.race`
+
+## 0.10.11-0 (2013-11-29)
+
+Bugfixes:
+
+ - Fixed `Promise.promisifyAll` invoking property accessors. Only data properties with function values are considered.
+
+## 0.10.10-0 (2013-11-28)
+
+Features:
+
+ - Disable long stack traces in browsers by default. Call `Promise.longStackTraces()` to enable them.
+
+## 0.10.9-1 (2013-11-27)
+
+Bugfixes:
+
+ - Fail early when `new Promise` is constructed incorrectly
+
 ## 0.10.9-0 (2013-11-27)
 
 Bugfixes:
