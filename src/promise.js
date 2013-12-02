@@ -532,9 +532,6 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     promise,
     receiver
 ) {
-    fulfill = typeof fulfill === "function" ? fulfill : void 0;
-    reject = typeof reject === "function" ? reject : void 0;
-    progress = typeof progress === "function" ? progress : void 0;
     var index = this._length();
 
     if (index >= MAX_LENGTH - CALLBACK_SIZE) {
@@ -544,19 +541,22 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
 
     if (index === 0) {
         this._promise0 = promise;
-        this._receiver0 = receiver;
-        this._fulfillmentHandler0 = fulfill;
-        this._rejectionHandler0  = reject;
-        this._progressHandler0 = progress;
-        this._setLength(index + CALLBACK_SIZE);
-        return index;
+        if (receiver !== void 0) this._receiver0 = receiver;
+        if (typeof fulfill === "function") this._fulfillmentHandler0 = fulfill;
+        if (typeof reject === "function") this._rejectionHandler0 = reject;
+        if (typeof progress === "function") this._progressHandler0 = progress;
     }
-
-    this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] = fulfill;
-    this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] = reject;
-    this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] = progress;
-    this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] = promise;
-    this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = receiver;
+    else {
+        var i = index - CALLBACK_SIZE;
+        this[i + CALLBACK_PROMISE_OFFSET] = promise;
+        this[i + CALLBACK_RECEIVER_OFFSET] = receiver;
+        this[i + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
+                                            ? fulfill : void 0;
+        this[i + CALLBACK_REJECT_OFFSET] = typeof reject === "function"
+                                            ? reject : void 0;
+        this[i + CALLBACK_PROGRESS_OFFSET] = typeof progress === "function"
+                                            ? progress : void 0;
+    }
     this._setLength(index + CALLBACK_SIZE);
     return index;
 };
