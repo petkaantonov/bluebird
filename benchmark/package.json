@@ -5,7 +5,6 @@
   "main": "perf.js",
   "dependencies": {
     "async": "~0.2.9",
-    "bluebird": "~0.10.0-1",
     "deferred": "~0.6.6",
     "kew": "~0.3.0",
     "liar": "~0.3.0",
