@@ -179,8 +179,17 @@ function notEnumerableProp(obj, name, value) {
 }
 
 
+var wrapsPrimitiveReceiver = (function() {
+    return this !== "string";
+}).call("string");
+
+function thrower(r) {
+    throw r;
+}
+
 
 var ret = {
+    thrower: thrower,
     isArray: es5.isArray,
     haveGetters: haveGetters,
     notEnumerableProp: notEnumerableProp,
@@ -196,7 +205,8 @@ var ret = {
     inherits: inherits,
     withAppended: withAppended,
     asString: asString,
-    maybeWrapAsError: maybeWrapAsError
+    maybeWrapAsError: maybeWrapAsError,
+    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver
 };
 
 module.exports = ret;
