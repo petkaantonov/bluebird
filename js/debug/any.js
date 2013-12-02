@@ -42,6 +42,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray) {
     "ret instanceof SomePromiseArray");
         ret.setHowMany(1);
         ret.setUnwrap();
+        ret.init();
         return promise;
     }
 

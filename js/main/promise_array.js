@@ -94,6 +94,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
     }
+
     if (values.length === 0) {
         this._resolve(toResolutionValue(resolveValueIfEmpty));
         return;

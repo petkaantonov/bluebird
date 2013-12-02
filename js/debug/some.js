@@ -26,8 +26,8 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     var ASSERT = require("./assert.js");
 
     function Promise$_Some(promises, howMany, useBound, caller) {
-        if ((howMany | 0) !== howMany) {
-            return apiRejection("howMany must be an integer");
+        if ((howMany | 0) !== howMany || howMany < 0) {
+            return apiRejection("howMany must be a positive integer");
         }
         var ret = Promise$_All(
             promises,
@@ -44,6 +44,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         ASSERT((ret instanceof SomePromiseArray),
     "ret instanceof SomePromiseArray");
         ret.setHowMany(howMany);
+        ret.init();
         return promise;
     }
 

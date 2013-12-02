@@ -157,8 +157,9 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "}" +
         "}" +
         "catch(e){ " +
-        "" +
-        "promise._reject(maybeWrapAsError(e));" +
+        "var wrapped = maybeWrapAsError(e);" +
+        "promise._attachExtraTrace(wrapped);" +
+        "promise._reject(wrapped);" +
         "}" +
         "return promise;" +
         "" +
@@ -183,7 +184,9 @@ function makeNodePromisifiedClosure(callback, receiver) {
             callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            promise._reject(maybeWrapAsError(e));
+            var wrapped = maybeWrapAsError(e);
+            promise._attachExtraTrace(wrapped);
+            promise._reject(wrapped);
         }
         return promise;
     }

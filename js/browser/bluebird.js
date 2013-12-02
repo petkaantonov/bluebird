@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.11.3-0
+ * bluebird build version 0.11.4-0
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -87,6 +87,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray) {
         }
         ret.setHowMany(1);
         ret.setUnwrap();
+        ret.init();
         return promise;
     }
 
@@ -466,6 +467,9 @@ function formatNonError(obj) {
             catch(e) {
 
             }
+        }
+        if (str.length === 0) {
+            str = "(empty array)";
         }
     }
     return ("(<" + snip(str) + ">, no stack trace)");
@@ -2836,6 +2840,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
     }
+
     if (values.length === 0) {
         this._resolve(toResolutionValue(resolveValueIfEmpty));
         return;
@@ -3439,8 +3444,9 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "}" +
         "}" +
         "catch(e){ " +
-        "" +
-        "promise._reject(maybeWrapAsError(e));" +
+        "var wrapped = maybeWrapAsError(e);" +
+        "promise._attachExtraTrace(wrapped);" +
+        "promise._reject(wrapped);" +
         "}" +
         "return promise;" +
         "" +
@@ -3463,7 +3469,9 @@ function makeNodePromisifiedClosure(callback, receiver) {
             callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            promise._reject(maybeWrapAsError(e));
+            var wrapped = maybeWrapAsError(e);
+            promise._attachExtraTrace(wrapped);
+            promise._reject(wrapped);
         }
         return promise;
     }
@@ -4298,8 +4306,8 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
     var ASSERT = require("./assert.js");
 
     function Promise$_Some(promises, howMany, useBound, caller) {
-        if ((howMany | 0) !== howMany) {
-            return apiRejection("howMany must be an integer");
+        if ((howMany | 0) !== howMany || howMany < 0) {
+            return apiRejection("howMany must be a positive integer");
         }
         var ret = Promise$_All(
             promises,
@@ -4314,6 +4322,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             return promise;
         }
         ret.setHowMany(howMany);
+        ret.init();
         return promise;
     }
 
@@ -4359,22 +4368,32 @@ function SomePromiseArray(values, caller, boundTo) {
     this.constructor$(values, caller, boundTo);
     this._howMany = 0;
     this._unwrap = false;
+    this._initialized = false;
 }
 inherits(SomePromiseArray, PromiseArray);
 
 SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
+    if (!this._initialized) {
+        return;
+    }
+    if (this._howMany === 0) {
+        this._resolve([]);
+        return;
+    }
     this._init$(void 0, 1);
     var isArrayResolved = isArray(this._values);
-    this._holes = isArrayResolved
-        ? this._values.length - this.length()
-        : 0;
+    this._holes = isArrayResolved ? this._values.length - this.length() : 0;
 
-    if (!this._isResolved() && isArrayResolved) {
-        this._howMany = Math.max(0, Math.min(this._howMany, this.length()));
-        if (this.howMany() > this._canPossiblyFulfill() ) {
-            this._reject([]);
-        }
+    if (!this._isResolved() &&
+        isArrayResolved &&
+        this._howMany > this._canPossiblyFulfill()) {
+        this._reject([]);
     }
+};
+
+SomePromiseArray.prototype.init = function SomePromiseArray$init() {
+    this._initialized = true;
+    this._init();
 };
 
 SomePromiseArray.prototype.setUnwrap = function SomePromiseArray$setUnwrap() {
