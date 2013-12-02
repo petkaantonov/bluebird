@@ -192,7 +192,6 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
 PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
     this._values = null;
     this._promise._fulfill(value);
-    this._promise = null;
 };
 
 PromiseArray.prototype.__hardReject__ =

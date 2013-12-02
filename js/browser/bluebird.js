@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.11.2-0
+ * bluebird build version 0.11.3-0
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -1320,8 +1320,8 @@ module.exports = function(Promise, NEXT_FILTER) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, apiRejection) {
-    var PromiseSpawn = require("./promise_spawn.js")(Promise);
+module.exports = function(Promise, apiRejection, INTERNAL) {
+    var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
     var errors = require("./errors.js");
     var TypeError = errors.TypeError;
 
@@ -2723,7 +2723,7 @@ require('./any.js')(Promise,Promise$_All,PromiseArray);
 require('./race.js')(Promise,INTERNAL);
 require('./call_get.js')(Promise);
 require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
-require('./generators.js')(Promise,apiRejection);
+require('./generators.js')(Promise,apiRejection,INTERNAL);
 require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
 require('./promisify.js')(Promise,INTERNAL);
@@ -2934,7 +2934,6 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
 PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
     this._values = null;
     this._promise._fulfill(value);
-    this._promise = null;
 };
 
 PromiseArray.prototype.__hardReject__ =
@@ -3198,7 +3197,7 @@ module.exports = PromiseResolver;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
 var ensureNotHandled = errors.ensureNotHandled;
@@ -3208,14 +3207,15 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 
 function PromiseSpawn(generatorFunction, receiver, caller) {
-    this._resolver = Promise.pending(caller);
+    var promise = this._promise = new Promise(INTERNAL);
+    promise._setTrace(caller, void 0);
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
     this._generator = void 0;
 }
 
 PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
-    return this._resolver.promise;
+    return this._promise;
 };
 
 PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
@@ -3228,14 +3228,15 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     if (result === errorObj) {
         this._generator = void 0;
-        this._resolver.reject(result.e);
+        this._promise._attachExtraTrace(result.e);
+        this._promise._reject(result.e);
         return;
     }
 
     var value = result.value;
     if (result.done === true) {
         this._generator = void 0;
-        this._resolver.fulfill(value);
+        this._promise._fulfill(value);
     }
     else {
         var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
@@ -3263,7 +3264,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
 
 PromiseSpawn.prototype._throw = function PromiseSpawn$_throw(reason) {
     ensureNotHandled(reason);
-    this.promise()._attachExtraTrace(reason);
+    this._promise._attachExtraTrace(reason);
     this._continue(
         tryCatch1(this._generator["throw"], this._generator, reason)
    );
