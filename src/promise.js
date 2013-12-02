@@ -640,6 +640,7 @@ function Promise$_settlePromiseFromHandler(
             x = tryCatchApply(handler, value, boundTo);
         }
         else {
+            console.log(value);
             //(TODO) Spreading a promise that eventually returns
             //an array could be a common usage
             this._spreadSlowCase(handler, promise, value, boundTo);
@@ -930,10 +931,19 @@ function Promise$_fulfillUnchecked(value) {
     this._settledValue = value;
     var len = this._length();
 
-    for (var i = 0; i < len; i+= CALLBACK_SIZE) {
-        async.invoke(this._settlePromiseAt, this, i);
+    if (len > 0) {
+        async.invoke(this._fulfillPromises, this, len);
     }
 
+};
+
+Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
+    ASSERT(this.isFulfilled());
+    ASSERT(len === this._length());
+    ASSERT(len > 0);
+    for (var i = 0; i < len; i+= CALLBACK_SIZE) {
+        this._settlePromiseAt(i);
+    }
 };
 
 Promise.prototype._rejectUnchecked =
@@ -949,12 +959,23 @@ function Promise$_rejectUnchecked(reason) {
     this._settledValue = reason;
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
-        //Currently not in conflict with anything but should
-        //invokeLater be used for something else, this needs to be revisited
         async.invokeLater(thrower, void 0, reason);
         return;
     }
     var len = this._length();
+    if (len > 0) {
+        async.invoke(this._rejectPromises, this, len);
+    }
+    else {
+        this._ensurePossibleRejectionHandled(reason);
+    }
+};
+
+Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
+    ASSERT(this.isRejected());
+    ASSERT(len === this._length());
+    ASSERT(len > 0);
+
     var rejectionWasHandled = false;
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
         var handler = this._rejectionHandlerAt(i);
@@ -962,13 +983,17 @@ function Promise$_rejectUnchecked(reason) {
             rejectionWasHandled = typeof handler === "function" ||
                                 this._promiseAt(i)._length() > 0;
         }
-        async.invoke(this._settlePromiseAt, this, i);
+        this._settlePromiseAt(i);
     }
 
-    if (!rejectionWasHandled &&
-        CapturedTrace.possiblyUnhandledRejection !== void 0
-   ) {
+    if (!rejectionWasHandled) {
+        this._ensurePossibleRejectionHandled(this._settledValue);
+    }
+};
 
+Promise.prototype._ensurePossibleRejectionHandled =
+function Promise$_ensurePossibleRejectionHandled(reason) {
+    if (CapturedTrace.possiblyUnhandledRejection !== void 0) {
         if (isObject(reason)) {
             var handledState = reason[ERROR_HANDLED_KEY];
             var newReason = reason;
@@ -986,10 +1011,8 @@ function Promise$_rejectUnchecked(reason) {
                 this._attachExtraTrace(newReason);
             }
             async.invoke(this._unhandledRejection, this, newReason);
-
         }
     }
-
 };
 
 var contextStack = [];
