@@ -58,7 +58,7 @@ module.exports = function( grunt ) {
         "generators.js": ['Promise', 'apiRejection'],
         "map.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "nodeify.js": ['Promise'],
-        "promisify.js": ['Promise'],
+        "promisify.js": ['Promise', 'INTERNAL'],
         "props.js": ['Promise', 'PromiseArray'],
         "reduce.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "settle.js": ['Promise', 'Promise$_All', 'PromiseArray'],

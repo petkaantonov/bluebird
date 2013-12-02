@@ -930,7 +930,6 @@ function Promise$_fulfillUnchecked(value) {
     if (len > 0) {
         async.invoke(this._fulfillPromises, this, len);
     }
-
 };
 
 Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {

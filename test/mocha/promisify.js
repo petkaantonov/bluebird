@@ -77,12 +77,10 @@ describe("when calling promisified function it should ", function(){
         var a = error(1,2,3);
         var b = success(1,2,3);
         var c = successMulti(1,2,3);
-        var d = syncError(1,2,3);
-        var e = syncSuccess(1,2,3);
-        var f = syncSuccessMulti(1,2,3);
+
         var calls = 0;
         function donecall() {
-            if( (++calls) === 2 ) {
+            if( (++calls) === 1 ) {
                 done();
             }
         }
@@ -90,11 +88,7 @@ describe("when calling promisified function it should ", function(){
         assert.equal(a.isPending(), true);
         assert.equal(b.isPending(), true);
         assert.equal(c.isPending(), true);
-        assert.equal(d.isPending(), true);
-        assert.equal(e.isPending(), true);
-        assert.equal(f.isPending(), true);
         a.caught(donecall);
-        d.caught(donecall);
     });
 
     specify( "should use this if no receiver was given", function(done){

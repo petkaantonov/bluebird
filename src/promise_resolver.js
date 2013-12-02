@@ -20,18 +20,20 @@ function wrapAsRejectionError(obj) {
     return obj;
 }
 
-function nodebackForResolver(resolver) {
+function nodebackForPromise(promise) {
     function PromiseResolver$_callback(err, value) {
         if (err) {
-            resolver.reject(wrapAsRejectionError(maybeWrapAsError(err)));
+            var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
+            promise._attachExtraTrace(wrapped);
+            promise._reject(wrapped);
         }
         else {
             if (arguments.length > 2) {
                 INLINE_SLICE(args, arguments, 1);
-                resolver.fulfill(args);
+                promise._fulfill(args);
             }
             else {
-                resolver.fulfill(value);
+                promise._fulfill(value);
             }
         }
     }
@@ -52,7 +54,7 @@ var PromiseResolver;
 if (!haveGetters) {
     PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
-        this.asCallback = nodebackForResolver(this);
+        this.asCallback = nodebackForPromise(promise);
         this.callback = this.asCallback;
     };
 }
@@ -64,14 +66,14 @@ else {
 if (haveGetters) {
     var prop = {
         get: function() {
-            return nodebackForResolver(this);
+            return nodebackForPromise(this.promise);
         }
     };
     es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);
     es5.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
-PromiseResolver._nodebackForResolver = nodebackForResolver;
+PromiseResolver._nodebackForPromise = nodebackForPromise;
 
 /**
  * @return {string}
