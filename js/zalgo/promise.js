@@ -86,7 +86,7 @@ function Promise(resolver) {
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this.bind, this);
+    if (debugging) ret._setTrace(this.bind, this);
     ret._follow(this, true);
     ret._setBoundTo(thisArg);
     if (this._cancellable()) {
@@ -223,7 +223,7 @@ Promise.join = function Promise$Join() {
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve(value, caller) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(typeof caller === "function"
+    if (debugging) ret._setTrace(typeof caller === "function"
         ? caller
         : Promise.resolve, void 0);
     if (ret._tryFollow(value, false)) {
@@ -237,7 +237,7 @@ function Promise$Resolve(value, caller) {
 
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.reject, void 0);
+    if (debugging) ret._setTrace(Promise.reject, void 0);
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
@@ -279,7 +279,7 @@ Promise.method = function Promise$_Method(fn) {
             value = tryCatchApply(fn, args, this); break;
         }
         var ret = new Promise(INTERNAL);
-        ret._setTrace(Promise$_method, void 0);
+        if (debugging) ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
     };
@@ -295,21 +295,21 @@ Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
         : tryCatch1(fn, ctx, args);
 
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.attempt, void 0);
+    if (debugging) ret._setTrace(Promise.attempt, void 0);
     ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer(caller) {
     var promise = new Promise(INTERNAL);
-    promise._setTrace(typeof caller === "function"
+    if (debugging) promise._setTrace(typeof caller === "function"
                               ? caller : Promise.defer, void 0);
     return new PromiseResolver(promise);
 };
 
 Promise.bind = function Promise$Bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.bind, void 0);
+    if (debugging) ret._setTrace(Promise.bind, void 0);
     ret._setFulfilled();
     ret._setBoundTo(thisArg);
     return ret;
@@ -497,17 +497,23 @@ Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
 
 Promise.prototype._resolveFromResolver =
 function Promise$_resolveFromResolver(resolver) {
-    this._setTrace(this._resolveFromResolver, void 0);
-    var p = new PromiseResolver(this);
-    this._pushContext();
-    var r = tryCatch2(resolver, this, function Promise$_fulfiller(val) {
-        p.fulfill(val);
-    }, function Promise$_rejecter(val) {
-        p.reject(val);
-    });
-    this._popContext();
-    if (r === errorObj) {
-        p.reject(r.e);
+    var promise = this;
+    var localDebugging = debugging;
+    if (localDebugging) {
+        this._setTrace(this._resolveFromResolver, void 0);
+        this._pushContext();
+    }
+    function Promise$_fulfiller(val) {
+        promise._fulfill(val);
+    }
+    function Promise$_rejecter(val) {
+        promise._reject(val);
+    }
+    var r = tryCatch2(resolver, this, Promise$_fulfiller, Promise$_rejecter);
+    if (localDebugging) this._popContext();
+
+    if (r !== void 0 && r === errorObj) {
+        promise._reject(r.e);
     }
 };
 
@@ -602,6 +608,7 @@ function Promise$_settlePromiseFromHandler(
     }
 
     var x;
+    var localDebugging = debugging;
     if (!isRejected && receiver === APPLY) {
         var boundTo = this._isBound() ? this._boundTo : void 0;
         if (isArray(value)) {
@@ -613,15 +620,15 @@ function Promise$_settlePromiseFromHandler(
                 }
             }
         }
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatchApply(handler, value, boundTo);
     }
     else {
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
 
-    promise._popContext();
+    if (localDebugging) promise._popContext();
 
     if (x === NEXT_FILTER) {
         promise._reject(x.e);
@@ -877,10 +884,10 @@ function Promise$_fulfillUnchecked(value) {
     if (len > 0) {
         this._fulfillPromises(len);
     }
-
 };
 
 Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
+    len = this._length();
     for (var i = 0; i < len; i+= 5) {
         this._settlePromiseAt(i);
     }
@@ -910,6 +917,7 @@ function Promise$_rejectUnchecked(reason) {
 };
 
 Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
+    len = this._length();
     var rejectionWasHandled = false;
     for (var i = 0; i < len; i+= 5) {
         var handler = this._rejectionHandlerAt(i);
@@ -1029,7 +1037,7 @@ require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection);
 require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
-require('./promisify.js')(Promise);
+require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
 require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./settle.js')(Promise,Promise$_All,PromiseArray);

@@ -20,13 +20,13 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
 var es5 = require("./es5.js");
 var errors = require("./errors.js");
-var nodebackForResolver = require("./promise_resolver.js")
-    ._nodebackForResolver;
+var nodebackForPromise = require("./promise_resolver.js")
+    ._nodebackForPromise;
 var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
@@ -132,12 +132,14 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "promisified");
 
     return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForResolver",
+            "withAppended", "maybeWrapAsError", "nodebackForPromise",
+            "INTERNAL",
         "var ret = function " + callbackName +
         "(a1, a2, a3, a4, a5) {\"use strict\";" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending(" + callbackName + ");" +
-        "var fn = nodebackForResolver(resolver);"+
+        "var promise = new Promise(INTERNAL);"+
+        "promise._setTrace(" + callbackName + ", void 0);" +
+        "var fn = nodebackForPromise(promise);"+
         "try{" +
         "switch(len) {" +
         "case 1:" + getCall(1) +
@@ -156,13 +158,13 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject(maybeWrapAsError(e));" +
+        "promise._reject(maybeWrapAsError(e));" +
         "}" +
-        "return resolver.promise;" +
+        "return promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
    )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForResolver);
+        maybeWrapAsError, nodebackForPromise, INTERNAL);
 }
 
 function makeNodePromisifiedClosure(callback, receiver) {
@@ -174,15 +176,16 @@ function makeNodePromisifiedClosure(callback, receiver) {
         }
         ASSERT(((typeof callback) === "function"),
     "typeof callback === \u0022function\u0022");
-        var resolver = Promise.pending(promisified);
-        var fn = nodebackForResolver(resolver);
+        var promise = new Promise(INTERNAL);
+        promise._setTrace(promisified, void 0);
+        var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            resolver.reject(maybeWrapAsError(e));
+            promise._reject(maybeWrapAsError(e));
         }
-        return resolver.promise;
+        return promise;
     }
     promisified.__isPromisified__ = true;
     return promisified;

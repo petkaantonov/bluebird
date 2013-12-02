@@ -5026,7 +5026,7 @@ function Promise(resolver) {
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this.bind, this);
+    if (debugging) ret._setTrace(this.bind, this);
     ret._follow(this, true);
     ret._setBoundTo(thisArg);
     if (this._cancellable()) {
@@ -5163,7 +5163,7 @@ Promise.join = function Promise$Join() {
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve(value, caller) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(typeof caller === "function"
+    if (debugging) ret._setTrace(typeof caller === "function"
         ? caller
         : Promise.resolve, void 0);
     if (ret._tryFollow(value, false)) {
@@ -5177,7 +5177,7 @@ function Promise$Resolve(value, caller) {
 
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.reject, void 0);
+    if (debugging) ret._setTrace(Promise.reject, void 0);
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
@@ -5219,7 +5219,7 @@ Promise.method = function Promise$_Method(fn) {
             value = tryCatchApply(fn, args, this); break;
         }
         var ret = new Promise(INTERNAL);
-        ret._setTrace(Promise$_method, void 0);
+        if (debugging) ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
     };
@@ -5235,21 +5235,21 @@ Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
         : tryCatch1(fn, ctx, args);
 
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.attempt, void 0);
+    if (debugging) ret._setTrace(Promise.attempt, void 0);
     ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer(caller) {
     var promise = new Promise(INTERNAL);
-    promise._setTrace(typeof caller === "function"
+    if (debugging) promise._setTrace(typeof caller === "function"
                               ? caller : Promise.defer, void 0);
     return new PromiseResolver(promise);
 };
 
 Promise.bind = function Promise$Bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.bind, void 0);
+    if (debugging) ret._setTrace(Promise.bind, void 0);
     ret._setFulfilled();
     ret._setBoundTo(thisArg);
     return ret;
@@ -5476,17 +5476,23 @@ Promise.prototype._resolveFromResolver =
 function Promise$_resolveFromResolver(resolver) {
     ASSERT(((typeof resolver) === "function"),
     "typeof resolver === \u0022function\u0022");
-    this._setTrace(this._resolveFromResolver, void 0);
-    var p = new PromiseResolver(this);
-    this._pushContext();
-    var r = tryCatch2(resolver, this, function Promise$_fulfiller(val) {
-        p.fulfill(val);
-    }, function Promise$_rejecter(val) {
-        p.reject(val);
-    });
-    this._popContext();
-    if (r === errorObj) {
-        p.reject(r.e);
+    var promise = this;
+    var localDebugging = debugging;
+    if (localDebugging) {
+        this._setTrace(this._resolveFromResolver, void 0);
+        this._pushContext();
+    }
+    function Promise$_fulfiller(val) {
+        promise._fulfill(val);
+    }
+    function Promise$_rejecter(val) {
+        promise._reject(val);
+    }
+    var r = tryCatch2(resolver, this, Promise$_fulfiller, Promise$_rejecter);
+    if (localDebugging) this._popContext();
+
+    if (r !== void 0 && r === errorObj) {
+        promise._reject(r.e);
     }
 };
 
@@ -5588,6 +5594,7 @@ function Promise$_settlePromiseFromHandler(
     }
 
     var x;
+    var localDebugging = debugging;
     if (!isRejected && receiver === APPLY) {
         var boundTo = this._isBound() ? this._boundTo : void 0;
         if (isArray(value)) {
@@ -5599,15 +5606,15 @@ function Promise$_settlePromiseFromHandler(
                 }
             }
         }
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatchApply(handler, value, boundTo);
     }
     else {
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
 
-    promise._popContext();
+    if (localDebugging) promise._popContext();
 
     if (x === NEXT_FILTER) {
         ASSERT(isRejected,
@@ -5892,16 +5899,12 @@ function Promise$_fulfillUnchecked(value) {
     if (len > 0) {
         async.invoke(this._fulfillPromises, this, len);
     }
-
 };
 
 Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
     ASSERT(this.isFulfilled(),
     "this.isFulfilled()");
-    ASSERT((len === this._length()),
-    "len === this._length()");
-    ASSERT((len > 0),
-    "len > 0");
+    len = this._length();
     for (var i = 0; i < len; i+= 5) {
         this._settlePromiseAt(i);
     }
@@ -5937,11 +5940,7 @@ function Promise$_rejectUnchecked(reason) {
 Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
     ASSERT(this.isRejected(),
     "this.isRejected()");
-    ASSERT((len === this._length()),
-    "len === this._length()");
-    ASSERT((len > 0),
-    "len > 0");
-
+    len = this._length();
     var rejectionWasHandled = false;
     for (var i = 0; i < len; i+= 5) {
         var handler = this._rejectionHandlerAt(i);
@@ -6066,7 +6065,7 @@ require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection);
 require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
-require('./promisify.js')(Promise);
+require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
 require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./settle.js')(Promise,Promise$_All,PromiseArray);
@@ -6442,18 +6441,20 @@ function wrapAsRejectionError(obj) {
     return obj;
 }
 
-function nodebackForResolver(resolver) {
+function nodebackForPromise(promise) {
     function PromiseResolver$_callback(err, value) {
         if (err) {
-            resolver.reject(wrapAsRejectionError(maybeWrapAsError(err)));
+            var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
+            promise._attachExtraTrace(wrapped);
+            promise._reject(wrapped);
         }
         else {
             if (arguments.length > 2) {
                 var $_len = arguments.length;var args = new Array($_len - 1); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];}
-                resolver.fulfill(args);
+                promise._fulfill(args);
             }
             else {
-                resolver.fulfill(value);
+                promise._fulfill(value);
             }
         }
     }
@@ -6465,7 +6466,7 @@ var PromiseResolver;
 if (!haveGetters) {
     PromiseResolver = function PromiseResolver(promise) {
         this.promise = promise;
-        this.asCallback = nodebackForResolver(this);
+        this.asCallback = nodebackForPromise(promise);
         this.callback = this.asCallback;
     };
 }
@@ -6477,14 +6478,14 @@ else {
 if (haveGetters) {
     var prop = {
         get: function() {
-            return nodebackForResolver(this);
+            return nodebackForPromise(this.promise);
         }
     };
     es5.defineProperty(PromiseResolver.prototype, "asCallback", prop);
     es5.defineProperty(PromiseResolver.prototype, "callback", prop);
 }
 
-PromiseResolver._nodebackForResolver = nodebackForResolver;
+PromiseResolver._nodebackForPromise = nodebackForPromise;
 
 PromiseResolver.prototype.toString = function PromiseResolver$toString() {
     return "[object PromiseResolver]";
@@ -6654,13 +6655,13 @@ return PromiseSpawn;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
 var es5 = require("./es5.js");
 var errors = require("./errors.js");
-var nodebackForResolver = require("./promise_resolver.js")
-    ._nodebackForResolver;
+var nodebackForPromise = require("./promise_resolver.js")
+    ._nodebackForPromise;
 var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
@@ -6766,12 +6767,14 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "promisified");
 
     return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForResolver",
+            "withAppended", "maybeWrapAsError", "nodebackForPromise",
+            "INTERNAL",
         "var ret = function " + callbackName +
         "(a1, a2, a3, a4, a5) {\"use strict\";" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending(" + callbackName + ");" +
-        "var fn = nodebackForResolver(resolver);"+
+        "var promise = new Promise(INTERNAL);"+
+        "promise._setTrace(" + callbackName + ", void 0);" +
+        "var fn = nodebackForPromise(promise);"+
         "try{" +
         "switch(len) {" +
         "case 1:" + getCall(1) +
@@ -6790,13 +6793,13 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject(maybeWrapAsError(e));" +
+        "promise._reject(maybeWrapAsError(e));" +
         "}" +
-        "return resolver.promise;" +
+        "return promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
    )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForResolver);
+        maybeWrapAsError, nodebackForPromise, INTERNAL);
 }
 
 function makeNodePromisifiedClosure(callback, receiver) {
@@ -6808,15 +6811,16 @@ function makeNodePromisifiedClosure(callback, receiver) {
         }
         ASSERT(((typeof callback) === "function"),
     "typeof callback === \u0022function\u0022");
-        var resolver = Promise.pending(promisified);
-        var fn = nodebackForResolver(resolver);
+        var promise = new Promise(INTERNAL);
+        promise._setTrace(promisified, void 0);
+        var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            resolver.reject(maybeWrapAsError(e));
+            promise._reject(maybeWrapAsError(e));
         }
-        return resolver.promise;
+        return promise;
     }
     promisified.__isPromisified__ = true;
     return promisified;
@@ -9365,7 +9369,7 @@ function Promise(resolver) {
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this.bind, this);
+    if (debugging) ret._setTrace(this.bind, this);
     ret._follow(this, true);
     ret._setBoundTo(thisArg);
     if (this._cancellable()) {
@@ -9502,7 +9506,7 @@ Promise.join = function Promise$Join() {
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve(value, caller) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(typeof caller === "function"
+    if (debugging) ret._setTrace(typeof caller === "function"
         ? caller
         : Promise.resolve, void 0);
     if (ret._tryFollow(value, false)) {
@@ -9516,7 +9520,7 @@ function Promise$Resolve(value, caller) {
 
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.reject, void 0);
+    if (debugging) ret._setTrace(Promise.reject, void 0);
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
@@ -9558,7 +9562,7 @@ Promise.method = function Promise$_Method(fn) {
             value = tryCatchApply(fn, args, this); break;
         }
         var ret = new Promise(INTERNAL);
-        ret._setTrace(Promise$_method, void 0);
+        if (debugging) ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
     };
@@ -9574,21 +9578,21 @@ Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
         : tryCatch1(fn, ctx, args);
 
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.attempt, void 0);
+    if (debugging) ret._setTrace(Promise.attempt, void 0);
     ret._resolveFromSyncValue(value, Promise.attempt);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer(caller) {
     var promise = new Promise(INTERNAL);
-    promise._setTrace(typeof caller === "function"
+    if (debugging) promise._setTrace(typeof caller === "function"
                               ? caller : Promise.defer, void 0);
     return new PromiseResolver(promise);
 };
 
 Promise.bind = function Promise$Bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(Promise.bind, void 0);
+    if (debugging) ret._setTrace(Promise.bind, void 0);
     ret._setFulfilled();
     ret._setBoundTo(thisArg);
     return ret;
@@ -9776,17 +9780,23 @@ Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
 
 Promise.prototype._resolveFromResolver =
 function Promise$_resolveFromResolver(resolver) {
-    this._setTrace(this._resolveFromResolver, void 0);
-    var p = new PromiseResolver(this);
-    this._pushContext();
-    var r = tryCatch2(resolver, this, function Promise$_fulfiller(val) {
-        p.fulfill(val);
-    }, function Promise$_rejecter(val) {
-        p.reject(val);
-    });
-    this._popContext();
-    if (r === errorObj) {
-        p.reject(r.e);
+    var promise = this;
+    var localDebugging = debugging;
+    if (localDebugging) {
+        this._setTrace(this._resolveFromResolver, void 0);
+        this._pushContext();
+    }
+    function Promise$_fulfiller(val) {
+        promise._fulfill(val);
+    }
+    function Promise$_rejecter(val) {
+        promise._reject(val);
+    }
+    var r = tryCatch2(resolver, this, Promise$_fulfiller, Promise$_rejecter);
+    if (localDebugging) this._popContext();
+
+    if (r !== void 0 && r === errorObj) {
+        promise._reject(r.e);
     }
 };
 
@@ -9881,6 +9891,7 @@ function Promise$_settlePromiseFromHandler(
     }
 
     var x;
+    var localDebugging = debugging;
     if (!isRejected && receiver === APPLY) {
         var boundTo = this._isBound() ? this._boundTo : void 0;
         if (isArray(value)) {
@@ -9892,15 +9903,15 @@ function Promise$_settlePromiseFromHandler(
                 }
             }
         }
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatchApply(handler, value, boundTo);
     }
     else {
-        promise._pushContext();
+        if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
 
-    promise._popContext();
+    if (localDebugging) promise._popContext();
 
     if (x === NEXT_FILTER) {
         promise._reject(x.e);
@@ -10160,10 +10171,10 @@ function Promise$_fulfillUnchecked(value) {
     if (len > 0) {
         async.invoke(this._fulfillPromises, this, len);
     }
-
 };
 
 Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
+    len = this._length();
     for (var i = 0; i < len; i+= 5) {
         this._settlePromiseAt(i);
     }
@@ -10193,6 +10204,7 @@ function Promise$_rejectUnchecked(reason) {
 };
 
 Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
+    len = this._length();
     var rejectionWasHandled = false;
     for (var i = 0; i < len; i+= 5) {
         var handler = this._rejectionHandlerAt(i);
@@ -10312,7 +10324,7 @@ require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection);
 require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
-require('./promisify.js')(Promise);
+require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
 require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
 require('./settle.js')(Promise,Promise$_All,PromiseArray);
@@ -10583,13 +10595,13 @@ arguments[4][40][0].apply(exports,arguments)
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
 var es5 = require("./es5.js");
 var errors = require("./errors.js");
-var nodebackForResolver = require("./promise_resolver.js")
-    ._nodebackForResolver;
+var nodebackForPromise = require("./promise_resolver.js")
+    ._nodebackForPromise;
 var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
@@ -10695,12 +10707,14 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "promisified");
 
     return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForResolver",
+            "withAppended", "maybeWrapAsError", "nodebackForPromise",
+            "INTERNAL",
         "var ret = function " + callbackName +
         "(a1, a2, a3, a4, a5) {\"use strict\";" +
         "var len = arguments.length;" +
-        "var resolver = Promise.pending(" + callbackName + ");" +
-        "var fn = nodebackForResolver(resolver);"+
+        "var promise = new Promise(INTERNAL);"+
+        "promise._setTrace(" + callbackName + ", void 0);" +
+        "var fn = nodebackForPromise(promise);"+
         "try{" +
         "switch(len) {" +
         "case 1:" + getCall(1) +
@@ -10719,13 +10733,13 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "}" +
         "catch(e){ " +
         "" +
-        "resolver.reject(maybeWrapAsError(e));" +
+        "promise._reject(maybeWrapAsError(e));" +
         "}" +
-        "return resolver.promise;" +
+        "return promise;" +
         "" +
         "}; ret.__isPromisified__ = true; return ret;"
    )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForResolver);
+        maybeWrapAsError, nodebackForPromise, INTERNAL);
 }
 
 function makeNodePromisifiedClosure(callback, receiver) {
@@ -10735,15 +10749,16 @@ function makeNodePromisifiedClosure(callback, receiver) {
         if (typeof callback === "string") {
             callback = _receiver[callback];
         }
-        var resolver = Promise.pending(promisified);
-        var fn = nodebackForResolver(resolver);
+        var promise = new Promise(INTERNAL);
+        promise._setTrace(promisified, void 0);
+        var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
         }
         catch(e) {
-            resolver.reject(maybeWrapAsError(e));
+            promise._reject(maybeWrapAsError(e));
         }
-        return resolver.promise;
+        return promise;
     }
     promisified.__isPromisified__ = true;
     return promisified;
@@ -22270,12 +22285,10 @@ describe("when calling promisified function it should ", function(){
         var a = error(1,2,3);
         var b = success(1,2,3);
         var c = successMulti(1,2,3);
-        var d = syncError(1,2,3);
-        var e = syncSuccess(1,2,3);
-        var f = syncSuccessMulti(1,2,3);
+
         var calls = 0;
         function donecall() {
-            if( (++calls) === 2 ) {
+            if( (++calls) === 1 ) {
                 done();
             }
         }
@@ -22283,11 +22296,7 @@ describe("when calling promisified function it should ", function(){
         assert.equal(a.isPending(), true);
         assert.equal(b.isPending(), true);
         assert.equal(c.isPending(), true);
-        assert.equal(d.isPending(), true);
-        assert.equal(e.isPending(), true);
-        assert.equal(f.isPending(), true);
         a.caught(donecall);
-        d.caught(donecall);
     });
 
     specify( "should use this if no receiver was given", function(done){
