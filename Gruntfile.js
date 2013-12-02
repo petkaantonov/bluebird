@@ -55,7 +55,7 @@ module.exports = function( grunt ) {
         "race.js": ['Promise', 'INTERNAL'],
         "call_get.js": ['Promise'],
         "filter.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
-        "generators.js": ['Promise', 'apiRejection'],
+        "generators.js": ['Promise', 'apiRejection', 'INTERNAL'],
         "map.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "nodeify.js": ['Promise'],
         "promisify.js": ['Promise', 'INTERNAL'],
