@@ -1,3 +1,9 @@
+## 0.11.2-0 (2013-12-02)
+
+Features:
+
+ - Improve performance of all collection methods
+
 ## 0.11.1-0 (2013-12-02)
 
 Features:
