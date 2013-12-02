@@ -96,55 +96,72 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 */
 
-describe("fin", function () {
+describe("finally", function () {
 
     var exception1 = new Error("boo!");
     var exception2 = new Promise.TypeError("evil!");
 
+    describe("when nothing is passed", function() {
+        it("should do nothing", function(done) {
+            Q("foo")
+                .lastly()
+                .lastly()
+                .lastly()
+                .lastly()
+                .then(function(val){
+                    assert(val === "foo");
+                    done();
+                })
+        });
+    });
+
     describe("when the promise is fulfilled", function () {
 
-        it("should call the callback", function () {
+        it("should call the callback", function (done) {
             var called = false;
 
-            return Q("foo")
+            Q("foo")
             .fin(function () {
                 called = true;
             })
             .then(function () {
                 assert.equal(called,true);
+                done();
             });
         });
 
-        it("should fulfill with the original value", function () {
-            return Q("foo")
+        it("should fulfill with the original value", function (done) {
+            Q("foo")
             .fin(function () {
                 return "bar";
             })
             .then(function (result) {
                 assert.equal(result,"foo");
+                done();
             });
         });
 
         describe("when the callback returns a promise", function () {
 
             describe("that is fulfilled", function () {
-                it("should fulfill with the original reason after that promise resolves", function () {
+                it("should fulfill with the original reason after that promise resolves", function (done) {
                     var promise = Q.delay(250);
 
-                    return Q("foo")
+                    Q("foo")
                     .fin(function () {
                         return promise;
                     })
                     .then(function (result) {
                         assert.equal(Q.isPending(promise),false);
                         assert.equal(result,"foo");
+                        done();
                     });
                 });
             });
 
             describe("that is rejected", function () {
-                it("should reject with this new rejection reason", function () {
-                    return Q("foo")
+                it("should reject with this new rejection reason", function (done) {
+                    Q("foo")
                     .fin(function () {
                         return Q.reject(exception1);
                     })
@@ -153,6 +170,7 @@ describe("fin", function () {
                     },
                     function (exception) {
                         assert.equal(exception,exception1);
+                        done();
                     });
                 });
             });
@@ -160,8 +178,8 @@ describe("fin", function () {
         });
 
         describe("when the callback throws an exception", function () {
-            it("should reject with this new exception", function () {
-                return Q("foo")
+            it("should reject with this new exception", function (done) {
+                Q("foo")
                 .fin(function () {
                     throw exception1;
                 })
@@ -170,6 +188,7 @@ describe("fin", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception1);
+                    done();
                 });
             });
         });
@@ -178,22 +197,23 @@ describe("fin", function () {
 
     describe("when the promise is rejected", function () {
 
-        it("should call the callback", function () {
+        it("should call the callback", function (done) {
             var called = false;
 
-            return Q.reject(exception1)
+            Q.reject(exception1)
             .fin(function () {
                 called = true;
             })
             .then(function () {
-                assert.equal(called,true);
+                assert.fail();
             }, function () {
                 assert.equal(called,true);
+                done();
             });
         });
 
-        it("should reject with the original reason", function () {
-            return Q.reject(exception1)
+        it("should reject with the original reason", function (done) {
+            Q.reject(exception1)
             .fin(function () {
                 return "bar";
             })
@@ -202,16 +222,17 @@ describe("fin", function () {
             },
             function (exception) {
                 assert.equal(exception,exception1);
+                done();
             });
         });
 
         describe("when the callback returns a promise", function () {
 
             describe("that is fulfilled", function () {
-                it("should reject with the original reason after that promise resolves", function () {
+                it("should reject with the original reason after that promise resolves", function (done) {
                     var promise = Q.delay(250);
 
-                    return Q.reject(exception1)
+                    Q.reject(exception1)
                     .fin(function () {
                         return promise;
                     })
@@ -221,13 +242,14 @@ describe("fin", function () {
                     function (exception) {
                         assert.equal(exception,exception1);
                         assert.equal(Q.isPending(promise),false);
+                        done();
                     });
                 });
             });
 
             describe("that is rejected", function () {
-                it("should reject with the new reason", function () {
-                    return Q.reject(exception1)
+                it("should reject with the new reason", function (done) {
+                    Q.reject(exception1)
                     .fin(function () {
                         return Q.reject(exception2);
                     })
@@ -236,6 +258,7 @@ describe("fin", function () {
                     },
                     function (exception) {
                         assert.equal(exception,exception2);
+                        done();
                     });
                 });
             });
@@ -243,8 +266,8 @@ describe("fin", function () {
         });
 
         describe("when the callback throws an exception", function () {
-            it("should reject with this new exception", function () {
-                return Q.reject(exception1)
+            it("should reject with this new exception", function (done) {
+                Q.reject(exception1)
                 .fin(function () {
                     throw exception2;
                 })
@@ -253,10 +276,62 @@ describe("fin", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception2);
+                    done();
                 });
             });
         });
 
     });
 
+    describe("when the callback returns a thenable", function () {
+
+        describe("that will fulfill", function () {
+            it("should reject with the original reason after that", function (done) {
+                var promise = {
+                    then: function(fn) {
+                        setTimeout(function(){
+                            fn(15);
+                        }, 13);
+                    }
+                };
+
+                return Q.reject(exception1)
+                .fin(function () {
+                    return promise;
+                })
+                .then(function () {
+                    assert.equal(false,true);
+                },
+                function (exception) {
+                    assert.equal(exception,exception1);
+                    done();
+                });
+            });
+        });
+
+        describe("that is rejected", function () {
+            it("should reject with the new reason", function (done) {
+                var promise = {
+                    then: function(f, fn) {
+                        setTimeout(function(){
+                            fn(exception2);
+                        }, 13);
+                    }
+                };
+
+                return Q.reject(exception1)
+                .fin(function () {
+                    return promise;
+                })
+                .then(function () {
+                    assert.equal(false,true);
+                },
+                function (exception) {
+                    assert.equal(exception,exception2);
+                    done();
+                });
+            });
+        });
+
+    });
 });

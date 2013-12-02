@@ -2,13 +2,9 @@
 var util = require("./util.js");
 var ASSERT = require("./assert.js");
 var isPrimitive = util.isPrimitive;
+var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 
 module.exports = function(Promise) {
-
-var wrapsPrimitiveReceiver = (function() {
-    return this !== "string";
-}).call("string");
-
 var returner = function Promise$_returner() {
     return this;
 };

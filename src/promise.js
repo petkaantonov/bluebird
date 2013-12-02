@@ -18,12 +18,12 @@ var PromiseResolver = require("./promise_resolver.js");
 var isArray = util.isArray;
 var notEnumerableProp = util.notEnumerableProp;
 var isObject = util.isObject;
+
 var ensurePropertyExpansion = util.ensurePropertyExpansion;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
 var tryCatchApply = util.tryCatchApply;
-
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
@@ -34,6 +34,7 @@ var withStackAttached = errors.withStackAttached;
 var isStackAttached = errors.isStackAttached;
 var isHandled = errors.isHandled;
 var canAttach = errors.canAttach;
+var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
 
 
@@ -116,40 +117,6 @@ function Promise$catch(fn) {
             catchFilter, void 0, this.caught);
     }
     return this._then(void 0, fn, void 0, void 0, void 0, this.caught);
-};
-
-function thrower(r) {
-    throw r;
-}
-function slowFinally(ret, reasonOrValue) {
-    if (this.isFulfilled()) {
-        return ret._then(function() {
-            return reasonOrValue;
-        }, thrower, void 0, this, void 0, slowFinally);
-    }
-    else {
-        return ret._then(function() {
-            ensureNotHandled(reasonOrValue);
-            throw reasonOrValue;
-        }, thrower, void 0, this, void 0, slowFinally);
-    }
-}
-
-Promise.prototype.lastly = Promise.prototype["finally"] =
-function Promise$finally(fn) {
-    var r = function(reasonOrValue) {
-        var ret = this._isBound() ? fn.call(this._boundTo) : fn();
-        if (isPromise(ret)) {
-            return slowFinally.call(this, ret, reasonOrValue);
-        }
-
-        if (this.isRejected()) {
-            ensureNotHandled(reasonOrValue);
-            throw reasonOrValue;
-        }
-        return reasonOrValue;
-    };
-    return this._then(r, r, void 0, this, void 0, this.lastly);
 };
 
 Promise.prototype.then =
@@ -686,8 +653,9 @@ function Promise$_settlePromiseFromHandler(
 
     promise._popContext();
 
+    //Special value returned from .finally and CatchFilter#doFilter
+    //to minimize exception throwing and catching
     if (x === NEXT_FILTER) {
-        ASSERT(handler === CatchFilter.prototype.doFilter);
         ASSERT(isRejected);
         //async.invoke is not needed
         promise._reject(x.e);
@@ -1092,6 +1060,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise);
 Promise.CancellationError = CancellationError;
