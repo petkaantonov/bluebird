@@ -554,21 +554,7 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     return index;
 };
 
-Promise.prototype._spreadSlowCase =
-function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
-    ASSERT(isArray(values) || isPromise(values));
-    ASSERT(typeof targetFn === "function");
-    ASSERT(isPromise(promise));
-    promise._follow(
-            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
-            .promise()
-            ._then(function() {
-                return targetFn.apply(boundTo, arguments);
-            }, void 0, void 0, APPLY, void 0,
-                    this._spreadSlowCase),
-        MAY_SYNC
-   );
-};
+
 
 Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
     if (obj !== void 0) {
@@ -582,6 +568,22 @@ Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
 
 Promise.prototype._isBound = function Promise$_isBound() {
     return (this._bitField & IS_BOUND) === IS_BOUND;
+};
+
+Promise.prototype._spreadSlowCase =
+function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
+    ASSERT(isArray(values));
+    ASSERT(typeof targetFn === "function");
+    ASSERT(isPromise(promise));
+
+    var promiseForAll =
+            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
+            .promise()
+            ._then(function() {
+                return targetFn.apply(boundTo, arguments);
+            }, void 0, void 0, APPLY, void 0, this._spreadSlowCase);
+
+    promise._follow(promiseForAll, MAY_SYNC);
 };
 
 Promise.prototype._settlePromiseFromHandler =
@@ -624,28 +626,15 @@ function Promise$_settlePromiseFromHandler(
             //since the spread target callback will have
             //a formal parameter for each item in the array
             var caller = this._settlePromiseFromHandler;
-
             for (var i = 0, len = value.length; i < len; ++i) {
                 if (isPromise(Promise._cast(value[i], caller, void 0))) {
-                    this._spreadSlowCase(
-                        handler,
-                        promise,
-                        value,
-                        boundTo
-                   );
+                    this._spreadSlowCase(handler, promise, value, boundTo);
                     return;
                 }
             }
-            promise._pushContext();
-            x = tryCatchApply(handler, value, boundTo);
         }
-        else {
-            console.log(value);
-            //(TODO) Spreading a promise that eventually returns
-            //an array could be a common usage
-            this._spreadSlowCase(handler, promise, value, boundTo);
-            return;
-        }
+        promise._pushContext();
+        x = tryCatchApply(handler, value, boundTo);
     }
     else {
         promise._pushContext();

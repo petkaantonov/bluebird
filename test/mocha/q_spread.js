@@ -95,6 +95,8 @@ IN THE SOFTWARE.
 
 describe("spread", function () {
 
+
+
     it("spreads values across arguments", function () {
         return Q.spread([1, 2, 3], function (a, b) {
             assert.equal(b,2);
@@ -157,6 +159,134 @@ describe("spread", function () {
             assert( actual === err );
             done();
         });
+    });
+
+    it("should wait for promises in the returned array even when not calling .all", function(done) {
+        var d1 = Promise.defer();
+        var d2 = Promise.defer();
+        var d3 = Promise.defer();
+        Promise.resolve().then(function(){
+            return [d1.promise, d2.promise, d3.promise];
+        }).spread(function(a, b, c){
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+            done();
+        });
+
+        setTimeout(function(){
+            d1.resolve(1);
+            d2.resolve(2);
+            d3.resolve(3);
+        }, 13);
+    });
+
+    it("should wait for thenables in the returned array even when not calling .all", function(done) {
+        var t1 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(1);
+                }, 13);
+            }
+        };
+        var t2 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(2);
+                }, 13);
+            }
+        };
+        var t3 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(3);
+                }, 13);
+            }
+        };
+        Promise.resolve().then(function(){
+            return [t1, t2, t3];
+        }).spread(function(a, b, c){
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+            done();
+        });
+    });
+
+    it("should wait for promises in an array that a returned promise resolves to even when not calling .all", function(done) {
+        var d1 = Promise.defer();
+        var d2 = Promise.defer();
+        var d3 = Promise.defer();
+        var defer = Promise.defer();
+        Promise.resolve().then(function(){
+            return defer.promise;
+        }).spread(function(a, b, c){
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+            done();
+        });
+
+        setTimeout(function(){
+            defer.resolve([d1.promise, d2.promise, d3.promise]);
+            setTimeout(function(){
+                d1.resolve(1);
+                d2.resolve(2);
+                d3.resolve(3);
+            }, 13);
+        }, 13);
+
+    });
+
+    it("should wait for thenables in an array that a returned thenable resolves to even when not calling .all", function(done) {
+        var t1 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(1);
+                }, 13);
+            }
+        };
+        var t2 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(2);
+                }, 13);
+            }
+        };
+        var t3 = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn(3);
+                }, 13);
+            }
+        };
+
+        var thenable = {
+            then: function(fn) {
+                setTimeout(function(){
+                    fn([t1, t2, t3])
+                }, 13);
+            }
+        };
+
+        Promise.resolve().then(function(){
+            return thenable;
+        }).spread(function(a, b, c){
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+            done();
+        });
+    });
+
+    it("should reject with error when non array is the ultimate value to be spread", function(done){
+        Promise.resolve().then(function(){
+            return 3
+        }).spread(function(a, b, c){
+            assert.fail();
+        }).caught(function(e){
+            done();
+        })
     });
 
 });
