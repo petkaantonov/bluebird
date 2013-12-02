@@ -183,6 +183,7 @@ module.exports = function( grunt ) {
             args: true,
             INLINE_SLICE: false,
             TypeError: true,
+            RangeError: true,
             __DEBUG__: false,
             __BROWSER__: false,
             process: false,

@@ -22,6 +22,7 @@
 "use strict";
 module.exports = function (PromiseArray) {
 var util = require("./util.js");
+var RangeError = require("./errors.js").RangeError;
 var inherits = util.inherits;
 var isArray = util.isArray;
 
@@ -48,7 +49,9 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
-        this._reject([]);
+        var message = "(Promise.some) input array contains less than " +
+                        this._howMany  + " promises";
+        this._reject(new RangeError(message));
     }
 };
 

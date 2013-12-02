@@ -4160,6 +4160,10 @@ var TypeError = global.TypeError;
 if (typeof TypeError !== "function") {
     TypeError = subError("TypeError", "type error");
 }
+var RangeError = global.RangeError;
+if (typeof RangeError !== "function") {
+    RangeError = subError("RangeError", "range error");
+}
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
 
@@ -4193,6 +4197,7 @@ if (!errorTypes) {
 module.exports = {
     Error: Error,
     TypeError: TypeError,
+    RangeError: RangeError,
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,
@@ -4990,6 +4995,7 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
 var tryCatchApply = util.tryCatchApply;
+var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
@@ -6057,6 +6063,7 @@ Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise);
+Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
@@ -7757,6 +7764,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 "use strict";
 module.exports = function (PromiseArray) {
 var util = require("./util.js");
+var RangeError = require("./errors.js").RangeError;
 var inherits = util.inherits;
 var isArray = util.isArray;
 
@@ -7783,7 +7791,9 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
-        this._reject([]);
+        var message = "(Promise.some) input array contains less than " +
+                        this._howMany  + " promises";
+        this._reject(new RangeError(message));
     }
 };
 
@@ -7861,7 +7871,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./util.js":55}],52:[function(require,module,exports){
+},{"./errors.js":26,"./util.js":55}],52:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -9360,6 +9370,7 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
 var tryCatchApply = util.tryCatchApply;
+var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
@@ -10343,6 +10354,7 @@ Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise);
+Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
@@ -11469,7 +11481,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
 },{"./assert.js":57,"./some_promise_array.js":90}],90:[function(require,module,exports){
 arguments[4][51][0].apply(exports,arguments)
-},{"./util.js":94}],91:[function(require,module,exports){
+},{"./errors.js":65,"./util.js":94}],91:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
 },{"./promise_inspection.js":77}],92:[function(require,module,exports){
 /**
@@ -25854,13 +25866,10 @@ describe("Promise.some", function(){
             });
     });
 
-    it("should reject with empty array when impossible to fulfill", function(done){
+    it("should reject with rangeerror when impossible to fulfill", function(done){
         Promise.some([1,2,3], 4)
             .then(assert.fail)
-            .caught(function(err) {
-                assert.deepEqual(err, []);
-                return true;
-            }, function(){
+            .caught(Promise.RangeError, function(e){
                 done();
             });
     });

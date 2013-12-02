@@ -34,13 +34,10 @@ describe("Promise.some", function(){
             });
     });
 
-    it("should reject with empty array when impossible to fulfill", function(done){
+    it("should reject with rangeerror when impossible to fulfill", function(done){
         Promise.some([1,2,3], 4)
             .then(assert.fail)
-            .caught(function(err) {
-                assert.deepEqual(err, []);
-                return true;
-            }, function(){
+            .caught(Promise.RangeError, function(e){
                 done();
             });
     });

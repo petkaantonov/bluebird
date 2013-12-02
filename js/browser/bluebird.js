@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.11.4-0
+ * bluebird build version 0.11.4-1
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -925,6 +925,10 @@ var TypeError = global.TypeError;
 if (typeof TypeError !== "function") {
     TypeError = subError("TypeError", "type error");
 }
+var RangeError = global.RangeError;
+if (typeof RangeError !== "function") {
+    RangeError = subError("RangeError", "range error");
+}
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
 
@@ -958,6 +962,7 @@ if (!errorTypes) {
 module.exports = {
     Error: Error,
     TypeError: TypeError,
+    RangeError: RangeError,
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,
@@ -1734,6 +1739,7 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
 var tryCatchApply = util.tryCatchApply;
+var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
@@ -2717,6 +2723,7 @@ Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise);
+Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
@@ -4361,6 +4368,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 "use strict";
 module.exports = function (PromiseArray) {
 var util = require("./util.js");
+var RangeError = require("./errors.js").RangeError;
 var inherits = util.inherits;
 var isArray = util.isArray;
 
@@ -4387,7 +4395,9 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
-        this._reject([]);
+        var message = "(Promise.some) input array contains less than " +
+                        this._howMany  + " promises";
+        this._reject(new RangeError(message));
     }
 };
 
@@ -4465,7 +4475,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./util.js":39}],36:[function(require,module,exports){
+},{"./errors.js":10,"./util.js":39}],36:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
