@@ -1,4 +1,5 @@
 "use strict";
+module.exports = function(NEXT_FILTER) {
 var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
 var tryCatch1 = util.tryCatch1;
@@ -10,7 +11,6 @@ function CatchFilter(instances, callback, promise) {
     this._callback = callback;
     this._promise = promise;
 }
-
 
 function CatchFilter$_safePredicate(predicate, e) {
     var safeObject = {};
@@ -40,7 +40,8 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
         if (itemIsErrorType && e instanceof item) {
             var ret = tryCatch1(cb, boundTo, e);
             if (ret === errorObj) {
-                throw ret.e;
+                NEXT_FILTER.e = ret.e;
+                return NEXT_FILTER;
             }
             return ret;
         } else if (typeof item === "function" && !itemIsErrorType) {
@@ -52,14 +53,17 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
             } else if (shouldHandle) {
                 var ret = tryCatch1(cb, boundTo, e);
                 if (ret === errorObj) {
-                    throw ret.e;
+                    NEXT_FILTER.e = ret.e;
+                    return NEXT_FILTER;
                 }
                 return ret;
             }
         }
     }
     ensureNotHandled(e);
-    throw e;
+    NEXT_FILTER.e = e;
+    return NEXT_FILTER;
 };
 
-module.exports = CatchFilter;
+return CatchFilter;
+};
