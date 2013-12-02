@@ -509,8 +509,8 @@ if( Promise.hasLongStackTraces() ) {
         });
 
         specify("when the node function throws it inside then", function(done){
-            Promise.fulfilled().then(function(){
-                throwsStrings().caught(function(e){
+            Promise.fulfilled().then(function() {
+                throwsStrings().caught(function(e) {
                     assert(e instanceof Error);
                     assert(e.message == tprimitive);
                     assertLongStackTraces(e);
