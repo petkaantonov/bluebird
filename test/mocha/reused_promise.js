@@ -36,4 +36,31 @@ describe("If promise is reused to get at the value many times over the course of
             done();
         }, 13);
     });
+
+    specify("It will be able to reuse the space", function(done) {
+        var fn = function(){};
+        var prom = three.then(fn, fn, fn);
+
+        var l = 256;
+        while(l--) {
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+            three.then(fn, fn, fn);
+        }
+
+
+        assert( three._promise0 === prom );
+        assert( three._fulfillmentHandler0 === fn );
+        assert( three._rejectionHandler0 === fn );
+        assert( three._progressHandler0 === fn );
+        assert( three._receiver0 === void 0 );
+
+        three.then(function(){
+            setTimeout(function(){
+                assert(three._length() === 0);
+                done();
+            }, 13);
+        });
+    });
 });
