@@ -4971,7 +4971,7 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-var PromiseArray = require("./promise_array.js")(Promise);
+var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
@@ -6101,7 +6101,7 @@ return Promise;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var ASSERT = require("./assert.js");
 var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
@@ -6122,15 +6122,20 @@ function toResolutionValue(val) {
 function PromiseArray(values, caller, boundTo) {
     ASSERT((arguments.length === 3),
     "arguments.length === 3");
-    var d = this._resolver = Promise.defer(caller);
-    if (Promise.hasLongStackTraces() &&
-        Promise.is(values)) {
-        d.promise._traceParent = values;
+    var promise = this._promise = new Promise(INTERNAL);
+    var parent = void 0;
+    if (Promise.is(values)) {
+        parent = values;
+        if (values._cancellable()) {
+            promise._setCancellable();
+            promise._cancellationParent = values;
+        }
+        if (values._isBound()) {
+            promise._setBoundTo(boundTo);
+        }
     }
+    promise._setTrace(caller, parent);
     this._values = values;
-    if (boundTo !== void 0) {
-        d.promise._setBoundTo(boundTo);
-    }
     this._length = 0;
     this._totalResolved = 0;
     this._init(void 0, 1);
@@ -6142,7 +6147,7 @@ PromiseArray.prototype.length = function PromiseArray$length() {
 };
 
 PromiseArray.prototype.promise = function PromiseArray$promise() {
-    return this._resolver.promise;
+    return this._promise;
 };
 
 PromiseArray.prototype._init =
@@ -6276,10 +6281,12 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
 PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
     ASSERT((! this._isResolved()),
     "!this._isResolved()");
+    ASSERT((! (value instanceof Promise)),
+    "!(value instanceof Promise)");
     this._values = null;
-    this._resolver.resolve(value);
+    this._promise._fulfill(value);
+    this._promise = null;
 };
-
 
 PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
@@ -6287,7 +6294,8 @@ PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
     "!this._isResolved()");
     ensureNotHandled(reason);
     this._values = null;
-    this._resolver.reject(reason);
+    this._promise._attachExtraTrace(reason);
+    this._promise._reject(reason);
 };
 
 PromiseArray.prototype._promiseProgressed =
@@ -6295,8 +6303,7 @@ function PromiseArray$_promiseProgressed(progressValue, index) {
     if (this._isResolved()) return;
     ASSERT(isArray(this._values),
     "isArray(this._values)");
-
-    this._resolver.progress({
+    this._promise._progress({
         index: index,
         value: progressValue
     });
@@ -6950,7 +6957,7 @@ PropertiesPromiseArray.prototype._promiseProgressed =
 function PropertiesPromiseArray$_promiseProgressed(value, index) {
     if (this._isResolved()) return;
 
-    this._resolver.progress({
+    this._promise._progress({
         key: this._values[index + this.length()],
         value: value
     });
@@ -9314,7 +9321,7 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-var PromiseArray = require("./promise_array.js")(Promise);
+var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
@@ -10360,7 +10367,7 @@ return Promise;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
 var ASSERT = require("./assert.js");
 var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
@@ -10377,15 +10384,20 @@ function toResolutionValue(val) {
 }
 
 function PromiseArray(values, caller, boundTo) {
-    var d = this._resolver = Promise.defer(caller);
-    if (Promise.hasLongStackTraces() &&
-        Promise.is(values)) {
-        d.promise._traceParent = values;
+    var promise = this._promise = new Promise(INTERNAL);
+    var parent = void 0;
+    if (Promise.is(values)) {
+        parent = values;
+        if (values._cancellable()) {
+            promise._setCancellable();
+            promise._cancellationParent = values;
+        }
+        if (values._isBound()) {
+            promise._setBoundTo(boundTo);
+        }
     }
+    promise._setTrace(caller, parent);
     this._values = values;
-    if (boundTo !== void 0) {
-        d.promise._setBoundTo(boundTo);
-    }
     this._length = 0;
     this._totalResolved = 0;
     this._init(void 0, 1);
@@ -10397,7 +10409,7 @@ PromiseArray.prototype.length = function PromiseArray$length() {
 };
 
 PromiseArray.prototype.promise = function PromiseArray$promise() {
-    return this._resolver.promise;
+    return this._promise;
 };
 
 PromiseArray.prototype._init =
@@ -10526,21 +10538,22 @@ PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
 
 PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
     this._values = null;
-    this._resolver.resolve(value);
+    this._promise._fulfill(value);
+    this._promise = null;
 };
-
 
 PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
     ensureNotHandled(reason);
     this._values = null;
-    this._resolver.reject(reason);
+    this._promise._attachExtraTrace(reason);
+    this._promise._reject(reason);
 };
 
 PromiseArray.prototype._promiseProgressed =
 function PromiseArray$_promiseProgressed(progressValue, index) {
     if (this._isResolved()) return;
-    this._resolver.progress({
+    this._promise._progress({
         index: index,
         value: progressValue
     });
@@ -10884,7 +10897,7 @@ PropertiesPromiseArray.prototype._promiseProgressed =
 function PropertiesPromiseArray$_promiseProgressed(value, index) {
     if (this._isResolved()) return;
 
-    this._resolver.progress({
+    this._promise._progress({
         key: this._values[index + this.length()],
         value: value
     });

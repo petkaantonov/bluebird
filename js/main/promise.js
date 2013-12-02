@@ -31,7 +31,7 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-var PromiseArray = require("./promise_array.js")(Promise);
+var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");

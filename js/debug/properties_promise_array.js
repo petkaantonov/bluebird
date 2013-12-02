@@ -69,7 +69,7 @@ PropertiesPromiseArray.prototype._promiseProgressed =
 function PropertiesPromiseArray$_promiseProgressed(value, index) {
     if (this._isResolved()) return;
 
-    this._resolver.progress({
+    this._promise._progress({
         key: this._values[index + this.length()],
         value: value
     });
