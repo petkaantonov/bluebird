@@ -1,6 +1,6 @@
 global.useBluebird = true;
 global.useQ = false;
-var bluebird = require('bluebird');
+var bluebird = require('../../js/main/bluebird.js');
 require('../lib/fakesP');
 
 module.exports = bluebird.coroutine(function* upload(stream, idOrPath, tag, done) {
