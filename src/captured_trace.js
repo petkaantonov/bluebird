@@ -35,6 +35,9 @@ function formatNonError(obj) {
 
             }
         }
+        if (str.length === 0) {
+            str = "(empty array)";
+        }
     }
     return ("(<" + snip(str) + ">, no stack trace)");
 }
