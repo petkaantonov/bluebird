@@ -1,3 +1,13 @@
+## 0.11.3-0 (2013-12-02)
+
+Features:
+
+ - Improve performance of generators
+
+Bugfixes:
+
+ - Fix critical bug with collection methods.
+
 ## 0.11.2-0 (2013-12-02)
 
 Features:
