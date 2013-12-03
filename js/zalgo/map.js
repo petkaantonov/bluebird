@@ -80,7 +80,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
     function Promise$_Map(promises, fn, useBound, caller) {
         if (typeof fn !== "function") {
-            return apiRejection("fn is not a function");
+            return apiRejection("fn must be a function");
         }
 
         if (useBound === true && promises._isBound()) {

@@ -30,9 +30,9 @@ var isArray = util.isArray;
 
 function toResolutionValue(val) {
     switch(val) {
-    case 0: return void 0;
-    case 1: return [];
-    case 2: return {};
+    case -1: return void 0;
+    case -2: return [];
+    case -3: return {};
     }
     ASSERT(false,
     "false");
@@ -57,7 +57,7 @@ function PromiseArray(values, caller, boundTo) {
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
-    this._init(void 0, 1);
+    this._init(void 0, -2);
 }
 PromiseArray.PropertiesPromiseArray = function() {};
 
@@ -83,6 +83,10 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             this._values = values;
         }
         else if (values.isPending()) {
+            ASSERT(((typeof resolveValueIfEmpty) === "number"),
+    "typeof resolveValueIfEmpty === \u0022number\u0022");
+            ASSERT((resolveValueIfEmpty < 0),
+    "resolveValueIfEmpty < 0");
             values._then(
                 this._init,
                 this._reject,
@@ -122,13 +126,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         var maybePromise = Promise._cast(promise, void 0, void 0);
         if (maybePromise instanceof Promise &&
             maybePromise.isPending()) {
-            maybePromise._then(
-                this._promiseFulfilled,
-                this._promiseRejected,
-                this._promiseProgressed,
-
-                this,                i,                 this._scanDirectValues
-           );
+            maybePromise._proxyPromiseArray(this, i);
         }
         else {
             isDirectScanNeeded = true;
@@ -136,7 +134,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         newValues[i] = maybePromise;
     }
     if (newLen === 0) {
-        if (resolveValueIfEmpty === 1) {
+        if (resolveValueIfEmpty === -2) {
             this._resolve(newValues);
         }
         else {
@@ -228,6 +226,7 @@ function PromiseArray$_promiseProgressed(progressValue, index) {
     });
 };
 
+
 PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled(value, index) {
     if (this._isResolved()) return;
@@ -243,7 +242,9 @@ function PromiseArray$_promiseFulfilled(value, index) {
 };
 
 PromiseArray.prototype._promiseRejected =
-function PromiseArray$_promiseRejected(reason) {
+function PromiseArray$_promiseRejected(reason, index) {
+    ASSERT((index >= 0),
+    "index >= 0");
     if (this._isResolved()) return;
     ASSERT(isArray(this._values),
     "isArray(this._values)");

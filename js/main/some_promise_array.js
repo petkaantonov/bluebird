@@ -42,7 +42,7 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
         this._resolve([]);
         return;
     }
-    this._init$(void 0, 1);
+    this._init$(void 0, -2);
     var isArrayResolved = isArray(this._values);
     this._holes = isArrayResolved ? this._values.length - this.length() : 0;
 

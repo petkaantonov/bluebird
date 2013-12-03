@@ -32,7 +32,7 @@ module.exports = function(Promise, PromiseArray) {
         var castValue = Promise._cast(promises, caller, void 0);
 
         if (!isObject(castValue)) {
-            return apiRejection(".props cannot be used on a primitive value");
+            return apiRejection("cannot await properties of a non-object");
         }
         else if (Promise.is(castValue)) {
             ret = castValue._then(Promise.props, void 0, void 0,

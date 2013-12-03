@@ -50,16 +50,14 @@ PromiseInspection.prototype.isPending = function PromiseInspection$isPending() {
 
 PromiseInspection.prototype.value = function PromiseInspection$value() {
     if (!this.isFulfilled()) {
-        throw new TypeError(
-            "cannot get fulfillment value of a non-fulfilled promise");
+        throw new TypeError("cannot get fulfillment value of a non-fulfilled promise");
     }
     return this._settledValue;
 };
 
 PromiseInspection.prototype.error = function PromiseInspection$error() {
     if (!this.isRejected()) {
-        throw new TypeError(
-            "cannot get rejection reason of a non-rejected promise");
+        throw new TypeError("cannot get rejection reason of a non-rejected promise");
     }
     return this._settledValue;
 };

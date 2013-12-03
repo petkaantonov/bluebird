@@ -94,7 +94,7 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 PromiseResolver.prototype.resolve =
 PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
     var promise = this.promise;
-    if (promise._tryFollow(value, false)) {
+    if (promise._tryFollow(value)) {
         return;
     }
     async.invoke(promise._fulfill, promise, value);

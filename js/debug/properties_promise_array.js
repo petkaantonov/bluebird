@@ -45,7 +45,7 @@ inherits(PropertiesPromiseArray, PromiseArray);
 
 PropertiesPromiseArray.prototype._init =
 function PropertiesPromiseArray$_init() {
-    this._init$(void 0, 2) ;
+    this._init$(void 0, -3) ;
 };
 
 PropertiesPromiseArray.prototype._promiseFulfilled =

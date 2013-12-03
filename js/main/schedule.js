@@ -26,6 +26,7 @@ var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
     typeof process.nextTick === "function") {
+
     schedule = process.nextTick;
 }
 else if ((typeof MutationObserver === "function" ||
@@ -48,16 +49,12 @@ else if ((typeof MutationObserver === "function" ||
                 fn();
             }
        );
-        var cur = true;
         observer.observe(div, {
-            attributes: true,
-            childList: true,
-            characterData: true
+            attributes: true
         });
         return function Promise$_Scheduler(fn) {
             queuedFn = fn;
-            cur = !cur;
-            div.setAttribute("class", cur ? "foo" : "bar");
+            div.setAttribute("class", "foo");
         };
 
     })();
