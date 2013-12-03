@@ -10,6 +10,12 @@ if [ "$benchmark" = "doxbee" ]; then
     echo "Doxbee sequential"
     node performance.js --n 10000 --t 1 ./doxbee-sequential/*.js --harmony
     exit 0
+elif [ "$benchmark" = "doxbee-errors" ]; then
+    cd "$cwd/benchmark"
+    npm install
+    echo "Doxbee sequential with 10% errors"
+    node performance.js --n 10000 --t 1 --e 0.1 ./doxbee-sequential-errors/*.js --harmony
+    exit 0
 elif [ "$benchmark" = "parallel" ]; then
     cd "$cwd/benchmark"
     npm install

@@ -1,7 +1,9 @@
-global.useBluebird = true;
-global.useQ = false;
-var bluebird = require('../../js/main/bluebird.js');
+global.useLiar = true;
+
+var promise = require("liar");
+
 require('../lib/fakesP');
+
 
 module.exports = function upload(stream, idOrPath, tag, done) {
     var blob = blobManager.create(account);
@@ -9,8 +11,8 @@ module.exports = function upload(stream, idOrPath, tag, done) {
     var blobIdP = blob.put(stream);
     var fileP = self.byUuidOrPath(idOrPath).get();
     var version, fileId, file;
-
-    bluebird.all([blobIdP, fileP]).spread(function(blobId, fileV) {
+    promise.all([blobIdP, fileP]).then(function(all) {
+        var blobId = all[0], fileV = all[1];
         file = fileV;
         var previousId = file ? file.version : null;
         version = {
@@ -23,11 +25,12 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         version.id = Version.createHash(version);
         return Version.insert(version).execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         if (!file) {
             var splitPath = idOrPath.split('/');
             var fileName = splitPath[splitPath.length - 1];
             var newId = uuid.v1();
-            return self.createQuery(idOrPath, {
+            return self.createQueryCtxless(idOrPath, {
                 id: newId,
                 userAccountId: userAccount.id,
                 name: fileName,
@@ -41,15 +44,18 @@ module.exports = function upload(stream, idOrPath, tag, done) {
             return file.id;
         }
     }).then(function(fileIdV) {
+        triggerIntentionalError();
         fileId = fileIdV;
         return FileVersion.insert({
             fileId: fileId,
             versionId: version.id
         }).execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         return File.whereUpdate({id: fileId}, {version: version.id})
             .execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         tx.commit();
         return done();
     }).then(null, function(err) {

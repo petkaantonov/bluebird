@@ -5,7 +5,7 @@ var util = require('util');
 
 var path = require('path');
 
-global.LIKELIHOOD_OF_REJECTION = 0.5;
+global.LIKELIHOOD_OF_REJECTION = args.e || 0.1;
 global.triggerIntentionalError = function(){
     if(LIKELIHOOD_OF_REJECTION && Math.random() <= LIKELIHOOD_OF_REJECTION) throw new Error("intentional failure");
 }
@@ -113,6 +113,7 @@ if (args.file) {
         console.log("");
         console.log("results for", args.n, "parallel executions,",
                     args.t, "ms per I/O op");
+        if(args.e) console.log("Likelihood of rejection:", args.e);
 
         res.sort(function(r1, r2) {
             return parseFloat(r1.data.time) - parseFloat(r2.data.time)

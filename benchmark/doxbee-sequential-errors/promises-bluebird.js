@@ -23,6 +23,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         version.id = Version.createHash(version);
         return Version.insert(version).execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         if (!file) {
             var splitPath = idOrPath.split('/');
             var fileName = splitPath[splitPath.length - 1];
@@ -41,15 +42,18 @@ module.exports = function upload(stream, idOrPath, tag, done) {
             return file.id;
         }
     }).then(function(fileIdV) {
+        triggerIntentionalError();
         fileId = fileIdV;
         return FileVersion.insert({
             fileId: fileId,
             versionId: version.id
         }).execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         return File.whereUpdate({id: fileId}, {version: version.id})
             .execWithin(tx);
     }).then(function() {
+        triggerIntentionalError();
         tx.commit();
         return done();
     }).then(null, function(err) {

@@ -7,6 +7,9 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         tx.rollback();
         return done(err);
     }
+    var triggerIntentionalError = function(){
+        if(LIKELIHOOD_OF_REJECTION && Math.random() <= LIKELIHOOD_OF_REJECTION) done(new Error("intentional failure"));
+    }
 
     blob.put(stream, function (err, blobId) {
         if (err) return done(err);
@@ -23,6 +26,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
             version.id = Version.createHash(version);
             Version.insert(version).execWithin(tx, function (err) {
                 if (err) return backoff(err);
+                triggerIntentionalError();
                 if (!file) {
                     var splitPath = idOrPath.split('/');
                     var fileName = splitPath[splitPath.length - 1];
@@ -34,6 +38,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
                         version: version.id
                     }, function (err, q) {
                         if (err) return backoff(err);
+                        triggerIntentionalError();
                         q.execWithin(tx, function (err) {
                             afterFileExists(err, newId);
                         });
@@ -44,13 +49,16 @@ module.exports = function upload(stream, idOrPath, tag, done) {
             });
             function afterFileExists(err, fileId) {
                 if (err) return backoff(err);
+                triggerIntentionalError();
                 FileVersion.insert({fileId: fileId,versionId: version.id})
                     .execWithin(tx, function (err) {
                         if (err) return backoff(err);
+                        triggerIntentionalError();
                         File.whereUpdate({id: fileId}, {
                             version: version.id
                         }).execWithin(tx, function (err) {
                             if (err) return backoff(err);
+                            triggerIntentionalError();
                             tx.commit(done);
                         });
                 })
