@@ -6,7 +6,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
     function Promise$_Some(promises, howMany, useBound, caller) {
         if ((howMany | 0) !== howMany || howMany < 0) {
-            return apiRejection("howMany must be a positive integer");
+            return apiRejection(POSITIVE_INTEGER_ERROR);
         }
         var ret = Promise$_All(
             promises,

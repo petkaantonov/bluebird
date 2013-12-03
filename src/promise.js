@@ -40,7 +40,7 @@ var apiRejection = require("./errors_api_rejection")(Promise);
 
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
-    return new TypeError("Circular promise resolution chain");
+    return new TypeError(CIRCULAR_RESOLUTION_ERROR);
 };
 
 function isPromise(obj) {
@@ -50,8 +50,10 @@ function isPromise(obj) {
 
 function Promise(resolver) {
     if (typeof resolver !== "function") {
-        throw new TypeError("You must pass a resolver function " +
-            "as the sole argument to the promise constructor");
+        throw new TypeError(CONSTRUCT_ERROR_ARG);
+    }
+    if (this.constructor !== Promise) {
+        throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
     }
     //see constants.js for layout
     this._bitField = NO_STATE;
@@ -67,7 +69,6 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     //reason for rejection or fulfilled value
     this._settledValue = void 0;
-    if (debugging) this._traceParent = this._peekContext();
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -253,7 +254,7 @@ function Promise$_resolveFromSyncValue(value, caller) {
 
 Promise.method = function Promise$_Method(fn) {
     if (typeof fn !== "function") {
-        throw new TypeError("fn must be a function");
+        throw new TypeError(NOT_FUNCTION_ERROR);
     }
     return function Promise$_method() {
         var value;
@@ -275,7 +276,7 @@ Promise.method = function Promise$_Method(fn) {
 Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
 
     if (typeof fn !== "function") {
-        return apiRejection("fn must be a function");
+        return apiRejection(NOT_FUNCTION_ERROR);
     }
     var value = isArray(args)
         ? tryCatchApply(fn, args, ctx)
@@ -336,8 +337,7 @@ Promise.longStackTraces = function Promise$LongStackTraces() {
     if (async.haveItemsQueued() &&
         debugging === false
    ) {
-        throw new Error("Cannot enable long stack traces " +
-        "after promises have been created");
+        throw new Error(LONG_STACK_TRACES_ERROR);
     }
     debugging = true;
 };
@@ -511,13 +511,17 @@ function Promise$_resolveFromResolver(resolver) {
         this._setTrace(this._resolveFromResolver, void 0);
         this._pushContext();
     }
-    function Promise$_fulfiller(val) {
+    function Promise$_resolver(val) {
+        if (promise._tryFollow(val, MUST_ASYNC)) {
+            return;
+        }
         promise._fulfill(val);
     }
     function Promise$_rejecter(val) {
+        promise._attachExtraTrace(val);
         promise._reject(val);
     }
-    var r = tryCatch2(resolver, this, Promise$_fulfiller, Promise$_rejecter);
+    var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
     if (localDebugging) this._popContext();
 
     if (r !== void 0 && r === errorObj) {
@@ -764,6 +768,7 @@ Promise.prototype._setTrace = function Promise$_setTrace(caller, parent) {
     ASSERT(this._trace == null);
     if (debugging) {
         var context = this._peekContext();
+        this._traceParent = context;
         var isTopLevel = context === void 0;
         if (parent !== void 0 &&
             parent._traceParent === context) {

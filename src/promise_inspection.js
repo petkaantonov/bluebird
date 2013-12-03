@@ -63,8 +63,7 @@ PromiseInspection.prototype.isPending = function PromiseInspection$isPending() {
  */
 PromiseInspection.prototype.value = function PromiseInspection$value() {
     if (!this.isFulfilled()) {
-        throw new TypeError(
-            "cannot get fulfillment value of a non-fulfilled promise");
+        throw new TypeError(INSPECTION_VALUE_ERROR);
     }
     return this._settledValue;
 };
@@ -79,8 +78,7 @@ PromiseInspection.prototype.value = function PromiseInspection$value() {
  */
 PromiseInspection.prototype.error = function PromiseInspection$error() {
     if (!this.isRejected()) {
-        throw new TypeError(
-            "cannot get rejection reason of a non-rejected promise");
+        throw new TypeError(INSPECTION_REASON_ERROR);
     }
     return this._settledValue;
 };

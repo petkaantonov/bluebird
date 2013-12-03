@@ -71,4 +71,21 @@ CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CONSTANT(THROW, 1);
 CONSTANT(RETURN, 2);
 
+
+//deprecated
+CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.");
+
+//errors
+CONSTANT(CONSTRUCT_ERROR_ARG, "the promise constructor requires a resolver function");
+CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly");
 CONSTANT(COLLECTION_ERROR,  "expecting an array, a promise or a thenable" );
+CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function");
+CONSTANT(NOT_FUNCTION_ERROR, "fn must be a function");
+CONSTANT(LONG_STACK_TRACES_ERROR, "cannot enable long stack traces after promises have been created");
+CONSTANT(INSPECTION_VALUE_ERROR, "cannot get fulfillment value of a non-fulfilled promise");
+CONSTANT(INSPECTION_REASON_ERROR, "cannot get rejection reason of a non-rejected promise");
+CONSTANT(PROMISIFY_TYPE_ERROR, "the target of promisifyAll must be an object or a function");
+CONSTANT(CIRCULAR_RESOLUTION_ERROR, "circular promise resolution chain");
+CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object");
+CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer");
+CONSTANT(TIMEOUT_ERROR, "operation timed out after");

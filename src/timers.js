@@ -41,7 +41,7 @@ module.exports = function(Promise, INTERNAL) {
         //Don't waste time concatting strings or creating stack traces
         if (!promise.isPending()) return;
         if (typeof message !== "string") {
-            message = "Operation timed out after " + ms + " ms"
+            message = TIMEOUT_ERROR + " " + ms + " ms"
         }
         var err = new TimeoutError(message)
         promise._attachExtraTrace(err);
@@ -54,7 +54,7 @@ module.exports = function(Promise, INTERNAL) {
             value = void 0;
         }
         if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("Promise.delay expects a positive integer");
+            return apiRejection(POSITIVE_INTEGER_ERROR);
         }
         if (typeof caller !== "function") {
             caller = Promise.delay;
@@ -93,8 +93,7 @@ module.exports = function(Promise, INTERNAL) {
 
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
         if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("Promise.prototype.timeout " +
-                "expects a positive integer");
+            return apiRejection(POSITIVE_INTEGER_ERROR);
         }
 
         var ret = new Promise(INTERNAL);
