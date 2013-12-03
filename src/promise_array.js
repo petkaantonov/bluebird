@@ -72,6 +72,8 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             this._values = values;
         }
         else if (values.isPending()) {
+            ASSERT(typeof resolveValueIfEmpty === "number");
+            ASSERT(resolveValueIfEmpty < 0);
             values._then(
                 this._init,
                 this._reject,
@@ -113,22 +115,8 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         var maybePromise = Promise._cast(promise, void 0, void 0);
         if (maybePromise instanceof Promise &&
             maybePromise.isPending()) {
-            //Guaranteed to be called after the possible direct scan
-            maybePromise._then(
-                this._promiseFulfilled,
-                this._promiseRejected,
-                this._promiseProgressed,
-
-                this, //Smuggle receiver - .bind avoided round 1
-                i, //Smuggle the index as internal data
-                  //to avoid creating closures in this loop
-                  //- .bind avoided round 2
-
-                  //Will not chain so creating a Promise from
-                  //the ._then() would be a waste anyway
-
-                 this._scanDirectValues
-           );
+            //Optimized for just passing the updates through
+            maybePromise._proxyPromiseArray(this, i);
         }
         else {
             isDirectScanNeeded = true;
@@ -223,6 +211,7 @@ function PromiseArray$_promiseProgressed(progressValue, index) {
     });
 };
 
+
 PromiseArray.prototype._promiseFulfilled =
 function PromiseArray$_promiseFulfilled(value, index) {
     if (this._isResolved()) return;
@@ -236,7 +225,8 @@ function PromiseArray$_promiseFulfilled(value, index) {
 };
 
 PromiseArray.prototype._promiseRejected =
-function PromiseArray$_promiseRejected(reason) {
+function PromiseArray$_promiseRejected(reason, index) {
+    ASSERT(index >= 0);
     if (this._isResolved()) return;
     ASSERT(isArray(this._values));
     this._totalResolved++;

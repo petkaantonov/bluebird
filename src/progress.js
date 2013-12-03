@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, isPromiseArrayProxy) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var async = require("./async.js");
@@ -80,7 +80,7 @@ module.exports = function(Promise) {
 
     Promise.prototype._progressUnchecked =
     function Promise$_progressUnchecked(progressValue) {
-        ASSERT(this.isPending());
+        if (!this.isPending()) return;
         var len = this._length();
 
         for (var i = 0; i < len; i += CALLBACK_SIZE) {
@@ -89,8 +89,15 @@ module.exports = function(Promise) {
             //if promise is not instanceof Promise
             //it is internally smuggled data
             if (!Promise.is(promise)) {
+                var receiver = this._receiverAt(i);
                 if (typeof handler === "function") {
-                    handler.call(this._receiverAt(i), progressValue, promise);
+                    handler.call(receiver, progressValue, promise);
+                }
+                else if (Promise.is(receiver) && receiver._isProxied()) {
+                    receiver._progressUnchecked(progressValue);
+                }
+                else if (isPromiseArrayProxy(receiver, promise)) {
+                    receiver._promiseProgressed(progressValue, promise);
                 }
                 continue;
             }

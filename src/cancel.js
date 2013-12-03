@@ -40,7 +40,7 @@ module.exports = function(Promise, INTERNAL) {
     Promise.prototype.uncancellable = function Promise$uncancellable() {
         var ret = new Promise(INTERNAL);
         ret._setTrace(this.uncancellable, this);
-        ret._follow(this, MUST_ASYNC);
+        ret._follow(this);
         ret._unsetCancellable();
         if (this._isBound()) ret._setBoundTo(this._boundTo);
         return ret;
