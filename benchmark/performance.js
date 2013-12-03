@@ -5,6 +5,11 @@ var util = require('util');
 
 var path = require('path');
 
+global.LIKELIHOOD_OF_REJECTION = 0.5;
+global.triggerIntentionalError = function(){
+    if(LIKELIHOOD_OF_REJECTION && Math.random() <= LIKELIHOOD_OF_REJECTION) throw new Error("intentional failure");
+}
+
 function printPlatform() {
     console.log("\nPlatform info:");
     var os = require("os");
@@ -63,7 +68,7 @@ var perf = module.exports = function(args, done) {
     }
 
     function cb (err) {
-        if (err) {
+        if (err && err.message !== "intentional failure") {
             ++errs;
             lastErr = err;
         }

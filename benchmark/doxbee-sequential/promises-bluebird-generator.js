@@ -20,6 +20,7 @@ module.exports = bluebird.coroutine(function* upload(stream, idOrPath, tag, done
         };
         version.id = Version.createHash(version);
         yield Version.insert(version).execWithin(tx);
+        triggerIntentionalError();
         if (!file) {
             var splitPath = idOrPath.split('/');
             var fileName = splitPath[splitPath.length - 1];
@@ -31,11 +32,14 @@ module.exports = bluebird.coroutine(function* upload(stream, idOrPath, tag, done
             }
             var query = yield self.createQuery(idOrPath, file);
             yield query.execWithin(tx);
+            triggerIntentionalError();
         }
         yield FileVersion.insert({fileId: file.id, versionId: version.id})
             .execWithin(tx);
+        triggerIntentionalError();
         yield File.whereUpdate({id: file.id}, {version: version.id})
             .execWithin(tx);
+        triggerIntentionalError();
         tx.commit();
         done();
     } catch (err) {
