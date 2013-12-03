@@ -7,7 +7,6 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         tx.rollback();
         return done(err);
     }
-
     blob.put(stream, function (err, blobId) {
         if (err) return done(err);
         self.byUuidOrPath(idOrPath).get(function (err, file) {

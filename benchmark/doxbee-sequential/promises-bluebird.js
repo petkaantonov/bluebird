@@ -52,7 +52,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
     }).then(function() {
         tx.commit();
         return done();
-    }).then(null, function(err) {
+    }, function(err) {
         tx.rollback();
         return done(err);
     });
