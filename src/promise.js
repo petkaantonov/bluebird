@@ -724,7 +724,7 @@ function Promise$_settlePromiseFromHandler(
                     ? makeSelfResolutionError()
                     : ensureNotHandled(x.e);
         if (x !== NEXT_FILTER) promise._attachExtraTrace(err);
-        promise._reject(err);
+        promise._rejectUnchecked(err);
     }
     else {
         var castValue = Promise._cast(x,
@@ -733,13 +733,13 @@ function Promise$_settlePromiseFromHandler(
 
         if (isPromise(castValue)) {
             promise._follow(castValue);
-            if(castValue._cancellable()) {
+            if (castValue._cancellable()) {
                 promise._cancellationParent = castValue;
                 promise._setCancellable();
             }
         }
         else {
-            promise._fulfill(x);
+            promise._fulfillUnchecked(x);
         }
     }
 };
