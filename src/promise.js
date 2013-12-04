@@ -649,22 +649,8 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     promise._follow(promiseForAll);
 };
 
-Promise.prototype._settlePromiseFromHandler =
-function Promise$_settlePromiseFromHandler(
-    handler, receiver, value, promise
-) {
-
-    //if promise is not instanceof Promise
-    //it is internally smuggled data
-    if (!isPromise(promise)) {
-        handler.call(receiver, value, promise);
-        return;
-    }
-
-    var isRejected = this.isRejected();
-
-    if (isRejected &&
-        typeof value === "object" &&
+Promise.prototype._markHandled = function Promise$_markHandled(value) {
+    if( typeof value === "object" &&
         value !== null) {
         var handledState = value[ERROR_HANDLED_KEY];
 
@@ -676,74 +662,84 @@ function Promise$_settlePromiseFromHandler(
                 withHandledMarked(handledState);
         }
     }
+};
 
-    var x;
-    var localDebugging = debugging;
-    //Special receiver that means we are .applying an array of arguments
-    //(for .spread() at the moment)
-    if (!isRejected && receiver === APPLY) {
-        //Array of non-promise values is fast case
-        //.spread has a bit convoluted semantics otherwise
-        var boundTo = this._isBound() ? this._boundTo : void 0;
-        if (isArray(value)) {
-            //Shouldnt be many items to loop through
-            //since the spread target callback will have
-            //a formal parameter for each item in the array
-            var caller = this._settlePromiseFromHandler;
-            for (var i = 0, len = value.length; i < len; ++i) {
-                if (isPromise(Promise._cast(value[i], caller, void 0))) {
-                    this._spreadSlowCase(handler, promise, value, boundTo);
-                    return;
-                }
+Promise.prototype._callSpread =
+function Promise$_callSpread(handler, promise, value, localDebugging) {
+    //Array of non-promise values is fast case
+    //.spread has a bit convoluted semantics otherwise
+    var boundTo = this._isBound() ? this._boundTo : void 0;
+    if (isArray(value)) {
+        //Shouldnt be many items to loop through
+        //since the spread target callback will have
+        //a formal parameter for each item in the array
+        var caller = this._settlePromiseFromHandler;
+        for (var i = 0, len = value.length; i < len; ++i) {
+            if (isPromise(Promise._cast(value[i], caller, void 0))) {
+                this._spreadSlowCase(handler, promise, value, boundTo);
+                return;
             }
         }
-        if (localDebugging) promise._pushContext();
-        x = tryCatchApply(handler, value, boundTo);
+    }
+    if (localDebugging) promise._pushContext();
+    return tryCatchApply(handler, value, boundTo);
+};
+
+Promise.prototype._callHandler =
+function Promise$_callHandler(
+    handler, receiver, promise, value, localDebugging) {
+    //Special receiver that means we are .applying an array of arguments
+    //(for .spread() at the moment)
+    var x;
+    if (receiver === APPLY && !this.isRejected()) {
+        x = this._callSpread(handler, promise, value, localDebugging);
     }
     else {
         if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
-
     if (localDebugging) promise._popContext();
+    return x;
+};
 
-    //Special value returned from .finally and CatchFilter#doFilter
-    //to minimize exception throwing and catching
-    if (x === NEXT_FILTER) {
-        ASSERT(isRejected);
-        //async.invoke is not needed
-        promise._reject(x.e);
+Promise.prototype._settlePromiseFromHandler =
+function Promise$_settlePromiseFromHandler(
+    handler, receiver, value, promise
+) {
+    //if promise is not instanceof Promise
+    //it is internally smuggled data
+    if (!isPromise(promise)) {
+        handler.call(receiver, value, promise);
+        return;
     }
-    else if (x === errorObj) {
-        ensureNotHandled(x.e);
-        promise._attachExtraTrace(x.e);
-        async.invoke(promise._reject, promise, x.e);
-    }
-    else if (x === promise) {
-        var err = makeSelfResolutionError();
-        this._attachExtraTrace(err);
-        async.invoke(
-            promise._reject,
-            promise,
-            //1. If promise and x refer to the same object,
-            //reject promise with a TypeError as the reason.
-            err
-       );
+    if (this.isRejected()) this._markHandled(value);
+    var localDebugging = debugging;
+    var x = this._callHandler(handler, receiver,
+                                promise, value, localDebugging);
+
+    if (promise._isFollowing()) return;
+
+    if (x === errorObj || x === promise || x === NEXT_FILTER) {
+        var err = x === promise
+                    ? makeSelfResolutionError()
+                    : ensureNotHandled(x.e);
+        if (x !== NEXT_FILTER) promise._attachExtraTrace(err);
+        promise._reject(err);
     }
     else {
-        var castValue = Promise._cast(x, this._settlePromiseFromHandler,
-                                        promise);
-        var isThenable = castValue !== x;
+        var castValue = Promise._cast(x,
+                    localDebugging ? this._settlePromiseFromHandler : void 0,
+                    promise);
 
-        if (isThenable || isPromise(castValue)) {
-            promise._tryFollow(castValue);
+        if (isPromise(castValue)) {
+            promise._follow(castValue);
             if(castValue._cancellable()) {
                 promise._cancellationParent = castValue;
                 promise._setCancellable();
             }
         }
         else {
-            async.invoke(promise._fulfill, promise, x);
+            promise._fulfill(x);
         }
     }
 };

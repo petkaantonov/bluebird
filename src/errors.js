@@ -33,6 +33,7 @@ function ensureNotHandled(reason) {
         ((field = reason[ERROR_HANDLED_KEY]) !== void 0)) {
         reason[ERROR_HANDLED_KEY] = withHandledUnmarked(field);
     }
+    return reason;
 }
 
 function attachDefaultState(obj) {
