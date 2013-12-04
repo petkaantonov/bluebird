@@ -78,6 +78,8 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     //reason for rejection or fulfilled value
     this._settledValue = void 0;
+    //for .bind
+    this._boundTo = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 

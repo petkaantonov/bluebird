@@ -28,8 +28,7 @@ CONSTANT(CALLBACK_SIZE, 5);
 //N = isRejected
 //C = isCancellable
 //T = isFinal (used for .done() implementation)
-//B = isBound (to avoid property load misses
-//              that would come from reading ._boundTo === void 0)
+//B = isBound
 //P = isProxied (optimization when .then listeners on a promise are
 //                just respective fate sealers on some other promise)
 //R = [Reserved]
