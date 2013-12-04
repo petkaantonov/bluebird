@@ -407,9 +407,6 @@ function Promise$_then(
     internalData,
     caller
 ) {
-    if(caller !== this.then && caller !== this.done &&
-        caller !== this.progressed)
-        ASSERT(didProgress === void 0);
     ASSERT(arguments.length === 6);
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
