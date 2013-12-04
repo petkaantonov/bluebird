@@ -15,6 +15,10 @@ module.exports = (function(){
         typeof document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string") {
+            //Strict mode, Firefox extension
+            if(window.wrappedJSObject !== undefined){
+                return window.wrappedJSObject;
+            }
         return window;
     }
 })();
