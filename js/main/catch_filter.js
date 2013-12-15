@@ -21,7 +21,6 @@
  */
 "use strict";
 module.exports = function(NEXT_FILTER) {
-var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
@@ -81,7 +80,6 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
             }
         }
     }
-    ensureNotHandled(e);
     NEXT_FILTER.e = e;
     return NEXT_FILTER;
 };

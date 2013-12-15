@@ -54,6 +54,7 @@ function ensureNotHandled(reason) {
         ((field = reason["__promiseHandled__"]) !== void 0)) {
         reason["__promiseHandled__"] = withHandledUnmarked(field);
     }
+    return reason;
 }
 
 function attachDefaultState(obj) {

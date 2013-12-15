@@ -672,7 +672,6 @@ return CapturedTrace;
  */
 "use strict";
 module.exports = function(NEXT_FILTER) {
-var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
@@ -732,7 +731,6 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
             }
         }
     }
-    ensureNotHandled(e);
     NEXT_FILTER.e = e;
     return NEXT_FILTER;
 };
@@ -740,7 +738,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":10,"./es5.js":12,"./util.js":39}],9:[function(require,module,exports){
+},{"./es5.js":12,"./util.js":39}],9:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -882,6 +880,7 @@ function ensureNotHandled(reason) {
         ((field = reason["__promiseHandled__"]) !== void 0)) {
         reason["__promiseHandled__"] = withHandledUnmarked(field);
     }
+    return reason;
 }
 
 function attachDefaultState(obj) {
@@ -1395,6 +1394,9 @@ module.exports = (function(){
         typeof document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string") {
+            if(window.wrappedJSObject !== undefined){
+                return window.wrappedJSObject;
+            }
         return window;
     }
 })();
@@ -1791,6 +1793,7 @@ function Promise(resolver) {
     this._promise0 = void 0;
     this._receiver0 = void 0;
     this._settledValue = void 0;
+    this._boundTo = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -2110,8 +2113,6 @@ function Promise$_then(
     internalData,
     caller
 ) {
-    if(caller !== this.then && caller !== this.done &&
-        caller !== this.progressed)
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
@@ -2329,20 +2330,8 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     promise._follow(promiseForAll);
 };
 
-Promise.prototype._settlePromiseFromHandler =
-function Promise$_settlePromiseFromHandler(
-    handler, receiver, value, promise
-) {
-
-    if (!isPromise(promise)) {
-        handler.call(receiver, value, promise);
-        return;
-    }
-
-    var isRejected = this.isRejected();
-
-    if (isRejected &&
-        typeof value === "object" &&
+Promise.prototype._markHandled = function Promise$_markHandled(value) {
+    if( typeof value === "object" &&
         value !== null) {
         var handledState = value["__promiseHandled__"];
 
@@ -2354,61 +2343,75 @@ function Promise$_settlePromiseFromHandler(
                 withHandledMarked(handledState);
         }
     }
+};
 
-    var x;
-    var localDebugging = debugging;
-    if (!isRejected && receiver === APPLY) {
-        var boundTo = this._isBound() ? this._boundTo : void 0;
-        if (isArray(value)) {
-            var caller = this._settlePromiseFromHandler;
-            for (var i = 0, len = value.length; i < len; ++i) {
-                if (isPromise(Promise._cast(value[i], caller, void 0))) {
-                    this._spreadSlowCase(handler, promise, value, boundTo);
-                    return;
-                }
+Promise.prototype._callSpread =
+function Promise$_callSpread(handler, promise, value, localDebugging) {
+    var boundTo = this._isBound() ? this._boundTo : void 0;
+    if (isArray(value)) {
+        var caller = this._settlePromiseFromHandler;
+        for (var i = 0, len = value.length; i < len; ++i) {
+            if (isPromise(Promise._cast(value[i], caller, void 0))) {
+                this._spreadSlowCase(handler, promise, value, boundTo);
+                return;
             }
         }
-        if (localDebugging) promise._pushContext();
-        x = tryCatchApply(handler, value, boundTo);
+    }
+    if (localDebugging) promise._pushContext();
+    return tryCatchApply(handler, value, boundTo);
+};
+
+Promise.prototype._callHandler =
+function Promise$_callHandler(
+    handler, receiver, promise, value, localDebugging) {
+    var x;
+    if (receiver === APPLY && !this.isRejected()) {
+        x = this._callSpread(handler, promise, value, localDebugging);
     }
     else {
         if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
-
     if (localDebugging) promise._popContext();
+    return x;
+};
 
-    if (x === NEXT_FILTER) {
-        promise._reject(x.e);
+Promise.prototype._settlePromiseFromHandler =
+function Promise$_settlePromiseFromHandler(
+    handler, receiver, value, promise
+) {
+    if (!isPromise(promise)) {
+        handler.call(receiver, value, promise);
+        return;
     }
-    else if (x === errorObj) {
-        ensureNotHandled(x.e);
-        promise._attachExtraTrace(x.e);
-        async.invoke(promise._reject, promise, x.e);
-    }
-    else if (x === promise) {
-        var err = makeSelfResolutionError();
-        this._attachExtraTrace(err);
-        async.invoke(
-            promise._reject,
-            promise,
-            err
-       );
+    if (this.isRejected()) this._markHandled(value);
+    var localDebugging = debugging;
+    var x = this._callHandler(handler, receiver,
+                                promise, value, localDebugging);
+
+    if (promise._isFollowing()) return;
+
+    if (x === errorObj || x === promise || x === NEXT_FILTER) {
+        var err = x === promise
+                    ? makeSelfResolutionError()
+                    : ensureNotHandled(x.e);
+        if (x !== NEXT_FILTER) promise._attachExtraTrace(err);
+        promise._rejectUnchecked(err);
     }
     else {
-        var castValue = Promise._cast(x, this._settlePromiseFromHandler,
-                                        promise);
-        var isThenable = castValue !== x;
+        var castValue = Promise._cast(x,
+                    localDebugging ? this._settlePromiseFromHandler : void 0,
+                    promise);
 
-        if (isThenable || isPromise(castValue)) {
-            promise._tryFollow(castValue);
-            if(castValue._cancellable()) {
+        if (isPromise(castValue)) {
+            promise._follow(castValue);
+            if (castValue._cancellable()) {
                 promise._cancellationParent = castValue;
                 promise._setCancellable();
             }
         }
         else {
-            async.invoke(promise._fulfill, promise, x);
+            promise._fulfillUnchecked(x);
         }
     }
 };
