@@ -33,6 +33,9 @@ module.exports = (function(){
         typeof document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string") {
+            if(window.wrappedJSObject !== undefined){
+                return window.wrappedJSObject;
+            }
         return window;
     }
 })();

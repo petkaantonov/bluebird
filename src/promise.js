@@ -79,6 +79,10 @@ function Promise(resolver) {
     //reason for rejection or fulfilled value
     this._settledValue = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+
+    if (Promise.AlwaysCancellable) {
+        this.cancellable();
+    }
 }
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
@@ -1182,4 +1186,5 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AlwaysCancellable = false;
 };

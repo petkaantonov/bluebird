@@ -23,28 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-;(function (f) {
-  // CommonJS
-  if (typeof exports === "object") {
-    module.exports = f();
-
-  // RequireJS
-  } else if (typeof define === "function" && define.amd) {
-    define(f);
-
-  // <script>
-  } else {
-    if (typeof window !== "undefined") {
-      window.Promise = f();
-    } else if (typeof global !== "undefined") {
-      global.Promise = f();
-    } else if (typeof self !== "undefined") {
-      self.Promise = f();
-    }
-  }
-
-})(function () {var define,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.Promise=e():"undefined"!=typeof global?global.Promise=e():"undefined"!=typeof self&&(self.Promise=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1395,6 +1374,9 @@ module.exports = (function(){
         typeof document !== "undefined" &&
         typeof navigator !== "undefined" && navigator !== null &&
         typeof navigator.appName === "string") {
+            if(window.wrappedJSObject !== undefined){
+                return window.wrappedJSObject;
+            }
         return window;
     }
 })();
@@ -1792,6 +1774,10 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     this._settledValue = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+
+    if (Promise.AlwaysCancellable) {
+        this.cancellable();
+    }
 }
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
@@ -2819,6 +2805,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AlwaysCancellable = false;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_All,PromiseArray);
@@ -5018,7 +5005,5 @@ module.exports = ret;
 
 },{"./assert.js":2,"./es5.js":12,"./global.js":16}]},{},[4])
 (4)
-//trick uglify-js into not minifying
 });
-
 ;

@@ -90,6 +90,10 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     this._settledValue = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+
+    if (Promise.AlwaysCancellable) {
+        this.cancellable();
+    }
 }
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
@@ -1117,6 +1121,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AlwaysCancellable = false;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_All,PromiseArray);
