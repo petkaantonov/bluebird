@@ -23,28 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-;(function (f) {
-  // CommonJS
-  if (typeof exports === "object") {
-    module.exports = f();
-
-  // RequireJS
-  } else if (typeof define === "function" && define.amd) {
-    define(f);
-
-  // <script>
-  } else {
-    if (typeof window !== "undefined") {
-      window.Promise = f();
-    } else if (typeof global !== "undefined") {
-      global.Promise = f();
-    } else if (typeof self !== "undefined") {
-      self.Promise = f();
-    }
-  }
-
-})(function () {var define,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.Promise=e():"undefined"!=typeof global?global.Promise=e():"undefined"!=typeof self&&(self.Promise=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1995,6 +1974,38 @@ Promise.method = function Promise$_Method(fn) {
         if (debugging) ret._setTrace(Promise$_method, void 0);
         ret._resolveFromSyncValue(value, Promise$_method);
         return ret;
+    };
+};
+
+Promise.nodeMethod = function Promise$_NodeMethod(fn) {
+    if (typeof fn !== "function") {
+        throw new TypeError("fn must be a function");
+    }
+    return function Promise$_nodeMethod() {
+        var value, nodeFn;
+        if (arguments.length > 0) {
+            var end = arguments.length - 1;
+            nodeFn = arguments[end];
+            if (typeof nodeFn === "function") {
+                var $_len = arguments.length;var args = new Array(end - 0); for(var $_i = 0; $_i < end; ++$_i) {args[$_i - 0] = arguments[$_i];}
+                value = tryCatchApply(fn, args, this);
+            } else {
+                switch(arguments.length) {
+                case 1: value = tryCatch1(fn, this, arguments[0]); break;
+                case 2: value =
+                    tryCatch2(fn, this, arguments[0], arguments[1]); break;
+                default:
+                    var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+                    value = tryCatchApply(fn, args, this); break;
+                }
+            }
+        } else {
+            value = tryCatch1(fn, this, void 0);
+        }
+        var ret = new Promise(INTERNAL);
+        if (debugging) ret._setTrace(Promise$_nodeMethod, void 0);
+        ret._resolveFromSyncValue(value, Promise$_nodeMethod);
+        return ret.nodeify(nodeFn);
     };
 };
 
@@ -5021,7 +5032,5 @@ module.exports = ret;
 
 },{"./assert.js":2,"./es5.js":12,"./global.js":16}]},{},[4])
 (4)
-//trick uglify-js into not minifying
 });
-
 ;
