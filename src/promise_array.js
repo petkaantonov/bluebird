@@ -1,8 +1,9 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
 var ASSERT = require("./assert.js");
 var ensureNotHandled = require("./errors.js").ensureNotHandled;
 var util = require("./util.js");
+var INTERNAL = util.INTERNAL;
 var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;

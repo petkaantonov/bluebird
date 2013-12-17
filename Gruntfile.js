@@ -50,21 +50,21 @@ module.exports = function( grunt ) {
 
 
     var optionalModuleDependencyMap = {
-        "timers.js": ['Promise', 'INTERNAL'],
+        "timers.js": ['Promise'],
         "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
-        "race.js": ['Promise', 'INTERNAL'],
+        "race.js": ['Promise'],
         "call_get.js": ['Promise'],
         "filter.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
-        "generators.js": ['Promise', 'apiRejection', 'INTERNAL'],
+        "generators.js": ['Promise', 'apiRejection'],
         "map.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "nodeify.js": ['Promise'],
-        "promisify.js": ['Promise', 'INTERNAL'],
+        "promisify.js": ['Promise'],
         "props.js": ['Promise', 'PromiseArray'],
         "reduce.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "settle.js": ['Promise', 'Promise$_All', 'PromiseArray'],
         "some.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise', 'isPromiseArrayProxy'],
-        "cancel.js": ['Promise', 'INTERNAL'],
+        "cancel.js": ['Promise'],
         "synchronous_inspection.js": ['Promise']
 
     };

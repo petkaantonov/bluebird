@@ -1,6 +1,6 @@
 "use strict";
-module.exports = function(Promise, apiRejection, INTERNAL) {
-    var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
+module.exports = function(Promise, apiRejection) {
+    var PromiseSpawn = require("./promise_spawn.js")(Promise);
     var errors = require("./errors.js");
     var TypeError = errors.TypeError;
 

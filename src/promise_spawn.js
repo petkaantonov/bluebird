@@ -1,9 +1,10 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
 var ensureNotHandled = errors.ensureNotHandled;
 var util = require("./util.js");
+var INTERNAL = util.INTERNAL;
 var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;

@@ -21,8 +21,9 @@ global.setTimeout( function(_) {
     }
 }, 1, pass);
 
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
     var util = require("./util.js");
+    var INTERNAL = util.INTERNAL;
     var ASSERT = require("./assert.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
