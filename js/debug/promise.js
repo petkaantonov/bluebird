@@ -312,7 +312,6 @@ Promise.nodeMethod = function Promise$_NodeMethod(fn) {
                 value = tryCatchApply(fn, args, this);
             } else {
                 switch(arguments.length) {
-                case 0: value = tryCatch1(fn, this, void 0); break;
                 case 1: value = tryCatch1(fn, this, arguments[0]); break;
                 case 2: value =
                     tryCatch2(fn, this, arguments[0], arguments[1]); break;
@@ -330,7 +329,6 @@ Promise.nodeMethod = function Promise$_NodeMethod(fn) {
         return ret.nodeify(nodeFn);
     };
 };
-
 
 Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
 
