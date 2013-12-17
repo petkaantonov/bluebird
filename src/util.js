@@ -195,7 +195,8 @@ var ret = {
     withAppended: withAppended,
     asString: asString,
     maybeWrapAsError: maybeWrapAsError,
-    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver
+    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
+    INTERNAL: function() {}
 };
 
 module.exports = ret;

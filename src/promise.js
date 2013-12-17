@@ -6,11 +6,11 @@ var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
 
-var INTERNAL = function(){};
+var INTERNAL = util.INTERNAL;
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
+var PromiseArray = require("./promise_array.js")(Promise);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");

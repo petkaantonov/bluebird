@@ -1,7 +1,9 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
     var apiRejection = require("./errors_api_rejection.js")(Promise);
-    var isArray = require("./util.js").isArray;
+    var util = require("./util.js");
+    var isArray = util.isArray;
+    var INTERNAL = util.INTERNAL;
 
     var raceLater = function Promise$_raceLater(promise) {
         return promise.then(function Promise$_lateRacer(array) {

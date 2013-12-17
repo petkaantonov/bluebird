@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
+    var INTERNAL = require("./util.js").INTERNAL;
     var errors = require("./errors.js");
     var async = require("./async.js");
     var ASSERT = require("./assert.js");

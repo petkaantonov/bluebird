@@ -1,7 +1,8 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
 var THIS = {};
 var util = require("./util.js");
+var INTERNAL = util.INTERNAL;
 var es5 = require("./es5.js");
 var errors = require("./errors.js");
 var nodebackForPromise = require("./promise_resolver.js")
