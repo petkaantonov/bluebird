@@ -19,7 +19,9 @@ describe("Promise.nodeify", function(){
 				nested.resolve(value * 2);
 			}, 10);
 
-			return _defered;
+			return nested;
+		}).then(function (value) {
+			assert(value === 20);
 		}).nodeify(function (err, value) {
 			assert(value === 20);
 			done();
