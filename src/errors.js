@@ -36,6 +36,19 @@ function ensureNotHandled(reason) {
     return reason;
 }
 
+function markAsOriginatingFromRejection(e) {
+    try {
+        notEnumerableProp(e, REJECTION_ERROR_KEY, RejectionError);
+    }
+    catch(ignore) {}
+}
+
+function originatesFromRejection(e) {
+    if (e == null) return false;
+    return ((e instanceof RejectionError) ||
+        e[REJECTION_ERROR_KEY] === RejectionError);
+}
+
 function attachDefaultState(obj) {
     try {
         notEnumerableProp(obj, ERROR_HANDLED_KEY, DEFAULT_STATE);
@@ -119,6 +132,8 @@ module.exports = {
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,
+    originatesFromRejection: originatesFromRejection,
+    markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     attachDefaultState: attachDefaultState,
     ensureNotHandled: ensureNotHandled,
     withHandledUnmarked: withHandledUnmarked,

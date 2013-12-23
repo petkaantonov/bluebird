@@ -24,6 +24,7 @@ global.setTimeout( function(_) {
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
+    var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
 
@@ -33,7 +34,8 @@ module.exports = function(Promise, INTERNAL) {
         if (typeof message !== "string") {
             message = TIMEOUT_ERROR + " " + ms + " ms"
         }
-        var err = new TimeoutError(message)
+        var err = new TimeoutError(message);
+        errors.markAsOriginatingFromRejection(err);
         promise._attachExtraTrace(err);
         promise._rejectUnchecked(err);
     };

@@ -1,6 +1,7 @@
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
+    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
@@ -53,7 +54,7 @@ module.exports = function(Promise) {
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(ret.e);
             }
-            resolver.reject(ret.e);
+            resolver.promise._reject(ret.e);
         }
         return resolver.promise;
 
@@ -75,6 +76,7 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
+            errors.markAsOriginatingFromRejection(r);
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }

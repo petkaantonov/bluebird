@@ -3,10 +3,8 @@ module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
 var es5 = require("./es5.js");
-var errors = require("./errors.js");
 var nodebackForPromise = require("./promise_resolver.js")
     ._nodebackForPromise;
-var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
@@ -74,10 +72,6 @@ var inheritedMethods = (function() {
         };
     }
 })();
-
-Promise.prototype.error = function Promise$_error(fn) {
-    return this.caught(RejectionError, fn);
-};
 
 function makeNodePromisifiedEval(callback, receiver, originalName) {
     function getCall(count) {
