@@ -629,8 +629,7 @@ describe("RejectionError wrapping", function() {
     });
 
     specify("should not wrap typeback", function(done) {
-        typeback().error(assert.fail)
-            .caught(CustomError, function(e){
+        typeback().caught(CustomError, function(e){
                 done();
             });
     });
