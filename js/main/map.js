@@ -34,6 +34,8 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         var shouldDefer = false;
 
+        var ret = new Array(values.length);
+
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
                 if (values[i] === void 0 &&
@@ -41,16 +43,21 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     continue;
                 }
                 var value = fn(values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         else {
@@ -60,25 +67,30 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     continue;
                 }
                 var value = fn.call(receiver, values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         return shouldDefer
-            ? Promise$_All(values, PromiseArray,
+            ? Promise$_All(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
-            : values;
+            : ret;
     }
 
-    function Promise$_Map(promises, fn, useBound, caller) {
+    function Promise$_Map(promises, fn, useBound, caller, ref) {
         if (typeof fn !== "function") {
             return apiRejection("fn must be a function");
         }
@@ -90,15 +102,20 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        return Promise$_All(
+        var ret = Promise$_All(
             promises,
             PromiseArray,
             caller,
             useBound === true && promises._isBound()
                 ? promises._boundTo
                 : void 0
-       ).promise()
-        ._then(
+       ).promise();
+
+        if (ref !== void 0) {
+            ref.ref = ret;
+        }
+
+        return ret._then(
             Promise$_mapper,
             void 0,
             void 0,
@@ -108,11 +125,11 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
        );
     }
 
-    Promise.prototype.map = function Promise$map(fn) {
-        return Promise$_Map(this, fn, true, this.map);
+    Promise.prototype.map = function Promise$map(fn, ref) {
+        return Promise$_Map(this, fn, true, this.map, ref);
     };
 
-    Promise.map = function Promise$Map(promises, fn) {
-        return Promise$_Map(promises, fn, false, Promise.map);
+    Promise.map = function Promise$Map(promises, fn, ref) {
+        return Promise$_Map(promises, fn, false, Promise.map, ref);
     };
 };

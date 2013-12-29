@@ -20,74 +20,51 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
-
+module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
+    var isArray = require("./util.js").isArray;
 
-    function Promise$_filterer(values) {
-        var fn = this;
-        var receiver = void 0;
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
-        }
-        ASSERT(((typeof fn) === "function"),
-    "typeof fn === \u0022function\u0022");
-        var ret = new Array(values.length);
+    function Promise$_filter(booleans) {
+        var values = this._settledValue;
+        ASSERT(isArray(values),
+    "isArray(values)");
+        ASSERT(isArray(booleans),
+    "isArray(booleans)");
+        ASSERT((values.length === booleans.length),
+    "values.length === booleans.length");
+
+        var len = values.length;
+        var ret = new Array(len);
         var j = 0;
-        if (receiver === void 0) {
-             for (var i = 0, len = values.length; i < len; ++i) {
-                var value = values[i];
-                if (value === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
-                if (fn(value, i, len)) {
-                    ret[j++] = value;
-                }
+
+        for (var i = 0; i < len; ++i) {
+            var bool = booleans[i];
+
+            if (bool === void 0 && !(i in booleans)) {
+                ASSERT((values[i] === (void 0)),
+    "values[i] === void 0");
+                ASSERT((! (i in values)),
+    "!(i in values)");
+                continue;
             }
-        }
-        else {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = values[i];
-                if (value === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
-                if (fn.call(receiver, value, i, len)) {
-                    ret[j++] = value;
-                }
-            }
+
+            if (bool) ret[j++] = values[i];
+
         }
         ret.length = j;
         return ret;
     }
 
-    function Promise$_Filter(promises, fn, useBound, caller) {
-        if (typeof fn !== "function") {
-            return apiRejection("fn must be a function");
-        }
-
-        if (useBound === true && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
-            };
-        }
-
-        return Promise$_All(promises, PromiseArray, caller,
-                useBound === true && promises._isBound()
-                ? promises._boundTo
-                : void 0)
-            .promise()
-            ._then(Promise$_filterer, void 0, void 0, fn, void 0, caller);
-    }
-
+    var ref = {ref: null};
     Promise.filter = function Promise$Filter(promises, fn) {
-        return Promise$_Filter(promises, fn, false, Promise.filter);
+        return Promise.map(promises, fn, ref)
+            ._then(Promise$_filter, void 0, void 0,
+                    ref.ref, void 0, Promise.filter);
     };
 
     Promise.prototype.filter = function Promise$filter(fn) {
-        return Promise$_Filter(this, fn, true, this.filter);
+        return this.map(fn, ref)
+            ._then(Promise$_filter, void 0, void 0,
+                    ref.ref, void 0, this.filter);
     };
 };

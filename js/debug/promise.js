@@ -50,6 +50,8 @@ var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
+var originatesFromRejection = errors.originatesFromRejection;
+var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var ensureNotHandled = errors.ensureNotHandled;
 var withHandledMarked = errors.withHandledMarked;
 var withStackAttached = errors.withStackAttached;
@@ -251,10 +253,15 @@ function Promise$Resolve(value, caller) {
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
     if (debugging) ret._setTrace(Promise.reject, void 0);
+    markAsOriginatingFromRejection(reason);
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
     return ret;
+};
+
+Promise.prototype.error = function Promise$_error(fn) {
+    return this.caught(originatesFromRejection, fn);
 };
 
 Promise.prototype._resolveFromSyncValue =
@@ -364,7 +371,7 @@ Promise.longStackTraces = function Promise$LongStackTraces() {
    ) {
         throw new Error("cannot enable long stack traces after promises have been created");
     }
-    debugging = true;
+    debugging = CapturedTrace.isSupported();
 };
 
 Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
@@ -611,6 +618,7 @@ function Promise$_resolveFromResolver(resolver) {
     }
     function Promise$_rejecter(val) {
         promise._attachExtraTrace(val);
+        markAsOriginatingFromRejection(val);
         promise._reject(val);
     }
     var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
@@ -1207,7 +1215,7 @@ Promise.noConflict = function() {
 };
 
 if (!CapturedTrace.isSupported()) {
-    Promise.debugging = function(){};
+    Promise.longStackTraces = function(){};
     debugging = false;
 }
 

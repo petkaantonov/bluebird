@@ -35,10 +35,15 @@ function isUntypedError(obj) {
 }
 
 function wrapAsRejectionError(obj) {
+    var ret;
     if (isUntypedError(obj)) {
-        return new RejectionError(obj);
+        ret = new RejectionError(obj);
     }
-    return obj;
+    else {
+        ret = obj;
+    }
+    errors.markAsOriginatingFromRejection(ret);
+    return ret;
 }
 
 function nodebackForPromise(promise) {
@@ -102,6 +107,7 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
 
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
     var promise = this.promise;
+    errors.markAsOriginatingFromRejection(reason);
     promise._attachExtraTrace(reason);
     promise._reject(reason);
 };

@@ -1,5 +1,5 @@
 /**
- * bluebird build version 0.11.5-1
+ * bluebird build version 0.11.6-0
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -883,6 +883,19 @@ function ensureNotHandled(reason) {
     return reason;
 }
 
+function markAsOriginatingFromRejection(e) {
+    try {
+        notEnumerableProp(e, "__rejectionError__", RejectionError);
+    }
+    catch(ignore) {}
+}
+
+function originatesFromRejection(e) {
+    if (e == null) return false;
+    return ((e instanceof RejectionError) ||
+        e["__rejectionError__"] === RejectionError);
+}
+
 function attachDefaultState(obj) {
     try {
         notEnumerableProp(obj, "__promiseHandled__", 0);
@@ -965,6 +978,8 @@ module.exports = {
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,
+    originatesFromRejection: originatesFromRejection,
+    markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     attachDefaultState: attachDefaultState,
     ensureNotHandled: ensureNotHandled,
     withHandledUnmarked: withHandledUnmarked,
@@ -1127,77 +1142,45 @@ else {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
-
+module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
+    var isArray = require("./util.js").isArray;
 
-    function Promise$_filterer(values) {
-        var fn = this;
-        var receiver = void 0;
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
-        }
-        var ret = new Array(values.length);
+    function Promise$_filter(booleans) {
+        var values = this._settledValue;
+        var len = values.length;
+        var ret = new Array(len);
         var j = 0;
-        if (receiver === void 0) {
-             for (var i = 0, len = values.length; i < len; ++i) {
-                var value = values[i];
-                if (value === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
-                if (fn(value, i, len)) {
-                    ret[j++] = value;
-                }
+
+        for (var i = 0; i < len; ++i) {
+            var bool = booleans[i];
+
+            if (bool === void 0 && !(i in booleans)) {
+                continue;
             }
-        }
-        else {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = values[i];
-                if (value === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
-                if (fn.call(receiver, value, i, len)) {
-                    ret[j++] = value;
-                }
-            }
+
+            if (bool) ret[j++] = values[i];
+
         }
         ret.length = j;
         return ret;
     }
 
-    function Promise$_Filter(promises, fn, useBound, caller) {
-        if (typeof fn !== "function") {
-            return apiRejection("fn must be a function");
-        }
-
-        if (useBound === true && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
-            };
-        }
-
-        return Promise$_All(promises, PromiseArray, caller,
-                useBound === true && promises._isBound()
-                ? promises._boundTo
-                : void 0)
-            .promise()
-            ._then(Promise$_filterer, void 0, void 0, fn, void 0, caller);
-    }
-
+    var ref = {ref: null};
     Promise.filter = function Promise$Filter(promises, fn) {
-        return Promise$_Filter(promises, fn, false, Promise.filter);
+        return Promise.map(promises, fn, ref)
+            ._then(Promise$_filter, void 0, void 0,
+                    ref.ref, void 0, Promise.filter);
     };
 
     Promise.prototype.filter = function Promise$filter(fn) {
-        return Promise$_Filter(this, fn, true, this.filter);
+        return this.map(fn, ref)
+            ._then(Promise$_filter, void 0, void 0,
+                    ref.ref, void 0, this.filter);
     };
 };
 
-},{"./assert.js":2}],14:[function(require,module,exports){
+},{"./assert.js":2,"./util.js":39}],14:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -1438,6 +1421,8 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         var shouldDefer = false;
 
+        var ret = new Array(values.length);
+
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
                 if (values[i] === void 0 &&
@@ -1445,16 +1430,21 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     continue;
                 }
                 var value = fn(values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         else {
@@ -1464,25 +1454,30 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     continue;
                 }
                 var value = fn.call(receiver, values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         return shouldDefer
-            ? Promise$_All(values, PromiseArray,
+            ? Promise$_All(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
-            : values;
+            : ret;
     }
 
-    function Promise$_Map(promises, fn, useBound, caller) {
+    function Promise$_Map(promises, fn, useBound, caller, ref) {
         if (typeof fn !== "function") {
             return apiRejection("fn must be a function");
         }
@@ -1494,15 +1489,20 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        return Promise$_All(
+        var ret = Promise$_All(
             promises,
             PromiseArray,
             caller,
             useBound === true && promises._isBound()
                 ? promises._boundTo
                 : void 0
-       ).promise()
-        ._then(
+       ).promise();
+
+        if (ref !== void 0) {
+            ref.ref = ret;
+        }
+
+        return ret._then(
             Promise$_mapper,
             void 0,
             void 0,
@@ -1512,12 +1512,12 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
        );
     }
 
-    Promise.prototype.map = function Promise$map(fn) {
-        return Promise$_Map(this, fn, true, this.map);
+    Promise.prototype.map = function Promise$map(fn, ref) {
+        return Promise$_Map(this, fn, true, this.map, ref);
     };
 
-    Promise.map = function Promise$Map(promises, fn) {
-        return Promise$_Map(promises, fn, false, Promise.map);
+    Promise.map = function Promise$Map(promises, fn, ref) {
+        return Promise$_Map(promises, fn, false, Promise.map, ref);
     };
 };
 
@@ -1754,6 +1754,8 @@ var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
+var originatesFromRejection = errors.originatesFromRejection;
+var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var ensureNotHandled = errors.ensureNotHandled;
 var withHandledMarked = errors.withHandledMarked;
 var withStackAttached = errors.withStackAttached;
@@ -1951,10 +1953,15 @@ function Promise$Resolve(value, caller) {
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
     if (debugging) ret._setTrace(Promise.reject, void 0);
+    markAsOriginatingFromRejection(reason);
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
     return ret;
+};
+
+Promise.prototype.error = function Promise$_error(fn) {
+    return this.caught(originatesFromRejection, fn);
 };
 
 Promise.prototype._resolveFromSyncValue =
@@ -2064,7 +2071,7 @@ Promise.longStackTraces = function Promise$LongStackTraces() {
    ) {
         throw new Error("cannot enable long stack traces after promises have been created");
     }
-    debugging = true;
+    debugging = CapturedTrace.isSupported();
 };
 
 Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
@@ -2256,6 +2263,7 @@ function Promise$_resolveFromResolver(resolver) {
     }
     function Promise$_rejecter(val) {
         promise._attachExtraTrace(val);
+        markAsOriginatingFromRejection(val);
         promise._reject(val);
     }
     var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
@@ -2809,7 +2817,7 @@ Promise.noConflict = function() {
 };
 
 if (!CapturedTrace.isSupported()) {
-    Promise.debugging = function(){};
+    Promise.longStackTraces = function(){};
     debugging = false;
 }
 
@@ -3179,10 +3187,15 @@ function isUntypedError(obj) {
 }
 
 function wrapAsRejectionError(obj) {
+    var ret;
     if (isUntypedError(obj)) {
-        return new RejectionError(obj);
+        ret = new RejectionError(obj);
     }
-    return obj;
+    else {
+        ret = obj;
+    }
+    errors.markAsOriginatingFromRejection(ret);
+    return ret;
 }
 
 function nodebackForPromise(promise) {
@@ -3246,6 +3259,7 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
 
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
     var promise = this.promise;
+    errors.markAsOriginatingFromRejection(reason);
     promise._attachExtraTrace(reason);
     async.invoke(promise._reject, promise, reason);
 };
@@ -3405,10 +3419,8 @@ module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
 var es5 = require("./es5.js");
-var errors = require("./errors.js");
 var nodebackForPromise = require("./promise_resolver.js")
     ._nodebackForPromise;
-var RejectionError = errors.RejectionError;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
@@ -3472,10 +3484,6 @@ var inheritedMethods = (function() {
         };
     }
 })();
-
-Promise.prototype.error = function Promise$_error(fn) {
-    return this.caught(RejectionError, fn);
-};
 
 function makeNodePromisifiedEval(callback, receiver, originalName) {
     function getCall(count) {
@@ -3624,7 +3632,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./assert.js":2,"./errors.js":10,"./es5.js":12,"./promise_resolver.js":23,"./util.js":39}],26:[function(require,module,exports){
+},{"./assert.js":2,"./es5.js":12,"./promise_resolver.js":23,"./util.js":39}],26:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4614,6 +4622,7 @@ module.exports = function(Promise) {
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
+    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
@@ -4661,7 +4670,7 @@ module.exports = function(Promise) {
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(ret.e);
             }
-            resolver.reject(ret.e);
+            resolver.promise._reject(ret.e);
         }
         return resolver.promise;
 
@@ -4683,6 +4692,7 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
+            errors.markAsOriginatingFromRejection(r);
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
@@ -4693,7 +4703,7 @@ module.exports = function(Promise) {
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":2,"./util.js":39}],38:[function(require,module,exports){
+},{"./assert.js":2,"./errors.js":10,"./util.js":39}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -4735,6 +4745,7 @@ global.setTimeout( function(_) {
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
+    var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
 
@@ -4743,7 +4754,8 @@ module.exports = function(Promise, INTERNAL) {
         if (typeof message !== "string") {
             message = "operation timed out after" + " " + ms + " ms"
         }
-        var err = new TimeoutError(message)
+        var err = new TimeoutError(message);
+        errors.markAsOriginatingFromRejection(err);
         promise._attachExtraTrace(err);
         promise._rejectUnchecked(err);
     };
@@ -4811,7 +4823,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./assert.js":2,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
+},{"./assert.js":2,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
