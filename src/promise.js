@@ -357,7 +357,7 @@ Promise.longStackTraces = function Promise$LongStackTraces() {
    ) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
-    debugging = true;
+    debugging = CapturedTrace.isSupported();
 };
 
 Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
@@ -1172,7 +1172,7 @@ Promise.noConflict = function() {
 };
 
 if (!CapturedTrace.isSupported()) {
-    Promise.debugging = function(){};
+    Promise.longStackTraces = function(){};
     debugging = false;
 }
 
