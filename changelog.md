@@ -1,3 +1,16 @@
+## 0.11.6-0 (2013-12-29)
+
+Features:
+
+ - You may now return promises and thenables from the filterer function used in `Promise.filter` and `Promise.prototype.filter`.
+
+Bugfixes:
+
+ - Fix `captureStackTrace` being called when it was `null`
+ - Fix `Promise.map` not unwrapping thenables
+
+## 0.11.5-1 (2013-12-15)
+
 ## 0.11.5-0 (2013-12-03)
 
 Features:
