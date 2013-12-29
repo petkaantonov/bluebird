@@ -4,6 +4,22 @@ Features:
 
  - You may now return promises and thenables from the filterer function used in `Promise.filter` and `Promise.prototype.filter`.
 
+ - `.error()` now catches additional sources of rejections:
+
+    - Rejections originating from `Promise.reject`
+
+    - Rejections originating from thenables using
+    the `reject` callback
+
+    - Rejections originating from promisified callbacks
+    which use the `errback` argument
+
+    - Rejections originating from `new Promise` constructor
+    where the `reject` callback is called explicitly
+
+    - Rejections originating from `PromiseResolver` where
+    `.reject()` method is called explicitly
+
 Bugfixes:
 
  - Fix `captureStackTrace` being called when it was `null`
