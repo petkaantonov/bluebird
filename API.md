@@ -1699,6 +1699,8 @@ Reduce an array, or a promise of an array, which contains a promises (or a mix o
 
 Filter an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `filterer` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
+The return values from the filtered functions are coerced to booleans, with the exception of promises and thenables which are awaited for their eventual result.
+
 [See the instance method `.filter()` for an example.](#filterfunction-filterer---promise)
 
 *The original array is not modified. Sparse array holes are not visited.
