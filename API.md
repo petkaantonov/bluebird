@@ -186,7 +186,7 @@ somePromise.then(function(){
 });
 ```
 
-For a paramater to be considered a type of error that you want to filter, you need the constructor to have its `.prototype` property be `instanceof Error`.
+For a parameter to be considered a type of error that you want to filter, you need the constructor to have its `.prototype` property be `instanceof Error`.
 
 Such a constructor can be minimally created like so:
 
@@ -260,7 +260,7 @@ request("http://www.google.com").then(function(contents){
 
 #####`.error( [rejectedHandler] )` -> `Promise`
 
-Like `.catch` but instead of catching all types of exceptions, it only catches those that don't originate from thrown erros but rather from explicit rejections.
+Like `.catch` but instead of catching all types of exceptions, it only catches those that don't originate from thrown errors but rather from explicit rejections.
 
 For example, if a promisified function errbacks the node-style callback with an error, that could be caught with `.error()`. However if the node-style callback **throws** an error, only `.catch` would catch that.
 
@@ -593,7 +593,7 @@ Create a promise that is rejected with the given `reason`.
 
 #####`Promise.defer()` -> `PromiseResolver`
 
-Create a promise with undecided fate and return a `PromiseResolver` to control it. See [Promise resultion](#promise-resolution).
+Create a promise with undecided fate and return a `PromiseResolver` to control it. See [Promise resolution](#promise-resolution).
 
 <hr>
 
@@ -1197,7 +1197,7 @@ Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` key
 
 If you yield an array then its elements are implicitly waited for.
 
-You can combine it with ES6 destructing for some neat syntax:
+You can combine it with ES6 destructuring for some neat syntax:
 
 ```js
 var getData = Promise.coroutine(function* (urlA, urlB) {
@@ -1533,7 +1533,7 @@ Given an array, or a promise of an array, which contains promises (or a mix of p
 In this example we create a promise that is fulfilled only when the pictures, comments and tweets are all loaded.
 
 ```js
-Promise.all([getPictures(), getComments(), getTweets()].then(function(results){
+Promise.all([getPictures(), getComments(), getTweets()]).then(function(results){
     //Everything loaded and good to go
     var pictures = results[0];
     var comments = results[1];
