@@ -38,7 +38,9 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     var value = result.value;
     if (result.done === true) {
         this._generator = void 0;
-        this._promise._fulfill(value);
+        if (!this._promise._tryFollow(value)) {
+            this._promise._fulfill(value);
+        }
     }
     else {
         var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
