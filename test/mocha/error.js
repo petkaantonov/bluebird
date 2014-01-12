@@ -35,18 +35,7 @@ describe("Promise.prototype.error", function(){
             });
             d.reject(e);
         });
-        specify("using thenable", function(done) {
-            var e = new Error("sup");
-            var thenable = {
-                then: function(resolve, reject){
-                    reject(e);
-                }
-            };
-            Promise.cast(thenable).error(function(err) {
-                assert(err === e);
-                done();
-            });
-        });
+
         specify("using callback", function(done) {
             var e = new Promise.TypeError("sup");
             function callsback(a, b, c, fn) {
@@ -77,7 +66,7 @@ describe("Promise.prototype.error", function(){
             var e = new Error("sup");
             var thenable = {
                 then: function(resolve, reject){
-                    throw e;
+                    reject(e);
                 }
             };
             Promise.cast(thenable).error(function(err) {
