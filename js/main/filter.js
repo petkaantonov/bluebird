@@ -31,13 +31,7 @@ module.exports = function(Promise) {
         var j = 0;
 
         for (var i = 0; i < len; ++i) {
-            var bool = booleans[i];
-
-            if (bool === void 0 && !(i in booleans)) {
-                continue;
-            }
-
-            if (bool) ret[j++] = values[i];
+            if (booleans[i]) ret[j++] = values[i];
 
         }
         ret.length = j;

@@ -213,7 +213,7 @@ Promise.prototype.all = function Promise$all() {
 Promise.is = isPromise;
 
 function Promise$_all(promises, useBound, caller) {
-    return Promise$_All(
+    return Promise$_CreatePromiseArray(
         promises,
         PromiseArray,
         caller,
@@ -228,7 +228,8 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    return Promise$_All(args, PromiseArray, Promise.join, void 0).promise();
+    return Promise$_CreatePromiseArray(
+        args, PromiseArray, Promise.join, void 0).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -625,7 +626,8 @@ Promise.prototype._isBound = function Promise$_isBound() {
 Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     var promiseForAll =
-            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
+            Promise$_CreatePromiseArray
+                (values, PromiseArray, this._spreadSlowCase, boundTo)
             .promise()
             ._then(function() {
                 return targetFn.apply(boundTo, arguments);
@@ -1074,7 +1076,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-function Promise$_All(promises, PromiseArray, caller, boundTo) {
+function Promise$_CreatePromiseArray(
+    promises, PromiseArrayConstructor, caller, boundTo) {
 
     var list = null;
     if (isArray(promises)) {
@@ -1090,11 +1093,11 @@ function Promise$_All(promises, PromiseArray, caller, boundTo) {
         }
     }
     if (list !== null) {
-        return new PromiseArray(
+        return new PromiseArrayConstructor(
             list,
             typeof caller === "function"
                 ? caller
-                : Promise$_All,
+                : Promise$_CreatePromiseArray,
             boundTo
        );
     }
@@ -1128,18 +1131,18 @@ Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
-require('./any.js')(Promise,Promise$_All,PromiseArray);
+require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
 require('./race.js')(Promise,INTERNAL);
 require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./map.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
 require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
-require('./settle.js')(Promise,Promise$_All,PromiseArray);
-require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
+require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./progress.js')(Promise,isPromiseArrayProxy);
 require('./cancel.js')(Promise,INTERNAL);
 

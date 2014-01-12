@@ -20,7 +20,8 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports =
+function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
@@ -29,7 +30,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         if ((howMany | 0) !== howMany || howMany < 0) {
             return apiRejection("expecting a positive integer");
         }
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,

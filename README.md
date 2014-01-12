@@ -40,7 +40,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
-Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
+Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js) tests and more. See [testing](#testing).
 
 <hr>
 

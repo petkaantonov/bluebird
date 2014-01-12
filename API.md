@@ -1677,11 +1677,11 @@ Promise.join(a, b).spread(function(aResult, bResult) {
 
 Map an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-If the `mapper` function returns promises, the returned promise will wait for all the mapped results to be resolved as well.
+If the `mapper` function returns promises or thenables, the returned promise will wait for all the mapped results to be resolved as well.
 
 *(TODO: an example where this is useful)*
 
-*The original array is not modified. Sparse array holes are not visited and the resulting array retains the same sparsity as the original array.*
+*The original array is not modified.*
 
 <hr>
 
@@ -1689,9 +1689,21 @@ If the `mapper` function returns promises, the returned promise will wait for al
 
 Reduce an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, current, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-*(TODO: an example where this is useful)*
+If the reducer function returns a promise or a thenable, the result for the promise is awaited for before continuing with next iteration.
 
-*The original array is not modified. Sparse array holes are not visited. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
+Read given files sequentially while summing their contents as an integer. Each file contains just the text `10`.
+
+```js
+Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName) {
+    return fs.readFileAsync(fileName, "utf8").then(function(contents) {
+        return total + parseInt(contents, 10);
+    });
+}, 0).then(function(total) {
+    //Total is 30
+});
+```
+
+*The original array is not modified. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
 
 <hr>
 
@@ -1703,6 +1715,6 @@ The return values from the filtered functions are coerced to booleans, with the 
 
 [See the instance method `.filter()` for an example.](#filterfunction-filterer---promise)
 
-*The original array is not modified. Sparse array holes are not visited.
+*The original array is not modified.
 
 <hr>

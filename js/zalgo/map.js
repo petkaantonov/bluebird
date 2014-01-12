@@ -20,7 +20,8 @@
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -38,10 +39,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -62,10 +59,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -85,7 +78,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
         }
         return shouldDefer
-            ? Promise$_All(ret, PromiseArray,
+            ? Promise$_CreatePromiseArray(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
             : ret;
     }
@@ -102,7 +95,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             PromiseArray,
             caller,

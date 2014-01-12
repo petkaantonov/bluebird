@@ -22,11 +22,11 @@
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
+
     function getThen(obj) {
         try {
             return obj.then;
@@ -89,7 +89,7 @@ module.exports = function(Promise) {
                 if (originalPromise !== void 0) {
                     originalPromise._attachExtraTrace(e);
                 }
-                resolver.reject(e);
+                resolver.promise._reject(e);
                 return;
             }
             resolver.resolve(y);
@@ -98,11 +98,12 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
-            errors.markAsOriginatingFromRejection(r);
+
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
-            resolver.reject(r);
+            resolver.promise._attachExtraTrace(r);
+            resolver.promise._reject(r);
         }
     }
 
