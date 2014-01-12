@@ -78,6 +78,7 @@ module.exports = function(Promise) {
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
+            resolver.promise._attachExtraTrace(r);
             resolver.promise._reject(r);
         }
     }
