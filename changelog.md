@@ -1,3 +1,17 @@
+## 1.0.0 (2014-01-12)
+
+Features:
+
+ - `.filter`, `.map`, and `.reduce` no longer skip sparse array holes. This is a backwards incompatible change.
+ - Like `.map` and `.filter`, `.reduce` now allows returning promises and thenables from the iteration function.
+
+Bugfixes:
+
+ - #58
+ - #61
+ - #64
+ - #60
+
 ## 0.11.6-0 (2013-12-29)
 
 Features:
