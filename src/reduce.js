@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -91,7 +92,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }
             }
 
-            return Promise$_All(promises, PromiseArray, caller,
+            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === USE_BOUND && promises._isBound()
                     ? promises._boundTo
                     : void 0)
@@ -101,7 +102,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     initialValue: initialValue
                 }, void 0, Promise.reduce);
         }
-        return Promise$_All(promises, PromiseArray, caller,
+        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === USE_BOUND && promises._isBound()
                     ? promises._boundTo
                     : void 0).promise()

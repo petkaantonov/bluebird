@@ -1,11 +1,11 @@
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
 
     function Promise$_Any(promises, useBound, caller) {
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
