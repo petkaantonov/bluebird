@@ -1,8 +1,61 @@
 "use strict";
 module.exports = function(
-    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
+    Promise, Promise$_CreatePromiseArray,
+    PromiseArray, apiRejection, INTERNAL) {
 
     var ASSERT = require("./assert.js");
+
+    function Reduction(callback, index, accum, items, receiver) {
+        this.promise = new Promise(INTERNAL);
+        this.index = index;
+        this.length = items.length;
+        this.items = items;
+        this.callback = callback;
+        this.receiver = receiver;
+        this.accum = accum;
+    }
+
+    Reduction.prototype.reject = function Reduction$reject(e) {
+        this.promise._reject(e);
+    };
+
+    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
+        this.accum = value;
+        this.index = index + 1;
+        this.iterate();
+    };
+
+    Reduction.prototype.iterate = function Reduction$iterate() {
+        var i = this.index;
+        var len = this.length;
+        var items = this.items;
+        var result = this.accum;
+        var receiver = this.receiver;
+        var callback = this.callback;
+        var iterate = this.iterate;
+
+        for(; i < len; ++i) {
+            result = Promise._cast(
+                callback.call(
+                    receiver,
+                    result,
+                    items[i],
+                    i,
+                    len
+                ),
+                iterate,
+                void 0
+            );
+
+            //Continue iteration after the returned promise fulfills
+            if (result instanceof Promise) {
+                result._then(
+                    this.fulfill, this.reject, void 0, this, i, iterate);
+                return;
+            }
+        }
+        this.promise._fulfill(result);
+    };
 
     function Promise$_reducer(fulfilleds, initialValue) {
         var fn = this;
@@ -23,19 +76,16 @@ module.exports = function(
         else {
             startIndex = 1;
             if (len > 0) accum = fulfilleds[0];
+        }
+        var i = startIndex;
 
+        if (i >= len) {
+            return accum;
         }
-        if (receiver === void 0) {
-            for (var i = startIndex; i < len; ++i) {
-                accum = fn(accum, fulfilleds[i], i, len);
-            }
-        }
-        else {
-            for (var i = startIndex; i < len; ++i) {
-                accum = fn.call(receiver, accum, fulfilleds[i], i, len);
-            }
-        }
-        return accum;
+
+        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
+        reduction.iterate();
+        return reduction.promise;
     }
 
     function Promise$_unpackReducer(fulfilleds) {
