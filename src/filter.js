@@ -14,15 +14,7 @@ module.exports = function(Promise) {
         var j = 0;
 
         for (var i = 0; i < len; ++i) {
-            var bool = booleans[i];
-
-            if (bool === void 0 && !(i in booleans)) {
-                ASSERT(values[i] === void 0);
-                ASSERT(!(i in values));
-                continue;
-            }
-
-            if (bool) ret[j++] = values[i];
+            if (booleans[i]) ret[j++] = values[i];
 
         }
         ret.length = j;

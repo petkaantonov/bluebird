@@ -22,33 +22,16 @@ module.exports = function(
         }
         else {
             startIndex = 1;
-            if (len > 0) {
-                for (var i = 0; i < len; ++i) {
-                    if (fulfilleds[i] === void 0 &&
-                        !(i in fulfilleds)) {
-                        continue;
-                    }
-                    accum = fulfilleds[i];
-                    startIndex = i + 1;
-                    break;
-                }
-            }
+            if (len > 0) accum = fulfilleds[0];
+
         }
         if (receiver === void 0) {
             for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
                 accum = fn(accum, fulfilleds[i], i, len);
             }
         }
         else {
             for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
                 accum = fn.call(receiver, accum, fulfilleds[i], i, len);
             }
         }

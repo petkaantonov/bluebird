@@ -19,10 +19,6 @@ module.exports = function(
 
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -43,10 +39,6 @@ module.exports = function(
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
