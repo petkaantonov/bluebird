@@ -67,13 +67,13 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
 
     function Promise$_Any(promises, useBound, caller) {
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -1153,13 +1153,7 @@ module.exports = function(Promise) {
         var j = 0;
 
         for (var i = 0; i < len; ++i) {
-            var bool = booleans[i];
-
-            if (bool === void 0 && !(i in booleans)) {
-                continue;
-            }
-
-            if (bool) ret[j++] = values[i];
+            if (booleans[i]) ret[j++] = values[i];
 
         }
         ret.length = j;
@@ -1407,7 +1401,8 @@ module.exports = (function(){
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -1425,10 +1420,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -1449,10 +1440,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -1472,7 +1459,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
         }
         return shouldDefer
-            ? Promise$_All(ret, PromiseArray,
+            ? Promise$_CreatePromiseArray(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
             : ret;
     }
@@ -1489,7 +1476,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             PromiseArray,
             caller,
@@ -1917,7 +1904,7 @@ Promise.prototype.all = function Promise$all() {
 Promise.is = isPromise;
 
 function Promise$_all(promises, useBound, caller) {
-    return Promise$_All(
+    return Promise$_CreatePromiseArray(
         promises,
         PromiseArray,
         caller,
@@ -1932,7 +1919,8 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    return Promise$_All(args, PromiseArray, Promise.join, void 0).promise();
+    return Promise$_CreatePromiseArray(
+        args, PromiseArray, Promise.join, void 0).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -2329,7 +2317,8 @@ Promise.prototype._isBound = function Promise$_isBound() {
 Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     var promiseForAll =
-            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
+            Promise$_CreatePromiseArray
+                (values, PromiseArray, this._spreadSlowCase, boundTo)
             .promise()
             ._then(function() {
                 return targetFn.apply(boundTo, arguments);
@@ -2778,7 +2767,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-function Promise$_All(promises, PromiseArray, caller, boundTo) {
+function Promise$_CreatePromiseArray(
+    promises, PromiseArrayConstructor, caller, boundTo) {
 
     var list = null;
     if (isArray(promises)) {
@@ -2794,11 +2784,11 @@ function Promise$_All(promises, PromiseArray, caller, boundTo) {
         }
     }
     if (list !== null) {
-        return new PromiseArray(
+        return new PromiseArrayConstructor(
             list,
             typeof caller === "function"
                 ? caller
-                : Promise$_All,
+                : Promise$_CreatePromiseArray,
             boundTo
        );
     }
@@ -2832,18 +2822,18 @@ Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
-require('./any.js')(Promise,Promise$_All,PromiseArray);
+require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
 require('./race.js')(Promise,INTERNAL);
 require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./map.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
 require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
-require('./settle.js')(Promise,Promise$_All,PromiseArray);
-require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
+require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./progress.js')(Promise,isPromiseArrayProxy);
 require('./cancel.js')(Promise,INTERNAL);
 
@@ -3349,7 +3339,9 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     var value = result.value;
     if (result.done === true) {
         this._generator = void 0;
-        this._promise._fulfill(value);
+        if (!this._promise._tryFollow(value)) {
+            this._promise._fulfill(value);
+        }
     }
     else {
         var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
@@ -4023,9 +4015,62 @@ module.exports = function(Promise, INTERNAL) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray,
+    PromiseArray, apiRejection, INTERNAL) {
 
     var ASSERT = require("./assert.js");
+
+    function Reduction(callback, index, accum, items, receiver) {
+        this.promise = new Promise(INTERNAL);
+        this.index = index;
+        this.length = items.length;
+        this.items = items;
+        this.callback = callback;
+        this.receiver = receiver;
+        this.accum = accum;
+    }
+
+    Reduction.prototype.reject = function Reduction$reject(e) {
+        this.promise._reject(e);
+    };
+
+    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
+        this.accum = value;
+        this.index = index + 1;
+        this.iterate();
+    };
+
+    Reduction.prototype.iterate = function Reduction$iterate() {
+        var i = this.index;
+        var len = this.length;
+        var items = this.items;
+        var result = this.accum;
+        var receiver = this.receiver;
+        var callback = this.callback;
+        var iterate = this.iterate;
+
+        for(; i < len; ++i) {
+            result = Promise._cast(
+                callback.call(
+                    receiver,
+                    result,
+                    items[i],
+                    i,
+                    len
+                ),
+                iterate,
+                void 0
+            );
+
+            if (result instanceof Promise) {
+                result._then(
+                    this.fulfill, this.reject, void 0, this, i, iterate);
+                return;
+            }
+        }
+        this.promise._fulfill(result);
+    };
 
     function Promise$_reducer(fulfilleds, initialValue) {
         var fn = this;
@@ -4044,37 +4089,17 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             startIndex = 1;
-            if (len > 0) {
-                for (var i = 0; i < len; ++i) {
-                    if (fulfilleds[i] === void 0 &&
-                        !(i in fulfilleds)) {
-                        continue;
-                    }
-                    accum = fulfilleds[i];
-                    startIndex = i + 1;
-                    break;
-                }
-            }
+            if (len > 0) accum = fulfilleds[0];
         }
-        if (receiver === void 0) {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn(accum, fulfilleds[i], i, len);
-            }
+        var i = startIndex;
+
+        if (i >= len) {
+            return accum;
         }
-        else {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn.call(receiver, accum, fulfilleds[i], i, len);
-            }
-        }
-        return accum;
+
+        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
+        reduction.iterate();
+        return reduction.promise;
     }
 
     function Promise$_unpackReducer(fulfilleds) {
@@ -4114,7 +4139,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }
             }
 
-            return Promise$_All(promises, PromiseArray, caller,
+            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0)
@@ -4124,7 +4149,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     initialValue: initialValue
                 }, void 0, Promise.reduce);
         }
-        return Promise$_All(promises, PromiseArray, caller,
+        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0).promise()
@@ -4287,13 +4312,14 @@ module.exports = schedule;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports =
+    function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SettledPromiseArray = require("./settled_promise_array.js")(
         Promise, PromiseArray);
 
     function Promise$_Settle(promises, useBound, caller) {
-        return Promise$_All(
+        return Promise$_CreatePromiseArray(
             promises,
             SettledPromiseArray,
             caller,
@@ -4398,7 +4424,8 @@ return SettledPromiseArray;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports =
+function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
@@ -4407,7 +4434,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         if ((howMany | 0) !== howMany || howMany < 0) {
             return apiRejection("expecting a positive integer");
         }
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -4622,11 +4649,11 @@ module.exports = function(Promise) {
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
+
     function getThen(obj) {
         try {
             return obj.then;
@@ -4683,7 +4710,7 @@ module.exports = function(Promise) {
                 if (originalPromise !== void 0) {
                     originalPromise._attachExtraTrace(e);
                 }
-                resolver.reject(e);
+                resolver.promise._reject(e);
                 return;
             }
             resolver.resolve(y);
@@ -4692,18 +4719,19 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
-            errors.markAsOriginatingFromRejection(r);
+
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
-            resolver.reject(r);
+            resolver.promise._attachExtraTrace(r);
+            resolver.promise._reject(r);
         }
     }
 
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":2,"./errors.js":10,"./util.js":39}],38:[function(require,module,exports){
+},{"./assert.js":2,"./util.js":39}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 

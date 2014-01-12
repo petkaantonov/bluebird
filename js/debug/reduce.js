@@ -74,7 +74,6 @@ module.exports = function(
                 return;
             }
         }
-
         this.promise._fulfill(result);
     };
 

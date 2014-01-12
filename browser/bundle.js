@@ -3237,6 +3237,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/q_settle.js');}, name: '../test/mocha/q_settle.js'},
 {fn: function(){ return require('../test/mocha/q_spread.js');}, name: '../test/mocha/q_spread.js'},
 {fn: function(){ return require('../test/mocha/race.js');}, name: '../test/mocha/race.js'},
+{fn: function(){ return require('../test/mocha/reduce.js');}, name: '../test/mocha/reduce.js'},
 {fn: function(){ return require('../test/mocha/resolution.js');}, name: '../test/mocha/resolution.js'},
 {fn: function(){ return require('../test/mocha/reused_promise.js');}, name: '../test/mocha/reused_promise.js'},
 {fn: function(){ return require('../test/mocha/some.js');}, name: '../test/mocha/some.js'},
@@ -3253,7 +3254,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":110,"../test/mocha/2.1.3.js":111,"../test/mocha/2.2.1.js":112,"../test/mocha/2.2.2.js":113,"../test/mocha/2.2.3.js":114,"../test/mocha/2.2.4.js":115,"../test/mocha/2.2.5.js":116,"../test/mocha/2.2.6.js":117,"../test/mocha/2.2.7.js":118,"../test/mocha/2.3.1.js":119,"../test/mocha/2.3.2.js":120,"../test/mocha/2.3.3.js":121,"../test/mocha/2.3.4.js":122,"../test/mocha/3.2.1.js":123,"../test/mocha/3.2.2.js":124,"../test/mocha/3.2.3.js":125,"../test/mocha/3.2.4.js":126,"../test/mocha/3.2.5.js":127,"../test/mocha/3.2.6.js":128,"../test/mocha/api_exceptions.js":129,"../test/mocha/async.js":130,"../test/mocha/bind.js":131,"../test/mocha/bluebird-debug-env-flag.js":132,"../test/mocha/bluebird-multiple-instances.js":133,"../test/mocha/cancel.js":134,"../test/mocha/catch_filter.js":135,"../test/mocha/collections_thenables.js":136,"../test/mocha/constructor.js":137,"../test/mocha/cycles.js":138,"../test/mocha/direct_resolving.js":139,"../test/mocha/error.js":140,"../test/mocha/filter.js":141,"../test/mocha/following.js":142,"../test/mocha/github36.js":143,"../test/mocha/late_buffer_safety.js":147,"../test/mocha/method.js":148,"../test/mocha/promisify.js":149,"../test/mocha/props.js":150,"../test/mocha/q_all.js":151,"../test/mocha/q_done.js":152,"../test/mocha/q_fin.js":153,"../test/mocha/q_inspect.js":154,"../test/mocha/q_make_node_resolver.js":155,"../test/mocha/q_nodeify.js":156,"../test/mocha/q_progress.js":157,"../test/mocha/q_propagation.js":158,"../test/mocha/q_settle.js":159,"../test/mocha/q_spread.js":160,"../test/mocha/race.js":161,"../test/mocha/resolution.js":162,"../test/mocha/reused_promise.js":163,"../test/mocha/some.js":164,"../test/mocha/sparsity.js":165,"../test/mocha/timers.js":166,"../test/mocha/try.js":167,"../test/mocha/unhandled_rejections.js":168,"../test/mocha/when_all.js":169,"../test/mocha/when_any.js":170,"../test/mocha/when_defer.js":171,"../test/mocha/when_join.js":172,"../test/mocha/when_map.js":173,"../test/mocha/when_reduce.js":174,"../test/mocha/when_settle.js":175,"../test/mocha/when_some.js":176,"../test/mocha/when_spread.js":177,"assert":2,"sinon":95}],17:[function(require,module,exports){
+},{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":110,"../test/mocha/2.1.3.js":111,"../test/mocha/2.2.1.js":112,"../test/mocha/2.2.2.js":113,"../test/mocha/2.2.3.js":114,"../test/mocha/2.2.4.js":115,"../test/mocha/2.2.5.js":116,"../test/mocha/2.2.6.js":117,"../test/mocha/2.2.7.js":118,"../test/mocha/2.3.1.js":119,"../test/mocha/2.3.2.js":120,"../test/mocha/2.3.3.js":121,"../test/mocha/2.3.4.js":122,"../test/mocha/3.2.1.js":123,"../test/mocha/3.2.2.js":124,"../test/mocha/3.2.3.js":125,"../test/mocha/3.2.4.js":126,"../test/mocha/3.2.5.js":127,"../test/mocha/3.2.6.js":128,"../test/mocha/api_exceptions.js":129,"../test/mocha/async.js":130,"../test/mocha/bind.js":131,"../test/mocha/bluebird-debug-env-flag.js":132,"../test/mocha/bluebird-multiple-instances.js":133,"../test/mocha/cancel.js":134,"../test/mocha/catch_filter.js":135,"../test/mocha/collections_thenables.js":136,"../test/mocha/constructor.js":137,"../test/mocha/cycles.js":138,"../test/mocha/direct_resolving.js":139,"../test/mocha/error.js":140,"../test/mocha/filter.js":141,"../test/mocha/following.js":142,"../test/mocha/github36.js":143,"../test/mocha/late_buffer_safety.js":147,"../test/mocha/method.js":148,"../test/mocha/promisify.js":149,"../test/mocha/props.js":150,"../test/mocha/q_all.js":151,"../test/mocha/q_done.js":152,"../test/mocha/q_fin.js":153,"../test/mocha/q_inspect.js":154,"../test/mocha/q_make_node_resolver.js":155,"../test/mocha/q_nodeify.js":156,"../test/mocha/q_progress.js":157,"../test/mocha/q_propagation.js":158,"../test/mocha/q_settle.js":159,"../test/mocha/q_spread.js":160,"../test/mocha/race.js":161,"../test/mocha/reduce.js":162,"../test/mocha/resolution.js":163,"../test/mocha/reused_promise.js":164,"../test/mocha/some.js":165,"../test/mocha/sparsity.js":166,"../test/mocha/timers.js":167,"../test/mocha/try.js":168,"../test/mocha/unhandled_rejections.js":169,"../test/mocha/when_all.js":170,"../test/mocha/when_any.js":171,"../test/mocha/when_defer.js":172,"../test/mocha/when_join.js":173,"../test/mocha/when_map.js":174,"../test/mocha/when_reduce.js":175,"../test/mocha/when_settle.js":176,"../test/mocha/when_some.js":177,"../test/mocha/when_spread.js":178,"assert":2,"sinon":95}],17:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -3276,13 +3277,13 @@ Promise.onPossiblyUnhandledRejection();(function (){
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
 
     function Promise$_Any(promises, useBound, caller) {
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -4398,17 +4399,7 @@ module.exports = function(Promise) {
         var j = 0;
 
         for (var i = 0; i < len; ++i) {
-            var bool = booleans[i];
-
-            if (bool === void 0 && !(i in booleans)) {
-                ASSERT((values[i] === (void 0)),
-    "values[i] === void 0");
-                ASSERT((! (i in values)),
-    "!(i in values)");
-                continue;
-            }
-
-            if (bool) ret[j++] = values[i];
+            if (booleans[i]) ret[j++] = values[i];
 
         }
         ret.length = j;
@@ -4656,7 +4647,8 @@ module.exports = (function(){
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -4676,10 +4668,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -4700,10 +4688,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -4723,7 +4707,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
         }
         return shouldDefer
-            ? Promise$_All(ret, PromiseArray,
+            ? Promise$_CreatePromiseArray(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
             : ret;
     }
@@ -4740,7 +4724,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             PromiseArray,
             caller,
@@ -5187,7 +5171,7 @@ Promise.prototype.all = function Promise$all() {
 Promise.is = isPromise;
 
 function Promise$_all(promises, useBound, caller) {
-    return Promise$_All(
+    return Promise$_CreatePromiseArray(
         promises,
         PromiseArray,
         caller,
@@ -5202,7 +5186,8 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    return Promise$_All(args, PromiseArray, Promise.join, void 0).promise();
+    return Promise$_CreatePromiseArray(
+        args, PromiseArray, Promise.join, void 0).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -5661,7 +5646,8 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     "isPromise(promise)");
 
     var promiseForAll =
-            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
+            Promise$_CreatePromiseArray
+                (values, PromiseArray, this._spreadSlowCase, boundTo)
             .promise()
             ._then(function() {
                 return targetFn.apply(boundTo, arguments);
@@ -6141,12 +6127,13 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-function Promise$_All(promises, PromiseArray, caller, boundTo) {
+function Promise$_CreatePromiseArray(
+    promises, PromiseArrayConstructor, caller, boundTo) {
 
     ASSERT((arguments.length === 4),
     "arguments.length === 4");
-    ASSERT(((typeof PromiseArray) === "function"),
-    "typeof PromiseArray === \u0022function\u0022");
+    ASSERT(((typeof PromiseArrayConstructor) === "function"),
+    "typeof PromiseArrayConstructor === \u0022function\u0022");
 
     var list = null;
     if (isArray(promises)) {
@@ -6162,11 +6149,11 @@ function Promise$_All(promises, PromiseArray, caller, boundTo) {
         }
     }
     if (list !== null) {
-        return new PromiseArray(
+        return new PromiseArrayConstructor(
             list,
             typeof caller === "function"
                 ? caller
-                : Promise$_All,
+                : Promise$_CreatePromiseArray,
             boundTo
        );
     }
@@ -6200,18 +6187,18 @@ Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
-require('./any.js')(Promise,Promise$_All,PromiseArray);
+require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
 require('./race.js')(Promise,INTERNAL);
 require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./map.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
 require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
-require('./settle.js')(Promise,Promise$_All,PromiseArray);
-require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
+require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./progress.js')(Promise,isPromiseArrayProxy);
 require('./cancel.js')(Promise,INTERNAL);
 
@@ -6745,7 +6732,9 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     var value = result.value;
     if (result.done === true) {
         this._generator = void 0;
-        this._promise._fulfill(value);
+        if (!this._promise._tryFollow(value)) {
+            this._promise._fulfill(value);
+        }
     }
     else {
         var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
@@ -7431,9 +7420,62 @@ module.exports = function(Promise, INTERNAL) {
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray,
+    PromiseArray, apiRejection, INTERNAL) {
 
     var ASSERT = require("./assert.js");
+
+    function Reduction(callback, index, accum, items, receiver) {
+        this.promise = new Promise(INTERNAL);
+        this.index = index;
+        this.length = items.length;
+        this.items = items;
+        this.callback = callback;
+        this.receiver = receiver;
+        this.accum = accum;
+    }
+
+    Reduction.prototype.reject = function Reduction$reject(e) {
+        this.promise._reject(e);
+    };
+
+    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
+        this.accum = value;
+        this.index = index + 1;
+        this.iterate();
+    };
+
+    Reduction.prototype.iterate = function Reduction$iterate() {
+        var i = this.index;
+        var len = this.length;
+        var items = this.items;
+        var result = this.accum;
+        var receiver = this.receiver;
+        var callback = this.callback;
+        var iterate = this.iterate;
+
+        for(; i < len; ++i) {
+            result = Promise._cast(
+                callback.call(
+                    receiver,
+                    result,
+                    items[i],
+                    i,
+                    len
+                ),
+                iterate,
+                void 0
+            );
+
+            if (result instanceof Promise) {
+                result._then(
+                    this.fulfill, this.reject, void 0, this, i, iterate);
+                return;
+            }
+        }
+        this.promise._fulfill(result);
+    };
 
     function Promise$_reducer(fulfilleds, initialValue) {
         var fn = this;
@@ -7454,37 +7496,17 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             startIndex = 1;
-            if (len > 0) {
-                for (var i = 0; i < len; ++i) {
-                    if (fulfilleds[i] === void 0 &&
-                        !(i in fulfilleds)) {
-                        continue;
-                    }
-                    accum = fulfilleds[i];
-                    startIndex = i + 1;
-                    break;
-                }
-            }
+            if (len > 0) accum = fulfilleds[0];
         }
-        if (receiver === void 0) {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn(accum, fulfilleds[i], i, len);
-            }
+        var i = startIndex;
+
+        if (i >= len) {
+            return accum;
         }
-        else {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn.call(receiver, accum, fulfilleds[i], i, len);
-            }
-        }
-        return accum;
+
+        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
+        reduction.iterate();
+        return reduction.promise;
     }
 
     function Promise$_unpackReducer(fulfilleds) {
@@ -7524,7 +7546,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }
             }
 
-            return Promise$_All(promises, PromiseArray, caller,
+            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0)
@@ -7534,7 +7556,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     initialValue: initialValue
                 }, void 0, Promise.reduce);
         }
-        return Promise$_All(promises, PromiseArray, caller,
+        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0).promise()
@@ -7709,13 +7731,14 @@ module.exports = schedule;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports =
+    function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SettledPromiseArray = require("./settled_promise_array.js")(
         Promise, PromiseArray);
 
     function Promise$_Settle(promises, useBound, caller) {
-        return Promise$_All(
+        return Promise$_CreatePromiseArray(
             promises,
             SettledPromiseArray,
             caller,
@@ -7826,7 +7849,8 @@ return SettledPromiseArray;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports =
+function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
@@ -7835,7 +7859,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         if ((howMany | 0) !== howMany || howMany < 0) {
             return apiRejection("expecting a positive integer");
         }
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -8052,11 +8076,11 @@ module.exports = function(Promise) {
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
+
     function getThen(obj) {
         try {
             return obj.then;
@@ -8119,7 +8143,7 @@ module.exports = function(Promise) {
                 if (originalPromise !== void 0) {
                     originalPromise._attachExtraTrace(e);
                 }
-                resolver.reject(e);
+                resolver.promise._reject(e);
                 return;
             }
             resolver.resolve(y);
@@ -8128,18 +8152,19 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
-            errors.markAsOriginatingFromRejection(r);
+
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
-            resolver.reject(r);
+            resolver.promise._attachExtraTrace(r);
+            resolver.promise._reject(r);
         }
     }
 
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":18,"./errors.js":26,"./util.js":55}],54:[function(require,module,exports){
+},{"./assert.js":18,"./util.js":55}],54:[function(require,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -8496,13 +8521,13 @@ module.exports = ret;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
 
     function Promise$_Any(promises, useBound, caller) {
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -9078,13 +9103,7 @@ module.exports = function(Promise) {
         var j = 0;
 
         for (var i = 0; i < len; ++i) {
-            var bool = booleans[i];
-
-            if (bool === void 0 && !(i in booleans)) {
-                continue;
-            }
-
-            if (bool) ret[j++] = values[i];
+            if (booleans[i]) ret[j++] = values[i];
 
         }
         ret.length = j;
@@ -9134,7 +9153,8 @@ module.exports=require(32)
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -9152,10 +9172,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
 
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -9176,10 +9192,6 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
                 if (!shouldDefer) {
                     var maybePromise = Promise._cast(value,
@@ -9199,7 +9211,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             }
         }
         return shouldDefer
-            ? Promise$_All(ret, PromiseArray,
+            ? Promise$_CreatePromiseArray(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
             : ret;
     }
@@ -9216,7 +9228,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             PromiseArray,
             caller,
@@ -9644,7 +9656,7 @@ Promise.prototype.all = function Promise$all() {
 Promise.is = isPromise;
 
 function Promise$_all(promises, useBound, caller) {
-    return Promise$_All(
+    return Promise$_CreatePromiseArray(
         promises,
         PromiseArray,
         caller,
@@ -9659,7 +9671,8 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    return Promise$_All(args, PromiseArray, Promise.join, void 0).promise();
+    return Promise$_CreatePromiseArray(
+        args, PromiseArray, Promise.join, void 0).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -10056,7 +10069,8 @@ Promise.prototype._isBound = function Promise$_isBound() {
 Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     var promiseForAll =
-            Promise$_All(values, PromiseArray, this._spreadSlowCase, boundTo)
+            Promise$_CreatePromiseArray
+                (values, PromiseArray, this._spreadSlowCase, boundTo)
             .promise()
             ._then(function() {
                 return targetFn.apply(boundTo, arguments);
@@ -10505,7 +10519,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-function Promise$_All(promises, PromiseArray, caller, boundTo) {
+function Promise$_CreatePromiseArray(
+    promises, PromiseArrayConstructor, caller, boundTo) {
 
     var list = null;
     if (isArray(promises)) {
@@ -10521,11 +10536,11 @@ function Promise$_All(promises, PromiseArray, caller, boundTo) {
         }
     }
     if (list !== null) {
-        return new PromiseArray(
+        return new PromiseArrayConstructor(
             list,
             typeof caller === "function"
                 ? caller
-                : Promise$_All,
+                : Promise$_CreatePromiseArray,
             boundTo
        );
     }
@@ -10559,18 +10574,18 @@ Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
-require('./any.js')(Promise,Promise$_All,PromiseArray);
+require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
 require('./race.js')(Promise,INTERNAL);
 require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./map.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./nodeify.js')(Promise);
 require('./promisify.js')(Promise,INTERNAL);
 require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_All,PromiseArray,apiRejection);
-require('./settle.js')(Promise,Promise$_All,PromiseArray);
-require('./some.js')(Promise,Promise$_All,PromiseArray,apiRejection);
+require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
+require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
 require('./progress.js')(Promise,isPromiseArrayProxy);
 require('./cancel.js')(Promise,INTERNAL);
 
@@ -11298,9 +11313,62 @@ arguments[4][45][0].apply(exports,arguments)
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray,
+    PromiseArray, apiRejection, INTERNAL) {
 
     var ASSERT = require("./assert.js");
+
+    function Reduction(callback, index, accum, items, receiver) {
+        this.promise = new Promise(INTERNAL);
+        this.index = index;
+        this.length = items.length;
+        this.items = items;
+        this.callback = callback;
+        this.receiver = receiver;
+        this.accum = accum;
+    }
+
+    Reduction.prototype.reject = function Reduction$reject(e) {
+        this.promise._reject(e);
+    };
+
+    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
+        this.accum = value;
+        this.index = index + 1;
+        this.iterate();
+    };
+
+    Reduction.prototype.iterate = function Reduction$iterate() {
+        var i = this.index;
+        var len = this.length;
+        var items = this.items;
+        var result = this.accum;
+        var receiver = this.receiver;
+        var callback = this.callback;
+        var iterate = this.iterate;
+
+        for(; i < len; ++i) {
+            result = Promise._cast(
+                callback.call(
+                    receiver,
+                    result,
+                    items[i],
+                    i,
+                    len
+                ),
+                iterate,
+                void 0
+            );
+
+            if (result instanceof Promise) {
+                result._then(
+                    this.fulfill, this.reject, void 0, this, i, iterate);
+                return;
+            }
+        }
+        this.promise._fulfill(result);
+    };
 
     function Promise$_reducer(fulfilleds, initialValue) {
         var fn = this;
@@ -11319,37 +11387,17 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         }
         else {
             startIndex = 1;
-            if (len > 0) {
-                for (var i = 0; i < len; ++i) {
-                    if (fulfilleds[i] === void 0 &&
-                        !(i in fulfilleds)) {
-                        continue;
-                    }
-                    accum = fulfilleds[i];
-                    startIndex = i + 1;
-                    break;
-                }
-            }
+            if (len > 0) accum = fulfilleds[0];
         }
-        if (receiver === void 0) {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn(accum, fulfilleds[i], i, len);
-            }
+        var i = startIndex;
+
+        if (i >= len) {
+            return accum;
         }
-        else {
-            for (var i = startIndex; i < len; ++i) {
-                if (fulfilleds[i] === void 0 &&
-                    !(i in fulfilleds)) {
-                    continue;
-                }
-                accum = fn.call(receiver, accum, fulfilleds[i], i, len);
-            }
-        }
-        return accum;
+
+        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
+        reduction.iterate();
+        return reduction.promise;
     }
 
     function Promise$_unpackReducer(fulfilleds) {
@@ -11389,7 +11437,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                 }
             }
 
-            return Promise$_All(promises, PromiseArray, caller,
+            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0)
@@ -11399,7 +11447,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
                     initialValue: initialValue
                 }, void 0, Promise.reduce);
         }
-        return Promise$_All(promises, PromiseArray, caller,
+        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
                 useBound === true && promises._isBound()
                     ? promises._boundTo
                     : void 0).promise()
@@ -11626,7 +11674,8 @@ return SettledPromiseArray;
  * THE SOFTWARE.
  */
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports =
+function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
@@ -11635,7 +11684,7 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         if ((howMany | 0) !== howMany || howMany < 0) {
             return apiRejection("expecting a positive integer");
         }
-        var ret = Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
             caller,
@@ -11691,11 +11740,11 @@ arguments[4][52][0].apply(exports,arguments)
 "use strict";
 module.exports = function(Promise) {
     var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
     var tryCatch2 = util.tryCatch2;
+
     function getThen(obj) {
         try {
             return obj.then;
@@ -11752,7 +11801,7 @@ module.exports = function(Promise) {
                 if (originalPromise !== void 0) {
                     originalPromise._attachExtraTrace(e);
                 }
-                resolver.reject(e);
+                resolver.promise._reject(e);
                 return;
             }
             resolver.resolve(y);
@@ -11761,18 +11810,19 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
-            errors.markAsOriginatingFromRejection(r);
+
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(r);
             }
-            resolver.reject(r);
+            resolver.promise._attachExtraTrace(r);
+            resolver.promise._reject(r);
         }
     }
 
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":57,"./errors.js":65,"./util.js":94}],93:[function(require,module,exports){
+},{"./assert.js":57,"./util.js":94}],93:[function(require,module,exports){
 arguments[4][54][0].apply(exports,arguments)
 },{"./assert.js":57,"./errors.js":65,"./errors_api_rejection":66,"./global.js":71,"./util.js":94}],94:[function(require,module,exports){
 /**
@@ -21980,18 +22030,7 @@ describe("Promise.prototype.error", function(){
             });
             d.reject(e);
         });
-        specify("using thenable", function(done) {
-            var e = new Error("sup");
-            var thenable = {
-                then: function(resolve, reject){
-                    reject(e);
-                }
-            };
-            Promise.cast(thenable).error(function(err) {
-                assert(err === e);
-                done();
-            });
-        });
+
         specify("using callback", function(done) {
             var e = new Promise.TypeError("sup");
             function callsback(a, b, c, fn) {
@@ -22022,7 +22061,7 @@ describe("Promise.prototype.error", function(){
             var e = new Error("sup");
             var thenable = {
                 then: function(resolve, reject){
-                    throw e;
+                    reject(e);
                 }
             };
             Promise.cast(thenable).error(function(err) {
@@ -26159,6 +26198,91 @@ describe("Promise.race", function(){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
+var Promise = adapter;
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+
+function promised(val) {
+    return new Promise(function(f) {
+        setTimeout(function() {
+            f(val);
+        }, 4);
+    });
+}
+
+function thenabled(val) {
+    return {
+        then: function(f){
+            setTimeout(function() {
+                f(val);
+            }, 4);
+        }
+    };
+}
+
+describe("Promise.prototype.reduce", function() {
+
+
+    it("should allow returning values", function(done) {
+        var a = [promised(1), promised(2), promised(3)];
+
+        Promise.reduce(a, function(total, a) {
+            return total + a + 5;
+        }, 0).then(function(total){
+            assert.equal(total, 1+5 + 2+5 + 3+5);
+            done();
+        });
+    });
+
+    it("should allow returning promises", function(done) {
+        var a = [promised(1), promised(2), promised(3)];
+
+        Promise.reduce(a, function(total, a) {
+            return promised(5).then(function(b) {
+                return total + a + b;
+            });
+        }, 0).then(function(total){
+            assert.equal(total, 1+5 + 2+5 + 3+5);
+            done();
+        });
+    });
+
+    it("should allow returning thenables", function(done) {
+        var b = [1,2,3];
+        var a = [];
+
+        Promise.reduce(b, function(total, cur) {
+            a.push(cur);
+            return thenabled(3);
+        }, 0).then(function(total){
+            assert.equal(total, 3);
+            assert.deepEqual(a, b),
+            done();
+        });
+    });
+
+    it("propagates error", function(done) {
+        var a = [promised(1), promised(2), promised(3)];
+        var e = new Error("asd");
+        Promise.reduce(a, function(total, a) {
+            if (a > 2) {
+                throw e;
+            }
+            return total + a + 5;
+        }, 0).then(assert.fail, function(err) {
+            assert.equal(err, e);
+            done();
+        });
+    });
+});
+
+},{"../../js/debug/bluebird.js":20,"assert":2}],163:[function(require,module,exports){
+"use strict";
+
+var assert = require("assert");
+
+var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
@@ -26314,7 +26438,7 @@ describe("Implicitly cast thenable", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],163:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],164:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -26382,7 +26506,7 @@ describe("If promise is reused to get at the value many times over the course of
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],164:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],165:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -26435,7 +26559,7 @@ describe("Promise.some", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],165:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],166:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -26491,43 +26615,6 @@ describe("When using a sparse array the resulting array should have equal sparsi
         });
     });
 
-    specify("Map", function(done) {
-        Promise.map(arr, function( v ){
-            return v;
-        }).then(function(c){
-            assertSameSparsity(c);
-            done();
-        });
-    });
-
-    specify("Reduce", function(done) {
-        var indices = [];
-
-        var calls = 0;
-        function semidone() {
-            if( ( ++calls ) === 2 ) {
-                done();
-            }
-        }
-
-        Promise.reduce(arr, function( total, prev, i ){
-            assert.fail();
-        }).then(function(v){
-            assert.equal(v, void 0);
-            semidone();
-        });
-
-        Promise.reduce(arr, function( total, prev, i ){
-            indices.push(i);
-            return total;
-        }, 5).then(function(ret){
-            assert.equal(indices.length, 1);
-            assert.equal(indices[0], 3);
-            assert.equal(ret, 5);
-            semidone();
-        });
-    });
-
     specify("Settle with empty", function(done) {
         Promise.settle(arrSparseEmpty).then(function(c){
             assertEmptySparsity(c);
@@ -26541,20 +26628,10 @@ describe("When using a sparse array the resulting array should have equal sparsi
             done();
         });
     });
-
-    specify("Map with empty", function(done) {
-        Promise.map(arrSparseEmpty, function( v ){
-            assert.fail();
-        }).then(function(c){
-            assertEmptySparsity(c);
-            done();
-        });
-    });
-
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],166:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],167:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -26716,7 +26793,7 @@ describe("delay", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],167:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],168:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -26823,7 +26900,7 @@ describe("Promise.try", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],168:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],169:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/debug/bluebird.js");
@@ -27267,7 +27344,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],169:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],170:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -27384,7 +27461,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],170:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],171:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -27528,7 +27605,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],171:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],172:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28056,7 +28133,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],172:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],173:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28193,7 +28270,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],173:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],174:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28438,7 +28515,7 @@ describe("when.map-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],174:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],175:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28648,26 +28725,6 @@ describe("when.reduce-test", function () {
         });
     });
 
-    specify("should allow sparse array input without initial", function(done) {
-        when.reduce([ , , 1, , 1, 1], plus).then(
-            function(result) {
-                assert.deepEqual(result, 3);
-                done();
-            },
-            fail
-        );
-    });
-
-    specify("should allow sparse array input with initial", function(done) {
-        when.reduce([ , , 1, , 1, 1], plus, 1).then(
-            function(result) {
-                assert.deepEqual(result, 4);
-                done();
-            },
-            fail
-        );
-    });
-
     specify("should reduce in input order", function(done) {
         when.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {
@@ -28710,7 +28767,7 @@ describe("when.reduce-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],175:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],176:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28876,7 +28933,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],176:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],177:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29103,7 +29160,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],177:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],178:[function(require,module,exports){
 /*
 Based on When.js tests
 
