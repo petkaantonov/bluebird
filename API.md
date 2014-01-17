@@ -787,7 +787,7 @@ Same as calling [`Promise.delay(this, ms)`](#promisedelaydynamic-value-int-ms---
 
 #####`.timeout(int ms [, String message])` -> `Promise`
 
-Returns a promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is fulfilled with `TimeoutError` (get reference from `Promise.TimeoutError`).
+Returns a promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is rejected with a `Promise.TimeoutError` instance.
 
 You may specify a custom error message with the `message` parameter.
 
