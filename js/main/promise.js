@@ -64,6 +64,10 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
 };
 
+var setExternalDispatcher = function Promise$setExternalDispatcher(fn) {
+    async.externalDispatcher = fn;
+};
+
 function isPromise(obj) {
     if (obj === void 0) return false;
     return obj instanceof Promise;
@@ -1113,6 +1117,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+Promise.setExternalDispatcher = setExternalDispatcher;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise);
