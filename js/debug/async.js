@@ -95,8 +95,8 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
-        if (externalDispatcher !== undefined) {
-            externalDispatcher(this.consumeFunctionBuffer);
+        if (this.externalDispatcher !== undefined) {
+            this.externalDispatcher(this.consumeFunctionBuffer);
         } else {
             schedule(this.consumeFunctionBuffer);
         }
