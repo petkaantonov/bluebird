@@ -12,7 +12,8 @@
     "q": "~0.9.7",
     "rsvp": "~3.0.0",
     "text-table": "~0.2.0",
-    "when": "~2.6.0"
+    "when": "~2.6.0",
+    "vow": "~0.4.1"
   },
   "devDependencies": {},
   "scripts": {
@@ -30,5 +31,3 @@
   "author": "spion",
   "license": "MIT"
 }
-
-
