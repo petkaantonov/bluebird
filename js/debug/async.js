@@ -35,6 +35,7 @@ function Async() {
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
     };
+    this.externalDispatcher = undefined;
 }
 
 Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
@@ -94,7 +95,11 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
-        schedule(this.consumeFunctionBuffer);
+        if (this.externalDispatcher !== undefined) {
+            this.externalDispatcher(this.consumeFunctionBuffer);
+        } else {
+            schedule(this.consumeFunctionBuffer);
+        }
         this._isTickUsed = true;
     }
 };
