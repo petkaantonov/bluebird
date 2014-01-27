@@ -390,8 +390,7 @@ module.exports = function( grunt ) {
     function buildMain( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/main/";
-
+        var root = cleanDirectory("./js/main/");
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
@@ -410,7 +409,7 @@ module.exports = function( grunt ) {
     function buildDebug( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/debug/";
+        var root = cleanDirectory("./js/debug/");
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
@@ -429,7 +428,7 @@ module.exports = function( grunt ) {
     function buildZalgo( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/zalgo/";
+        var root = cleanDirectory("./js/zalgo/");
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
@@ -466,6 +465,13 @@ module.exports = function( grunt ) {
             src = header + src;
             return Q.nfcall(fs.writeFile, dest, src );
         });
+    }
+
+    function cleanDirectory(dir) {
+        var fs = require("fs");
+        require("rimraf").sync(dir);
+        fs.mkdirSync(dir);
+        return dir;
     }
 
     function getOptionalPathsFromOption( opt ) {
