@@ -468,6 +468,7 @@ module.exports = function( grunt ) {
     }
 
     function cleanDirectory(dir) {
+        if (isCI) return dir;
         var fs = require("fs");
         require("rimraf").sync(dir);
         fs.mkdirSync(dir);
