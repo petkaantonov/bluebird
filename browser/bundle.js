@@ -3819,7 +3819,7 @@ var captureStackTrace = (function stackDetection() {
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
-
+        
         defineProperty(Error, "stackTraceLimit", {
             writable: true,
             enumerable: false,
@@ -4124,7 +4124,7 @@ function ensureNotHandled(reason) {
 
 function markAsOriginatingFromRejection(e) {
     try {
-        notEnumerableProp(e, "__rejectionError__", RejectionError);
+        notEnumerableProp(e, "isAsync", true);
     }
     catch(ignore) {}
 }
@@ -4132,7 +4132,7 @@ function markAsOriginatingFromRejection(e) {
 function originatesFromRejection(e) {
     if (e == null) return false;
     return ((e instanceof RejectionError) ||
-        e["__rejectionError__"] === RejectionError);
+        e["isAsync"] === true);
 }
 
 function attachDefaultState(obj) {
@@ -4162,6 +4162,7 @@ function canAttach(obj) {
 
 function subError(nameProperty, defaultMessage) {
     function SubError(message) {
+        if (!(this instanceof SubError)) return new SubError(message);
         this.message = typeof message === "string" ? message : defaultMessage;
         this.name = nameProperty;
         if (Error.captureStackTrace) {
@@ -4187,6 +4188,7 @@ function RejectionError(message) {
     this.name = "RejectionError";
     this.message = message;
     this.cause = message;
+    this.isAsync = true;
 
     if (message instanceof Error) {
         this.message = message.message;
@@ -5260,7 +5262,7 @@ Promise.method = function Promise$_Method(fn) {
     };
 };
 
-Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
+Promise.attempt = Promise["try"] = function Promise$_Try(fn, args, ctx) {
 
     if (typeof fn !== "function") {
         return apiRejection("fn must be a function");
@@ -8230,9 +8232,7 @@ module.exports = function(Promise, INTERNAL) {
             ms = value;
             value = void 0;
         }
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("expecting a positive integer");
-        }
+        ms = +ms;
         if (typeof caller !== "function") {
             caller = Promise.delay;
         }
@@ -8265,9 +8265,7 @@ module.exports = function(Promise, INTERNAL) {
     };
 
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("expecting a positive integer");
-        }
+        ms = +ms;
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(this.timeout, this);
@@ -8912,7 +8910,7 @@ var captureStackTrace = (function stackDetection() {
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
-
+        
         defineProperty(Error, "stackTraceLimit", {
             writable: true,
             enumerable: false,
@@ -9745,7 +9743,7 @@ Promise.method = function Promise$_Method(fn) {
     };
 };
 
-Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
+Promise.attempt = Promise["try"] = function Promise$_Try(fn, args, ctx) {
 
     if (typeof fn !== "function") {
         return apiRejection("fn must be a function");

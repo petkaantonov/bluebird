@@ -172,7 +172,7 @@ var captureStackTrace = (function stackDetection() {
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
-
+        
         defineProperty(Error, "stackTraceLimit", {
             writable: true,
             enumerable: false,

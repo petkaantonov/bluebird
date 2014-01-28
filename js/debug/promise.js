@@ -306,7 +306,7 @@ Promise.method = function Promise$_Method(fn) {
     };
 };
 
-Promise["try"] = Promise.attempt = function Promise$_Try(fn, args, ctx) {
+Promise.attempt = Promise["try"] = function Promise$_Try(fn, args, ctx) {
 
     if (typeof fn !== "function") {
         return apiRejection("fn must be a function");

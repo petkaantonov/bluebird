@@ -63,9 +63,7 @@ module.exports = function(Promise, INTERNAL) {
             ms = value;
             value = void 0;
         }
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("expecting a positive integer");
-        }
+        ms = +ms;
         if (typeof caller !== "function") {
             caller = Promise.delay;
         }
@@ -98,9 +96,7 @@ module.exports = function(Promise, INTERNAL) {
     };
 
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection("expecting a positive integer");
-        }
+        ms = +ms;
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(this.timeout, this);
