@@ -76,6 +76,7 @@ function canAttach(obj) {
 
 function subError(nameProperty, defaultMessage) {
     function SubError(message) {
+        if (!(this instanceof SubError)) return new SubError(message);
         this.message = typeof message === "string" ? message : defaultMessage;
         this.name = nameProperty;
         if (Error.captureStackTrace) {
