@@ -178,7 +178,7 @@ Is more pleasing to the eye when done with promises:
 Promise.promisifyAll(needle);
 var options = {};
 
-var current = Promise.fulfilled();
+var current = Promise.resolve();
 Promise.map(URLs, function(URL) {
     current = current.then(function () {
         return needle.getAsync(URL, options);
@@ -380,9 +380,9 @@ Compare to:
 ```js
 Error.stackTraceLimit = 25;
 Promise.longStackTraces();
-Promise.fulfilled().then(function outer() {
-    return Promise.fulfilled().then(function inner() {
-        return Promise.fulfilled().then(function evenMoreInner() {
+Promise.resolve().then(function outer() {
+    return Promise.resolve().then(function inner() {
+        return Promise.resolve().then(function evenMoreInner() {
             a.b.c.d()
         }).catch(function catcher(e){
             console.error(e.stack);
@@ -634,14 +634,14 @@ var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
 function getResult(url) {
     var resolver = Promise.pending();
     if (cache.has(url)) {
-        resolver.fulfill(cache.get(url));
+        resolver.resolve(cache.get(url));
     }
     else {
         http.get(url, function(err, content) {
             if (err) resolver.reject(err);
             else {
                 cache.set(url, content);
-                resolver.fulfill(content);
+                resolver.resolve(content);
             }
         });
     }
