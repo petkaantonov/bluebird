@@ -217,7 +217,7 @@ MyCustomError.prototype.constructor = MyCustomError;
 
 Using CoffeeScript's `class` for the same:
 
-```js
+```coffee
 class MyCustomError extends Error
   constructor: (@message) ->
     @name = "MyCustomError"
