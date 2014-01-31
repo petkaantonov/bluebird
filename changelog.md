@@ -1,3 +1,13 @@
+## 1.0.1 (2014-01-28)
+
+Features:
+
+ - Error objects that have property `.isAsync = true` will now be caught by `.error()`
+
+Bugfixes:
+
+ - Fix TypeError and RangeError shims not working without `new` operator
+
 ## 1.0.0 (2014-01-12)
 
 Features:
@@ -7,10 +17,12 @@ Features:
 
 Bugfixes:
 
- - #58
- - #61
- - #64
- - #60
+ - [#58](https://github.com/petkaantonov/bluebird/issues/58)
+ - [#61](https://github.com/petkaantonov/bluebird/issues/61)
+ - [#64](https://github.com/petkaantonov/bluebird/issues/64)
+ - [#60](https://github.com/petkaantonov/bluebird/issues/60)
+
+## 0.11.6-1 (2013-12-29)
 
 ## 0.11.6-0 (2013-12-29)
 
@@ -1044,3 +1056,4 @@ Bugfixes:
 
  - bugfix
 
+## 0.3.0 (2013-09-06)
