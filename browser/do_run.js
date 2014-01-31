@@ -1,5 +1,11 @@
 var runner = mocha.run();
-//Saucelabs idiosyncrasy
 runner.on('end', function() {
-  window.mochaResults = runner.stats;
+    //Saucelabs idiosyncrasy
+    window.mochaResults = {
+        suites: runner.suite.suites.length,
+        tests: runner.total,
+        passes: runner.total - runner.failures,
+        failures: runner.failures,
+        pending: 0
+    };
 });
