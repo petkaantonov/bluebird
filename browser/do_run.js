@@ -17,6 +17,7 @@ var runner = mocha.run();
             }
         }
 
+        var tests = passes + failures;
         var end = new Date();
         var stats = {
             duration: +end - +start,
