@@ -102,7 +102,7 @@ describe("Promise.prototype.error", function(){
 
         doThing().error(function(){
             done();
-        }).catch(function(){
+        }).caught(function(){
             assert.fail();
         });
 
