@@ -15628,7 +15628,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
             done();
         });
 
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill then immediately reject", function (done) {
@@ -15644,7 +15644,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
 
         tuple.fulfill(dummy);
         tuple.reject(dummy);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill then reject, delayed", function (done) {
@@ -15662,7 +15662,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
             tuple.fulfill(dummy);
             tuple.reject(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill immediately then reject delayed", function (done) {
@@ -15680,7 +15680,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
         setTimeout(function () {
             tuple.reject(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 });
 
@@ -15706,7 +15706,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
             onRejectedCalled = true;
         });
 
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject then immediately fulfill", function (done) {
@@ -15722,7 +15722,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
 
         tuple.reject(dummy);
         tuple.fulfill(dummy);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject then fulfill, delayed", function (done) {
@@ -15740,7 +15740,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
             tuple.reject(dummy);
             tuple.fulfill(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject immediately then fulfill delayed", function (done) {
@@ -15758,7 +15758,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
         setTimeout(function () {
             tuple.fulfill(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 });
 
@@ -18128,7 +18128,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
                 onRejectedCalled = true;
             });
 
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to reject then immediately fulfill", function (done) {
@@ -18144,7 +18144,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
 
             tuple.reject(dummy);
             tuple.fulfill(dummy);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to reject then fulfill, delayed", function (done) {
@@ -18162,7 +18162,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
                 tuple.reject(dummy);
                 tuple.fulfill(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to reject immediately then fulfill delayed", function (done) {
@@ -18180,7 +18180,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
             setTimeout(function () {
                 tuple.fulfill(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
     });
 });
@@ -18317,7 +18317,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
                 done();
             });
 
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill then immediately reject", function (done) {
@@ -18333,7 +18333,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
 
             tuple.fulfill(dummy);
             tuple.reject(dummy);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill then reject, delayed", function (done) {
@@ -18351,7 +18351,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
                 tuple.fulfill(dummy);
                 tuple.reject(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill immediately then reject delayed", function (done) {
@@ -18369,7 +18369,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
             setTimeout(function () {
                 tuple.reject(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
     });
 });
