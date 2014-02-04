@@ -1,3 +1,13 @@
+## 1.0.2 (2014-02-04)
+
+Features:
+
+ - Significantly improve performance of foreign bluebird thenables
+
+Bugfixes:
+
+ - [#88](https://github.com/petkaantonov/bluebird/issues/58)
+
 ## 1.0.1 (2014-01-28)
 
 Features:
