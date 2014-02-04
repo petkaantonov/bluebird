@@ -444,4 +444,33 @@ describe("progress", function () {
             done();
         }, 13);
     });
+
+    specify("GH-88", function(done) {
+        var thenable = {
+            then: function(f, r, p) {
+                setTimeout(function(){
+                    var l = 10;
+                    while(l--) {
+                        p(4);
+                    }
+                    setTimeout(function(){
+                        f(3);
+                    }, 13);
+                }, 13);
+            }
+        };
+
+        var promise = Promise.cast(thenable);
+        var count = 0;
+        promise.progressed(function(v){
+            count++;
+            assert.equal(v, 4);
+        });
+        promise.then(function(v) {
+            assert.equal(count, 10);
+            assert.equal(v, 3);
+            done();
+        });
+
+    });
 });

@@ -93,7 +93,8 @@ module.exports = function(Promise, isPromiseArrayProxy) {
                 if (typeof handler === "function") {
                     handler.call(receiver, progressValue, promise);
                 }
-                else if (Promise.is(receiver) && receiver._isProxied()) {
+                else if (typeof receiver._isProxied === "function" &&
+                        receiver._isProxied()) {
                     receiver._progressUnchecked(progressValue);
                 }
                 else if (isPromiseArrayProxy(receiver, promise)) {

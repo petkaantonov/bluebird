@@ -69,6 +69,30 @@ if( isNodeJS ) {
             }, 13);
         });
 
+        specify("Should use fast cast", function(done) {
+            var a = Promise1.pending();
+            var b = Promise2.cast(a.promise);
+            assert(b._isProxied());
+            done();
+        });
+
+        specify("Should pass through progress with fast cast", function(done){
+            var a = Promise1.pending();
+            var b = Promise2.cast(a.promise);
+            var test = 0;
+            b.then(function() {
+                test++;
+            }, null, function() {
+                test++;
+            });
+
+            a.progress();
+            a.resolve();
+            setTimeout(function(){
+                assert.equal(test, 2);
+                done();
+            }, 20);
+        });
     });
 
 }
