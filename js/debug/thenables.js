@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
-    var tryCatch2 = util.tryCatch2;
 
     function getThen(obj) {
         try {
@@ -60,23 +60,48 @@ module.exports = function(Promise) {
         return obj;
     }
 
+    function isAnyBluebirdPromise(obj) {
+        try {
+            return typeof obj._resolveFromSyncValue === "function";
+        }
+        catch(ignore) {
+            return false;
+        }
+    }
+
     function Promise$_doThenable(x, then, caller, originalPromise) {
         ASSERT(((typeof then) === "function"),
     "typeof then === \u0022function\u0022");
         ASSERT((arguments.length === 4),
     "arguments.length === 4");
+        if (isAnyBluebirdPromise(x)) {
+            var ret = new Promise(INTERNAL);
+            ret._follow(x);
+            ret._setTrace(caller, void 0);
+            return ret;
+        }
+        return Promise$_doThenableSlowCase(x, then, caller, originalPromise);
+    }
+
+    function Promise$_doThenableSlowCase(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
-
         var called = false;
-        var ret = tryCatch2(then, x,
-            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
-
-        if (ret === errorObj && !called) {
-            called = true;
-            if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(ret.e);
+        try {
+            then.call(
+                x,
+                Promise$_resolveFromThenable,
+                Promise$_rejectFromThenable,
+                Promise$_progressFromThenable
+            );
+        }
+        catch(e) {
+            if (!called) {
+                called = true;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.promise._reject(e);
             }
-            resolver.promise._reject(ret.e);
         }
         return resolver.promise;
 
@@ -104,6 +129,14 @@ module.exports = function(Promise) {
             }
             resolver.promise._attachExtraTrace(r);
             resolver.promise._reject(r);
+        }
+
+        function Promise$_progressFromThenable(v) {
+            if (called) return;
+            var promise = resolver.promise;
+            if (typeof promise._progress === "function") {
+                promise._progress(v);
+            }
         }
     }
 

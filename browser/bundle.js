@@ -3256,7 +3256,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
 },{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":110,"../test/mocha/2.1.3.js":111,"../test/mocha/2.2.1.js":112,"../test/mocha/2.2.2.js":113,"../test/mocha/2.2.3.js":114,"../test/mocha/2.2.4.js":115,"../test/mocha/2.2.5.js":116,"../test/mocha/2.2.6.js":117,"../test/mocha/2.2.7.js":118,"../test/mocha/2.3.1.js":119,"../test/mocha/2.3.2.js":120,"../test/mocha/2.3.3.js":121,"../test/mocha/2.3.4.js":122,"../test/mocha/3.2.1.js":123,"../test/mocha/3.2.2.js":124,"../test/mocha/3.2.3.js":125,"../test/mocha/3.2.4.js":126,"../test/mocha/3.2.5.js":127,"../test/mocha/3.2.6.js":128,"../test/mocha/api_exceptions.js":129,"../test/mocha/async.js":130,"../test/mocha/bind.js":131,"../test/mocha/bluebird-debug-env-flag.js":132,"../test/mocha/bluebird-multiple-instances.js":133,"../test/mocha/cancel.js":134,"../test/mocha/catch_filter.js":135,"../test/mocha/collections_thenables.js":136,"../test/mocha/constructor.js":137,"../test/mocha/cycles.js":138,"../test/mocha/direct_resolving.js":139,"../test/mocha/error.js":140,"../test/mocha/filter.js":141,"../test/mocha/following.js":142,"../test/mocha/github36.js":143,"../test/mocha/late_buffer_safety.js":147,"../test/mocha/method.js":148,"../test/mocha/promisify.js":149,"../test/mocha/props.js":150,"../test/mocha/q_all.js":151,"../test/mocha/q_done.js":152,"../test/mocha/q_fin.js":153,"../test/mocha/q_inspect.js":154,"../test/mocha/q_make_node_resolver.js":155,"../test/mocha/q_nodeify.js":156,"../test/mocha/q_progress.js":157,"../test/mocha/q_propagation.js":158,"../test/mocha/q_settle.js":159,"../test/mocha/q_spread.js":160,"../test/mocha/race.js":161,"../test/mocha/reduce.js":162,"../test/mocha/resolution.js":163,"../test/mocha/reused_promise.js":164,"../test/mocha/some.js":165,"../test/mocha/sparsity.js":166,"../test/mocha/timers.js":167,"../test/mocha/try.js":168,"../test/mocha/unhandled_rejections.js":169,"../test/mocha/when_all.js":170,"../test/mocha/when_any.js":171,"../test/mocha/when_defer.js":172,"../test/mocha/when_join.js":173,"../test/mocha/when_map.js":174,"../test/mocha/when_reduce.js":175,"../test/mocha/when_settle.js":176,"../test/mocha/when_some.js":177,"../test/mocha/when_spread.js":178,"assert":2,"sinon":95}],17:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3275,6 +3275,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
@@ -3315,7 +3316,7 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
 },{"./assert.js":18,"./some_promise_array.js":51}],18:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3334,6 +3335,7 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = (function(){
@@ -3366,7 +3368,7 @@ module.exports = (function(){
 
 },{}],19:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3385,6 +3387,7 @@ module.exports = (function(){
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var ASSERT = require("./assert.js");
@@ -3475,7 +3478,7 @@ module.exports = new Async();
 
 },{"./assert.js":18,"./queue.js":44,"./schedule.js":47,"./util.js":55}],20:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3494,13 +3497,14 @@ module.exports = new Async();
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var Promise = require("./promise.js")();
 module.exports = Promise;
 },{"./promise.js":36}],21:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3519,6 +3523,7 @@ module.exports = Promise;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -3556,7 +3561,7 @@ module.exports = function(Promise) {
 
 },{}],22:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3575,6 +3580,7 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -3637,7 +3643,7 @@ module.exports = function(Promise, INTERNAL) {
 
 },{"./assert.js":18,"./async.js":19,"./errors.js":26}],23:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3656,6 +3662,7 @@ module.exports = function(Promise, INTERNAL) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function() {
@@ -3887,7 +3894,7 @@ return CapturedTrace;
 
 },{"./assert.js":18,"./es5.js":28,"./util.js":55}],24:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3906,6 +3913,7 @@ return CapturedTrace;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(NEXT_FILTER) {
@@ -3977,7 +3985,7 @@ return CatchFilter;
 
 },{"./es5.js":28,"./util.js":55}],25:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3996,6 +4004,7 @@ return CatchFilter;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var util = require("./util.js");
@@ -4064,7 +4073,7 @@ function Promise$thenThrow(reason) {
 
 },{"./assert.js":18,"./util.js":55}],26:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4083,6 +4092,7 @@ function Promise$thenThrow(reason) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var global = require("./global.js");
@@ -4233,7 +4243,7 @@ module.exports = {
 
 },{"./es5.js":28,"./global.js":32,"./util.js":55}],27:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4252,6 +4262,7 @@ module.exports = {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -4272,7 +4283,7 @@ return apiRejection;
 
 },{"./errors.js":26}],28:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4291,6 +4302,7 @@ return apiRejection;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 var isES5 = (function(){
     "use strict";
@@ -4362,7 +4374,7 @@ else {
 
 },{}],29:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4381,6 +4393,7 @@ else {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -4424,7 +4437,7 @@ module.exports = function(Promise) {
 
 },{"./assert.js":18,"./util.js":55}],30:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4443,6 +4456,7 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 module.exports = function(Promise, NEXT_FILTER) {
     var util = require("./util.js");
@@ -4532,7 +4546,7 @@ module.exports = function(Promise, NEXT_FILTER) {
 
 },{"./errors.js":26,"./util.js":55}],31:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4551,6 +4565,7 @@ module.exports = function(Promise, NEXT_FILTER) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, apiRejection, INTERNAL) {
@@ -4585,7 +4600,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
 
 },{"./errors.js":26,"./promise_spawn.js":40}],32:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4604,6 +4619,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = (function(){
@@ -4628,7 +4644,7 @@ module.exports = (function(){
 
 },{"__browserify_process":15}],33:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4647,6 +4663,7 @@ module.exports = (function(){
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(
@@ -4760,7 +4777,7 @@ module.exports = function(
 
 },{"./assert.js":18}],34:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4779,6 +4796,7 @@ module.exports = function(
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -4829,7 +4847,7 @@ module.exports = function(Promise) {
 
 },{"./assert.js":18,"./async.js":19,"./util.js":55}],35:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4848,6 +4866,7 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, isPromiseArrayProxy) {
@@ -4929,7 +4948,8 @@ module.exports = function(Promise, isPromiseArrayProxy) {
                 if (typeof handler === "function") {
                     handler.call(receiver, progressValue, promise);
                 }
-                else if (Promise.is(receiver) && receiver._isProxied()) {
+                else if (typeof receiver._isProxied === "function" &&
+                        receiver._isProxied()) {
                     receiver._progressUnchecked(progressValue);
                 }
                 else if (isPromiseArrayProxy(receiver, promise)) {
@@ -4955,7 +4975,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
 
 },{"./assert.js":18,"./async.js":19,"./util.js":55}],36:[function(require,module,exports){
 var process=require("__browserify_process");/**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4974,6 +4994,7 @@ var process=require("__browserify_process");/**
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function() {
@@ -5401,8 +5422,9 @@ function Promise$_then(
     if (debugging && !haveInternalData) {
         var haveSameContext = this._peekContext() === this._traceParent;
         ret._traceParent = haveSameContext ? this._traceParent : this;
-        ret._setTrace(typeof caller === "function" ?
-            caller : this._then, this);
+        ret._setTrace(typeof caller === "function"
+                ? caller
+                : this._then, this);
     }
 
     if (!haveInternalData && this._isBound()) {
@@ -5750,8 +5772,6 @@ Promise.prototype._follow =
 function Promise$_follow(promise) {
     ASSERT((arguments.length === 1),
     "arguments.length === 1");
-    ASSERT(isPromise(promise),
-    "isPromise(promise)");
     ASSERT((this._isFollowingOrFulfilledOrRejected() === false),
     "this._isFollowingOrFulfilledOrRejected() === false");
     ASSERT((promise !== this),
@@ -5919,7 +5939,8 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (receiver instanceof Promise && receiver._isProxied()) {
+            if (typeof receiver._isProxied === "function" &&
+                receiver._isProxied()) {
                 ASSERT((! isPromise(promise)),
     "!isPromise(promise)");
                 receiver._unsetProxied();
@@ -6181,7 +6202,7 @@ if (!CapturedTrace.isSupported()) {
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise);
+require("./thenables.js")(Promise, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
@@ -6211,7 +6232,7 @@ return Promise;
 
 },{"./any.js":17,"./assert.js":18,"./async.js":19,"./call_get.js":21,"./cancel.js":22,"./captured_trace.js":23,"./catch_filter.js":24,"./direct_resolve.js":25,"./errors.js":26,"./errors_api_rejection":27,"./filter.js":29,"./finally.js":30,"./generators.js":31,"./global.js":32,"./map.js":33,"./nodeify.js":34,"./progress.js":35,"./promise_array.js":37,"./promise_resolver.js":39,"./promisify.js":41,"./props.js":43,"./race.js":45,"./reduce.js":46,"./settle.js":48,"./some.js":50,"./synchronous_inspection.js":52,"./thenables.js":53,"./timers.js":54,"./util.js":55,"__browserify_process":15}],37:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6230,6 +6251,7 @@ return Promise;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -6469,7 +6491,7 @@ return PromiseArray;
 
 },{"./assert.js":18,"./async.js":19,"./errors.js":26,"./util.js":55}],38:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6488,6 +6510,7 @@ return PromiseArray;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var TypeError = require("./errors.js").TypeError;
@@ -6536,7 +6559,7 @@ module.exports = PromiseInspection;
 
 },{"./errors.js":26}],39:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6555,6 +6578,7 @@ module.exports = PromiseInspection;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var util = require("./util.js");
@@ -6674,7 +6698,7 @@ module.exports = PromiseResolver;
 
 },{"./async.js":19,"./errors.js":26,"./es5.js":28,"./util.js":55}],40:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6693,6 +6717,7 @@ module.exports = PromiseResolver;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -6781,7 +6806,7 @@ return PromiseSpawn;
 
 },{"./errors.js":26,"./util.js":55}],41:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6800,6 +6825,7 @@ return PromiseSpawn;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -7023,7 +7049,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 
 },{"./assert.js":18,"./es5.js":28,"./promise_resolver.js":39,"./util.js":55}],42:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7042,6 +7068,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
@@ -7106,7 +7133,7 @@ return PropertiesPromiseArray;
 
 },{"./assert.js":18,"./es5.js":28,"./util.js":55}],43:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7125,6 +7152,7 @@ return PropertiesPromiseArray;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
@@ -7172,7 +7200,7 @@ module.exports = function(Promise, PromiseArray) {
 
 },{"./errors_api_rejection":27,"./properties_promise_array.js":42,"./util.js":55}],44:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7191,6 +7219,7 @@ module.exports = function(Promise, PromiseArray) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var ASSERT = require("./assert.js");
@@ -7315,7 +7344,7 @@ module.exports = Queue;
 
 },{"./assert.js":18}],45:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7334,6 +7363,7 @@ module.exports = Queue;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -7401,7 +7431,7 @@ module.exports = function(Promise, INTERNAL) {
 
 },{"./errors_api_rejection.js":27,"./util.js":55}],46:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7420,6 +7450,7 @@ module.exports = function(Promise, INTERNAL) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(
@@ -7579,7 +7610,7 @@ module.exports = function(
 
 },{"./assert.js":18}],47:[function(require,module,exports){
 var process=require("__browserify_process");/**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7598,6 +7629,7 @@ var process=require("__browserify_process");/**
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var global = require("./global.js");
@@ -7712,7 +7744,7 @@ module.exports = schedule;
 
 },{"./assert.js":18,"./global.js":32,"__browserify_process":15}],48:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7731,6 +7763,7 @@ module.exports = schedule;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports =
@@ -7762,7 +7795,7 @@ module.exports =
 
 },{"./settled_promise_array.js":49}],49:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7781,6 +7814,7 @@ module.exports =
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
@@ -7830,7 +7864,7 @@ return SettledPromiseArray;
 
 },{"./assert.js":18,"./promise_inspection.js":38,"./util.js":55}],50:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7849,6 +7883,7 @@ return SettledPromiseArray;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports =
@@ -7892,7 +7927,7 @@ function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
 },{"./assert.js":18,"./some_promise_array.js":51}],51:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7911,6 +7946,7 @@ function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function (PromiseArray) {
@@ -8024,7 +8060,7 @@ return SomePromiseArray;
 
 },{"./errors.js":26,"./util.js":55}],52:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8043,6 +8079,7 @@ return SomePromiseArray;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -8055,7 +8092,7 @@ module.exports = function(Promise) {
 
 },{"./promise_inspection.js":38}],53:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8074,14 +8111,14 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
-    var tryCatch2 = util.tryCatch2;
 
     function getThen(obj) {
         try {
@@ -8116,23 +8153,48 @@ module.exports = function(Promise) {
         return obj;
     }
 
+    function isAnyBluebirdPromise(obj) {
+        try {
+            return typeof obj._resolveFromSyncValue === "function";
+        }
+        catch(ignore) {
+            return false;
+        }
+    }
+
     function Promise$_doThenable(x, then, caller, originalPromise) {
         ASSERT(((typeof then) === "function"),
     "typeof then === \u0022function\u0022");
         ASSERT((arguments.length === 4),
     "arguments.length === 4");
+        if (isAnyBluebirdPromise(x)) {
+            var ret = new Promise(INTERNAL);
+            ret._follow(x);
+            ret._setTrace(caller, void 0);
+            return ret;
+        }
+        return Promise$_doThenableSlowCase(x, then, caller, originalPromise);
+    }
+
+    function Promise$_doThenableSlowCase(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
-
         var called = false;
-        var ret = tryCatch2(then, x,
-            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
-
-        if (ret === errorObj && !called) {
-            called = true;
-            if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(ret.e);
+        try {
+            then.call(
+                x,
+                Promise$_resolveFromThenable,
+                Promise$_rejectFromThenable,
+                Promise$_progressFromThenable
+            );
+        }
+        catch(e) {
+            if (!called) {
+                called = true;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.promise._reject(e);
             }
-            resolver.promise._reject(ret.e);
         }
         return resolver.promise;
 
@@ -8161,6 +8223,14 @@ module.exports = function(Promise) {
             resolver.promise._attachExtraTrace(r);
             resolver.promise._reject(r);
         }
+
+        function Promise$_progressFromThenable(v) {
+            if (called) return;
+            var promise = resolver.promise;
+            if (typeof promise._progress === "function") {
+                promise._progress(v);
+            }
+        }
     }
 
     Promise._cast = Promise$_Cast;
@@ -8168,7 +8238,7 @@ module.exports = function(Promise) {
 
 },{"./assert.js":18,"./util.js":55}],54:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8187,6 +8257,7 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 
@@ -8284,7 +8355,7 @@ module.exports = function(Promise, INTERNAL) {
 
 },{"./assert.js":18,"./errors.js":26,"./errors_api_rejection":27,"./global.js":32,"./util.js":55}],55:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8303,6 +8374,7 @@ module.exports = function(Promise, INTERNAL) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var global = require("./global.js");
@@ -8498,7 +8570,7 @@ module.exports = ret;
 
 },{"./assert.js":18,"./es5.js":28,"./global.js":32}],56:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8517,6 +8589,7 @@ module.exports = ret;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
@@ -8557,7 +8630,7 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 module.exports=require(18)
 },{}],58:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8576,6 +8649,7 @@ module.exports=require(18)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var ASSERT = require("./assert.js");
@@ -8658,7 +8732,7 @@ arguments[4][20][0].apply(exports,arguments)
 module.exports=require(21)
 },{}],61:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8677,6 +8751,7 @@ module.exports=require(21)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -8737,7 +8812,7 @@ module.exports = function(Promise, INTERNAL) {
 
 },{"./assert.js":57,"./async.js":58,"./errors.js":65}],62:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8756,6 +8831,7 @@ module.exports = function(Promise, INTERNAL) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function() {
@@ -8978,7 +9054,7 @@ return CapturedTrace;
 arguments[4][24][0].apply(exports,arguments)
 },{"./es5.js":67,"./util.js":94}],64:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8997,6 +9073,7 @@ arguments[4][24][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var util = require("./util.js");
@@ -9069,7 +9146,7 @@ arguments[4][27][0].apply(exports,arguments)
 module.exports=require(28)
 },{}],68:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9088,6 +9165,7 @@ module.exports=require(28)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -9130,7 +9208,7 @@ arguments[4][31][0].apply(exports,arguments)
 module.exports=require(32)
 },{"__browserify_process":15}],72:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9149,6 +9227,7 @@ module.exports=require(32)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(
@@ -9260,7 +9339,7 @@ module.exports = function(
 
 },{"./assert.js":57}],73:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9279,6 +9358,7 @@ module.exports = function(
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise) {
@@ -9325,7 +9405,7 @@ module.exports = function(Promise) {
 
 },{"./assert.js":57,"./async.js":58,"./util.js":94}],74:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9344,6 +9424,7 @@ module.exports = function(Promise) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, isPromiseArrayProxy) {
@@ -9414,7 +9495,8 @@ module.exports = function(Promise, isPromiseArrayProxy) {
                 if (typeof handler === "function") {
                     handler.call(receiver, progressValue, promise);
                 }
-                else if (Promise.is(receiver) && receiver._isProxied()) {
+                else if (typeof receiver._isProxied === "function" &&
+                        receiver._isProxied()) {
                     receiver._progressUnchecked(progressValue);
                 }
                 else if (isPromiseArrayProxy(receiver, promise)) {
@@ -9440,7 +9522,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
 
 },{"./assert.js":57,"./async.js":58,"./util.js":94}],75:[function(require,module,exports){
 var process=require("__browserify_process");/**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9459,6 +9541,7 @@ var process=require("__browserify_process");/**
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function() {
@@ -9864,8 +9947,9 @@ function Promise$_then(
     if (debugging && !haveInternalData) {
         var haveSameContext = this._peekContext() === this._traceParent;
         ret._traceParent = haveSameContext ? this._traceParent : this;
-        ret._setTrace(typeof caller === "function" ?
-            caller : this._then, this);
+        ret._setTrace(typeof caller === "function"
+                ? caller
+                : this._then, this);
     }
 
     if (!haveInternalData && this._isBound()) {
@@ -10321,7 +10405,8 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (receiver instanceof Promise && receiver._isProxied()) {
+            if (typeof receiver._isProxied === "function" &&
+                receiver._isProxied()) {
                 receiver._unsetProxied();
 
                 if (isFulfilled) receiver._fulfillUnchecked(value);
@@ -10564,7 +10649,7 @@ if (!CapturedTrace.isSupported()) {
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise);
+require("./thenables.js")(Promise, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
@@ -10594,7 +10679,7 @@ return Promise;
 
 },{"./any.js":56,"./assert.js":57,"./async.js":58,"./call_get.js":60,"./cancel.js":61,"./captured_trace.js":62,"./catch_filter.js":63,"./direct_resolve.js":64,"./errors.js":65,"./errors_api_rejection":66,"./filter.js":68,"./finally.js":69,"./generators.js":70,"./global.js":71,"./map.js":72,"./nodeify.js":73,"./progress.js":74,"./promise_array.js":76,"./promise_resolver.js":78,"./promisify.js":80,"./props.js":82,"./race.js":84,"./reduce.js":85,"./settle.js":87,"./some.js":89,"./synchronous_inspection.js":91,"./thenables.js":92,"./timers.js":93,"./util.js":94,"__browserify_process":15}],76:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10613,6 +10698,7 @@ return Promise;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -10830,7 +10916,7 @@ arguments[4][39][0].apply(exports,arguments)
 arguments[4][40][0].apply(exports,arguments)
 },{"./errors.js":65,"./util.js":94}],80:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10849,6 +10935,7 @@ arguments[4][40][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
@@ -11070,7 +11157,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 
 },{"./assert.js":57,"./es5.js":67,"./promise_resolver.js":78,"./util.js":94}],81:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11089,6 +11176,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
@@ -11151,7 +11239,7 @@ return PropertiesPromiseArray;
 arguments[4][43][0].apply(exports,arguments)
 },{"./errors_api_rejection":66,"./properties_promise_array.js":81,"./util.js":94}],83:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11170,6 +11258,7 @@ arguments[4][43][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var ASSERT = require("./assert.js");
@@ -11290,7 +11379,7 @@ module.exports = Queue;
 arguments[4][45][0].apply(exports,arguments)
 },{"./errors_api_rejection.js":66,"./util.js":94}],85:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11309,6 +11398,7 @@ arguments[4][45][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(
@@ -11466,7 +11556,7 @@ module.exports = function(
 
 },{"./assert.js":57}],86:[function(require,module,exports){
 var process=require("__browserify_process");/**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11485,6 +11575,7 @@ var process=require("__browserify_process");/**
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var global = require("./global.js");
@@ -11589,7 +11680,7 @@ module.exports = schedule;
 arguments[4][48][0].apply(exports,arguments)
 },{"./settled_promise_array.js":88}],88:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11608,6 +11699,7 @@ arguments[4][48][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
@@ -11651,7 +11743,7 @@ return SettledPromiseArray;
 
 },{"./assert.js":57,"./promise_inspection.js":77,"./util.js":94}],89:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11670,6 +11762,7 @@ return SettledPromiseArray;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports =
@@ -11715,7 +11808,7 @@ arguments[4][51][0].apply(exports,arguments)
 arguments[4][52][0].apply(exports,arguments)
 },{"./promise_inspection.js":77}],92:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11734,14 +11827,14 @@ arguments[4][52][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var errorObj = util.errorObj;
     var isObject = util.isObject;
-    var tryCatch2 = util.tryCatch2;
 
     function getThen(obj) {
         try {
@@ -11774,19 +11867,44 @@ module.exports = function(Promise) {
         return obj;
     }
 
+    function isAnyBluebirdPromise(obj) {
+        try {
+            return typeof obj._resolveFromSyncValue === "function";
+        }
+        catch(ignore) {
+            return false;
+        }
+    }
+
     function Promise$_doThenable(x, then, caller, originalPromise) {
+        if (isAnyBluebirdPromise(x)) {
+            var ret = new Promise(INTERNAL);
+            ret._follow(x);
+            ret._setTrace(caller, void 0);
+            return ret;
+        }
+        return Promise$_doThenableSlowCase(x, then, caller, originalPromise);
+    }
+
+    function Promise$_doThenableSlowCase(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
-
         var called = false;
-        var ret = tryCatch2(then, x,
-            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
-
-        if (ret === errorObj && !called) {
-            called = true;
-            if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(ret.e);
+        try {
+            then.call(
+                x,
+                Promise$_resolveFromThenable,
+                Promise$_rejectFromThenable,
+                Promise$_progressFromThenable
+            );
+        }
+        catch(e) {
+            if (!called) {
+                called = true;
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(e);
+                }
+                resolver.promise._reject(e);
             }
-            resolver.promise._reject(ret.e);
         }
         return resolver.promise;
 
@@ -11815,6 +11933,14 @@ module.exports = function(Promise) {
             resolver.promise._attachExtraTrace(r);
             resolver.promise._reject(r);
         }
+
+        function Promise$_progressFromThenable(v) {
+            if (called) return;
+            var promise = resolver.promise;
+            if (typeof promise._progress === "function") {
+                promise._progress(v);
+            }
+        }
     }
 
     Promise._cast = Promise$_Cast;
@@ -11824,7 +11950,7 @@ module.exports = function(Promise) {
 arguments[4][54][0].apply(exports,arguments)
 },{"./assert.js":57,"./errors.js":65,"./errors_api_rejection":66,"./global.js":71,"./util.js":94}],94:[function(require,module,exports){
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -11843,6 +11969,7 @@ arguments[4][54][0].apply(exports,arguments)
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 var global = require("./global.js");
@@ -20470,6 +20597,30 @@ if( isNodeJS ) {
             }, 13);
         });
 
+        specify("Should use fast cast", function(done) {
+            var a = Promise1.pending();
+            var b = Promise2.cast(a.promise);
+            assert(b._isProxied());
+            done();
+        });
+
+        specify("Should pass through progress with fast cast", function(done){
+            var a = Promise1.pending();
+            var b = Promise2.cast(a.promise);
+            var test = 0;
+            b.then(function() {
+                test++;
+            }, null, function() {
+                test++;
+            });
+
+            a.progress();
+            a.resolve();
+            setTimeout(function(){
+                assert.equal(test, 2);
+                done();
+            }, 20);
+        });
     });
 
 }
@@ -25389,6 +25540,35 @@ describe("progress", function () {
             assert.deepEqual(order, [1,2,3,4]);
             done();
         }, 13);
+    });
+
+    specify("GH-88", function(done) {
+        var thenable = {
+            then: function(f, r, p) {
+                setTimeout(function(){
+                    var l = 10;
+                    while(l--) {
+                        p(4);
+                    }
+                    setTimeout(function(){
+                        f(3);
+                    }, 13);
+                }, 13);
+            }
+        };
+
+        var promise = Promise.cast(thenable);
+        var count = 0;
+        promise.progressed(function(v){
+            count++;
+            assert.equal(v, 4);
+        });
+        promise.then(function(v) {
+            assert.equal(count, 10);
+            assert.equal(v, 3);
+            done();
+        });
+
     });
 });
 

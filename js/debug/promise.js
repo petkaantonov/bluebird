@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 Petka Antonov
+ * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +18,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
  */
 "use strict";
 module.exports = function() {
@@ -445,8 +446,9 @@ function Promise$_then(
     if (debugging && !haveInternalData) {
         var haveSameContext = this._peekContext() === this._traceParent;
         ret._traceParent = haveSameContext ? this._traceParent : this;
-        ret._setTrace(typeof caller === "function" ?
-            caller : this._then, this);
+        ret._setTrace(typeof caller === "function"
+                ? caller
+                : this._then, this);
     }
 
     if (!haveInternalData && this._isBound()) {
@@ -794,8 +796,6 @@ Promise.prototype._follow =
 function Promise$_follow(promise) {
     ASSERT((arguments.length === 1),
     "arguments.length === 1");
-    ASSERT(isPromise(promise),
-    "isPromise(promise)");
     ASSERT((this._isFollowingOrFulfilledOrRejected() === false),
     "this._isFollowingOrFulfilledOrRejected() === false");
     ASSERT((promise !== this),
@@ -963,7 +963,8 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (receiver instanceof Promise && receiver._isProxied()) {
+            if (typeof receiver._isProxied === "function" &&
+                receiver._isProxied()) {
                 ASSERT((! isPromise(promise)),
     "!isPromise(promise)");
                 receiver._unsetProxied();
@@ -1225,7 +1226,7 @@ if (!CapturedTrace.isSupported()) {
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise);
+require("./thenables.js")(Promise, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
