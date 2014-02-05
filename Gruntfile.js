@@ -344,10 +344,9 @@ module.exports = function( grunt ) {
     };
 
     grunt.initConfig(gruntConfig);
-    grunt.loadNpmTasks("grunt-contrib-connect");
-    grunt.loadNpmTasks("grunt-saucelabs");
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
+    // Load all "grunt-*" tasks
+    require('load-grunt-tasks')(grunt);
+
     grunt.loadNpmTasks('grunt-contrib-concat');
 
     function runIndependentTest( file, cb , env) {
