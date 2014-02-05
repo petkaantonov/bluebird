@@ -1,3 +1,9 @@
+## 1.0.3 (2014-02-05)
+
+Bugfixes:
+
+ - [#93](https://github.com/petkaantonov/bluebird/issues/88)
+
 ## 1.0.2 (2014-02-04)
 
 Features:
