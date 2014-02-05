@@ -761,6 +761,7 @@ Promise.prototype._follow =
 function Promise$_follow(promise) {
     ASSERT(arguments.length === 1);
     ASSERT(this._isFollowingOrFulfilledOrRejected() === false);
+    ASSERT(isPromise(promise));
     ASSERT(promise !== this);
     this._setFollowing();
 
@@ -923,7 +924,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         //optimization when .then listeners on a promise are
         //just respective fate sealers on some other promise
         if (receiver !== void 0) {
-            if (typeof receiver._isProxied === "function" &&
+            if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 //Must be smuggled data if proxied
                 ASSERT(!isPromise(promise));

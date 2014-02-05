@@ -4,6 +4,7 @@ var isNodeJS = typeof process !== "undefined" && process !== null &&
     typeof process.execPath === "string";
 
 var assert = require("assert");
+var OldPromise = require("./helpers/bluebird0_7_0.js");
 
 if( isNodeJS ) {
     var Promise1 = require( "../../js/debug/promise.js")();
@@ -72,7 +73,7 @@ if( isNodeJS ) {
         specify("Should use fast cast", function(done) {
             var a = Promise1.pending();
             var b = Promise2.cast(a.promise);
-            assert(b._isProxied());
+            assert(a.promise._receiver0 === b);
             done();
         });
 
@@ -92,6 +93,40 @@ if( isNodeJS ) {
                 assert.equal(test, 2);
                 done();
             }, 20);
+        });
+
+        specify("Should use fast cast with very old version", function(done) {
+            var a = OldPromise.pending();
+            var b = Promise1.cast(a.promise);
+            assert(a.promise._receiver0 === b);
+            done();
+        });
+
+        specify("Should pass through progress with fast cast with very old version", function(done){
+            var a = OldPromise.pending();
+            var b = Promise1.cast(a.promise);
+            var test = 0;
+            b.then(function() {
+                test++;
+            }, null, function() {
+                test++;
+            });
+
+            a.progress();
+            a.fulfill();
+            setTimeout(function(){
+                assert.equal(test, 2);
+                done();
+            }, 20);
+        });
+
+        specify("Should return 2 from very old promise", function(done) {
+            Promise1.resolve().then(
+                function(){ return OldPromise.cast(0).then(function(){return 2});
+            }).then(function(two){
+                assert.equal(two, 2);
+                done();
+            });
         });
     });
 

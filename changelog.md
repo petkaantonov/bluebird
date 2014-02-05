@@ -6,7 +6,7 @@ Features:
 
 Bugfixes:
 
- - [#88](https://github.com/petkaantonov/bluebird/issues/58)
+ - [#88](https://github.com/petkaantonov/bluebird/issues/88)
 
 ## 1.0.1 (2014-01-28)
 
