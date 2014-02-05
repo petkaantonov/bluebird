@@ -882,7 +882,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (typeof receiver._isProxied === "function" &&
+            if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 receiver._unsetProxied();
 

@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.0.2
+ * bluebird build version 1.0.3
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -1665,8 +1665,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
                 if (typeof handler === "function") {
                     handler.call(receiver, progressValue, promise);
                 }
-                else if (typeof receiver._isProxied === "function" &&
-                        receiver._isProxied()) {
+                else if (Promise.is(receiver) && receiver._isProxied()) {
                     receiver._progressUnchecked(progressValue);
                 }
                 else if (isPromiseArrayProxy(receiver, promise)) {
@@ -2575,7 +2574,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (typeof receiver._isProxied === "function" &&
+            if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 receiver._unsetProxied();
 
@@ -4690,6 +4689,20 @@ module.exports = function(Promise, INTERNAL) {
             if (obj instanceof Promise) {
                 return obj;
             }
+            else if (isAnyBluebirdPromise(obj)) {
+                var ret = new Promise(INTERNAL);
+                ret._setTrace(caller, void 0);
+                obj._then(
+                    ret._fulfillUnchecked,
+                    ret._rejectUnchecked,
+                    ret._progressUnchecked,
+                    ret,
+                    null,
+                    void 0
+                );
+                ret._setFollowing();
+                return ret;
+            }
             var then = getThen(obj);
             if (then === errorObj) {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
@@ -4706,26 +4719,12 @@ module.exports = function(Promise, INTERNAL) {
         return obj;
     }
 
+    var hasProp = {}.hasOwnProperty;
     function isAnyBluebirdPromise(obj) {
-        try {
-            return typeof obj._resolveFromSyncValue === "function";
-        }
-        catch(ignore) {
-            return false;
-        }
+        return hasProp.call(obj, "_promise0");
     }
 
     function Promise$_doThenable(x, then, caller, originalPromise) {
-        if (isAnyBluebirdPromise(x)) {
-            var ret = new Promise(INTERNAL);
-            ret._follow(x);
-            ret._setTrace(caller, void 0);
-            return ret;
-        }
-        return Promise$_doThenableSlowCase(x, then, caller, originalPromise);
-    }
-
-    function Promise$_doThenableSlowCase(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
         var called = false;
         try {

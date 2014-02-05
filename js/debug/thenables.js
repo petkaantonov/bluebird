@@ -44,6 +44,20 @@ module.exports = function(Promise, INTERNAL) {
             if (obj instanceof Promise) {
                 return obj;
             }
+            else if (isAnyBluebirdPromise(obj)) {
+                var ret = new Promise(INTERNAL);
+                ret._setTrace(caller, void 0);
+                obj._then(
+                    ret._fulfillUnchecked,
+                    ret._rejectUnchecked,
+                    ret._progressUnchecked,
+                    ret,
+                    null,
+                    void 0
+                );
+                ret._setFollowing();
+                return ret;
+            }
             var then = getThen(obj);
             if (then === errorObj) {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
@@ -60,13 +74,9 @@ module.exports = function(Promise, INTERNAL) {
         return obj;
     }
 
+    var hasProp = {}.hasOwnProperty;
     function isAnyBluebirdPromise(obj) {
-        try {
-            return typeof obj._resolveFromSyncValue === "function";
-        }
-        catch(ignore) {
-            return false;
-        }
+        return hasProp.call(obj, "_promise0");
     }
 
     function Promise$_doThenable(x, then, caller, originalPromise) {
@@ -74,16 +84,6 @@ module.exports = function(Promise, INTERNAL) {
     "typeof then === \u0022function\u0022");
         ASSERT((arguments.length === 4),
     "arguments.length === 4");
-        if (isAnyBluebirdPromise(x)) {
-            var ret = new Promise(INTERNAL);
-            ret._follow(x);
-            ret._setTrace(caller, void 0);
-            return ret;
-        }
-        return Promise$_doThenableSlowCase(x, then, caller, originalPromise);
-    }
-
-    function Promise$_doThenableSlowCase(x, then, caller, originalPromise) {
         var resolver = Promise.defer(caller);
         var called = false;
         try {

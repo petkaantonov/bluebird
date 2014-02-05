@@ -798,6 +798,8 @@ function Promise$_follow(promise) {
     "arguments.length === 1");
     ASSERT((this._isFollowingOrFulfilledOrRejected() === false),
     "this._isFollowingOrFulfilledOrRejected() === false");
+    ASSERT(isPromise(promise),
+    "isPromise(promise)");
     ASSERT((promise !== this),
     "promise !== this");
     this._setFollowing();
@@ -963,7 +965,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         var done = false;
         var isFulfilled = this.isFulfilled();
         if (receiver !== void 0) {
-            if (typeof receiver._isProxied === "function" &&
+            if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 ASSERT((! isPromise(promise)),
     "!isPromise(promise)");
