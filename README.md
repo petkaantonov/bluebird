@@ -346,7 +346,7 @@ request("http://www.google.com").then(function(contents){
 });
 ```
 
-
+**Danger:** The JavaScript language allows throwing primitive values like strings. Throwing primitives can lead to worse or no stack traces. Primitives [are not exceptions](http://www.devthought.com/2011/12/22/a-string-is-not-an-error/). You should consider always throwing Error objects when handling exceptions.
 
 <hr>
 
