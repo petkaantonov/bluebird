@@ -1703,7 +1703,7 @@ Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName
 });
 ```
 
-*The original array is not modified. If no `intialValue` is given and the array doesn't contain at least 2 items, the callback will not be called and `undefined` is returned. If `initialValue` is given and the array doesn't have at least 1 item, `initialValue` is returned.*
+*The original array is not modified. If `intialValue` is `undefined` (or a promise that resolves to `undefined`) and the array contains only 1 item, the callback will not be called and `undefined` is returned. If the array is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
 
 <hr>
 
