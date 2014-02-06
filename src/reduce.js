@@ -57,7 +57,7 @@ module.exports = function(
         this.promise._fulfill(result);
     };
 
-    function Promise$_reducer(fulfilleds, initialValue) {
+    function Promise$_reducer(fulfilleds, initialValue, hasIV) {
         var fn = this;
         var receiver = void 0;
         if (typeof fn !== "function")  {
@@ -69,7 +69,7 @@ module.exports = function(
         var accum = void 0;
         var startIndex = 0;
 
-        if (initialValue !== void 0) {
+        if (hasIV === HAS_INITIAL_VALUE) {
             accum = initialValue;
             startIndex = 0;
         }
@@ -91,18 +91,22 @@ module.exports = function(
     function Promise$_unpackReducer(fulfilleds) {
         var fn = this.fn;
         var initialValue = this.initialValue;
-        return Promise$_reducer.call(fn, fulfilleds, initialValue);
+        return Promise$_reducer.call(
+            fn, fulfilleds, initialValue, HAS_INITIAL_VALUE
+        );
     }
 
     function Promise$_slowReduce(
         promises, fn, initialValue, useBound, caller) {
         return initialValue._then(function callee(initialValue) {
             return Promise$_Reduce(
-                promises, fn, initialValue, useBound, callee);
+                promises, fn, initialValue, useBound, HAS_INITIAL_VALUE, callee
+            );
         }, void 0, void 0, void 0, void 0, caller);
     }
 
-    function Promise$_Reduce(promises, fn, initialValue, useBound, caller) {
+    function Promise$_Reduce(promises, fn, initialValue, useBound, hasIV,
+                             caller) {
         if (typeof fn !== "function") {
             return apiRejection(NOT_FUNCTION_ERROR);
         }
@@ -114,7 +118,7 @@ module.exports = function(
             };
         }
 
-        if (initialValue !== void 0) {
+        if (hasIV === HAS_INITIAL_VALUE) {
             if (Promise.is(initialValue)) {
                 if (initialValue.isFulfilled()) {
                     initialValue = initialValue._settledValue;
@@ -149,12 +153,16 @@ module.exports = function(
 
 
     Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
+        var hasIV = (arguments.length > 2) ?
+            HAS_INITIAL_VALUE : NO_INITIAL_VALUE;
         return Promise$_Reduce(promises, fn,
-            initialValue, DONT_USE_BOUND, Promise.reduce);
+            initialValue, DONT_USE_BOUND, hasIV, Promise.reduce);
     };
 
     Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
+        var hasIV = (arguments.length > 1) ?
+            HAS_INITIAL_VALUE : NO_INITIAL_VALUE;
         return Promise$_Reduce(this, fn, initialValue,
-                                USE_BOUND, this.reduce);
+                                USE_BOUND, hasIV, this.reduce);
     };
 };

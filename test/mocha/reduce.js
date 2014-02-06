@@ -80,4 +80,56 @@ describe("Promise.prototype.reduce", function() {
             done();
         });
     });
+
+    it("should execute the reduce function on pairs", function(done) {
+        var a = [promised(1)];
+        var b = [promised(1), promised(2)];
+        var c = [promised(1), promised(2), promised(3)];
+        var count = function(arr) {
+            var count = 0;
+            return Promise.reduce(arr, function() { count++; }).
+                then(function() { return count; });
+        };
+        Promise.all([
+            count(a).then(function(n) { assert.equal(n, 0); }),
+            count(b).then(function(n) { assert.equal(n, 1); }),
+            count(c).then(function(n) { assert.equal(n, 2); })
+        ]).return().then(done);
+    });
+
+    it("should execute the reduce function with initialValue", function(done) {
+        var a = [promised(1)];
+        var b = [promised(1), promised(2)];
+        var c = [promised(1), promised(2), promised(3)];
+        var count = function(arr) {
+            var count = 0;
+            return Promise.reduce(arr, function() { count++; }, 'initialValue').
+                then(function() { return count; });
+        };
+        Promise.all([
+            count(a).then(function(n) { assert.equal(n, 1); }),
+            count(b).then(function(n) { assert.equal(n, 2); }),
+            count(c).then(function(n) { assert.equal(n, 3); })
+        ]).return().then(done);
+    });
+
+    it("should execute the reduce function when initialValue is undefined", function(done) {
+        var a = [promised(1)];
+        var b = [promised(1), promised(2)];
+        var c = [promised(1), promised(2), promised(3)];
+        var count = function(arr, defer) {
+            var count = 0;
+            var iv = defer ? promised(undefined) : undefined;
+            return Promise.reduce(arr, function() { count++; }, iv).
+                then(function() { return count; });
+        };
+        Promise.all([
+            count(a).then(function(n) { assert.equal(n, 1); }),
+            count(b).then(function(n) { assert.equal(n, 2); }),
+            count(c).then(function(n) { assert.equal(n, 3); }),
+            count(a, 'defer').then(function(n) { assert.equal(n, 1); }),
+            count(b, 'defer').then(function(n) { assert.equal(n, 2); }),
+            count(c, 'defer').then(function(n) { assert.equal(n, 3); })
+        ]).return().then(done);
+    });
 });

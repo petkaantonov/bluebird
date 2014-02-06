@@ -321,25 +321,25 @@ describe("Using collection methods with thenables", function() {
             assert.deepEqual(v, 6);
             done();
         });
-    }, reducer);
+    }, reducer, 0);
     testFulfillAsync(name, function(promise, done) {
         promise.then(function(v){
             assert.deepEqual(v, 6);
             done();
         });
-    }, reducer);
+    }, reducer, 0);
     testRejectSync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
             assert.deepEqual(v, 1);
             done();
         });
-    }, reducer);
+    }, reducer, 0);
     testRejectAsync(name, function(promise, done) {
         promise.then(assert.fail, function(v){
             assert.deepEqual(v, 1);
             done();
         });
-    }, reducer);
+    }, reducer, 0);
 });
 
 describe("Using collection methods with thenables", function() {
