@@ -27,6 +27,10 @@ function wrapAsRejectionError(obj) {
 
 function nodebackForPromise(promise) {
     function PromiseResolver$_callback(err, value) {
+        if (promise === null) {
+            return;
+        }
+
         if (err) {
             var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
@@ -41,6 +45,8 @@ function nodebackForPromise(promise) {
                 promise._fulfill(value);
             }
         }
+
+        promise = null;
     }
     return PromiseResolver$_callback;
 }
