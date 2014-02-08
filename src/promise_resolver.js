@@ -27,9 +27,7 @@ function wrapAsRejectionError(obj) {
 
 function nodebackForPromise(promise) {
     function PromiseResolver$_callback(err, value) {
-        if (promise === null) {
-            return;
-        }
+        if (promise === null) return;
 
         if (err) {
             var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
