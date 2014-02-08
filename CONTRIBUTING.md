@@ -49,6 +49,7 @@ Use the same style as is used in the surrounding code.
 
 ###Whitespace
 
+- No more than 80 columns per line
 - 4 space indentation
 - No trailing whitespace
 - LF at end of files
