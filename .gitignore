@@ -13,6 +13,9 @@ mixed
 bench.json
 js/bluebird_sync.min.js
 js/bluebird.min.js
+js/zalgo/*
+js/main/*
+js/debug/*
 reader.js
 read.txt
 throwaway.js
