@@ -117,8 +117,12 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
     var promise = this.promise;
     errors.markAsOriginatingFromRejection(reason);
-    promise._attachExtraTrace(reason);
+    var trace = errors.canAttach(reason) ? reason : new Error(reason + "");
+    promise._attachExtraTrace(trace);
     async.invoke(promise._reject, promise, reason);
+    if (trace !== reason) {
+        async.invoke(this._setCarriedStackTrace, this, trace);
+    }
 };
 
 /**
@@ -164,6 +168,13 @@ PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {
  */
 PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
     return this.promise.toJSON();
+};
+
+PromiseResolver.prototype._setCarriedStackTrace =
+function PromiseResolver$_setCarriedStackTrace(trace) {
+    if (this.promise.isRejected()) {
+        this.promise._setCarriedStackTrace(trace);
+    }
 };
 
 module.exports = PromiseResolver;

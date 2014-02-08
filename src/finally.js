@@ -1,6 +1,5 @@
 module.exports = function(Promise, NEXT_FILTER) {
     var util = require("./util.js");
-    var ensureNotHandled = require("./errors.js").ensureNotHandled;
     var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
     var isPrimitive = util.isPrimitive;
     var thrower = util.thrower;
@@ -10,7 +9,6 @@ module.exports = function(Promise, NEXT_FILTER) {
         return this;
     }
     function throwThis() {
-        ensureNotHandled(this);
         throw this;
     }
     function makeReturner(r) {
@@ -20,7 +18,6 @@ module.exports = function(Promise, NEXT_FILTER) {
     }
     function makeThrower(r) {
         return function Promise$_thrower() {
-            ensureNotHandled(r);
             throw r;
         };
     }
@@ -63,7 +60,6 @@ module.exports = function(Promise, NEXT_FILTER) {
 
         //Check if finallyHandler was called as a reject handler...
         if (promise.isRejected()) {
-            ensureNotHandled(reasonOrValue);
             NEXT_FILTER.e = reasonOrValue;
             return NEXT_FILTER;
         }

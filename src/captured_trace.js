@@ -165,8 +165,8 @@ var captureStackTrace = (function stackDetection() {
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
-        
-        // Shim Error.stackTraceLimit , this does nothing in SpiderMoney but we 
+
+        // Shim Error.stackTraceLimit , this does nothing in SpiderMoney but we
         // want to have it for calculations with Error.stackTraceLimit later
         defineProperty(Error, "stackTraceLimit", {
             writable: true,

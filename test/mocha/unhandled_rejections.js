@@ -212,9 +212,9 @@ describe("Will report rejections that are not instanceof Error", function() {
 
 describe("Will handle hostile rejection reasons like frozen objects", function() {
 
-    specify("Immediately rejected with non instanceof Error", function(done) {
+    specify("Immediately rejected with instanceof Error", function(done) {
         onUnhandledSucceed(done, function(e) {
-            return e.__promiseHandled__ > 0;
+            return true;
         });
 
 
@@ -225,7 +225,7 @@ describe("Will handle hostile rejection reasons like frozen objects", function()
 
     specify("Eventually rejected with non instanceof Error", function(done) {
         onUnhandledSucceed(done, function(e) {
-            return e.__promiseHandled__ > 0;
+            return e instanceof Error;
         });
 
 
@@ -249,7 +249,7 @@ describe("Will not report rejections that are handled in time", function() {
 
         });
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 34 );
     });
 
     specify("Immediately rejected handled", function(done) {
@@ -263,7 +263,7 @@ describe("Will not report rejections that are handled in time", function() {
 
         failed.reject(e());
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 34 );
 
     });
 
@@ -279,9 +279,9 @@ describe("Will not report rejections that are handled in time", function() {
 
         setTimeout(function(){
             failed.reject(e());
-        }, 80 );
+        }, 13 );
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 70 );
 
     });
 
@@ -302,7 +302,7 @@ describe("Will not report rejections that are handled in time", function() {
             });
 
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 34 );
     });
 
     specify("Immediately rejected handled in a deep sequence", function(done) {
@@ -321,7 +321,7 @@ describe("Will not report rejections that are handled in time", function() {
 
         failed.reject(e());
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 34 );
 
     });
 
@@ -342,15 +342,25 @@ describe("Will not report rejections that are handled in time", function() {
 
         setTimeout(function(){
             failed.reject(e());
-        }, 80 );
+        }, 13 );
 
-        setTimeout( onDone(done), 175 );
+        setTimeout( onDone(done), 70 );
 
     });
 
 
     specify("Already rejected handled in a middle parallel deep sequence", function(done) {
-        onUnhandledFail();
+        var totalReported = 0;
+        Promise.onPossiblyUnhandledRejection(function () {
+            totalReported++;
+            if (totalReported === 2) {
+                setTimeout(function(){
+                    assert.equal(totalReported, 2);
+                    Promise.onPossiblyUnhandledRejection(null);
+                    done();
+                }, 13);
+            }
+        });
 
         var failed = rejected(e());
 
@@ -359,6 +369,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){});
+
 
         failed
             .then(function(){})
@@ -371,13 +382,21 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){});
-
-
-        setTimeout( onDone(done), 175 );
     });
 
+
     specify("Immediately rejected handled in a middle parallel deep  sequence", function(done) {
-        onUnhandledFail();
+        var totalReported = 0;
+        Promise.onPossiblyUnhandledRejection(function () {
+            totalReported++;
+            if (totalReported === 2) {
+                setTimeout(function(){
+                    assert.equal(totalReported, 2);
+                    Promise.onPossiblyUnhandledRejection(null);
+                    done();
+                }, 13);
+            }
+        });
 
         var failed = pending();
 
@@ -400,14 +419,21 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){});
 
         failed.reject(e());
-
-        setTimeout( onDone(done), 175 );
-
     });
 
 
     specify("Eventually handled in a middle parallel deep sequence", function(done) {
-        onUnhandledFail();
+        var totalReported = 0;
+        Promise.onPossiblyUnhandledRejection(function () {
+            totalReported++;
+            if (totalReported === 2) {
+                setTimeout(function(){
+                    assert.equal(totalReported, 2);
+                    Promise.onPossiblyUnhandledRejection(null);
+                    done();
+                }, 13);
+            }
+        });
 
         var failed = pending();
 
@@ -432,11 +458,116 @@ describe("Will not report rejections that are handled in time", function() {
 
         setTimeout(function(){
             failed.reject(e());
-        }, 80 );
-
-        setTimeout( onDone(done), 175 );
+        }, 13 );
 
     });
 
 
 });
+
+if (Promise.hasLongStackTraces()) {
+    describe("Gives long stack traces for non-errors", function() {
+
+        specify("string", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+
+            new Promise(function(){
+                throw "hello";
+            });
+
+        });
+
+        specify("null", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            new Promise(function(resolve, reject){
+                reject(null);
+            });
+
+        });
+
+        specify("boolean", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            var d = Promise.defer();
+            d.reject(true);
+        });
+
+        specify("undefined", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.cast().then(function() {
+                throw void 0;
+            });
+        });
+
+        specify("number", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.cast().then(function() {
+                throw void 0;
+            }).caught(function(e){return e === void 0}, function() {
+                throw 3;
+            });
+        });
+
+        specify("function", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.cast().then(function() {
+                return Promise.reject(function(){});
+            });
+        });
+
+        specify("pojo", function(done) {
+            var OldPromise = require("./helpers/bluebird0_7_0.js");
+
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.cast().then(function() {
+                return OldPromise.rejected({});
+            });
+        });
+
+        specify("Date", function(done) {
+            var OldPromise = require("./helpers/bluebird0_7_0.js");
+
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.cast().then(function() {
+                return OldPromise.cast().then(function(){
+                    throw new Date();
+                });
+            });
+        });
+
+        specify("Q", function(done) {
+            onUnhandledSucceed(done, function(e) {
+                return (e.stack.length > 100);
+            });
+
+            Promise.resolve(5).then(function(val){
+                return "Hello";
+            }).delay(5).then(function(val){
+                return require("q")().then(function(){throw "Error"});
+            });
+        });
+    });
+}

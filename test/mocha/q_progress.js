@@ -232,7 +232,7 @@ describe("progress", function () {
 
         Q.when(deferred.promise, null, null, function () {
             called = true;
-        });
+        }).caught(function(){});
 
         deferred.reject();
         deferred.notify();
@@ -372,26 +372,6 @@ describe("progress", function () {
         return promise;
     });
 
-    it("should re-throw all errors thrown by listeners to Q.onerror", function () {
-        var theError = new Error("boo!");
-
-        var def = Q.defer();
-        def.promise.progress(function () {
-            throw theError;
-        });
-
-        var deferred = Q.defer();
-        Promise.onPossiblyUnhandledRejection(function (error) {
-            Promise.onPossiblyUnhandledRejection();
-            assert.equal(error, theError);
-            deferred.resolve();
-        });
-        Q.delay(100).then(deferred.reject);
-
-        def.notify();
-
-        return deferred.promise;
-    });
 
     specify("should not choke when internal functions are registered on the promise", function(done) {
         var d = adapter.defer();

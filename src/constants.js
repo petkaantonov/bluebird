@@ -21,7 +21,7 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for ._bitField
-//QQWF NCTR BPLL LLLL LLLL LLLL LLLL LLLL
+//QQWF NCTR BPHS LLLL LLLL LLLL LLLL LLLL
 //Q = isGcQueued (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
@@ -32,8 +32,10 @@ CONSTANT(CALLBACK_SIZE, 5);
 //B = isBound
 //P = isProxied (optimization when .then listeners on a promise are
 //                just respective fate sealers on some other promise)
+//H = isRejectionUnhandled
+//S = isCarryingStackTrace
 //R = [Reserved]
-//L = Length, 22 bit unsigned
+//L = Length, 20 bit unsigned
 CONSTANT(NO_STATE, 0x0|0);
 CONSTANT(IS_GC_QUEUED, 0xC0000000|0)
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
@@ -43,7 +45,9 @@ CONSTANT(IS_CANCELLABLE, 0x4000000|0);
 CONSTANT(IS_FINAL, 0x2000000|0);
 CONSTANT(IS_BOUND, 0x800000|0);
 CONSTANT(IS_PROXIED, 0x400000|0);
-CONSTANT(LENGTH_MASK, 0x3FFFFF|0);
+CONSTANT(IS_REJECTION_UNHANDLED, 0x200000|0);
+CONSTANT(IS_CARRYING_STACK_TRACE, 0x100000|0);
+CONSTANT(LENGTH_MASK, 0xFFFFF|0);
 CONSTANT(LENGTH_CLEAR_MASK, ~LENGTH_MASK);
 CONSTANT(MAX_LENGTH, LENGTH_MASK);
 CONSTANT(IS_REJECTED_OR_FULFILLED, IS_REJECTED | IS_FULFILLED);

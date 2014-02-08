@@ -2,7 +2,6 @@
 module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
-var ensureNotHandled = errors.ensureNotHandled;
 var util = require("./util.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
@@ -30,8 +29,10 @@ PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
 PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     if (result === errorObj) {
         this._generator = void 0;
-        this._promise._attachExtraTrace(result.e);
-        this._promise._reject(result.e);
+        var trace = errors.canAttach(result.e)
+            ? result.e : new Error(result.e + "");
+        this._promise._attachExtraTrace(trace);
+        this._promise._reject(result.e, trace);
         return;
     }
 
@@ -69,8 +70,8 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
 };
 
 PromiseSpawn.prototype._throw = function PromiseSpawn$_throw(reason) {
-    ensureNotHandled(reason);
-    this._promise._attachExtraTrace(reason);
+    if (errors.canAttach(reason))
+        this._promise._attachExtraTrace(reason);
     this._continue(
         tryCatch1(this._generator["throw"], this._generator, reason)
    );
