@@ -1,3 +1,14 @@
+## 1.0.4 (2014-02-09)
+
+Features:
+
+ - Possibly unhandled rejection handler will always get a stack trace, even if the rejection or thrown error was not an error
+ - Unhandled rejections are tracked per promise, not per error. So if you create multiple branches from a single ancestor and that ancestor gets rejected, each branch with no error handler with the end will cause a possibly unhandled rejection handler invocation
+
+Bugfixes:
+
+ - Fix unhandled non-writable objects or primitives not reported by possibly unhandled rejection handler
+
 ## 1.0.3 (2014-02-05)
 
 Bugfixes:
