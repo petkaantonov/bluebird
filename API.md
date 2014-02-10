@@ -627,9 +627,11 @@ Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddyna
 See if `value` is a trusted Promise.
 
 ```js
-Promise.is($.get("http://www.google.com")); //false
-Promise.is(Promise.cast($.get("http://www.google.com"))) //true
+Promise.is($.get("http://www.google.com")); //false , thenable returned from $.get is not a `Promise` instance
+Promise.is(Promise.cast($.get("http://www.google.com"))) //true, `.cast` cast the thenable into a `Promise` 
 ```
+
+Trusted Promises are promises originating in the currently used copy of Bluebird. Promises originating in other libraries are called thenables and are _not_ trusted promises. This method is used for checking if a passed value is of the same type as `Promise` itself creates.
 
 <hr>
 
