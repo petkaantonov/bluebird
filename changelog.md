@@ -1,3 +1,10 @@
+## 1.0.5 (2014-02-15)
+
+Features:
+
+ - Node.js performance: promisified functions try to check amount of passed arguments in most optimal order
+ - Node.js promisified functions will have same `.length` as the original function minus one (for the callback parameter)
+
 ## 1.0.4 (2014-02-09)
 
 Features:
