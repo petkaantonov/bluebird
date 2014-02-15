@@ -104,6 +104,15 @@ function parameterCount(fn) {
     return 0;
 }
 
+function propertyAccess(id) {
+    var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
+    if (rident.test(id)) {
+        return "." + id;
+    }
+    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
+}
+
 function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
     ASSERT(typeof fn === "function");
                                         //-1 for the callback parameter
@@ -123,7 +132,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
 
         if (typeof callback === "string" &&
             receiver === THIS) {
-            return "this['" + callback + "']("+args.join(",") +
+            return "this" + propertyAccess(callback) + "("+args.join(",") +
                 comma +" fn);"+
                 "break;";
         }
@@ -149,7 +158,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
             "args[i] = fn;" +
 
             (typeof callback === "string"
-            ? "this['" + callback + "'].apply("
+            ? "this" + propertyAccess(callback) + ".apply("
             : "callback.apply(") +
 
             (receiver === THIS ? "this" : "receiver") +
