@@ -7,7 +7,7 @@
 
 #Introduction
 
-Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance.
+Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
 
 #Topics
 
@@ -15,6 +15,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Quick start](#quick-start)
 - [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 - [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
+- [Questions and issues](#questions-and-issues)
 - [Error handling](#error-handling)
 - [Development](#development)
     - [Testing](#testing)
@@ -204,6 +205,10 @@ More reading:
  - [What is the the point of promises](http://domenic.me/2012/10/14/youre-missing-the-point-of-promises/#toc_1)
  - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
  - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
+
+#Questions and issues
+
+If you find a bug in bluebird or have a feature request, file an issue in the [github issue tracker](https://github.com/petkaantonov/bluebird/issues). Anything else, such as questions for help in using the library, should be posted in [StackOverflow](http://stackoverflow.com/questions/tagged/bluebird) under tags `promise` and `bluebird`.
 
 #Error handling
 
