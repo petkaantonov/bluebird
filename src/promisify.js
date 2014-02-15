@@ -73,11 +73,51 @@ var inheritedMethods = (function() {
     }
 })();
 
-function makeNodePromisifiedEval(callback, receiver, originalName) {
-    function getCall(count) {
+//Gives an optimal sequence of argument count to try given a formal parameter
+//.length for a function
+function switchCaseArgumentOrder(likelyArgumentCount) {
+    var ret = [likelyArgumentCount];
+    var min = Math.max(0, likelyArgumentCount - 1 - PARAM_COUNTS_TO_TRY);
+    for(var i = likelyArgumentCount - 1; i >= min; --i) {
+        if (i === likelyArgumentCount) continue;
+        ret.push(i);
+    }
+    for(var i = likelyArgumentCount + 1; i <= PARAM_COUNTS_TO_TRY; ++i) {
+        ret.push(i);
+    }
+    return ret;
+}
+
+function parameterDeclaration(parameterCount) {
+    var ret = new Array(parameterCount);
+    for(var i = 0; i < ret.length; ++i) {
+        ret[i] = "_arg" + i;
+    }
+    return ret.join(", ");
+}
+
+function parameterCount(fn) {
+    if (typeof fn.length === "number") {
+        return Math.max(Math.min(fn.length, MAX_PARAM_COUNT + 1), 0);
+    }
+    //Unsupported .length for functions
+    return 0;
+}
+
+function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
+    ASSERT(typeof fn === "function");
+                                        //-1 for the callback parameter
+    var newParameterCount = Math.max(0, parameterCount(fn) - 1);
+    var argumentOrder = switchCaseArgumentOrder(newParameterCount);
+
+    var callbackName = (typeof originalName === "string" ?
+        originalName + "Async" :
+        "promisified");
+
+    function generateCallForArgumentCount(count) {
         var args = new Array(count);
         for (var i = 0, len = args.length; i < len; ++i) {
-            args[i] = "a" + (i+1);
+            args[i] = "arguments[" + i + "]";
         }
         var comma = count > 0 ? "," : "";
 
@@ -95,42 +135,40 @@ function makeNodePromisifiedEval(callback, receiver, originalName) {
         "break;";
     }
 
-    function getArgs() {
-        return "var args = new Array(len + 1);" +
-        "var i = 0;" +
-        "for (var i = 0; i < len; ++i) { " +
-        "   args[i] = arguments[i];" +
-        "}" +
-        "args[i] = fn;";
-    }
+    function generateArgumentSwitchCase() {
+        var ret = "";
+        for(var i = 0; i < argumentOrder.length; ++i) {
+            ret += "case " + argumentOrder[i] +":" +
+                generateCallForArgumentCount(argumentOrder[i]);
+        }
+        ret += "default: var args = new Array(len + 1);" +
+            "var i = 0;" +
+            "for (var i = 0; i < len; ++i) { " +
+            "   args[i] = arguments[i];" +
+            "}" +
+            "args[i] = fn;" +
 
-    var callbackName = (typeof originalName === "string" ?
-        originalName + "Async" :
-        "promisified");
+            (typeof callback === "string"
+            ? "this['" + callback + "'].apply("
+            : "callback.apply(") +
+
+            (receiver === THIS ? "this" : "receiver") +
+            ", args); break;";
+        return ret;
+    }
 
     return new Function("Promise", "callback", "receiver",
             "withAppended", "maybeWrapAsError", "nodebackForPromise",
             "INTERNAL",
         "var ret = function " + callbackName +
-        "(a1, a2, a3, a4, a5) {\"use strict\";" +
+        "(" + parameterDeclaration(newParameterCount) + ") {\"use strict\";" +
         "var len = arguments.length;" +
         "var promise = new Promise(INTERNAL);"+
         "promise._setTrace(" + callbackName + ", void 0);" +
         "var fn = nodebackForPromise(promise);"+
-        "try{" +
+        "try {" +
         "switch(len) {" +
-        "case 1:" + getCall(1) +
-        "case 2:" + getCall(2) +
-        "case 3:" + getCall(3) +
-        "case 0:" + getCall(0) +
-        "case 4:" + getCall(4) +
-        "case 5:" + getCall(5) +
-        "default: " + getArgs() + (typeof callback === "string"
-            ? "this['" + callback + "'].apply("
-            : "callback.apply("
-       ) +
-            (receiver === THIS ? "this" : "receiver") +
-        ", args); break;" +
+        generateArgumentSwitchCase() +
         "}" +
         "}" +
         "catch(e){ " +
@@ -185,7 +223,8 @@ function _promisify(callback, receiver, isAll) {
             var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
             notEnumerableProp(callback, originalKey, fn);
             callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS, key);
+                makeNodePromisified(originalKey, THIS,
+                    key, fn);
         }
         //Right now the above loop will easily turn the
         //object into hash table in V8
@@ -194,7 +233,7 @@ function _promisify(callback, receiver, isAll) {
         return callback;
     }
     else {
-        return makeNodePromisified(callback, receiver, void 0);
+        return makeNodePromisified(callback, receiver, void 0, callback);
     }
 }
 

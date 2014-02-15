@@ -655,3 +655,22 @@ describe("RejectionError wrapping", function() {
             });
     });
 });
+
+if (typeof function(c){}.length === "number") {
+    describe("arity", function() {
+        specify("should be original - 1", function(done) {
+            var fn = function(a, b, c, callback) {};
+
+            assert.equal(Promise.promisify(fn).length, 3);
+
+            var o = {
+                fn: function(a, b, c, callback) {
+
+                }
+            };
+            assert.equal(Promise.promisifyAll(o).fnAsync.length, 3);
+
+            done();
+        })
+    })
+}

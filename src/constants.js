@@ -76,6 +76,9 @@ CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CONSTANT(THROW, 1);
 CONSTANT(RETURN, 2);
 
+//promisify.js
+CONSTANT(MAX_PARAM_COUNT, 1023);
+CONSTANT(PARAM_COUNTS_TO_TRY, 5);
 
 //deprecated
 CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.");
