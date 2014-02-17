@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.0.5
+ * bluebird build version 1.0.6
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -1889,6 +1889,7 @@ Promise.reject = Promise.rejected = function Promise$Reject(reason) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
     }
+    ret._ensurePossibleRejectionHandled();
     return ret;
 };
 
@@ -1902,6 +1903,7 @@ function Promise$_resolveFromSyncValue(value, caller) {
         this._cleanValues();
         this._setRejected();
         this._settledValue = value.e;
+        this._ensurePossibleRejectionHandled();
     }
     else {
         var maybePromise = Promise._cast(value, caller, void 0);
@@ -2696,7 +2698,9 @@ function Promise$_notifyUnhandledRejection() {
             this._unsetCarriedStackTrace();
             reason = trace;
         }
-        CapturedTrace.possiblyUnhandledRejection(reason, this);
+        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
+            CapturedTrace.possiblyUnhandledRejection(reason, this);
+        }
     }
 };
 
@@ -3479,6 +3483,15 @@ function parameterCount(fn) {
     return 0;
 }
 
+function propertyAccess(id) {
+    var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
+    if (rident.test(id)) {
+        return "." + id;
+    }
+    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
+}
+
 function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
@@ -3496,7 +3509,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
 
         if (typeof callback === "string" &&
             receiver === THIS) {
-            return "this['" + callback + "']("+args.join(",") +
+            return "this" + propertyAccess(callback) + "("+args.join(",") +
                 comma +" fn);"+
                 "break;";
         }
@@ -3522,7 +3535,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
             "args[i] = fn;" +
 
             (typeof callback === "string"
-            ? "this['" + callback + "'].apply("
+            ? "this" + propertyAccess(callback) + ".apply("
             : "callback.apply(") +
 
             (receiver === THIS ? "this" : "receiver") +

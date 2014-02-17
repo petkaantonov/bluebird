@@ -1,3 +1,11 @@
+## 1.0.6 (2014-02-17)
+
+Bugfixes:
+
+ -  Fix bug with unhandled rejections not being reported
+    when using `Promise.try` or `Promise.method` without
+    attaching further handlers
+
 ## 1.0.5 (2014-02-15)
 
 Features:
