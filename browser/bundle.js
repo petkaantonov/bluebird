@@ -5176,6 +5176,7 @@ Promise.reject = Promise.rejected = function Promise$Reject(reason) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
     }
+    ret._ensurePossibleRejectionHandled();
     return ret;
 };
 
@@ -5189,6 +5190,7 @@ function Promise$_resolveFromSyncValue(value, caller) {
         this._cleanValues();
         this._setRejected();
         this._settledValue = value.e;
+        this._ensurePossibleRejectionHandled();
     }
     else {
         var maybePromise = Promise._cast(value, caller, void 0);
@@ -6090,7 +6092,9 @@ function Promise$_notifyUnhandledRejection() {
             this._unsetCarriedStackTrace();
             reason = trace;
         }
-        CapturedTrace.possiblyUnhandledRejection(reason, this);
+        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
+            CapturedTrace.possiblyUnhandledRejection(reason, this);
+        }
     }
 };
 
@@ -6906,6 +6910,15 @@ function parameterCount(fn) {
     return 0;
 }
 
+function propertyAccess(id) {
+    var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
+    if (rident.test(id)) {
+        return "." + id;
+    }
+    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
+}
+
 function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
     ASSERT(((typeof fn) === "function"),
     "typeof fn === \u0022function\u0022");
@@ -6925,7 +6938,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
 
         if (typeof callback === "string" &&
             receiver === THIS) {
-            return "this['" + callback + "']("+args.join(",") +
+            return "this" + propertyAccess(callback) + "("+args.join(",") +
                 comma +" fn);"+
                 "break;";
         }
@@ -6951,7 +6964,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
             "args[i] = fn;" +
 
             (typeof callback === "string"
-            ? "this['" + callback + "'].apply("
+            ? "this" + propertyAccess(callback) + ".apply("
             : "callback.apply(") +
 
             (receiver === THIS ? "this" : "receiver") +
@@ -9767,6 +9780,7 @@ Promise.reject = Promise.rejected = function Promise$Reject(reason) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
     }
+    ret._ensurePossibleRejectionHandled();
     return ret;
 };
 
@@ -9780,6 +9794,7 @@ function Promise$_resolveFromSyncValue(value, caller) {
         this._cleanValues();
         this._setRejected();
         this._settledValue = value.e;
+        this._ensurePossibleRejectionHandled();
     }
     else {
         var maybePromise = Promise._cast(value, caller, void 0);
@@ -10574,7 +10589,9 @@ function Promise$_notifyUnhandledRejection() {
             this._unsetCarriedStackTrace();
             reason = trace;
         }
-        CapturedTrace.possiblyUnhandledRejection(reason, this);
+        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
+            CapturedTrace.possiblyUnhandledRejection(reason, this);
+        }
     }
 };
 
@@ -11032,6 +11049,15 @@ function parameterCount(fn) {
     return 0;
 }
 
+function propertyAccess(id) {
+    var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
+    if (rident.test(id)) {
+        return "." + id;
+    }
+    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
+}
+
 function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
@@ -11049,7 +11075,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
 
         if (typeof callback === "string" &&
             receiver === THIS) {
-            return "this['" + callback + "']("+args.join(",") +
+            return "this" + propertyAccess(callback) + "("+args.join(",") +
                 comma +" fn);"+
                 "break;";
         }
@@ -11075,7 +11101,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
             "args[i] = fn;" +
 
             (typeof callback === "string"
-            ? "this['" + callback + "'].apply("
+            ? "this" + propertyAccess(callback) + ".apply("
             : "callback.apply(") +
 
             (receiver === THIS ? "this" : "receiver") +
@@ -31373,6 +31399,12 @@ function onUnhandledSucceed( done, testAgainst ) {
     });
 }
 
+function async(fn) {
+    return function() {
+        setTimeout(function(){fn()}, 13);
+    };
+}
+
 function onDone(done) {
     return function() {
         Promise.onPossiblyUnhandledRejection(null);
@@ -31803,9 +31835,83 @@ describe("Will not report rejections that are handled in time", function() {
         }, 13 );
 
     });
-
-
 });
+
+describe("immediate failures without .then", function(done) {
+    var err = new Error('');
+    specify("Promise.reject", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.reject(err);
+    });
+
+    specify("new Promise throw", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        new Promise(function() {
+            throw err;
+        });
+    });
+
+    specify("new Promise reject", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        new Promise(function(_, r) {
+            r(err);
+        });
+    });
+
+    specify("Promise.method", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.method(function() {
+            throw err;
+        })();
+    });
+});
+
+describe("immediate failures with .then", function(done) {
+    var err = new Error('');
+    specify("Promise.reject", function(done) {
+        onUnhandledFail();
+
+        Promise.reject(err).caught(async(done));
+    });
+
+    specify("new Promise throw", function(done) {
+        onUnhandledFail();
+
+        new Promise(function() {
+            throw err;
+        }).caught(async(done));
+    });
+
+    specify("new Promise reject", function(done) {
+        onUnhandledFail();
+
+        new Promise(function(_, r) {
+            r(err);
+        }).caught(async(done));
+    });
+
+    specify("Promise.method", function(done) {
+        onUnhandledFail();
+
+        Promise.method(function() {
+            throw err;
+        })().caught(async(done));
+    });
+});
+
+
 
 if (Promise.hasLongStackTraces()) {
     describe("Gives long stack traces for non-errors", function() {
