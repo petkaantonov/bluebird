@@ -240,6 +240,7 @@ Promise.reject = Promise.rejected = function Promise$Reject(reason) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
     }
+    ret._ensurePossibleRejectionHandled();
     return ret;
 };
 
@@ -253,6 +254,7 @@ function Promise$_resolveFromSyncValue(value, caller) {
         this._cleanValues();
         this._setRejected();
         this._settledValue = value.e;
+        this._ensurePossibleRejectionHandled();
     }
     else {
         var maybePromise = Promise._cast(value, caller, void 0);
@@ -1120,7 +1122,9 @@ function Promise$_notifyUnhandledRejection() {
             this._unsetCarriedStackTrace();
             reason = trace;
         }
-        CapturedTrace.possiblyUnhandledRejection(reason, this);
+        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
+            CapturedTrace.possiblyUnhandledRejection(reason, this);
+        }
     }
 };
 

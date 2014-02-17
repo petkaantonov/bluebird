@@ -31,6 +31,12 @@ function onUnhandledSucceed( done, testAgainst ) {
     });
 }
 
+function async(fn) {
+    return function() {
+        setTimeout(function(){fn()}, 13);
+    };
+}
+
 function onDone(done) {
     return function() {
         Promise.onPossiblyUnhandledRejection(null);
@@ -461,9 +467,83 @@ describe("Will not report rejections that are handled in time", function() {
         }, 13 );
 
     });
-
-
 });
+
+describe("immediate failures without .then", function(done) {
+    var err = new Error('');
+    specify("Promise.reject", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.reject(err);
+    });
+
+    specify("new Promise throw", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        new Promise(function() {
+            throw err;
+        });
+    });
+
+    specify("new Promise reject", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        new Promise(function(_, r) {
+            r(err);
+        });
+    });
+
+    specify("Promise.method", function(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.method(function() {
+            throw err;
+        })();
+    });
+});
+
+describe("immediate failures with .then", function(done) {
+    var err = new Error('');
+    specify("Promise.reject", function(done) {
+        onUnhandledFail();
+
+        Promise.reject(err).caught(async(done));
+    });
+
+    specify("new Promise throw", function(done) {
+        onUnhandledFail();
+
+        new Promise(function() {
+            throw err;
+        }).caught(async(done));
+    });
+
+    specify("new Promise reject", function(done) {
+        onUnhandledFail();
+
+        new Promise(function(_, r) {
+            r(err);
+        }).caught(async(done));
+    });
+
+    specify("Promise.method", function(done) {
+        onUnhandledFail();
+
+        Promise.method(function() {
+            throw err;
+        })().caught(async(done));
+    });
+});
+
+
 
 if (Promise.hasLongStackTraces()) {
     describe("Gives long stack traces for non-errors", function() {
