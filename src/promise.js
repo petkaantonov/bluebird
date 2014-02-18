@@ -820,6 +820,8 @@ function Promise$_follow(promise) {
             promise._getCarriedStackTrace());
     }
 
+    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
+
     if (debugging &&
         promise._traceParent == null) {
         promise._traceParent = this;
