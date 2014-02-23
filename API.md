@@ -1238,7 +1238,7 @@ Promise.spawn(function* () {
 });
 ```
 
-In the example is returned a promise that will eventually have the contents of the urls separated by newline on example.com.
+In the example a promise that will eventually have the contents of the urls separated by newline on example.com is returned.
 
 Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
 
