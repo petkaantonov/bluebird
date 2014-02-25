@@ -1238,7 +1238,7 @@ Promise.spawn(function* () {
 });
 ```
 
-In the example is returned a promise that will eventually have the contents of the urls separated by newline on example.com.
+In the example a promise that will eventually have the contents of the urls separated by newline on example.com is returned.
 
 Note that you need to try-catch normally in the generator function, any uncaught exception is immediately turned into a rejection on the returned promise. Yielding a promise that gets rejected causes a normal error inside the generator function.
 
@@ -1421,25 +1421,25 @@ collections of promises or mixed promises and values.
 
 #####`.all()` -> `Promise`
 
-Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.all\(thisPromise\)](#promiseallarraydynamicpromise-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
 #####`.props()` -> `Promise`
 
-Same as calling [Promise.props\(thisPromise\)](#promisepropsobject-object---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.props\(thisPromise\)](#promisepropsobjectpromise-object---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
 #####`.settle()` -> `Promise`
 
-Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.settle\(thisPromise\)](#promisesettlearraydynamicpromise-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
 #####`.any()` -> `Promise`
 
-Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamic-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.any\(thisPromise\)](#promiseanyarraydynamicpromise-values---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
@@ -1452,7 +1452,7 @@ Same as calling [Promise.race\(thisPromise\)](#promiseracearraypromise-promises-
 
 #####`.some(int count)` -> `Promise`
 
-Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamic-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamicpromise-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
@@ -1482,13 +1482,13 @@ This is useful when the `results` array contains items that are not conceptually
 
 #####`.map(Function mapper)` -> `Promise`
 
-Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamic-values-function-mapper---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.map\(thisPromise, mapper\)](#promisemaparraydynamicpromise-values-function-mapper---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
 #####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
-Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamic-values-function-reducer--dynamic-initialvalue---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
+Same as calling [Promise.reduce\(thisPromise, Function reducer, initialValue\)](#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
 
 <hr>
 
