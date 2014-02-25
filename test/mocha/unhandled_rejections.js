@@ -543,7 +543,7 @@ describe("immediate failures with .then", function(done) {
     });
 });
 
-describe("gh-117", function() {
+describe("gh-118", function() {
     specify("eventually rejected promise", function(done) {
         onUnhandledFail();
 

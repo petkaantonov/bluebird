@@ -1,3 +1,9 @@
+## 1.0.7 (2014-02-25)
+
+Bugfixes:
+
+ - Fix handled errors being reported
+
 ## 1.0.6 (2014-02-17)
 
 Bugfixes:
