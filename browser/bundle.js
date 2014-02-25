@@ -5785,6 +5785,8 @@ function Promise$_follow(promise) {
             promise._getCarriedStackTrace());
     }
 
+    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
+
     if (debugging &&
         promise._traceParent == null) {
         promise._traceParent = this;
@@ -10306,6 +10308,8 @@ function Promise$_follow(promise) {
         this._rejectUnchecked(promise._settledValue,
             promise._getCarriedStackTrace());
     }
+
+    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
 
     if (debugging &&
         promise._traceParent == null) {
@@ -31911,7 +31915,37 @@ describe("immediate failures with .then", function(done) {
     });
 });
 
+describe("gh-118", function() {
+    specify("eventually rejected promise", function(done) {
+        onUnhandledFail();
 
+        Promise.resolve().then(function() {
+            return new Promise(function(_, reject) {
+                setTimeout(function() {
+                    reject(13);
+                }, 13);
+            });
+        }).caught(async(done));
+    });
+
+    specify("already rejected promise", function(done) {
+        onUnhandledFail();
+
+        Promise.resolve().then(function() {
+            return Promise.reject(13);
+        }).caught(async(done));
+    });
+
+    specify("immediately rejected promise", function(done) {
+        onUnhandledFail();
+
+        Promise.resolve().then(function() {
+            return new Promise(function(_, reject) {
+                reject(13);
+            });
+        }).caught(async(done));
+    });
+});
 
 if (Promise.hasLongStackTraces()) {
     describe("Gives long stack traces for non-errors", function() {

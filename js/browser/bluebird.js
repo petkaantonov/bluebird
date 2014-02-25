@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.0.6
+ * bluebird build version 1.0.7
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -2415,6 +2415,8 @@ function Promise$_follow(promise) {
         this._rejectUnchecked(promise._settledValue,
             promise._getCarriedStackTrace());
     }
+
+    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
 
     if (debugging &&
         promise._traceParent == null) {
