@@ -4226,8 +4226,23 @@ var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
     typeof process.nextTick === "function") {
-
-    schedule = process.nextTick;
+    if (process.version.indexOf("v0.10.") === 0) {
+        schedule = (function () {
+            var domain = require("domain");
+            return function schedule(fn) {
+                var activeDomain = domain.active;
+                process.nextTick(function () {
+                    if (activeDomain) {
+                        activeDomain.run(fn);
+                    } else {
+                        fn();
+                    }
+                });
+            };
+        })();
+    } else {
+        schedule = process.nextTick;
+    }
 }
 else if ((typeof MutationObserver === "function" ||
         typeof WebkitMutationObserver === "function" ||
@@ -4318,7 +4333,7 @@ else {
 
 module.exports = schedule;
 
-},{"./assert.js":2,"./global.js":16}],32:[function(require,module,exports){
+},{"./assert.js":2,"./global.js":16,"domain":40}],32:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -5102,7 +5117,13 @@ var ret = {
 
 module.exports = ret;
 
-},{"./assert.js":2,"./es5.js":12,"./global.js":16}]},{},[4])
+},{"./assert.js":2,"./es5.js":12,"./global.js":16}],40:[function(require,module,exports){
+
+// not implemented
+// The reason for having an empty file and not throwing is to allow
+// untraditional implementation of this module.
+
+},{}]},{},[4])
 (4)
 });
 ;
