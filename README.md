@@ -73,6 +73,8 @@ Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmas
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/petka_antonov.svg)](https://saucelabs.com/u/petka_antonov)
 
+*IE7 and IE8 had to be removed from tests due to SauceLabs bug but are supported and pass all tests*
+
 **Note** that in ECMA-262, edition 3 (IE7, IE8 etc) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](https://github.com/petkaantonov/bluebird/blob/master/API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
 
 Also, [long stack trace](https://github.com/petkaantonov/bluebird/blob/master/API.md#promiselongstacktraces---void) support is only available in Chrome and Firefox.
