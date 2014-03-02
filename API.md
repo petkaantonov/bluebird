@@ -258,6 +258,8 @@ request("http://www.google.com").then(function(contents){
 
 Like `.catch` but instead of catching all types of exceptions, it only catches those that don't originate from thrown errors but rather from explicit rejections.
 
+*Note, "errors" mean errors, as in objects that are `instanceof Error` - not strings, numbers and so on. See [a string is not an error](http://www.devthought.com/2011/12/22/a-string-is-not-an-error/).*
+
 For example, if a promisified function errbacks the node-style callback with an error, that could be caught with `.error()`. However if the node-style callback **throws** an error, only `.catch` would catch that.
 
 In the following example you might want to handle just the `SyntaxError` from JSON.parse and Filesystem errors from `fs` but let programmer errors bubble as unhandled rejections:
@@ -628,7 +630,7 @@ See if `value` is a trusted Promise.
 
 ```js
 Promise.is($.get("http://www.google.com")); //false , thenable returned from $.get is not a `Promise` instance
-Promise.is(Promise.cast($.get("http://www.google.com"))) //true, `.cast` cast the thenable into a `Promise` 
+Promise.is(Promise.cast($.get("http://www.google.com"))) //true, `.cast` cast the thenable into a `Promise`
 ```
 
 Trusted Promises are promises originating in the currently used copy of Bluebird. Promises originating in other libraries are called thenables and are _not_ trusted promises. This method is used for checking if a passed value is of the same type as `Promise` itself creates.
