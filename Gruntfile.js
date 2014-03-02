@@ -411,18 +411,20 @@ module.exports = function( grunt ) {
         var Q = require("q");
         var root = cleanDirectory("./js/debug/");
 
-        return Q.all(sources.map(function( source ) {
-            var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
-            src = astPasses.inlineExpansion( src, source.fileName );
-            src = astPasses.expandConstants( src, source.fileName );
-            src = src.replace( /__DEBUG__/g, "true" );
-            src = src.replace( /__BROWSER__/g, "false" );
-            if( source.fileName === "promise.js" ) {
-                src = applyOptionalRequires( src, optionalRequireCode );
-            }
-            var path = root + source.fileName;
-            return writeFileAsync(path, src);
-        }));
+        return Q.nfcall(require('mkdirp'), root).then(function(){
+            return Q.all(sources.map(function( source ) {
+                var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
+                src = astPasses.inlineExpansion( src, source.fileName );
+                src = astPasses.expandConstants( src, source.fileName );
+                src = src.replace( /__DEBUG__/g, "true" );
+                src = src.replace( /__BROWSER__/g, "false" );
+                if( source.fileName === "promise.js" ) {
+                    src = applyOptionalRequires( src, optionalRequireCode );
+                }
+                var path = root + source.fileName;
+                return writeFileAsync(path, src);
+            }));
+        });
     }
 
     function buildZalgo( sources, optionalRequireCode ) {
