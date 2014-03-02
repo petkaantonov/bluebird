@@ -657,9 +657,17 @@ describe("RejectionError wrapping", function() {
 });
 
 var global = new Function("return this")();
-var isBrowser = global.window === global &&
-    typeof global.navigator !== "undefined";
-var canTestArity = (function(a, b, c) {}).length === 3 && !isBrowser;
+var canEvaluate = (function() {
+    if (typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global) {
+        return false;
+    }
+    return true;
+})();
+var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
 
 if (canTestArity) {
     describe("arity", function() {
