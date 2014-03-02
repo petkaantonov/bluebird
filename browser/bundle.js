@@ -3210,7 +3210,6 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/api_exceptions.js');}, name: '../test/mocha/api_exceptions.js'},
 {fn: function(){ return require('../test/mocha/async.js');}, name: '../test/mocha/async.js'},
 {fn: function(){ return require('../test/mocha/bind.js');}, name: '../test/mocha/bind.js'},
-{fn: function(){ return require('../test/mocha/bluebird-debug-env-flag.js');}, name: '../test/mocha/bluebird-debug-env-flag.js'},
 {fn: function(){ return require('../test/mocha/bluebird-multiple-instances.js');}, name: '../test/mocha/bluebird-multiple-instances.js'},
 {fn: function(){ return require('../test/mocha/cancel.js');}, name: '../test/mocha/cancel.js'},
 {fn: function(){ return require('../test/mocha/catch_filter.js');}, name: '../test/mocha/catch_filter.js'},
@@ -3254,7 +3253,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":111,"../test/mocha/2.1.3.js":112,"../test/mocha/2.2.1.js":113,"../test/mocha/2.2.2.js":114,"../test/mocha/2.2.3.js":115,"../test/mocha/2.2.4.js":116,"../test/mocha/2.2.5.js":117,"../test/mocha/2.2.6.js":118,"../test/mocha/2.2.7.js":119,"../test/mocha/2.3.1.js":120,"../test/mocha/2.3.2.js":121,"../test/mocha/2.3.3.js":122,"../test/mocha/2.3.4.js":123,"../test/mocha/3.2.1.js":124,"../test/mocha/3.2.2.js":125,"../test/mocha/3.2.3.js":126,"../test/mocha/3.2.4.js":127,"../test/mocha/3.2.5.js":128,"../test/mocha/3.2.6.js":129,"../test/mocha/api_exceptions.js":130,"../test/mocha/async.js":131,"../test/mocha/bind.js":132,"../test/mocha/bluebird-debug-env-flag.js":133,"../test/mocha/bluebird-multiple-instances.js":134,"../test/mocha/cancel.js":135,"../test/mocha/catch_filter.js":136,"../test/mocha/collections_thenables.js":137,"../test/mocha/constructor.js":138,"../test/mocha/cycles.js":139,"../test/mocha/direct_resolving.js":140,"../test/mocha/error.js":141,"../test/mocha/filter.js":142,"../test/mocha/following.js":143,"../test/mocha/github36.js":144,"../test/mocha/late_buffer_safety.js":149,"../test/mocha/method.js":150,"../test/mocha/promisify.js":151,"../test/mocha/props.js":152,"../test/mocha/q_all.js":153,"../test/mocha/q_done.js":154,"../test/mocha/q_fin.js":155,"../test/mocha/q_inspect.js":156,"../test/mocha/q_make_node_resolver.js":157,"../test/mocha/q_nodeify.js":158,"../test/mocha/q_progress.js":159,"../test/mocha/q_propagation.js":160,"../test/mocha/q_settle.js":161,"../test/mocha/q_spread.js":162,"../test/mocha/race.js":163,"../test/mocha/reduce.js":164,"../test/mocha/resolution.js":165,"../test/mocha/reused_promise.js":166,"../test/mocha/some.js":167,"../test/mocha/sparsity.js":168,"../test/mocha/timers.js":169,"../test/mocha/try.js":170,"../test/mocha/unhandled_rejections.js":171,"../test/mocha/when_all.js":172,"../test/mocha/when_any.js":173,"../test/mocha/when_defer.js":174,"../test/mocha/when_join.js":175,"../test/mocha/when_map.js":176,"../test/mocha/when_reduce.js":177,"../test/mocha/when_settle.js":178,"../test/mocha/when_some.js":179,"../test/mocha/when_spread.js":180,"assert":2,"sinon":96}],17:[function(require,module,exports){
+},{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":72,"../test/mocha/2.1.3.js":73,"../test/mocha/2.2.1.js":74,"../test/mocha/2.2.2.js":75,"../test/mocha/2.2.3.js":76,"../test/mocha/2.2.4.js":77,"../test/mocha/2.2.5.js":78,"../test/mocha/2.2.6.js":79,"../test/mocha/2.2.7.js":80,"../test/mocha/2.3.1.js":81,"../test/mocha/2.3.2.js":82,"../test/mocha/2.3.3.js":83,"../test/mocha/2.3.4.js":84,"../test/mocha/3.2.1.js":85,"../test/mocha/3.2.2.js":86,"../test/mocha/3.2.3.js":87,"../test/mocha/3.2.4.js":88,"../test/mocha/3.2.5.js":89,"../test/mocha/3.2.6.js":90,"../test/mocha/api_exceptions.js":91,"../test/mocha/async.js":92,"../test/mocha/bind.js":93,"../test/mocha/bluebird-multiple-instances.js":94,"../test/mocha/cancel.js":95,"../test/mocha/catch_filter.js":96,"../test/mocha/collections_thenables.js":97,"../test/mocha/constructor.js":98,"../test/mocha/cycles.js":99,"../test/mocha/direct_resolving.js":100,"../test/mocha/error.js":101,"../test/mocha/filter.js":102,"../test/mocha/following.js":103,"../test/mocha/github36.js":104,"../test/mocha/late_buffer_safety.js":109,"../test/mocha/method.js":110,"../test/mocha/promisify.js":111,"../test/mocha/props.js":112,"../test/mocha/q_all.js":113,"../test/mocha/q_done.js":114,"../test/mocha/q_fin.js":115,"../test/mocha/q_inspect.js":116,"../test/mocha/q_make_node_resolver.js":117,"../test/mocha/q_nodeify.js":118,"../test/mocha/q_progress.js":119,"../test/mocha/q_propagation.js":120,"../test/mocha/q_settle.js":121,"../test/mocha/q_spread.js":122,"../test/mocha/race.js":123,"../test/mocha/reduce.js":124,"../test/mocha/resolution.js":125,"../test/mocha/reused_promise.js":126,"../test/mocha/some.js":127,"../test/mocha/sparsity.js":128,"../test/mocha/timers.js":129,"../test/mocha/try.js":130,"../test/mocha/unhandled_rejections.js":131,"../test/mocha/when_all.js":132,"../test/mocha/when_any.js":133,"../test/mocha/when_defer.js":134,"../test/mocha/when_join.js":135,"../test/mocha/when_map.js":136,"../test/mocha/when_reduce.js":137,"../test/mocha/when_settle.js":138,"../test/mocha/when_some.js":139,"../test/mocha/when_spread.js":140,"assert":2,"sinon":57}],17:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8576,3624 +8575,6 @@ var ret = {
 module.exports = ret;
 
 },{"./assert.js":18,"./es5.js":28,"./global.js":32}],56:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
-
-    var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
-    var ASSERT = require("./assert.js");
-
-    function Promise$_Any(promises, useBound, caller) {
-        var ret = Promise$_CreatePromiseArray(
-            promises,
-            SomePromiseArray,
-            caller,
-            useBound === true && promises._isBound()
-                ? promises._boundTo
-                : void 0
-       );
-        var promise = ret.promise();
-        if (promise.isRejected()) {
-            return promise;
-        }
-        ret.setHowMany(1);
-        ret.setUnwrap();
-        ret.init();
-        return promise;
-    }
-
-    Promise.any = function Promise$Any(promises) {
-        return Promise$_Any(promises, false, Promise.any);
-    };
-
-    Promise.prototype.any = function Promise$any() {
-        return Promise$_Any(this, true, this.any);
-    };
-
-};
-
-},{"./assert.js":57,"./some_promise_array.js":90}],57:[function(require,module,exports){
-module.exports=require(18)
-},{}],58:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var ASSERT = require("./assert.js");
-var schedule = require("./schedule.js");
-var Queue = require("./queue.js");
-var errorObj = require("./util.js").errorObj;
-var tryCatch1 = require("./util.js").tryCatch1;
-
-function Async() {
-    this._isTickUsed = false;
-    this._length = 0;
-    this._lateBuffer = new Queue();
-    this._functionBuffer = new Queue(25000 * 3);
-    var self = this;
-    this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
-        self._consumeFunctionBuffer();
-    };
-}
-
-Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
-    return this._length > 0;
-};
-
-Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
-    this._lateBuffer.push(fn, receiver, arg);
-    this._queueTick();
-};
-
-Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
-    var functionBuffer = this._functionBuffer;
-    functionBuffer.push(fn, receiver, arg);
-    this._length = functionBuffer.length();
-    this._queueTick();
-};
-
-Async.prototype._consumeFunctionBuffer =
-function Async$_consumeFunctionBuffer() {
-    var functionBuffer = this._functionBuffer;
-    while(functionBuffer.length() > 0) {
-        var fn = functionBuffer.shift();
-        var receiver = functionBuffer.shift();
-        var arg = functionBuffer.shift();
-        fn.call(receiver, arg);
-    }
-    this._reset();
-    this._consumeLateBuffer();
-};
-
-Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
-    var buffer = this._lateBuffer;
-    while(buffer.length() > 0) {
-        var fn = buffer.shift();
-        var receiver = buffer.shift();
-        var arg = buffer.shift();
-        var res = tryCatch1(fn, receiver, arg);
-        if (res === errorObj) {
-            this._queueTick();
-            throw res.e;
-        }
-    }
-};
-
-Async.prototype._queueTick = function Async$_queue() {
-    if (!this._isTickUsed) {
-        schedule(this.consumeFunctionBuffer);
-        this._isTickUsed = true;
-    }
-};
-
-Async.prototype._reset = function Async$_reset() {
-    this._isTickUsed = false;
-    this._length = 0;
-};
-
-module.exports = new Async();
-
-},{"./assert.js":57,"./queue.js":83,"./schedule.js":86,"./util.js":94}],59:[function(require,module,exports){
-arguments[4][20][0].apply(exports,arguments)
-},{"./promise.js":75}],60:[function(require,module,exports){
-module.exports=require(21)
-},{}],61:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, INTERNAL) {
-    var errors = require("./errors.js");
-    var async = require("./async.js");
-    var ASSERT = require("./assert.js");
-    var CancellationError = errors.CancellationError;
-    var SYNC_TOKEN = {};
-
-    Promise.prototype._cancel = function Promise$_cancel() {
-        if (!this.isCancellable()) return this;
-        var parent;
-        if ((parent = this._cancellationParent) !== void 0) {
-            parent.cancel(SYNC_TOKEN);
-            return;
-        }
-        var err = new CancellationError();
-        this._attachExtraTrace(err);
-        this._rejectUnchecked(err);
-    };
-
-    Promise.prototype.cancel = function Promise$cancel(token) {
-        if (!this.isCancellable()) return this;
-        if (token === SYNC_TOKEN) {
-            this._cancel();
-            return this;
-        }
-        async.invokeLater(this._cancel, this, void 0);
-        return this;
-    };
-
-    Promise.prototype.cancellable = function Promise$cancellable() {
-        if (this._cancellable()) return this;
-        this._setCancellable();
-        this._cancellationParent = void 0;
-        return this;
-    };
-
-    Promise.prototype.uncancellable = function Promise$uncancellable() {
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this.uncancellable, this);
-        ret._follow(this);
-        ret._unsetCancellable();
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        return ret;
-    };
-
-    Promise.prototype.fork =
-    function Promise$fork(didFulfill, didReject, didProgress) {
-        var ret = this._then(didFulfill, didReject, didProgress,
-            void 0, void 0, this.fork);
-
-        ret._setCancellable();
-        ret._cancellationParent = void 0;
-        return ret;
-    };
-};
-
-},{"./assert.js":57,"./async.js":58,"./errors.js":65}],62:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function() {
-var ASSERT = require("./assert.js");
-var inherits = require("./util.js").inherits;
-var defineProperty = require("./es5.js").defineProperty;
-
-var rignore = new RegExp(
-    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$_\\w+|" +
-    "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
-    "\\w*PromiseArray\\.\\w*PromiseArray|" +
-    "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
-    "process._tickCallback|nextTick|Async\\$\\w+)\\b"
-);
-
-var rtraceline = null;
-var formatStack = null;
-var areNamesMangled = false;
-
-function formatNonError(obj) {
-    var str;
-    if (typeof obj === "function") {
-        str = "[function " +
-            (obj.name || "anonymous") +
-            "]";
-    }
-    else {
-        str = obj.toString();
-        var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
-        if (ruselessToString.test(str)) {
-            try {
-                var newStr = JSON.stringify(obj);
-                str = newStr;
-            }
-            catch(e) {
-
-            }
-        }
-        if (str.length === 0) {
-            str = "(empty array)";
-        }
-    }
-    return ("(<" + snip(str) + ">, no stack trace)");
-}
-
-function snip(str) {
-    var maxChars = 41;
-    if (str.length < maxChars) {
-        return str;
-    }
-    return str.substr(0, maxChars - 3) + "...";
-}
-
-function CapturedTrace(ignoreUntil, isTopLevel) {
-    if (!areNamesMangled) {
-    }
-    this.captureStackTrace(ignoreUntil, isTopLevel);
-
-}
-inherits(CapturedTrace, Error);
-
-CapturedTrace.prototype.captureStackTrace =
-function CapturedTrace$captureStackTrace(ignoreUntil, isTopLevel) {
-    captureStackTrace(this, ignoreUntil, isTopLevel);
-};
-
-CapturedTrace.possiblyUnhandledRejection =
-function CapturedTrace$PossiblyUnhandledRejection(reason) {
-    if (typeof console === "object") {
-        var message;
-        if (typeof reason === "object" || typeof reason === "function") {
-            var stack = reason.stack;
-            message = "Possibly unhandled " + formatStack(stack, reason);
-        }
-        else {
-            message = "Possibly unhandled " + String(reason);
-        }
-        if (typeof console.error === "function" ||
-            typeof console.error === "object") {
-            console.error(message);
-        }
-        else if (typeof console.log === "function" ||
-            typeof console.error === "object") {
-            console.log(message);
-        }
-    }
-};
-
-areNamesMangled = CapturedTrace.prototype.captureStackTrace.name !==
-    "CapturedTrace$captureStackTrace";
-
-CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
-    var curLast = current.length - 1;
-    for (var i = prev.length - 1; i >= 0; --i) {
-        var line = prev[i];
-        if (current[curLast] === line) {
-            current.pop();
-            curLast--;
-        }
-        else {
-            break;
-        }
-    }
-
-    current.push("From previous event:");
-    var lines = current.concat(prev);
-
-    var ret = [];
-
-
-    for (var i = 0, len = lines.length; i < len; ++i) {
-
-        if ((rignore.test(lines[i]) ||
-            (i > 0 && !rtraceline.test(lines[i])) &&
-            lines[i] !== "From previous event:")
-       ) {
-            continue;
-        }
-        ret.push(lines[i]);
-    }
-    return ret;
-};
-
-CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
-    return typeof captureStackTrace === "function";
-};
-
-var captureStackTrace = (function stackDetection() {
-    if (typeof Error.stackTraceLimit === "number" &&
-        typeof Error.captureStackTrace === "function") {
-        rtraceline = /^\s*at\s*/;
-        formatStack = function(stack, error) {
-            if (typeof stack === "string") return stack;
-
-            if (error.name !== void 0 &&
-                error.message !== void 0) {
-                return error.name + ". " + error.message;
-            }
-            return formatNonError(error);
-
-
-        };
-        var captureStackTrace = Error.captureStackTrace;
-        return function CapturedTrace$_captureStackTrace(
-            receiver, ignoreUntil) {
-            captureStackTrace(receiver, ignoreUntil);
-        };
-    }
-    var err = new Error();
-
-    if (!areNamesMangled && typeof err.stack === "string" &&
-        typeof "".startsWith === "function" &&
-        (err.stack.startsWith("stackDetection@")) &&
-        stackDetection.name === "stackDetection") {
-
-        defineProperty(Error, "stackTraceLimit", {
-            writable: true,
-            enumerable: false,
-            configurable: false,
-            value: 25
-        });
-        rtraceline = /@/;
-        var rline = /[@\n]/;
-
-        formatStack = function(stack, error) {
-            if (typeof stack === "string") {
-                return (error.name + ". " + error.message + "\n" + stack);
-            }
-
-            if (error.name !== void 0 &&
-                error.message !== void 0) {
-                return error.name + ". " + error.message;
-            }
-            return formatNonError(error);
-        };
-
-        return function captureStackTrace(o, fn) {
-            var name = fn.name;
-            var stack = new Error().stack;
-            var split = stack.split(rline);
-            var i, len = split.length;
-            for (i = 0; i < len; i += 2) {
-                if (split[i] === name) {
-                    break;
-                }
-            }
-            split = split.slice(i + 2);
-            len = split.length - 2;
-            var ret = "";
-            for (i = 0; i < len; i += 2) {
-                ret += split[i];
-                ret += "@";
-                ret += split[i + 1];
-                ret += "\n";
-            }
-            o.stack = ret;
-        };
-    }
-    else {
-        formatStack = function(stack, error) {
-            if (typeof stack === "string") return stack;
-
-            if ((typeof error === "object" ||
-                typeof error === "function") &&
-                error.name !== void 0 &&
-                error.message !== void 0) {
-                return error.name + ". " + error.message;
-            }
-            return formatNonError(error);
-        };
-
-        return null;
-    }
-})();
-
-return CapturedTrace;
-};
-
-},{"./assert.js":57,"./es5.js":67,"./util.js":94}],63:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"./errors.js":65,"./es5.js":67,"./util.js":94}],64:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var util = require("./util.js");
-var ASSERT = require("./assert.js");
-var isPrimitive = util.isPrimitive;
-var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
-
-module.exports = function(Promise) {
-var returner = function Promise$_returner() {
-    return this;
-};
-var thrower = function Promise$_thrower() {
-    throw this;
-};
-
-var wrapper = function Promise$_wrapper(value, action) {
-    if (action === 1) {
-        return function Promise$_thrower() {
-            throw value;
-        };
-    }
-    else if (action === 2) {
-        return function Promise$_returner() {
-            return value;
-        };
-    }
-};
-
-
-Promise.prototype["return"] =
-Promise.prototype.thenReturn =
-function Promise$thenReturn(value) {
-    if (wrapsPrimitiveReceiver && isPrimitive(value)) {
-        return this._then(
-            wrapper(value, 2),
-            void 0,
-            void 0,
-            void 0,
-            void 0,
-            this.thenReturn
-       );
-    }
-    return this._then(returner, void 0, void 0,
-                        value, void 0, this.thenReturn);
-};
-
-Promise.prototype["throw"] =
-Promise.prototype.thenThrow =
-function Promise$thenThrow(reason) {
-    if (wrapsPrimitiveReceiver && isPrimitive(reason)) {
-        return this._then(
-            wrapper(reason, 1),
-            void 0,
-            void 0,
-            void 0,
-            void 0,
-            this.thenThrow
-       );
-    }
-    return this._then(thrower, void 0, void 0,
-                        reason, void 0, this.thenThrow);
-};
-};
-
-},{"./assert.js":57,"./util.js":94}],65:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"./es5.js":67,"./global.js":71,"./util.js":94}],66:[function(require,module,exports){
-arguments[4][27][0].apply(exports,arguments)
-},{"./errors.js":65}],67:[function(require,module,exports){
-module.exports=require(28)
-},{}],68:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise) {
-    var ASSERT = require("./assert.js");
-    var isArray = require("./util.js").isArray;
-
-    function Promise$_filter(booleans) {
-        var values = this._settledValue;
-        var len = values.length;
-        var ret = new Array(len);
-        var j = 0;
-
-        for (var i = 0; i < len; ++i) {
-            if (booleans[i]) ret[j++] = values[i];
-
-        }
-        ret.length = j;
-        return ret;
-    }
-
-    var ref = {ref: null};
-    Promise.filter = function Promise$Filter(promises, fn) {
-        return Promise.map(promises, fn, ref)
-            ._then(Promise$_filter, void 0, void 0,
-                    ref.ref, void 0, Promise.filter);
-    };
-
-    Promise.prototype.filter = function Promise$filter(fn) {
-        return this.map(fn, ref)
-            ._then(Promise$_filter, void 0, void 0,
-                    ref.ref, void 0, this.filter);
-    };
-};
-
-},{"./assert.js":57,"./util.js":94}],69:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"./util.js":94}],70:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./errors.js":65,"./promise_spawn.js":79}],71:[function(require,module,exports){
-module.exports=require(32)
-},{"__browserify_process":15}],72:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(
-    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
-
-    var ASSERT = require("./assert.js");
-
-    function Promise$_mapper(values) {
-        var fn = this;
-        var receiver = void 0;
-
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
-        }
-        var shouldDefer = false;
-
-        var ret = new Array(values.length);
-
-        if (receiver === void 0) {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = fn(values[i], i, len);
-                if (!shouldDefer) {
-                    var maybePromise = Promise._cast(value,
-                            Promise$_mapper, void 0);
-                    if (maybePromise instanceof Promise) {
-                        if (maybePromise.isFulfilled()) {
-                            ret[i] = maybePromise._settledValue;
-                            continue;
-                        }
-                        else {
-                            shouldDefer = true;
-                        }
-                        value = maybePromise;
-                    }
-                }
-                ret[i] = value;
-            }
-        }
-        else {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = fn.call(receiver, values[i], i, len);
-                if (!shouldDefer) {
-                    var maybePromise = Promise._cast(value,
-                            Promise$_mapper, void 0);
-                    if (maybePromise instanceof Promise) {
-                        if (maybePromise.isFulfilled()) {
-                            ret[i] = maybePromise._settledValue;
-                            continue;
-                        }
-                        else {
-                            shouldDefer = true;
-                        }
-                        value = maybePromise;
-                    }
-                }
-                ret[i] = value;
-            }
-        }
-        return shouldDefer
-            ? Promise$_CreatePromiseArray(ret, PromiseArray,
-                Promise$_mapper, void 0).promise()
-            : ret;
-    }
-
-    function Promise$_Map(promises, fn, useBound, caller, ref) {
-        if (typeof fn !== "function") {
-            return apiRejection("fn must be a function");
-        }
-
-        if (useBound === true && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
-            };
-        }
-
-        var ret = Promise$_CreatePromiseArray(
-            promises,
-            PromiseArray,
-            caller,
-            useBound === true && promises._isBound()
-                ? promises._boundTo
-                : void 0
-       ).promise();
-
-        if (ref !== void 0) {
-            ref.ref = ret;
-        }
-
-        return ret._then(
-            Promise$_mapper,
-            void 0,
-            void 0,
-            fn,
-            void 0,
-            caller
-       );
-    }
-
-    Promise.prototype.map = function Promise$map(fn, ref) {
-        return Promise$_Map(this, fn, true, this.map, ref);
-    };
-
-    Promise.map = function Promise$Map(promises, fn, ref) {
-        return Promise$_Map(promises, fn, false, Promise.map, ref);
-    };
-};
-
-},{"./assert.js":57}],73:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise) {
-    var util = require("./util.js");
-    var async = require("./async.js");
-    var ASSERT = require("./assert.js");
-    var tryCatch2 = util.tryCatch2;
-    var tryCatch1 = util.tryCatch1;
-    var errorObj = util.errorObj;
-
-    function thrower(r) {
-        throw r;
-    }
-
-    function Promise$_successAdapter(val, receiver) {
-        var nodeback = this;
-        var ret = tryCatch2(nodeback, receiver, null, val);
-        if (ret === errorObj) {
-            async.invokeLater(thrower, void 0, ret.e);
-        }
-    }
-    function Promise$_errorAdapter(reason, receiver) {
-        var nodeback = this;
-        var ret = tryCatch1(nodeback, receiver, reason);
-        if (ret === errorObj) {
-            async.invokeLater(thrower, void 0, ret.e);
-        }
-    }
-
-    Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
-        if (typeof nodeback == "function") {
-            this._then(
-                Promise$_successAdapter,
-                Promise$_errorAdapter,
-                void 0,
-                nodeback,
-                this._isBound() ? this._boundTo : null,
-                this.nodeify
-           );
-        }
-        return this;
-    };
-};
-
-},{"./assert.js":57,"./async.js":58,"./util.js":94}],74:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, isPromiseArrayProxy) {
-    var ASSERT = require("./assert.js");
-    var util = require("./util.js");
-    var async = require("./async.js");
-    var errors = require("./errors.js");
-    var tryCatch1 = util.tryCatch1;
-    var errorObj = util.errorObj;
-
-    Promise.prototype.progressed = function Promise$progressed(handler) {
-        return this._then(void 0, void 0, handler,
-                            void 0, void 0, this.progressed);
-    };
-
-    Promise.prototype._progress = function Promise$_progress(progressValue) {
-        if (this._isFollowingOrFulfilledOrRejected()) return;
-        this._progressUnchecked(progressValue);
-
-    };
-
-    Promise.prototype._progressHandlerAt =
-    function Promise$_progressHandlerAt(index) {
-        if (index === 0) return this._progressHandler0;
-        return this[index + 2 - 5];
-    };
-
-    Promise.prototype._doProgressWith =
-    function Promise$_doProgressWith(progression) {
-        var progressValue = progression.value;
-        var handler = progression.handler;
-        var promise = progression.promise;
-        var receiver = progression.receiver;
-
-        this._pushContext();
-        var ret = tryCatch1(handler, receiver, progressValue);
-        this._popContext();
-
-        if (ret === errorObj) {
-            if (ret.e != null &&
-                ret.e.name !== "StopProgressPropagation") {
-                var trace = errors.canAttach(ret.e)
-                    ? ret.e : new Error(ret.e + "");
-                promise._attachExtraTrace(trace);
-                promise._progress(ret.e);
-            }
-        }
-        else if (Promise.is(ret)) {
-            ret._then(promise._progress, null, null, promise, void 0,
-                this._progress);
-        }
-        else {
-            promise._progress(ret);
-        }
-    };
-
-
-    Promise.prototype._progressUnchecked =
-    function Promise$_progressUnchecked(progressValue) {
-        if (!this.isPending()) return;
-        var len = this._length();
-
-        for (var i = 0; i < len; i += 5) {
-            var handler = this._progressHandlerAt(i);
-            var promise = this._promiseAt(i);
-            if (!Promise.is(promise)) {
-                var receiver = this._receiverAt(i);
-                if (typeof handler === "function") {
-                    handler.call(receiver, progressValue, promise);
-                }
-                else if (Promise.is(receiver) && receiver._isProxied()) {
-                    receiver._progressUnchecked(progressValue);
-                }
-                else if (isPromiseArrayProxy(receiver, promise)) {
-                    receiver._promiseProgressed(progressValue, promise);
-                }
-                continue;
-            }
-
-            if (typeof handler === "function") {
-                async.invoke(this._doProgressWith, this, {
-                    handler: handler,
-                    promise: promise,
-                    receiver: this._receiverAt(i),
-                    value: progressValue
-                });
-            }
-            else {
-                async.invoke(promise._progress, promise, progressValue);
-            }
-        }
-    };
-};
-
-},{"./assert.js":57,"./async.js":58,"./errors.js":65,"./util.js":94}],75:[function(require,module,exports){
-var process=require("__browserify_process");/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function() {
-var global = require("./global.js");
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
-var async = require("./async.js");
-var errors = require("./errors.js");
-
-var INTERNAL = function(){};
-var APPLY = {};
-var NEXT_FILTER = {e: null};
-
-var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
-var CapturedTrace = require("./captured_trace.js")();
-var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
-var PromiseResolver = require("./promise_resolver.js");
-
-var isArray = util.isArray;
-
-var errorObj = util.errorObj;
-var tryCatch1 = util.tryCatch1;
-var tryCatch2 = util.tryCatch2;
-var tryCatchApply = util.tryCatchApply;
-var RangeError = errors.RangeError;
-var TypeError = errors.TypeError;
-var CancellationError = errors.CancellationError;
-var TimeoutError = errors.TimeoutError;
-var RejectionError = errors.RejectionError;
-var originatesFromRejection = errors.originatesFromRejection;
-var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
-var canAttach = errors.canAttach;
-var thrower = util.thrower;
-var apiRejection = require("./errors_api_rejection")(Promise);
-
-
-var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
-    return new TypeError("circular promise resolution chain");
-};
-
-function isPromise(obj) {
-    if (obj === void 0) return false;
-    return obj instanceof Promise;
-}
-
-function isPromiseArrayProxy(receiver, promiseSlotValue) {
-    if (receiver instanceof PromiseArray) {
-        return promiseSlotValue >= 0;
-    }
-    return false;
-}
-
-function Promise(resolver) {
-    if (typeof resolver !== "function") {
-        throw new TypeError("the promise constructor requires a resolver function");
-    }
-    if (this.constructor !== Promise) {
-        throw new TypeError("the promise constructor cannot be invoked directly");
-    }
-    this._bitField = 0;
-    this._fulfillmentHandler0 = void 0;
-    this._rejectionHandler0 = void 0;
-    this._promise0 = void 0;
-    this._receiver0 = void 0;
-    this._settledValue = void 0;
-    this._boundTo = void 0;
-    if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
-}
-
-Promise.prototype.bind = function Promise$bind(thisArg) {
-    var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(this.bind, this);
-    ret._follow(this);
-    ret._setBoundTo(thisArg);
-    if (this._cancellable()) {
-        ret._setCancellable();
-        ret._cancellationParent = this;
-    }
-    return ret;
-};
-
-Promise.prototype.toString = function Promise$toString() {
-    return "[object Promise]";
-};
-
-Promise.prototype.caught = Promise.prototype["catch"] =
-function Promise$catch(fn) {
-    var len = arguments.length;
-    if (len > 1) {
-        var catchInstances = new Array(len - 1),
-            j = 0, i;
-        for (i = 0; i < len - 1; ++i) {
-            var item = arguments[i];
-            if (typeof item === "function") {
-                catchInstances[j++] = item;
-            }
-            else {
-                var catchFilterTypeError =
-                    new TypeError(
-                        "A catch filter must be an error constructor "
-                        + "or a filter function");
-
-                this._attachExtraTrace(catchFilterTypeError);
-                async.invoke(this._reject, this, catchFilterTypeError);
-                return;
-            }
-        }
-        catchInstances.length = j;
-        fn = arguments[i];
-
-        this._resetTrace(this.caught);
-        var catchFilter = new CatchFilter(catchInstances, fn, this);
-        return this._then(void 0, catchFilter.doFilter, void 0,
-            catchFilter, void 0, this.caught);
-    }
-    return this._then(void 0, fn, void 0, void 0, void 0, this.caught);
-};
-
-Promise.prototype.then =
-function Promise$then(didFulfill, didReject, didProgress) {
-    return this._then(didFulfill, didReject, didProgress,
-        void 0, void 0, this.then);
-};
-
-
-Promise.prototype.done =
-function Promise$done(didFulfill, didReject, didProgress) {
-    var promise = this._then(didFulfill, didReject, didProgress,
-        void 0, void 0, this.done);
-    promise._setIsFinal();
-};
-
-Promise.prototype.spread = function Promise$spread(didFulfill, didReject) {
-    return this._then(didFulfill, didReject, void 0,
-        APPLY, void 0, this.spread);
-};
-
-Promise.prototype.isFulfilled = function Promise$isFulfilled() {
-    return (this._bitField & 268435456) > 0;
-};
-
-
-Promise.prototype.isRejected = function Promise$isRejected() {
-    return (this._bitField & 134217728) > 0;
-};
-
-Promise.prototype.isPending = function Promise$isPending() {
-    return !this.isResolved();
-};
-
-
-Promise.prototype.isResolved = function Promise$isResolved() {
-    return (this._bitField & 402653184) > 0;
-};
-
-
-Promise.prototype.isCancellable = function Promise$isCancellable() {
-    return !this.isResolved() &&
-        this._cancellable();
-};
-
-Promise.prototype.toJSON = function Promise$toJSON() {
-    var ret = {
-        isFulfilled: false,
-        isRejected: false,
-        fulfillmentValue: void 0,
-        rejectionReason: void 0
-    };
-    if (this.isFulfilled()) {
-        ret.fulfillmentValue = this._settledValue;
-        ret.isFulfilled = true;
-    }
-    else if (this.isRejected()) {
-        ret.rejectionReason = this._settledValue;
-        ret.isRejected = true;
-    }
-    return ret;
-};
-
-Promise.prototype.all = function Promise$all() {
-    return Promise$_all(this, true, this.all);
-};
-
-
-Promise.is = isPromise;
-
-function Promise$_all(promises, useBound, caller) {
-    return Promise$_CreatePromiseArray(
-        promises,
-        PromiseArray,
-        caller,
-        useBound === true && promises._isBound()
-            ? promises._boundTo
-            : void 0
-   ).promise();
-}
-Promise.all = function Promise$All(promises) {
-    return Promise$_all(promises, false, Promise.all);
-};
-
-Promise.join = function Promise$Join() {
-    var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    return Promise$_CreatePromiseArray(
-        args, PromiseArray, Promise.join, void 0).promise();
-};
-
-Promise.resolve = Promise.fulfilled =
-function Promise$Resolve(value, caller) {
-    var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(typeof caller === "function"
-        ? caller
-        : Promise.resolve, void 0);
-    if (ret._tryFollow(value)) {
-        return ret;
-    }
-    ret._cleanValues();
-    ret._setFulfilled();
-    ret._settledValue = value;
-    return ret;
-};
-
-Promise.reject = Promise.rejected = function Promise$Reject(reason) {
-    var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(Promise.reject, void 0);
-    markAsOriginatingFromRejection(reason);
-    ret._cleanValues();
-    ret._setRejected();
-    ret._settledValue = reason;
-    if (!canAttach(reason)) {
-        var trace = new Error(reason + "");
-        ret._setCarriedStackTrace(trace);
-    }
-    ret._ensurePossibleRejectionHandled();
-    return ret;
-};
-
-Promise.prototype.error = function Promise$_error(fn) {
-    return this.caught(originatesFromRejection, fn);
-};
-
-Promise.prototype._resolveFromSyncValue =
-function Promise$_resolveFromSyncValue(value, caller) {
-    if (value === errorObj) {
-        this._cleanValues();
-        this._setRejected();
-        this._settledValue = value.e;
-        this._ensurePossibleRejectionHandled();
-    }
-    else {
-        var maybePromise = Promise._cast(value, caller, void 0);
-        if (maybePromise instanceof Promise) {
-            this._follow(maybePromise);
-        }
-        else {
-            this._cleanValues();
-            this._setFulfilled();
-            this._settledValue = value;
-        }
-    }
-};
-
-Promise.method = function Promise$_Method(fn) {
-    if (typeof fn !== "function") {
-        throw new TypeError("fn must be a function");
-    }
-    return function Promise$_method() {
-        var value;
-        switch(arguments.length) {
-        case 0: value = tryCatch1(fn, this, void 0); break;
-        case 1: value = tryCatch1(fn, this, arguments[0]); break;
-        case 2: value = tryCatch2(fn, this, arguments[0], arguments[1]); break;
-        default:
-            var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-            value = tryCatchApply(fn, args, this); break;
-        }
-        var ret = new Promise(INTERNAL);
-        if (debugging) ret._setTrace(Promise$_method, void 0);
-        ret._resolveFromSyncValue(value, Promise$_method);
-        return ret;
-    };
-};
-
-Promise.attempt = Promise["try"] = function Promise$_Try(fn, args, ctx) {
-
-    if (typeof fn !== "function") {
-        return apiRejection("fn must be a function");
-    }
-    var value = isArray(args)
-        ? tryCatchApply(fn, args, ctx)
-        : tryCatch1(fn, ctx, args);
-
-    var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(Promise.attempt, void 0);
-    ret._resolveFromSyncValue(value, Promise.attempt);
-    return ret;
-};
-
-Promise.defer = Promise.pending = function Promise$Defer(caller) {
-    var promise = new Promise(INTERNAL);
-    if (debugging) promise._setTrace(typeof caller === "function"
-                              ? caller : Promise.defer, void 0);
-    return new PromiseResolver(promise);
-};
-
-Promise.bind = function Promise$Bind(thisArg) {
-    var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(Promise.bind, void 0);
-    ret._setFulfilled();
-    ret._setBoundTo(thisArg);
-    return ret;
-};
-
-Promise.cast = function Promise$_Cast(obj, caller) {
-    if (typeof caller !== "function") {
-        caller = Promise.cast;
-    }
-    var ret = Promise._cast(obj, caller, void 0);
-    if (!(ret instanceof Promise)) {
-        return Promise.resolve(ret, caller);
-    }
-    return ret;
-};
-
-Promise.onPossiblyUnhandledRejection =
-function Promise$OnPossiblyUnhandledRejection(fn) {
-    if (typeof fn === "function") {
-        CapturedTrace.possiblyUnhandledRejection = fn;
-    }
-    else {
-        CapturedTrace.possiblyUnhandledRejection = void 0;
-    }
-};
-
-var debugging = false || !!(
-    typeof process !== "undefined" &&
-    typeof process.execPath === "string" &&
-    typeof process.env === "object" &&
-    (process.env["BLUEBIRD_DEBUG"] ||
-        process.env["NODE_ENV"] === "development")
-);
-
-
-Promise.longStackTraces = function Promise$LongStackTraces() {
-    if (async.haveItemsQueued() &&
-        debugging === false
-   ) {
-        throw new Error("cannot enable long stack traces after promises have been created");
-    }
-    debugging = CapturedTrace.isSupported();
-};
-
-Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
-    return debugging && CapturedTrace.isSupported();
-};
-
-Promise.prototype._setProxyHandlers =
-function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
-    var index = this._length();
-
-    if (index >= 1048575 - 5) {
-        index = 0;
-        this._setLength(0);
-    }
-    if (index === 0) {
-        this._promise0 = promiseSlotValue;
-        this._receiver0 = receiver;
-    }
-    else {
-        var i = index - 5;
-        this[i + 3] = promiseSlotValue;
-        this[i + 4] = receiver;
-        this[i + 0] =
-        this[i + 1] =
-        this[i + 2] = void 0;
-    }
-    this._setLength(index + 5);
-};
-
-Promise.prototype._proxyPromiseArray =
-function Promise$_proxyPromiseArray(promiseArray, index) {
-    this._setProxyHandlers(promiseArray, index);
-};
-
-Promise.prototype._proxyPromise = function Promise$_proxyPromise(promise) {
-    promise._setProxied();
-    this._setProxyHandlers(promise, -1);
-};
-
-Promise.prototype._then =
-function Promise$_then(
-    didFulfill,
-    didReject,
-    didProgress,
-    receiver,
-    internalData,
-    caller
-) {
-    var haveInternalData = internalData !== void 0;
-    var ret = haveInternalData ? internalData : new Promise(INTERNAL);
-
-    if (debugging && !haveInternalData) {
-        var haveSameContext = this._peekContext() === this._traceParent;
-        ret._traceParent = haveSameContext ? this._traceParent : this;
-        ret._setTrace(typeof caller === "function"
-                ? caller
-                : this._then, this);
-    }
-
-    if (!haveInternalData && this._isBound()) {
-        ret._setBoundTo(this._boundTo);
-    }
-
-    var callbackIndex =
-        this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
-
-    if (!haveInternalData && this._cancellable()) {
-        ret._setCancellable();
-        ret._cancellationParent = this;
-    }
-
-    if (this.isResolved()) {
-        async.invoke(this._queueSettleAt, this, callbackIndex);
-    }
-
-    return ret;
-};
-
-Promise.prototype._length = function Promise$_length() {
-    return this._bitField & 1048575;
-};
-
-Promise.prototype._isFollowingOrFulfilledOrRejected =
-function Promise$_isFollowingOrFulfilledOrRejected() {
-    return (this._bitField & 939524096) > 0;
-};
-
-Promise.prototype._isFollowing = function Promise$_isFollowing() {
-    return (this._bitField & 536870912) === 536870912;
-};
-
-Promise.prototype._setLength = function Promise$_setLength(len) {
-    this._bitField = (this._bitField & -1048576) |
-        (len & 1048575);
-};
-
-Promise.prototype._setFulfilled = function Promise$_setFulfilled() {
-    this._bitField = this._bitField | 268435456;
-};
-
-Promise.prototype._setRejected = function Promise$_setRejected() {
-    this._bitField = this._bitField | 134217728;
-};
-
-Promise.prototype._setFollowing = function Promise$_setFollowing() {
-    this._bitField = this._bitField | 536870912;
-};
-
-Promise.prototype._setIsFinal = function Promise$_setIsFinal() {
-    this._bitField = this._bitField | 33554432;
-};
-
-Promise.prototype._isFinal = function Promise$_isFinal() {
-    return (this._bitField & 33554432) > 0;
-};
-
-Promise.prototype._cancellable = function Promise$_cancellable() {
-    return (this._bitField & 67108864) > 0;
-};
-
-Promise.prototype._setCancellable = function Promise$_setCancellable() {
-    this._bitField = this._bitField | 67108864;
-};
-
-Promise.prototype._unsetCancellable = function Promise$_unsetCancellable() {
-    this._bitField = this._bitField & (~67108864);
-};
-
-Promise.prototype._setRejectionIsUnhandled =
-function Promise$_setRejectionIsUnhandled() {
-    this._bitField = this._bitField | 2097152;
-};
-
-Promise.prototype._unsetRejectionIsUnhandled =
-function Promise$_unsetRejectionIsUnhandled() {
-    this._bitField = this._bitField & (~2097152);
-};
-
-Promise.prototype._isRejectionUnhandled =
-function Promise$_isRejectionUnhandled() {
-    return (this._bitField & 2097152) > 0;
-};
-
-Promise.prototype._setCarriedStackTrace =
-function Promise$_setCarriedStackTrace(capturedTrace) {
-    this._bitField = this._bitField | 1048576;
-    this._fulfillmentHandler0 = capturedTrace;
-};
-
-Promise.prototype._unsetCarriedStackTrace =
-function Promise$_unsetCarriedStackTrace() {
-    this._bitField = this._bitField & (~1048576);
-    this._fulfillmentHandler0 = void 0;
-};
-
-Promise.prototype._isCarryingStackTrace =
-function Promise$_isCarryingStackTrace() {
-    return (this._bitField & 1048576) > 0;
-};
-
-Promise.prototype._getCarriedStackTrace =
-function Promise$_getCarriedStackTrace() {
-    return this._isCarryingStackTrace()
-        ? this._fulfillmentHandler0
-        : void 0;
-};
-
-Promise.prototype._receiverAt = function Promise$_receiverAt(index) {
-    var ret;
-    if (index === 0) {
-        ret = this._receiver0;
-    }
-    else {
-        ret = this[index + 4 - 5];
-    }
-    if (this._isBound() && ret === void 0) {
-        return this._boundTo;
-    }
-    return ret;
-};
-
-Promise.prototype._promiseAt = function Promise$_promiseAt(index) {
-    if (index === 0) return this._promise0;
-    return this[index + 3 - 5];
-};
-
-Promise.prototype._fulfillmentHandlerAt =
-function Promise$_fulfillmentHandlerAt(index) {
-    if (index === 0) return this._fulfillmentHandler0;
-    return this[index + 0 - 5];
-};
-
-Promise.prototype._rejectionHandlerAt =
-function Promise$_rejectionHandlerAt(index) {
-    if (index === 0) return this._rejectionHandler0;
-    return this[index + 1 - 5];
-};
-
-Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
-     if (index === 0) {
-        this._rejectionHandler0 =
-        this._progressHandler0 =
-        this._promise0 =
-        this._receiver0 = void 0;
-        if (!this._isCarryingStackTrace()) {
-            this._fulfillmentHandler0 = void 0;
-        }
-    }
-    else {
-        this[index - 5 + 0] =
-        this[index - 5 + 1] =
-        this[index - 5 + 2] =
-        this[index - 5 + 3] =
-        this[index - 5 + 4] = void 0;
-    }
-};
-
-Promise.prototype._resolveFromResolver =
-function Promise$_resolveFromResolver(resolver) {
-    var promise = this;
-    var localDebugging = debugging;
-    if (localDebugging) {
-        this._setTrace(this._resolveFromResolver, void 0);
-        this._pushContext();
-    }
-    function Promise$_resolver(val) {
-        if (promise._tryFollow(val)) {
-            return;
-        }
-        promise._fulfill(val);
-    }
-    function Promise$_rejecter(val) {
-        var trace = canAttach(val) ? val : new Error(val + "");
-        promise._attachExtraTrace(trace);
-        markAsOriginatingFromRejection(val);
-        promise._reject(val, trace === val ? void 0 : trace);
-    }
-    var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
-    if (localDebugging) this._popContext();
-
-    if (r !== void 0 && r === errorObj) {
-        var trace = canAttach(r.e) ? r.e : new Error(r.e + "");
-        promise._reject(r.e, trace);
-    }
-};
-
-Promise.prototype._addCallbacks = function Promise$_addCallbacks(
-    fulfill,
-    reject,
-    progress,
-    promise,
-    receiver
-) {
-    var index = this._length();
-
-    if (index >= 1048575 - 5) {
-        index = 0;
-        this._setLength(0);
-    }
-
-    if (index === 0) {
-        this._promise0 = promise;
-        if (receiver !== void 0) this._receiver0 = receiver;
-        if (typeof fulfill === "function" && !this._isCarryingStackTrace())
-            this._fulfillmentHandler0 = fulfill;
-        if (typeof reject === "function") this._rejectionHandler0 = reject;
-        if (typeof progress === "function") this._progressHandler0 = progress;
-    }
-    else {
-        var i = index - 5;
-        this[i + 3] = promise;
-        this[i + 4] = receiver;
-        this[i + 0] = typeof fulfill === "function"
-                                            ? fulfill : void 0;
-        this[i + 1] = typeof reject === "function"
-                                            ? reject : void 0;
-        this[i + 2] = typeof progress === "function"
-                                            ? progress : void 0;
-    }
-    this._setLength(index + 5);
-    return index;
-};
-
-
-
-Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
-    if (obj !== void 0) {
-        this._bitField = this._bitField | 8388608;
-        this._boundTo = obj;
-    }
-    else {
-        this._bitField = this._bitField & (~8388608);
-    }
-};
-
-Promise.prototype._isBound = function Promise$_isBound() {
-    return (this._bitField & 8388608) === 8388608;
-};
-
-Promise.prototype._spreadSlowCase =
-function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
-    var promiseForAll =
-            Promise$_CreatePromiseArray
-                (values, PromiseArray, this._spreadSlowCase, boundTo)
-            .promise()
-            ._then(function() {
-                return targetFn.apply(boundTo, arguments);
-            }, void 0, void 0, APPLY, void 0, this._spreadSlowCase);
-
-    promise._follow(promiseForAll);
-};
-
-Promise.prototype._callSpread =
-function Promise$_callSpread(handler, promise, value, localDebugging) {
-    var boundTo = this._isBound() ? this._boundTo : void 0;
-    if (isArray(value)) {
-        var caller = this._settlePromiseFromHandler;
-        for (var i = 0, len = value.length; i < len; ++i) {
-            if (isPromise(Promise._cast(value[i], caller, void 0))) {
-                this._spreadSlowCase(handler, promise, value, boundTo);
-                return;
-            }
-        }
-    }
-    if (localDebugging) promise._pushContext();
-    return tryCatchApply(handler, value, boundTo);
-};
-
-Promise.prototype._callHandler =
-function Promise$_callHandler(
-    handler, receiver, promise, value, localDebugging) {
-    var x;
-    if (receiver === APPLY && !this.isRejected()) {
-        x = this._callSpread(handler, promise, value, localDebugging);
-    }
-    else {
-        if (localDebugging) promise._pushContext();
-        x = tryCatch1(handler, receiver, value);
-    }
-    if (localDebugging) promise._popContext();
-    return x;
-};
-
-Promise.prototype._settlePromiseFromHandler =
-function Promise$_settlePromiseFromHandler(
-    handler, receiver, value, promise
-) {
-    if (!isPromise(promise)) {
-        handler.call(receiver, value, promise);
-        return;
-    }
-
-    var localDebugging = debugging;
-    var x = this._callHandler(handler, receiver,
-                                promise, value, localDebugging);
-
-    if (promise._isFollowing()) return;
-
-    if (x === errorObj || x === promise || x === NEXT_FILTER) {
-        var err = x === promise
-                    ? makeSelfResolutionError()
-                    : x.e;
-        var trace = canAttach(err) ? err : new Error(err + "");
-        if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
-        promise._rejectUnchecked(err, trace);
-    }
-    else {
-        var castValue = Promise._cast(x,
-                    localDebugging ? this._settlePromiseFromHandler : void 0,
-                    promise);
-
-        if (isPromise(castValue)) {
-            if (castValue.isRejected() &&
-                !castValue._isCarryingStackTrace() &&
-                !canAttach(castValue._settledValue)) {
-                var trace = new Error(castValue._settledValue + "");
-                promise._attachExtraTrace(trace);
-                castValue._setCarriedStackTrace(trace);
-            }
-            promise._follow(castValue);
-            if (castValue._cancellable()) {
-                promise._cancellationParent = castValue;
-                promise._setCancellable();
-            }
-        }
-        else {
-            promise._fulfillUnchecked(x);
-        }
-    }
-};
-
-Promise.prototype._follow =
-function Promise$_follow(promise) {
-    this._setFollowing();
-
-    if (promise.isPending()) {
-        if (promise._cancellable() ) {
-            this._cancellationParent = promise;
-            this._setCancellable();
-        }
-        promise._proxyPromise(this);
-    }
-    else if (promise.isFulfilled()) {
-        this._fulfillUnchecked(promise._settledValue);
-    }
-    else {
-        this._rejectUnchecked(promise._settledValue,
-            promise._getCarriedStackTrace());
-    }
-
-    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
-
-    if (debugging &&
-        promise._traceParent == null) {
-        promise._traceParent = this;
-    }
-};
-
-Promise.prototype._tryFollow =
-function Promise$_tryFollow(value) {
-    if (this._isFollowingOrFulfilledOrRejected() ||
-        value === this) {
-        return false;
-    }
-    var maybePromise = Promise._cast(value, this._tryFollow, void 0);
-    if (!isPromise(maybePromise)) {
-        return false;
-    }
-    this._follow(maybePromise);
-    return true;
-};
-
-Promise.prototype._resetTrace = function Promise$_resetTrace(caller) {
-    if (debugging) {
-        var context = this._peekContext();
-        var isTopLevel = context === void 0;
-        this._trace = new CapturedTrace(
-            typeof caller === "function"
-            ? caller
-            : this._resetTrace,
-            isTopLevel
-       );
-    }
-};
-
-Promise.prototype._setTrace = function Promise$_setTrace(caller, parent) {
-    if (debugging) {
-        var context = this._peekContext();
-        this._traceParent = context;
-        var isTopLevel = context === void 0;
-        if (parent !== void 0 &&
-            parent._traceParent === context) {
-            this._trace = parent._trace;
-        }
-        else {
-            this._trace = new CapturedTrace(
-                typeof caller === "function"
-                ? caller
-                : this._setTrace,
-                isTopLevel
-           );
-        }
-    }
-    return this;
-};
-
-Promise.prototype._attachExtraTrace =
-function Promise$_attachExtraTrace(error) {
-    if (debugging) {
-        var promise = this;
-        var stack = error.stack;
-        stack = typeof stack === "string"
-            ? stack.split("\n") : [];
-        var headerLineCount = 1;
-
-        while(promise != null &&
-            promise._trace != null) {
-            stack = CapturedTrace.combine(
-                stack,
-                promise._trace.stack.split("\n")
-           );
-            promise = promise._traceParent;
-        }
-
-        var max = Error.stackTraceLimit + headerLineCount;
-        var len = stack.length;
-        if (len  > max) {
-            stack.length = max;
-        }
-        if (stack.length <= headerLineCount) {
-            error.stack = "(No stack trace)";
-        }
-        else {
-            error.stack = stack.join("\n");
-        }
-    }
-};
-
-Promise.prototype._cleanValues = function Promise$_cleanValues() {
-    if (this._cancellable()) {
-        this._cancellationParent = void 0;
-    }
-};
-
-Promise.prototype._fulfill = function Promise$_fulfill(value) {
-    if (this._isFollowingOrFulfilledOrRejected()) return;
-    this._fulfillUnchecked(value);
-};
-
-Promise.prototype._reject =
-function Promise$_reject(reason, carriedStackTrace) {
-    if (this._isFollowingOrFulfilledOrRejected()) return;
-    this._rejectUnchecked(reason, carriedStackTrace);
-};
-
-Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
-    var handler = this.isFulfilled()
-        ? this._fulfillmentHandlerAt(index)
-        : this._rejectionHandlerAt(index);
-
-    var value = this._settledValue;
-    var receiver = this._receiverAt(index);
-    var promise = this._promiseAt(index);
-
-    if (typeof handler === "function") {
-        this._settlePromiseFromHandler(handler, receiver, value, promise);
-    }
-    else {
-        var done = false;
-        var isFulfilled = this.isFulfilled();
-        if (receiver !== void 0) {
-            if (receiver instanceof Promise &&
-                receiver._isProxied()) {
-                receiver._unsetProxied();
-
-                if (isFulfilled) receiver._fulfillUnchecked(value);
-                else receiver._rejectUnchecked(value,
-                    this._getCarriedStackTrace());
-                done = true;
-            }
-            else if (isPromiseArrayProxy(receiver, promise)) {
-
-                if (isFulfilled) receiver._promiseFulfilled(value, promise);
-                else receiver._promiseRejected(value, promise);
-
-                done = true;
-            }
-        }
-
-        if (!done) {
-
-            if (isFulfilled) promise._fulfill(value);
-            else promise._reject(value, this._getCarriedStackTrace());
-
-        }
-    }
-
-    if (index >= 256) {
-        this._queueGC();
-    }
-};
-
-Promise.prototype._isProxied = function Promise$_isProxied() {
-    return (this._bitField & 4194304) === 4194304;
-};
-
-Promise.prototype._setProxied = function Promise$_setProxied() {
-    this._bitField = this._bitField | 4194304;
-};
-
-Promise.prototype._unsetProxied = function Promise$_unsetProxied() {
-    this._bitField = this._bitField & (~4194304);
-};
-
-Promise.prototype._isGcQueued = function Promise$_isGcQueued() {
-    return (this._bitField & -1073741824) === -1073741824;
-};
-
-Promise.prototype._setGcQueued = function Promise$_setGcQueued() {
-    this._bitField = this._bitField | -1073741824;
-};
-
-Promise.prototype._unsetGcQueued = function Promise$_unsetGcQueued() {
-    this._bitField = this._bitField & (~-1073741824);
-};
-
-Promise.prototype._queueGC = function Promise$_queueGC() {
-    if (this._isGcQueued()) return;
-    this._setGcQueued();
-    async.invokeLater(this._gc, this, void 0);
-};
-
-Promise.prototype._gc = function Promise$gc() {
-    var len = this._length();
-    this._unsetAt(0);
-    for (var i = 0; i < len; i++) {
-        delete this[i];
-    }
-    this._setLength(0);
-    this._unsetGcQueued();
-};
-
-Promise.prototype._queueSettleAt = function Promise$_queueSettleAt(index) {
-    if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
-    async.invoke(this._settlePromiseAt, this, index);
-};
-
-Promise.prototype._fulfillUnchecked =
-function Promise$_fulfillUnchecked(value) {
-    if (!this.isPending()) return;
-    if (value === this) {
-        var err = makeSelfResolutionError();
-        this._attachExtraTrace(err);
-        return this._rejectUnchecked(err, void 0);
-    }
-    this._cleanValues();
-    this._setFulfilled();
-    this._settledValue = value;
-    var len = this._length();
-
-    if (len > 0) {
-        async.invoke(this._fulfillPromises, this, len);
-    }
-};
-
-Promise.prototype._rejectUncheckedCheckError =
-function Promise$_rejectUncheckedCheckError(reason) {
-    var trace = canAttach(reason) ? reason : new Error(reason + "");
-    this._rejectUnchecked(reason, trace === reason ? void 0 : trace);
-};
-
-Promise.prototype._rejectUnchecked =
-function Promise$_rejectUnchecked(reason, trace) {
-    if (!this.isPending()) return;
-    if (reason === this) {
-        var err = makeSelfResolutionError();
-        this._attachExtraTrace(err);
-        return this._rejectUnchecked(err);
-    }
-    this._cleanValues();
-    this._setRejected();
-    this._settledValue = reason;
-
-    if (this._isFinal()) {
-        async.invokeLater(thrower, void 0, trace === void 0 ? reason : trace);
-        return;
-    }
-    var len = this._length();
-
-    if (trace !== void 0) this._setCarriedStackTrace(trace);
-
-    if (len > 0) {
-        async.invoke(this._rejectPromises, this, len);
-    }
-    else {
-        this._ensurePossibleRejectionHandled();
-    }
-};
-
-Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
-    len = this._length();
-    for (var i = 0; i < len; i+= 5) {
-        this._settlePromiseAt(i);
-    }
-    this._unsetCarriedStackTrace();
-};
-
-Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
-    len = this._length();
-    for (var i = 0; i < len; i+= 5) {
-        this._settlePromiseAt(i);
-    }
-};
-
-Promise.prototype._ensurePossibleRejectionHandled =
-function Promise$_ensurePossibleRejectionHandled() {
-    this._setRejectionIsUnhandled();
-    if (CapturedTrace.possiblyUnhandledRejection !== void 0) {
-        async.invokeLater(this._notifyUnhandledRejection, this, void 0);
-    }
-};
-
-Promise.prototype._notifyUnhandledRejection =
-function Promise$_notifyUnhandledRejection() {
-    if (this._isRejectionUnhandled()) {
-        var reason = this._settledValue;
-        var trace = this._getCarriedStackTrace();
-
-        this._unsetRejectionIsUnhandled();
-
-        if (trace !== void 0) {
-            this._unsetCarriedStackTrace();
-            reason = trace;
-        }
-        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
-            CapturedTrace.possiblyUnhandledRejection(reason, this);
-        }
-    }
-};
-
-var contextStack = [];
-Promise.prototype._peekContext = function Promise$_peekContext() {
-    var lastIndex = contextStack.length - 1;
-    if (lastIndex >= 0) {
-        return contextStack[lastIndex];
-    }
-    return void 0;
-
-};
-
-Promise.prototype._pushContext = function Promise$_pushContext() {
-    if (!debugging) return;
-    contextStack.push(this);
-};
-
-Promise.prototype._popContext = function Promise$_popContext() {
-    if (!debugging) return;
-    contextStack.pop();
-};
-
-function Promise$_CreatePromiseArray(
-    promises, PromiseArrayConstructor, caller, boundTo) {
-
-    var list = null;
-    if (isArray(promises)) {
-        list = promises;
-    }
-    else {
-        list = Promise._cast(promises, caller, void 0);
-        if (list !== promises) {
-            list._setBoundTo(boundTo);
-        }
-        else if (!isPromise(list)) {
-            list = null;
-        }
-    }
-    if (list !== null) {
-        return new PromiseArrayConstructor(
-            list,
-            typeof caller === "function"
-                ? caller
-                : Promise$_CreatePromiseArray,
-            boundTo
-       );
-    }
-    return {
-        promise: function() {return apiRejection("expecting an array, a promise or a thenable");}
-    };
-}
-
-var old = global.Promise;
-
-Promise.noConflict = function() {
-    if (global.Promise === Promise) {
-        global.Promise = old;
-    }
-    return Promise;
-};
-
-if (!CapturedTrace.isSupported()) {
-    Promise.longStackTraces = function(){};
-    debugging = false;
-}
-
-Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./finally.js")(Promise, NEXT_FILTER);
-require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise, INTERNAL);
-Promise.RangeError = RangeError;
-Promise.CancellationError = CancellationError;
-Promise.TimeoutError = TimeoutError;
-Promise.TypeError = TypeError;
-Promise.RejectionError = RejectionError;
-require('./timers.js')(Promise,INTERNAL);
-require('./synchronous_inspection.js')(Promise);
-require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
-require('./race.js')(Promise,INTERNAL);
-require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
-require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
-require('./nodeify.js')(Promise);
-require('./promisify.js')(Promise,INTERNAL);
-require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
-require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
-require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
-require('./progress.js')(Promise,isPromiseArrayProxy);
-require('./cancel.js')(Promise,INTERNAL);
-
-Promise.prototype = Promise.prototype;
-return Promise;
-
-};
-
-},{"./any.js":56,"./assert.js":57,"./async.js":58,"./call_get.js":60,"./cancel.js":61,"./captured_trace.js":62,"./catch_filter.js":63,"./direct_resolve.js":64,"./errors.js":65,"./errors_api_rejection":66,"./filter.js":68,"./finally.js":69,"./generators.js":70,"./global.js":71,"./map.js":72,"./nodeify.js":73,"./progress.js":74,"./promise_array.js":76,"./promise_resolver.js":78,"./promisify.js":80,"./props.js":82,"./race.js":84,"./reduce.js":85,"./settle.js":87,"./some.js":89,"./synchronous_inspection.js":91,"./thenables.js":92,"./timers.js":93,"./util.js":94,"__browserify_process":15}],76:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, INTERNAL) {
-var ASSERT = require("./assert.js");
-var canAttach = require("./errors.js").canAttach;
-var util = require("./util.js");
-var async = require("./async.js");
-var hasOwn = {}.hasOwnProperty;
-var isArray = util.isArray;
-
-function toResolutionValue(val) {
-    switch(val) {
-    case -1: return void 0;
-    case -2: return [];
-    case -3: return {};
-    }
-}
-
-function PromiseArray(values, caller, boundTo) {
-    var promise = this._promise = new Promise(INTERNAL);
-    var parent = void 0;
-    if (Promise.is(values)) {
-        parent = values;
-        if (values._cancellable()) {
-            promise._setCancellable();
-            promise._cancellationParent = values;
-        }
-        if (values._isBound()) {
-            promise._setBoundTo(boundTo);
-        }
-    }
-    promise._setTrace(caller, parent);
-    this._values = values;
-    this._length = 0;
-    this._totalResolved = 0;
-    this._init(void 0, -2);
-}
-PromiseArray.PropertiesPromiseArray = function() {};
-
-PromiseArray.prototype.length = function PromiseArray$length() {
-    return this._length;
-};
-
-PromiseArray.prototype.promise = function PromiseArray$promise() {
-    return this._promise;
-};
-
-PromiseArray.prototype._init =
-function PromiseArray$_init(_, resolveValueIfEmpty) {
-    var values = this._values;
-    if (Promise.is(values)) {
-        if (values.isFulfilled()) {
-            values = values._settledValue;
-            if (!isArray(values)) {
-                var err = new Promise.TypeError("expecting an array, a promise or a thenable");
-                this.__hardReject__(err);
-                return;
-            }
-            this._values = values;
-        }
-        else if (values.isPending()) {
-            values._then(
-                this._init,
-                this._reject,
-                void 0,
-                this,
-                resolveValueIfEmpty,
-                this.constructor
-           );
-            return;
-        }
-        else {
-            this._reject(values._settledValue);
-            return;
-        }
-    }
-
-    if (values.length === 0) {
-        this._resolve(toResolutionValue(resolveValueIfEmpty));
-        return;
-    }
-    var len = values.length;
-    var newLen = len;
-    var newValues;
-    if (this instanceof PromiseArray.PropertiesPromiseArray) {
-        newValues = this._values;
-    }
-    else {
-        newValues = new Array(len);
-    }
-    var isDirectScanNeeded = false;
-    for (var i = 0; i < len; ++i) {
-        var promise = values[i];
-        if (promise === void 0 && !hasOwn.call(values, i)) {
-            newLen--;
-            continue;
-        }
-        var maybePromise = Promise._cast(promise, void 0, void 0);
-        if (maybePromise instanceof Promise &&
-            maybePromise.isPending()) {
-            maybePromise._proxyPromiseArray(this, i);
-        }
-        else {
-            isDirectScanNeeded = true;
-        }
-        newValues[i] = maybePromise;
-    }
-    if (newLen === 0) {
-        if (resolveValueIfEmpty === -2) {
-            this._resolve(newValues);
-        }
-        else {
-            this._resolve(toResolutionValue(resolveValueIfEmpty));
-        }
-        return;
-    }
-    this._values = newValues;
-    this._length = newLen;
-    if (isDirectScanNeeded) {
-        var scanMethod = newLen === len
-            ? this._scanDirectValues
-            : this._scanDirectValuesHoled;
-        async.invoke(scanMethod, this, len);
-    }
-};
-
-PromiseArray.prototype._settlePromiseAt =
-function PromiseArray$_settlePromiseAt(index) {
-    var value = this._values[index];
-    if (!Promise.is(value)) {
-        this._promiseFulfilled(value, index);
-    }
-    else if (value.isFulfilled()) {
-        this._promiseFulfilled(value._settledValue, index);
-    }
-    else if (value.isRejected()) {
-        this._promiseRejected(value._settledValue, index);
-    }
-};
-
-PromiseArray.prototype._scanDirectValuesHoled =
-function PromiseArray$_scanDirectValuesHoled(len) {
-    for (var i = 0; i < len; ++i) {
-        if (this._isResolved()) {
-            break;
-        }
-        if (hasOwn.call(this._values, i)) {
-            this._settlePromiseAt(i);
-        }
-    }
-};
-
-PromiseArray.prototype._scanDirectValues =
-function PromiseArray$_scanDirectValues(len) {
-    for (var i = 0; i < len; ++i) {
-        if (this._isResolved()) {
-            break;
-        }
-        this._settlePromiseAt(i);
-    }
-};
-
-PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
-    return this._values === null;
-};
-
-PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
-    this._values = null;
-    this._promise._fulfill(value);
-};
-
-PromiseArray.prototype.__hardReject__ =
-PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
-    this._values = null;
-    var trace = canAttach(reason) ? reason : new Error(reason + "");
-    this._promise._attachExtraTrace(trace);
-    this._promise._reject(reason, trace);
-};
-
-PromiseArray.prototype._promiseProgressed =
-function PromiseArray$_promiseProgressed(progressValue, index) {
-    if (this._isResolved()) return;
-    this._promise._progress({
-        index: index,
-        value: progressValue
-    });
-};
-
-
-PromiseArray.prototype._promiseFulfilled =
-function PromiseArray$_promiseFulfilled(value, index) {
-    if (this._isResolved()) return;
-    this._values[index] = value;
-    var totalResolved = ++this._totalResolved;
-    if (totalResolved >= this._length) {
-        this._resolve(this._values);
-    }
-};
-
-PromiseArray.prototype._promiseRejected =
-function PromiseArray$_promiseRejected(reason, index) {
-    if (this._isResolved()) return;
-    this._totalResolved++;
-    this._reject(reason);
-};
-
-return PromiseArray;
-};
-
-},{"./assert.js":57,"./async.js":58,"./errors.js":65,"./util.js":94}],77:[function(require,module,exports){
-arguments[4][38][0].apply(exports,arguments)
-},{"./errors.js":65}],78:[function(require,module,exports){
-arguments[4][39][0].apply(exports,arguments)
-},{"./async.js":58,"./errors.js":65,"./es5.js":67,"./util.js":94}],79:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"./errors.js":65,"./util.js":94}],80:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, INTERNAL) {
-var THIS = {};
-var util = require("./util.js");
-var es5 = require("./es5.js");
-var nodebackForPromise = require("./promise_resolver.js")
-    ._nodebackForPromise;
-var withAppended = util.withAppended;
-var maybeWrapAsError = util.maybeWrapAsError;
-var canEvaluate = util.canEvaluate;
-var notEnumerableProp = util.notEnumerableProp;
-var deprecated = util.deprecated;
-var ASSERT = require("./assert.js");
-
-
-var roriginal = new RegExp("__beforePromisified__" + "$");
-var hasProp = {}.hasOwnProperty;
-function isPromisified(fn) {
-    return fn.__isPromisified__ === true;
-}
-var inheritedMethods = (function() {
-    if (es5.isES5) {
-        var create = Object.create;
-        var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-        return function(cur) {
-            var original = cur;
-            var ret = [];
-            var visitedKeys = create(null);
-            while (cur !== null) {
-                var keys = es5.keys(cur);
-                for (var i = 0, len = keys.length; i < len; ++i) {
-                    var key = keys[i];
-                    if (visitedKeys[key] ||
-                        roriginal.test(key) ||
-                        hasProp.call(original, key + "__beforePromisified__")
-                   ) {
-                        continue;
-                    }
-                    visitedKeys[key] = true;
-                    var desc = getOwnPropertyDescriptor(cur, key);
-                    if (desc != null &&
-                        typeof desc.value === "function" &&
-                        !isPromisified(desc.value)) {
-                        ret.push(key, desc.value);
-                    }
-                }
-                cur = es5.getPrototypeOf(cur);
-            }
-            return ret;
-        };
-    }
-    else {
-        return function(obj) {
-            var ret = [];
-            /*jshint forin:false */
-            for (var key in obj) {
-                if (roriginal.test(key) ||
-                    hasProp.call(obj, key + "__beforePromisified__")) {
-                    continue;
-                }
-                var fn = obj[key];
-                if (typeof fn === "function" &&
-                    !isPromisified(fn)) {
-                    ret.push(key, fn);
-                }
-            }
-            return ret;
-        };
-    }
-})();
-
-function switchCaseArgumentOrder(likelyArgumentCount) {
-    var ret = [likelyArgumentCount];
-    var min = Math.max(0, likelyArgumentCount - 1 - 5);
-    for(var i = likelyArgumentCount - 1; i >= min; --i) {
-        if (i === likelyArgumentCount) continue;
-        ret.push(i);
-    }
-    for(var i = likelyArgumentCount + 1; i <= 5; ++i) {
-        ret.push(i);
-    }
-    return ret;
-}
-
-function parameterDeclaration(parameterCount) {
-    var ret = new Array(parameterCount);
-    for(var i = 0; i < ret.length; ++i) {
-        ret[i] = "_arg" + i;
-    }
-    return ret.join(", ");
-}
-
-function parameterCount(fn) {
-    if (typeof fn.length === "number") {
-        return Math.max(Math.min(fn.length, 1023 + 1), 0);
-    }
-    return 0;
-}
-
-function propertyAccess(id) {
-    var rident = /^[a-z$_][a-z$_0-9]*$/i;
-
-    if (rident.test(id)) {
-        return "." + id;
-    }
-    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
-}
-
-function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
-    var newParameterCount = Math.max(0, parameterCount(fn) - 1);
-    var argumentOrder = switchCaseArgumentOrder(newParameterCount);
-
-    var callbackName = (typeof originalName === "string" ?
-        originalName + "Async" :
-        "promisified");
-
-    function generateCallForArgumentCount(count) {
-        var args = new Array(count);
-        for (var i = 0, len = args.length; i < len; ++i) {
-            args[i] = "arguments[" + i + "]";
-        }
-        var comma = count > 0 ? "," : "";
-
-        if (typeof callback === "string" &&
-            receiver === THIS) {
-            return "this" + propertyAccess(callback) + "("+args.join(",") +
-                comma +" fn);"+
-                "break;";
-        }
-        return (receiver === void 0
-            ? "callback("+args.join(",")+ comma +" fn);"
-            : "callback.call("+(receiver === THIS
-                ? "this"
-                : "receiver")+", "+args.join(",") + comma + " fn);") +
-        "break;";
-    }
-
-    function generateArgumentSwitchCase() {
-        var ret = "";
-        for(var i = 0; i < argumentOrder.length; ++i) {
-            ret += "case " + argumentOrder[i] +":" +
-                generateCallForArgumentCount(argumentOrder[i]);
-        }
-        ret += "default: var args = new Array(len + 1);" +
-            "var i = 0;" +
-            "for (var i = 0; i < len; ++i) { " +
-            "   args[i] = arguments[i];" +
-            "}" +
-            "args[i] = fn;" +
-
-            (typeof callback === "string"
-            ? "this" + propertyAccess(callback) + ".apply("
-            : "callback.apply(") +
-
-            (receiver === THIS ? "this" : "receiver") +
-            ", args); break;";
-        return ret;
-    }
-
-    return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForPromise",
-            "INTERNAL",
-        "var ret = function " + callbackName +
-        "(" + parameterDeclaration(newParameterCount) + ") {\"use strict\";" +
-        "var len = arguments.length;" +
-        "var promise = new Promise(INTERNAL);"+
-        "promise._setTrace(" + callbackName + ", void 0);" +
-        "var fn = nodebackForPromise(promise);"+
-        "try {" +
-        "switch(len) {" +
-        generateArgumentSwitchCase() +
-        "}" +
-        "}" +
-        "catch(e){ " +
-        "var wrapped = maybeWrapAsError(e);" +
-        "promise._attachExtraTrace(wrapped);" +
-        "promise._reject(wrapped);" +
-        "}" +
-        "return promise;" +
-        "" +
-        "}; ret.__isPromisified__ = true; return ret;"
-   )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForPromise, INTERNAL);
-}
-
-function makeNodePromisifiedClosure(callback, receiver) {
-    function promisified() {
-        var _receiver = receiver;
-        if (receiver === THIS) _receiver = this;
-        if (typeof callback === "string") {
-            callback = _receiver[callback];
-        }
-        var promise = new Promise(INTERNAL);
-        promise._setTrace(promisified, void 0);
-        var fn = nodebackForPromise(promise);
-        try {
-            callback.apply(_receiver, withAppended(arguments, fn));
-        }
-        catch(e) {
-            var wrapped = maybeWrapAsError(e);
-            promise._attachExtraTrace(wrapped);
-            promise._reject(wrapped);
-        }
-        return promise;
-    }
-    promisified.__isPromisified__ = true;
-    return promisified;
-}
-
-var makeNodePromisified = canEvaluate
-    ? makeNodePromisifiedEval
-    : makeNodePromisifiedClosure;
-
-function f(){}
-function _promisify(callback, receiver, isAll) {
-    if (isAll) {
-        var methods = inheritedMethods(callback);
-        for (var i = 0, len = methods.length; i < len; i+= 2) {
-            var key = methods[i];
-            var fn = methods[i+1];
-            var originalKey = key + "__beforePromisified__";
-            var promisifiedKey = key + "Async";
-            notEnumerableProp(callback, originalKey, fn);
-            callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS,
-                    key, fn);
-        }
-        if (methods.length > 16) f.prototype = callback;
-        return callback;
-    }
-    else {
-        return makeNodePromisified(callback, receiver, void 0, callback);
-    }
-}
-
-Promise.promisify = function Promise$Promisify(fn, receiver) {
-    if (typeof fn === "object" && fn !== null) {
-        deprecated("Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.");
-        return _promisify(fn, receiver, true);
-    }
-    if (typeof fn !== "function") {
-        throw new TypeError("fn must be a function");
-    }
-    if (isPromisified(fn)) {
-        return fn;
-    }
-    return _promisify(
-        fn,
-        arguments.length < 2 ? THIS : receiver,
-        false);
-};
-
-Promise.promisifyAll = function Promise$PromisifyAll(target) {
-    if (typeof target !== "function" && typeof target !== "object") {
-        throw new TypeError("the target of promisifyAll must be an object or a function");
-    }
-    return _promisify(target, void 0, true);
-};
-};
-
-
-},{"./assert.js":57,"./es5.js":67,"./promise_resolver.js":78,"./util.js":94}],81:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, PromiseArray) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
-var inherits = util.inherits;
-var es5 = require("./es5.js");
-
-function PropertiesPromiseArray(obj, caller, boundTo) {
-    var keys = es5.keys(obj);
-    var values = new Array(keys.length);
-    for (var i = 0, len = values.length; i < len; ++i) {
-        values[i] = obj[keys[i]];
-    }
-    this.constructor$(values, caller, boundTo);
-    if (!this._isResolved()) {
-        for (var i = 0, len = keys.length; i < len; ++i) {
-            values.push(keys[i]);
-        }
-    }
-}
-inherits(PropertiesPromiseArray, PromiseArray);
-
-PropertiesPromiseArray.prototype._init =
-function PropertiesPromiseArray$_init() {
-    this._init$(void 0, -3) ;
-};
-
-PropertiesPromiseArray.prototype._promiseFulfilled =
-function PropertiesPromiseArray$_promiseFulfilled(value, index) {
-    if (this._isResolved()) return;
-    this._values[index] = value;
-    var totalResolved = ++this._totalResolved;
-    if (totalResolved >= this._length) {
-        var val = {};
-        var keyOffset = this.length();
-        for (var i = 0, len = this.length(); i < len; ++i) {
-            val[this._values[i + keyOffset]] = this._values[i];
-        }
-        this._resolve(val);
-    }
-};
-
-PropertiesPromiseArray.prototype._promiseProgressed =
-function PropertiesPromiseArray$_promiseProgressed(value, index) {
-    if (this._isResolved()) return;
-
-    this._promise._progress({
-        key: this._values[index + this.length()],
-        value: value
-    });
-};
-
-PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
-
-return PropertiesPromiseArray;
-};
-
-},{"./assert.js":57,"./es5.js":67,"./util.js":94}],82:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./errors_api_rejection":66,"./properties_promise_array.js":81,"./util.js":94}],83:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var ASSERT = require("./assert.js");
-function arrayCopy(src, srcIndex, dst, dstIndex, len) {
-    for (var j = 0; j < len; ++j) {
-        dst[j + dstIndex] = src[j + srcIndex];
-    }
-}
-
-function pow2AtLeast(n) {
-    n = n >>> 0;
-    n = n - 1;
-    n = n | (n >> 1);
-    n = n | (n >> 2);
-    n = n | (n >> 4);
-    n = n | (n >> 8);
-    n = n | (n >> 16);
-    return n + 1;
-}
-
-function getCapacity(capacity) {
-    if (typeof capacity !== "number") return 16;
-    return pow2AtLeast(
-        Math.min(
-            Math.max(16, capacity), 1073741824)
-   );
-}
-
-function Queue(capacity) {
-    this._capacity = getCapacity(capacity);
-    this._length = 0;
-    this._front = 0;
-    this._makeCapacity();
-}
-
-Queue.prototype._willBeOverCapacity =
-function Queue$_willBeOverCapacity(size) {
-    return this._capacity < size;
-};
-
-Queue.prototype._pushOne = function Queue$_pushOne(arg) {
-    var length = this.length();
-    this._checkCapacity(length + 1);
-    var i = (this._front + length) & (this._capacity - 1);
-    this[i] = arg;
-    this._length = length + 1;
-};
-
-Queue.prototype.push = function Queue$push(fn, receiver, arg) {
-    var length = this.length() + 3;
-    if (this._willBeOverCapacity(length)) {
-        this._pushOne(fn);
-        this._pushOne(receiver);
-        this._pushOne(arg);
-        return;
-    }
-    var j = this._front + length - 3;
-    this._checkCapacity(length);
-    var wrapMask = this._capacity - 1;
-    this[(j + 0) & wrapMask] = fn;
-    this[(j + 1) & wrapMask] = receiver;
-    this[(j + 2) & wrapMask] = arg;
-    this._length = length;
-};
-
-Queue.prototype.shift = function Queue$shift() {
-    var front = this._front,
-        ret = this[front];
-
-    this[front] = void 0;
-    this._front = (front + 1) & (this._capacity - 1);
-    this._length--;
-    return ret;
-};
-
-Queue.prototype.length = function Queue$length() {
-    return this._length;
-};
-
-Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
-    var len = this._capacity;
-    for (var i = 0; i < len; ++i) {
-        this[i] = void 0;
-    }
-};
-
-Queue.prototype._checkCapacity = function Queue$_checkCapacity(size) {
-    if (this._capacity < size) {
-        this._resizeTo(this._capacity << 3);
-    }
-};
-
-Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
-    var oldFront = this._front;
-    var oldCapacity = this._capacity;
-    var oldQueue = new Array(oldCapacity);
-    var length = this.length();
-
-    arrayCopy(this, 0, oldQueue, 0, oldCapacity);
-    this._capacity = capacity;
-    this._makeCapacity();
-    this._front = 0;
-    if (oldFront + length <= oldCapacity) {
-        arrayCopy(oldQueue, oldFront, this, 0, length);
-    }
-    else {        var lengthBeforeWrapping =
-            length - ((oldFront + length) & (oldCapacity - 1));
-
-        arrayCopy(oldQueue, oldFront, this, 0, lengthBeforeWrapping);
-        arrayCopy(oldQueue, 0, this, lengthBeforeWrapping,
-                    length - lengthBeforeWrapping);
-    }
-};
-
-module.exports = Queue;
-
-},{"./assert.js":57}],84:[function(require,module,exports){
-arguments[4][45][0].apply(exports,arguments)
-},{"./errors_api_rejection.js":66,"./util.js":94}],85:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(
-    Promise, Promise$_CreatePromiseArray,
-    PromiseArray, apiRejection, INTERNAL) {
-
-    var ASSERT = require("./assert.js");
-
-    function Reduction(callback, index, accum, items, receiver) {
-        this.promise = new Promise(INTERNAL);
-        this.index = index;
-        this.length = items.length;
-        this.items = items;
-        this.callback = callback;
-        this.receiver = receiver;
-        this.accum = accum;
-    }
-
-    Reduction.prototype.reject = function Reduction$reject(e) {
-        this.promise._reject(e);
-    };
-
-    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
-        this.accum = value;
-        this.index = index + 1;
-        this.iterate();
-    };
-
-    Reduction.prototype.iterate = function Reduction$iterate() {
-        var i = this.index;
-        var len = this.length;
-        var items = this.items;
-        var result = this.accum;
-        var receiver = this.receiver;
-        var callback = this.callback;
-        var iterate = this.iterate;
-
-        for(; i < len; ++i) {
-            result = Promise._cast(
-                callback.call(
-                    receiver,
-                    result,
-                    items[i],
-                    i,
-                    len
-                ),
-                iterate,
-                void 0
-            );
-
-            if (result instanceof Promise) {
-                result._then(
-                    this.fulfill, this.reject, void 0, this, i, iterate);
-                return;
-            }
-        }
-        this.promise._fulfill(result);
-    };
-
-    function Promise$_reducer(fulfilleds, initialValue) {
-        var fn = this;
-        var receiver = void 0;
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
-        }
-        var len = fulfilleds.length;
-        var accum = void 0;
-        var startIndex = 0;
-
-        if (initialValue !== void 0) {
-            accum = initialValue;
-            startIndex = 0;
-        }
-        else {
-            startIndex = 1;
-            if (len > 0) accum = fulfilleds[0];
-        }
-        var i = startIndex;
-
-        if (i >= len) {
-            return accum;
-        }
-
-        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
-        reduction.iterate();
-        return reduction.promise;
-    }
-
-    function Promise$_unpackReducer(fulfilleds) {
-        var fn = this.fn;
-        var initialValue = this.initialValue;
-        return Promise$_reducer.call(fn, fulfilleds, initialValue);
-    }
-
-    function Promise$_slowReduce(
-        promises, fn, initialValue, useBound, caller) {
-        return initialValue._then(function callee(initialValue) {
-            return Promise$_Reduce(
-                promises, fn, initialValue, useBound, callee);
-        }, void 0, void 0, void 0, void 0, caller);
-    }
-
-    function Promise$_Reduce(promises, fn, initialValue, useBound, caller) {
-        if (typeof fn !== "function") {
-            return apiRejection("fn must be a function");
-        }
-
-        if (useBound === true && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
-            };
-        }
-
-        if (initialValue !== void 0) {
-            if (Promise.is(initialValue)) {
-                if (initialValue.isFulfilled()) {
-                    initialValue = initialValue._settledValue;
-                }
-                else {
-                    return Promise$_slowReduce(promises,
-                        fn, initialValue, useBound, caller);
-                }
-            }
-
-            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
-                useBound === true && promises._isBound()
-                    ? promises._boundTo
-                    : void 0)
-                .promise()
-                ._then(Promise$_unpackReducer, void 0, void 0, {
-                    fn: fn,
-                    initialValue: initialValue
-                }, void 0, Promise.reduce);
-        }
-        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
-                useBound === true && promises._isBound()
-                    ? promises._boundTo
-                    : void 0).promise()
-            ._then(Promise$_reducer, void 0, void 0, fn, void 0, caller);
-    }
-
-
-    Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-        return Promise$_Reduce(promises, fn,
-            initialValue, false, Promise.reduce);
-    };
-
-    Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-        return Promise$_Reduce(this, fn, initialValue,
-                                true, this.reduce);
-    };
-};
-
-},{"./assert.js":57}],86:[function(require,module,exports){
-var process=require("__browserify_process");/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var global = require("./global.js");
-var ASSERT = require("./assert.js");
-var schedule;
-if (typeof process !== "undefined" && process !== null &&
-    typeof process.cwd === "function" &&
-    typeof process.nextTick === "function") {
-
-    schedule = process.nextTick;
-}
-else if ((typeof MutationObserver === "function" ||
-        typeof WebkitMutationObserver === "function" ||
-        typeof WebKitMutationObserver === "function") &&
-        typeof document !== "undefined" &&
-        typeof document.createElement === "function") {
-
-
-    schedule = (function(){
-        var MutationObserver = global.MutationObserver ||
-            global.WebkitMutationObserver ||
-            global.WebKitMutationObserver;
-        var div = document.createElement("div");
-        var queuedFn = void 0;
-        var observer = new MutationObserver(
-            function Promise$_Scheduler() {
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-            }
-       );
-        observer.observe(div, {
-            attributes: true
-        });
-        return function Promise$_Scheduler(fn) {
-            queuedFn = fn;
-            div.setAttribute("class", "foo");
-        };
-
-    })();
-}
-else if (typeof global.postMessage === "function" &&
-    typeof global.importScripts !== "function" &&
-    typeof global.addEventListener === "function" &&
-    typeof global.removeEventListener === "function") {
-
-    var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        function Promise$_Scheduler(e) {
-            if (e.source === global &&
-                e.data === MESSAGE_KEY) {
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-            }
-        }
-
-        global.addEventListener("message", Promise$_Scheduler, false);
-
-        return function Promise$_Scheduler(fn) {
-            queuedFn = fn;
-            global.postMessage(
-                MESSAGE_KEY, "*"
-           );
-        };
-
-    })();
-}
-else if (typeof MessageChannel === "function") {
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        var channel = new MessageChannel();
-        channel.port1.onmessage = function Promise$_Scheduler() {
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-        };
-
-        return function Promise$_Scheduler(fn) {
-            queuedFn = fn;
-            channel.port2.postMessage(null);
-        };
-    })();
-}
-else if (global.setTimeout) {
-    schedule = function Promise$_Scheduler(fn) {
-        setTimeout(fn, 4);
-    };
-}
-else {
-    schedule = function Promise$_Scheduler(fn) {
-        fn();
-    };
-}
-
-module.exports = schedule;
-
-},{"./assert.js":57,"./global.js":71,"__browserify_process":15}],87:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"./settled_promise_array.js":88}],88:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, PromiseArray) {
-var ASSERT = require("./assert.js");
-var PromiseInspection = require("./promise_inspection.js");
-var util = require("./util.js");
-var inherits = util.inherits;
-function SettledPromiseArray(values, caller, boundTo) {
-    this.constructor$(values, caller, boundTo);
-}
-inherits(SettledPromiseArray, PromiseArray);
-
-SettledPromiseArray.prototype._promiseResolved =
-function SettledPromiseArray$_promiseResolved(index, inspection) {
-    this._values[index] = inspection;
-    var totalResolved = ++this._totalResolved;
-    if (totalResolved >= this._length) {
-        this._resolve(this._values);
-    }
-};
-
-SettledPromiseArray.prototype._promiseFulfilled =
-function SettledPromiseArray$_promiseFulfilled(value, index) {
-    if (this._isResolved()) return;
-    var ret = new PromiseInspection();
-    ret._bitField = 268435456;
-    ret._settledValue = value;
-    this._promiseResolved(index, ret);
-};
-SettledPromiseArray.prototype._promiseRejected =
-function SettledPromiseArray$_promiseRejected(reason, index) {
-    if (this._isResolved()) return;
-    var ret = new PromiseInspection();
-    ret._bitField = 134217728;
-    ret._settledValue = reason;
-    this._promiseResolved(index, ret);
-};
-
-return SettledPromiseArray;
-};
-
-},{"./assert.js":57,"./promise_inspection.js":77,"./util.js":94}],89:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports =
-function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
-
-    var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
-    var ASSERT = require("./assert.js");
-
-    function Promise$_Some(promises, howMany, useBound, caller) {
-        if ((howMany | 0) !== howMany || howMany < 0) {
-            return apiRejection("expecting a positive integer");
-        }
-        var ret = Promise$_CreatePromiseArray(
-            promises,
-            SomePromiseArray,
-            caller,
-            useBound === true && promises._isBound()
-                ? promises._boundTo
-                : void 0
-       );
-        var promise = ret.promise();
-        if (promise.isRejected()) {
-            return promise;
-        }
-        ret.setHowMany(howMany);
-        ret.init();
-        return promise;
-    }
-
-    Promise.some = function Promise$Some(promises, howMany) {
-        return Promise$_Some(promises, howMany, false, Promise.some);
-    };
-
-    Promise.prototype.some = function Promise$some(count) {
-        return Promise$_Some(this, count, true, this.some);
-    };
-
-};
-
-},{"./assert.js":57,"./some_promise_array.js":90}],90:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"./errors.js":65,"./util.js":94}],91:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"./promise_inspection.js":77}],92:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-module.exports = function(Promise, INTERNAL) {
-    var ASSERT = require("./assert.js");
-    var util = require("./util.js");
-    var canAttach = require("./errors.js").canAttach;
-    var errorObj = util.errorObj;
-    var isObject = util.isObject;
-
-    function getThen(obj) {
-        try {
-            return obj.then;
-        }
-        catch(e) {
-            errorObj.e = e;
-            return errorObj;
-        }
-    }
-
-    function Promise$_Cast(obj, caller, originalPromise) {
-        if (isObject(obj)) {
-            if (obj instanceof Promise) {
-                return obj;
-            }
-            else if (isAnyBluebirdPromise(obj)) {
-                var ret = new Promise(INTERNAL);
-                ret._setTrace(caller, void 0);
-                obj._then(
-                    ret._fulfillUnchecked,
-                    ret._rejectUncheckedCheckError,
-                    ret._progressUnchecked,
-                    ret,
-                    null,
-                    void 0
-                );
-                ret._setFollowing();
-                return ret;
-            }
-            var then = getThen(obj);
-            if (then === errorObj) {
-                caller = typeof caller === "function" ? caller : Promise$_Cast;
-                if (originalPromise !== void 0 && canAttach(then.e)) {
-                    originalPromise._attachExtraTrace(then.e);
-                }
-                return Promise.reject(then.e, caller);
-            }
-            else if (typeof then === "function") {
-                caller = typeof caller === "function" ? caller : Promise$_Cast;
-                return Promise$_doThenable(obj, then, caller, originalPromise);
-            }
-        }
-        return obj;
-    }
-
-    var hasProp = {}.hasOwnProperty;
-    function isAnyBluebirdPromise(obj) {
-        return hasProp.call(obj, "_promise0");
-    }
-
-    function Promise$_doThenable(x, then, caller, originalPromise) {
-        var resolver = Promise.defer(caller);
-        var called = false;
-        try {
-            then.call(
-                x,
-                Promise$_resolveFromThenable,
-                Promise$_rejectFromThenable,
-                Promise$_progressFromThenable
-            );
-        }
-        catch(e) {
-            if (!called) {
-                called = true;
-                var trace = canAttach(e) ? e : new Error(e + "");
-                if (originalPromise !== void 0) {
-                    originalPromise._attachExtraTrace(trace);
-                }
-                resolver.promise._reject(e, trace);
-            }
-        }
-        return resolver.promise;
-
-        function Promise$_resolveFromThenable(y) {
-            if (called) return;
-            called = true;
-
-            if (x === y) {
-                var e = Promise._makeSelfResolutionError();
-                if (originalPromise !== void 0) {
-                    originalPromise._attachExtraTrace(e);
-                }
-                resolver.promise._reject(e, void 0);
-                return;
-            }
-            resolver.resolve(y);
-        }
-
-        function Promise$_rejectFromThenable(r) {
-            if (called) return;
-            called = true;
-            var trace = canAttach(r) ? r : new Error(r + "");
-            if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(trace);
-            }
-            resolver.promise._reject(r, trace);
-        }
-
-        function Promise$_progressFromThenable(v) {
-            if (called) return;
-            var promise = resolver.promise;
-            if (typeof promise._progress === "function") {
-                promise._progress(v);
-            }
-        }
-    }
-
-    Promise._cast = Promise$_Cast;
-};
-
-},{"./assert.js":57,"./errors.js":65,"./util.js":94}],93:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"./assert.js":57,"./errors.js":65,"./errors_api_rejection":66,"./global.js":71,"./util.js":94}],94:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var global = require("./global.js");
-var ASSERT = require("./assert.js");
-var es5 = require("./es5.js");
-var haveGetters = (function(){
-    try {
-        var o = {};
-        es5.defineProperty(o, "f", {
-            get: function () {
-                return 3;
-            }
-        });
-        return o.f === 3;
-    }
-    catch (e) {
-        return false;
-    }
-
-})();
-
-var canEvaluate = (function() {
-    if (typeof window !== "undefined" && window !== null &&
-        typeof window.document !== "undefined" &&
-        typeof navigator !== "undefined" && navigator !== null &&
-        typeof navigator.appName === "string" &&
-        window === global) {
-        return false;
-    }
-    return true;
-})();
-
-function deprecated(msg) {
-    if (typeof console !== "undefined" && console !== null &&
-        typeof console.warn === "function") {
-        console.warn("Bluebird: " + msg);
-    }
-}
-
-var errorObj = {e: {}};
-function tryCatch1(fn, receiver, arg) {
-    try {
-        return fn.call(receiver, arg);
-    }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatch2(fn, receiver, arg, arg2) {
-    try {
-        return fn.call(receiver, arg, arg2);
-    }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatchApply(fn, args, receiver) {
-    try {
-        return fn.apply(receiver, args);
-    }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-var inherits = function(Child, Parent) {
-    var hasProp = {}.hasOwnProperty;
-
-    function T() {
-        this.constructor = Child;
-        this.constructor$ = Parent;
-        for (var propertyName in Parent.prototype) {
-            if (hasProp.call(Parent.prototype, propertyName) &&
-                propertyName.charAt(propertyName.length-1) !== "$"
-           ) {
-                this[propertyName + "$"] = Parent.prototype[propertyName];
-            }
-        }
-    }
-    T.prototype = Parent.prototype;
-    Child.prototype = new T();
-    return Child.prototype;
-};
-
-function asString(val) {
-    return typeof val === "string" ? val : ("" + val);
-}
-
-function isPrimitive(val) {
-    return val == null || val === true || val === false ||
-        typeof val === "string" || typeof val === "number";
-
-}
-
-function isObject(value) {
-    return !isPrimitive(value);
-}
-
-function maybeWrapAsError(maybeError) {
-    if (!isPrimitive(maybeError)) return maybeError;
-
-    return new Error(asString(maybeError));
-}
-
-function withAppended(target, appendee) {
-    var len = target.length;
-    var ret = new Array(len + 1);
-    var i;
-    for (i = 0; i < len; ++i) {
-        ret[i] = target[i];
-    }
-    ret[i] = appendee;
-    return ret;
-}
-
-
-function notEnumerableProp(obj, name, value) {
-    var descriptor = {
-        value: value,
-        configurable: true,
-        enumerable: false,
-        writable: true
-    };
-    es5.defineProperty(obj, name, descriptor);
-    return obj;
-}
-
-
-var wrapsPrimitiveReceiver = (function() {
-    return this !== "string";
-}).call("string");
-
-function thrower(r) {
-    throw r;
-}
-
-
-var ret = {
-    thrower: thrower,
-    isArray: es5.isArray,
-    haveGetters: haveGetters,
-    notEnumerableProp: notEnumerableProp,
-    isPrimitive: isPrimitive,
-    isObject: isObject,
-    canEvaluate: canEvaluate,
-    deprecated: deprecated,
-    errorObj: errorObj,
-    tryCatch1: tryCatch1,
-    tryCatch2: tryCatch2,
-    tryCatchApply: tryCatchApply,
-    inherits: inherits,
-    withAppended: withAppended,
-    asString: asString,
-    maybeWrapAsError: maybeWrapAsError,
-    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver
-};
-
-module.exports = ret;
-
-},{"./assert.js":57,"./es5.js":67,"./global.js":71}],95:[function(require,module,exports){
 var process=require("__browserify_process");// vim:ts=4:sts=4:sw=4:
 /*!
  *
@@ -14132,7 +10513,7 @@ return Q;
 
 });
 
-},{"__browserify_process":15}],96:[function(require,module,exports){
+},{"__browserify_process":15}],57:[function(require,module,exports){
 /*jslint eqeqeq: false, onevar: false, forin: true, nomen: false, regexp: false, plusplus: false*/
 /*global module, require, __dirname, document*/
 /**
@@ -14494,7 +10875,7 @@ var sinon = (function (buster) {
     return sinon;
 }(typeof buster == "object" && buster));
 
-},{"./sinon/assert":97,"./sinon/collection":98,"./sinon/match":99,"./sinon/mock":100,"./sinon/sandbox":101,"./sinon/spy":102,"./sinon/stub":103,"./sinon/test":104,"./sinon/test_case":105,"buster-format":107,"util":5}],97:[function(require,module,exports){
+},{"./sinon/assert":58,"./sinon/collection":59,"./sinon/match":60,"./sinon/mock":61,"./sinon/sandbox":62,"./sinon/spy":63,"./sinon/stub":64,"./sinon/test":65,"./sinon/test_case":66,"buster-format":68,"util":5}],58:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @depend ../sinon.js
  * @depend stub.js
@@ -14679,7 +11060,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null, typeof window != "undefined" ? window : (typeof self != "undefined") ? self : global));
 
-},{"../sinon":96}],98:[function(require,module,exports){
+},{"../sinon":57}],59:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -14834,7 +11215,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],99:[function(require,module,exports){
+},{"../sinon":57}],60:[function(require,module,exports){
 /* @depend ../sinon.js */
 /*jslint eqeqeq: false, onevar: false, plusplus: false*/
 /*global module, require, sinon*/
@@ -15075,7 +11456,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],100:[function(require,module,exports){
+},{"../sinon":57}],61:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -15501,7 +11882,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],101:[function(require,module,exports){
+},{"../sinon":57}],62:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend collection.js
@@ -15628,7 +12009,7 @@ if (typeof module == "object" && typeof require == "function") {
     }
 }());
 
-},{"../sinon":96,"./util/fake_timers":106}],102:[function(require,module,exports){
+},{"../sinon":57,"./util/fake_timers":67}],63:[function(require,module,exports){
 /**
   * @depend ../sinon.js
   * @depend match.js
@@ -16208,7 +12589,7 @@ if (!this.sinon && commonJSModule) {
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],103:[function(require,module,exports){
+},{"../sinon":57}],64:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * @depend ../sinon.js
  * @depend spy.js
@@ -16581,7 +12962,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96,"__browserify_process":15}],104:[function(require,module,exports){
+},{"../sinon":57,"__browserify_process":15}],65:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -16658,7 +13039,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],105:[function(require,module,exports){
+},{"../sinon":57}],66:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend test.js
@@ -16757,7 +13138,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":96}],106:[function(require,module,exports){
+},{"../sinon":57}],67:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*jslint eqeqeq: false, plusplus: false, evil: true, onevar: false, browser: true, forin: false*/
 /*global module, require, window*/
 /**
@@ -17110,7 +13491,7 @@ if (typeof module == "object" && typeof require == "function") {
     module.exports = sinon;
 }
 
-},{}],107:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};if (typeof buster === "undefined") {
     var buster = {};
 }
@@ -17311,7 +13692,7 @@ if (typeof module != "undefined") {
     module.exports = buster.format;
 }
 
-},{"buster-core":108}],108:[function(require,module,exports){
+},{"buster-core":69}],69:[function(require,module,exports){
 var process=require("__browserify_process");var buster = (function (setTimeout, B) {
     var isNode = typeof require == "function" && typeof module == "object";
     var div = typeof document != "undefined" && document.createElement("div");
@@ -17536,7 +13917,7 @@ var process=require("__browserify_process");var buster = (function (setTimeout, 
     return buster.extend(B || {}, buster);
 }(setTimeout, buster));
 
-},{"./buster-event-emitter":109,"./define-version-getter":110,"__browserify_process":15,"crypto":10,"path":4}],109:[function(require,module,exports){
+},{"./buster-event-emitter":70,"./define-version-getter":71,"__browserify_process":15,"crypto":10,"path":4}],70:[function(require,module,exports){
 /*jslint eqeqeq: false, onevar: false, plusplus: false*/
 /*global buster, require, module*/
 if (typeof require == "function" && typeof module == "object") {
@@ -17690,7 +14071,7 @@ if (typeof module != "undefined") {
     module.exports = buster.eventEmitter;
 }
 
-},{"./buster-core":108}],110:[function(require,module,exports){
+},{"./buster-core":69}],71:[function(require,module,exports){
 var path = require("path");
 var fs = require("fs");
 
@@ -17708,7 +14089,7 @@ module.exports = function defineVersionGetter(mod, dirname) {
     });
 };
 
-},{"fs":3,"path":4}],111:[function(require,module,exports){
+},{"fs":3,"path":4}],72:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -17786,7 +14167,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],112:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],73:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -17864,7 +14245,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],113:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],74:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -17907,7 +14288,7 @@ describe("2.2.1: Both `onFulfilled` and `onRejected` are optional arguments.", f
     });
 });
 
-},{}],114:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18060,7 +14441,7 @@ describe("2.2.2: If `onFulfilled` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],115:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],76:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18213,7 +14594,7 @@ describe("2.2.3: If `onRejected` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],116:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],77:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18397,7 +14778,7 @@ describe("2.2.4: `onFulfilled` or `onRejected` must not be called until the exec
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],117:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],78:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*jshint strict: false */
 
 var assert = require("assert");
@@ -18455,7 +14836,7 @@ describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e.
     });
 });
 
-},{"assert":2}],118:[function(require,module,exports){
+},{"assert":2}],79:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -18714,7 +15095,7 @@ describe("2.2.6: `then` may be called multiple times on the same promise.", func
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2,"sinon":96}],119:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2,"sinon":57}],80:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18825,7 +15206,7 @@ describe("2.2.7: `then` must return a promise: `promise2 = promise1.then(onFulfi
     });
 });
 
-},{"./helpers/reasons":146,"./helpers/testThreeCases":147,"assert":2}],120:[function(require,module,exports){
+},{"./helpers/reasons":106,"./helpers/testThreeCases":107,"assert":2}],81:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18861,7 +15242,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
     });
 });
 
-},{"assert":2}],121:[function(require,module,exports){
+},{"assert":2}],82:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -18989,7 +15370,7 @@ describe("2.3.2: If `x` is a promise, adopt its state", function () {
     });
 });
 
-},{"assert":2}],122:[function(require,module,exports){
+},{"assert":2}],83:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -19984,7 +16365,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
     });
 });
 
-},{"./helpers/reasons":146,"./helpers/thenables":148,"assert":2}],123:[function(require,module,exports){
+},{"./helpers/reasons":106,"./helpers/thenables":108,"assert":2}],84:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20055,7 +16436,7 @@ describe("2.3.4: If `x` is not an object or function, fulfill `promise` with `x`
     );
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],124:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],85:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -20098,7 +16479,7 @@ describe("3.2.1: Both `onFulfilled` and `onRejected` are optional arguments.", f
     });
 });
 
-},{}],125:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -20287,7 +16668,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],126:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],87:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -20476,7 +16857,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],127:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],88:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20509,7 +16890,7 @@ describe("3.2.4: `then` must return before `onFulfilled` or `onRejected` is call
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],128:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],89:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20768,7 +17149,7 @@ describe("3.2.5: `then` may be called multiple times on the same promise.", func
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2,"sinon":96}],129:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2,"sinon":57}],90:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -21091,7 +17472,7 @@ describe("3.2.6: `then` must return a promise: `promise2 = promise1.then(onFulfi
     });
 });
 
-},{"./helpers/testThreeCases":147,"assert":2}],130:[function(require,module,exports){
+},{"./helpers/testThreeCases":107,"assert":2}],91:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -21377,7 +17758,7 @@ if( Promise.hasLongStackTraces() ) {
     testCollection("props", function(){});
 }
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],131:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],92:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -21537,7 +17918,7 @@ describe("Async requirement", function() {
         });
     }
 });
-},{"../../js/debug/bluebird.js":20,"assert":2}],132:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],93:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -22474,33 +18855,7 @@ describe("When using .bind to gratuitously rebind", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],133:[function(require,module,exports){
-var process=require("__browserify_process");
-var Promise = require('../../js/main/bluebird.js');
-
-var assert = require("assert");
-
-var isNodeJS = typeof process !== "undefined" && process !== null &&
-    typeof process.execPath === "string";
-
-if( isNodeJS ) {
-    describe("buebird-debug-env-flag", function() {
-
-        it("should enable long stack traces", function(done) {
-            Promise.fulfilled().then(function() {
-                throw new Error("Oops");
-            }).caught(function(err) {
-                process.nextTick(function() {
-                    assert(err.stack.indexOf("From previous event") >= 0,
-                           "env flag should enable long stack traces");
-                    done();
-                });
-            });
-        });
-    });
-}
-
-},{"../../js/main/bluebird.js":59,"__browserify_process":15,"assert":2}],134:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],94:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
 
 var isNodeJS = typeof process !== "undefined" && process !== null &&
@@ -22635,7 +18990,7 @@ if( isNodeJS ) {
 
 }
 
-},{"../../js/debug/promise.js":36,"./helpers/bluebird0_7_0.js":145,"__browserify_process":15,"assert":2}],135:[function(require,module,exports){
+},{"../../js/debug/promise.js":36,"./helpers/bluebird0_7_0.js":105,"__browserify_process":15,"assert":2}],95:[function(require,module,exports){
 /*global describe specify require global*/
 //TODO include the copyright
     "use strict";
@@ -22880,7 +19235,7 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],136:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],96:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -23284,7 +19639,7 @@ describe("A promise handler with a predicate filter", function() {
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],137:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],97:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -23685,7 +20040,7 @@ describe("Using collection methods with thenables", function() {
     }, filterer);
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],138:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],98:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -23900,7 +20255,7 @@ describe("Promise constructor", function() {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],139:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],99:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -23975,7 +20330,7 @@ describe("Cyclical promises should throw TypeError when", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":147,"assert":2}],140:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":107,"assert":2}],100:[function(require,module,exports){
 
 "use strict";
 
@@ -24151,7 +20506,7 @@ describe("thenThrow", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":147,"assert":2}],141:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":107,"assert":2}],101:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -24284,7 +20639,7 @@ describe("Promise.prototype.error", function(){
     });
 })
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],142:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],102:[function(require,module,exports){
     "use strict";
 
 var assert = require("assert");
@@ -24414,7 +20769,7 @@ describe("Promise filter", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],143:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],103:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -24535,7 +20890,7 @@ describe("Rejecting a promise A with promise B", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],144:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],104:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -24602,7 +20957,7 @@ describe("github36", function(){
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],145:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],105:[function(require,module,exports){
 var process=require("__browserify_process");/* jshint -W014, -W116, -W106 */
 /* global process, unreachable */
 /**
@@ -26878,7 +23233,7 @@ return Promise;})(
     Object
 );
 
-},{"__browserify_process":15}],146:[function(require,module,exports){
+},{"__browserify_process":15}],106:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 // This module exports some valid rejection reason factories, keyed by human-readable versions of their names.
@@ -26936,7 +23291,7 @@ exports["a rejected promise"] = function () {
     return rejected(dummy);
 };
 
-},{}],147:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -26984,7 +23339,7 @@ exports.testRejected = function (reason, test) {
     });
 };
 
-},{}],148:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -27130,7 +23485,7 @@ exports.rejected = {
     }
 };
 
-},{}],149:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
 
 var assert = require("assert");
@@ -27180,7 +23535,7 @@ if( isNodeJS ) {
         });
     });
 }
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2}],150:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2}],110:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27287,7 +23642,7 @@ describe("Promise.method", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],151:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],111:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27947,9 +24302,17 @@ describe("RejectionError wrapping", function() {
 });
 
 var global = new Function("return this")();
-var isBrowser = global.window === global &&
-    typeof global.navigator !== "undefined";
-var canTestArity = (function(a, b, c) {}).length === 3 && !isBrowser;
+var canEvaluate = (function() {
+    if (typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global) {
+        return false;
+    }
+    return true;
+})();
+var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
 
 if (canTestArity) {
     describe("arity", function() {
@@ -27970,7 +24333,7 @@ if (canTestArity) {
     })
 }
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],152:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],112:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -28245,7 +24608,7 @@ describe("Promise.props", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],153:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],113:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -28411,7 +24774,7 @@ describe("all", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],154:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],114:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -28695,7 +25058,7 @@ describe("done", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":96}],155:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":57}],115:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -28919,8 +25282,6 @@ describe("finally", function () {
                 assert.equal(false,true);
             },
             function (exception) {
-                console.log(exception.stack);
-                console.log(exception1);
                 assert.equal(exception,exception1);
                 done();
             });
@@ -29036,7 +25397,7 @@ describe("finally", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],156:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],116:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -29162,7 +25523,7 @@ describe("inspect", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],157:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],117:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -29223,7 +25584,7 @@ describe("PromiseResolver.callback", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],158:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],118:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -29408,7 +25769,7 @@ if( isNodeJS ) {
     });
 }
 
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":96}],159:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":57}],119:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -29866,7 +26227,7 @@ describe("progress", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],160:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],120:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -30084,7 +26445,7 @@ describe("propagation", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],161:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],121:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -30231,7 +26592,7 @@ describe("allSettled", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],162:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],122:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -30525,7 +26886,7 @@ describe("spread", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],163:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],123:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -30664,7 +27025,7 @@ describe("Promise.race", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],164:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],124:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -30749,7 +27110,7 @@ describe("Promise.prototype.reduce", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],165:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],125:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -30910,7 +27271,7 @@ describe("Implicitly cast thenable", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],166:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],126:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -30978,7 +27339,7 @@ describe("If promise is reused to get at the value many times over the course of
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],167:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],127:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -31031,7 +27392,7 @@ describe("Promise.some", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],168:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],128:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -31103,7 +27464,7 @@ describe("When using a sparse array the resulting array should have equal sparsi
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],169:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],129:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -31265,7 +27626,7 @@ describe("delay", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],170:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],130:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -31372,7 +27733,7 @@ describe("Promise.try", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],171:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],131:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/debug/bluebird.js");
@@ -32054,7 +28415,7 @@ describe("clear unhandled handler", function() {
     Promise.onPossiblyUnhandledRejection(null);
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/bluebird0_7_0.js":145,"assert":2,"q":95}],172:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"./helpers/bluebird0_7_0.js":105,"assert":2,"q":56}],132:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -32171,7 +28532,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],173:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],133:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -32315,7 +28676,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],174:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],134:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -32843,7 +29204,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],175:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],135:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -32980,7 +29341,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],176:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],136:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -33225,7 +29586,7 @@ describe("when.map-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],177:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],137:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -33477,7 +29838,7 @@ describe("when.reduce-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],178:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],138:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -33643,7 +30004,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],179:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],139:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -33870,7 +30231,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],180:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":20,"assert":2}],140:[function(require,module,exports){
 /*
 Based on When.js tests
 
