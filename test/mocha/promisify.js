@@ -656,7 +656,12 @@ describe("RejectionError wrapping", function() {
     });
 });
 
-if (typeof function(c){}.length === "number") {
+var global = new Function("return this")();
+var isBrowser = global.window === global &&
+    typeof global.navigator !== "undefined";
+var canTestArity = (function(a, b, c) {}).length === 3 && !isBrowser;
+
+if (canTestArity) {
     describe("arity", function() {
         specify("should be original - 1", function(done) {
             var fn = function(a, b, c, callback) {};
