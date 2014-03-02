@@ -221,8 +221,6 @@ describe("finally", function () {
                 assert.equal(false,true);
             },
             function (exception) {
-                console.log(exception.stack);
-                console.log(exception1);
                 assert.equal(exception,exception1);
                 done();
             });
