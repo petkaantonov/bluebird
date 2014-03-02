@@ -27985,14 +27985,14 @@ describe("Will report rejections that are not instanceof Error", function() {
 
 describe("Will handle hostile rejection reasons like frozen objects", function() {
 
-    specify("Immediately rejected with instanceof Error", function testFunction(done) {
+    specify("Immediately rejected with non instanceof Error", function testFunction(done) {
         onUnhandledSucceed(done, function(e) {
             return true;
         });
 
 
         var failed = pending();
-        failed.reject(Object.freeze(new Error()));
+        failed.reject(Object.freeze({}));
     });
 
 
