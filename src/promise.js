@@ -615,7 +615,7 @@ function Promise$_resolveFromResolver(resolver) {
     var promise = this;
     var localDebugging = debugging;
     if (localDebugging) {
-        this._setTrace(this._resolveFromResolver, void 0);
+        this._setTrace(this._resolveFromResolver, promise);
         this._pushContext();
     }
     function Promise$_resolver(val) {
@@ -630,7 +630,7 @@ function Promise$_resolveFromResolver(resolver) {
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? void 0 : trace);
     }
-    var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
+    var r = tryCatch2(resolver, promise, Promise$_resolver, Promise$_rejecter);
     if (localDebugging) this._popContext();
 
     if (r !== void 0 && r === errorObj) {
