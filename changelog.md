@@ -1,3 +1,9 @@
+## 1.0.8 (2014-03-03)
+
+Bugfixes:
+
+ - Fix active domain being lost across asynchronous boundaries in Node.JS 10.xx
+
 ## 1.0.7 (2014-02-25)
 
 Bugfixes:
