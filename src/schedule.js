@@ -5,8 +5,27 @@ var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
     typeof process.nextTick === "function") {
-
-    schedule = process.nextTick;
+    // node.js 0.10.xx has a different nextTick behavior
+    // from 0.11.xx which leads to losing the active domain
+    // when promise is getting resolved or rejected, and so
+    // we have to track active domain by ourselves
+    if (process.version.indexOf("v0.10.") === 0) {
+        schedule = (function () {
+            var domain = require("domain");
+            return function schedule(fn) {
+                var activeDomain = domain.active;
+                process.nextTick(function () {
+                    if (activeDomain) {
+                        activeDomain.run(fn);
+                    } else {
+                        fn();
+                    }
+                });
+            };
+        })();
+    } else {
+        schedule = process.nextTick;
+    }
 }
 else if ((typeof global.MutationObserver === "function" ||
         typeof global.WebkitMutationObserver === "function" ||
