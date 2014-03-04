@@ -533,13 +533,15 @@ assert.doesNotThrow = function(block, /*optional*/message) {
 };
 
 assert.ifError = function(err) { if (err) {throw err;}};
-},{"_shims":1,"util":5}],3:[function(require,module,exports){
+},{"_shims":1,"util":6}],3:[function(require,module,exports){
 
 // not implemented
 // The reason for having an empty file and not throwing is to allow
 // untraditional implementation of this module.
 
 },{}],4:[function(require,module,exports){
+module.exports=require(3)
+},{}],5:[function(require,module,exports){
 var process=require("__browserify_process");// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -750,7 +752,7 @@ exports.extname = function(path) {
   return splitPath(path)[3];
 };
 
-},{"__browserify_process":15,"_shims":1,"util":5}],5:[function(require,module,exports){
+},{"__browserify_process":16,"_shims":1,"util":6}],6:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1295,7 +1297,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"_shims":1}],6:[function(require,module,exports){
+},{"_shims":1}],7:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -1381,7 +1383,7 @@ exports.writeIEEE754 = function(buffer, value, offset, isBE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var assert;
 exports.Buffer = Buffer;
 exports.SlowBuffer = Buffer;
@@ -2507,7 +2509,7 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
   writeDouble(this, value, offset, true, noAssert);
 };
 
-},{"./buffer_ieee754":6,"assert":2,"base64-js":8}],8:[function(require,module,exports){
+},{"./buffer_ieee754":7,"assert":2,"base64-js":9}],9:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -2593,7 +2595,7 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
 var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
@@ -2630,7 +2632,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 
 module.exports = { hash: hash };
 
-},{"buffer":7}],10:[function(require,module,exports){
+},{"buffer":8}],11:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 var sha = require('./sha')
 var sha256 = require('./sha256')
@@ -2727,7 +2729,7 @@ each(['createCredentials'
   }
 })
 
-},{"./md5":11,"./rng":12,"./sha":13,"./sha256":14,"buffer":7}],11:[function(require,module,exports){
+},{"./md5":12,"./rng":13,"./sha":14,"./sha256":15,"buffer":8}],12:[function(require,module,exports){
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -2892,7 +2894,7 @@ module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
 
-},{"./helpers":9}],12:[function(require,module,exports){
+},{"./helpers":10}],13:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -2930,7 +2932,7 @@ module.exports = function md5(buf) {
 
 }())
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -3041,7 +3043,7 @@ module.exports = function sha1(buf) {
   return helpers.hash(buf, core_sha1, 20, true);
 };
 
-},{"./helpers":9}],14:[function(require,module,exports){
+},{"./helpers":10}],15:[function(require,module,exports){
 
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -3122,7 +3124,7 @@ module.exports = function sha256(buf) {
   return helpers.hash(buf, core_sha256, 32, true);
 };
 
-},{"./helpers":9}],15:[function(require,module,exports){
+},{"./helpers":10}],16:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3176,7 +3178,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var Promise = require("../js/debug/bluebird.js");
 Promise.onPossiblyUnhandledRejection();(function (){
     var global = window;
@@ -3239,6 +3241,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/reduce.js');}, name: '../test/mocha/reduce.js'},
 {fn: function(){ return require('../test/mocha/resolution.js');}, name: '../test/mocha/resolution.js'},
 {fn: function(){ return require('../test/mocha/reused_promise.js');}, name: '../test/mocha/reused_promise.js'},
+{fn: function(){ return require('../test/mocha/schedule.js');}, name: '../test/mocha/schedule.js'},
 {fn: function(){ return require('../test/mocha/some.js');}, name: '../test/mocha/some.js'},
 {fn: function(){ return require('../test/mocha/sparsity.js');}, name: '../test/mocha/sparsity.js'},
 {fn: function(){ return require('../test/mocha/timers.js');}, name: '../test/mocha/timers.js'},
@@ -3253,7 +3256,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/debug/bluebird.js":20,"../test/mocha/2.1.2.js":72,"../test/mocha/2.1.3.js":73,"../test/mocha/2.2.1.js":74,"../test/mocha/2.2.2.js":75,"../test/mocha/2.2.3.js":76,"../test/mocha/2.2.4.js":77,"../test/mocha/2.2.5.js":78,"../test/mocha/2.2.6.js":79,"../test/mocha/2.2.7.js":80,"../test/mocha/2.3.1.js":81,"../test/mocha/2.3.2.js":82,"../test/mocha/2.3.3.js":83,"../test/mocha/2.3.4.js":84,"../test/mocha/3.2.1.js":85,"../test/mocha/3.2.2.js":86,"../test/mocha/3.2.3.js":87,"../test/mocha/3.2.4.js":88,"../test/mocha/3.2.5.js":89,"../test/mocha/3.2.6.js":90,"../test/mocha/api_exceptions.js":91,"../test/mocha/async.js":92,"../test/mocha/bind.js":93,"../test/mocha/bluebird-multiple-instances.js":94,"../test/mocha/cancel.js":95,"../test/mocha/catch_filter.js":96,"../test/mocha/collections_thenables.js":97,"../test/mocha/constructor.js":98,"../test/mocha/cycles.js":99,"../test/mocha/direct_resolving.js":100,"../test/mocha/error.js":101,"../test/mocha/filter.js":102,"../test/mocha/following.js":103,"../test/mocha/github36.js":104,"../test/mocha/late_buffer_safety.js":109,"../test/mocha/method.js":110,"../test/mocha/promisify.js":111,"../test/mocha/props.js":112,"../test/mocha/q_all.js":113,"../test/mocha/q_done.js":114,"../test/mocha/q_fin.js":115,"../test/mocha/q_inspect.js":116,"../test/mocha/q_make_node_resolver.js":117,"../test/mocha/q_nodeify.js":118,"../test/mocha/q_progress.js":119,"../test/mocha/q_propagation.js":120,"../test/mocha/q_settle.js":121,"../test/mocha/q_spread.js":122,"../test/mocha/race.js":123,"../test/mocha/reduce.js":124,"../test/mocha/resolution.js":125,"../test/mocha/reused_promise.js":126,"../test/mocha/some.js":127,"../test/mocha/sparsity.js":128,"../test/mocha/timers.js":129,"../test/mocha/try.js":130,"../test/mocha/unhandled_rejections.js":131,"../test/mocha/when_all.js":132,"../test/mocha/when_any.js":133,"../test/mocha/when_defer.js":134,"../test/mocha/when_join.js":135,"../test/mocha/when_map.js":136,"../test/mocha/when_reduce.js":137,"../test/mocha/when_settle.js":138,"../test/mocha/when_some.js":139,"../test/mocha/when_spread.js":140,"assert":2,"sinon":57}],17:[function(require,module,exports){
+},{"../js/debug/bluebird.js":21,"../test/mocha/2.1.2.js":73,"../test/mocha/2.1.3.js":74,"../test/mocha/2.2.1.js":75,"../test/mocha/2.2.2.js":76,"../test/mocha/2.2.3.js":77,"../test/mocha/2.2.4.js":78,"../test/mocha/2.2.5.js":79,"../test/mocha/2.2.6.js":80,"../test/mocha/2.2.7.js":81,"../test/mocha/2.3.1.js":82,"../test/mocha/2.3.2.js":83,"../test/mocha/2.3.3.js":84,"../test/mocha/2.3.4.js":85,"../test/mocha/3.2.1.js":86,"../test/mocha/3.2.2.js":87,"../test/mocha/3.2.3.js":88,"../test/mocha/3.2.4.js":89,"../test/mocha/3.2.5.js":90,"../test/mocha/3.2.6.js":91,"../test/mocha/api_exceptions.js":92,"../test/mocha/async.js":93,"../test/mocha/bind.js":94,"../test/mocha/bluebird-multiple-instances.js":95,"../test/mocha/cancel.js":96,"../test/mocha/catch_filter.js":97,"../test/mocha/collections_thenables.js":98,"../test/mocha/constructor.js":99,"../test/mocha/cycles.js":100,"../test/mocha/direct_resolving.js":101,"../test/mocha/error.js":102,"../test/mocha/filter.js":103,"../test/mocha/following.js":104,"../test/mocha/github36.js":105,"../test/mocha/late_buffer_safety.js":110,"../test/mocha/method.js":111,"../test/mocha/promisify.js":112,"../test/mocha/props.js":113,"../test/mocha/q_all.js":114,"../test/mocha/q_done.js":115,"../test/mocha/q_fin.js":116,"../test/mocha/q_inspect.js":117,"../test/mocha/q_make_node_resolver.js":118,"../test/mocha/q_nodeify.js":119,"../test/mocha/q_progress.js":120,"../test/mocha/q_propagation.js":121,"../test/mocha/q_settle.js":122,"../test/mocha/q_spread.js":123,"../test/mocha/race.js":124,"../test/mocha/reduce.js":125,"../test/mocha/resolution.js":126,"../test/mocha/reused_promise.js":127,"../test/mocha/schedule.js":128,"../test/mocha/some.js":129,"../test/mocha/sparsity.js":130,"../test/mocha/timers.js":131,"../test/mocha/try.js":132,"../test/mocha/unhandled_rejections.js":133,"../test/mocha/when_all.js":134,"../test/mocha/when_any.js":135,"../test/mocha/when_defer.js":136,"../test/mocha/when_join.js":137,"../test/mocha/when_map.js":138,"../test/mocha/when_reduce.js":139,"../test/mocha/when_settle.js":140,"../test/mocha/when_some.js":141,"../test/mocha/when_spread.js":142,"assert":2,"sinon":58}],18:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3313,7 +3316,7 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
 };
 
-},{"./assert.js":18,"./some_promise_array.js":51}],18:[function(require,module,exports){
+},{"./assert.js":19,"./some_promise_array.js":52}],19:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3365,7 +3368,7 @@ module.exports = (function(){
     };
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3473,7 +3476,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./assert.js":18,"./queue.js":44,"./schedule.js":47,"./util.js":55}],20:[function(require,module,exports){
+},{"./assert.js":19,"./queue.js":45,"./schedule.js":48,"./util.js":56}],21:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3499,7 +3502,7 @@ module.exports = new Async();
 "use strict";
 var Promise = require("./promise.js")();
 module.exports = Promise;
-},{"./promise.js":36}],21:[function(require,module,exports){
+},{"./promise.js":37}],22:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3556,7 +3559,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3638,7 +3641,7 @@ module.exports = function(Promise, INTERNAL) {
     };
 };
 
-},{"./assert.js":18,"./async.js":19,"./errors.js":26}],23:[function(require,module,exports){
+},{"./assert.js":19,"./async.js":20,"./errors.js":27}],24:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3889,7 +3892,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./assert.js":18,"./es5.js":28,"./util.js":55}],24:[function(require,module,exports){
+},{"./assert.js":19,"./es5.js":29,"./util.js":56}],25:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3984,7 +3987,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":26,"./es5.js":28,"./util.js":55}],25:[function(require,module,exports){
+},{"./errors.js":27,"./es5.js":29,"./util.js":56}],26:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4072,7 +4075,7 @@ function Promise$thenThrow(reason) {
 };
 };
 
-},{"./assert.js":18,"./util.js":55}],26:[function(require,module,exports){
+},{"./assert.js":19,"./util.js":56}],27:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4188,7 +4191,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./es5.js":28,"./global.js":32,"./util.js":55}],27:[function(require,module,exports){
+},{"./es5.js":29,"./global.js":33,"./util.js":56}],28:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4228,7 +4231,7 @@ function apiRejection(msg) {
 return apiRejection;
 };
 
-},{"./errors.js":26}],28:[function(require,module,exports){
+},{"./errors.js":27}],29:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4319,7 +4322,7 @@ else {
     };
 }
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4382,7 +4385,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{"./assert.js":18,"./util.js":55}],30:[function(require,module,exports){
+},{"./assert.js":19,"./util.js":56}],31:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4487,7 +4490,7 @@ module.exports = function(Promise, NEXT_FILTER) {
     };
 };
 
-},{"./util.js":55}],31:[function(require,module,exports){
+},{"./util.js":56}],32:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4541,7 +4544,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
     };
 };
 
-},{"./errors.js":26,"./promise_spawn.js":40}],32:[function(require,module,exports){
+},{"./errors.js":27,"./promise_spawn.js":41}],33:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4585,7 +4588,7 @@ module.exports = (function(){
     }
 })();
 
-},{"__browserify_process":15}],33:[function(require,module,exports){
+},{"__browserify_process":16}],34:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4718,7 +4721,7 @@ module.exports = function(
     };
 };
 
-},{"./assert.js":18}],34:[function(require,module,exports){
+},{"./assert.js":19}],35:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4788,7 +4791,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{"./assert.js":18,"./async.js":19,"./util.js":55}],35:[function(require,module,exports){
+},{"./assert.js":19,"./async.js":20,"./util.js":56}],36:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4915,7 +4918,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
     };
 };
 
-},{"./assert.js":18,"./async.js":19,"./errors.js":26,"./util.js":55}],36:[function(require,module,exports){
+},{"./assert.js":19,"./async.js":20,"./errors.js":27,"./util.js":56}],37:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6197,7 +6200,7 @@ return Promise;
 
 };
 
-},{"./any.js":17,"./assert.js":18,"./async.js":19,"./call_get.js":21,"./cancel.js":22,"./captured_trace.js":23,"./catch_filter.js":24,"./direct_resolve.js":25,"./errors.js":26,"./errors_api_rejection":27,"./filter.js":29,"./finally.js":30,"./generators.js":31,"./global.js":32,"./map.js":33,"./nodeify.js":34,"./progress.js":35,"./promise_array.js":37,"./promise_resolver.js":39,"./promisify.js":41,"./props.js":43,"./race.js":45,"./reduce.js":46,"./settle.js":48,"./some.js":50,"./synchronous_inspection.js":52,"./thenables.js":53,"./timers.js":54,"./util.js":55,"__browserify_process":15}],37:[function(require,module,exports){
+},{"./any.js":18,"./assert.js":19,"./async.js":20,"./call_get.js":22,"./cancel.js":23,"./captured_trace.js":24,"./catch_filter.js":25,"./direct_resolve.js":26,"./errors.js":27,"./errors_api_rejection":28,"./filter.js":30,"./finally.js":31,"./generators.js":32,"./global.js":33,"./map.js":34,"./nodeify.js":35,"./progress.js":36,"./promise_array.js":38,"./promise_resolver.js":40,"./promisify.js":42,"./props.js":44,"./race.js":46,"./reduce.js":47,"./settle.js":49,"./some.js":51,"./synchronous_inspection.js":53,"./thenables.js":54,"./timers.js":55,"./util.js":56,"__browserify_process":16}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6456,7 +6459,7 @@ function PromiseArray$_promiseRejected(reason, index) {
 return PromiseArray;
 };
 
-},{"./assert.js":18,"./async.js":19,"./errors.js":26,"./util.js":55}],38:[function(require,module,exports){
+},{"./assert.js":19,"./async.js":20,"./errors.js":27,"./util.js":56}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6524,7 +6527,7 @@ PromiseInspection.prototype.error = function PromiseInspection$error() {
 
 module.exports = PromiseInspection;
 
-},{"./errors.js":26}],39:[function(require,module,exports){
+},{"./errors.js":27}],40:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6678,7 +6681,7 @@ function PromiseResolver$_setCarriedStackTrace(trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":19,"./errors.js":26,"./es5.js":28,"./util.js":55}],40:[function(require,module,exports){
+},{"./async.js":20,"./errors.js":27,"./es5.js":29,"./util.js":56}],41:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6787,7 +6790,7 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
 return PromiseSpawn;
 };
 
-},{"./errors.js":26,"./util.js":55}],41:[function(require,module,exports){
+},{"./errors.js":27,"./util.js":56}],42:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7075,7 +7078,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./assert.js":18,"./es5.js":28,"./promise_resolver.js":39,"./util.js":55}],42:[function(require,module,exports){
+},{"./assert.js":19,"./es5.js":29,"./promise_resolver.js":40,"./util.js":56}],43:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7159,7 +7162,7 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 return PropertiesPromiseArray;
 };
 
-},{"./assert.js":18,"./es5.js":28,"./util.js":55}],43:[function(require,module,exports){
+},{"./assert.js":19,"./es5.js":29,"./util.js":56}],44:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7226,7 +7229,7 @@ module.exports = function(Promise, PromiseArray) {
     };
 };
 
-},{"./errors_api_rejection":27,"./properties_promise_array.js":42,"./util.js":55}],44:[function(require,module,exports){
+},{"./errors_api_rejection":28,"./properties_promise_array.js":43,"./util.js":56}],45:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7370,7 +7373,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
 
 module.exports = Queue;
 
-},{"./assert.js":18}],45:[function(require,module,exports){
+},{"./assert.js":19}],46:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7457,7 +7460,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./errors_api_rejection.js":27,"./util.js":55}],46:[function(require,module,exports){
+},{"./errors_api_rejection.js":28,"./util.js":56}],47:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7636,7 +7639,7 @@ module.exports = function(
     };
 };
 
-},{"./assert.js":18}],47:[function(require,module,exports){
+},{"./assert.js":19}],48:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7666,12 +7669,36 @@ var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
     typeof process.nextTick === "function") {
+    if (process.version.indexOf("v0.10.") === 0) {
+        schedule = (function () {
+            var domain = require("domain");
+            var activeDomain = null;
+            var callback = null;
+            function Promise$_Scheduler() {
+                var fn = callback;
+                var domain = activeDomain;
+                activeDomain = null;
+                callback = null;
+                ASSERT(((typeof fn) === "function"),
+    "typeof fn === \u0022function\u0022");
+                if (domain != null) domain.run(fn); else fn();
 
-    schedule = process.nextTick;
+            }
+            return function schedule(fn) {
+                ASSERT((callback === null),
+    "callback === null");
+                activeDomain = domain.active;
+                callback = fn;
+                process.nextTick(Promise$_Scheduler);
+            };
+        })();
+    } else {
+        schedule = process.nextTick;
+    }
 }
-else if ((typeof MutationObserver === "function" ||
-        typeof WebkitMutationObserver === "function" ||
-        typeof WebKitMutationObserver === "function") &&
+else if ((typeof global.MutationObserver === "function" ||
+        typeof global.WebkitMutationObserver === "function" ||
+        typeof global.WebKitMutationObserver === "function") &&
         typeof document !== "undefined" &&
         typeof document.createElement === "function") {
 
@@ -7736,11 +7763,11 @@ else if (typeof global.postMessage === "function" &&
 
     })();
 }
-else if (typeof MessageChannel === "function") {
+else if (typeof global.MessageChannel === "function") {
     schedule = (function(){
         var queuedFn = void 0;
 
-        var channel = new MessageChannel();
+        var channel = new global.MessageChannel();
         channel.port1.onmessage = function Promise$_Scheduler() {
                 ASSERT((queuedFn !== (void 0)),
     "queuedFn !== void 0");
@@ -7770,7 +7797,7 @@ else {
 
 module.exports = schedule;
 
-},{"./assert.js":18,"./global.js":32,"__browserify_process":15}],48:[function(require,module,exports){
+},{"./assert.js":19,"./global.js":33,"__browserify_process":16,"domain":3}],49:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7821,7 +7848,7 @@ module.exports =
 
 };
 
-},{"./settled_promise_array.js":49}],49:[function(require,module,exports){
+},{"./settled_promise_array.js":50}],50:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7890,7 +7917,7 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 return SettledPromiseArray;
 };
 
-},{"./assert.js":18,"./promise_inspection.js":38,"./util.js":55}],50:[function(require,module,exports){
+},{"./assert.js":19,"./promise_inspection.js":39,"./util.js":56}],51:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7953,7 +7980,7 @@ function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
 };
 
-},{"./assert.js":18,"./some_promise_array.js":51}],51:[function(require,module,exports){
+},{"./assert.js":19,"./some_promise_array.js":52}],52:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8086,7 +8113,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./errors.js":26,"./util.js":55}],52:[function(require,module,exports){
+},{"./errors.js":27,"./util.js":56}],53:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8118,7 +8145,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{"./promise_inspection.js":38}],53:[function(require,module,exports){
+},{"./promise_inspection.js":39}],54:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8265,7 +8292,7 @@ module.exports = function(Promise, INTERNAL) {
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":18,"./errors.js":26,"./util.js":55}],54:[function(require,module,exports){
+},{"./assert.js":19,"./errors.js":27,"./util.js":56}],55:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8382,7 +8409,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./assert.js":18,"./errors.js":26,"./errors_api_rejection":27,"./global.js":32,"./util.js":55}],55:[function(require,module,exports){
+},{"./assert.js":19,"./errors.js":27,"./errors_api_rejection":28,"./global.js":33,"./util.js":56}],56:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -8574,7 +8601,7 @@ var ret = {
 
 module.exports = ret;
 
-},{"./assert.js":18,"./es5.js":28,"./global.js":32}],56:[function(require,module,exports){
+},{"./assert.js":19,"./es5.js":29,"./global.js":33}],57:[function(require,module,exports){
 var process=require("__browserify_process");// vim:ts=4:sts=4:sw=4:
 /*!
  *
@@ -10513,7 +10540,7 @@ return Q;
 
 });
 
-},{"__browserify_process":15}],57:[function(require,module,exports){
+},{"__browserify_process":16}],58:[function(require,module,exports){
 /*jslint eqeqeq: false, onevar: false, forin: true, nomen: false, regexp: false, plusplus: false*/
 /*global module, require, __dirname, document*/
 /**
@@ -10875,7 +10902,7 @@ var sinon = (function (buster) {
     return sinon;
 }(typeof buster == "object" && buster));
 
-},{"./sinon/assert":58,"./sinon/collection":59,"./sinon/match":60,"./sinon/mock":61,"./sinon/sandbox":62,"./sinon/spy":63,"./sinon/stub":64,"./sinon/test":65,"./sinon/test_case":66,"buster-format":68,"util":5}],58:[function(require,module,exports){
+},{"./sinon/assert":59,"./sinon/collection":60,"./sinon/match":61,"./sinon/mock":62,"./sinon/sandbox":63,"./sinon/spy":64,"./sinon/stub":65,"./sinon/test":66,"./sinon/test_case":67,"buster-format":69,"util":6}],59:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @depend ../sinon.js
  * @depend stub.js
@@ -11060,7 +11087,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null, typeof window != "undefined" ? window : (typeof self != "undefined") ? self : global));
 
-},{"../sinon":57}],59:[function(require,module,exports){
+},{"../sinon":58}],60:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -11215,7 +11242,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],60:[function(require,module,exports){
+},{"../sinon":58}],61:[function(require,module,exports){
 /* @depend ../sinon.js */
 /*jslint eqeqeq: false, onevar: false, plusplus: false*/
 /*global module, require, sinon*/
@@ -11456,7 +11483,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],61:[function(require,module,exports){
+},{"../sinon":58}],62:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -11882,7 +11909,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],62:[function(require,module,exports){
+},{"../sinon":58}],63:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend collection.js
@@ -12009,7 +12036,7 @@ if (typeof module == "object" && typeof require == "function") {
     }
 }());
 
-},{"../sinon":57,"./util/fake_timers":67}],63:[function(require,module,exports){
+},{"../sinon":58,"./util/fake_timers":68}],64:[function(require,module,exports){
 /**
   * @depend ../sinon.js
   * @depend match.js
@@ -12589,7 +12616,7 @@ if (!this.sinon && commonJSModule) {
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],64:[function(require,module,exports){
+},{"../sinon":58}],65:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * @depend ../sinon.js
  * @depend spy.js
@@ -12962,7 +12989,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57,"__browserify_process":15}],65:[function(require,module,exports){
+},{"../sinon":58,"__browserify_process":16}],66:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend stub.js
@@ -13039,7 +13066,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],66:[function(require,module,exports){
+},{"../sinon":58}],67:[function(require,module,exports){
 /**
  * @depend ../sinon.js
  * @depend test.js
@@ -13138,7 +13165,7 @@ var process=require("__browserify_process");/**
     }
 }(typeof sinon == "object" && sinon || null));
 
-},{"../sinon":57}],67:[function(require,module,exports){
+},{"../sinon":58}],68:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*jslint eqeqeq: false, plusplus: false, evil: true, onevar: false, browser: true, forin: false*/
 /*global module, require, window*/
 /**
@@ -13491,7 +13518,7 @@ if (typeof module == "object" && typeof require == "function") {
     module.exports = sinon;
 }
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};if (typeof buster === "undefined") {
     var buster = {};
 }
@@ -13692,7 +13719,7 @@ if (typeof module != "undefined") {
     module.exports = buster.format;
 }
 
-},{"buster-core":69}],69:[function(require,module,exports){
+},{"buster-core":70}],70:[function(require,module,exports){
 var process=require("__browserify_process");var buster = (function (setTimeout, B) {
     var isNode = typeof require == "function" && typeof module == "object";
     var div = typeof document != "undefined" && document.createElement("div");
@@ -13917,7 +13944,7 @@ var process=require("__browserify_process");var buster = (function (setTimeout, 
     return buster.extend(B || {}, buster);
 }(setTimeout, buster));
 
-},{"./buster-event-emitter":70,"./define-version-getter":71,"__browserify_process":15,"crypto":10,"path":4}],70:[function(require,module,exports){
+},{"./buster-event-emitter":71,"./define-version-getter":72,"__browserify_process":16,"crypto":11,"path":5}],71:[function(require,module,exports){
 /*jslint eqeqeq: false, onevar: false, plusplus: false*/
 /*global buster, require, module*/
 if (typeof require == "function" && typeof module == "object") {
@@ -14071,7 +14098,7 @@ if (typeof module != "undefined") {
     module.exports = buster.eventEmitter;
 }
 
-},{"./buster-core":69}],71:[function(require,module,exports){
+},{"./buster-core":70}],72:[function(require,module,exports){
 var path = require("path");
 var fs = require("fs");
 
@@ -14089,7 +14116,7 @@ module.exports = function defineVersionGetter(mod, dirname) {
     });
 };
 
-},{"fs":3,"path":4}],72:[function(require,module,exports){
+},{"fs":4,"path":5}],73:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -14167,7 +14194,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],73:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],74:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -14245,7 +14272,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],74:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],75:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -14288,7 +14315,7 @@ describe("2.2.1: Both `onFulfilled` and `onRejected` are optional arguments.", f
     });
 });
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -14441,7 +14468,7 @@ describe("2.2.2: If `onFulfilled` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],76:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],77:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -14594,7 +14621,7 @@ describe("2.2.3: If `onRejected` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],77:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],78:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -14778,7 +14805,7 @@ describe("2.2.4: `onFulfilled` or `onRejected` must not be called until the exec
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],78:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],79:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*jshint strict: false */
 
 var assert = require("assert");
@@ -14836,7 +14863,7 @@ describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e.
     });
 });
 
-},{"assert":2}],79:[function(require,module,exports){
+},{"assert":2}],80:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -15095,7 +15122,7 @@ describe("2.2.6: `then` may be called multiple times on the same promise.", func
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2,"sinon":57}],80:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2,"sinon":58}],81:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -15206,7 +15233,7 @@ describe("2.2.7: `then` must return a promise: `promise2 = promise1.then(onFulfi
     });
 });
 
-},{"./helpers/reasons":106,"./helpers/testThreeCases":107,"assert":2}],81:[function(require,module,exports){
+},{"./helpers/reasons":107,"./helpers/testThreeCases":108,"assert":2}],82:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -15242,7 +15269,7 @@ describe("2.3.1: If `promise` and `x` refer to the same object, reject `promise`
     });
 });
 
-},{"assert":2}],82:[function(require,module,exports){
+},{"assert":2}],83:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -15370,7 +15397,7 @@ describe("2.3.2: If `x` is a promise, adopt its state", function () {
     });
 });
 
-},{"assert":2}],83:[function(require,module,exports){
+},{"assert":2}],84:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -16365,7 +16392,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
     });
 });
 
-},{"./helpers/reasons":106,"./helpers/thenables":108,"assert":2}],84:[function(require,module,exports){
+},{"./helpers/reasons":107,"./helpers/thenables":109,"assert":2}],85:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -16436,7 +16463,7 @@ describe("2.3.4: If `x` is not an object or function, fulfill `promise` with `x`
     );
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],85:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],86:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -16479,7 +16506,7 @@ describe("3.2.1: Both `onFulfilled` and `onRejected` are optional arguments.", f
     });
 });
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -16668,7 +16695,7 @@ describe("3.2.2: If `onFulfilled` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],87:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],88:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -16857,7 +16884,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],88:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],89:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -16890,7 +16917,7 @@ describe("3.2.4: `then` must return before `onFulfilled` or `onRejected` is call
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],89:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],90:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -17149,7 +17176,7 @@ describe("3.2.5: `then` may be called multiple times on the same promise.", func
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2,"sinon":57}],90:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2,"sinon":58}],91:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var assert = require("assert");
@@ -17472,7 +17499,7 @@ describe("3.2.6: `then` must return a promise: `promise2 = promise1.then(onFulfi
     });
 });
 
-},{"./helpers/testThreeCases":107,"assert":2}],91:[function(require,module,exports){
+},{"./helpers/testThreeCases":108,"assert":2}],92:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -17758,7 +17785,7 @@ if( Promise.hasLongStackTraces() ) {
     testCollection("props", function(){});
 }
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],92:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],93:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -17918,7 +17945,7 @@ describe("Async requirement", function() {
         });
     }
 });
-},{"../../js/debug/bluebird.js":20,"assert":2}],93:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],94:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -18855,7 +18882,7 @@ describe("When using .bind to gratuitously rebind", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],94:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],95:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
 
 var isNodeJS = typeof process !== "undefined" && process !== null &&
@@ -18990,7 +19017,7 @@ if( isNodeJS ) {
 
 }
 
-},{"../../js/debug/promise.js":36,"./helpers/bluebird0_7_0.js":105,"__browserify_process":15,"assert":2}],95:[function(require,module,exports){
+},{"../../js/debug/promise.js":37,"./helpers/bluebird0_7_0.js":106,"__browserify_process":16,"assert":2}],96:[function(require,module,exports){
 /*global describe specify require global*/
 //TODO include the copyright
     "use strict";
@@ -19235,7 +19262,7 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],96:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],97:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -19639,7 +19666,7 @@ describe("A promise handler with a predicate filter", function() {
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],97:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],98:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20040,7 +20067,7 @@ describe("Using collection methods with thenables", function() {
     }, filterer);
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],98:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],99:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20255,7 +20282,7 @@ describe("Promise constructor", function() {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],99:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],100:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20330,7 +20357,7 @@ describe("Cyclical promises should throw TypeError when", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":107,"assert":2}],100:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"./helpers/testThreeCases.js":108,"assert":2}],101:[function(require,module,exports){
 
 "use strict";
 
@@ -20506,7 +20533,7 @@ describe("thenThrow", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/testThreeCases.js":107,"assert":2}],101:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"./helpers/testThreeCases.js":108,"assert":2}],102:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20639,7 +20666,7 @@ describe("Promise.prototype.error", function(){
     });
 })
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],102:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],103:[function(require,module,exports){
     "use strict";
 
 var assert = require("assert");
@@ -20769,7 +20796,7 @@ describe("Promise filter", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],103:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],104:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20890,7 +20917,7 @@ describe("Rejecting a promise A with promise B", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],104:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],105:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -20957,7 +20984,7 @@ describe("github36", function(){
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],105:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],106:[function(require,module,exports){
 var process=require("__browserify_process");/* jshint -W014, -W116, -W106 */
 /* global process, unreachable */
 /**
@@ -23233,7 +23260,7 @@ return Promise;})(
     Object
 );
 
-},{"__browserify_process":15}],106:[function(require,module,exports){
+},{"__browserify_process":16}],107:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 // This module exports some valid rejection reason factories, keyed by human-readable versions of their names.
@@ -23291,7 +23318,7 @@ exports["a rejected promise"] = function () {
     return rejected(dummy);
 };
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -23339,7 +23366,7 @@ exports.testRejected = function (reason, test) {
     });
 };
 
-},{}],108:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};"use strict";
 
 var adapter = global.adapter;
@@ -23485,7 +23512,7 @@ exports.rejected = {
     }
 };
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
 
 var assert = require("assert");
@@ -23535,7 +23562,7 @@ if( isNodeJS ) {
         });
     });
 }
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2}],110:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"__browserify_process":16,"assert":2}],111:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -23642,7 +23669,7 @@ describe("Promise.method", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],111:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],112:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -24333,7 +24360,7 @@ if (canTestArity) {
     })
 }
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],112:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],113:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -24608,7 +24635,7 @@ describe("Promise.props", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],113:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],114:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -24774,7 +24801,7 @@ describe("all", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],114:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],115:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -25058,7 +25085,7 @@ describe("done", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":57}],115:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"__browserify_process":16,"assert":2,"sinon":58}],116:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -25397,7 +25424,7 @@ describe("finally", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],116:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],117:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -25523,7 +25550,7 @@ describe("inspect", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],117:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],118:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -25584,7 +25611,7 @@ describe("PromiseResolver.callback", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],118:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],119:[function(require,module,exports){
 var process=require("__browserify_process");var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -25769,7 +25796,7 @@ if( isNodeJS ) {
     });
 }
 
-},{"../../js/debug/bluebird.js":20,"__browserify_process":15,"assert":2,"sinon":57}],119:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"__browserify_process":16,"assert":2,"sinon":58}],120:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -26227,7 +26254,7 @@ describe("progress", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],120:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],121:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -26445,7 +26472,7 @@ describe("propagation", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],121:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],122:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -26592,7 +26619,7 @@ describe("allSettled", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],122:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],123:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -26886,7 +26913,7 @@ describe("spread", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],123:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],124:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27025,7 +27052,7 @@ describe("Promise.race", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],124:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],125:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27110,7 +27137,7 @@ describe("Promise.prototype.reduce", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],125:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],126:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27271,7 +27298,7 @@ describe("Implicitly cast thenable", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],126:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],127:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27339,7 +27366,32 @@ describe("If promise is reused to get at the value many times over the course of
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],127:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],128:[function(require,module,exports){
+var process=require("__browserify_process");var assert   = require("assert");
+var schedule = require("../../js/debug/schedule");
+var isNodeJS = typeof process !== "undefined" && typeof process.execPath === "string";
+
+describe.only("schedule", function () {
+    if (isNodeJS) {
+        describe("for Node.js", function () {
+            it("should preserve the active domain", function (done) {
+                var domain       = require("domain");
+                var activeDomain = domain.create();
+
+                activeDomain.run(function () {
+                    schedule(function () {
+                        assert(domain.active);
+                        assert.equal(domain.active, activeDomain);
+
+                        done();
+                    });
+                });
+            });
+        });
+    }
+});
+
+},{"../../js/debug/schedule":48,"__browserify_process":16,"assert":2,"domain":3}],129:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27392,7 +27444,7 @@ describe("Promise.some", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],128:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],130:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27464,7 +27516,7 @@ describe("When using a sparse array the resulting array should have equal sparsi
 });
 
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],129:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],131:[function(require,module,exports){
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
@@ -27626,7 +27678,7 @@ describe("delay", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],130:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],132:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27733,7 +27785,7 @@ describe("Promise.try", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],131:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],133:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/debug/bluebird.js");
@@ -28415,7 +28467,7 @@ describe("clear unhandled handler", function() {
     Promise.onPossiblyUnhandledRejection(null);
 });
 
-},{"../../js/debug/bluebird.js":20,"./helpers/bluebird0_7_0.js":105,"assert":2,"q":56}],132:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"./helpers/bluebird0_7_0.js":106,"assert":2,"q":57}],134:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28532,7 +28584,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],133:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],135:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28676,7 +28728,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],134:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],136:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29204,7 +29256,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],135:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],137:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29341,7 +29393,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],136:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],138:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29586,7 +29638,7 @@ describe("when.map-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],137:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],139:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29838,7 +29890,7 @@ describe("when.reduce-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],138:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],140:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -30004,7 +30056,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],139:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],141:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -30231,7 +30283,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}],140:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -30385,5 +30437,5 @@ describe("when.spread-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":20,"assert":2}]},{},[16])
+},{"../../js/debug/bluebird.js":21,"assert":2}]},{},[17])
 ;
