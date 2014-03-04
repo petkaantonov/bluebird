@@ -9,7 +9,7 @@ if (typeof process !== "undefined" && process !== null &&
     // from 0.11.xx which leads to losing the active domain
     // when promise is getting resolved or rejected, and so
     // we have to track active domain by ourselves
-    if (process.version.indexOf("v0.10.") === 0) {
+    if (process.version && process.version.indexOf("v0.10.") === 0) {
         schedule = (function () {
             var domain = require("domain");
             var activeDomain = null;
