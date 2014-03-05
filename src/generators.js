@@ -23,6 +23,8 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
         };
     };
 
+    Promise.coroutine.addYieldHandler = PromiseSpawn.addYieldHandler;
+
     Promise.spawn = function Promise$Spawn(generatorFunction) {
         deprecated(SPAWN_DEPRECATED);
         //Return rejected promise because Promise.spawn is semantically

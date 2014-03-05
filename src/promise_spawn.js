@@ -1,11 +1,30 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
+var ASSERT = require("./assert.js");
 var TypeError = errors.TypeError;
 var util = require("./util.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
+var yieldHandlers = [];
+
+function promiseFromYieldHandler(value) {
+    var _yieldHandlers = yieldHandlers;
+    var _errorObj = errorObj;
+    var _Promise = Promise;
+    var len = _yieldHandlers.length;
+    for (var i = 0; i < len; ++i) {
+        var result = tryCatch1(_yieldHandlers[i], void 0, value);
+        if (result === _errorObj) {
+            return _Promise.reject(_errorObj.e);
+        }
+        var maybePromise = _Promise._cast(result,
+            promiseFromYieldHandler, void 0);
+        if (maybePromise instanceof _Promise) return maybePromise;
+    }
+    return null;
+}
 
 function PromiseSpawn(generatorFunction, receiver, caller) {
     var promise = this._promise = new Promise(INTERNAL);
@@ -50,9 +69,11 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
                 maybePromise = Promise.all(maybePromise);
             }
             else {
-                this._throw(new TypeError(
-                    "A value was yielded that could not be treated as a promise"
-               ));
+                maybePromise = promiseFromYieldHandler(maybePromise);
+            }
+            ASSERT(maybePromise === null || maybePromise instanceof Promise);
+            if (maybePromise === null) {
+                this._throw(new TypeError(YIELDED_NON_PROMISE_ERROR));
                 return;
             }
         }
@@ -81,6 +102,11 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
     this._continue(
         tryCatch1(this._generator.next, this._generator, value)
    );
+};
+
+PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
+    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    yieldHandlers.push(fn);
 };
 
 return PromiseSpawn;
