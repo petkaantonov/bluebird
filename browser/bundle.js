@@ -4518,6 +4518,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
     var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
     var errors = require("./errors.js");
     var TypeError = errors.TypeError;
+    var deprecated = require("./util.js").deprecated;
 
     Promise.coroutine = function Promise$Coroutine(generatorFunction) {
         if (typeof generatorFunction !== "function") {
@@ -4533,7 +4534,10 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
         };
     };
 
+    Promise.coroutine.addYieldHandler = PromiseSpawn.addYieldHandler;
+
     Promise.spawn = function Promise$Spawn(generatorFunction) {
+        deprecated("Promise.spawn is deprecated. Use Promise.coroutine instead.");
         if (typeof generatorFunction !== "function") {
             return apiRejection("generatorFunction must be a function");
         }
@@ -4544,7 +4548,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
     };
 };
 
-},{"./errors.js":27,"./promise_spawn.js":41}],33:[function(require,module,exports){
+},{"./errors.js":27,"./promise_spawn.js":41,"./util.js":56}],33:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -6707,11 +6711,30 @@ module.exports = PromiseResolver;
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
+var ASSERT = require("./assert.js");
 var TypeError = errors.TypeError;
 var util = require("./util.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
+var yieldHandlers = [];
+
+function promiseFromYieldHandler(value) {
+    var _yieldHandlers = yieldHandlers;
+    var _errorObj = errorObj;
+    var _Promise = Promise;
+    var len = _yieldHandlers.length;
+    for (var i = 0; i < len; ++i) {
+        var result = tryCatch1(_yieldHandlers[i], void 0, value);
+        if (result === _errorObj) {
+            return _Promise.reject(_errorObj.e);
+        }
+        var maybePromise = _Promise._cast(result,
+            promiseFromYieldHandler, void 0);
+        if (maybePromise instanceof _Promise) return maybePromise;
+    }
+    return null;
+}
 
 function PromiseSpawn(generatorFunction, receiver, caller) {
     var promise = this._promise = new Promise(INTERNAL);
@@ -6756,9 +6779,12 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
                 maybePromise = Promise.all(maybePromise);
             }
             else {
-                this._throw(new TypeError(
-                    "A value was yielded that could not be treated as a promise"
-               ));
+                maybePromise = promiseFromYieldHandler(maybePromise);
+            }
+            ASSERT(((maybePromise === null) || (maybePromise instanceof Promise)),
+    "maybePromise === null || maybePromise instanceof Promise");
+            if (maybePromise === null) {
+                this._throw(new TypeError("A value was yielded that could not be treated as a promise"));
                 return;
             }
         }
@@ -6787,10 +6813,15 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
    );
 };
 
+PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
+    if (typeof fn !== "function") throw new TypeError("fn must be a function");
+    yieldHandlers.push(fn);
+};
+
 return PromiseSpawn;
 };
 
-},{"./errors.js":27,"./util.js":56}],42:[function(require,module,exports){
+},{"./assert.js":19,"./errors.js":27,"./util.js":56}],42:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -7668,33 +7699,11 @@ var ASSERT = require("./assert.js");
 var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
-    typeof process.nextTick === "function") {
-    if (process.version.indexOf("v0.10.") === 0) {
-        schedule = (function () {
-            var domain = require("domain");
-            var activeDomain = null;
-            var callback = null;
-            function Promise$_Scheduler() {
-                var fn = callback;
-                var domain = activeDomain;
-                activeDomain = null;
-                callback = null;
-                ASSERT(((typeof fn) === "function"),
-    "typeof fn === \u0022function\u0022");
-                if (domain != null) domain.run(fn); else fn();
-
-            }
-            return function schedule(fn) {
-                ASSERT((callback === null),
-    "callback === null");
-                activeDomain = domain.active;
-                callback = fn;
-                process.nextTick(Promise$_Scheduler);
-            };
-        })();
-    } else {
-        schedule = process.nextTick;
-    }
+    typeof process.nextTick === "function" &&
+    typeof process.version === "string") {
+    schedule = function Promise$_Scheduler(fn) {
+        process.nextTick(fn);
+    };
 }
 else if ((typeof global.MutationObserver === "function" ||
         typeof global.WebkitMutationObserver === "function" ||
@@ -7797,7 +7806,7 @@ else {
 
 module.exports = schedule;
 
-},{"./assert.js":19,"./global.js":33,"__browserify_process":16,"domain":3}],49:[function(require,module,exports){
+},{"./assert.js":19,"./global.js":33,"__browserify_process":16}],49:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -17699,28 +17708,6 @@ if( Promise.hasLongStackTraces() ) {
             });
         });
 
-        specify( "non function to spawn", function(done) {
-
-            Promise.spawn(null).caught(function(e){
-                assert( e instanceof Promise.TypeError );
-                done();
-            });
-        });
-
-
-        specify( "non function to spawn inside then", function(done) {
-
-            Promise.fulfilled().then(function(){
-                return Promise.spawn(null);
-            }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
-                assertErrorHasLongTraces(e);
-                done();
-            });
-        });
-
-
-
     });
 
 
@@ -27371,7 +27358,7 @@ var process=require("__browserify_process");var assert   = require("assert");
 var schedule = require("../../js/debug/schedule");
 var isNodeJS = typeof process !== "undefined" && typeof process.execPath === "string";
 
-describe.only("schedule", function () {
+describe("schedule", function () {
     if (isNodeJS) {
         describe("for Node.js", function () {
             it("should preserve the active domain", function (done) {
