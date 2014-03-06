@@ -337,3 +337,23 @@ describe("Promise.coroutine", function() {
         });
     });
 });
+
+describe("custom yield handlers", function(){
+    Promise.coroutine.addYieldHandler(function(v) {
+        if (typeof v === "number") {
+            return Promise.delay(v);
+        }
+    });
+
+    specify("should work", function(done){
+        Promise.coroutine(function*() {
+            var now = Date.now();
+            yield 50;
+            var then = Date.now() - now;
+            return then;
+        })().then(function(elapsed) {
+            assert(elapsed > 40);
+            done();
+        })
+    });
+});
