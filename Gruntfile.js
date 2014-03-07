@@ -365,8 +365,9 @@ module.exports = function( grunt ) {
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', flags.concat(["../mocharun.js", file]),
-                             {cwd: p, stdio: stdio, env: env});
+            var node = spawn(typeof node11 === "string" ? node11 : 'node',
+                flags.concat(["../mocharun.js", file]),
+                {cwd: p, stdio: stdio, env: env});
         }
         else {
             var node = spawn('node', flags.concat(["./"+file]),
@@ -701,7 +702,11 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( "testrun", function(){
         var testOption = grunt.option("run");
+        var node11path = grunt.option("node11");
 
+        if (typeof node11path === "string" && node11path) {
+            node11 = node11path;
+        }
 
         if( !testOption ) testOption = "all";
         else {
