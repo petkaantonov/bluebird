@@ -1258,6 +1258,8 @@ If no yield handler returns a promise or a thenable then an error is raised.
 
 An example of implementing callback support with `addYieldHandler`:
 
+*This is a demonstration of how powerful the feature is and not the recommended usage. For best performance you need to use `promisifyAll` and yield promises directly.*
+
 ```js
 var Promise = require("bluebird");
 var fs = require("fs");
@@ -1285,6 +1287,8 @@ var readFileJSON = Promise.coroutine(function* (fileName) {
 ```
 
 An example of implementing thunks support with `addYieldHandler`:
+
+*This is a demonstration of how powerful the feature is and not the recommended usage. For best performance you need to use `promisifyAll` and yield promises directly.*
 
 ```js
 var Promise = require("bluebird");

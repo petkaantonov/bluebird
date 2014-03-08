@@ -2,8 +2,8 @@
 
 Features:
 
- - Implement [`Promise.prototype.tap()`](#tapfunction-handler---promise)
- - Implement [`Promise.coroutine.addYieldHAndler()`](#promisecoroutineaddyieldhandlerfunction-handler---void)
+ - Implement [`Promise.prototype.tap()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#tapfunction-handler---promise)
+ - Implement [`Promise.coroutine.addYieldHandler()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutineaddyieldhandlerfunction-handler---void)
  - Deprecate `Promise.prototype.spawn`
 
 Bugfixes:
