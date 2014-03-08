@@ -3244,6 +3244,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/schedule.js');}, name: '../test/mocha/schedule.js'},
 {fn: function(){ return require('../test/mocha/some.js');}, name: '../test/mocha/some.js'},
 {fn: function(){ return require('../test/mocha/sparsity.js');}, name: '../test/mocha/sparsity.js'},
+{fn: function(){ return require('../test/mocha/tap.js');}, name: '../test/mocha/tap.js'},
 {fn: function(){ return require('../test/mocha/timers.js');}, name: '../test/mocha/timers.js'},
 {fn: function(){ return require('../test/mocha/try.js');}, name: '../test/mocha/try.js'},
 {fn: function(){ return require('../test/mocha/unhandled_rejections.js');}, name: '../test/mocha/unhandled_rejections.js'},
@@ -3256,7 +3257,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/debug/bluebird.js":21,"../test/mocha/2.1.2.js":73,"../test/mocha/2.1.3.js":74,"../test/mocha/2.2.1.js":75,"../test/mocha/2.2.2.js":76,"../test/mocha/2.2.3.js":77,"../test/mocha/2.2.4.js":78,"../test/mocha/2.2.5.js":79,"../test/mocha/2.2.6.js":80,"../test/mocha/2.2.7.js":81,"../test/mocha/2.3.1.js":82,"../test/mocha/2.3.2.js":83,"../test/mocha/2.3.3.js":84,"../test/mocha/2.3.4.js":85,"../test/mocha/3.2.1.js":86,"../test/mocha/3.2.2.js":87,"../test/mocha/3.2.3.js":88,"../test/mocha/3.2.4.js":89,"../test/mocha/3.2.5.js":90,"../test/mocha/3.2.6.js":91,"../test/mocha/api_exceptions.js":92,"../test/mocha/async.js":93,"../test/mocha/bind.js":94,"../test/mocha/bluebird-multiple-instances.js":95,"../test/mocha/cancel.js":96,"../test/mocha/catch_filter.js":97,"../test/mocha/collections_thenables.js":98,"../test/mocha/constructor.js":99,"../test/mocha/cycles.js":100,"../test/mocha/direct_resolving.js":101,"../test/mocha/error.js":102,"../test/mocha/filter.js":103,"../test/mocha/following.js":104,"../test/mocha/github36.js":105,"../test/mocha/late_buffer_safety.js":110,"../test/mocha/method.js":111,"../test/mocha/promisify.js":112,"../test/mocha/props.js":113,"../test/mocha/q_all.js":114,"../test/mocha/q_done.js":115,"../test/mocha/q_fin.js":116,"../test/mocha/q_inspect.js":117,"../test/mocha/q_make_node_resolver.js":118,"../test/mocha/q_nodeify.js":119,"../test/mocha/q_progress.js":120,"../test/mocha/q_propagation.js":121,"../test/mocha/q_settle.js":122,"../test/mocha/q_spread.js":123,"../test/mocha/race.js":124,"../test/mocha/reduce.js":125,"../test/mocha/resolution.js":126,"../test/mocha/reused_promise.js":127,"../test/mocha/schedule.js":128,"../test/mocha/some.js":129,"../test/mocha/sparsity.js":130,"../test/mocha/timers.js":131,"../test/mocha/try.js":132,"../test/mocha/unhandled_rejections.js":133,"../test/mocha/when_all.js":134,"../test/mocha/when_any.js":135,"../test/mocha/when_defer.js":136,"../test/mocha/when_join.js":137,"../test/mocha/when_map.js":138,"../test/mocha/when_reduce.js":139,"../test/mocha/when_settle.js":140,"../test/mocha/when_some.js":141,"../test/mocha/when_spread.js":142,"assert":2,"sinon":58}],18:[function(require,module,exports){
+},{"../js/debug/bluebird.js":21,"../test/mocha/2.1.2.js":73,"../test/mocha/2.1.3.js":74,"../test/mocha/2.2.1.js":75,"../test/mocha/2.2.2.js":76,"../test/mocha/2.2.3.js":77,"../test/mocha/2.2.4.js":78,"../test/mocha/2.2.5.js":79,"../test/mocha/2.2.6.js":80,"../test/mocha/2.2.7.js":81,"../test/mocha/2.3.1.js":82,"../test/mocha/2.3.2.js":83,"../test/mocha/2.3.3.js":84,"../test/mocha/2.3.4.js":85,"../test/mocha/3.2.1.js":86,"../test/mocha/3.2.2.js":87,"../test/mocha/3.2.3.js":88,"../test/mocha/3.2.4.js":89,"../test/mocha/3.2.5.js":90,"../test/mocha/3.2.6.js":91,"../test/mocha/api_exceptions.js":92,"../test/mocha/async.js":93,"../test/mocha/bind.js":94,"../test/mocha/bluebird-multiple-instances.js":95,"../test/mocha/cancel.js":96,"../test/mocha/catch_filter.js":97,"../test/mocha/collections_thenables.js":98,"../test/mocha/constructor.js":99,"../test/mocha/cycles.js":100,"../test/mocha/direct_resolving.js":101,"../test/mocha/error.js":102,"../test/mocha/filter.js":103,"../test/mocha/following.js":104,"../test/mocha/github36.js":105,"../test/mocha/late_buffer_safety.js":110,"../test/mocha/method.js":111,"../test/mocha/promisify.js":112,"../test/mocha/props.js":113,"../test/mocha/q_all.js":114,"../test/mocha/q_done.js":115,"../test/mocha/q_fin.js":116,"../test/mocha/q_inspect.js":117,"../test/mocha/q_make_node_resolver.js":118,"../test/mocha/q_nodeify.js":119,"../test/mocha/q_progress.js":120,"../test/mocha/q_propagation.js":121,"../test/mocha/q_settle.js":122,"../test/mocha/q_spread.js":123,"../test/mocha/race.js":124,"../test/mocha/reduce.js":125,"../test/mocha/resolution.js":126,"../test/mocha/reused_promise.js":127,"../test/mocha/schedule.js":128,"../test/mocha/some.js":129,"../test/mocha/sparsity.js":130,"../test/mocha/tap.js":131,"../test/mocha/timers.js":132,"../test/mocha/try.js":133,"../test/mocha/unhandled_rejections.js":134,"../test/mocha/when_all.js":135,"../test/mocha/when_any.js":136,"../test/mocha/when_defer.js":137,"../test/mocha/when_join.js":138,"../test/mocha/when_map.js":139,"../test/mocha/when_reduce.js":140,"../test/mocha/when_settle.js":141,"../test/mocha/when_some.js":142,"../test/mocha/when_spread.js":143,"assert":2,"sinon":58}],18:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4408,6 +4409,7 @@ module.exports = function(Promise) {
  * THE SOFTWARE.
  * 
  */
+"use strict";
 module.exports = function(Promise, NEXT_FILTER) {
     var util = require("./util.js");
     var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
@@ -4461,7 +4463,7 @@ module.exports = function(Promise, NEXT_FILTER) {
 
         if (ret !== void 0) {
             var maybePromise = Promise._cast(ret, finallyHandler, void 0);
-            if (Promise.is(maybePromise)) {
+            if (maybePromise instanceof Promise) {
                 return promisedFinally(maybePromise, reasonOrValue,
                                         promise.isFulfilled());
             }
@@ -4476,8 +4478,25 @@ module.exports = function(Promise, NEXT_FILTER) {
         }
     }
 
-    Promise.prototype.lastly = Promise.prototype["finally"] =
-    function Promise$finally(handler) {
+    function tapHandler(value) {
+        var promise = this.promise;
+        var handler = this.handler;
+
+        var ret = promise._isBound()
+                        ? handler.call(promise._boundTo, value)
+                        : handler(value);
+
+        if (ret !== void 0) {
+            var maybePromise = Promise._cast(ret, tapHandler, void 0);
+            if (maybePromise instanceof Promise) {
+                return promisedFinally(maybePromise, value, true);
+            }
+        }
+        return value;
+    }
+
+    Promise.prototype._passThroughHandler =
+    function Promise$_passThroughHandler(handler, isFinally, caller) {
         if (typeof handler !== "function") return this.then();
 
         var promiseAndHandler = {
@@ -4485,8 +4504,19 @@ module.exports = function(Promise, NEXT_FILTER) {
             handler: handler
         };
 
-        return this._then(finallyHandler, finallyHandler, void 0,
-                promiseAndHandler, void 0, this.lastly);
+        return this._then(
+                isFinally ? finallyHandler : tapHandler,
+                isFinally ? finallyHandler : void 0, void 0,
+                promiseAndHandler, void 0, caller);
+    };
+
+    Promise.prototype.lastly =
+    Promise.prototype["finally"] = function Promise$finally(handler) {
+        return this._passThroughHandler(handler, true, this.lastly);
+    };
+
+    Promise.prototype.tap = function Promise$tap(handler) {
+        return this._passThroughHandler(handler, false, this.tap);
     };
 };
 
@@ -6370,6 +6400,7 @@ function PromiseArray$_settlePromiseAt(index) {
         this._promiseFulfilled(value._settledValue, index);
     }
     else if (value.isRejected()) {
+        value._unsetRejectionIsUnhandled();
         this._promiseRejected(value._settledValue, index);
     }
 };
@@ -27507,6 +27538,76 @@ describe("When using a sparse array the resulting array should have equal sparsi
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
+var Promise = adapter;
+var fulfilled = adapter.fulfilled;
+var rejected = adapter.rejected;
+var pending = adapter.pending;
+
+describe("tap", function () {
+    specify("passes through value", function(done) {
+        Promise.resolve("test").tap(function() {
+            return 3;
+        }).then(function(value){
+            assert.equal(value, "test");
+            done();
+        });
+    });
+
+    specify("passes through value after returned promise is fulfilled", function(done) {
+        var async = false;
+        Promise.resolve("test").tap(function() {
+            return new Promise(function(r) {
+                setTimeout(function(){
+                    async = true;
+                    r(3);
+                }, 13);
+            });
+        }).then(function(value){
+            assert(async);
+            assert.equal(value, "test");
+            done();
+        });
+    });
+
+    specify("is not called on rejected promise", function(done) {
+        var called = false;
+        Promise.reject("test").tap(function() {
+            called = true;
+        }).caught(function(value){
+            assert(!called);
+            done();
+        });
+    });
+
+    specify("passes immediate rejection", function(done) {
+        var err = new Error();
+        Promise.resolve("test").tap(function() {
+            throw err;
+        }).tap(assert.fail).caught(function(e){
+            assert(err === e);
+            done();
+        });
+    });
+
+    specify("passes eventual rejection", function(done) {
+        var err = new Error();
+        Promise.resolve("test").tap(function() {
+            return new Promise(function(_, rej) {
+                setTimeout(function(){
+                    rej(err);
+                }, 13)
+            });
+        }).tap(assert.fail).caught(function(e) {
+            assert(err === e);
+            done();
+        });
+    });
+});
+
+},{"../../js/debug/bluebird.js":21,"assert":2}],132:[function(require,module,exports){
+var assert = require("assert");
+
+var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
@@ -27665,7 +27766,7 @@ describe("delay", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],132:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],133:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -27772,7 +27873,7 @@ describe("Promise.try", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],133:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],134:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/debug/bluebird.js");
@@ -28276,6 +28377,14 @@ describe("immediate failures without .then", function testFunction(done) {
             throw err;
         })();
     });
+
+    specify("Promise.all", function testFunction(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.all([Promise.reject(err)]);
+    });
 });
 
 
@@ -28308,6 +28417,13 @@ describe("immediate failures with .then", function testFunction(done) {
         Promise.method(function() {
             throw err;
         })().caught(clearUnhandledHandler(async(done)));
+    });
+
+    specify("Promise.all", function testFunction(done) {
+        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+
+        Promise.all([Promise.reject("err")])
+            .caught(clearUnhandledHandler(async(done)));
     });
 });
 
@@ -28454,7 +28570,7 @@ describe("clear unhandled handler", function() {
     Promise.onPossiblyUnhandledRejection(null);
 });
 
-},{"../../js/debug/bluebird.js":21,"./helpers/bluebird0_7_0.js":106,"assert":2,"q":57}],134:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"./helpers/bluebird0_7_0.js":106,"assert":2,"q":57}],135:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28571,7 +28687,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],135:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],136:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -28715,7 +28831,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],136:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],137:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29243,7 +29359,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],137:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],138:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29380,7 +29496,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],138:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],139:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29625,7 +29741,7 @@ describe("when.map-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],139:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],140:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -29877,7 +29993,7 @@ describe("when.reduce-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],140:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],141:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -30043,7 +30159,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],141:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
 /*
 Based on When.js tests
 
@@ -30270,7 +30386,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],143:[function(require,module,exports){
 /*
 Based on When.js tests
 

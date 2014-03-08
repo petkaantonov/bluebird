@@ -1,3 +1,16 @@
+## 1.1.0 (2014-03-08)
+
+Features:
+
+ - Implement [`Promise.prototype.tap()`](#tapfunction-handler---promise)
+ - Implement [`Promise.coroutine.addYieldHAndler()`](#promisecoroutineaddyieldhandlerfunction-handler---void)
+ - Deprecate `Promise.prototype.spawn`
+
+Bugfixes:
+
+ - Fix already rejected promises being reported as unhandled when handled through collection methods
+ - Fix browserisfy crashing from checking `process.version.indexOf`
+
 ## 1.0.8 (2014-03-03)
 
 Bugfixes:
