@@ -15,10 +15,11 @@ module.exports = function( grunt ) {
             "internet explorer|WIN8": ["10"],
             "internet explorer|WIN8.1": ["11"],
             "firefox|Windows 7": ["3.5", "3.6", "4", "25"],
+            "firefox|WIN8.1": null,
             "chrome|Windows 7": null,
             "safari|Windows 7": ["5"],
-            "safari|OS X 10.8": ["6"],
-            "iphone|OS X 10.8": ["6.0"]
+            "iphone|OS X 10.8": ["6.0"],
+            "iphone|OS X 10.9": ["7"]
         };
 
         var ret = [];
