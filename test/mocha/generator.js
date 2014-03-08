@@ -337,3 +337,81 @@ describe("Promise.coroutine", function() {
         });
     });
 });
+
+describe("custom yield handlers", function(){
+    Promise.coroutine.addYieldHandler(function(v) {
+        if (typeof v === "number") {
+            return Promise.delay(v);
+        }
+    });
+
+    specify("should work with timers", function(done){
+        Promise.coroutine(function*() {
+            var now = Date.now();
+            yield 50;
+            var then = Date.now() - now;
+            return then;
+        })().then(function(elapsed) {
+            assert(elapsed > 40);
+            done();
+        });
+    });
+
+    var _ = (function() {
+        var promise = null;
+        Promise.coroutine.addYieldHandler(function(v) {
+            if (v === void 0 && promise != null) {
+                return promise;
+            }
+            promise = null;
+        });
+        return function() {
+          var def = Promise.defer();
+          promise = def.promise;
+          return def.callback;
+        };
+    })();
+
+    specify("Should work with callbacks", function(done){
+        var callbackApiFunction = function(a, b, c, cb) {
+            setTimeout(function(){
+                cb(null, [a, b, c]);
+            }, 13);
+        };
+
+        Promise.coroutine(function*() {
+            return yield callbackApiFunction(1, 2, 3, _());
+        })().then(function(result) {
+            assert(result.length === 3);
+            assert(result[0] === 1);
+            assert(result[1] === 2);
+            assert(result[2] === 3);
+            done();
+        });
+    });
+
+    Promise.coroutine.addYieldHandler(function(v) {
+        if (typeof v === "function") {
+            var def = Promise.defer();
+            try { v(def.callback); } catch(e) { def.reject(e); }
+            return def.promise;
+        }
+    });
+
+    specify("should work with thunks", function(done){
+        var thunk = function(a) {
+            return function(callback) {
+                setTimeout(function(){
+                    callback(null, a*a);
+                }, 13);
+            };
+        };
+
+        Promise.coroutine(function*() {
+            return yield thunk(4);
+        })().then(function(result) {
+            assert(result === 16);
+            done();
+        });
+    });
+});
