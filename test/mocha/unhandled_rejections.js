@@ -501,6 +501,14 @@ describe("immediate failures without .then", function testFunction(done) {
             throw err;
         })();
     });
+
+    specify("Promise.all", function testFunction(done) {
+        onUnhandledSucceed(done, function(e) {
+            return e === err;
+        });
+
+        Promise.all([Promise.reject(err)]);
+    });
 });
 
 
@@ -533,6 +541,13 @@ describe("immediate failures with .then", function testFunction(done) {
         Promise.method(function() {
             throw err;
         })().caught(clearUnhandledHandler(async(done)));
+    });
+
+    specify("Promise.all", function testFunction(done) {
+        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+
+        Promise.all([Promise.reject("err")])
+            .caught(clearUnhandledHandler(async(done)));
     });
 });
 

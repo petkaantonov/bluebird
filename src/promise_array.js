@@ -153,6 +153,7 @@ function PromiseArray$_settlePromiseAt(index) {
         this._promiseFulfilled(value._settledValue, index);
     }
     else if (value.isRejected()) {
+        value._unsetRejectionIsUnhandled();
         this._promiseRejected(value._settledValue, index);
     }
 };
