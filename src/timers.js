@@ -24,6 +24,7 @@ global.setTimeout( function(_) {
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
+    var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
 
@@ -33,7 +34,8 @@ module.exports = function(Promise, INTERNAL) {
         if (typeof message !== "string") {
             message = TIMEOUT_ERROR + " " + ms + " ms"
         }
-        var err = new TimeoutError(message)
+        var err = new TimeoutError(message);
+        errors.markAsOriginatingFromRejection(err);
         promise._attachExtraTrace(err);
         promise._rejectUnchecked(err);
     };
@@ -47,9 +49,7 @@ module.exports = function(Promise, INTERNAL) {
             ms = value;
             value = void 0;
         }
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection(POSITIVE_INTEGER_ERROR);
-        }
+        ms = +ms;
         if (typeof caller !== "function") {
             caller = Promise.delay;
         }
@@ -82,9 +82,7 @@ module.exports = function(Promise, INTERNAL) {
     };
 
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
-        if ((ms | 0) !== ms || ms < 0) {
-            return apiRejection(POSITIVE_INTEGER_ERROR);
-        }
+        ms = +ms;
 
         var ret = new Promise(INTERNAL);
         ret._setTrace(this.timeout, this);

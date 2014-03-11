@@ -1,3 +1,125 @@
+## 1.1.0 (2014-03-08)
+
+Features:
+
+ - Implement [`Promise.prototype.tap()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#tapfunction-handler---promise)
+ - Implement [`Promise.coroutine.addYieldHandler()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutineaddyieldhandlerfunction-handler---void)
+ - Deprecate `Promise.prototype.spawn`
+
+Bugfixes:
+
+ - Fix already rejected promises being reported as unhandled when handled through collection methods
+ - Fix browserisfy crashing from checking `process.version.indexOf`
+
+## 1.0.8 (2014-03-03)
+
+Bugfixes:
+
+ - Fix active domain being lost across asynchronous boundaries in Node.JS 10.xx
+
+## 1.0.7 (2014-02-25)
+
+Bugfixes:
+
+ - Fix handled errors being reported
+
+## 1.0.6 (2014-02-17)
+
+Bugfixes:
+
+ -  Fix bug with unhandled rejections not being reported
+    when using `Promise.try` or `Promise.method` without
+    attaching further handlers
+
+## 1.0.5 (2014-02-15)
+
+Features:
+
+ - Node.js performance: promisified functions try to check amount of passed arguments in most optimal order
+ - Node.js promisified functions will have same `.length` as the original function minus one (for the callback parameter)
+
+## 1.0.4 (2014-02-09)
+
+Features:
+
+ - Possibly unhandled rejection handler will always get a stack trace, even if the rejection or thrown error was not an error
+ - Unhandled rejections are tracked per promise, not per error. So if you create multiple branches from a single ancestor and that ancestor gets rejected, each branch with no error handler with the end will cause a possibly unhandled rejection handler invocation
+
+Bugfixes:
+
+ - Fix unhandled non-writable objects or primitives not reported by possibly unhandled rejection handler
+
+## 1.0.3 (2014-02-05)
+
+Bugfixes:
+
+ - [#93](https://github.com/petkaantonov/bluebird/issues/88)
+
+## 1.0.2 (2014-02-04)
+
+Features:
+
+ - Significantly improve performance of foreign bluebird thenables
+
+Bugfixes:
+
+ - [#88](https://github.com/petkaantonov/bluebird/issues/88)
+
+## 1.0.1 (2014-01-28)
+
+Features:
+
+ - Error objects that have property `.isAsync = true` will now be caught by `.error()`
+
+Bugfixes:
+
+ - Fix TypeError and RangeError shims not working without `new` operator
+
+## 1.0.0 (2014-01-12)
+
+Features:
+
+ - `.filter`, `.map`, and `.reduce` no longer skip sparse array holes. This is a backwards incompatible change.
+ - Like `.map` and `.filter`, `.reduce` now allows returning promises and thenables from the iteration function.
+
+Bugfixes:
+
+ - [#58](https://github.com/petkaantonov/bluebird/issues/58)
+ - [#61](https://github.com/petkaantonov/bluebird/issues/61)
+ - [#64](https://github.com/petkaantonov/bluebird/issues/64)
+ - [#60](https://github.com/petkaantonov/bluebird/issues/60)
+
+## 0.11.6-1 (2013-12-29)
+
+## 0.11.6-0 (2013-12-29)
+
+Features:
+
+ - You may now return promises and thenables from the filterer function used in `Promise.filter` and `Promise.prototype.filter`.
+
+ - `.error()` now catches additional sources of rejections:
+
+    - Rejections originating from `Promise.reject`
+
+    - Rejections originating from thenables using
+    the `reject` callback
+
+    - Rejections originating from promisified callbacks
+    which use the `errback` argument
+
+    - Rejections originating from `new Promise` constructor
+    where the `reject` callback is called explicitly
+
+    - Rejections originating from `PromiseResolver` where
+    `.reject()` method is called explicitly
+
+Bugfixes:
+
+ - Fix `captureStackTrace` being called when it was `null`
+ - Fix `Promise.map` not unwrapping thenables
+
+## 0.11.5-1 (2013-12-15)
+
 ## 0.11.5-0 (2013-12-03)
 
 Features:
@@ -1001,3 +1123,4 @@ Bugfixes:
 
  - bugfix
 
+## 0.3.0 (2013-09-06)

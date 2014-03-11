@@ -19,7 +19,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
             onRejectedCalled = true;
         });
 
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject then immediately fulfill", function (done) {
@@ -35,7 +35,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
 
         tuple.reject(dummy);
         tuple.fulfill(dummy);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject then fulfill, delayed", function (done) {
@@ -53,7 +53,7 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
             tuple.reject(dummy);
             tuple.fulfill(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to reject immediately then fulfill delayed", function (done) {
@@ -71,6 +71,6 @@ describe("2.1.3.1: When rejected, a promise: must not transition to any other st
         setTimeout(function () {
             tuple.fulfill(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 });

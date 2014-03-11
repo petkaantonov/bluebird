@@ -1,11 +1,12 @@
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray) {
+module.exports =
+    function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SettledPromiseArray = require("./settled_promise_array.js")(
         Promise, PromiseArray);
 
     function Promise$_Settle(promises, useBound, caller) {
-        return Promise$_All(
+        return Promise$_CreatePromiseArray(
             promises,
             SettledPromiseArray,
             caller,

@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
+module.exports = function(
+    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var ASSERT = require("./assert.js");
 
@@ -14,51 +15,55 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
         ASSERT(typeof fn === "function");
         var shouldDefer = false;
 
+        var ret = new Array(values.length);
+
         if (receiver === void 0) {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn(values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         else {
             for (var i = 0, len = values.length; i < len; ++i) {
-                if (values[i] === void 0 &&
-                    !(i in values)) {
-                    continue;
-                }
                 var value = fn.call(receiver, values[i], i, len);
-                if (!shouldDefer && Promise.is(value)) {
-                    if (value.isFulfilled()) {
-                        values[i] = value._settledValue;
-                        continue;
-                    }
-                    else {
-                        shouldDefer = true;
+                if (!shouldDefer) {
+                    var maybePromise = Promise._cast(value,
+                            Promise$_mapper, void 0);
+                    if (maybePromise instanceof Promise) {
+                        if (maybePromise.isFulfilled()) {
+                            ret[i] = maybePromise._settledValue;
+                            continue;
+                        }
+                        else {
+                            shouldDefer = true;
+                        }
+                        value = maybePromise;
                     }
                 }
-                values[i] = value;
+                ret[i] = value;
             }
         }
         return shouldDefer
-            ? Promise$_All(values, PromiseArray,
+            ? Promise$_CreatePromiseArray(ret, PromiseArray,
                 Promise$_mapper, void 0).promise()
-            : values;
+            : ret;
     }
 
-    function Promise$_Map(promises, fn, useBound, caller) {
+    function Promise$_Map(promises, fn, useBound, caller, ref) {
         if (typeof fn !== "function") {
             return apiRejection(NOT_FUNCTION_ERROR);
         }
@@ -70,15 +75,20 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
             };
         }
 
-        return Promise$_All(
+        var ret = Promise$_CreatePromiseArray(
             promises,
             PromiseArray,
             caller,
             useBound === USE_BOUND && promises._isBound()
                 ? promises._boundTo
                 : void 0
-       ).promise()
-        ._then(
+       ).promise();
+
+        if (ref !== void 0) {
+            ref.ref = ret;
+        }
+
+        return ret._then(
             Promise$_mapper,
             void 0,
             void 0,
@@ -88,11 +98,11 @@ module.exports = function(Promise, Promise$_All, PromiseArray, apiRejection) {
        );
     }
 
-    Promise.prototype.map = function Promise$map(fn) {
-        return Promise$_Map(this, fn, USE_BOUND, this.map);
+    Promise.prototype.map = function Promise$map(fn, ref) {
+        return Promise$_Map(this, fn, USE_BOUND, this.map, ref);
     };
 
-    Promise.map = function Promise$Map(promises, fn) {
-        return Promise$_Map(promises, fn, DONT_USE_BOUND, Promise.map);
+    Promise.map = function Promise$Map(promises, fn, ref) {
+        return Promise$_Map(promises, fn, DONT_USE_BOUND, Promise.map, ref);
     };
 };

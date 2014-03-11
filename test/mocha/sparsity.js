@@ -53,43 +53,6 @@ describe("When using a sparse array the resulting array should have equal sparsi
         });
     });
 
-    specify("Map", function(done) {
-        Promise.map(arr, function( v ){
-            return v;
-        }).then(function(c){
-            assertSameSparsity(c);
-            done();
-        });
-    });
-
-    specify("Reduce", function(done) {
-        var indices = [];
-
-        var calls = 0;
-        function semidone() {
-            if( ( ++calls ) === 2 ) {
-                done();
-            }
-        }
-
-        Promise.reduce(arr, function( total, prev, i ){
-            assert.fail();
-        }).then(function(v){
-            assert.equal(v, void 0);
-            semidone();
-        });
-
-        Promise.reduce(arr, function( total, prev, i ){
-            indices.push(i);
-            return total;
-        }, 5).then(function(ret){
-            assert.equal(indices.length, 1);
-            assert.equal(indices[0], 3);
-            assert.equal(ret, 5);
-            semidone();
-        });
-    });
-
     specify("Settle with empty", function(done) {
         Promise.settle(arrSparseEmpty).then(function(c){
             assertEmptySparsity(c);
@@ -103,15 +66,5 @@ describe("When using a sparse array the resulting array should have equal sparsi
             done();
         });
     });
-
-    specify("Map with empty", function(done) {
-        Promise.map(arrSparseEmpty, function( v ){
-            assert.fail();
-        }).then(function(c){
-            assertEmptySparsity(c);
-            done();
-        });
-    });
-
 });
 

@@ -269,13 +269,21 @@ describe("Using collection methods with thenables", function() {
 });
 
 function mapper(v) {
-    return v*2;
+    return {
+        then: function(f) {
+            f(v*2);
+        }
+    };
 }
 function reducer(a, b) {
     return a + b;
 }
 function filterer(v) {
-    return v > 0;
+    return {
+        then: function(f) {
+            f(v > 0);
+        }
+    };
 }
 
 describe("Using collection methods with thenables", function() {

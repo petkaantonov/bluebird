@@ -103,6 +103,8 @@ IN THE SOFTWARE.
 describe("done", function () {
     var errCount = 0;
 
+    var safeError = new Error("safe_error");
+
 
 
     describe("when the promise is fulfilled", function () {
@@ -131,7 +133,7 @@ describe("done", function () {
                     }
                     var e;
                     process.on("uncaughtException", function(er){
-                        if( er !== "safe_error" ) {
+                        if( er !== safeError ) {
                             console.log(er.stack);
                             process.exit(-1);
                         }
@@ -144,13 +146,13 @@ describe("done", function () {
 
                     var returnValue = Q().done(
                         function () {
-                            throw "safe_error";
+                            throw safeError;
                         }
                     );
 
                     setTimeout(function first() {
                         assert.equal(turn,1);
-                        assert.equal(e, "safe_error");
+                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
                     }, 4);
@@ -193,7 +195,7 @@ describe("done", function () {
                     }
                     var e;
                     process.on("uncaughtException", function(er){
-                        if( er !== "safe_error" ) {
+                        if( er !== safeError ) {
                             console.log(er.stack);
                             process.exit(-1);
                         }
@@ -208,13 +210,13 @@ describe("done", function () {
                     var returnValue = Q.reject("unsafe_error").done(
                         null,
                         function () {
-                            throw "safe_error";
+                            throw safeError;
                         }
                     );
 
                     setTimeout(function second() {
                         assert.equal(turn,1);
-                        assert.equal(e, "safe_error");
+                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
                     }, 4);
@@ -233,7 +235,7 @@ describe("done", function () {
                     }
                     var e;
                     process.on("uncaughtException", function(er){
-                        if( er !== "safe_error" ) {
+                        if( er !== safeError ) {
                             console.log(er.stack);
                             process.exit(-1);
                         }
@@ -245,11 +247,11 @@ describe("done", function () {
                         ++turn;
                     });
 
-                    var returnValue = Q.reject("safe_error").done();
+                    var returnValue = Q.reject(safeError).done();
 
                     setTimeout(function third() {
                         assert.equal(turn,1);
-                        assert.equal(e, "safe_error");
+                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
                     }, 4);

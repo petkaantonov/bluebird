@@ -1,7 +1,7 @@
 language: node_js
 node_js:
 - '0.10'
-install: 'npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli grunt-contrib-connect grunt-saucelabs'
+install: 'npm install grunt grunt-contrib-jshint acorn q mocha sinon grunt-cli grunt-contrib-connect grunt-saucelabs mkdirp'
 before_script:
 - git submodule update --init --recursive
 script: 'grunt test --ci && grunt test-browser --ci'

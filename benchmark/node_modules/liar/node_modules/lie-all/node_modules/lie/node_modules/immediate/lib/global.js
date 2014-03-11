@@ -1,1 +1,0 @@
-module.exports = typeof global === "object" && global ? global : this;

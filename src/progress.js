@@ -3,6 +3,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var async = require("./async.js");
+    var errors = require("./errors.js");
     var tryCatch1 = util.tryCatch1;
     var errorObj = util.errorObj;
 
@@ -45,16 +46,15 @@ module.exports = function(Promise, isPromiseArrayProxy) {
             //with a name property equal to 'StopProgressPropagation',
             //then the error is silenced.
             if (ret.e != null &&
-                ret.e.name === "StopProgressPropagation") {
-                ret.e[ERROR_HANDLED_KEY] = ERROR_HANDLED;
-            }
-            else {
+                ret.e.name !== "StopProgressPropagation") {
                 //2.3 Unless the onProgress callback throws an exception
                 //with a name property equal to
                 //'StopProgressPropagation',
                 // the result of the function is used as the progress
                 //value to propagate.
-                promise._attachExtraTrace(ret.e);
+                var trace = errors.canAttach(ret.e)
+                    ? ret.e : new Error(ret.e + "");
+                promise._attachExtraTrace(trace);
                 promise._progress(ret.e);
             }
         }

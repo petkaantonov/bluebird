@@ -7,7 +7,7 @@
 
 #Introduction
 
-Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance.
+Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
 
 #Topics
 
@@ -15,6 +15,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Quick start](#quick-start)
 - [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
 - [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
+- [Questions and issues](#questions-and-issues)
 - [Error handling](#error-handling)
 - [Development](#development)
     - [Testing](#testing)
@@ -40,7 +41,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
-Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js), [Q](https://github.com/petkaantonov/bluebird/tree/master/test/mocha) and [When.js](https://github.com/petkaantonov/bluebird/tree/master/test) tests. See [testing](#testing).
+Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js) tests and more. See [testing](#testing).
 
 <hr>
 
@@ -71,6 +72,8 @@ The global variable `Promise` becomes available after the above script tag.
 Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/petka_antonov.svg)](https://saucelabs.com/u/petka_antonov)
+
+*IE7 and IE8 had to be removed from tests due to SauceLabs bug but are supported and pass all tests*
 
 **Note** that in ECMA-262, edition 3 (IE7, IE8 etc) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](https://github.com/petkaantonov/bluebird/blob/master/API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
 
@@ -178,7 +181,7 @@ Is more pleasing to the eye when done with promises:
 Promise.promisifyAll(needle);
 var options = {};
 
-var current = Promise.fulfilled();
+var current = Promise.resolve();
 Promise.map(URLs, function(URL) {
     current = current.then(function () {
         return needle.getAsync(URL, options);
@@ -204,6 +207,10 @@ More reading:
  - [What is the the point of promises](http://domenic.me/2012/10/14/youre-missing-the-point-of-promises/#toc_1)
  - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
  - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
+
+#Questions and issues
+
+If you find a bug in bluebird or have a feature request, file an issue in the [github issue tracker](https://github.com/petkaantonov/bluebird/issues). Anything else, such as questions for help in using the library, should be posted in [StackOverflow](http://stackoverflow.com/questions/tagged/bluebird) under tags `promise` and `bluebird`.
 
 #Error handling
 
@@ -346,7 +353,7 @@ request("http://www.google.com").then(function(contents){
 });
 ```
 
-
+**Danger:** The JavaScript language allows throwing primitive values like strings. Throwing primitives can lead to worse or no stack traces. Primitives [are not exceptions](http://www.devthought.com/2011/12/22/a-string-is-not-an-error/). You should consider always throwing Error objects when handling exceptions.
 
 <hr>
 
@@ -380,9 +387,9 @@ Compare to:
 ```js
 Error.stackTraceLimit = 25;
 Promise.longStackTraces();
-Promise.fulfilled().then(function outer() {
-    return Promise.fulfilled().then(function inner() {
-        return Promise.fulfilled().then(function evenMoreInner() {
+Promise.resolve().then(function outer() {
+    return Promise.resolve().then(function inner() {
+        return Promise.resolve().then(function evenMoreInner() {
             a.b.c.d()
         }).catch(function catcher(e){
             console.error(e.stack);
@@ -634,14 +641,14 @@ var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
 function getResult(url) {
     var resolver = Promise.pending();
     if (cache.has(url)) {
-        resolver.fulfill(cache.get(url));
+        resolver.resolve(cache.get(url));
     }
     else {
         http.get(url, function(err, content) {
             if (err) resolver.reject(err);
             else {
                 cache.set(url, content);
-                resolver.fulfill(content);
+                resolver.resolve(content);
             }
         });
     }
@@ -668,7 +675,7 @@ A single cohesive guide compiled from the articles will probably be done eventua
 
 #License
 
-Copyright (c) 2013 Petka Antonov
+Copyright (c) 2014 Petka Antonov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

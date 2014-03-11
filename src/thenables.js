@@ -1,11 +1,10 @@
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, INTERNAL) {
     var ASSERT = require("./assert.js");
     var util = require("./util.js");
+    var canAttach = require("./errors.js").canAttach;
     var errorObj = util.errorObj;
     var isObject = util.isObject;
-    var tryCatch2 = util.tryCatch2;
-    //var ensureNotHandled = require("./errors.js").ensureNotHandled;
 
     function getThen(obj) {
         try {
@@ -23,10 +22,25 @@ module.exports = function(Promise) {
             if (obj instanceof Promise) {
                 return obj;
             }
+            //Make casting from another bluebird fast
+            else if (isAnyBluebirdPromise(obj)) {
+                var ret = new Promise(INTERNAL);
+                ret._setTrace(caller, void 0);
+                obj._then(
+                    ret._fulfillUnchecked,
+                    ret._rejectUncheckedCheckError,
+                    ret._progressUnchecked,
+                    ret,
+                    null,
+                    void 0
+                );
+                ret._setFollowing();
+                return ret;
+            }
             var then = getThen(obj);
             if (then === errorObj) {
                 caller = typeof caller === "function" ? caller : Promise$_Cast;
-                if (originalPromise !== void 0) {
+                if (originalPromise !== void 0 && canAttach(then.e)) {
                     originalPromise._attachExtraTrace(then.e);
                 }
                 return Promise.reject(then.e, caller);
@@ -39,21 +53,33 @@ module.exports = function(Promise) {
         return obj;
     }
 
+    var hasProp = {}.hasOwnProperty;
+    function isAnyBluebirdPromise(obj) {
+        return hasProp.call(obj, "_promise0");
+    }
+
     function Promise$_doThenable(x, then, caller, originalPromise) {
         ASSERT(typeof then === "function");
         ASSERT(arguments.length === 4);
         var resolver = Promise.defer(caller);
-
         var called = false;
-        var ret = tryCatch2(then, x,
-            Promise$_resolveFromThenable, Promise$_rejectFromThenable);
-
-        if (ret === errorObj && !called) {
-            called = true;
-            if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(ret.e);
+        try {
+            then.call(
+                x,
+                Promise$_resolveFromThenable,
+                Promise$_rejectFromThenable,
+                Promise$_progressFromThenable
+            );
+        }
+        catch(e) {
+            if (!called) {
+                called = true;
+                var trace = canAttach(e) ? e : new Error(e + "");
+                if (originalPromise !== void 0) {
+                    originalPromise._attachExtraTrace(trace);
+                }
+                resolver.promise._reject(e, trace);
             }
-            resolver.reject(ret.e);
         }
         return resolver.promise;
 
@@ -66,7 +92,7 @@ module.exports = function(Promise) {
                 if (originalPromise !== void 0) {
                     originalPromise._attachExtraTrace(e);
                 }
-                resolver.reject(e);
+                resolver.promise._reject(e, void 0);
                 return;
             }
             resolver.resolve(y);
@@ -75,10 +101,19 @@ module.exports = function(Promise) {
         function Promise$_rejectFromThenable(r) {
             if (called) return;
             called = true;
+            var trace = canAttach(r) ? r : new Error(r + "");
             if (originalPromise !== void 0) {
-                originalPromise._attachExtraTrace(r);
+                originalPromise._attachExtraTrace(trace);
             }
-            resolver.reject(r);
+            resolver.promise._reject(r, trace);
+        }
+
+        function Promise$_progressFromThenable(v) {
+            if (called) return;
+            var promise = resolver.promise;
+            if (typeof promise._progress === "function") {
+                promise._progress(v);
+            }
         }
     }
 

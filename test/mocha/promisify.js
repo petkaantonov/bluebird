@@ -629,8 +629,7 @@ describe("RejectionError wrapping", function() {
     });
 
     specify("should not wrap typeback", function(done) {
-        typeback().error(assert.fail)
-            .caught(CustomError, function(e){
+        typeback().caught(CustomError, function(e){
                 done();
             });
     });
@@ -656,3 +655,35 @@ describe("RejectionError wrapping", function() {
             });
     });
 });
+
+var global = new Function("return this")();
+var canEvaluate = (function() {
+    if (typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global) {
+        return false;
+    }
+    return true;
+})();
+var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
+
+if (canTestArity) {
+    describe("arity", function() {
+        specify("should be original - 1", function(done) {
+            var fn = function(a, b, c, callback) {};
+
+            assert.equal(Promise.promisify(fn).length, 3);
+
+            var o = {
+                fn: function(a, b, c, callback) {
+
+                }
+            };
+            assert.equal(Promise.promisifyAll(o).fnAsync.length, 3);
+
+            done();
+        })
+    })
+}
