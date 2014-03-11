@@ -113,10 +113,15 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if (maybePromise instanceof Promise &&
-            maybePromise.isPending()) {
-            //Optimized for just passing the updates through
-            maybePromise._proxyPromiseArray(this, i);
+        if (maybePromise instanceof Promise) {
+            if (maybePromise.isPending()) {
+                //Optimized for just passing the updates through
+                maybePromise._proxyPromiseArray(this, i);
+            }
+            else {
+                maybePromise._unsetRejectionIsUnhandled();
+                isDirectScanNeeded = true;
+            }
         }
         else {
             isDirectScanNeeded = true;
@@ -153,7 +158,6 @@ function PromiseArray$_settlePromiseAt(index) {
         this._promiseFulfilled(value._settledValue, index);
     }
     else if (value.isRejected()) {
-        value._unsetRejectionIsUnhandled();
         this._promiseRejected(value._settledValue, index);
     }
 };

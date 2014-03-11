@@ -549,6 +549,14 @@ describe("immediate failures with .then", function testFunction(done) {
         Promise.all([Promise.reject("err")])
             .caught(clearUnhandledHandler(async(done)));
     });
+
+
+    specify("Promise.all many", function testFunction(done) {
+        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+
+        Promise.all([Promise.reject("err"), Promise.reject("err2")])
+            .caught(clearUnhandledHandler(async(done)));
+    });
 });
 
 describe("gh-118", function() {
