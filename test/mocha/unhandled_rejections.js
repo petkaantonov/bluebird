@@ -557,6 +557,20 @@ describe("immediate failures with .then", function testFunction(done) {
         Promise.all([Promise.reject("err"), Promise.reject("err2")])
             .caught(clearUnhandledHandler(async(done)));
     });
+
+    specify("Promise.all many pending", function testFunction(done) {
+        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+
+        var a = new Promise(function(v, w){
+            setTimeout(function(){w("err");}, 4);
+        });
+        var b = new Promise(function(v, w){
+            setTimeout(function(){w("err2");}, 4);
+        });
+
+        Promise.all([a, b])
+            .caught(clearUnhandledHandler(async(done)));
+    });
 });
 
 describe("gh-118", function() {

@@ -504,7 +504,6 @@ function Promise$_setRejectionIsUnhandled() {
 
 Promise.prototype._unsetRejectionIsUnhandled =
 function Promise$_unsetRejectionIsUnhandled() {
-    ASSERT(this.isRejected());
     this._bitField = this._bitField & (~IS_REJECTION_UNHANDLED);
 };
 
