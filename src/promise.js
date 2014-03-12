@@ -37,6 +37,10 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError(CIRCULAR_RESOLUTION_ERROR);
 };
 
+var setExternalDispatcher = function Promise$setExternalDispatcher(fn) {
+    async.externalDispatcher = fn;
+};
+
 function isPromise(obj) {
     if (obj === void 0) return false;
     return obj instanceof Promise;
@@ -75,6 +79,10 @@ function Promise(resolver) {
     //for .bind
     this._boundTo = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+
+    if (Promise.AlwaysCancellable) {
+        this.cancellable();
+    }
 }
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
@@ -1198,6 +1206,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+Promise.setExternalDispatcher = setExternalDispatcher;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
@@ -1206,4 +1215,5 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AlwaysCancellable = false;
 };

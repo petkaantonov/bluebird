@@ -173,6 +173,7 @@ function Async() {
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
     };
+    this.externalDispatcher = undefined;
 }
 
 Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
@@ -220,7 +221,11 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
-        schedule(this.consumeFunctionBuffer);
+        if (this.externalDispatcher !== undefined) {
+            this.externalDispatcher(this.consumeFunctionBuffer);
+        } else {
+            schedule(this.consumeFunctionBuffer);
+        }
         this._isTickUsed = true;
     }
 };
@@ -1730,6 +1735,10 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
 };
 
+var setExternalDispatcher = function Promise$setExternalDispatcher(fn) {
+    async.externalDispatcher = fn;
+};
+
 function isPromise(obj) {
     if (obj === void 0) return false;
     return obj instanceof Promise;
@@ -1757,6 +1766,10 @@ function Promise(resolver) {
     this._settledValue = void 0;
     this._boundTo = void 0;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+
+    if (Promise.AlwaysCancellable) {
+        this.cancellable();
+    }
 }
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
@@ -2804,6 +2817,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+Promise.setExternalDispatcher = setExternalDispatcher;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
@@ -2812,6 +2826,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AlwaysCancellable = false;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
@@ -2954,9 +2969,14 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if (maybePromise instanceof Promise &&
-            maybePromise.isPending()) {
-            maybePromise._proxyPromiseArray(this, i);
+        if (maybePromise instanceof Promise) {
+            if (maybePromise.isPending()) {
+                maybePromise._proxyPromiseArray(this, i);
+            }
+            else {
+                maybePromise._unsetRejectionIsUnhandled();
+                isDirectScanNeeded = true;
+            }
         }
         else {
             isDirectScanNeeded = true;
@@ -2992,7 +3012,6 @@ function PromiseArray$_settlePromiseAt(index) {
         this._promiseFulfilled(value._settledValue, index);
     }
     else if (value.isRejected()) {
-        value._unsetRejectionIsUnhandled();
         this._promiseRejected(value._settledValue, index);
     }
 };
