@@ -197,28 +197,6 @@ if( Promise.hasLongStackTraces() ) {
             });
         });
 
-        specify( "non function to spawn", function(done) {
-
-            Promise.spawn(null).caught(function(e){
-                assert( e instanceof Promise.TypeError );
-                done();
-            });
-        });
-
-
-        specify( "non function to spawn inside then", function(done) {
-
-            Promise.fulfilled().then(function(){
-                return Promise.spawn(null);
-            }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
-                assertErrorHasLongTraces(e);
-                done();
-            });
-        });
-
-
-
     });
 
 

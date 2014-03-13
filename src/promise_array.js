@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var ASSERT = require("./assert.js");
-var ensureNotHandled = require("./errors.js").ensureNotHandled;
+var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
 var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
@@ -113,10 +113,15 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if (maybePromise instanceof Promise &&
-            maybePromise.isPending()) {
-            //Optimized for just passing the updates through
-            maybePromise._proxyPromiseArray(this, i);
+        if (maybePromise instanceof Promise) {
+            if (maybePromise.isPending()) {
+                //Optimized for just passing the updates through
+                maybePromise._proxyPromiseArray(this, i);
+            }
+            else {
+                maybePromise._unsetRejectionIsUnhandled();
+                isDirectScanNeeded = true;
+            }
         }
         else {
             isDirectScanNeeded = true;
@@ -195,10 +200,10 @@ PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
 PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
     ASSERT(!this._isResolved());
-    ensureNotHandled(reason);
     this._values = null;
-    this._promise._attachExtraTrace(reason);
-    this._promise._reject(reason);
+    var trace = canAttach(reason) ? reason : new Error(reason + "");
+    this._promise._attachExtraTrace(trace);
+    this._promise._reject(reason, trace);
 };
 
 PromiseArray.prototype._promiseProgressed =

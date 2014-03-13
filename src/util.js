@@ -18,31 +18,6 @@ var haveGetters = (function(){
 
 })();
 
-//If the property cannot be added on the object
-//returns a shallow clone of the object with the property
-//attached which is fine
-var ensurePropertyExpansion = function(obj, prop, value) {
-    try {
-        notEnumerableProp(obj, prop, value);
-        return obj;
-    }
-    catch (e) {
-        var ret = {};
-        var keys = es5.keys(obj);
-        for (var i = 0, len = keys.length; i < len; ++i) {
-            try {
-                var key = keys[i];
-                ret[key] = obj[key];
-            }
-            catch (err) {
-                ret[key] = err;
-            }
-        }
-        notEnumerableProp(ret, prop, value);
-        return ret;
-    }
-};
-
 var canEvaluate = (function() {
     //Cannot feature detect CSP without triggering
     //violations
@@ -184,7 +159,6 @@ var ret = {
     notEnumerableProp: notEnumerableProp,
     isPrimitive: isPrimitive,
     isObject: isObject,
-    ensurePropertyExpansion: ensurePropertyExpansion,
     canEvaluate: canEvaluate,
     deprecated: deprecated,
     errorObj: errorObj,

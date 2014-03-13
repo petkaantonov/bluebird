@@ -5,6 +5,7 @@ CONSTANT(BUFFER_STRIDE, 3);
 
 //errors.js
 CONSTANT(ERROR_HANDLED_KEY, "__promiseHandled__");
+CONSTANT(REJECTION_ERROR_KEY, "isAsync");
 CONSTANT(DEFAULT_STATE, 0);
 CONSTANT(STACK_ATTACHED, 1);
 CONSTANT(ERROR_HANDLED, 2);
@@ -20,7 +21,7 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for ._bitField
-//QQWF NCTR BPLL LLLL LLLL LLLL LLLL LLLL
+//QQWF NCTR BPHS LLLL LLLL LLLL LLLL LLLL
 //Q = isGcQueued (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
@@ -28,12 +29,13 @@ CONSTANT(CALLBACK_SIZE, 5);
 //N = isRejected
 //C = isCancellable
 //T = isFinal (used for .done() implementation)
-//B = isBound (to avoid property load misses
-//              that would come from reading ._boundTo === void 0)
+//B = isBound
 //P = isProxied (optimization when .then listeners on a promise are
 //                just respective fate sealers on some other promise)
+//H = isRejectionUnhandled
+//S = isCarryingStackTrace
 //R = [Reserved]
-//L = Length, 22 bit unsigned
+//L = Length, 20 bit unsigned
 CONSTANT(NO_STATE, 0x0|0);
 CONSTANT(IS_GC_QUEUED, 0xC0000000|0)
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
@@ -43,7 +45,9 @@ CONSTANT(IS_CANCELLABLE, 0x4000000|0);
 CONSTANT(IS_FINAL, 0x2000000|0);
 CONSTANT(IS_BOUND, 0x800000|0);
 CONSTANT(IS_PROXIED, 0x400000|0);
-CONSTANT(LENGTH_MASK, 0x3FFFFF|0);
+CONSTANT(IS_REJECTION_UNHANDLED, 0x200000|0);
+CONSTANT(IS_CARRYING_STACK_TRACE, 0x100000|0);
+CONSTANT(LENGTH_MASK, 0xFFFFF|0);
 CONSTANT(LENGTH_CLEAR_MASK, ~LENGTH_MASK);
 CONSTANT(MAX_LENGTH, LENGTH_MASK);
 CONSTANT(IS_REJECTED_OR_FULFILLED, IS_REJECTED | IS_FULFILLED);
@@ -72,9 +76,13 @@ CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CONSTANT(THROW, 1);
 CONSTANT(RETURN, 2);
 
+//promisify.js
+CONSTANT(MAX_PARAM_COUNT, 1023);
+CONSTANT(PARAM_COUNTS_TO_TRY, 5);
 
 //deprecated
 CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.");
+CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine instead.");
 
 //errors
 CONSTANT(CONSTRUCT_ERROR_ARG, "the promise constructor requires a resolver function");
@@ -90,3 +98,4 @@ CONSTANT(CIRCULAR_RESOLUTION_ERROR, "circular promise resolution chain");
 CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object");
 CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer");
 CONSTANT(TIMEOUT_ERROR, "operation timed out after");
+CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value was yielded that could not be treated as a promise");

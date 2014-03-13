@@ -129,7 +129,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
                 done();
             });
 
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill then immediately reject", function (done) {
@@ -145,7 +145,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
 
             tuple.fulfill(dummy);
             tuple.reject(dummy);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill then reject, delayed", function (done) {
@@ -163,7 +163,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
                 tuple.fulfill(dummy);
                 tuple.reject(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
 
         specify("trying to fulfill immediately then reject delayed", function (done) {
@@ -181,7 +181,7 @@ describe("3.2.3: If `onRejected` is a function,", function () {
             setTimeout(function () {
                 tuple.reject(dummy);
             }, 50);
-            setTimeout(done, 100);
+            setTimeout(function(){done();}, 100);
         });
     });
 });

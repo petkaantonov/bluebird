@@ -1,6 +1,7 @@
 node_modules/*
 todo.txt
 npm-debug.log
+benchmark/node_modules/*
 benchmark/async-compare/node_modules/*
 benchmark/promises-benchmark/node_modules/*
 benchmark/promises-benchmark/fixtures/*
@@ -12,6 +13,9 @@ mixed
 bench.json
 js/bluebird_sync.min.js
 js/bluebird.min.js
+js/zalgo/*
+js/main/*
+js/debug/*
 reader.js
 read.txt
 throwaway.js
@@ -22,3 +26,4 @@ zalgo.js
 changelog.js
 sauce_connect.log
 bump.js
+.DS_Store

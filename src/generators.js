@@ -3,6 +3,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
     var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
     var errors = require("./errors.js");
     var TypeError = errors.TypeError;
+    var deprecated = require("./util.js").deprecated;
 
     Promise.coroutine = function Promise$Coroutine(generatorFunction) {
         //Throw synchronously because Promise.coroutine is semantically
@@ -22,7 +23,10 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
         };
     };
 
+    Promise.coroutine.addYieldHandler = PromiseSpawn.addYieldHandler;
+
     Promise.spawn = function Promise$Spawn(generatorFunction) {
+        deprecated(SPAWN_DEPRECATED);
         //Return rejected promise because Promise.spawn is semantically
         //something that will be called at runtime with possibly dynamic values
         if (typeof generatorFunction !== "function") {

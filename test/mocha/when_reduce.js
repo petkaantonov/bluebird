@@ -207,26 +207,6 @@ describe("when.reduce-test", function () {
         });
     });
 
-    specify("should allow sparse array input without initial", function(done) {
-        when.reduce([ , , 1, , 1, 1], plus).then(
-            function(result) {
-                assert.deepEqual(result, 3);
-                done();
-            },
-            fail
-        );
-    });
-
-    specify("should allow sparse array input with initial", function(done) {
-        when.reduce([ , , 1, , 1, 1], plus, 1).then(
-            function(result) {
-                assert.deepEqual(result, 4);
-                done();
-            },
-            fail
-        );
-    });
-
     specify("should reduce in input order", function(done) {
         when.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {

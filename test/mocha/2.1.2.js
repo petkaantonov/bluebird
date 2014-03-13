@@ -19,7 +19,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
             done();
         });
 
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill then immediately reject", function (done) {
@@ -35,7 +35,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
 
         tuple.fulfill(dummy);
         tuple.reject(dummy);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill then reject, delayed", function (done) {
@@ -53,7 +53,7 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
             tuple.fulfill(dummy);
             tuple.reject(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 
     specify("trying to fulfill immediately then reject delayed", function (done) {
@@ -71,6 +71,6 @@ describe("2.1.2.1: When fulfilled, a promise: must not transition to any other s
         setTimeout(function () {
             tuple.reject(dummy);
         }, 50);
-        setTimeout(done, 100);
+        setTimeout(function(){done();}, 100);
     });
 });

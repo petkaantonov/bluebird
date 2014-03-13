@@ -4,13 +4,15 @@ var ASSERT = require("./assert.js");
 var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
-    typeof process.nextTick === "function") {
-
-    schedule = process.nextTick;
+    typeof process.nextTick === "function" &&
+    typeof process.version === "string") {
+    schedule = function Promise$_Scheduler(fn) {
+        process.nextTick(fn);
+    };
 }
-else if ((typeof MutationObserver === "function" ||
-        typeof WebkitMutationObserver === "function" ||
-        typeof WebKitMutationObserver === "function") &&
+else if ((typeof global.MutationObserver === "function" ||
+        typeof global.WebkitMutationObserver === "function" ||
+        typeof global.WebKitMutationObserver === "function") &&
         typeof document !== "undefined" &&
         typeof document.createElement === "function") {
 
@@ -71,11 +73,11 @@ else if (typeof global.postMessage === "function" &&
 
     })();
 }
-else if (typeof MessageChannel === "function") {
+else if (typeof global.MessageChannel === "function") {
     schedule = (function(){
         var queuedFn = void 0;
 
-        var channel = new MessageChannel();
+        var channel = new global.MessageChannel();
         channel.port1.onmessage = function Promise$_Scheduler() {
                 ASSERT(queuedFn !== void 0);
                 var fn = queuedFn;

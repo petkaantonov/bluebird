@@ -12,14 +12,12 @@ module.exports = function( grunt ) {
     function getBrowsers() {
         //Terse format to generate the verbose format required by sauce
         var browsers = {
-            "internet explorer|Windows XP": ["7"],
-            "internet explorer|Windows 7": ["8"],
             "internet explorer|WIN8": ["10"],
             "internet explorer|WIN8.1": ["11"],
             "firefox|Windows 7": ["3.5", "3.6", "4", "25"],
+            "firefox|WIN8.1": null,
             "chrome|Windows 7": null,
             "safari|Windows 7": ["5"],
-            "safari|OS X 10.8": ["6"],
             "iphone|OS X 10.8": ["6.0"]
         };
 
@@ -51,18 +49,18 @@ module.exports = function( grunt ) {
 
     var optionalModuleDependencyMap = {
         "timers.js": ['Promise', 'INTERNAL'],
-        "any.js": ['Promise', 'Promise$_All', 'PromiseArray'],
+        "any.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
         "race.js": ['Promise', 'INTERNAL'],
         "call_get.js": ['Promise'],
-        "filter.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "filter.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "generators.js": ['Promise', 'apiRejection', 'INTERNAL'],
-        "map.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "map.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "nodeify.js": ['Promise'],
         "promisify.js": ['Promise', 'INTERNAL'],
         "props.js": ['Promise', 'PromiseArray'],
-        "reduce.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
-        "settle.js": ['Promise', 'Promise$_All', 'PromiseArray'],
-        "some.js": ['Promise', 'Promise$_All', 'PromiseArray', 'apiRejection'],
+        "reduce.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection', 'INTERNAL'],
+        "settle.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
+        "some.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise', 'isPromiseArrayProxy'],
         "cancel.js": ['Promise', 'INTERNAL'],
         "synchronous_inspection.js": ['Promise']
@@ -366,8 +364,9 @@ module.exports = function( grunt ) {
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
-            var node = spawn('node', flags.concat(["../mocharun.js", file]),
-                             {cwd: p, stdio: stdio, env: env});
+            var node = spawn(typeof node11 === "string" ? node11 : 'node',
+                flags.concat(["../mocharun.js", file]),
+                {cwd: p, stdio: stdio, env: env});
         }
         else {
             var node = spawn('node', flags.concat(["./"+file]),
@@ -390,8 +389,7 @@ module.exports = function( grunt ) {
     function buildMain( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/main/";
-
+        var root = cleanDirectory("./js/main/");
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
@@ -410,26 +408,28 @@ module.exports = function( grunt ) {
     function buildDebug( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/debug/";
+        var root = cleanDirectory("./js/debug/");
 
-        return Q.all(sources.map(function( source ) {
-            var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
-            src = astPasses.inlineExpansion( src, source.fileName );
-            src = astPasses.expandConstants( src, source.fileName );
-            src = src.replace( /__DEBUG__/g, "true" );
-            src = src.replace( /__BROWSER__/g, "false" );
-            if( source.fileName === "promise.js" ) {
-                src = applyOptionalRequires( src, optionalRequireCode );
-            }
-            var path = root + source.fileName;
-            return writeFileAsync(path, src);
-        }));
+        return Q.nfcall(require('mkdirp'), root).then(function(){
+            return Q.all(sources.map(function( source ) {
+                var src = astPasses.expandAsserts( source.sourceCode, source.fileName );
+                src = astPasses.inlineExpansion( src, source.fileName );
+                src = astPasses.expandConstants( src, source.fileName );
+                src = src.replace( /__DEBUG__/g, "true" );
+                src = src.replace( /__BROWSER__/g, "false" );
+                if( source.fileName === "promise.js" ) {
+                    src = applyOptionalRequires( src, optionalRequireCode );
+                }
+                var path = root + source.fileName;
+                return writeFileAsync(path, src);
+            }));
+        });
     }
 
     function buildZalgo( sources, optionalRequireCode ) {
         var fs = require("fs");
         var Q = require("q");
-        var root = "./js/zalgo/";
+        var root = cleanDirectory("./js/zalgo/");
 
         return Q.all(sources.map(function( source ) {
             var src = astPasses.removeAsserts( source.sourceCode, source.fileName );
@@ -466,6 +466,14 @@ module.exports = function( grunt ) {
             src = header + src;
             return Q.nfcall(fs.writeFile, dest, src );
         });
+    }
+
+    function cleanDirectory(dir) {
+        if (isCI) return dir;
+        var fs = require("fs");
+        require("rimraf").sync(dir);
+        fs.mkdirSync(dir);
+        return dir;
     }
 
     function getOptionalPathsFromOption( opt ) {
@@ -693,7 +701,11 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( "testrun", function(){
         var testOption = grunt.option("run");
+        var node11path = grunt.option("node11");
 
+        if (typeof node11path === "string" && node11path) {
+            node11 = node11path;
+        }
 
         if( !testOption ) testOption = "all";
         else {
