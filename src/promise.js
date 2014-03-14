@@ -1079,16 +1079,16 @@ function Promise$_rejectUnchecked(reason, trace) {
     if (trace !== void 0) this._setCarriedStackTrace(trace);
 
     if (len > 0) {
-        async.invoke(this._rejectPromises, this, len);
+        async.invoke(this._rejectPromises, this, null);
     }
     else {
         this._ensurePossibleRejectionHandled();
     }
 };
 
-Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
+Promise.prototype._rejectPromises = function Promise$_rejectPromises() {
     ASSERT(this.isRejected());
-    len = this._length();
+    var len = this._length();
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
         this._settlePromiseAt(i);
     }
