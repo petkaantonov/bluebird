@@ -5140,6 +5140,7 @@ function withAppended(target, appendee) {
 
 
 function notEnumerableProp(obj, name, value) {
+    if (isPrimitive(obj)) return obj;
     var descriptor = {
         value: value,
         configurable: true,
