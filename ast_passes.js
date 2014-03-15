@@ -535,6 +535,21 @@ var astPasses = module.exports = {
                     while(rlineterm.test(src.charAt(e++)));
                     results.push( new Empty( s + 2, e - 1) );
                 }
+            },
+            VariableDeclaration: function(node) {
+                var start = node.start;
+                var end = node.end;
+                if (node.kind === 'var' && node.declarations.length === 1) {
+                    var decl = node.declarations[0];
+                    if (decl.id.type === "Identifier" &&
+                        decl.id.name === "ASSERT") {
+                        var e = end + 1;
+                        var s = start - 1;
+                        while(rhorizontalws.test(src.charAt(s--)));
+                        while(rlineterm.test(src.charAt(e++)));
+                        results.push( new Empty( s + 2, e - 1) );
+                    }
+                }
             }
         });
         return convertSrc( src, results );
