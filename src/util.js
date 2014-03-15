@@ -153,6 +153,15 @@ function thrower(r) {
 }
 
 
+function toFastProperties(obj) {
+    /*jshint -W027*/
+    function f() {}
+    f.prototype = obj;
+    ASSERT("%HasFastProperties", true, obj);
+    return f;
+    eval(obj);
+}
+
 var ret = {
     thrower: thrower,
     isArray: es5.isArray,
@@ -170,7 +179,8 @@ var ret = {
     withAppended: withAppended,
     asString: asString,
     maybeWrapAsError: maybeWrapAsError,
-    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver
+    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
+    toFastProperties: toFastProperties
 };
 
 module.exports = ret;

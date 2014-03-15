@@ -221,7 +221,6 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function f(){}
 function _promisify(callback, receiver, isAll) {
     if (isAll) {
         var methods = inheritedMethods(callback);
@@ -235,10 +234,7 @@ function _promisify(callback, receiver, isAll) {
                 makeNodePromisified(originalKey, THIS,
                     key, fn);
         }
-        //Right now the above loop will easily turn the
-        //object into hash table in V8
-        //but this will turn it back. Yes I am ashamed.
-        if (methods.length > 16) f.prototype = callback;
+        util.toFastProperties(callback);
         return callback;
     }
     else {

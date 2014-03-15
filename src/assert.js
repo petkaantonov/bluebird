@@ -12,8 +12,41 @@ module.exports = (function(){
         return AssertionError;
     })();
 
+    function getParams(args) {
+        var params = [];
+        for (var i = 0; i < args.length; ++i) params.push("arg" + i);
+        return params;
+    }
+
+    function nativeAssert(callName, args, expect) {
+        try {
+            var params = getParams(args);
+            var constructorArgs = params;
+            constructorArgs.push("return " +
+                    callName + "("+ params.join(",") + ");");
+            var fn = Function.apply(null, constructorArgs);
+            return fn.apply(null, args);
+        }
+        catch (e) {
+            if (!(e instanceof SyntaxError)) {
+                throw e;
+            }
+            else {
+                return expect;
+            }
+        }
+    }
+
     return function assert(boolExpr, message) {
         if (boolExpr === true) return;
+
+        if (typeof boolExpr === "string" &&
+            boolExpr.charAt(0) === "%") {
+            var nativeCallName = boolExpr;
+            INLINE_SLICE(args, arguments, 2);
+            if (nativeAssert(nativeCallName, args, message) === message) return;
+            message = (nativeCallName + " !== " + message);
+        }
 
         var ret = new AssertionError(message);
         if (Error.captureStackTrace) {

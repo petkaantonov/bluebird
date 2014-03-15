@@ -491,9 +491,14 @@ var astPasses = module.exports = {
                 if( callee.type === "Identifier" &&
                     callee.name === "ASSERT" ) {
                     if( node.arguments.length !== 1 ) {
-                        throw new Error( "Invalid amount of arguments to ASSERT" +
-                            src.substring(start, end)
-                        );
+                        results.push({
+                            start: start,
+                            end: end,
+                            toString: function() {
+                                return src.substring(start, end);
+                            }
+                        });
+                        return;
                     }
 
                     var expr = node.arguments[0];
@@ -523,11 +528,6 @@ var astPasses = module.exports = {
 
                 if( callee.type === "Identifier" &&
                     callee.name === "ASSERT" ) {
-                    if( node.arguments.length !== 1 ) {
-                        throw new Error( "Invalid amount of arguments to ASSERT" +
-                            src.substring(start, end)
-                        );
-                    }
                     var e = end + 1;
                     var s = start - 1;
 

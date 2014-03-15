@@ -1207,4 +1207,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+
+util.toFastProperties(Promise);
+util.toFastProperties(Promise.prototype);
 };

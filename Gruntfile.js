@@ -363,6 +363,7 @@ module.exports = function( grunt ) {
             process.stderr
         ];
         var flags = node11 ? ["--harmony-generators"] : [];
+        flags.push("--allow-natives-syntax");
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
             var node = spawn(typeof node11 === "string" ? node11 : 'node',
                 flags.concat(["../mocharun.js", file]),
@@ -594,7 +595,6 @@ module.exports = function( grunt ) {
         var fs = require("fs");
         var path = require("path");
         var done = this.async();
-        var adapter = global.adapter = require(BUILD_DEBUG_DEST);
 
         var totalTests = 0;
         var testsDone = 0;
