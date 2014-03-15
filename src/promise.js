@@ -633,8 +633,9 @@ function Promise$_resolveFromResolver(resolver) {
     if (localDebugging) this._popContext();
 
     if (r !== void 0 && r === errorObj) {
-        var trace = canAttach(r.e) ? r.e : new Error(r.e + "");
-        promise._reject(r.e, trace);
+        var e = r.e;
+        var trace = canAttach(e) ? e : new Error(e + "");
+        promise._reject(e, trace);
     }
 };
 
