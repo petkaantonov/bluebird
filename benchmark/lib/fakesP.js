@@ -29,6 +29,9 @@ else if( global.useRSVP ) {
 else if( global.useDeferred) {
     var lifter = require("deferred").promisify;
 }
+else if( global.useDavy) {
+    var lifter = require("davy").wrap;
+}
 else {
     var lifter = require('when/node/function').lift
 }
