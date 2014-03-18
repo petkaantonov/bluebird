@@ -1,3 +1,12 @@
+## 1.1.1 (2014-03-18)
+
+Bugfixes:
+
+ - [#138](https://github.com/petkaantonov/bluebird/issues/138)
+ - [#144](https://github.com/petkaantonov/bluebird/issues/144)
+ - [#148](https://github.com/petkaantonov/bluebird/issues/148)
+ - [#151](https://github.com/petkaantonov/bluebird/issues/151)
+
 ## 1.1.0 (2014-03-08)
 
 Features:
