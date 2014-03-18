@@ -184,7 +184,7 @@ module.exports = function( grunt ) {
             RangeError: true,
             __DEBUG__: false,
             __BROWSER__: false,
-            process: false,
+            process: true,
             "console": false,
             "require": false,
             "module": false,
