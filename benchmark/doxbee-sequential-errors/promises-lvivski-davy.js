@@ -1,8 +1,5 @@
-global.useBluebird = true;
-
-var davy = require('davy'),
-    p = require('../lib/promiseSupport.js');
-
+global.useDavy = true;
+var davy = require('davy');
 require('../lib/fakesP');
 
 module.exports = function upload(stream, idOrPath, tag, done) {
