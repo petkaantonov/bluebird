@@ -27,6 +27,11 @@ Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
 Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
+    if ( process != null && process.domain != null &&
+         fn.domain == null &&
+         typeof process.domain.bind === "function" ) {
+        fn = process.domain.bind(fn);
+    }
     this._lateBuffer.push(fn, receiver, arg);
     this._queueTick();
 };
@@ -35,6 +40,11 @@ Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
     var functionBuffer = this._functionBuffer;
+    if ( process != null && process.domain != null &&
+         fn.domain == null &&
+         typeof process.domain.bind === "function" ) {
+        fn = process.domain.bind(fn);
+    }
     functionBuffer.push(fn, receiver, arg);
     this._length = functionBuffer.length();
     this._queueTick();
@@ -63,7 +73,12 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
         var res = tryCatch1(fn, receiver, arg);
         if (res === errorObj) {
             this._queueTick();
-            throw res.e;
+            if (fn.domain != null) {
+                fn.domain.emit("error", res.e);
+            }
+            else {
+                throw res.e;
+            }
         }
     }
 };
