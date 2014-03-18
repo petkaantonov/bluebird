@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 benchmark=$1
 cwd=${PWD}
 
