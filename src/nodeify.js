@@ -37,7 +37,8 @@ module.exports = function(Promise) {
                 nodeback,
                 this._isBound() ? this._boundTo : null,
                 this.nodeify
-           );
+            );
+            return;
         }
         return this;
     };
