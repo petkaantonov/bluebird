@@ -1564,7 +1564,7 @@ Promise.all([getPictures(), getComments(), getTweets()]).then(function(results){
 });
 ```
 
-See [`.spread\(\)`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
+See [`.spread()`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
 
 *The original array is not modified. The input array sparsity is retained in the resulting array.*
 
