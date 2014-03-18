@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.1.0
+ * bluebird build version 1.1.1
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, synchronous_inspection
 */
 /**
@@ -51,8 +51,6 @@
 module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
-    var ASSERT = require("./assert.js");
-
     function Promise$_Any(promises, useBound, caller) {
         var ret = Promise$_CreatePromiseArray(
             promises,
@@ -82,7 +80,7 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
 };
 
-},{"./assert.js":2,"./some_promise_array.js":35}],2:[function(require,module,exports){
+},{"./some_promise_array.js":34}],2:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -106,63 +104,11 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
  * 
  */
 "use strict";
-module.exports = (function(){
-    var AssertionError = (function() {
-        function AssertionError(a) {
-            this.constructor$(a);
-            this.message = a;
-            this.name = "AssertionError";
-        }
-        AssertionError.prototype = new Error();
-        AssertionError.prototype.constructor = AssertionError;
-        AssertionError.prototype.constructor$ = Error;
-        return AssertionError;
-    })();
-
-    return function assert(boolExpr, message) {
-        if (boolExpr === true) return;
-
-        var ret = new AssertionError(message);
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(ret, assert);
-        }
-        if (console && console.error) {
-            console.error(ret.stack + "");
-        }
-        throw ret;
-
-    };
-})();
-
-},{}],3:[function(require,module,exports){
-/**
- * Copyright (c) 2014 Petka Antonov
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:</p>
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- */
-"use strict";
-var ASSERT = require("./assert.js");
 var schedule = require("./schedule.js");
 var Queue = require("./queue.js");
 var errorObj = require("./util.js").errorObj;
 var tryCatch1 = require("./util.js").tryCatch1;
+var process = require("./global.js").process;
 
 function Async() {
     this._isTickUsed = false;
@@ -180,11 +126,21 @@ Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
 };
 
 Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
+    if (process !== void 0 &&
+        process.domain != null &&
+        !fn.domain) {
+        fn = process.domain.bind(fn);
+    }
     this._lateBuffer.push(fn, receiver, arg);
     this._queueTick();
 };
 
 Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
+    if (process !== void 0 &&
+        process.domain != null &&
+        !fn.domain) {
+        fn = process.domain.bind(fn);
+    }
     var functionBuffer = this._functionBuffer;
     functionBuffer.push(fn, receiver, arg);
     this._length = functionBuffer.length();
@@ -213,7 +169,12 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
         var res = tryCatch1(fn, receiver, arg);
         if (res === errorObj) {
             this._queueTick();
-            throw res.e;
+            if (fn.domain != null) {
+                fn.domain.emit("error", res.e);
+            }
+            else {
+                throw res.e;
+            }
         }
     }
 };
@@ -232,7 +193,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./assert.js":2,"./queue.js":28,"./schedule.js":31,"./util.js":39}],4:[function(require,module,exports){
+},{"./global.js":15,"./queue.js":27,"./schedule.js":30,"./util.js":38}],3:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -258,7 +219,7 @@ module.exports = new Async();
 "use strict";
 var Promise = require("./promise.js")();
 module.exports = Promise;
-},{"./promise.js":20}],5:[function(require,module,exports){
+},{"./promise.js":19}],4:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -315,7 +276,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -342,7 +303,6 @@ module.exports = function(Promise) {
 module.exports = function(Promise, INTERNAL) {
     var errors = require("./errors.js");
     var async = require("./async.js");
-    var ASSERT = require("./assert.js");
     var CancellationError = errors.CancellationError;
     var SYNC_TOKEN = {};
 
@@ -395,7 +355,7 @@ module.exports = function(Promise, INTERNAL) {
     };
 };
 
-},{"./assert.js":2,"./async.js":3,"./errors.js":10}],7:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9}],6:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -420,7 +380,6 @@ module.exports = function(Promise, INTERNAL) {
  */
 "use strict";
 module.exports = function() {
-var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
@@ -635,7 +594,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./assert.js":2,"./es5.js":12,"./util.js":39}],8:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":38}],7:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -730,7 +689,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":10,"./es5.js":12,"./util.js":39}],9:[function(require,module,exports){
+},{"./errors.js":9,"./es5.js":11,"./util.js":38}],8:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -755,7 +714,6 @@ return CatchFilter;
  */
 "use strict";
 var util = require("./util.js");
-var ASSERT = require("./assert.js");
 var isPrimitive = util.isPrimitive;
 var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 
@@ -816,7 +774,7 @@ function Promise$thenThrow(reason) {
 };
 };
 
-},{"./assert.js":2,"./util.js":39}],10:[function(require,module,exports){
+},{"./util.js":38}],9:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -932,7 +890,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./es5.js":12,"./global.js":16,"./util.js":39}],11:[function(require,module,exports){
+},{"./es5.js":11,"./global.js":15,"./util.js":38}],10:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -972,7 +930,7 @@ function apiRejection(msg) {
 return apiRejection;
 };
 
-},{"./errors.js":10}],12:[function(require,module,exports){
+},{"./errors.js":9}],11:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1063,7 +1021,7 @@ else {
     };
 }
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1088,7 +1046,6 @@ else {
  */
 "use strict";
 module.exports = function(Promise) {
-    var ASSERT = require("./assert.js");
     var isArray = require("./util.js").isArray;
 
     function Promise$_filter(booleans) {
@@ -1119,7 +1076,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{"./assert.js":2,"./util.js":39}],14:[function(require,module,exports){
+},{"./util.js":38}],13:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1253,7 +1210,7 @@ module.exports = function(Promise, NEXT_FILTER) {
     };
 };
 
-},{"./util.js":39}],15:[function(require,module,exports){
+},{"./util.js":38}],14:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1311,7 +1268,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
     };
 };
 
-},{"./errors.js":10,"./promise_spawn.js":24,"./util.js":39}],16:[function(require,module,exports){
+},{"./errors.js":9,"./promise_spawn.js":23,"./util.js":38}],15:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1355,7 +1312,7 @@ module.exports = (function(){
     }
 })();
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1381,8 +1338,6 @@ module.exports = (function(){
 "use strict";
 module.exports = function(
     Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
-
-    var ASSERT = require("./assert.js");
 
     function Promise$_mapper(values) {
         var fn = this;
@@ -1486,7 +1441,7 @@ module.exports = function(
     };
 };
 
-},{"./assert.js":2}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1513,7 +1468,6 @@ module.exports = function(
 module.exports = function(Promise) {
     var util = require("./util.js");
     var async = require("./async.js");
-    var ASSERT = require("./assert.js");
     var tryCatch2 = util.tryCatch2;
     var tryCatch1 = util.tryCatch1;
     var errorObj = util.errorObj;
@@ -1546,13 +1500,14 @@ module.exports = function(Promise) {
                 nodeback,
                 this._isBound() ? this._boundTo : null,
                 this.nodeify
-           );
+            );
+            return;
         }
         return this;
     };
 };
 
-},{"./assert.js":2,"./async.js":3,"./util.js":39}],19:[function(require,module,exports){
+},{"./async.js":2,"./util.js":38}],18:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1577,7 +1532,6 @@ module.exports = function(Promise) {
  */
 "use strict";
 module.exports = function(Promise, isPromiseArrayProxy) {
-    var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var async = require("./async.js");
     var errors = require("./errors.js");
@@ -1668,7 +1622,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
     };
 };
 
-},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./util.js":39}],20:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":38}],19:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1694,7 +1648,6 @@ module.exports = function(Promise, isPromiseArrayProxy) {
 "use strict";
 module.exports = function() {
 var global = require("./global.js");
-var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
@@ -2280,8 +2233,9 @@ function Promise$_resolveFromResolver(resolver) {
     if (localDebugging) this._popContext();
 
     if (r !== void 0 && r === errorObj) {
-        var trace = canAttach(r.e) ? r.e : new Error(r.e + "");
-        promise._reject(r.e, trace);
+        var e = r.e;
+        var trace = canAttach(e) ? e : new Error(e + "");
+        promise._reject(e, trace);
     }
 };
 
@@ -2691,15 +2645,15 @@ function Promise$_rejectUnchecked(reason, trace) {
     if (trace !== void 0) this._setCarriedStackTrace(trace);
 
     if (len > 0) {
-        async.invoke(this._rejectPromises, this, len);
+        async.invoke(this._rejectPromises, this, null);
     }
     else {
         this._ensurePossibleRejectionHandled();
     }
 };
 
-Promise.prototype._rejectPromises = function Promise$_rejectPromises(len) {
-    len = this._length();
+Promise.prototype._rejectPromises = function Promise$_rejectPromises() {
+    var len = this._length();
     for (var i = 0; i < len; i+= 5) {
         this._settlePromiseAt(i);
     }
@@ -2812,6 +2766,9 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+
+util.toFastProperties(Promise);
+util.toFastProperties(Promise.prototype);
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
@@ -2834,7 +2791,7 @@ return Promise;
 
 };
 
-},{"./any.js":1,"./assert.js":2,"./async.js":3,"./call_get.js":5,"./cancel.js":6,"./captured_trace.js":7,"./catch_filter.js":8,"./direct_resolve.js":9,"./errors.js":10,"./errors_api_rejection":11,"./filter.js":13,"./finally.js":14,"./generators.js":15,"./global.js":16,"./map.js":17,"./nodeify.js":18,"./progress.js":19,"./promise_array.js":21,"./promise_resolver.js":23,"./promisify.js":25,"./props.js":27,"./race.js":29,"./reduce.js":30,"./settle.js":32,"./some.js":34,"./synchronous_inspection.js":36,"./thenables.js":37,"./timers.js":38,"./util.js":39}],21:[function(require,module,exports){
+},{"./any.js":1,"./async.js":2,"./call_get.js":4,"./cancel.js":5,"./captured_trace.js":6,"./catch_filter.js":7,"./direct_resolve.js":8,"./errors.js":9,"./errors_api_rejection":10,"./filter.js":12,"./finally.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":22,"./promisify.js":24,"./props.js":26,"./race.js":28,"./reduce.js":29,"./settle.js":31,"./some.js":33,"./synchronous_inspection.js":35,"./thenables.js":36,"./timers.js":37,"./util.js":38}],20:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -2859,7 +2816,6 @@ return Promise;
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var ASSERT = require("./assert.js");
 var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
 var async = require("./async.js");
@@ -2954,9 +2910,14 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             continue;
         }
         var maybePromise = Promise._cast(promise, void 0, void 0);
-        if (maybePromise instanceof Promise &&
-            maybePromise.isPending()) {
-            maybePromise._proxyPromiseArray(this, i);
+        if (maybePromise instanceof Promise) {
+            if (maybePromise.isPending()) {
+                maybePromise._proxyPromiseArray(this, i);
+            }
+            else {
+                maybePromise._unsetRejectionIsUnhandled();
+                isDirectScanNeeded = true;
+            }
         }
         else {
             isDirectScanNeeded = true;
@@ -2992,7 +2953,6 @@ function PromiseArray$_settlePromiseAt(index) {
         this._promiseFulfilled(value._settledValue, index);
     }
     else if (value.isRejected()) {
-        value._unsetRejectionIsUnhandled();
         this._promiseRejected(value._settledValue, index);
     }
 };
@@ -3066,7 +3026,7 @@ function PromiseArray$_promiseRejected(reason, index) {
 return PromiseArray;
 };
 
-},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./util.js":39}],22:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":38}],21:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3134,7 +3094,7 @@ PromiseInspection.prototype.error = function PromiseInspection$error() {
 
 module.exports = PromiseInspection;
 
-},{"./errors.js":10}],23:[function(require,module,exports){
+},{"./errors.js":9}],22:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3288,7 +3248,7 @@ function PromiseResolver$_setCarriedStackTrace(trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":3,"./errors.js":10,"./es5.js":12,"./util.js":39}],24:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./es5.js":11,"./util.js":38}],23:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3314,7 +3274,6 @@ module.exports = PromiseResolver;
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
-var ASSERT = require("./assert.js");
 var TypeError = errors.TypeError;
 var util = require("./util.js");
 var isArray = util.isArray;
@@ -3422,7 +3381,7 @@ PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
 return PromiseSpawn;
 };
 
-},{"./assert.js":2,"./errors.js":10,"./util.js":39}],25:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],24:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3457,9 +3416,6 @@ var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
 var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
-var ASSERT = require("./assert.js");
-
-
 var roriginal = new RegExp("__beforePromisified__" + "$");
 var hasProp = {}.hasOwnProperty;
 function isPromisified(fn) {
@@ -3658,7 +3614,6 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function f(){}
 function _promisify(callback, receiver, isAll) {
     if (isAll) {
         var methods = inheritedMethods(callback);
@@ -3672,7 +3627,7 @@ function _promisify(callback, receiver, isAll) {
                 makeNodePromisified(originalKey, THIS,
                     key, fn);
         }
-        if (methods.length > 16) f.prototype = callback;
+        util.toFastProperties(callback);
         return callback;
     }
     else {
@@ -3706,7 +3661,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./assert.js":2,"./es5.js":12,"./promise_resolver.js":23,"./util.js":39}],26:[function(require,module,exports){
+},{"./es5.js":11,"./promise_resolver.js":22,"./util.js":38}],25:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3731,7 +3686,6 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
-var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var inherits = util.inherits;
 var es5 = require("./es5.js");
@@ -3786,7 +3740,7 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 return PropertiesPromiseArray;
 };
 
-},{"./assert.js":2,"./es5.js":12,"./util.js":39}],27:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":38}],26:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3853,7 +3807,7 @@ module.exports = function(Promise, PromiseArray) {
     };
 };
 
-},{"./errors_api_rejection":11,"./properties_promise_array.js":26,"./util.js":39}],28:[function(require,module,exports){
+},{"./errors_api_rejection":10,"./properties_promise_array.js":25,"./util.js":38}],27:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3877,7 +3831,6 @@ module.exports = function(Promise, PromiseArray) {
  * 
  */
 "use strict";
-var ASSERT = require("./assert.js");
 function arrayCopy(src, srcIndex, dst, dstIndex, len) {
     for (var j = 0; j < len; ++j) {
         dst[j + dstIndex] = src[j + srcIndex];
@@ -3991,7 +3944,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
 
 module.exports = Queue;
 
-},{"./assert.js":2}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4078,7 +4031,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./errors_api_rejection.js":11,"./util.js":39}],30:[function(require,module,exports){
+},{"./errors_api_rejection.js":10,"./util.js":38}],29:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4105,8 +4058,6 @@ module.exports = function(Promise, INTERNAL) {
 module.exports = function(
     Promise, Promise$_CreatePromiseArray,
     PromiseArray, apiRejection, INTERNAL) {
-
-    var ASSERT = require("./assert.js");
 
     function Reduction(callback, index, accum, items, receiver) {
         this.promise = new Promise(INTERNAL);
@@ -4255,7 +4206,7 @@ module.exports = function(
     };
 };
 
-},{"./assert.js":2}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4280,7 +4231,6 @@ module.exports = function(
  */
 "use strict";
 var global = require("./global.js");
-var ASSERT = require("./assert.js");
 var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
@@ -4379,7 +4329,7 @@ else {
 
 module.exports = schedule;
 
-},{"./assert.js":2,"./global.js":16}],32:[function(require,module,exports){
+},{"./global.js":15}],31:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4430,7 +4380,7 @@ module.exports =
 
 };
 
-},{"./settled_promise_array.js":33}],33:[function(require,module,exports){
+},{"./settled_promise_array.js":32}],32:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4455,7 +4405,6 @@ module.exports =
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
-var ASSERT = require("./assert.js");
 var PromiseInspection = require("./promise_inspection.js");
 var util = require("./util.js");
 var inherits = util.inherits;
@@ -4493,7 +4442,7 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 return SettledPromiseArray;
 };
 
-},{"./assert.js":2,"./promise_inspection.js":22,"./util.js":39}],34:[function(require,module,exports){
+},{"./promise_inspection.js":21,"./util.js":38}],33:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4521,8 +4470,6 @@ module.exports =
 function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
-    var ASSERT = require("./assert.js");
-
     function Promise$_Some(promises, howMany, useBound, caller) {
         if ((howMany | 0) !== howMany || howMany < 0) {
             return apiRejection("expecting a positive integer");
@@ -4554,7 +4501,7 @@ function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
 };
 
-},{"./assert.js":2,"./some_promise_array.js":35}],35:[function(require,module,exports){
+},{"./some_promise_array.js":34}],34:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4687,7 +4634,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./errors.js":10,"./util.js":39}],36:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],35:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4719,7 +4666,7 @@ module.exports = function(Promise) {
     };
 };
 
-},{"./promise_inspection.js":22}],37:[function(require,module,exports){
+},{"./promise_inspection.js":21}],36:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4744,7 +4691,6 @@ module.exports = function(Promise) {
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-    var ASSERT = require("./assert.js");
     var util = require("./util.js");
     var canAttach = require("./errors.js").canAttach;
     var errorObj = util.errorObj;
@@ -4860,7 +4806,7 @@ module.exports = function(Promise, INTERNAL) {
     Promise._cast = Promise$_Cast;
 };
 
-},{"./assert.js":2,"./errors.js":10,"./util.js":39}],38:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],37:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4902,7 +4848,6 @@ global.setTimeout( function(_) {
 
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
-    var ASSERT = require("./assert.js");
     var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
@@ -4977,7 +4922,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./assert.js":2,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
+},{"./errors.js":9,"./errors_api_rejection":10,"./global.js":15,"./util.js":38}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -5002,7 +4947,6 @@ module.exports = function(Promise, INTERNAL) {
  */
 "use strict";
 var global = require("./global.js");
-var ASSERT = require("./assert.js");
 var es5 = require("./es5.js");
 var haveGetters = (function(){
     try {
@@ -5121,6 +5065,7 @@ function withAppended(target, appendee) {
 
 
 function notEnumerableProp(obj, name, value) {
+    if (isPrimitive(obj)) return obj;
     var descriptor = {
         value: value,
         configurable: true,
@@ -5141,6 +5086,14 @@ function thrower(r) {
 }
 
 
+function toFastProperties(obj) {
+    /*jshint -W027*/
+    function f() {}
+    f.prototype = obj;
+    return f;
+    eval(obj);
+}
+
 var ret = {
     thrower: thrower,
     isArray: es5.isArray,
@@ -5158,12 +5111,13 @@ var ret = {
     withAppended: withAppended,
     asString: asString,
     maybeWrapAsError: maybeWrapAsError,
-    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver
+    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
+    toFastProperties: toFastProperties
 };
 
 module.exports = ret;
 
-},{"./assert.js":2,"./es5.js":12,"./global.js":16}]},{},[4])
-(4)
+},{"./es5.js":11,"./global.js":15}]},{},[3])
+(3)
 });
 ;
