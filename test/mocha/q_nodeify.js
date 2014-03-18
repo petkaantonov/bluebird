@@ -128,6 +128,10 @@ describe("nodeify", function () {
         });
     });
 
+    it("returns undefined when a callback is passed", function () {
+        return 'undefined' === typeof Q(10).nodeify(function () {});
+    });
+
 });
 
 
