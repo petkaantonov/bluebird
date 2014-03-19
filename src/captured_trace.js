@@ -85,7 +85,7 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
             console.error(message);
         }
         else if (typeof console.log === "function" ||
-            typeof console.error === "object") {
+            typeof console.log === "object") {
             console.log(message);
         }
     }
