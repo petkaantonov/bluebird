@@ -1609,7 +1609,7 @@ Given an array, or a promise of an array, which contains promises (or a mix of p
 
 #####`Promise.any(Array<dynamic>|Promise values)` -> `Promise`
 
-Like [`Promise.some\(\)`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
+Like [`Promise.some()`](#someint-count---promise), with 1 as `count`. However, if the promise fulfills, the fulfillment value is not an array of 1 but the value directly.
 
 <hr>
 
@@ -1674,7 +1674,7 @@ If too many promises are rejected so that the promise can never become fulfilled
 
 #####`Promise.join([dynamic value...])` -> `Promise`
 
-Like [`Promise.all\(\)`](#promiseallarraydynamic-values---promise) but instead of having to pass an array, the array is generated from the passed variadic arguments.
+Like [`Promise.all()`](#promiseallarraydynamic-values---promise) but instead of having to pass an array, the array is generated from the passed variadic arguments.
 
 So instead of:
 
