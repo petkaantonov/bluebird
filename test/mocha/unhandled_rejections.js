@@ -605,6 +605,38 @@ describe("gh-118", function() {
     });
 });
 
+describe("Promise.onUnhandledRejectionHandled", function() {
+    specify("should be called when unhandled promise is later handled", function(done) {
+        var unhandledPromises = [];
+        Promise.onPossiblyUnhandledRejection(function(reason, promise) {
+            unhandledPromises.push({
+                reason: reason,
+                promise: promise
+            });
+        });
+
+        Promise.onUnhandledRejectionHandled(function(promise) {
+            assert.equal(unhandledPromises.length, 1);
+            assert(unhandledPromises[0].promise === promise);
+            assert(promise === a);
+            assert(unhandledPromises[0].reason === reason);
+            Promise.onUnhandledRejectionHandled(null);
+            Promise.onPossiblyUnhandledRejection(null);
+            done();
+        });
+
+        var reason = new Error("error");
+        var a = new Promise(function(){
+            throw reason;
+        });
+        setTimeout(function(){
+            a.caught(function(){
+
+            });
+        }, 25);
+    });
+});
+
 if (Promise.hasLongStackTraces()) {
     describe("Gives long stack traces for non-errors", function() {
 

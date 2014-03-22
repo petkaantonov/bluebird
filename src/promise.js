@@ -314,12 +314,14 @@ Promise.cast = function Promise$_Cast(obj, caller) {
 
 Promise.onPossiblyUnhandledRejection =
 function Promise$OnPossiblyUnhandledRejection(fn) {
-    if (typeof fn === "function") {
-        CapturedTrace.possiblyUnhandledRejection = fn;
-    }
-    else {
-        CapturedTrace.possiblyUnhandledRejection = void 0;
-    }
+        CapturedTrace.possiblyUnhandledRejection = typeof fn === "function"
+                                                    ? fn : void 0;
+};
+
+var unhandledRejectionHandled;
+Promise.onUnhandledRejectionHandled =
+function Promise$onUnhandledRejectionHandled(fn) {
+    unhandledRejectionHandled = typeof fn === "function" ? fn : void 0;
 };
 
 var debugging = __DEBUG__ || !!(
@@ -486,11 +488,30 @@ function Promise$_setRejectionIsUnhandled() {
 Promise.prototype._unsetRejectionIsUnhandled =
 function Promise$_unsetRejectionIsUnhandled() {
     this._bitField = this._bitField & (~IS_REJECTION_UNHANDLED);
+    if (this._isUnhandledRejectionNotified()) {
+        this._unsetUnhandledRejectionIsNotified();
+        this._notifyUnhandledRejectionIsHandled();
+    }
 };
 
 Promise.prototype._isRejectionUnhandled =
 function Promise$_isRejectionUnhandled() {
     return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
+};
+
+Promise.prototype._setUnhandledRejectionIsNotified =
+function Promise$_setUnhandledRejectionIsNotified() {
+    this._bitField = this._bitField | IS_UNHANDLED_REJECTION_NOTIFIED;
+};
+
+Promise.prototype._unsetUnhandledRejectionIsNotified =
+function Promise$_unsetUnhandledRejectionIsNotified() {
+    this._bitField = this._bitField & (~IS_UNHANDLED_REJECTION_NOTIFIED);
+};
+
+Promise.prototype._isUnhandledRejectionNotified =
+function Promise$_isUnhandledRejectionNotified() {
+    return (this._bitField & IS_UNHANDLED_REJECTION_NOTIFIED) > 0;
 };
 
 Promise.prototype._setCarriedStackTrace =
@@ -1093,13 +1114,20 @@ function Promise$_ensurePossibleRejectionHandled() {
     }
 };
 
+Promise.prototype._notifyUnhandledRejectionIsHandled =
+function Promise$_notifyUnhandledRejectionIsHandled() {
+    if (typeof unhandledRejectionHandled === "function") {
+        async.invokeLater(unhandledRejectionHandled, void 0, this);
+    }
+};
+
 Promise.prototype._notifyUnhandledRejection =
 function Promise$_notifyUnhandledRejection() {
     if (this._isRejectionUnhandled()) {
         var reason = this._settledValue;
         var trace = this._getCarriedStackTrace();
 
-        this._unsetRejectionIsUnhandled();
+        this._setUnhandledRejectionIsNotified();
 
         if (trace !== void 0) {
             this._unsetCarriedStackTrace();

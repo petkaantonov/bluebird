@@ -61,6 +61,7 @@
     - [`.toJSON()`](#tojson---object)
     - [`Promise.noConflict()`](#promisenoconflict---object)
     - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
+    - [`Promise.onUnhandledRejectionHandled(Function handler)`](#promiseonunhandledrejectionhandledfunction-handler---undefined)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -1437,13 +1438,47 @@ var promise = Bluebird.cast(new Promise());
 
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
 
-```html
+```js
 Promise.onPossiblyUnhandledRejection(function(e, promise){
     throw e;
 });
 ```
 
 Passing no value or a non-function will have the effect of removing any kind of handling for possibly unhandled rejections.
+
+<hr>
+
+#####`Promise.onUnhandledRejectionHandled(Function handler)` -> `undefined`
+
+Add `handler` as the handler to call when a rejected promise that was reported as "possibly unhandled rejection" became handled.
+
+Together with `onPossiblyUnhandledRejection` these hooks can be used to implement a debugger that will show a list
+of unhandled promise rejections updated in real time as promises become handled.
+
+For example:
+
+```js
+var unhandledPromises = [];
+Promise.onPossiblyUnhandledRejection(function(reason, promise) {
+    unhandledPromises.push(promise);
+    //Update some debugger UI
+});
+
+Promise.onUnhandledRejectionHandled(function(promise) {
+    var index = unhandledPromises.indexOf(promise);
+    unhandledPromises.splice(index, 1);
+    //Update the debugger UI
+});
+```
+
+The default approach of bluebird is to immediately log the stack trace upon possibly unhandled rejection. For majority of applications
+this will work perfectly, however for some it will give false positives. Such applications can then use the hooks to implement
+a more suitable error handling scheme. Any scheme can be implemented on top of these hooks, e.g.:
+
+- Immediate logging to stderr (the default)
+- Logging after the promise became GCd (requires a native node.js module)
+- Showing a live list of rejected promises
+- ...
 
 <hr>
 
