@@ -145,25 +145,6 @@ Promise.prototype.spread = function Promise$spread(didFulfill, didReject) {
         APPLY, void 0, this.spread);
 };
 
-Promise.prototype.isFulfilled = function Promise$isFulfilled() {
-    return (this._bitField & IS_FULFILLED) > 0;
-};
-
-
-Promise.prototype.isRejected = function Promise$isRejected() {
-    return (this._bitField & IS_REJECTED) > 0;
-};
-
-Promise.prototype.isPending = function Promise$isPending() {
-    return !this.isResolved();
-};
-
-
-Promise.prototype.isResolved = function Promise$isResolved() {
-    return (this._bitField & IS_REJECTED_OR_FULFILLED) > 0;
-};
-
-
 Promise.prototype.isCancellable = function Promise$isCancellable() {
     return !this.isResolved() &&
         this._cancellable();
@@ -1202,6 +1183,7 @@ Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
+require("./synchronous_inspection.js")(Promise);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;

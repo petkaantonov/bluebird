@@ -62,8 +62,7 @@ module.exports = function( grunt ) {
         "settle.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
         "some.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise', 'isPromiseArrayProxy'],
-        "cancel.js": ['Promise', 'INTERNAL'],
-        "synchronous_inspection.js": ['Promise']
+        "cancel.js": ['Promise', 'INTERNAL']
 
     };
 
@@ -82,8 +81,7 @@ module.exports = function( grunt ) {
         "settle.js": true,
         "some.js": true,
         "progress.js": true,
-        "cancel.js": true,
-        "synchronous_inspection.js": true
+        "cancel.js": true
 
     };
 
@@ -288,7 +286,6 @@ module.exports = function( grunt ) {
                     "./src/settled_promise_array.js",
                     "./src/some_promise_array.js",
                     "./src/properties_promise_array.js",
-                    "./src/promise_inspection.js",
                     "./src/promise_resolver.js",
                     "./src/promise_spawn.js"
                 ]
@@ -487,7 +484,6 @@ module.exports = function( grunt ) {
 
     var optionalPaths = [
         "./src/timers.js",
-        "./src/synchronous_inspection.js",
         "./src/any.js",
         "./src/race.js",
         "./src/call_get.js",
@@ -524,7 +520,7 @@ module.exports = function( grunt ) {
         "./src/settled_promise_array.js",
         "./src/some_promise_array.js",
         "./src/properties_promise_array.js",
-        "./src/promise_inspection.js",
+        "./src/synchronous_inspection.js",
         "./src/promise_resolver.js",
         "./src/promise_spawn.js",
         "./src/direct_resolve.js"

@@ -46,6 +46,8 @@
     - [`.isRejected()`](#isrejected---boolean)
     - [`.isPending()`](#isdefer---boolean)
     - [`.isResolved()`](#isresolved---boolean)
+    - [`.value()`](#value---dynamic)
+    - [`.reason()`](#reason---dynamic)
     - [`.inspect()`](#inspect---promiseinspection)
 - [Generators](#generators)
     - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
@@ -1128,6 +1130,18 @@ See if this `promise` is still defer.
 #####`.isResolved()` -> `boolean`
 
 See if this `promise` is resolved -> either fulfilled or rejected.
+
+<hr>
+
+#####`.value()` -> `dynamic`
+
+Get the fulfillment value of this promise. Throws an error if the promise isn't fulfilled.
+
+<hr>
+
+#####`.reason()` -> `dynamic`
+
+Get the rejection reason of this promise. Throws an error if the promise isn't rejected.
 
 <hr>
 

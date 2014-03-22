@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
-var PromiseInspection = require("./promise_inspection.js");
+var PromiseInspection = Promise.PromiseInspection;
 var util = require("./util.js");
 var inherits = util.inherits;
 // the PromiseArray to use with Promise.settle method
