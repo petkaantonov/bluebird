@@ -19,6 +19,9 @@
     - [`Promise.bind(dynamic thisArg)`](#promisebinddynamic-thisarg---promise)
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
+- [Resource management](#resource-management)
+    - [`Promise.using(Promise promise, Promise promise ..., Function handler)`](#promiseusingpromise-promise-promise-promise--function-handler---promise)
+    - [`.disposer(String methodName)`](#disposerstring-methodname---promise)
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Promise resolution](#promise-resolution)
@@ -710,6 +713,149 @@ While with long stack traces disabled, you would get:
         at MutationObserver.Promise$_Deferred (<anonymous>:433:17)
 
 On client side, long stack traces currently only work in Firefox and Chrome.
+
+<hr>
+
+##Resource management
+
+Managing resources properly without leaks can be surprisingly challenging. Simply using `.finally` is not enough as the following example demonstrates:
+
+```js
+function doStuff() {
+    return Promise.all([
+        connectionPool.getConnectionAsync(),
+        fs.readFileAsync("file.sql", "utf8")
+    ]).spread(function(connection, fileContents) {
+        return connection.query(fileContents).finally(function() {
+            connection.close();
+        });
+    }).then(function(){
+        console.log("query successful and connection closed");
+    });
+}
+```
+
+It is very subtle but over time this code will exhaust the entire connection pool and the server needs to be restarted. This is because
+reading the file may fail and then of course `.spread` is not called at all and thus the connection is not closed.
+
+One could solve this by either reading the file first or connecting first, and only proceeding if the first step succeeds. However,
+this would lose a lot of the benefits of using asynchronity and we might almost as well go back to using simple synchronous code.
+
+We can do better, retaining concurrency and not leaking resources, by using [`using()`](#promiseusingpromise-promise-promise-promise--function-handler---promise):
+
+```js
+var using = Promise.using;
+
+using(connectionPool.getConnectionAsync().disposer("close"),
+      fs.readFileAsync("file.sql", "utf8"), function(connection, fileContents) {
+    return connection.query(fileContents);
+}).then(function() {
+    console.log("query successful and connection closed");
+});
+```
+
+
+#####`Promise.using(Promise promise, Promise promise ..., Function handler)` -> `Promise`
+
+Using this function out of the box is pretty much equivalent to the following code:
+
+```js
+Promise.all([Promise promiseForResource1, Promise promiseForResource2 ...])
+    .spread(function(resource1, resource2 ...) {
+
+    });
+
+```
+
+However, in conjunction with [`.disposer()`](#disposerstring-methodname---promise), `using` will make sure that no matter what, the specified disposer will be called
+when appropriate. See [Resource management](#resource-management) and [`.disposer()`](#disposerstring-methodname---promise) for a better overview.
+
+<hr>
+
+#####`.disposer(String methodName)` -> `Promise`
+
+A meta method used to specify the disposer method that cleans up a resource when using [`using()`](#promiseusingpromise-promise-promise-promise--function-handler---promise).
+
+Example:
+
+```js
+using(pool.getConnectionAsync().disposer("close"), function(connection) {
+   return connection.queryAsync("SELECT * FROM TABLE");
+}).then(function(rows) {
+    console.log(rows);
+});
+```
+
+Because `"close"` was specified as a disposer for the connection, `.using` will call `connection.close()` to close
+the connection after the rows are retrieved or if an error happens on the way.
+
+Note that in practice you should define the disposer at the place where the connection is created so that
+call sites can just forget about it:
+
+```js
+function getConnectionAsync() {
+    return pool.getConnectionAsync().disposer("close"):
+}
+
+// Now call sites are much cleaner:
+using(getConnectionAsync(), function(connection) {
+   return connection.queryAsync("SELECT * FROM TABLE");
+}).then(function(rows) {
+    console.log(rows);
+});
+```
+
+Returns the input promise, not a new promise (this is a meta method).
+
+**Warning**
+
+In practice you will probably end up using promisified methods to get resource handles but it might be
+the case that you are using an API that was designed to use promises. As always, this is ironically much
+worse case to handle with bluebird than APIs that use callbacks.
+
+The hidden contract of promise returning functions is that they must never throw errors synchronously. Instead,
+errors must be communicated as a rejection on the returned promise. However, in practice, this contract
+is being broken a lot.
+
+So this can be a problem with `using()`:
+
+```js
+using(Promise.cast(externalPromiseApi.getResource1()).disposer("close"),
+    Promise.cast(externalPromiseApi.getResource2()).disposer("close"),
+    function(resource1, resource2) {
+
+})
+```
+
+The issue here is that if the *call* to `.getResource2()` throws synchronously, then resource1 will leak because the code is executed like this:
+
+```js
+var a = Promise.cast(externalPromiseApi.getResource1()).disposer("close");
+var b = Promise.cast(externalPromiseApi.getResource2()).disposer("close");
+using(a, b, function(resource1, resource2) {
+
+})
+```
+
+Because the line `var b = ...` throws, the `using` line is never executed, thus `a` is never released.
+
+This is not a problem with promisified callback functions because they are guaranteed not to throw.
+
+This specific situation can be fixed with `Promise.method`:
+
+```js
+externalPromiseApi.getResource1 = Promise.method(externalPromiseApi.getResource1);
+externalPromiseApi.getResource2 = Promise.method(externalPromiseApi.getResource2);
+
+// Automatic casting and guaranteed not to throw!
+using(externalPromiseApi.getResource1().disposer("close"),
+    externalPromiseApi.getResource1().disposer("close"),
+    function(resource1, resource2) {
+
+})
+```
+
+`Promise.method` also automatically casts the promises so using it was beneficial for that reason alone.
 
 <hr>
 
