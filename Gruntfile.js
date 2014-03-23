@@ -76,7 +76,8 @@ module.exports = function( grunt ) {
         "progress.js": ['Promise', 'PromiseArray'],
         "cancel.js": ['Promise', 'INTERNAL'],
         "filter.js": ['Promise', 'apiRejection'],
-        "each.js": ['Promise', 'cast', 'apiRejection']
+        "each.js": ['Promise', 'cast', 'apiRejection'],
+        "using.js": ['Promise', 'apiRejection']
     };
 
     var optionalModuleRequireMap = {
@@ -93,10 +94,10 @@ module.exports = function( grunt ) {
         "some.js": true,
         "progress.js": true,
         "cancel.js": true,
+        "using.js": true,
         "filter.js": ["map.js"],
         "any.js": ["some.js"],
         "each.js": ["reduce.js"]
-
     };
 
     function getOptionalRequireCode( srcs ) {
@@ -298,7 +299,8 @@ module.exports = function( grunt ) {
                     "./src/catch_filter.js",
                     "./src/promise.js",
                     "./src/promise_array.js",
-                    "./src/promise_resolver.js"
+                    "./src/promise_resolver.js",
+                    "./src/using.js"
                 ]
             }
         }
@@ -521,7 +523,8 @@ module.exports = function( grunt ) {
         "./src/cancel.js",
         "./src/filter.js",
         "./src/any.js",
-        "./src/each.js"
+        "./src/each.js",
+        "./src/using.js"
     ];
 
     var mandatoryPaths = [
