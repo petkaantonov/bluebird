@@ -31,7 +31,7 @@ module.exports = function (Promise, apiRejection) {
         var haveError = false;
         var error = null;
         for (var i = 0; i < resources.length; ++i) {
-            var maybePromise = Promise._cast(resources[i]);
+            var maybePromise = Promise._cast(resources[i], void 0, void 0);
             if (maybePromise instanceof Promise &&
                 maybePromise.isFulfilled() &&
                 maybePromise._isDisposable()) {
@@ -45,10 +45,7 @@ module.exports = function (Promise, apiRejection) {
         }
 
         // Override return value / return Promise.reject
-        if (haveError) {
-            throw error;
-        }
-
+        if (haveError) throw error;
     }
 
     function disposerSuccess(value) {
@@ -61,10 +58,12 @@ module.exports = function (Promise, apiRejection) {
         return Promise.reject(reason);
     }
 
-    function using(resource, $fn) {
+    Promise.using = function Promise$using() {
         var len = arguments.length;
-        if (len < 2) return apiRejection(NOT_FUNCTION_ERROR);
-        var resources = INLINE_SLICE(args, arguments, 0, len - 1);
+        if (len < 2) return apiRejection(
+                        "you must pass at least 2 arguments to Promise.using");
+        INLINE_SLICE(args, arguments, 0, len - 1);
+        var resources = args;
         var fn = arguments[len - 1];
         if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
 
@@ -72,8 +71,8 @@ module.exports = function (Promise, apiRejection) {
             .then(inspectionMapper)
             .spread(fn)
             ._then(disposerSuccess, disposerFail, void 0,
-                    resources, void 0, using);
-    }
+                    resources, void 0, Promise$using);
+    };
 
     Promise.prototype._setDisposable =
     function Promise$_setDisposable(methodName) {
@@ -86,6 +85,8 @@ module.exports = function (Promise, apiRejection) {
     };
 
     Promise.prototype.disposer = function Promise$disposer(methodName) {
+        // Will most likely support more ways of describing how to dispose
+        // resources in the future
         if (typeof methodName !== "string") throw new TypeError();
         this._setDisposable(methodName);
         return this;
