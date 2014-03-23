@@ -522,7 +522,7 @@ The above does `console.log(document.getElementById("my-element"));`. The `.bind
 
 <hr>
 
-#####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+#####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `void`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
