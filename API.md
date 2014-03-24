@@ -20,8 +20,8 @@
     - [`Promise.is(dynamic value)`](#promiseisdynamic-value---boolean)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
 - [Resource management](#resource-management)
-    - [`Promise.using(Promise promise, Promise promise ..., Function handler)`](#promiseusingpromise-promise-promise-promise--function-handler---promise)
-    - [`.disposer(String methodName)`](#disposerstring-methodname---promise)
+    - [`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise)
+    - [`.disposer(String methodName)`](#disposerstring-methodname---disposer)
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Promise resolution](#promise-resolution)
@@ -741,7 +741,7 @@ reading the file may fail and then of course `.spread` is not called at all and 
 One could solve this by either reading the file first or connecting first, and only proceeding if the first step succeeds. However,
 this would lose a lot of the benefits of using asynchronity and we might almost as well go back to using simple synchronous code.
 
-We can do better, retaining concurrency and not leaking resources, by using [`using()`](#promiseusingpromise-promise-promise-promise--function-handler---promise):
+We can do better, retaining concurrency and not leaking resources, by using [`using()`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise):
 
 ```js
 var using = Promise.using;
@@ -755,7 +755,7 @@ using(connectionPool.getConnectionAsync().disposer("close"),
 ```
 
 
-#####`Promise.using(Promise promise, Promise promise ..., Function handler)` -> `Promise`
+#####`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)` -> `Promise`
 
 Using this function out of the box is pretty much equivalent to the following code:
 
@@ -767,14 +767,14 @@ Promise.all([Promise promiseForResource1, Promise promiseForResource2 ...])
 
 ```
 
-However, in conjunction with [`.disposer()`](#disposerstring-methodname---promise), `using` will make sure that no matter what, the specified disposer will be called
-when appropriate. See [Resource management](#resource-management) and [`.disposer()`](#disposerstring-methodname---promise) for a better overview.
+However, in conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
+when appropriate. See [Resource management](#resource-management) and [`.disposer()`](#disposerstring-methodname---disposer) for a better overview.
 
 <hr>
 
-#####`.disposer(String methodName)` -> `Promise`
+#####`.disposer(String methodName)` -> `Disposer`
 
-A meta method used to specify the disposer method that cleans up a resource when using [`using()`](#promiseusingpromise-promise-promise-promise--function-handler---promise).
+A meta method used to specify the disposer method that cleans up a resource when using [`using()`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise).
 
 Example:
 
@@ -805,7 +805,8 @@ using(getConnectionAsync(), function(connection) {
 });
 ```
 
-Returns the input promise, not a new promise (this is a meta method).
+Returns a Disposer object that is only meaningful when passed to `using()`. This enforces correct usage, e.g. it is
+very hard to use the result of `getConnectionAsync()` in the above code without going through `.using()`
 
 **Warning**
 

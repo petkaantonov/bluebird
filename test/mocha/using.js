@@ -84,12 +84,13 @@ describe("Promise.using", function() {
 
     specify("simple unhappy case", function(done) {
         var a = connect();
+        var promise = a._promise;
         var b = connectError();
-        using(a, b, function(a, b) {
+        using(b, a, function(a, b) {
             assert(false);
         }).catch(function() {
-            assert(a.value().isClosed);
-            assert.equal(a.value().closesCalled, 1);
+            assert(promise.value().isClosed);
+            assert.equal(promise.value().closesCalled, 1);
             done();
         })
     })
