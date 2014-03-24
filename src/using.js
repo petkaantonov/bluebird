@@ -1,6 +1,8 @@
 "use strict";
 module.exports = function (Promise, apiRejection) {
     var TypeError = require("./errors.js").TypeError;
+    var inherits = require("./util.js").inherits;
+    var errorRef = {e: null};
 
     function inspectionMapper(inspections) {
         var len = inspections.length;
@@ -15,29 +17,14 @@ module.exports = function (Promise, apiRejection) {
         return inspections;
     }
 
-    function tryDispose(obj, methodName) {
-        try {
-            obj[methodName]();
-            return true;
-        }
-        catch (e) {
-            errorRef.e = e;
-            return false;
-        }
-    }
-
-    var errorRef = {e: null};
     function dispose(resources) {
         var haveError = false;
         var error = null;
         for (var i = 0; i < resources.length; ++i) {
             var maybePromise = Promise._cast(resources[i], void 0, void 0);
             if (maybePromise instanceof Promise &&
-                maybePromise.isFulfilled() &&
                 maybePromise._isDisposable()) {
-                if (!tryDispose(maybePromise.value(),
-                                maybePromise._disposeMethodName) &&
-                    !haveError) {
+                if (!maybePromise._getDisposer().tryDispose() && !haveError) {
                     haveError = true;
                     error = errorRef.e;
                 }
@@ -58,14 +45,80 @@ module.exports = function (Promise, apiRejection) {
         return Promise.reject(reason);
     }
 
+    function Disposer(data, promise) {
+        this._data = data;
+        this._promise = promise;
+    }
+
+    Disposer.prototype.data = function Disposer$data() {
+        return this._data;
+    };
+
+    Disposer.prototype.promise = function Disposer$promise() {
+        return this._promise;
+    };
+
+    Disposer.prototype.resource = function Disposer$resource() {
+        if (this.promise().isFulfilled()) {
+            return this.promise().value();
+        }
+        return null;
+    };
+
+    Disposer.prototype.tryDispose = function() {
+        var resource = this.resource();
+        var ret = true;
+        if (resource !== null) {
+            try {
+                this.doDispose(resource);
+            }
+            catch (e) {
+                errorRef.e = e;
+                ret = false;
+            }
+        }
+        this._promise._unsetDisposable();
+        this._data = this._promise = null;
+        return ret;
+    };
+
+    function MethodNameDisposer(methodName, promise) {
+        this.constructor$(methodName, promise);
+    }
+    inherits(MethodNameDisposer, Disposer);
+
+    MethodNameDisposer.prototype.doDispose = function (resource) {
+        var methodName = this.data();
+        resource[methodName]();
+    };
+
+    function FunctionDisposer(fn, promise) {
+        this.constructor$(fn, promise);
+    }
+    inherits(FunctionDisposer, Disposer);
+
+    FunctionDisposer.prototype.doDispose = function (resource) {
+        var fn = this.data();
+        fn(resource);
+    };
+
     Promise.using = function Promise$using() {
         var len = arguments.length;
         if (len < 2) return apiRejection(
                         "you must pass at least 2 arguments to Promise.using");
-        INLINE_SLICE(args, arguments, 0, len - 1);
-        var resources = args;
         var fn = arguments[len - 1];
         if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+        len--;
+        var resources = new Array(len);
+        for (var i = 0; i < len; ++i) {
+            var resource = arguments[i];
+            if (resource instanceof Disposer) {
+                var disposer = resource;
+                resource = resource.promise();
+                resource._setDisposable(disposer);
+            }
+            resources[i] = resource;
+        }
 
         return Promise.settle(resources)
             .then(inspectionMapper)
@@ -75,21 +128,32 @@ module.exports = function (Promise, apiRejection) {
     };
 
     Promise.prototype._setDisposable =
-    function Promise$_setDisposable(methodName) {
+    function Promise$_setDisposable(disposer) {
         this._bitField = this._bitField | IS_DISPOSABLE;
-        this._disposeMethodName = methodName;
+        this._disposer = disposer;
     };
 
     Promise.prototype._isDisposable = function Promise$_isDisposable() {
         return (this._bitField & IS_DISPOSABLE) > 0;
     };
 
+    Promise.prototype._getDisposer = function Promise$_getDisposer() {
+        return this._disposer;
+    };
+
+    Promise.prototype._unsetDisposable = function Promise$_unsetDisposable() {
+        this._bitField = this._bitField & (~IS_DISPOSABLE);
+        this._disposer = void 0;
+    };
+
     Promise.prototype.disposer = function Promise$disposer(methodName) {
-        // Will most likely support more ways of describing how to dispose
-        // resources in the future
-        if (typeof methodName !== "string") throw new TypeError();
-        this._setDisposable(methodName);
-        return this;
+        if (typeof methodName === "string") {
+            return new MethodNameDisposer(methodName, this);
+        }
+        else if (typeof methodName === "function") {
+            return new FunctionDisposer(methodName, this);
+        }
+        throw new TypeError();
     };
 
 };
