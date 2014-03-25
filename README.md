@@ -67,6 +67,8 @@ Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/
 
 The global variable `Promise` becomes available after the above script tag.
 
+Bluebird is ~93kb minified, ~21kb gzipped and has no external dependencies.
+
 ####Browser support
 
 Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
