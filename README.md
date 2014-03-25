@@ -36,7 +36,8 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Progression](https://github.com/promises-aplus/progress-spec)
 - [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
 - [`.bind`](https://github.com/petkaantonov/bluebird/blob/master/API.md#binddynamic-thisarg---promise)
-- [Complete parallel for C# 5.0 async and await](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
+- [Complete parallel for C# 5.0 `async` and `await`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
+- [Resource management through a parallel of python `with`/C# `using`](#resource-management)
 - [Collection methods](https://github.com/petkaantonov/bluebird/blob/master/API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join, race...
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
@@ -511,6 +512,7 @@ Custom builds for browsers are supported through a command-line utility.
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
         <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#timers">Timers</a></td><td><code>timers</code></td></tr>
+        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management">Resource management</a></td><td><code>using</code></td></tr>
 
     </tbody>
 </table>
