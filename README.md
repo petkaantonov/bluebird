@@ -67,6 +67,10 @@ Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/
 
 The global variable `Promise` becomes available after the above script tag.
 
+A [minimal bluebird browser build](#custom-builds) is ̃37.5KB minified*, 11.17KB gzipped and has no external dependencies.
+
+*Google Closure Compiler using Simple.
+
 ####Browser support
 
 Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
