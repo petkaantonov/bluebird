@@ -14,7 +14,8 @@
     "text-table": "~0.2.0",
     "when": "~3.0.0",
     "vow": "~0.4.1",
-    "davy": "~0.2.0"
+    "davy": "~0.2.0",
+    "pacta": "~0.5.0"
   },
   "devDependencies": {},
   "scripts": {
