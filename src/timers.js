@@ -17,7 +17,9 @@ var setTimeout = function(fn, time) {
 var pass = {};
 global.setTimeout( function(_) {
     if(_ === pass) {
-        setTimeout = global.setTimeout;
+      setTimeout = function() {
+        global.setTimeout.apply(void 0, arguments);
+      };
     }
 }, 1, pass);
 
