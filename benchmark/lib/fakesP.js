@@ -32,6 +32,9 @@ else if( global.useDeferred) {
 else if( global.useDavy) {
     var lifter = require("davy").wrap;
 }
+else if( global.usePacta ) {
+    var lifter = require("./lifterPacta");
+}
 else {
     var lifter = require('when/node/function').lift
 }
