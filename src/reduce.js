@@ -34,7 +34,7 @@ module.exports = function(
         var callback = this.callback;
         var iterate = this.iterate;
 
-        for(; i < len; ++i) {
+        for (; i < len; ++i) {
             result = Promise._cast(
                 callback.call(
                     receiver,
