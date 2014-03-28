@@ -658,9 +658,11 @@ module.exports = function( grunt ) {
 
         slowTests.forEach(runFile);
 
-        var maxParallelProcesses = jobs;
-        var len = Math.min( files.length, maxParallelProcesses );
-        for( var i = 0; i < len; ++i ) {
+        jobs = Math.min( files.length, jobs );
+        if (jobs === 1) {
+            grunt.option("verbose", true);
+        }
+        for( var i = 0; i < jobs; ++i ) {
             runFile( files.shift() );
         }
     }
