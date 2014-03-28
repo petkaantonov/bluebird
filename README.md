@@ -496,7 +496,11 @@ Install [node](http://nodejs.org/), [npm](https://npmjs.org/), and [grunt](http:
 
 ##Testing
 
-To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The stdout of tests is ignored by default and everything will stop at the first failure.
+To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The stdout of tests is ignored by default and everything will stop at the first failure. If you want to run tests sequentially with all output, do:
+
+    grunt test --jobs=1
+
+You may also give a higher `--jobs` value to run more tests concurrently (and finish faster).
 
 Individual files can be run with `grunt test --run=filename` where `filename` is a test file name in `/test` folder or `/test/mocha` folder. The `.js` prefix is not needed. The dots for AP compliance tests are not needed, so to run `/test/mocha/2.3.3.js` for instance:
 

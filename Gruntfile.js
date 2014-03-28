@@ -586,7 +586,7 @@ module.exports = function( grunt ) {
             file.contains("unhandled_rejections");
     }
 
-    function testRun( testOption ) {
+    function testRun( testOption, jobs ) {
         var fs = require("fs");
         var path = require("path");
         var done = this.async();
@@ -658,7 +658,7 @@ module.exports = function( grunt ) {
 
         slowTests.forEach(runFile);
 
-        var maxParallelProcesses = 10;
+        var maxParallelProcesses = jobs;
         var len = Math.min( files.length, maxParallelProcesses );
         for( var i = 0; i < len; ++i ) {
             runFile( files.shift() );
@@ -697,6 +697,11 @@ module.exports = function( grunt ) {
     grunt.registerTask( "testrun", function(){
         var testOption = grunt.option("run");
         var node11path = grunt.option("node11");
+        var jobs = parseInt(grunt.option("jobs"), 10);
+
+        if (!isFinite(jobs) || jobs < 1) {
+            jobs = 10;
+        }
 
         if (typeof node11path === "string" && node11path) {
             node11 = node11path;
@@ -709,7 +714,7 @@ module.exports = function( grunt ) {
                 .replace( /\.js$/, "" )
                 .replace( /[^a-zA-Z0-9_-]/g, "" );
         }
-        testRun.call( this, testOption );
+        testRun.call( this, testOption, jobs );
     });
 
     grunt.registerTask( "test", ["jshint", "build", "testrun"] );
