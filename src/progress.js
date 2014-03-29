@@ -35,7 +35,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
         var receiver = progression.receiver;
 
         ASSERT(typeof handler === "function");
-        ASSERT(Promise.is(promise));
+        ASSERT(promise instanceof Promise);
 
         this._pushContext();
         var ret = tryCatch1(handler, receiver, progressValue);
@@ -59,7 +59,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
             }
         }
         //2.2 The onProgress callback may return a promise.
-        else if (Promise.is(ret)) {
+        else if (ret instanceof Promise) {
             //2.2.1 The callback is not considered complete
             //until the promise is fulfilled.
 
@@ -88,12 +88,12 @@ module.exports = function(Promise, isPromiseArrayProxy) {
             var promise = this._promiseAt(i);
             //if promise is not instanceof Promise
             //it is internally smuggled data
-            if (!Promise.is(promise)) {
+            if (!(promise instanceof Promise)) {
                 var receiver = this._receiverAt(i);
                 if (typeof handler === "function") {
                     handler.call(receiver, progressValue, promise);
                 }
-                else if (Promise.is(receiver) && receiver._isProxied()) {
+                else if (receiver instanceof Promise && receiver._isProxied()) {
                     receiver._progressUnchecked(progressValue);
                 }
                 else if (isPromiseArrayProxy(receiver, promise)) {

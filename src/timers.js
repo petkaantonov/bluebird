@@ -42,7 +42,7 @@ module.exports = function(Promise, INTERNAL) {
         var maybePromise = Promise._cast(value, caller, void 0);
         var promise = new Promise(INTERNAL);
 
-        if (Promise.is(maybePromise)) {
+        if (maybePromise instanceof Promise) {
             if (maybePromise._isBound()) {
                 promise._setBoundTo(maybePromise._boundTo);
             }

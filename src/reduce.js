@@ -115,7 +115,7 @@ module.exports = function(
         }
 
         if (initialValue !== void 0) {
-            if (Promise.is(initialValue)) {
+            if (initialValue instanceof Promise) {
                 if (initialValue.isFulfilled()) {
                     initialValue = initialValue._settledValue;
                 }

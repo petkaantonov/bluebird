@@ -13,7 +13,7 @@ module.exports = function(Promise, PromiseArray) {
         if (!isObject(castValue)) {
             return apiRejection(PROPS_TYPE_ERROR);
         }
-        else if (Promise.is(castValue)) {
+        else if (castValue instanceof Promise) {
             ret = castValue._then(Promise.props, void 0, void 0,
                             void 0, void 0, caller);
         }

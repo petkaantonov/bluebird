@@ -22,7 +22,7 @@ function PromiseArray(values, caller, boundTo) {
     ASSERT(arguments.length === 3);
     var promise = this._promise = new Promise(INTERNAL);
     var parent = void 0;
-    if (Promise.is(values)) {
+    if (values instanceof Promise) {
         parent = values;
         if (values._cancellable()) {
             promise._setCancellable();
@@ -57,7 +57,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             //all of this is due to when vs some having different semantics on
             //empty arrays
     var values = this._values;
-    if (Promise.is(values)) {
+    if (values instanceof Promise) {
         //Expect the promise to be a promise
         //for an array
         if (values.isFulfilled()) {
@@ -151,7 +151,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
 PromiseArray.prototype._settlePromiseAt =
 function PromiseArray$_settlePromiseAt(index) {
     var value = this._values[index];
-    if (!Promise.is(value)) {
+    if (!(value instanceof Promise)) {
         this._promiseFulfilled(value, index);
     }
     else if (value.isFulfilled()) {

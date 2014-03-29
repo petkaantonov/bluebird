@@ -13,7 +13,7 @@ module.exports = function(Promise, INTERNAL) {
     function Promise$_Race(promises, caller, parent) {
         var maybePromise = Promise._cast(promises, caller, void 0);
 
-        if (Promise.is(maybePromise)) {
+        if (maybePromise instanceof Promise) {
             return raceLater(maybePromise);
         }
         else if (!isArray(promises)) {
