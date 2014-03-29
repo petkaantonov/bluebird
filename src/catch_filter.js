@@ -5,6 +5,7 @@ var errors = require("./errors.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 var keys = require("./es5.js").keys;
+var TypeError = errors.TypeError;
 
 function CatchFilter(instances, callback, promise) {
     this._instances = instances;
