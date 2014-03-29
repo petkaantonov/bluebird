@@ -8,7 +8,8 @@ var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
-
+var Promise = adapter;
+var delay = Promise.delay;
 
 var sentinel = {
     sentinel: "sentinel"
@@ -241,3 +242,39 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
     });
 });
 
+describe("issues", function(){
+    specify("gh-166", function(done) {
+        var f1 = false, f2 = false, f3 = false, f4 = false;
+        var a = Promise.resolve().cancellable();
+        a = a.then(function() {
+            f1 = true;
+            return delay(35);
+        });
+
+        a = a.then(function() {
+            f2 = true;
+            return delay(35);
+        });
+
+        a = a.then(function() {
+            f3 = true;
+            return delay(300);
+        });
+
+        a = a.then(function() {
+            f4 = true;
+            done(new Error("fail"));
+        });
+
+        a = a.caught(Promise.CancellationError, function() {
+            assert(f1); assert(f2); assert(f3);
+            done();
+        });
+
+        assert(a.isCancellable());
+        setTimeout(function() {
+            assert(a.isCancellable());
+            a.cancel();
+        }, 100);
+    });
+});

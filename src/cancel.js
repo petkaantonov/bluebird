@@ -10,7 +10,8 @@ module.exports = function(Promise, INTERNAL) {
         if (!this.isCancellable()) return this;
         var parent;
         //Propagate to the last cancellable parent
-        if ((parent = this._cancellationParent) !== void 0) {
+        if ((parent = this._cancellationParent) !== void 0 &&
+            parent.isCancellable()) {
             parent.cancel(SYNC_TOKEN);
             return;
         }
