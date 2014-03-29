@@ -4,29 +4,24 @@ module.exports = function(Promise, INTERNAL) {
     var async = require("./async.js");
     var ASSERT = require("./assert.js");
     var CancellationError = errors.CancellationError;
-    var SYNC_TOKEN = {};
 
     Promise.prototype._cancel = function Promise$_cancel() {
         if (!this.isCancellable()) return this;
         var parent;
+        var promiseToReject = this;
         //Propagate to the last cancellable parent
-        if ((parent = this._cancellationParent) !== void 0 &&
+        while ((parent = promiseToReject._cancellationParent) !== void 0 &&
             parent.isCancellable()) {
-            parent.cancel(SYNC_TOKEN);
-            return;
+            promiseToReject = parent;
         }
+        ASSERT(promiseToReject.isCancellable());
         var err = new CancellationError();
-        this._attachExtraTrace(err);
-        this._rejectUnchecked(err);
+        promiseToReject._attachExtraTrace(err);
+        promiseToReject._rejectUnchecked(err);
     };
 
-    Promise.prototype.cancel = function Promise$cancel(token) {
+    Promise.prototype.cancel = function Promise$cancel() {
         if (!this.isCancellable()) return this;
-        ASSERT("_cancellationParent" in this);
-        if (token === SYNC_TOKEN) {
-            this._cancel();
-            return this;
-        }
         async.invokeLater(this._cancel, this, void 0);
         return this;
     };
