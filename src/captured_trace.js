@@ -5,7 +5,7 @@ var inherits = require("./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
-    "\\b(?:[\\w.]*Promise(?:Array|Spawn)?\\$_\\w+|" +
+    "\\b(?:[a-zA-Z0-9.]+\\$_\\w+|" +
     "tryCatch(?:1|2|Apply)|new \\w*PromiseArray|" +
     "\\w*PromiseArray\\.\\w*PromiseArray|" +
     "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
@@ -14,7 +14,6 @@ var rignore = new RegExp(
 
 var rtraceline = null;
 var formatStack = null;
-var areNamesMangled = false;
 
 function formatNonError(obj) {
     var str;
@@ -51,15 +50,7 @@ function snip(str) {
 }
 
 function CapturedTrace(ignoreUntil, isTopLevel) {
-    ASSERT(typeof ignoreUntil === "function");
-    if (!areNamesMangled) {
-        ASSERT(typeof ignoreUntil.name === "string");
-        //Polyfills for V8's stacktrace API work on strings
-        //instead of function identities so the function must have
-        //an unique name
-        ASSERT(ignoreUntil.name.length > 0);
-    }
-    this.captureStackTrace(ignoreUntil, isTopLevel);
+    this.captureStackTrace(CapturedTrace, isTopLevel);
 
 }
 inherits(CapturedTrace, Error);
@@ -91,9 +82,6 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
     }
 };
 
-areNamesMangled = CapturedTrace.prototype.captureStackTrace.name !==
-    "CapturedTrace$captureStackTrace";
-
 CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     var curLast = current.length - 1;
     //Eliminate common roots
@@ -112,7 +100,6 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     var lines = current.concat(prev);
 
     var ret = [];
-
 
     //Eliminate library internal stuff and async callers
     //that nobody cares about
@@ -160,8 +147,7 @@ var captureStackTrace = (function stackDetection() {
     var err = new Error();
 
     //SpiderMonkey
-    //Relies on .name strings which must not be mangled
-    if (!areNamesMangled && typeof err.stack === "string" &&
+    if (typeof err.stack === "string" &&
         typeof "".startsWith === "function" &&
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
@@ -189,21 +175,12 @@ var captureStackTrace = (function stackDetection() {
             return formatNonError(error);
         };
 
-        return function captureStackTrace(o, fn) {
-            var name = fn.name;
+        return function captureStackTrace(o) {
             var stack = new Error().stack;
             var split = stack.split(rline);
-            var i, len = split.length;
-            for (i = 0; i < len; i += 2) {
-                if (split[i] === name) {
-                    break;
-                }
-            }
-            ASSERT(i + 2 < split.length);
-            split = split.slice(i + 2);
-            len = split.length - 2;
+            var len = split.length;
             var ret = "";
-            for (i = 0; i < len; i += 2) {
+            for (var i = 0; i < len; i += 2) {
                 ret += split[i];
                 ret += "@";
                 ret += split[i + 1];

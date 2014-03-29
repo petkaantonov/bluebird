@@ -26,9 +26,9 @@ function promiseFromYieldHandler(value) {
     return null;
 }
 
-function PromiseSpawn(generatorFunction, receiver, caller) {
+function PromiseSpawn(generatorFunction, receiver) {
     var promise = this._promise = new Promise(INTERNAL);
-    promise._setTrace(caller, void 0);
+    promise._setTrace(void 0);
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
     this._generator = void 0;
@@ -84,8 +84,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
             this,
             //Don't need to smuggle null but doing so
             //triggers many fast paths
-            null,
-            void 0
+            null
        );
     }
 };

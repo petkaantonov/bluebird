@@ -14,9 +14,9 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
         //(TODO) Check if v8 traverses the contexts or inlines the context slot
         //location depending on this
         var PromiseSpawn$ = PromiseSpawn;
-        return function anonymous() {
+        return function () {
             var generator = generatorFunction.apply(this, arguments);
-            var spawn = new PromiseSpawn$(void 0, void 0, anonymous);
+            var spawn = new PromiseSpawn$(void 0, void 0);
             spawn._generator = generator;
             spawn._next(void 0);
             return spawn.promise();
@@ -32,7 +32,7 @@ module.exports = function(Promise, apiRejection, INTERNAL) {
         if (typeof generatorFunction !== "function") {
             return apiRejection(NOT_GENERATOR_ERROR);
         }
-        var spawn = new PromiseSpawn(generatorFunction, this, Promise.spawn);
+        var spawn = new PromiseSpawn(generatorFunction, this);
         var ret = spawn.promise();
         spawn._run(Promise.spawn);
         return ret;

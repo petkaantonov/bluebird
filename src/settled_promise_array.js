@@ -6,8 +6,8 @@ var util = require("./util.js");
 var inherits = util.inherits;
 // the PromiseArray to use with Promise.settle method
 
-function SettledPromiseArray(values, caller, boundTo) {
-    this.constructor$(values, caller, boundTo);
+function SettledPromiseArray(values, boundTo) {
+    this.constructor$(values, boundTo);
 }
 inherits(SettledPromiseArray, PromiseArray);
 

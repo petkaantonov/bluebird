@@ -8,8 +8,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
     var errorObj = util.errorObj;
 
     Promise.prototype.progressed = function Promise$progressed(handler) {
-        return this._then(void 0, void 0, handler,
-                            void 0, void 0, this.progressed);
+        return this._then(void 0, void 0, handler, void 0, void 0);
     };
 
     Promise.prototype._progress = function Promise$_progress(progressValue) {
@@ -69,8 +68,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
             //2.2.3 If the promise is rejected, the rejection reason
             //should be treated as if it was thrown by the callback
             //directly.
-            ret._then(promise._progress, null, null, promise, void 0,
-                this._progress);
+            ret._then(promise._progress, null, null, promise, void 0);
         }
         else {
             promise._progress(ret);
@@ -82,7 +80,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
     function Promise$_progressUnchecked(progressValue) {
         if (!this.isPending()) return;
         var len = this._length();
-
+        var progress = this._progress;
         for (var i = 0; i < len; i += CALLBACK_SIZE) {
             var handler = this._progressHandlerAt(i);
             var promise = this._promiseAt(i);
@@ -111,7 +109,7 @@ module.exports = function(Promise, isPromiseArrayProxy) {
                 });
             }
             else {
-                async.invoke(promise._progress, promise, progressValue);
+                async.invoke(progress, promise, progressValue);
             }
         }
     };

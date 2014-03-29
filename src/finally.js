@@ -43,7 +43,7 @@ module.exports = function(Promise, NEXT_FILTER) {
 
         //Nobody ever returns anything from a .finally handler so speed this up
         if (ret !== void 0) {
-            var maybePromise = Promise._cast(ret, finallyHandler, void 0);
+            var maybePromise = Promise._cast(ret, void 0);
             if (maybePromise instanceof Promise) {
                 return promisedFinally(maybePromise, reasonOrValue,
                                         promise.isFulfilled());
@@ -71,7 +71,7 @@ module.exports = function(Promise, NEXT_FILTER) {
 
         //Nobody ever returns anything from a .finally handler so speed this up
         if (ret !== void 0) {
-            var maybePromise = Promise._cast(ret, tapHandler, void 0);
+            var maybePromise = Promise._cast(ret, void 0);
             if (maybePromise instanceof Promise) {
                 return promisedFinally(maybePromise, value, true);
             }
@@ -80,7 +80,7 @@ module.exports = function(Promise, NEXT_FILTER) {
     }
 
     Promise.prototype._passThroughHandler =
-    function Promise$_passThroughHandler(handler, isFinally, caller) {
+    function Promise$_passThroughHandler(handler, isFinally) {
         if (typeof handler !== "function") return this.then();
 
         var promiseAndHandler = {
@@ -91,15 +91,15 @@ module.exports = function(Promise, NEXT_FILTER) {
         return this._then(
                 isFinally ? finallyHandler : tapHandler,
                 isFinally ? finallyHandler : void 0, void 0,
-                promiseAndHandler, void 0, caller);
+                promiseAndHandler, void 0);
     };
 
     Promise.prototype.lastly =
     Promise.prototype["finally"] = function Promise$finally(handler) {
-        return this._passThroughHandler(handler, true, this.lastly);
+        return this._passThroughHandler(handler, true);
     };
 
     Promise.prototype.tap = function Promise$tap(handler) {
-        return this._passThroughHandler(handler, false, this.tap);
+        return this._passThroughHandler(handler, false);
     };
 };

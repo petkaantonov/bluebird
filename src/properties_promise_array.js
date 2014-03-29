@@ -5,13 +5,13 @@ var util = require("./util.js");
 var inherits = util.inherits;
 var es5 = require("./es5.js");
 
-function PropertiesPromiseArray(obj, caller, boundTo) {
+function PropertiesPromiseArray(obj, boundTo) {
     var keys = es5.keys(obj);
     var values = new Array(keys.length);
     for (var i = 0, len = values.length; i < len; ++i) {
         values[i] = obj[keys[i]];
     }
-    this.constructor$(values, caller, boundTo);
+    this.constructor$(values, boundTo);
     if (!this._isResolved()) {
         for (var i = 0, len = keys.length; i < len; ++i) {
             values.push(keys[i]);

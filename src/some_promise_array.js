@@ -6,8 +6,8 @@ var RangeError = require("./errors.js").RangeError;
 var inherits = util.inherits;
 var isArray = util.isArray;
 
-function SomePromiseArray(values, caller, boundTo) {
-    this.constructor$(values, caller, boundTo);
+function SomePromiseArray(values, boundTo) {
+    this.constructor$(values, boundTo);
     this._howMany = 0;
     this._unwrap = false;
     this._initialized = false;

@@ -18,8 +18,8 @@ function toResolutionValue(val) {
     ASSERT(false);
 }
 
-function PromiseArray(values, caller, boundTo) {
-    ASSERT(arguments.length === 3);
+function PromiseArray(values, boundTo) {
+    ASSERT(arguments.length === 2);
     var promise = this._promise = new Promise(INTERNAL);
     var parent = void 0;
     if (values instanceof Promise) {
@@ -32,7 +32,7 @@ function PromiseArray(values, caller, boundTo) {
             promise._setBoundTo(boundTo);
         }
     }
-    promise._setTrace(caller, parent);
+    promise._setTrace(parent);
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
@@ -79,8 +79,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
                 this._reject,
                 void 0,
                 this,
-                resolveValueIfEmpty,
-                this.constructor
+                resolveValueIfEmpty
            );
             return;
         }
@@ -112,7 +111,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             newLen--;
             continue;
         }
-        var maybePromise = Promise._cast(promise, void 0, void 0);
+        var maybePromise = Promise._cast(promise, void 0);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 //Optimized for just passing the updates through

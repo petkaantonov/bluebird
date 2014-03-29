@@ -35,7 +35,7 @@ module.exports = function(Promise, INTERNAL) {
 
     Promise.prototype.uncancellable = function Promise$uncancellable() {
         var ret = new Promise(INTERNAL);
-        ret._setTrace(this.uncancellable, this);
+        ret._setTrace(this);
         ret._follow(this);
         ret._unsetCancellable();
         if (this._isBound()) ret._setBoundTo(this._boundTo);
@@ -45,7 +45,7 @@ module.exports = function(Promise, INTERNAL) {
     Promise.prototype.fork =
     function Promise$fork(didFulfill, didReject, didProgress) {
         var ret = this._then(didFulfill, didReject, didProgress,
-            void 0, void 0, this.fork);
+                             void 0, void 0);
 
         ret._setCancellable();
         ret._cancellationParent = void 0;

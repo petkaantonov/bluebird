@@ -173,7 +173,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
         "(" + parameterDeclaration(newParameterCount) + ") {\"use strict\";" +
         "var len = arguments.length;" +
         "var promise = new Promise(INTERNAL);"+
-        "promise._setTrace(" + callbackName + ", void 0);" +
+        "promise._setTrace(void 0);" +
         "var fn = nodebackForPromise(promise);"+
         "try {" +
         "switch(len) {" +
@@ -201,7 +201,7 @@ function makeNodePromisifiedClosure(callback, receiver) {
         }
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
-        promise._setTrace(promisified, void 0);
+        promise._setTrace(void 0);
         var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));

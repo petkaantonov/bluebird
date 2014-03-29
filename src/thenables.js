@@ -16,8 +16,8 @@ module.exports = function(Promise, INTERNAL) {
         }
     }
 
-    function Promise$_Cast(obj, caller, originalPromise) {
-        ASSERT(arguments.length === 3);
+    function Promise$_Cast(obj, originalPromise) {
+        ASSERT(arguments.length === 2);
         if (isObject(obj)) {
             if (obj instanceof Promise) {
                 return obj;
@@ -25,29 +25,26 @@ module.exports = function(Promise, INTERNAL) {
             //Make casting from another bluebird fast
             else if (isAnyBluebirdPromise(obj)) {
                 var ret = new Promise(INTERNAL);
-                ret._setTrace(caller, void 0);
+                ret._setTrace(void 0);
                 obj._then(
                     ret._fulfillUnchecked,
                     ret._rejectUncheckedCheckError,
                     ret._progressUnchecked,
                     ret,
-                    null,
-                    void 0
+                    null
                 );
                 ret._setFollowing();
                 return ret;
             }
             var then = getThen(obj);
             if (then === errorObj) {
-                caller = typeof caller === "function" ? caller : Promise$_Cast;
                 if (originalPromise !== void 0 && canAttach(then.e)) {
                     originalPromise._attachExtraTrace(then.e);
                 }
-                return Promise.reject(then.e, caller);
+                return Promise.reject(then.e);
             }
             else if (typeof then === "function") {
-                caller = typeof caller === "function" ? caller : Promise$_Cast;
-                return Promise$_doThenable(obj, then, caller, originalPromise);
+                return Promise$_doThenable(obj, then, originalPromise);
             }
         }
         return obj;
@@ -58,10 +55,10 @@ module.exports = function(Promise, INTERNAL) {
         return hasProp.call(obj, "_promise0");
     }
 
-    function Promise$_doThenable(x, then, caller, originalPromise) {
+    function Promise$_doThenable(x, then, originalPromise) {
         ASSERT(typeof then === "function");
-        ASSERT(arguments.length === 4);
-        var resolver = Promise.defer(caller);
+        ASSERT(arguments.length === 3);
+        var resolver = Promise.defer();
         var called = false;
         try {
             then.call(

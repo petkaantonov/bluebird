@@ -9,8 +9,7 @@ module.exports = function(Promise) {
             void 0,
             void 0,
             void 0,
-            void 0,
-            this.call
+            void 0
        );
     };
 
@@ -26,8 +25,7 @@ module.exports = function(Promise) {
             void 0,
             void 0,
             propertyName,
-            void 0,
-            this.get
+            void 0
        );
     };
 };

@@ -24,13 +24,11 @@ module.exports = function(Promise) {
     var ref = {ref: null};
     Promise.filter = function Promise$Filter(promises, fn) {
         return Promise.map(promises, fn, ref)
-            ._then(Promise$_filter, void 0, void 0,
-                    ref.ref, void 0, Promise.filter);
+                      ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
     };
 
     Promise.prototype.filter = function Promise$filter(fn) {
         return this.map(fn, ref)
-            ._then(Promise$_filter, void 0, void 0,
-                    ref.ref, void 0, this.filter);
+                   ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
     };
 };

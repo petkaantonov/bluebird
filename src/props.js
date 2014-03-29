@@ -6,21 +6,20 @@ module.exports = function(Promise, PromiseArray) {
     var apiRejection = require("./errors_api_rejection")(Promise);
     var isObject = util.isObject;
 
-    function Promise$_Props(promises, useBound, caller) {
+    function Promise$_Props(promises, useBound) {
         var ret;
-        var castValue = Promise._cast(promises, caller, void 0);
+        var castValue = Promise._cast(promises, void 0);
 
         if (!isObject(castValue)) {
             return apiRejection(PROPS_TYPE_ERROR);
         }
         else if (castValue instanceof Promise) {
             ret = castValue._then(Promise.props, void 0, void 0,
-                            void 0, void 0, caller);
+                            void 0, void 0);
         }
         else {
             ret = new PropertiesPromiseArray(
                 castValue,
-                caller,
                 useBound === USE_BOUND && castValue._isBound()
                             ? castValue._boundTo
                             : void 0
@@ -35,10 +34,10 @@ module.exports = function(Promise, PromiseArray) {
     }
 
     Promise.prototype.props = function Promise$props() {
-        return Promise$_Props(this, USE_BOUND, this.props);
+        return Promise$_Props(this, USE_BOUND);
     };
 
     Promise.props = function Promise$Props(promises) {
-        return Promise$_Props(promises, DONT_USE_BOUND, Promise.props);
+        return Promise$_Props(promises, DONT_USE_BOUND);
     };
 };

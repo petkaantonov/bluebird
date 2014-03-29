@@ -9,11 +9,11 @@ module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
     var _cast = Promise._cast;
 
     function unpack(values) {
-        ASSERT(this.length === 4);
-        return Promise$_Map(values, this[0], this[1], this[2], this[3]);
+        ASSERT(this.length === 3);
+        return Promise$_Map(values, this[0], this[1], this[2]);
     }
 
-    function Promise$_Map(promises, fn, useBound, caller, ref) {
+    function Promise$_Map(promises, fn, useBound, ref) {
         if (typeof fn !== "function") {
             return apiRejection(NOT_FUNCTION_ERROR);
         }
@@ -32,8 +32,8 @@ module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
         if (shouldUnwrapItems) ref.ref = promises;
 
         if (promises instanceof Promise) {
-            return promises._then(unpack, void 0, void 0,
-                [fn, receiver, caller, ref], void 0, Promise$_Map);
+            var pack = [fn, receiver, ref];
+            return promises._then(unpack, void 0, void 0, pack, void 0);
         }
         else if (!isArray(promises)) {
             return apiRejection(COLLECTION_ERROR);
@@ -41,7 +41,7 @@ module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
 
         var promise = new Promise(INTERNAL);
         if (receiver !== void 0) promise._setBoundTo(receiver);
-        promise._setTrace(caller, void 0);
+        promise._setTrace(void 0);
 
         var mapping = new Mapping(promise,
                                     fn,
@@ -70,7 +70,7 @@ module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
         var result = this.result;
         var isRejected = false;
         for (var i = 0; i < len; ++i) {
-            var maybePromise = _cast(items[i], void 0, void 0);
+            var maybePromise = _cast(items[i], void 0);
             if (maybePromise instanceof Promise) {
                 if (maybePromise.isPending()) {
                     result[i] = pending;
@@ -147,10 +147,10 @@ module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
     };
 
     Promise.prototype.map = function Promise$map(fn, ref) {
-        return Promise$_Map(this, fn, USE_BOUND, this.map, ref);
+        return Promise$_Map(this, fn, USE_BOUND, ref);
     };
 
     Promise.map = function Promise$Map(promises, fn, ref) {
-        return Promise$_Map(promises, fn, DONT_USE_BOUND, Promise.map, ref);
+        return Promise$_Map(promises, fn, DONT_USE_BOUND, ref);
     };
 };

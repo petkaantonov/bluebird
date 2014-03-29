@@ -30,16 +30,13 @@ module.exports = function(Promise, INTERNAL) {
         promise._fulfill(value);
     };
 
-    Promise.delay = function Promise$Delay(value, ms, caller) {
+    var delay = Promise.delay = function Promise$Delay(value, ms) {
         if (ms === void 0) {
             ms = value;
             value = void 0;
         }
         ms = +ms;
-        if (typeof caller !== "function") {
-            caller = Promise.delay;
-        }
-        var maybePromise = Promise._cast(value, caller, void 0);
+        var maybePromise = Promise._cast(value, void 0);
         var promise = new Promise(INTERNAL);
 
         if (maybePromise instanceof Promise) {
@@ -50,28 +47,28 @@ module.exports = function(Promise, INTERNAL) {
                 promise._setCancellable();
                 promise._cancellationParent = maybePromise;
             }
-            promise._setTrace(caller, maybePromise);
+            promise._setTrace(maybePromise);
             promise._follow(maybePromise);
             return promise.then(function(value) {
                 return Promise.delay(value, ms);
             });
         }
         else {
-            promise._setTrace(caller, void 0);
+            promise._setTrace(void 0);
             setTimeout(afterDelay, ms, value, promise);
         }
         return promise;
     };
 
     Promise.prototype.delay = function Promise$delay(ms) {
-        return Promise.delay(this, ms, this.delay);
+        return delay(this, ms);
     };
 
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
         ms = +ms;
 
         var ret = new Promise(INTERNAL);
-        ret._setTrace(this.timeout, this);
+        ret._setTrace(this);
 
         if (this._isBound()) ret._setBoundTo(this._boundTo);
         if (this._cancellable()) {

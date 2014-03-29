@@ -1093,8 +1093,6 @@ function Promise$_then(
     internalData,
     caller
 ) {
-    ASSERT((arguments.length === 6),
-    "arguments.length === 6");
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise();
 

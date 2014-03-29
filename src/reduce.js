@@ -32,25 +32,15 @@ module.exports = function(
         var result = this.accum;
         var receiver = this.receiver;
         var callback = this.callback;
-        var iterate = this.iterate;
 
         for (; i < len; ++i) {
-            result = Promise._cast(
-                callback.call(
-                    receiver,
-                    result,
-                    items[i],
-                    i,
-                    len
-                ),
-                iterate,
-                void 0
-            );
+            result = callback.call(receiver, result, items[i], i, len);
+            result = Promise._cast(result, void 0);
 
             //Continue iteration after the returned promise fulfills
             if (result instanceof Promise) {
                 result._then(
-                    this.fulfill, this.reject, void 0, this, i, iterate);
+                    this.fulfill, this.reject, void 0, this, i);
                 return;
             }
         }
@@ -95,14 +85,14 @@ module.exports = function(
     }
 
     function Promise$_slowReduce(
-        promises, fn, initialValue, useBound, caller) {
-        return initialValue._then(function callee(initialValue) {
+        promises, fn, initialValue, useBound) {
+        return initialValue._then(function(initialValue) {
             return Promise$_Reduce(
-                promises, fn, initialValue, useBound, callee);
-        }, void 0, void 0, void 0, void 0, caller);
+                promises, fn, initialValue, useBound);
+        }, void 0, void 0, void 0, void 0);
     }
 
-    function Promise$_Reduce(promises, fn, initialValue, useBound, caller) {
+    function Promise$_Reduce(promises, fn, initialValue, useBound) {
         if (typeof fn !== "function") {
             return apiRejection(NOT_FUNCTION_ERROR);
         }
@@ -121,11 +111,11 @@ module.exports = function(
                 }
                 else {
                     return Promise$_slowReduce(promises,
-                        fn, initialValue, useBound, caller);
+                        fn, initialValue, useBound);
                 }
             }
 
-            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
+            return Promise$_CreatePromiseArray(promises, PromiseArray,
                 useBound === USE_BOUND && promises._isBound()
                     ? promises._boundTo
                     : void 0)
@@ -133,9 +123,9 @@ module.exports = function(
                 ._then(Promise$_unpackReducer, void 0, void 0, {
                     fn: fn,
                     initialValue: initialValue
-                }, void 0, Promise.reduce);
+                }, void 0);
         }
-        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
+        return Promise$_CreatePromiseArray(promises, PromiseArray,
                 useBound === USE_BOUND && promises._isBound()
                     ? promises._boundTo
                     : void 0).promise()
@@ -144,17 +134,15 @@ module.exports = function(
             //One needs to be able to chain to get at
             //the reduced results, so fast case is only possible
             //when there is no initialValue.
-            ._then(Promise$_reducer, void 0, void 0, fn, void 0, caller);
+            ._then(Promise$_reducer, void 0, void 0, fn, void 0);
     }
 
 
     Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-        return Promise$_Reduce(promises, fn,
-            initialValue, DONT_USE_BOUND, Promise.reduce);
+        return Promise$_Reduce(promises, fn, initialValue, DONT_USE_BOUND);
     };
 
     Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-        return Promise$_Reduce(this, fn, initialValue,
-                                USE_BOUND, this.reduce);
+        return Promise$_Reduce(this, fn, initialValue, USE_BOUND);
     };
 };

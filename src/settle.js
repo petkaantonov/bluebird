@@ -5,11 +5,10 @@ module.exports =
     var SettledPromiseArray = require("./settled_promise_array.js")(
         Promise, PromiseArray);
 
-    function Promise$_Settle(promises, useBound, caller) {
+    function Promise$_Settle(promises, useBound) {
         return Promise$_CreatePromiseArray(
             promises,
             SettledPromiseArray,
-            caller,
             useBound === USE_BOUND && promises._isBound()
                 ? promises._boundTo
                 : void 0
@@ -17,11 +16,10 @@ module.exports =
     }
 
     Promise.settle = function Promise$Settle(promises) {
-        return Promise$_Settle(promises, DONT_USE_BOUND, Promise.settle);
+        return Promise$_Settle(promises, DONT_USE_BOUND);
     };
 
     Promise.prototype.settle = function Promise$settle() {
-        return Promise$_Settle(this, USE_BOUND, this.settle);
+        return Promise$_Settle(this, USE_BOUND);
     };
-
 };

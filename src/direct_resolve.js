@@ -36,12 +36,10 @@ function Promise$thenReturn(value) {
             void 0,
             void 0,
             void 0,
-            void 0,
-            this.thenReturn
+            void 0
        );
     }
-    return this._then(returner, void 0, void 0,
-                        value, void 0, this.thenReturn);
+    return this._then(returner, void 0, void 0, value, void 0);
 };
 
 Promise.prototype["throw"] =
@@ -53,11 +51,9 @@ function Promise$thenThrow(reason) {
             void 0,
             void 0,
             void 0,
-            void 0,
-            this.thenThrow
+            void 0
        );
     }
-    return this._then(thrower, void 0, void 0,
-                        reason, void 0, this.thenThrow);
+    return this._then(thrower, void 0, void 0, reason, void 0);
 };
 };

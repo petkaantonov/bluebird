@@ -4,11 +4,10 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
     var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
     var ASSERT = require("./assert.js");
 
-    function Promise$_Any(promises, useBound, caller) {
+    function Promise$_Any(promises, useBound) {
         var ret = Promise$_CreatePromiseArray(
             promises,
             SomePromiseArray,
-            caller,
             useBound === USE_BOUND && promises._isBound()
                 ? promises._boundTo
                 : void 0
@@ -25,11 +24,11 @@ module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
     }
 
     Promise.any = function Promise$Any(promises) {
-        return Promise$_Any(promises, DONT_USE_BOUND, Promise.any);
+        return Promise$_Any(promises, DONT_USE_BOUND);
     };
 
     Promise.prototype.any = function Promise$any() {
-        return Promise$_Any(this, USE_BOUND, this.any);
+        return Promise$_Any(this, USE_BOUND);
     };
 
 };
