@@ -25,10 +25,10 @@ module.exports = function(Promise, NEXT_FILTER) {
     function promisedFinally(ret, reasonOrValue, isFulfilled) {
         var then;
         if (wrapsPrimitiveReceiver && isPrimitive(reasonOrValue)) {
-            then = isFulfilled ? returnThis : throwThis;
+            then = isFulfilled ? return$(reasonOrValue) : throw$(reasonOrValue);
         }
         else {
-            then = isFulfilled ? return$(reasonOrValue) : throw$(reasonOrValue);
+            then = isFulfilled ? returnThis : throwThis;
         }
         return ret._then(then, thrower, void 0, reasonOrValue, void 0);
     }
