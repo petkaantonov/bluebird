@@ -21,7 +21,7 @@ module.exports = function (Promise, apiRejection) {
         var haveError = false;
         var error = null;
         for (var i = 0; i < resources.length; ++i) {
-            var maybePromise = Promise._cast(resources[i], void 0, void 0);
+            var maybePromise = Promise._cast(resources[i], void 0);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
                 if (!maybePromise._getDisposer().tryDispose() && !haveError) {
@@ -123,8 +123,7 @@ module.exports = function (Promise, apiRejection) {
         return Promise.settle(resources)
             .then(inspectionMapper)
             .spread(fn)
-            ._then(disposerSuccess, disposerFail, void 0,
-                    resources, void 0, Promise$using);
+            ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
     };
 
     Promise.prototype._setDisposable =
