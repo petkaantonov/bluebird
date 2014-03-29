@@ -1,3 +1,17 @@
+## 1.2.0 (2014-03-29)
+
+Features:
+
+ - New method: [`.value()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#value---dynamic)
+ - New method: [`.reason()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#reason---dynamic)
+ - New method: [`Promise.onUnhandledRejectionHandled()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseonunhandledrejectionhandledfunction-handler---undefined)
+ - `Promise.map()`, `.map()`, `Promise.filter()` and `.filter()` start calling their callbacks as soon as possible while retaining a correct order. See [`8085922f`](https://github.com/petkaantonov/bluebird/commit/8085922fb95a9987fda0cf2337598ab4a98dc315).
+
+Bugfixes:
+
+ - Fix [#165](https://github.com/petkaantonov/bluebird/issues/165)
+ - Fix [#166](https://github.com/petkaantonov/bluebird/issues/166)
+
 ## 1.1.1 (2014-03-18)
 
 Bugfixes:
