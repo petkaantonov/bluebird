@@ -1,25 +1,11 @@
 "use strict";
-
 var global = require("./global.js");
-var setTimeout = function(fn, time) {
+var setTimeout = function(fn, ms) {
     INLINE_SLICE(args, arguments, 2);
-    global.setTimeout(function() {
+    global.setTimeout(function(){
         fn.apply(void 0, args);
-    }, time);
+    }, ms);
 };
-
-//Feature detect set timeout that passes arguments.
-//
-//Because it cannot be done synchronously
-//the setTimeout defaults to shim and later on
-//will start using the faster (can be used without creating closures) one
-//if available (i.e. not <=IE8)
-var pass = {};
-global.setTimeout( function(_) {
-    if(_ === pass) {
-        setTimeout = global.setTimeout;
-    }
-}, 1, pass);
 
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
