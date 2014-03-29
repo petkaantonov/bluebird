@@ -9,7 +9,23 @@ var error = new Error("");
 function Resource() {
     this.isClosed = false;
     this.closesCalled = 0;
+    this.commited = false;
+    this.rollbacked = false;
 }
+
+Resource.prototype.commit = function () {
+    if (this.commited || this.rollbacked) {
+        throw new Error("was already commited or rolled back")
+    }
+    this.commited = true;
+};
+
+Resource.prototype.rollback = function () {
+    if (this.commited || this.rollbacked) {
+        throw new Error("was already commited or rolled back")
+    }
+    this.rollbacked = true;
+};
 
 Resource.prototype.close = function() {
     this.closesCalled++;
@@ -21,6 +37,10 @@ Resource.prototype.close = function() {
 
 Resource.prototype.closeError = function() {
     throw error;
+};
+
+Resource.prototype.query = function(value) {
+    return Promise.delay(value, 50);
 };
 
 function _connect() {
@@ -51,6 +71,13 @@ function connectError() {
     });
 }
 
+function transactionDisposer(tx, outcome) {
+    outcome.isFulfilled() ? tx.commit() : tx.rollback();
+}
+
+function transaction() {
+    return _connect().disposer(transactionDisposer);
+}
 
 describe("Promise.using", function() {
     specify("simple happy case", function(done) {
@@ -93,5 +120,33 @@ describe("Promise.using", function() {
             assert.equal(promise.value().closesCalled, 1);
             done();
         })
-    })
+    });
+
+    specify("successful transaction", function(done) {
+        var _tx;
+        using(transaction(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                return tx.query(2);
+            })
+        }).then(function(){
+            assert(_tx.commited);
+            assert(!_tx.rollbacked);
+            done();
+        });
+    });
+
+    specify("fail transaction", function(done) {
+        var _tx;
+        using(transaction(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                throw new Error();
+            })
+        }).then(assert.fail, function(){
+            assert(!_tx.commited);
+            assert(_tx.rollbacked);
+            done();
+        });
+    });
 })
