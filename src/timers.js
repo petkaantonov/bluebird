@@ -8,76 +8,76 @@ var setTimeout = function(fn, ms) {
 };
 
 module.exports = function(Promise, INTERNAL) {
-    var util = require("./util.js");
-    var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
-    var apiRejection = require("./errors_api_rejection")(Promise);
-    var TimeoutError = Promise.TimeoutError;
+var util = require("./util.js");
+var ASSERT = require("./assert.js");
+var errors = require("./errors.js");
+var apiRejection = require("./errors_api_rejection")(Promise);
+var TimeoutError = Promise.TimeoutError;
 
-    var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
-        //Don't waste time concatting strings or creating stack traces
-        if (!promise.isPending()) return;
-        if (typeof message !== "string") {
-            message = TIMEOUT_ERROR + " " + ms + " ms"
+var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
+    //Don't waste time concatting strings or creating stack traces
+    if (!promise.isPending()) return;
+    if (typeof message !== "string") {
+        message = TIMEOUT_ERROR + " " + ms + " ms"
+    }
+    var err = new TimeoutError(message);
+    errors.markAsOriginatingFromRejection(err);
+    promise._attachExtraTrace(err);
+    promise._rejectUnchecked(err);
+};
+
+var afterDelay = function Promise$_afterDelay(value, promise) {
+    promise._fulfill(value);
+};
+
+var delay = Promise.delay = function Promise$Delay(value, ms) {
+    if (ms === void 0) {
+        ms = value;
+        value = void 0;
+    }
+    ms = +ms;
+    var maybePromise = Promise._cast(value, void 0);
+    var promise = new Promise(INTERNAL);
+
+    if (maybePromise instanceof Promise) {
+        if (maybePromise._isBound()) {
+            promise._setBoundTo(maybePromise._boundTo);
         }
-        var err = new TimeoutError(message);
-        errors.markAsOriginatingFromRejection(err);
-        promise._attachExtraTrace(err);
-        promise._rejectUnchecked(err);
-    };
-
-    var afterDelay = function Promise$_afterDelay(value, promise) {
-        promise._fulfill(value);
-    };
-
-    var delay = Promise.delay = function Promise$Delay(value, ms) {
-        if (ms === void 0) {
-            ms = value;
-            value = void 0;
+        if (maybePromise._cancellable()) {
+            promise._setCancellable();
+            promise._cancellationParent = maybePromise;
         }
-        ms = +ms;
-        var maybePromise = Promise._cast(value, void 0);
-        var promise = new Promise(INTERNAL);
+        promise._setTrace(maybePromise);
+        promise._follow(maybePromise);
+        return promise.then(function(value) {
+            return Promise.delay(value, ms);
+        });
+    }
+    else {
+        promise._setTrace(void 0);
+        setTimeout(afterDelay, ms, value, promise);
+    }
+    return promise;
+};
 
-        if (maybePromise instanceof Promise) {
-            if (maybePromise._isBound()) {
-                promise._setBoundTo(maybePromise._boundTo);
-            }
-            if (maybePromise._cancellable()) {
-                promise._setCancellable();
-                promise._cancellationParent = maybePromise;
-            }
-            promise._setTrace(maybePromise);
-            promise._follow(maybePromise);
-            return promise.then(function(value) {
-                return Promise.delay(value, ms);
-            });
-        }
-        else {
-            promise._setTrace(void 0);
-            setTimeout(afterDelay, ms, value, promise);
-        }
-        return promise;
-    };
+Promise.prototype.delay = function Promise$delay(ms) {
+    return delay(this, ms);
+};
 
-    Promise.prototype.delay = function Promise$delay(ms) {
-        return delay(this, ms);
-    };
+Promise.prototype.timeout = function Promise$timeout(ms, message) {
+    ms = +ms;
 
-    Promise.prototype.timeout = function Promise$timeout(ms, message) {
-        ms = +ms;
+    var ret = new Promise(INTERNAL);
+    ret._setTrace(this);
 
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this);
-
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        if (this._cancellable()) {
-            ret._setCancellable();
-            ret._cancellationParent = this;
-        }
-        ret._follow(this);
-        setTimeout(afterTimeout, ms, ret, message, ms);
-        return ret;
-    };
+    if (this._isBound()) ret._setBoundTo(this._boundTo);
+    if (this._cancellable()) {
+        ret._setCancellable();
+        ret._cancellationParent = this;
+    }
+    ret._follow(this);
+    setTimeout(afterTimeout, ms, ret, message, ms);
+    return ret;
+};
 
 };

@@ -1,34 +1,34 @@
 "use strict";
 module.exports = function(Promise) {
-    var ASSERT = require("./assert.js");
-    var isArray = require("./util.js").isArray;
+var ASSERT = require("./assert.js");
+var isArray = require("./util.js").isArray;
 
-    function Promise$_filter(booleans) {
-        var values = this instanceof Promise ? this._settledValue : this;
-        ASSERT(isArray(values));
-        ASSERT(isArray(booleans));
-        ASSERT(values.length === booleans.length);
+function Promise$_filter(booleans) {
+    var values = this instanceof Promise ? this._settledValue : this;
+    ASSERT(isArray(values));
+    ASSERT(isArray(booleans));
+    ASSERT(values.length === booleans.length);
 
-        var len = values.length;
-        var ret = new Array(len);
-        var j = 0;
+    var len = values.length;
+    var ret = new Array(len);
+    var j = 0;
 
-        for (var i = 0; i < len; ++i) {
-            if (booleans[i]) ret[j++] = values[i];
+    for (var i = 0; i < len; ++i) {
+        if (booleans[i]) ret[j++] = values[i];
 
-        }
-        ret.length = j;
-        return ret;
     }
+    ret.length = j;
+    return ret;
+}
 
-    var ref = {ref: null};
-    Promise.filter = function Promise$Filter(promises, fn) {
-        return Promise.map(promises, fn, ref)
-                      ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
-    };
+var ref = {ref: null};
+Promise.filter = function Promise$Filter(promises, fn) {
+    return Promise.map(promises, fn, ref)
+                  ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
+};
 
-    Promise.prototype.filter = function Promise$filter(fn) {
-        return this.map(fn, ref)
-                   ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
-    };
+Promise.prototype.filter = function Promise$filter(fn) {
+    return this.map(fn, ref)
+               ._then(Promise$_filter, void 0, void 0, ref.ref, void 0);
+};
 };
