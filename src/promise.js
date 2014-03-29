@@ -79,7 +79,7 @@ function Promise(resolver) {
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(this);
+    ret._setTrace(this);
     ret._follow(this);
     ret._setBoundTo(thisArg);
     if (this._cancellable()) {
@@ -196,7 +196,7 @@ Promise.join = function Promise$Join() {
 Promise.resolve = Promise.fulfilled =
 function Promise$Resolve(value) {
     var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(void 0);
+    ret._setTrace(void 0);
     if (ret._tryFollow(value)) {
         return ret;
     }
@@ -208,7 +208,7 @@ function Promise$Resolve(value) {
 
 Promise.reject = Promise.rejected = function Promise$Reject(reason) {
     var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(void 0);
+    ret._setTrace(void 0);
     markAsOriginatingFromRejection(reason);
     ret._cleanValues();
     ret._setRejected();
@@ -261,7 +261,7 @@ Promise.method = function Promise$_Method(fn) {
             value = tryCatchApply(fn, args, this); break;
         }
         var ret = new Promise(INTERNAL);
-        if (debugging) ret._setTrace(void 0);
+        ret._setTrace(void 0);
         ret._resolveFromSyncValue(value);
         return ret;
     };
@@ -276,20 +276,20 @@ Promise.attempt = Promise["try"] = function Promise$_Try(fn, args, ctx) {
         : tryCatch1(fn, ctx, args);
 
     var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(void 0);
+    ret._setTrace(void 0);
     ret._resolveFromSyncValue(value);
     return ret;
 };
 
 Promise.defer = Promise.pending = function Promise$Defer() {
     var promise = new Promise(INTERNAL);
-    if (debugging) promise._setTrace(void 0);
+    promise._setTrace(void 0);
     return new PromiseResolver(promise);
 };
 
 Promise.bind = function Promise$Bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    if (debugging) ret._setTrace(void 0);
+    ret._setTrace(void 0);
     ret._setFulfilled();
     ret._setBoundTo(thisArg);
     return ret;
@@ -602,11 +602,9 @@ Promise.prototype._resolveFromResolver =
 function Promise$_resolveFromResolver(resolver) {
     ASSERT(typeof resolver === "function");
     var promise = this;
-    var localDebugging = debugging;
-    if (localDebugging) {
-        this._setTrace(void 0);
-        this._pushContext();
-    }
+    this._setTrace(void 0);
+    this._pushContext();
+
     function Promise$_resolver(val) {
         if (promise._tryFollow(val)) {
             return;
@@ -620,7 +618,7 @@ function Promise$_resolveFromResolver(resolver) {
         promise._reject(val, trace === val ? void 0 : trace);
     }
     var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
-    if (localDebugging) this._popContext();
+    this._popContext();
 
     if (r !== void 0 && r === errorObj) {
         var e = r.e;
