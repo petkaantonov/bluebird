@@ -12,34 +12,25 @@ module.exports = function(Promise, NEXT_FILTER) {
     function throwThis() {
         throw this;
     }
-    function makeReturner(r) {
+    function return$(r) {
         return function Promise$_returner() {
             return r;
         };
     }
-    function makeThrower(r) {
+    function throw$(r) {
         return function Promise$_thrower() {
             throw r;
         };
     }
     function promisedFinally(ret, reasonOrValue, isFulfilled) {
-        var useConstantFunction =
-                        wrapsPrimitiveReceiver && isPrimitive(reasonOrValue);
-
-        if (isFulfilled) {
-            return ret._then(
-                useConstantFunction
-                    ? returnThis
-                    : makeReturner(reasonOrValue),
-                thrower, void 0, reasonOrValue, void 0, promisedFinally);
+        var then;
+        if (wrapsPrimitiveReceiver && isPrimitive(reasonOrValue)) {
+            then = isFulfilled ? returnThis : throwThis;
         }
         else {
-            return ret._then(
-                useConstantFunction
-                    ? throwThis
-                    : makeThrower(reasonOrValue),
-                thrower, void 0, reasonOrValue, void 0, promisedFinally);
+            then = isFulfilled ? return$(reasonOrValue) : throw$(reasonOrValue);
         }
+        return ret._then(then, thrower, void 0, reasonOrValue, void 0);
     }
 
     function finallyHandler(reasonOrValue) {
