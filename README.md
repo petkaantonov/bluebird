@@ -67,7 +67,7 @@ Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/
 
 The global variable `Promise` becomes available after the above script tag.
 
-A [minimal bluebird browser build](#custom-builds) is ̃37.5KB minified*, 11.17KB gzipped and has no external dependencies.
+A [minimal bluebird browser build](#custom-builds) is ̃36.51KB minified*, 10.85KB gzipped and has no external dependencies.
 
 *Google Closure Compiler using Simple.
 
@@ -416,71 +416,6 @@ Promise.resolve().then(function outer() {
 
 
 A better and more practical example of the differences can be seen in gorgikosev's [debuggability competition](https://github.com/spion/async-compare#debuggability).
-
-<hr>
-
-####Can I use long stack traces in production?
-
-Probably yes. Bluebird uses multiple innovative techniques to optimize long stack traces. Even with long stack traces, it is still way faster than similarly featured implementations that don't have long stack traces enabled and about same speed as minimal implementations. A slowdown of 4-5x is expected, not 50x.
-
-What techniques are used?
-
-#####V8 API second argument
-
-This technique utilizes the [slightly under-documented](https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi#Stack_trace_collection_for_custom_exceptions) second argument of V8 `Error.captureStackTrace`. It turns out that the second argument can actually be used to make V8 skip all library internal stack frames [for free](https://github.com/v8/v8/blob/b5fabb9225e1eb1c20fd527b037e3f877296e52a/src/isolate.cc#L665). It only requires propagation of callers manually in library internals but this is not visible to you as user at all.
-
-Without this technique, every promise (well not every, see second technique) created would have to waste time creating and collecting library internal frames which will just be thrown away anyway. It also allows one to use smaller stack trace limits because skipped frames are not counted towards the limit whereas with collecting everything upfront and filtering afterwards would likely have to use higher limits to get more user stack frames in.
-
-#####Sharing stack traces
-
-Consider:
-
-```js
-function getSomethingAsync(fileName) {
-    return readFileAsync(fileName).then(function(){
-        //...
-    }).then(function() {
-        //...
-    }).then(function() {
-        //...
-    });
-}
-```
-
-Everytime you call this function it creates 4 promises and in a straight-forward long stack traces implementation it would collect 4 almost identical stack traces. Bluebird has a light weight internal data-structure (kcnown as context stack in the source code) to help tracking when traces can be re-used and this example would only collect one trace.
-
-#####Lazy formatting
-
-After a stack trace has been collected on an object, one must be careful not to reference the `.stack` property until necessary. Referencing the property causes
-an expensive format call and the stack property is turned into a string which uses much more memory.
-
-What about [Q #111](https://github.com/kriskowal/q/issues/111)?
-
-Long stack traces is not inherently the problem. For example with latest Q with stack traces disabled:
-
-```js
-var Q = require("q");
-
-
-function test(i){
-    if (i <= 0){
-       return Q.when('done')
-   } else {
-       return Q.when(i-1).then(test)
-   }
-}
-test(1000000000).then(function(output){console.log(output) });
-```
-
-After 2 minutes of running this, it will give:
-
-```js
-FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - process out of memory
-```
-
-So the problem with this is how much absolute memory is used per promise - not whether long traces are enabled or not.
-
-For some purpose, let's say 100000 parallel pending promises in memory at the same time is the maximum. You would then roughly use 100MB for them instead of 10MB with stack traces disabled.For comparison, just creating 100000 functions alone will use 14MB if they're closures. All numbers can be halved for 32-bit node.
 
 <hr>
 
