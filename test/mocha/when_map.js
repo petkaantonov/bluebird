@@ -209,7 +209,6 @@ describe("when.map-test", function () {
         }
         //This test didn't contain the mapper argument so I assume
         //when.js uses identity mapper in such cases.
-
         //In bluebird it's illegal to call Promise.map without mapper function
         return when.map(input, identity).then(function () {
             assert(ncall === 6);
@@ -240,4 +239,45 @@ describe("when.map-test", function () {
 
     });
 
+    function delay(val, ms) {
+        return new when(function(resolve) {
+            setTimeout(function() {
+                resolve(val);
+            }, ms);
+        });
+    }
+
+    specify("should be concurrent but process in-order", function(done) {
+        var firstProcessed = false;
+        var secondProcessed = false;
+        var thirdProcessed = false;
+
+        var first = delay(1, 20);
+        var second = delay(2, 100).then(function(){secondProcessed = true});
+        var third = delay(3, 100).then(function(){thirdProcessed = true});
+
+        when.map([first, second, third], function(integer) {
+            if (integer === 1) {
+                return delay(0, 10).then(function() {
+                    assert(!secondProcessed);
+                    assert(!thirdProcessed);
+                    return delay(0, 10);
+                }).then(function() {
+                    assert(!secondProcessed);
+                    assert(!thirdProcessed);
+                    return delay(0, 10);
+                }).then(function(){
+                    firstProcessed = true;
+                });
+            }
+            else {
+                assert(firstProcessed);
+            }
+        }).then(function() {
+            assert(firstProcessed);
+            assert(secondProcessed);
+            assert(thirdProcessed);
+            done();
+        });
+    });
 });

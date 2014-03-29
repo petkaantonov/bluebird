@@ -4,7 +4,7 @@ module.exports = function(Promise) {
     var isArray = require("./util.js").isArray;
 
     function Promise$_filter(booleans) {
-        var values = this._settledValue;
+        var values = this instanceof Promise ? this._settledValue : this;
         ASSERT(isArray(values));
         ASSERT(isArray(booleans));
         ASSERT(values.length === booleans.length);
