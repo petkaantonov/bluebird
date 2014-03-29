@@ -1050,7 +1050,7 @@ function Promise$_fulfillUnchecked(value) {
     var len = this._length();
 
     if (len > 0) {
-        async.invoke(this._fulfillPromises, this, len);
+        async.invoke(this._settlePromises, this, len);
     }
 };
 
@@ -1090,17 +1090,12 @@ function Promise$_rejectUnchecked(reason, trace) {
 };
 
 Promise.prototype._rejectPromises = function Promise$_rejectPromises() {
-    ASSERT(this.isRejected());
-    var len = this._length();
-    for (var i = 0; i < len; i+= CALLBACK_SIZE) {
-        this._settlePromiseAt(i);
-    }
+    this._settlePromises();
     this._unsetCarriedStackTrace();
 };
 
-Promise.prototype._fulfillPromises = function Promise$_fulfillPromises(len) {
-    ASSERT(this.isFulfilled());
-    len = this._length();
+Promise.prototype._settlePromises = function Promise$_settlePromises() {
+    var len = this._length();
     for (var i = 0; i < len; i+= CALLBACK_SIZE) {
         this._settlePromiseAt(i);
     }
