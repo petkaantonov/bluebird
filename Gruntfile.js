@@ -679,9 +679,21 @@ module.exports = function( grunt ) {
         build( paths, isCI ).then(function() {
             done();
         }).catch(function(e) {
+            function leftPad(count, num) {
+                  return (new Array(count + 1).join("0") + num).slice(-count)
+            }
             if( e.fileName && e.stack ) {
-                console.log(e.scriptSrc);
                 var stack = e.stack.split("\n");
+                var rLineNo = /\((\d+):(\d+)\)/;
+                var match = rLineNo.exec(stack[0]);
+                var lineNumber = parseInt(match[1], 10) - 1;
+                var columnNumber = parseInt(match[2], 10);
+                var padTo = (lineNumber + 5).toString().length;
+                var src = e.scriptSrc.split("\n").map(function(v, i) {
+                    return leftPad(padTo, (i + 1)) + "  " + v;
+                });
+                src = src.slice(lineNumber - 5, lineNumber + 5).join("\n") + "\n";
+                console.error(src);
                 stack[0] = stack[0] + " " + e.fileName;
                 console.error(stack.join("\n"));
                 if (!grunt.option("verbose")) {
@@ -693,7 +705,7 @@ module.exports = function( grunt ) {
                 console.error(e.stack);
             }
             done(false);
-        });
+        }).done();
     });
 
     grunt.registerTask( "testrun", function(){
