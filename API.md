@@ -22,6 +22,7 @@
 - [Resource management](#resource-management)
     - [`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise)
     - [`.disposer(String methodName)`](#disposerstring-methodname---disposer)
+    - [`.disposer(Function disposer)`](#disposerfunction-disposer---disposer)
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
 - [Promise resolution](#promise-resolution)
@@ -857,6 +858,32 @@ using(externalPromiseApi.getResource1().disposer("close"),
 ```
 
 `Promise.method` also automatically casts the promises so using it was beneficial for that reason alone.
+
+<hr>
+
+#####`.disposer(Function disposer)` -> `Disposer`
+
+Like `.disposer(methodName disposer)`, but allows you to describe how to dispose the resource by a custom function rather than as a method name.
+
+Example:
+
+```js
+function getTransaction() {
+    // outcome is a PromiseInspection object representing the outcome of the using
+    // "block"
+    return db.getTransactionAsync().disposer(function(tx, outcome) {
+        outcome.isFulfilled() ? tx.commit() : tx.rollback();
+    });
+}
+
+using(getTransaction(), function(tx) {
+    return tx.queryAsync(...).then(function() {
+        return tx.queryAsync(...)
+    }).then(function(){
+        return tx.queryAsync(...)
+    });
+});
+```
 
 <hr>
 
