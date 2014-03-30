@@ -51,7 +51,6 @@ module.exports = function( grunt ) {
         "any.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
         "race.js": ['Promise', 'INTERNAL'],
         "call_get.js": ['Promise'],
-        "filter.js": ['Promise', 'apiRejection'],
         "generators.js": ['Promise', 'apiRejection', 'INTERNAL'],
         "map.js": ['Promise', 'PromiseArray', 'apiRejection'],
         "nodeify.js": ['Promise'],
@@ -61,8 +60,8 @@ module.exports = function( grunt ) {
         "settle.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
         "some.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise', 'isPromiseArrayProxy'],
-        "cancel.js": ['Promise', 'INTERNAL']
-
+        "cancel.js": ['Promise', 'INTERNAL'],
+        "filter.js": ['Promise', 'apiRejection']
     };
 
     var optionalModuleRequireMap = {
@@ -70,7 +69,6 @@ module.exports = function( grunt ) {
         "race.js": true,
         "any.js": true,
         "call_get.js": true,
-        "filter.js": true,
         "generators.js": true,
         "map.js": true,
         "nodeify.js": true,
@@ -80,7 +78,8 @@ module.exports = function( grunt ) {
         "settle.js": true,
         "some.js": true,
         "progress.js": true,
-        "cancel.js": true
+        "cancel.js": true,
+        "filter.js": ["map.js"]
 
     };
 
@@ -474,10 +473,23 @@ module.exports = function( grunt ) {
 
     function getOptionalPathsFromOption( opt ) {
         opt = (opt + "").toLowerCase().split(/\s+/g);
-        return optionalPaths.filter(function(v){
+        var ret = optionalPaths.filter(function(v){
             v = v.replace("./src/", "").replace( ".js", "" ).toLowerCase();
             return opt.indexOf(v) > -1;
         });
+        var dependencies = {};
+        ret.forEach(function(v) {
+            v = v.replace("./src/", "").toLowerCase();
+            var dependencies = optionalModuleRequireMap[v];
+            if (Array.isArray(dependencies)) {
+                dependencies.forEach(function(dependency) {
+                    if (ret.indexOf(dependency) === -1) {
+                        ret.unshift('./src/' + dependency);
+                    }
+                });
+            }
+        });
+        return ret;
     }
 
     var optionalPaths = [
@@ -485,7 +497,6 @@ module.exports = function( grunt ) {
         "./src/any.js",
         "./src/race.js",
         "./src/call_get.js",
-        "./src/filter.js",
         "./src/generators.js",
         "./src/map.js",
         "./src/nodeify.js",
@@ -495,7 +506,8 @@ module.exports = function( grunt ) {
         "./src/settle.js",
         "./src/some.js",
         "./src/progress.js",
-        "./src/cancel.js"
+        "./src/cancel.js",
+        "./src/filter.js"
     ];
 
     var mandatoryPaths = [
