@@ -6,7 +6,7 @@ var defineProperty = require("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:[a-zA-Z0-9.]+\\$_\\w+|" +
-    "tryCatch(?:1|2|3|Apply)|new \\w*PromiseArray|" +
+    "tryCatch(?:1|2|3|4|Apply)|new \\w*PromiseArray|" +
     "\\w*PromiseArray\\.\\w*PromiseArray|" +
     "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
     "process._tickCallback|nextTick|Async\\$\\w+)\\b"

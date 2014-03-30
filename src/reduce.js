@@ -1,148 +1,148 @@
 "use strict";
-module.exports = function(
-    Promise, Promise$_CreatePromiseArray,
-    PromiseArray, apiRejection, INTERNAL) {
-
-var ASSERT = require("./assert.js");
-
-function Reduction(callback, index, accum, items, receiver) {
-    this.promise = new Promise(INTERNAL);
-    this.index = index;
-    this.length = items.length;
-    this.items = items;
-    this.callback = callback;
-    this.receiver = receiver;
-    this.accum = accum;
-}
-
-Reduction.prototype.reject = function Reduction$reject(e) {
-    this.promise._reject(e);
-};
-
-Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
-    this.accum = value;
-    this.index = index + 1;
-    this.iterate();
-};
-
-Reduction.prototype.iterate = function Reduction$iterate() {
-    var i = this.index;
-    var len = this.length;
-    var items = this.items;
-    var result = this.accum;
-    var receiver = this.receiver;
-    var callback = this.callback;
-
-    for (; i < len; ++i) {
-        result = callback.call(receiver, result, items[i], i, len);
-        result = Promise._cast(result, void 0);
-
-        //Continue iteration after the returned promise fulfills
-        if (result instanceof Promise) {
-            result._then(
-                this.fulfill, this.reject, void 0, this, i);
-            return;
+module.exports = function(Promise, PromiseArray, apiRejection) {
+var util = require("./util.js");
+var tryCatch4 = util.tryCatch4;
+var errorObj = util.errorObj;
+var cast = Promise._cast;
+var PENDING = {};
+// -2=The initial current index when no initial value is given
+// -1=The initial current index when initial value is given as a pending promise
+// 0=The initial current index when initial value is given as an immediate value
+function ReductionPromiseArray(promises, receiver, fn, accum) {
+    this.constructor$(promises, receiver);
+    var currentIndex = -2;
+    var maybePromise = cast(accum, void 0);
+    var rejected = false;
+    var isPromise = maybePromise instanceof Promise;
+    if (isPromise) {
+        if (maybePromise.isPending()) {
+            currentIndex = -1;
+            maybePromise._proxyPromiseArray(this, -1);
+        }
+        else if (maybePromise.isFulfilled()) {
+            accum = maybePromise.value();
+            currentIndex = 0;
+        }
+        else {
+            this._reject(maybePromise.reason());
+            rejected = true;
         }
     }
-    this.promise._fulfill(result);
+    if (!isPromise && accum !== void 0) currentIndex = 0;
+    this._callback = fn;
+    this._currentIndex = currentIndex;
+    this._accum = accum;
+    if (!rejected) this._init$(void 0, RESOLVE_CALL_METHOD);
+}
+util.inherits(ReductionPromiseArray, PromiseArray);
+
+// Override
+ReductionPromiseArray.prototype._init =
+function ReductionPromiseArray$_init() {};
+
+// Override
+ReductionPromiseArray.prototype._resolveEmptyArray =
+function ReductionPromiseArray$_resolveEmptyArray() {
+    // If current index is -1, the initial value
+    // is still a pending promise, which is handled in
+    // promiseFulfilled in the -1 case
+    if (this._currentIndex !== -1) {
+        this._resolve(this._accum);
+    }
 };
 
-function Promise$_reducer(fulfilleds, initialValue) {
-    var fn = this;
-    var receiver = void 0;
-    if (typeof fn !== "function")  {
-        receiver = fn.receiver;
-        fn = fn.fn;
+// Override
+ReductionPromiseArray.prototype._promiseFulfilled =
+function ReductionPromiseArray$_promiseFulfilled(value, index) {
+    var accum;
+    var values = this._values;
+    if (values === null) return;
+    var length = this.length();
+    var currentIndex = this._currentIndex;
+    // Special case detection where the processing starts at index 1
+    // because no initialValue was given
+    if (index === 0 && currentIndex === -2) {
+        accum = value;
+        currentIndex = 1;
+        if (length < 2) return this._resolve(void 0);
+        value = values[1];
     }
-    ASSERT(typeof fn === "function");
-    var len = fulfilleds.length;
-    var accum = void 0;
-    var startIndex = 0;
-
-    if (initialValue !== void 0) {
-        accum = initialValue;
-        startIndex = 0;
+    // Cannot process this index right now, process it later
+    else if (index > currentIndex) {
+        return;
+    }
+    // Round 2 promise or the initialValue was a promise and was fulfilled
+    else if (index === -1 || values[index] === PENDING) {
+        accum = value;
+        currentIndex++;
+        if (currentIndex >= length) return this._resolve(accum);
+        value = values[currentIndex];
     }
     else {
-        startIndex = 1;
-        if (len > 0) accum = fulfilleds[0];
-    }
-    var i = startIndex;
-
-    if (i >= len) {
-        return accum;
+        accum = this._accum;
     }
 
-    var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
-    reduction.iterate();
-    return reduction.promise;
-}
+    var callback = this._callback;
+    var receiver = this._promise._boundTo;
+    var ret;
 
-function Promise$_unpackReducer(fulfilleds) {
-    var fn = this.fn;
-    var initialValue = this.initialValue;
-    return Promise$_reducer.call(fn, fulfilleds, initialValue);
-}
+    for (var i = currentIndex; i < length; ++i) {
+        // The first value is always set in above code, only later values
+        // will be read from the array
+        if (i > currentIndex) value = values[i];
 
-function Promise$_slowReduce(
-    promises, fn, initialValue, useBound) {
-    return initialValue._then(function(initialValue) {
-        return Promise$_Reduce(
-            promises, fn, initialValue, useBound);
-    }, void 0, void 0, void 0, void 0);
-}
-
-function Promise$_Reduce(promises, fn, initialValue, useBound) {
-    if (typeof fn !== "function") {
-        return apiRejection(NOT_FUNCTION_ERROR);
-    }
-
-    if (useBound === USE_BOUND && promises._isBound()) {
-        fn = {
-            fn: fn,
-            receiver: promises._boundTo
-        };
-    }
-
-    if (initialValue !== void 0) {
-        if (initialValue instanceof Promise) {
-            if (initialValue.isFulfilled()) {
-                initialValue = initialValue._settledValue;
+        if (value instanceof Promise) {
+            if (value.isFulfilled()) {
+                value = value._settledValue;
+            }
+            else if (value.isPending()) {
+                // Continue later when the promise at current index fulfills
+                this._accum = accum;
+                this._currentIndex = i;
+                return;
             }
             else {
-                return Promise$_slowReduce(promises,
-                    fn, initialValue, useBound);
+                return this._reject(value.reason());
             }
         }
 
-        return Promise$_CreatePromiseArray(promises, PromiseArray,
-            useBound === USE_BOUND && promises._isBound()
-                ? promises._boundTo
-                : void 0)
-            .promise()
-            ._then(Promise$_unpackReducer, void 0, void 0, {
-                fn: fn,
-                initialValue: initialValue
-            }, void 0);
+        ret = tryCatch4(callback, receiver, accum, value, i, length);
+        if (ret === errorObj) return this._reject(ret.e);
+
+        var maybePromise = cast(ret, void 0);
+        if (maybePromise instanceof Promise) {
+            // Callback returned a pending
+            // promise so continue iteration when it fulfills
+            if (maybePromise.isPending()) {
+                // Round 2 marker
+                values[i] = PENDING;
+                this._accum = accum;
+                this._currentIndex = i;
+                return maybePromise._proxyPromiseArray(this, i);
+            }
+            else if (maybePromise.isFulfilled()) {
+                ret = maybePromise.value();
+            }
+            else {
+                return this._reject(maybePromise.reason());
+            }
+        }
+        accum = ret;
     }
-    return Promise$_CreatePromiseArray(promises, PromiseArray,
-            useBound === USE_BOUND && promises._isBound()
-                ? promises._boundTo
-                : void 0).promise()
-        //Currently smuggling internal data has a limitation
-        //in that no promises can be chained after it.
-        //One needs to be able to chain to get at
-        //the reduced results, so fast case is only possible
-        //when there is no initialValue.
-        ._then(Promise$_reducer, void 0, void 0, fn, void 0);
-}
-
-
-Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-    return Promise$_Reduce(promises, fn, initialValue, DONT_USE_BOUND);
+    this._resolve(accum);
 };
 
+function reduce(promises, fn, receiver, initialValue) {
+    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+    var array = new ReductionPromiseArray(promises, receiver, fn, initialValue);
+    return array.promise();
+}
+
 Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-    return Promise$_Reduce(this, fn, initialValue, USE_BOUND);
+    return reduce(this, fn, this._boundTo, initialValue);
+};
+
+Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
+    return reduce(promises, fn, void 0, initialValue);
 };
 };
