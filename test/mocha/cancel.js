@@ -224,17 +224,17 @@ describe("issues", function(){
         var a = Promise.resolve().cancellable();
         a = a.then(function() {
             f1 = true;
-            return delay(35);
+            return delay(5);
         });
 
         a = a.then(function() {
             f2 = true;
-            return delay(35);
+            return delay(5);
         });
 
         a = a.then(function() {
             f3 = true;
-            return delay(300);
+            return delay(500);
         });
 
         a = a.then(function() {
@@ -254,6 +254,6 @@ describe("issues", function(){
         setTimeout(function() {
             assert(a.isCancellable());
             a.cancel();
-        }, 100);
+        }, 50);
     });
 });
