@@ -10,6 +10,7 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
+require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
@@ -1165,7 +1166,6 @@ if (!CapturedTrace.isSupported()) {
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise, INTERNAL);
 require("./synchronous_inspection.js")(Promise);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
