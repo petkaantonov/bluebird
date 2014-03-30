@@ -172,6 +172,16 @@ describe("when.reduce-test", function () {
         );
     });
 
+    specify("should reduce empty input with eventual promise", function(done) {
+        when.reduce([], plus, when.delay(1, 50)).then(
+            function(result) {
+                assert.deepEqual(result, 1);
+                done();
+            },
+            fail
+        );
+    });
+
     specify("should reduce empty input with initial promise", function(done) {
         when.reduce([], plus, resolved(1)).then(
             function(result) {

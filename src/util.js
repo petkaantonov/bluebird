@@ -46,10 +46,7 @@ var errorObj = {e: {}};
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
 function tryCatch1(fn, receiver, arg) {
-    ASSERT(typeof fn === "function");
-    try {
-        return fn.call(receiver, arg);
-    }
+    try { return fn.call(receiver, arg); }
     catch (e) {
         errorObj.e = e;
         return errorObj;
@@ -57,10 +54,7 @@ function tryCatch1(fn, receiver, arg) {
 }
 
 function tryCatch2(fn, receiver, arg, arg2) {
-    ASSERT(typeof fn === "function");
-    try {
-        return fn.call(receiver, arg, arg2);
-    }
+    try { return fn.call(receiver, arg, arg2); }
     catch (e) {
         errorObj.e = e;
         return errorObj;
@@ -68,10 +62,15 @@ function tryCatch2(fn, receiver, arg, arg2) {
 }
 
 function tryCatch3(fn, receiver, arg, arg2, arg3) {
-    ASSERT(typeof fn === "function");
-    try {
-        return fn.call(receiver, arg, arg2, arg3);
+    try { return fn.call(receiver, arg, arg2, arg3); }
+    catch (e) {
+        errorObj.e = e;
+        return errorObj;
     }
+}
+
+function tryCatch4(fn, receiver, arg, arg2, arg3, arg4) {
+    try { return fn.call(receiver, arg, arg2, arg3, arg4); }
     catch (e) {
         errorObj.e = e;
         return errorObj;
@@ -79,10 +78,7 @@ function tryCatch3(fn, receiver, arg, arg2, arg3) {
 }
 
 function tryCatchApply(fn, args, receiver) {
-    ASSERT(typeof fn === "function");
-    try {
-        return fn.apply(receiver, args);
-    }
+    try { return fn.apply(receiver, args); }
     catch (e) {
         errorObj.e = e;
         return errorObj;
@@ -186,6 +182,7 @@ var ret = {
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,
     tryCatch3: tryCatch3,
+    tryCatch4: tryCatch4,
     tryCatchApply: tryCatchApply,
     inherits: inherits,
     withAppended: withAppended,

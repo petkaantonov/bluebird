@@ -38,21 +38,6 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError(CIRCULAR_RESOLUTION_ERROR);
 };
 
-function isPromise(obj) {
-    if (obj === void 0) return false;
-    return obj instanceof Promise;
-}
-
-function isPromiseArrayProxy(receiver, promiseSlotValue) {
-    if (receiver instanceof PromiseArray) {
-        ASSERT(typeof promiseSlotValue === "number");
-        ASSERT((promiseSlotValue | 0) === promiseSlotValue);
-        //Index into the array
-        return promiseSlotValue >= 0;
-    }
-    return false;
-}
-
 function Promise(resolver) {
     if (typeof resolver !== "function") {
         throw new TypeError(CONSTRUCT_ERROR_ARG);
@@ -174,7 +159,9 @@ Promise.prototype.all = function Promise$all() {
 };
 
 
-Promise.is = isPromise;
+Promise.is = function Promise$Is(val) {
+    return val instanceof Promise;
+};
 
 function Promise$_all(promises, useBound) {
     return Promise$_CreatePromiseArray(
@@ -367,7 +354,6 @@ function Promise$_proxyPromiseArray(promiseArray, index) {
     ASSERT(arguments.length === 2);
     ASSERT(typeof index === "number");
     ASSERT((index | 0) === index);
-    ASSERT(index >= 0);
     this._setProxyHandlers(promiseArray, index);
 };
 
@@ -417,7 +403,6 @@ function Promise$_then(
 };
 
 Promise.prototype._length = function Promise$_length() {
-    ASSERT(isPromise(this));
     ASSERT(arguments.length === 0);
     return this._bitField & LENGTH_MASK;
 };
@@ -685,8 +670,6 @@ Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     ASSERT(isArray(values));
     ASSERT(typeof targetFn === "function");
-    ASSERT(isPromise(promise));
-
     var promiseForAll =
             Promise$_CreatePromiseArray
                 (values, PromiseArray, boundTo)
@@ -708,7 +691,7 @@ function Promise$_callSpread(handler, promise, value, localDebugging) {
         //since the spread target callback will have
         //a formal parameter for each item in the array
         for (var i = 0, len = value.length; i < len; ++i) {
-            if (isPromise(Promise._cast(value[i], void 0))) {
+            if (Promise._cast(value[i], void 0) instanceof Promise) {
                 this._spreadSlowCase(handler, promise, value, boundTo);
                 return;
             }
@@ -741,7 +724,7 @@ function Promise$_settlePromiseFromHandler(
 ) {
     //if promise is not instanceof Promise
     //it is internally smuggled data
-    if (!isPromise(promise)) {
+    if (!(promise instanceof Promise)) {
         handler.call(receiver, value, promise);
         return;
     }
@@ -762,7 +745,7 @@ function Promise$_settlePromiseFromHandler(
     }
     else {
         var castValue = Promise._cast(x, promise);
-        if (isPromise(castValue)) {
+        if (castValue instanceof Promise) {
             if (castValue.isRejected() &&
                 !castValue._isCarryingStackTrace() &&
                 !canAttach(castValue._settledValue)) {
@@ -786,7 +769,6 @@ Promise.prototype._follow =
 function Promise$_follow(promise) {
     ASSERT(arguments.length === 1);
     ASSERT(this._isFollowingOrFulfilledOrRejected() === false);
-    ASSERT(isPromise(promise));
     ASSERT(promise !== this);
     this._setFollowing();
 
@@ -821,7 +803,7 @@ function Promise$_tryFollow(value) {
         return false;
     }
     var maybePromise = Promise._cast(value, void 0);
-    if (!isPromise(maybePromise)) {
+    if (!(maybePromise instanceof Promise)) {
         return false;
     }
     this._follow(maybePromise);
@@ -926,7 +908,6 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
             if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 //Must be smuggled data if proxied
-                ASSERT(!isPromise(promise));
                 receiver._unsetProxied();
 
                 if (isFulfilled) receiver._fulfillUnchecked(value);
@@ -934,7 +915,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
                     this._getCarriedStackTrace());
                 done = true;
             }
-            else if (isPromiseArrayProxy(receiver, promise)) {
+            else if (receiver instanceof PromiseArray) {
                 if (isFulfilled) receiver._promiseFulfilled(value, promise);
                 else receiver._promiseRejected(value, promise);
                 done = true;
@@ -1124,30 +1105,7 @@ Promise.prototype._popContext = function Promise$_popContext() {
 
 function Promise$_CreatePromiseArray(
     promises, PromiseArrayConstructor, boundTo) {
-
-    ASSERT(arguments.length === 3);
-    ASSERT(typeof PromiseArrayConstructor === "function");
-
-    var list = null;
-    if (isArray(promises)) {
-        list = promises;
-    }
-    /*else if (isIterable...)*/
-    else {
-        list = Promise._cast(promises, void 0);
-        if (list !== promises) {
-            list._setBoundTo(boundTo);
-        }
-        else if (!isPromise(list)) {
-            list = null;
-        }
-    }
-    if (list !== null) {
-        return new PromiseArrayConstructor(list, boundTo);
-    }
-    return {
-        promise: function() {return apiRejection(COLLECTION_ERROR);}
-    };
+    return new PromiseArrayConstructor(promises, boundTo);
 }
 
 var old = global.Promise;

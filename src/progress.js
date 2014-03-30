@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, isPromiseArrayProxy) {
+module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
@@ -94,7 +94,7 @@ function Promise$_progressUnchecked(progressValue) {
             else if (receiver instanceof Promise && receiver._isProxied()) {
                 receiver._progressUnchecked(progressValue);
             }
-            else if (isPromiseArrayProxy(receiver, promise)) {
+            else if (receiver instanceof PromiseArray) {
                 receiver._promiseProgressed(progressValue, promise);
             }
             continue;

@@ -60,6 +60,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     var values = cast(this._values, void 0);
     if (values instanceof Promise) {
         this._values = values;
+        values._setBoundTo(this._promise._boundTo);
         //Expect the promise to be a promise
         //for an array
         if (values.isFulfilled()) {
@@ -97,7 +98,12 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     }
 
     if (values.length === 0) {
-        this._resolve(toResolutionValue(resolveValueIfEmpty));
+        if (resolveValueIfEmpty === RESOLVE_CALL_METHOD) {
+            this._resolveEmptyArray();
+        }
+        else {
+            this._resolve(toResolutionValue(resolveValueIfEmpty));
+        }
         return;
     }
     var len = values.length;
