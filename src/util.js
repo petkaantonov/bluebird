@@ -67,6 +67,17 @@ function tryCatch2(fn, receiver, arg, arg2) {
     }
 }
 
+function tryCatch3(fn, receiver, arg, arg2, arg3) {
+    ASSERT(typeof fn === "function");
+    try {
+        return fn.call(receiver, arg, arg2, arg3);
+    }
+    catch (e) {
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
 function tryCatchApply(fn, args, receiver) {
     ASSERT(typeof fn === "function");
     try {
@@ -174,6 +185,7 @@ var ret = {
     errorObj: errorObj,
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,
+    tryCatch3: tryCatch3,
     tryCatchApply: tryCatchApply,
     inherits: inherits,
     withAppended: withAppended,

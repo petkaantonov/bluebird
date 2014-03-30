@@ -6,6 +6,7 @@ var util = require("./util.js");
 var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
+var cast = Promise._cast;
 
 //To avoid eagerly allocating the objects
 //and also because void 0 cannot be smuggled
@@ -56,8 +57,9 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
             //empty arrays
-    var values = this._values;
+    var values = cast(this._values, void 0);
     if (values instanceof Promise) {
+        this._values = values;
         //Expect the promise to be a promise
         //for an array
         if (values.isFulfilled()) {
@@ -69,13 +71,12 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
                 this.__hardReject__(err);
                 return;
             }
-            this._values = values;
         }
         else if (values.isPending()) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
             values._then(
-                this._init,
+                PromiseArray$_init,
                 this._reject,
                 void 0,
                 this,
@@ -88,6 +89,11 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             this._reject(values._settledValue);
             return;
         }
+    }
+    else if (!isArray(values)) {
+        var err = new Promise.TypeError(COLLECTION_ERROR);
+        this.__hardReject__(err);
+        return;
     }
 
     if (values.length === 0) {
@@ -112,7 +118,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             newLen--;
             continue;
         }
-        var maybePromise = Promise._cast(promise, void 0);
+        var maybePromise = cast(promise, void 0);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 //Optimized for just passing the updates through
