@@ -156,7 +156,7 @@ Promise.prototype.toJSON = function Promise$toJSON() {
 };
 
 Promise.prototype.all = function Promise$all() {
-    return new PromiseArray(this, this._boundTo).promise();
+    return new PromiseArray(this).promise();
 };
 
 
@@ -165,12 +165,12 @@ Promise.is = function Promise$Is(val) {
 };
 
 Promise.all = function Promise$All(promises) {
-    return new PromiseArray(promises, void 0).promise();
+    return new PromiseArray(promises).promise();
 };
 
 Promise.join = function Promise$Join() {
     INLINE_SLICE(args, arguments);
-    return new PromiseArray(args, void 0).promise();
+    return new PromiseArray(args).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -662,7 +662,7 @@ Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     ASSERT(isArray(values));
     ASSERT(typeof targetFn === "function");
-    var promiseForAll = new PromiseArray(values, boundTo).promise();
+    var promiseForAll = new PromiseArray(values).promise();
     promiseForAll._then(function() {
         return targetFn.apply(boundTo, arguments);
     }, void 0, void 0, APPLY, void 0);

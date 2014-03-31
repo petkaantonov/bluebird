@@ -6,8 +6,8 @@ var util = require("./util.js");
 var RangeError = require("./errors.js").RangeError;
 var isArray = util.isArray;
 
-function SomePromiseArray(values, boundTo) {
-    this.constructor$(values, boundTo);
+function SomePromiseArray(values) {
+    this.constructor$(values);
     this._howMany = 0;
     this._unwrap = false;
     this._initialized = false;
@@ -111,14 +111,11 @@ function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
 };
 
-function Promise$_Some(promises, howMany, useBound) {
+function Promise$_Some(promises, howMany) {
     if ((howMany | 0) !== howMany || howMany < 0) {
         return apiRejection(POSITIVE_INTEGER_ERROR);
     }
-    var ret = new SomePromiseArray(promises,
-                                   useBound === USE_BOUND
-                                    ? promises._boundTo
-                                    : void 0);
+    var ret = new SomePromiseArray(promises);
     var promise = ret.promise();
     if (promise.isRejected()) {
         return promise;
@@ -130,11 +127,11 @@ function Promise$_Some(promises, howMany, useBound) {
 }
 
 Promise.some = function Promise$Some(promises, howMany) {
-    return Promise$_Some(promises, howMany, DONT_USE_BOUND);
+    return Promise$_Some(promises, howMany);
 };
 
-Promise.prototype.some = function Promise$some(count) {
-    return Promise$_Some(this, count, USE_BOUND);
+Promise.prototype.some = function Promise$some(howMany) {
+    return Promise$_Some(this, howMany);
 };
 
 Promise._SomePromiseArray = SomePromiseArray;

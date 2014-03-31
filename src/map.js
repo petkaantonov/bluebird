@@ -5,8 +5,8 @@ var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
 var PENDING = {};
 
-function MappingPromiseArray(promises, receiver, fn, shouldPreserveValues) {
-    this.constructor$(promises, receiver);
+function MappingPromiseArray(promises, fn, shouldPreserveValues) {
+    this.constructor$(promises);
     this._callback = fn;
     this._preservedValues = shouldPreserveValues
                                         ? new Array(this.length())
@@ -74,21 +74,18 @@ function MappingPromiseArray$preserveValues() {
     return this._preservedValues;
 };
 
-function map(promises, fn, receiver, shouldPreserveValues) {
-    return new MappingPromiseArray(promises,
-                                   receiver,
-                                   fn,
-                                   shouldPreserveValues);
+function map(promises, fn, shouldPreserveValues) {
+    return new MappingPromiseArray(promises, fn, shouldPreserveValues);
 }
 
 Promise.prototype.map = function Promise$map(fn) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    return map(this, fn, this._boundTo, false).promise();
+    return map(this, fn, false).promise();
 };
 
 Promise.map = function Promise$Map(promises, fn) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    return map(promises, fn, void 0, false).promise();
+    return map(promises, fn, false).promise();
 };
 
 Promise._map = map;
