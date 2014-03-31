@@ -38,8 +38,6 @@ function PromiseArray(values, boundTo) {
     this._totalResolved = 0;
     this._init(void 0, RESOLVE_ARRAY);
 }
-PromiseArray.PropertiesPromiseArray = function() {};
-
 PromiseArray.prototype.length = function PromiseArray$length() {
     return this._length;
 };
@@ -107,13 +105,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     }
     var len = values.length;
     var newLen = len;
-    var newValues;
-    if (this instanceof PromiseArray.PropertiesPromiseArray) {
-        newValues = this._values;
-    }
-    else {
-        newValues = new Array(len);
-    }
+    var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
     var isDirectScanNeeded = false;
     for (var i = 0; i < len; ++i) {
         var promise = values[i];
@@ -247,6 +239,11 @@ function PromiseArray$_promiseRejected(reason, index) {
     ASSERT(isArray(this._values));
     this._totalResolved++;
     this._reject(reason);
+};
+
+PromiseArray.prototype.shouldCopyValues =
+function PromiseArray$_shouldCopyValues() {
+    return true;
 };
 
 return PromiseArray;
