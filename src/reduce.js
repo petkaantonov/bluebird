@@ -7,8 +7,8 @@ var PENDING = {};
 // -2=The initial current index when no initial value is given
 // -1=The initial current index when initial value is given as a pending promise
 // 0=The initial current index when initial value is given as an immediate value
-function ReductionPromiseArray(promises, receiver, fn, accum) {
-    this.constructor$(promises, receiver);
+function ReductionPromiseArray(promises, fn, accum) {
+    this.constructor$(promises);
     var currentIndex = -2;
     var maybePromise = cast(accum, void 0);
     var rejected = false;
@@ -131,17 +131,17 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     this._resolve(accum);
 };
 
-function reduce(promises, fn, receiver, initialValue) {
+function reduce(promises, fn, initialValue) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    var array = new ReductionPromiseArray(promises, receiver, fn, initialValue);
+    var array = new ReductionPromiseArray(promises, fn, initialValue);
     return array.promise();
 }
 
 Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-    return reduce(this, fn, this._boundTo, initialValue);
+    return reduce(this, fn, initialValue);
 };
 
 Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-    return reduce(promises, fn, void 0, initialValue);
+    return reduce(promises, fn, initialValue);
 };
 };

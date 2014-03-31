@@ -6,13 +6,13 @@ var apiRejection = require("./errors_api_rejection")(Promise);
 var isObject = util.isObject;
 var es5 = require("./es5.js");
 
-function PropertiesPromiseArray(obj, boundTo) {
+function PropertiesPromiseArray(obj) {
     var keys = es5.keys(obj);
     var values = new Array(keys.length);
     for (var i = 0, len = values.length; i < len; ++i) {
         values[i] = obj[keys[i]];
     }
-    this.constructor$(values, boundTo);
+    this.constructor$(values);
     if (!this._isResolved()) {
         for (var i = 0, len = keys.length; i < len; ++i) {
             values.push(keys[i]);
@@ -62,7 +62,7 @@ function PropertiesPromiseArray$_shouldCopyValues() {
     return false;
 };
 
-function Promise$_Props(promises, useBound) {
+function Promise$_Props(promises) {
     var ret;
     var castValue = cast(promises, void 0);
 
@@ -73,23 +73,19 @@ function Promise$_Props(promises, useBound) {
         ret = castValue._then(Promise.props, void 0, void 0, void 0, void 0);
     }
     else {
-        ret = new PropertiesPromiseArray(
-            castValue,
-            useBound === USE_BOUND ? castValue._boundTo : void 0).promise();
-        //The constructor took care of it
-        useBound = DONT_USE_BOUND;
+        ret = new PropertiesPromiseArray(castValue).promise();
     }
-    if (useBound === USE_BOUND) {
+    if (castValue instanceof Promise) {
         ret._setBoundTo(castValue._boundTo);
     }
     return ret;
 }
 
 Promise.prototype.props = function Promise$props() {
-    return Promise$_Props(this, USE_BOUND);
+    return Promise$_Props(this);
 };
 
 Promise.props = function Promise$Props(promises) {
-    return Promise$_Props(promises, DONT_USE_BOUND);
+    return Promise$_Props(promises);
 };
 };

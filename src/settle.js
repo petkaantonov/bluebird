@@ -5,8 +5,8 @@ var ASSERT = require("./assert.js");
 var PromiseInspection = Promise.PromiseInspection;
 var util = require("./util.js");
 
-function SettledPromiseArray(values, boundTo) {
-    this.constructor$(values, boundTo);
+function SettledPromiseArray(values) {
+    this.constructor$(values);
 }
 util.inherits(SettledPromiseArray, PromiseArray);
 
@@ -42,10 +42,10 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 };
 
 Promise.settle = function Promise$Settle(promises) {
-    return new SettledPromiseArray(promises, void 0).promise();
+    return new SettledPromiseArray(promises).promise();
 };
 
 Promise.prototype.settle = function Promise$settle() {
-    return new SettledPromiseArray(this, this._boundTo).promise();
+    return new SettledPromiseArray(this).promise();
 };
 };
