@@ -66,13 +66,9 @@ function Promise(resolver) {
 
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this);
     ret._follow(this);
+    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
     ret._setBoundTo(thisArg);
-    if (this._cancellable()) {
-        ret._setCancellable();
-        ret._cancellationParent = this;
-    }
     return ret;
 };
 
@@ -369,23 +365,16 @@ function Promise$_then(
     var haveInternalData = internalData !== void 0;
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
-    if (debugging && !haveInternalData) {
-        var haveSameContext = this._peekContext() === this._traceParent;
-        ret._traceParent = haveSameContext ? this._traceParent : this;
-        ret._setTrace(this);
-    }
-
-    if (!haveInternalData && this._isBound()) {
-        ret._setBoundTo(this._boundTo);
+    if (!haveInternalData) {
+        if (debugging) {
+            var haveSameContext = this._peekContext() === this._traceParent;
+            ret._traceParent = haveSameContext ? this._traceParent : this;
+        }
+        ret._propagateFrom(this, PROPAGATE_ALL);
     }
 
     var callbackIndex =
         this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
-
-    if (!haveInternalData && this._cancellable()) {
-        ret._setCancellable();
-        ret._cancellationParent = this;
-    }
 
     if (this.isResolved()) {
         async.invoke(this._queueSettleAt, this, callbackIndex);
@@ -742,10 +731,7 @@ function Promise$_settlePromiseFromHandler(
                 castValue._setCarriedStackTrace(trace);
             }
             promise._follow(castValue);
-            if (castValue._cancellable()) {
-                promise._cancellationParent = castValue;
-                promise._setCancellable();
-            }
+            promise._propagateFrom(castValue, PROPAGATE_CANCEL);
         }
         else {
             promise._fulfillUnchecked(x);
@@ -761,10 +747,7 @@ function Promise$_follow(promise) {
     this._setFollowing();
 
     if (promise.isPending()) {
-        if (promise._cancellable() ) {
-            this._cancellationParent = promise;
-            this._setCancellable();
-        }
+        this._propagateFrom(promise, PROPAGATE_CANCEL);
         promise._proxyPromise(this);
     }
     else if (promise.isFulfilled()) {
@@ -859,6 +842,20 @@ function Promise$_attachExtraTrace(error) {
 Promise.prototype._cleanValues = function Promise$_cleanValues() {
     if (this._cancellable()) {
         this._cancellationParent = void 0;
+    }
+};
+
+Promise.prototype._propagateFrom =
+function Promise$_propagateFrom(parent, flags) {
+    if ((flags & PROPAGATE_CANCEL) > 0 && parent._cancellable()) {
+        this._setCancellable();
+        this._cancellationParent = parent;
+    }
+    if ((flags & PROPAGATE_BIND) > 0) {
+        this._setBoundTo(parent._boundTo);
+    }
+    if ((flags & PROPAGATE_TRACE) > 0) {
+        this._setTrace(parent);
     }
 };
 

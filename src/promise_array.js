@@ -24,11 +24,7 @@ function PromiseArray(values) {
     var parent = void 0;
     if (values instanceof Promise) {
         parent = values;
-        if (values._cancellable()) {
-            promise._setCancellable();
-            promise._cancellationParent = values;
-        }
-        promise._setBoundTo(values._boundTo);
+        promise._propagateFrom(parent, PROPAGATE_CANCEL | PROPAGATE_BIND);
     }
     promise._setTrace(parent);
     this._values = values;

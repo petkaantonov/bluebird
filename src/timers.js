@@ -40,12 +40,7 @@ var delay = Promise.delay = function Promise$Delay(value, ms) {
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {
-        if (maybePromise._cancellable()) {
-            promise._setCancellable();
-            promise._cancellationParent = maybePromise;
-        }
-        promise._setBoundTo(maybePromise._boundTo);
-        promise._setTrace(maybePromise);
+        promise._propagateFrom(maybePromise, PROPAGATE_ALL);
         promise._follow(maybePromise);
         return promise.then(function(value) {
             return Promise.delay(value, ms);
@@ -66,13 +61,7 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
     ms = +ms;
 
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this);
-
-    if (this._isBound()) ret._setBoundTo(this._boundTo);
-    if (this._cancellable()) {
-        ret._setCancellable();
-        ret._cancellationParent = this;
-    }
+    ret._propagateFrom(this, PROPAGATE_ALL);
     ret._follow(this);
     setTimeout(afterTimeout, ms, ret, message, ms);
     return ret;
