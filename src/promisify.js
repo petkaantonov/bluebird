@@ -8,15 +8,36 @@ var nodebackForPromise = require("./promise_resolver.js")
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require("./assert.js");
+var TypeError = require("./errors").TypeError;
 
 
-var roriginal = new RegExp(BEFORE_PROMISIFIED_SUFFIX + "$");
-var hasProp = {}.hasOwnProperty;
+var rasyncSuffix = new RegExp(AFTER_PROMISIFIED_SUFFIX + "$");
 function isPromisified(fn) {
     return fn.__isPromisified__ === true;
+}
+function hasPromisified(obj, key) {
+    var containsKey = ((key + AFTER_PROMISIFIED_SUFFIX) in obj);
+    return containsKey ? isPromisified(obj[key + AFTER_PROMISIFIED_SUFFIX])
+                       : false;
+}
+function checkValid(ret) {
+    // Verify that in the list of methods to promisify there is no
+    // method that has a name ending in "Async"-postfix while
+    // also having a method with the same name but no Async postfix
+    for (var i = 0; i < ret.length; i += 2) {
+        var key = ret[i];
+        if (rasyncSuffix.test(key)) {
+            var keyWithoutAsyncSuffix = key.replace(rasyncSuffix, "");
+            for (var j = 0; j < ret.length; j += 2) {
+                if (ret[j] === keyWithoutAsyncSuffix) {
+                    throw new TypeError("Cannot promisify an API " +
+                        "that has normal methods with Async-suffix");
+                }
+            }
+        }
+    }
 }
 var inheritedMethods = (function() {
     if (es5.isES5) {
@@ -24,9 +45,9 @@ var inheritedMethods = (function() {
         var create = Object.create;
         var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
         return function(cur) {
-            var original = cur;
             var ret = [];
             var visitedKeys = create(null);
+            var original = cur;
             //Need to reinvent for-in because getOwnPropertyDescriptor
             //only works if the property is exactly on the object
             while (cur !== null) {
@@ -34,22 +55,20 @@ var inheritedMethods = (function() {
                 for (var i = 0, len = keys.length; i < len; ++i) {
                     var key = keys[i];
                     //For shadowing
-                    if (visitedKeys[key] ||
-                        roriginal.test(key) ||
-                        hasProp.call(original, key + BEFORE_PROMISIFIED_SUFFIX)
-                   ) {
-                        continue;
-                    }
+                    if (visitedKeys[key]) continue;
                     visitedKeys[key] = true;
                     var desc = getOwnPropertyDescriptor(cur, key);
+
                     if (desc != null &&
                         typeof desc.value === "function" &&
-                        !isPromisified(desc.value)) {
+                        !isPromisified(desc.value) &&
+                        !hasPromisified(original, key)) {
                         ret.push(key, desc.value);
                     }
                 }
                 cur = es5.getPrototypeOf(cur);
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -58,16 +77,14 @@ var inheritedMethods = (function() {
             var ret = [];
             /*jshint forin:false */
             for (var key in obj) {
-                if (roriginal.test(key) ||
-                    hasProp.call(obj, key + BEFORE_PROMISIFIED_SUFFIX)) {
-                    continue;
-                }
                 var fn = obj[key];
                 if (typeof fn === "function" &&
-                    !isPromisified(fn)) {
+                    !isPromisified(fn) &&
+                    !hasPromisified(obj, key)) {
                     ret.push(key, fn);
                 }
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -227,12 +244,8 @@ function _promisify(callback, receiver, isAll) {
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
             var fn = methods[i+1];
-            var originalKey = key + BEFORE_PROMISIFIED_SUFFIX;
             var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
-            notEnumerableProp(callback, originalKey, fn);
-            callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS,
-                    key, fn);
+            callback[promisifiedKey] = makeNodePromisified(key, THIS, key, fn);
         }
         util.toFastProperties(callback);
         return callback;

@@ -344,7 +344,7 @@ describe("promisify on objects", function(){
         });
     });
 
-    specify( "promisify Async suffixed methods", function( done ) {
+    specify( "Fails to promisify Async suffixed methods", function( done ) {
         var o = {
             x: function(cb){
                 cb(null, 13);
@@ -357,34 +357,28 @@ describe("promisify on objects", function(){
                 cb(null, 13)
             }
         };
-
-        Promise.promisifyAll(o);
-        var b = {};
-        var hasProp = {}.hasOwnProperty;
-        for( var key in o ) {
-            if( hasProp.call(o, key ) ) {
-                b[key] = o[key];
-            }
+        try {
+            Promise.promisifyAll(o);
         }
-        Promise.promisifyAll(o);
-        assert.deepEqual(b, o);
-
-        o.xAsync()
-        .then(function(v){
-            assert( v === 13 );
-            return o.xAsyncAsync();
-        })
-        .then(function(v){
-            assert( v === 13 );
-            return o.xAsyncAsyncAsync();
-        })
-        .then(function(v){
-            assert( v === 13 );
+        catch (e) {
+            assert(e instanceof Promise.TypeError);
             done();
-        });
+        }
+    });
 
+    specify("Calls overridden methods", function(done) {
+        function Model() {
+            this.save = function() {
+                done();
+            };
+        }
+        Model.prototype.save = function() {
+            throw new Error("");
+        };
 
-
+        Promise.promisifyAll(Model.prototype);
+        var model = new Model();
+        model.saveAsync();
     });
 });
 
@@ -487,7 +481,7 @@ describe( "Promisify from prototype to object", function() {
         Promise.promisifyAll(instance);
 
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
-        assert( instance.test__beforePromisified__ === instance.test );
+        assert(instance.test === instance.test);
         assert(getterCalled === 0);
         done();
     });
