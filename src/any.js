@@ -3,11 +3,8 @@ module.exports = function(Promise) {
 var SomePromiseArray = Promise._SomePromiseArray;
 var ASSERT = require("./assert.js");
 
-function Promise$_Any(promises, useBound) {
-    var ret = new SomePromiseArray(promises,
-                                   useBound === USE_BOUND
-                                    ? promises._boundTo
-                                    : void 0);
+function Promise$_Any(promises) {
+    var ret = new SomePromiseArray(promises);
     var promise = ret.promise();
     if (promise.isRejected()) {
         return promise;
@@ -20,11 +17,11 @@ function Promise$_Any(promises, useBound) {
 }
 
 Promise.any = function Promise$Any(promises) {
-    return Promise$_Any(promises, DONT_USE_BOUND);
+    return Promise$_Any(promises);
 };
 
 Promise.prototype.any = function Promise$any() {
-    return Promise$_Any(this, USE_BOUND);
+    return Promise$_Any(this);
 };
 
 };

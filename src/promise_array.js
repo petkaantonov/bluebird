@@ -18,8 +18,8 @@ function toResolutionValue(val) {
     ASSERT(false);
 }
 
-function PromiseArray(values, boundTo) {
-    ASSERT(arguments.length === 2);
+function PromiseArray(values) {
+    ASSERT(arguments.length === 1);
     var promise = this._promise = new Promise(INTERNAL);
     var parent = void 0;
     if (values instanceof Promise) {
@@ -28,7 +28,7 @@ function PromiseArray(values, boundTo) {
             promise._setCancellable();
             promise._cancellationParent = values;
         }
-        promise._setBoundTo(boundTo);
+        promise._setBoundTo(values._boundTo);
     }
     promise._setTrace(parent);
     this._values = values;

@@ -13,9 +13,9 @@ function filterer(booleans) {
     return ret;
 }
 
-function filter(promises, fn, receiver) {
+function filter(promises, fn) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    var promiseArray = PromiseMap(promises, fn, receiver, true);
+    var promiseArray = PromiseMap(promises, fn, true);
     var preservedValues = promiseArray.preservedValues();
     return promiseArray
             .promise()
@@ -23,10 +23,10 @@ function filter(promises, fn, receiver) {
 }
 
 Promise.prototype.filter = function Promise$filter(fn) {
-    return filter(this, fn, this._boundTo);
+    return filter(this, fn);
 };
 
 Promise.filter = function Promise$Filter(promises, fn) {
-    return filter(promises, fn, void 0);
+    return filter(promises, fn);
 };
 };
