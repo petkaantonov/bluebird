@@ -41,18 +41,11 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
     this._promiseResolved(index, ret);
 };
 
-function Promise$_Settle(promises, useBound) {
-    return new SettledPromiseArray(promises,
-                                   useBound === USE_BOUND && promises._isBound()
-                                    ? promises._boundTo
-                                    : void 0).promise();
-}
-
 Promise.settle = function Promise$Settle(promises) {
-    return Promise$_Settle(promises, DONT_USE_BOUND);
+    return new SettledPromiseArray(promises, void 0).promise();
 };
 
 Promise.prototype.settle = function Promise$settle() {
-    return Promise$_Settle(this, USE_BOUND);
+    return new SettledPromiseArray(this, this._boundTo).promise();
 };
 };
