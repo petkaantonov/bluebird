@@ -156,7 +156,7 @@ Promise.prototype.toJSON = function Promise$toJSON() {
 };
 
 Promise.prototype.all = function Promise$all() {
-    return Promise$_all(this, USE_BOUND);
+    return new PromiseArray(this, this._boundTo).promise();
 };
 
 
@@ -164,14 +164,8 @@ Promise.is = function Promise$Is(val) {
     return val instanceof Promise;
 };
 
-function Promise$_all(promises, useBound) {
-    return new PromiseArray(promises,
-                            useBound === USE_BOUND && promises._isBound()
-                                ? promises._boundTo
-                                : void 0).promise();
-}
 Promise.all = function Promise$All(promises) {
-    return Promise$_all(promises, DONT_USE_BOUND);
+    return new PromiseArray(promises, void 0).promise();
 };
 
 Promise.join = function Promise$Join() {
@@ -679,7 +673,7 @@ Promise.prototype._callSpread =
 function Promise$_callSpread(handler, promise, value, localDebugging) {
     //Array of non-promise values is fast case
     //.spread has a bit convoluted semantics otherwise
-    var boundTo = this._isBound() ? this._boundTo : void 0;
+    var boundTo = this._boundTo;
     if (isArray(value)) {
         //Shouldnt be many items to loop through
         //since the spread target callback will have

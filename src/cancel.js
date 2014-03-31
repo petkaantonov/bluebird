@@ -38,7 +38,7 @@ Promise.prototype.uncancellable = function Promise$uncancellable() {
     ret._setTrace(this);
     ret._follow(this);
     ret._unsetCancellable();
-    if (this._isBound()) ret._setBoundTo(this._boundTo);
+    ret._setBoundTo(this._boundTo);
     return ret;
 };
 

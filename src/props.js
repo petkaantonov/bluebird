@@ -70,20 +70,16 @@ function Promise$_Props(promises, useBound) {
         return apiRejection(PROPS_TYPE_ERROR);
     }
     else if (castValue instanceof Promise) {
-        ret = castValue._then(Promise.props, void 0, void 0,
-                        void 0, void 0);
+        ret = castValue._then(Promise.props, void 0, void 0, void 0, void 0);
     }
     else {
         ret = new PropertiesPromiseArray(
             castValue,
-            useBound === USE_BOUND && castValue._isBound()
-                        ? castValue._boundTo
-                        : void 0
-       ).promise();
+            useBound === USE_BOUND ? castValue._boundTo : void 0).promise();
         //The constructor took care of it
         useBound = DONT_USE_BOUND;
     }
-    if (useBound === USE_BOUND && castValue._isBound()) {
+    if (useBound === USE_BOUND) {
         ret._setBoundTo(castValue._boundTo);
     }
     return ret;

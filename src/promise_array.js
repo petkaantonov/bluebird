@@ -28,9 +28,7 @@ function PromiseArray(values, boundTo) {
             promise._setCancellable();
             promise._cancellationParent = values;
         }
-        if (values._isBound()) {
-            promise._setBoundTo(boundTo);
-        }
+        promise._setBoundTo(boundTo);
     }
     promise._setTrace(parent);
     this._values = values;

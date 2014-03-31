@@ -23,13 +23,11 @@ function Promise$_Race(promises, parent) {
     var ret = new Promise(INTERNAL);
     ret._setTrace(parent);
     if (parent !== void 0) {
-        if (parent._isBound()) {
-            ret._setBoundTo(parent._boundTo);
-        }
         if (parent._cancellable()) {
             ret._setCancellable();
             ret._cancellationParent = parent;
         }
+        ret._setBoundTo(parent._boundTo);
     }
     var fulfill = ret._fulfill;
     var reject = ret._reject;

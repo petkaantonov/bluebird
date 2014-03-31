@@ -32,7 +32,7 @@ function CatchFilter$_safePredicate(predicate, e) {
 CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
     var cb = this._callback;
     var promise = this._promise;
-    var boundTo = promise._isBound() ? promise._boundTo : void 0;
+    var boundTo = promise._boundTo;
     for (var i = 0, len = this._instances.length; i < len; ++i) {
         var item = this._instances[i];
         var itemIsErrorType = item === Error ||
