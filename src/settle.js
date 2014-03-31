@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-    function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
+    function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
 var PromiseInspection = Promise.PromiseInspection;
 var util = require("./util.js");
@@ -42,13 +42,10 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 };
 
 function Promise$_Settle(promises, useBound) {
-    return Promise$_CreatePromiseArray(
-        promises,
-        SettledPromiseArray,
-        useBound === USE_BOUND && promises._isBound()
-            ? promises._boundTo
-            : void 0
-   ).promise();
+    return new SettledPromiseArray(promises,
+                                   useBound === USE_BOUND && promises._isBound()
+                                    ? promises._boundTo
+                                    : void 0).promise();
 }
 
 Promise.settle = function Promise$Settle(promises) {
