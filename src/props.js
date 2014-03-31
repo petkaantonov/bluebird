@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, PromiseArray) {
+module.exports = function(Promise, PromiseArray, cast) {
 var PropertiesPromiseArray = require("./properties_promise_array.js")(
     Promise, PromiseArray);
 var util = require("./util.js");
@@ -8,7 +8,7 @@ var isObject = util.isObject;
 
 function Promise$_Props(promises, useBound) {
     var ret;
-    var castValue = Promise._cast(promises, void 0);
+    var castValue = cast(promises, void 0);
 
     if (!isObject(castValue)) {
         return apiRejection(PROPS_TYPE_ERROR);

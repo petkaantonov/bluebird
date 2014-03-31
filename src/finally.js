@@ -1,10 +1,9 @@
 "use strict";
-module.exports = function(Promise, NEXT_FILTER) {
+module.exports = function(Promise, NEXT_FILTER, cast) {
 var util = require("./util.js");
 var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 var isPrimitive = util.isPrimitive;
 var thrower = util.thrower;
-
 
 function returnThis() {
     return this;
@@ -43,7 +42,7 @@ function finallyHandler(reasonOrValue) {
 
     //Nobody ever returns anything from a .finally handler so speed this up
     if (ret !== void 0) {
-        var maybePromise = Promise._cast(ret, void 0);
+        var maybePromise = cast(ret, void 0);
         if (maybePromise instanceof Promise) {
             return promisedFinally(maybePromise, reasonOrValue,
                                     promise.isFulfilled());
@@ -71,7 +70,7 @@ function tapHandler(value) {
 
     //Nobody ever returns anything from a .finally handler so speed this up
     if (ret !== void 0) {
-        var maybePromise = Promise._cast(ret, void 0);
+        var maybePromise = cast(ret, void 0);
         if (maybePromise instanceof Promise) {
             return promisedFinally(maybePromise, value, true);
         }

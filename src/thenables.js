@@ -114,5 +114,5 @@ function Promise$_doThenable(x, then, originalPromise) {
     }
 }
 
-Promise._cast = Promise$_Cast;
+return Promise$_Cast;
 };
