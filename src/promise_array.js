@@ -1,12 +1,11 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise, INTERNAL, cast) {
 var ASSERT = require("./assert.js");
 var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
 var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
-var cast = Promise._cast;
 
 //To avoid eagerly allocating the objects
 //and also because void 0 cannot be smuggled
