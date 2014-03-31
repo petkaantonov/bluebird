@@ -1,9 +1,8 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, apiRejection) {
+module.exports = function(Promise, PromiseArray, apiRejection, cast) {
 var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
 var errorObj = util.errorObj;
-var cast = Promise._cast;
 var PENDING = {};
 // -2=The initial current index when no initial value is given
 // -1=The initial current index when initial value is given as a pending promise

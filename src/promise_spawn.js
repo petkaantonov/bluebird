@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise, INTERNAL, cast) {
 var errors = require("./errors.js");
 var ASSERT = require("./assert.js");
 var TypeError = errors.TypeError;
@@ -19,8 +19,7 @@ function promiseFromYieldHandler(value) {
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
-        var maybePromise = _Promise._cast(result,
-            promiseFromYieldHandler, void 0);
+        var maybePromise = cast(result, promiseFromYieldHandler, void 0);
         if (maybePromise instanceof _Promise) return maybePromise;
     }
     return null;
@@ -63,7 +62,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
         }
     }
     else {
-        var maybePromise = Promise._cast(value, PromiseSpawn$_continue, void 0);
+        var maybePromise = cast(value, void 0);
         if (!(maybePromise instanceof Promise)) {
             if (isArray(maybePromise)) {
                 maybePromise = Promise.all(maybePromise);

@@ -1,9 +1,8 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, apiRejection) {
+module.exports = function(Promise, PromiseArray, apiRejection, cast) {
 var util = require("./util.js");
 var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
-var cast = Promise._cast;
 var PENDING = {};
 
 function MappingPromiseArray(promises, receiver, fn, shouldPreserveValues) {

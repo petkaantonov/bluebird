@@ -47,16 +47,16 @@ module.exports = function( grunt ) {
 
 
     var optionalModuleDependencyMap = {
-        "timers.js": ['Promise', 'INTERNAL'],
+        "timers.js": ['Promise', 'INTERNAL', 'cast'],
         "any.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
-        "race.js": ['Promise', 'INTERNAL'],
+        "race.js": ['Promise', 'INTERNAL', 'cast'],
         "call_get.js": ['Promise'],
-        "generators.js": ['Promise', 'apiRejection', 'INTERNAL'],
-        "map.js": ['Promise', 'PromiseArray', 'apiRejection'],
+        "generators.js": ['Promise', 'apiRejection', 'INTERNAL', 'cast'],
+        "map.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast'],
         "nodeify.js": ['Promise'],
         "promisify.js": ['Promise', 'INTERNAL'],
-        "props.js": ['Promise', 'PromiseArray'],
-        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection'],
+        "props.js": ['Promise', 'PromiseArray', 'cast'],
+        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast'],
         "settle.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
         "some.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
         "progress.js": ['Promise', 'PromiseArray'],

@@ -10,8 +10,9 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-require("./thenables.js")(Promise, INTERNAL);
-var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
+
+var cast = require("./thenables.js")(Promise, INTERNAL);
+var PromiseArray = require("./promise_array.js")(Promise, INTERNAL, cast);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
@@ -222,7 +223,7 @@ function Promise$_resolveFromSyncValue(value) {
         this._ensurePossibleRejectionHandled();
     }
     else {
-        var maybePromise = Promise._cast(value, void 0);
+        var maybePromise = cast(value, void 0);
         if (maybePromise instanceof Promise) {
             this._follow(maybePromise);
         }
@@ -284,7 +285,7 @@ Promise.bind = function Promise$Bind(thisArg) {
 };
 
 Promise.cast = function Promise$_Cast(obj) {
-    var ret = Promise._cast(obj, void 0);
+    var ret = cast(obj, void 0);
     if (!(ret instanceof Promise)) {
         return Promise.resolve(ret);
     }
@@ -691,7 +692,7 @@ function Promise$_callSpread(handler, promise, value, localDebugging) {
         //since the spread target callback will have
         //a formal parameter for each item in the array
         for (var i = 0, len = value.length; i < len; ++i) {
-            if (Promise._cast(value[i], void 0) instanceof Promise) {
+            if (cast(value[i], void 0) instanceof Promise) {
                 this._spreadSlowCase(handler, promise, value, boundTo);
                 return;
             }
@@ -744,7 +745,7 @@ function Promise$_settlePromiseFromHandler(
         promise._rejectUnchecked(err, trace);
     }
     else {
-        var castValue = Promise._cast(x, promise);
+        var castValue = cast(x, promise);
         if (castValue instanceof Promise) {
             if (castValue.isRejected() &&
                 !castValue._isCarryingStackTrace() &&
@@ -802,7 +803,7 @@ function Promise$_tryFollow(value) {
         value === this) {
         return false;
     }
-    var maybePromise = Promise._cast(value, void 0);
+    var maybePromise = cast(value, void 0);
     if (!(maybePromise instanceof Promise)) {
         return false;
     }
@@ -1122,7 +1123,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./finally.js")(Promise, NEXT_FILTER);
+require("./finally.js")(Promise, NEXT_FILTER, cast);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 Promise.RangeError = RangeError;

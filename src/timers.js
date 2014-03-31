@@ -7,7 +7,7 @@ var setTimeout = function(fn, ms) {
     }, ms);
 };
 
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise, INTERNAL, cast) {
 var util = require("./util.js");
 var ASSERT = require("./assert.js");
 var errors = require("./errors.js");
@@ -36,7 +36,7 @@ var delay = Promise.delay = function Promise$Delay(value, ms) {
         value = void 0;
     }
     ms = +ms;
-    var maybePromise = Promise._cast(value, void 0);
+    var maybePromise = cast(value, void 0);
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {

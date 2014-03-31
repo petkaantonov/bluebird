@@ -1,6 +1,6 @@
 "use strict";
-module.exports = function(Promise, apiRejection, INTERNAL) {
-var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
+module.exports = function(Promise, apiRejection, INTERNAL, cast) {
+var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL, cast);
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
 var deprecated = require("./util.js").deprecated;
