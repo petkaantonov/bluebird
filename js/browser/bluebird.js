@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.2.0
+ * bluebird build version 1.2.1
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel
 */
 /**
@@ -1513,7 +1513,6 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
             nodeback,
             this._isBound() ? this._boundTo : null
         );
-        return;
     }
     return this;
 };
