@@ -4873,7 +4873,6 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
             nodeback,
             this._isBound() ? this._boundTo : null
         );
-        return;
     }
     return this;
 };
@@ -25844,6 +25843,18 @@ if( isNodeJS ) {
                 assert( turns === 1);
                 done();
             });
+        });
+
+        it("always returns promise for now", function(done){
+            Promise.resolve(3).nodeify().then(function() {
+                var a = 0;
+                Promise.resolve(3).nodeify(function(){
+                    a++;
+                }).then(function(){
+                    assert(1 == 1);
+                    done();
+                });
+            })
         });
     });
 }
