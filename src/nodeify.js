@@ -37,7 +37,6 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
             nodeback,
             this._isBound() ? this._boundTo : null
         );
-        return;
     }
     return this;
 };

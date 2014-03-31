@@ -183,5 +183,17 @@ if( isNodeJS ) {
                 done();
             });
         });
+
+        it("always returns promise for now", function(done){
+            Promise.resolve(3).nodeify().then(function() {
+                var a = 0;
+                Promise.resolve(3).nodeify(function(){
+                    a++;
+                }).then(function(){
+                    assert(1 == 1);
+                    done();
+                });
+            })
+        });
     });
 }
