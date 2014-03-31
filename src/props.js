@@ -76,7 +76,7 @@ function Promise$_Props(promises) {
         ret = new PropertiesPromiseArray(castValue).promise();
     }
     if (castValue instanceof Promise) {
-        ret._setBoundTo(castValue._boundTo);
+        ret._propagateFrom(castValue, PROPAGATE_BIND);
     }
     return ret;
 }

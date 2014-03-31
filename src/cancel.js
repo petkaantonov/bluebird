@@ -35,10 +35,9 @@ Promise.prototype.cancellable = function Promise$cancellable() {
 
 Promise.prototype.uncancellable = function Promise$uncancellable() {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(this);
+    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_BIND);
     ret._follow(this);
     ret._unsetCancellable();
-    ret._setBoundTo(this._boundTo);
     return ret;
 };
 
