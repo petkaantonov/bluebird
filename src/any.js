@@ -5,7 +5,7 @@ var ASSERT = require("./assert.js");
 
 function Promise$_Any(promises, useBound) {
     var ret = new SomePromiseArray(promises,
-                                   useBound === USE_BOUND && promises._isBound()
+                                   useBound === USE_BOUND
                                     ? promises._boundTo
                                     : void 0);
     var promise = ret.promise();

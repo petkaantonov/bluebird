@@ -40,13 +40,11 @@ var delay = Promise.delay = function Promise$Delay(value, ms) {
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {
-        if (maybePromise._isBound()) {
-            promise._setBoundTo(maybePromise._boundTo);
-        }
         if (maybePromise._cancellable()) {
             promise._setCancellable();
             promise._cancellationParent = maybePromise;
         }
+        promise._setBoundTo(maybePromise._boundTo);
         promise._setTrace(maybePromise);
         promise._follow(maybePromise);
         return promise.then(function(value) {

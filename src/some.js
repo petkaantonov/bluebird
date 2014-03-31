@@ -116,7 +116,7 @@ function Promise$_Some(promises, howMany, useBound) {
         return apiRejection(POSITIVE_INTEGER_ERROR);
     }
     var ret = new SomePromiseArray(promises,
-                                   useBound === USE_BOUND && promises._isBound()
+                                   useBound === USE_BOUND
                                     ? promises._boundTo
                                     : void 0);
     var promise = ret.promise();
