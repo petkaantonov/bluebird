@@ -56,9 +56,9 @@ module.exports = function( grunt ) {
         "promisify.js": ['Promise', 'INTERNAL'],
         "props.js": ['Promise', 'PromiseArray', 'cast'],
         "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast'],
-        "settle.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
-        "some.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray', 'apiRejection'],
-        "any.js": ['Promise', 'Promise$_CreatePromiseArray', 'PromiseArray'],
+        "settle.js": ['Promise', 'PromiseArray'],
+        "some.js": ['Promise', 'PromiseArray', 'apiRejection'],
+        "any.js": ['Promise', 'PromiseArray'],
         "progress.js": ['Promise', 'PromiseArray'],
         "cancel.js": ['Promise', 'INTERNAL'],
         "filter.js": ['Promise', 'apiRejection']

@@ -1,16 +1,13 @@
 "use strict";
-module.exports = function(Promise, Promise$_CreatePromiseArray) {
+module.exports = function(Promise) {
 var SomePromiseArray = Promise._SomePromiseArray;
 var ASSERT = require("./assert.js");
 
 function Promise$_Any(promises, useBound) {
-    var ret = Promise$_CreatePromiseArray(
-        promises,
-        SomePromiseArray,
-        useBound === USE_BOUND && promises._isBound()
-            ? promises._boundTo
-            : void 0
-   );
+    var ret = new SomePromiseArray(promises,
+                                   useBound === USE_BOUND && promises._isBound()
+                                    ? promises._boundTo
+                                    : void 0);
     var promise = ret.promise();
     if (promise.isRejected()) {
         return promise;

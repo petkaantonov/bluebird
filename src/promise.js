@@ -165,13 +165,10 @@ Promise.is = function Promise$Is(val) {
 };
 
 function Promise$_all(promises, useBound) {
-    return Promise$_CreatePromiseArray(
-        promises,
-        PromiseArray,
-        useBound === USE_BOUND && promises._isBound()
-            ? promises._boundTo
-            : void 0
-   ).promise();
+    return new PromiseArray(promises,
+                            useBound === USE_BOUND && promises._isBound()
+                                ? promises._boundTo
+                                : void 0).promise();
 }
 Promise.all = function Promise$All(promises) {
     return Promise$_all(promises, DONT_USE_BOUND);
@@ -179,7 +176,7 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     INLINE_SLICE(args, arguments);
-    return Promise$_CreatePromiseArray(args, PromiseArray, void 0).promise();
+    return new PromiseArray(args, void 0).promise();
 };
 
 Promise.resolve = Promise.fulfilled =
@@ -671,14 +668,10 @@ Promise.prototype._spreadSlowCase =
 function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     ASSERT(isArray(values));
     ASSERT(typeof targetFn === "function");
-    var promiseForAll =
-            Promise$_CreatePromiseArray
-                (values, PromiseArray, boundTo)
-            .promise()
-            ._then(function() {
-                return targetFn.apply(boundTo, arguments);
-            }, void 0, void 0, APPLY, void 0);
-
+    var promiseForAll = new PromiseArray(values, boundTo).promise();
+    promiseForAll._then(function() {
+        return targetFn.apply(boundTo, arguments);
+    }, void 0, void 0, APPLY, void 0);
     promise._follow(promiseForAll);
 };
 
@@ -1103,11 +1096,6 @@ Promise.prototype._popContext = function Promise$_popContext() {
     if (!debugging) return;
     contextStack.pop();
 };
-
-function Promise$_CreatePromiseArray(
-    promises, PromiseArrayConstructor, boundTo) {
-    return new PromiseArrayConstructor(promises, boundTo);
-}
 
 var old = global.Promise;
 Promise.noConflict = function() {

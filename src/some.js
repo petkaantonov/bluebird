@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
+function(Promise, PromiseArray, apiRejection) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var RangeError = require("./errors.js").RangeError;
@@ -115,13 +115,10 @@ function Promise$_Some(promises, howMany, useBound) {
     if ((howMany | 0) !== howMany || howMany < 0) {
         return apiRejection(POSITIVE_INTEGER_ERROR);
     }
-    var ret = Promise$_CreatePromiseArray(
-        promises,
-        SomePromiseArray,
-        useBound === USE_BOUND && promises._isBound()
-            ? promises._boundTo
-            : void 0
-   );
+    var ret = new SomePromiseArray(promises,
+                                   useBound === USE_BOUND && promises._isBound()
+                                    ? promises._boundTo
+                                    : void 0);
     var promise = ret.promise();
     if (promise.isRejected()) {
         return promise;
