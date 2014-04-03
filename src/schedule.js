@@ -19,7 +19,6 @@ else if ((typeof global.MutationObserver === "function" ||
 
     schedule = (function(){
         var MutationObserver = global.MutationObserver ||
-            global.WebkitMutationObserver ||
             global.WebKitMutationObserver;
         var div = document.createElement("div");
         var queuedFn = void 0;
