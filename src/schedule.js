@@ -46,10 +46,5 @@ else if (global.setTimeout) {
         setTimeout(fn, 4);
     };
 }
-else {
-    schedule = function Promise$_Scheduler(fn) {
-        fn();
-    };
-}
-
+else throw new Error("no async scheduler available");
 module.exports = schedule;
