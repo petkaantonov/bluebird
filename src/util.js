@@ -25,11 +25,7 @@ var canEvaluate = (function() {
     //So assume CSP if environment is browser. This is reasonable
     //because promise throughput doesn't matter in browser and
     //promisifcation is mostly interesting to node.js anyway
-    if (typeof window !== "undefined" && window !== null &&
-        typeof window.document !== "undefined" &&
-        typeof navigator !== "undefined" && navigator !== null &&
-        typeof navigator.appName === "string" &&
-        window === global) {
+    if (global.navigator) {
         return false;
     }
     return true;
