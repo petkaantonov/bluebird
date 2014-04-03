@@ -19,11 +19,9 @@ Promise.prototype._progress = function Promise$_progress(progressValue) {
 
 Promise.prototype._progressHandlerAt =
 function Promise$_progressHandlerAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) return this._progressHandler0;
-    return this[index + CALLBACK_PROGRESS_OFFSET - CALLBACK_SIZE];
+    return index === 0
+        ? this._progressHandler0
+        : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET];
 };
 
 Promise.prototype._doProgressWith =
@@ -81,7 +79,7 @@ function Promise$_progressUnchecked(progressValue) {
     if (!this.isPending()) return;
     var len = this._length();
     var progress = this._progress;
-    for (var i = 0; i < len; i += CALLBACK_SIZE) {
+    for (var i = 0; i < len; i++) {
         var handler = this._progressHandlerAt(i);
         var promise = this._promiseAt(i);
         //if promise is not instanceof Promise
