@@ -567,6 +567,7 @@ module.exports = function( grunt ) {
             var promise = Q.nfcall(fs.readFile, v, "utf8")
                             .then(function(contents) {
                                 checkAscii(v, contents);
+                                return contents;
                             });
             promises.push(promise);
             var ret = {};
