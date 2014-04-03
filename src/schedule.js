@@ -41,56 +41,6 @@ else if ((typeof global.MutationObserver === "function" ||
 
     })();
 }
-else if (typeof global.postMessage === "function" &&
-    typeof global.importScripts !== "function" &&
-    typeof global.addEventListener === "function" &&
-    typeof global.removeEventListener === "function") {
-
-    var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        function Promise$_Scheduler(e) {
-            if (e.source === global &&
-                e.data === MESSAGE_KEY) {
-                ASSERT(queuedFn !== void 0);
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-            }
-        }
-
-        global.addEventListener("message", Promise$_Scheduler, false);
-
-        return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
-            queuedFn = fn;
-            global.postMessage(
-                MESSAGE_KEY, "*"
-           );
-        };
-
-    })();
-}
-else if (typeof global.MessageChannel === "function") {
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        var channel = new global.MessageChannel();
-        channel.port1.onmessage = function Promise$_Scheduler() {
-                ASSERT(queuedFn !== void 0);
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-        };
-
-        return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
-            queuedFn = fn;
-            channel.port2.postMessage(null);
-        };
-    })();
-}
 else if (global.setTimeout) {
     schedule = function Promise$_Scheduler(fn) {
         setTimeout(fn, 4);
