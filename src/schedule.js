@@ -2,20 +2,12 @@
 var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var schedule;
-if (typeof process !== "undefined" && process !== null &&
-    typeof process.cwd === "function" &&
-    typeof process.nextTick === "function" &&
-    typeof process.version === "string") {
+if (global.process && typeof process.version === "string") {
     schedule = function Promise$_Scheduler(fn) {
         process.nextTick(fn);
     };
 }
-else if ((typeof global.MutationObserver === "function" ||
-        typeof global.WebKitMutationObserver === "function") &&
-        typeof document !== "undefined" &&
-        typeof document.createElement === "function") {
-
-
+else if (global.MutationObserver || global.WebKitMutationObserver) {
     schedule = (function(){
         var MutationObserver = global.MutationObserver ||
             global.WebKitMutationObserver;
