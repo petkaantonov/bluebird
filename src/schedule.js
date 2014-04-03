@@ -11,7 +11,6 @@ if (typeof process !== "undefined" && process !== null &&
     };
 }
 else if ((typeof global.MutationObserver === "function" ||
-        typeof global.WebkitMutationObserver === "function" ||
         typeof global.WebKitMutationObserver === "function") &&
         typeof document !== "undefined" &&
         typeof document.createElement === "function") {
