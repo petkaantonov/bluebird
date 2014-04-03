@@ -1,7 +1,8 @@
 //This is pretty lame but what you gonna do
 
 //async.js
-CONSTANT(BUFFER_STRIDE, 3);
+CONSTANT(LATE_BUFFER_CAPACITY, 16);
+CONSTANT(FUNCTION_BUFFER_CAPACITY, 65536);
 
 //errors.js
 CONSTANT(ERROR_HANDLED_KEY, "__promiseHandled__");
