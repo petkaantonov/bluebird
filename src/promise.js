@@ -489,26 +489,6 @@ function Promise$_rejectionHandlerAt(index) {
         : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
-Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
-     if (index === 0) {
-        this._rejectionHandler0 =
-        this._progressHandler0 =
-        this._promise0 =
-        this._receiver0 = void 0;
-        if (!this._isCarryingStackTrace()) {
-            this._fulfillmentHandler0 = void 0;
-        }
-    }
-    else {
-        var base = (index << 2) + index - CALLBACK_SIZE;
-        this[base + CALLBACK_FULFILL_OFFSET] =
-        this[base + CALLBACK_REJECT_OFFSET] =
-        this[base + CALLBACK_PROGRESS_OFFSET] =
-        this[base + CALLBACK_PROMISE_OFFSET] =
-        this[base + CALLBACK_RECEIVER_OFFSET] = void 0;
-    }
-};
-
 Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     fulfill,
     reject,
@@ -936,7 +916,6 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 
 Promise.prototype._gc = function Promise$gc() {
     var len = this._length() * CALLBACK_SIZE;
-    this._unsetAt(0);
     for (var i = 0; i < len; i++) {
         //Delete is cool on array indexes
         delete this[i];
