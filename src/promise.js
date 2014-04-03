@@ -458,17 +458,9 @@ function Promise$_getCarriedStackTrace() {
 };
 
 Promise.prototype._receiverAt = function Promise$_receiverAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
-
-    var ret;
-    if (index === 0) {
-        ret = this._receiver0;
-    }
-    else {
-        ret = this[index + CALLBACK_RECEIVER_OFFSET - CALLBACK_SIZE];
-    }
+    var ret = index === 0
+        ? this._receiver0
+        : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
     if (this._isBound() && ret === void 0) {
         return this._boundTo;
@@ -477,36 +469,27 @@ Promise.prototype._receiverAt = function Promise$_receiverAt(index) {
 };
 
 Promise.prototype._promiseAt = function Promise$_promiseAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) return this._promise0;
-    return this[index + CALLBACK_PROMISE_OFFSET - CALLBACK_SIZE];
+    return index === 0
+        ? this._promise0
+        : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET];
 };
 
 Promise.prototype._fulfillmentHandlerAt =
 function Promise$_fulfillmentHandlerAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
     ASSERT(!this._isCarryingStackTrace());
-    if (index === 0) return this._fulfillmentHandler0;
-    return this[index + CALLBACK_FULFILL_OFFSET - CALLBACK_SIZE];
+    return index === 0
+        ? this._fulfillmentHandler0
+        : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET];
 };
 
 Promise.prototype._rejectionHandlerAt =
 function Promise$_rejectionHandlerAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
-    if (index === 0) return this._rejectionHandler0;
-    return this[index + CALLBACK_REJECT_OFFSET - CALLBACK_SIZE];
+    return index === 0
+        ? this._rejectionHandler0
+        : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
 Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(index % CALLBACK_SIZE === 0);
      if (index === 0) {
         this._rejectionHandler0 =
         this._progressHandler0 =
@@ -517,11 +500,12 @@ Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
         }
     }
     else {
-        this[index - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET] =
-        this[index - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET] = void 0;
+        var base = (index << 2) + index - CALLBACK_SIZE;
+        this[base + CALLBACK_FULFILL_OFFSET] =
+        this[base + CALLBACK_REJECT_OFFSET] =
+        this[base + CALLBACK_PROGRESS_OFFSET] =
+        this[base + CALLBACK_PROMISE_OFFSET] =
+        this[base + CALLBACK_RECEIVER_OFFSET] = void 0;
     }
 };
 
@@ -548,17 +532,18 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
         if (typeof progress === "function") this._progressHandler0 = progress;
     }
     else {
-        var i = index - CALLBACK_SIZE;
-        this[i + CALLBACK_PROMISE_OFFSET] = promise;
-        this[i + CALLBACK_RECEIVER_OFFSET] = receiver;
-        this[i + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
+        var base = (index << 2) + index - CALLBACK_SIZE;
+        console.log("base is", base);
+        this[base + CALLBACK_PROMISE_OFFSET] = promise;
+        this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
+        this[base + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
                                             ? fulfill : void 0;
-        this[i + CALLBACK_REJECT_OFFSET] = typeof reject === "function"
+        this[base + CALLBACK_REJECT_OFFSET] = typeof reject === "function"
                                             ? reject : void 0;
-        this[i + CALLBACK_PROGRESS_OFFSET] = typeof progress === "function"
+        this[base + CALLBACK_PROGRESS_OFFSET] = typeof progress === "function"
                                             ? progress : void 0;
     }
-    this._setLength(index + CALLBACK_SIZE);
+    this._setLength(index + 1);
     return index;
 };
 
@@ -575,14 +560,14 @@ function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
         this._receiver0 = receiver;
     }
     else {
-        var i = index - CALLBACK_SIZE;
-        this[i + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
-        this[i + CALLBACK_RECEIVER_OFFSET] = receiver;
-        this[i + CALLBACK_FULFILL_OFFSET] =
-        this[i + CALLBACK_REJECT_OFFSET] =
-        this[i + CALLBACK_PROGRESS_OFFSET] = void 0;
+        var base = (index << 2) + index - CALLBACK_SIZE;
+        this[base + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
+        this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
+        this[base + CALLBACK_FULFILL_OFFSET] =
+        this[base + CALLBACK_REJECT_OFFSET] =
+        this[base + CALLBACK_PROGRESS_OFFSET] = void 0;
     }
-    this._setLength(index + CALLBACK_SIZE);
+    this._setLength(index + 1);
 };
 
 Promise.prototype._proxyPromiseArray =
@@ -950,7 +935,7 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 };
 
 Promise.prototype._gc = function Promise$gc() {
-    var len = this._length();
+    var len = this._length() * CALLBACK_SIZE;
     this._unsetAt(0);
     for (var i = 0; i < len; i++) {
         //Delete is cool on array indexes
@@ -1028,7 +1013,7 @@ Promise.prototype._rejectPromises = function Promise$_rejectPromises() {
 
 Promise.prototype._settlePromises = function Promise$_settlePromises() {
     var len = this._length();
-    for (var i = 0; i < len; i+= CALLBACK_SIZE) {
+    for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
     }
 };
