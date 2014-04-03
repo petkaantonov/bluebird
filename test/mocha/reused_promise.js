@@ -28,11 +28,6 @@ describe("If promise is reused to get at the value many times over the course of
             for( var i = 0; i < three._length() - 5; ++i) {
                 assert( three[i] === void 0 );
             }
-            assert( three._promise0 === void 0 );
-            assert( three._fulfillmentHandler0 === void 0 );
-            assert( three._rejectionHandler0 === void 0 );
-            assert( three._progressHandler0 === void 0 );
-            assert( three._receiver0 === void 0 );
             done();
         }, 13);
     });
