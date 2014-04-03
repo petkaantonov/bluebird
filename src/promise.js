@@ -313,46 +313,6 @@ Promise.hasLongStackTraces = function Promise$HasLongStackTraces() {
     return debugging && CapturedTrace.isSupported();
 };
 
-Promise.prototype._setProxyHandlers =
-function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
-    var index = this._length();
-
-    if (index >= MAX_LENGTH - CALLBACK_SIZE) {
-        index = 0;
-        this._setLength(0);
-    }
-    if (index === 0) {
-        this._promise0 = promiseSlotValue;
-        this._receiver0 = receiver;
-    }
-    else {
-        var i = index - CALLBACK_SIZE;
-        this[i + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
-        this[i + CALLBACK_RECEIVER_OFFSET] = receiver;
-        this[i + CALLBACK_FULFILL_OFFSET] =
-        this[i + CALLBACK_REJECT_OFFSET] =
-        this[i + CALLBACK_PROGRESS_OFFSET] = void 0;
-    }
-    this._setLength(index + CALLBACK_SIZE);
-};
-
-Promise.prototype._proxyPromiseArray =
-function Promise$_proxyPromiseArray(promiseArray, index) {
-    ASSERT(!this.isResolved());
-    ASSERT(arguments.length === 2);
-    ASSERT(typeof index === "number");
-    ASSERT((index | 0) === index);
-    this._setProxyHandlers(promiseArray, index);
-};
-
-Promise.prototype._proxyPromise = function Promise$_proxyPromise(promise) {
-    ASSERT(!promise._isProxied());
-    ASSERT(!this.isResolved());
-    ASSERT(arguments.length === 1);
-    promise._setProxied();
-    this._setProxyHandlers(promise, -1);
-};
-
 Promise.prototype._then =
 function Promise$_then(
     didFulfill,
@@ -565,35 +525,6 @@ Promise.prototype._unsetAt = function Promise$_unsetAt(index) {
     }
 };
 
-Promise.prototype._resolveFromResolver =
-function Promise$_resolveFromResolver(resolver) {
-    ASSERT(typeof resolver === "function");
-    var promise = this;
-    this._setTrace(void 0);
-    this._pushContext();
-
-    function Promise$_resolver(val) {
-        if (promise._tryFollow(val)) {
-            return;
-        }
-        promise._fulfill(val);
-    }
-    function Promise$_rejecter(val) {
-        var trace = canAttach(val) ? val : new Error(val + "");
-        promise._attachExtraTrace(trace);
-        markAsOriginatingFromRejection(val);
-        promise._reject(val, trace === val ? void 0 : trace);
-    }
-    var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
-    this._popContext();
-
-    if (r !== void 0 && r === errorObj) {
-        var e = r.e;
-        var trace = canAttach(e) ? e : new Error(e + "");
-        promise._reject(e, trace);
-    }
-};
-
 Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     fulfill,
     reject,
@@ -631,7 +562,45 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     return index;
 };
 
+Promise.prototype._setProxyHandlers =
+function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
+    var index = this._length();
 
+    if (index >= MAX_LENGTH - CALLBACK_SIZE) {
+        index = 0;
+        this._setLength(0);
+    }
+    if (index === 0) {
+        this._promise0 = promiseSlotValue;
+        this._receiver0 = receiver;
+    }
+    else {
+        var i = index - CALLBACK_SIZE;
+        this[i + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
+        this[i + CALLBACK_RECEIVER_OFFSET] = receiver;
+        this[i + CALLBACK_FULFILL_OFFSET] =
+        this[i + CALLBACK_REJECT_OFFSET] =
+        this[i + CALLBACK_PROGRESS_OFFSET] = void 0;
+    }
+    this._setLength(index + CALLBACK_SIZE);
+};
+
+Promise.prototype._proxyPromiseArray =
+function Promise$_proxyPromiseArray(promiseArray, index) {
+    ASSERT(!this.isResolved());
+    ASSERT(arguments.length === 2);
+    ASSERT(typeof index === "number");
+    ASSERT((index | 0) === index);
+    this._setProxyHandlers(promiseArray, index);
+};
+
+Promise.prototype._proxyPromise = function Promise$_proxyPromise(promise) {
+    ASSERT(!promise._isProxied());
+    ASSERT(!this.isResolved());
+    ASSERT(arguments.length === 1);
+    promise._setProxied();
+    this._setProxyHandlers(promise, -1);
+};
 
 Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
     if (obj !== void 0) {
@@ -645,6 +614,35 @@ Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
 
 Promise.prototype._isBound = function Promise$_isBound() {
     return (this._bitField & IS_BOUND) === IS_BOUND;
+};
+
+Promise.prototype._resolveFromResolver =
+function Promise$_resolveFromResolver(resolver) {
+    ASSERT(typeof resolver === "function");
+    var promise = this;
+    this._setTrace(void 0);
+    this._pushContext();
+
+    function Promise$_resolver(val) {
+        if (promise._tryFollow(val)) {
+            return;
+        }
+        promise._fulfill(val);
+    }
+    function Promise$_rejecter(val) {
+        var trace = canAttach(val) ? val : new Error(val + "");
+        promise._attachExtraTrace(trace);
+        markAsOriginatingFromRejection(val);
+        promise._reject(val, trace === val ? void 0 : trace);
+    }
+    var r = tryCatch2(resolver, void 0, Promise$_resolver, Promise$_rejecter);
+    this._popContext();
+
+    if (r !== void 0 && r === errorObj) {
+        var e = r.e;
+        var trace = canAttach(e) ? e : new Error(e + "");
+        promise._reject(e, trace);
+    }
 };
 
 Promise.prototype._spreadSlowCase =
