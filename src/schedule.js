@@ -43,7 +43,7 @@ else if ((typeof global.MutationObserver === "function" ||
 }
 else if (global.setTimeout) {
     schedule = function Promise$_Scheduler(fn) {
-        setTimeout(fn, 4);
+        setTimeout(fn, 0);
     };
 }
 else throw new Error("no async scheduler available");
