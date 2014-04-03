@@ -7,7 +7,21 @@ Q.longStackSupport = true;
 
 module.exports = function( grunt ) {
     var isCI = !!grunt.option("ci");
+    var notAscii = /[^\u0019-\u007E]/;
 
+    function checkAscii(path, contents) {
+        contents.split("\n").forEach(function(line, i) {
+            if (notAscii.test(line)) {
+                var lineNo = i + 1;
+                var col = line.indexOf(RegExp.lastMatch) + 1;
+                var code = "U+" + (("0000" + line.charCodeAt(col-1)
+                                                    .toString(16)).slice(-4));
+                code = RegExp.lastMatch + " (" + code.toUpperCase() + ")";
+                throw new Error(path +":" + lineNo +":" + col +
+                        " Non-ASCII character: " + code);
+            }
+        });
+    }
 
     function getBrowsers() {
         //Terse format to generate the verbose format required by sauce
@@ -550,7 +564,10 @@ module.exports = function( grunt ) {
 
         var promises = [];
         var sources = paths.map(function(v){
-            var promise = Q.nfcall(fs.readFile, v, "utf8");
+            var promise = Q.nfcall(fs.readFile, v, "utf8")
+                            .then(function(contents) {
+                                checkAscii(v, contents);
+                            });
             promises.push(promise);
             var ret = {};
 
