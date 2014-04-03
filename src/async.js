@@ -9,8 +9,8 @@ var process = require("./global.js").process;
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._lateBuffer = new Queue();
-    this._functionBuffer = new Queue(25000 * BUFFER_STRIDE);
+    this._lateBuffer = new Queue(LATE_BUFFER_CAPACITY);
+    this._functionBuffer = new Queue(FUNCTION_BUFFER_CAPACITY);
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
