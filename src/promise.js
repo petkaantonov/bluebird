@@ -67,7 +67,7 @@ function Promise(resolver) {
 Promise.prototype.bind = function Promise$bind(thisArg) {
     var ret = new Promise(INTERNAL);
     ret._follow(this);
-    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
+    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
     ret._setBoundTo(thisArg);
     return ret;
 };
