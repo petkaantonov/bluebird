@@ -298,8 +298,7 @@ module.exports = function( grunt ) {
                     "./src/catch_filter.js",
                     "./src/promise.js",
                     "./src/promise_array.js",
-                    "./src/promise_resolver.js",
-                    "./src/promise_spawn.js"
+                    "./src/promise_resolver.js"
                 ]
             }
         }
@@ -544,7 +543,6 @@ module.exports = function( grunt ) {
         "./src/promise_array.js",
         "./src/synchronous_inspection.js",
         "./src/promise_resolver.js",
-        "./src/promise_spawn.js",
         "./src/direct_resolve.js"
     ];
 
