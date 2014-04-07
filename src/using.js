@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function (Promise, apiRejection) {
+module.exports = function (Promise, apiRejection, cast) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var errorRef = {e: null};
@@ -22,7 +22,7 @@ module.exports = function (Promise, apiRejection) {
         var haveError = false;
         var error = null;
         for (var i = 0; i < resources.length; ++i) {
-            var maybePromise = Promise._cast(resources[i], void 0);
+            var maybePromise = cast(resources[i], void 0);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
                 if (!maybePromise._getDisposer().tryDispose(inspection) &&
