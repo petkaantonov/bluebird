@@ -119,7 +119,7 @@ describe("nodeify", function () {
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWithExactly(spy, null);
             done();
-        }, 100);
+        }, 10);
     });
 
     it("calls back with an error", function () {
