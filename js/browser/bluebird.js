@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.2.1
+ * bluebird build version 1.2.2
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel
 */
 /**
@@ -1491,7 +1491,9 @@ function thrower(r) {
 
 function Promise$_successAdapter(val, receiver) {
     var nodeback = this;
-    var ret = tryCatch2(nodeback, receiver, null, val);
+    var ret = val === void 0
+        ? tryCatch1(nodeback, receiver, null)
+        : tryCatch2(nodeback, receiver, null, val);
     if (ret === errorObj) {
         async.invokeLater(thrower, void 0, ret.e);
     }
@@ -2857,6 +2859,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
         else {
+            values._unsetRejectionIsUnhandled();
             this._reject(values._settledValue);
             return;
         }
@@ -3318,41 +3321,59 @@ var nodebackForPromise = require("./promise_resolver.js")
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
-var roriginal = new RegExp("__beforePromisified__" + "$");
-var hasProp = {}.hasOwnProperty;
+var TypeError = require("./errors").TypeError;
+
+
+var rasyncSuffix = new RegExp("Async" + "$");
 function isPromisified(fn) {
     return fn.__isPromisified__ === true;
+}
+function hasPromisified(obj, key) {
+    var containsKey = ((key + "Async") in obj);
+    return containsKey ? isPromisified(obj[key + "Async"])
+                       : false;
+}
+function checkValid(ret) {
+    for (var i = 0; i < ret.length; i += 2) {
+        var key = ret[i];
+        if (rasyncSuffix.test(key)) {
+            var keyWithoutAsyncSuffix = key.replace(rasyncSuffix, "");
+            for (var j = 0; j < ret.length; j += 2) {
+                if (ret[j] === keyWithoutAsyncSuffix) {
+                    throw new TypeError("Cannot promisify an API " +
+                        "that has normal methods with Async-suffix");
+                }
+            }
+        }
+    }
 }
 var inheritedMethods = (function() {
     if (es5.isES5) {
         var create = Object.create;
         var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
         return function(cur) {
-            var original = cur;
             var ret = [];
             var visitedKeys = create(null);
+            var original = cur;
             while (cur !== null) {
                 var keys = es5.keys(cur);
                 for (var i = 0, len = keys.length; i < len; ++i) {
                     var key = keys[i];
-                    if (visitedKeys[key] ||
-                        roriginal.test(key) ||
-                        hasProp.call(original, key + "__beforePromisified__")
-                   ) {
-                        continue;
-                    }
+                    if (visitedKeys[key]) continue;
                     visitedKeys[key] = true;
                     var desc = getOwnPropertyDescriptor(cur, key);
+
                     if (desc != null &&
                         typeof desc.value === "function" &&
-                        !isPromisified(desc.value)) {
+                        !isPromisified(desc.value) &&
+                        !hasPromisified(original, key)) {
                         ret.push(key, desc.value);
                     }
                 }
                 cur = es5.getPrototypeOf(cur);
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -3361,16 +3382,14 @@ var inheritedMethods = (function() {
             var ret = [];
             /*jshint forin:false */
             for (var key in obj) {
-                if (roriginal.test(key) ||
-                    hasProp.call(obj, key + "__beforePromisified__")) {
-                    continue;
-                }
                 var fn = obj[key];
                 if (typeof fn === "function" &&
-                    !isPromisified(fn)) {
+                    !isPromisified(fn) &&
+                    !hasPromisified(obj, key)) {
                     ret.push(key, fn);
                 }
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -3524,12 +3543,8 @@ function _promisify(callback, receiver, isAll) {
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
             var fn = methods[i+1];
-            var originalKey = key + "__beforePromisified__";
             var promisifiedKey = key + "Async";
-            notEnumerableProp(callback, originalKey, fn);
-            callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS,
-                    key, fn);
+            callback[promisifiedKey] = makeNodePromisified(key, THIS, key, fn);
         }
         util.toFastProperties(callback);
         return callback;
@@ -3565,7 +3580,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./es5.js":11,"./promise_resolver.js":21,"./util.js":37}],24:[function(require,module,exports){
+},{"./errors":9,"./es5.js":11,"./promise_resolver.js":21,"./util.js":37}],24:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 

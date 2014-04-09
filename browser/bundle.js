@@ -4849,7 +4849,9 @@ function Promise$_successAdapter(val, receiver) {
     var nodeback = this;
     ASSERT(((typeof nodeback) == "function"),
     "typeof nodeback == \u0022function\u0022");
-    var ret = tryCatch2(nodeback, receiver, null, val);
+    var ret = val === void 0
+        ? tryCatch1(nodeback, receiver, null)
+        : tryCatch2(nodeback, receiver, null, val);
     if (ret === errorObj) {
         async.invokeLater(thrower, void 0, ret.e);
     }
@@ -6351,6 +6353,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
         else {
+            values._unsetRejectionIsUnhandled();
             this._reject(values._settledValue);
             return;
         }
@@ -6835,44 +6838,60 @@ var nodebackForPromise = require("./promise_resolver.js")
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var notEnumerableProp = util.notEnumerableProp;
 var deprecated = util.deprecated;
 var ASSERT = require("./assert.js");
+var TypeError = require("./errors").TypeError;
 
 
-var roriginal = new RegExp("__beforePromisified__" + "$");
-var hasProp = {}.hasOwnProperty;
+var rasyncSuffix = new RegExp("Async" + "$");
 function isPromisified(fn) {
     return fn.__isPromisified__ === true;
+}
+function hasPromisified(obj, key) {
+    var containsKey = ((key + "Async") in obj);
+    return containsKey ? isPromisified(obj[key + "Async"])
+                       : false;
+}
+function checkValid(ret) {
+    for (var i = 0; i < ret.length; i += 2) {
+        var key = ret[i];
+        if (rasyncSuffix.test(key)) {
+            var keyWithoutAsyncSuffix = key.replace(rasyncSuffix, "");
+            for (var j = 0; j < ret.length; j += 2) {
+                if (ret[j] === keyWithoutAsyncSuffix) {
+                    throw new TypeError("Cannot promisify an API " +
+                        "that has normal methods with Async-suffix");
+                }
+            }
+        }
+    }
 }
 var inheritedMethods = (function() {
     if (es5.isES5) {
         var create = Object.create;
         var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
         return function(cur) {
-            var original = cur;
             var ret = [];
             var visitedKeys = create(null);
+            var original = cur;
             while (cur !== null) {
                 var keys = es5.keys(cur);
                 for (var i = 0, len = keys.length; i < len; ++i) {
                     var key = keys[i];
-                    if (visitedKeys[key] ||
-                        roriginal.test(key) ||
-                        hasProp.call(original, key + "__beforePromisified__")
-                   ) {
-                        continue;
-                    }
+                    if (visitedKeys[key]) continue;
                     visitedKeys[key] = true;
                     var desc = getOwnPropertyDescriptor(cur, key);
+
                     if (desc != null &&
                         typeof desc.value === "function" &&
-                        !isPromisified(desc.value)) {
+                        !isPromisified(desc.value) &&
+                        !hasPromisified(original, key)) {
                         ret.push(key, desc.value);
                     }
                 }
                 cur = es5.getPrototypeOf(cur);
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -6881,16 +6900,14 @@ var inheritedMethods = (function() {
             var ret = [];
             /*jshint forin:false */
             for (var key in obj) {
-                if (roriginal.test(key) ||
-                    hasProp.call(obj, key + "__beforePromisified__")) {
-                    continue;
-                }
                 var fn = obj[key];
                 if (typeof fn === "function" &&
-                    !isPromisified(fn)) {
+                    !isPromisified(fn) &&
+                    !hasPromisified(obj, key)) {
                     ret.push(key, fn);
                 }
             }
+            checkValid(ret);
             return ret;
         };
     }
@@ -7048,12 +7065,8 @@ function _promisify(callback, receiver, isAll) {
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
             var fn = methods[i+1];
-            var originalKey = key + "__beforePromisified__";
             var promisifiedKey = key + "Async";
-            notEnumerableProp(callback, originalKey, fn);
-            callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS,
-                    key, fn);
+            callback[promisifiedKey] = makeNodePromisified(key, THIS, key, fn);
         }
         util.toFastProperties(callback);
         return callback;
@@ -7089,7 +7102,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./assert.js":19,"./es5.js":29,"./promise_resolver.js":39,"./util.js":55}],42:[function(require,module,exports){
+},{"./assert.js":19,"./errors":27,"./es5.js":29,"./promise_resolver.js":39,"./util.js":55}],42:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -24063,7 +24076,7 @@ describe("promisify on objects", function(){
         });
     });
 
-    specify( "promisify Async suffixed methods", function( done ) {
+    specify( "Fails to promisify Async suffixed methods", function( done ) {
         var o = {
             x: function(cb){
                 cb(null, 13);
@@ -24076,34 +24089,28 @@ describe("promisify on objects", function(){
                 cb(null, 13)
             }
         };
-
-        Promise.promisifyAll(o);
-        var b = {};
-        var hasProp = {}.hasOwnProperty;
-        for( var key in o ) {
-            if( hasProp.call(o, key ) ) {
-                b[key] = o[key];
-            }
+        try {
+            Promise.promisifyAll(o);
         }
-        Promise.promisifyAll(o);
-        assert.deepEqual(b, o);
-
-        o.xAsync()
-        .then(function(v){
-            assert( v === 13 );
-            return o.xAsyncAsync();
-        })
-        .then(function(v){
-            assert( v === 13 );
-            return o.xAsyncAsyncAsync();
-        })
-        .then(function(v){
-            assert( v === 13 );
+        catch (e) {
+            assert(e instanceof Promise.TypeError);
             done();
-        });
+        }
+    });
 
+    specify("Calls overridden methods", function(done) {
+        function Model() {
+            this.save = function() {
+                done();
+            };
+        }
+        Model.prototype.save = function() {
+            throw new Error("");
+        };
 
-
+        Promise.promisifyAll(Model.prototype);
+        var model = new Model();
+        model.saveAsync();
     });
 });
 
@@ -24206,7 +24213,7 @@ describe( "Promisify from prototype to object", function() {
         Promise.promisifyAll(instance);
 
         assert.deepEqual( Object.getOwnPropertyNames(Test.prototype).sort(), origKeys );
-        assert( instance.test__beforePromisified__ === instance.test );
+        assert(instance.test === instance.test);
         assert(getterCalled === 0);
         done();
     });
@@ -25771,7 +25778,16 @@ describe("nodeify", function () {
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
         }, 100);
+    });
 
+    it("calls back with an undefined resolution", function (done) {
+        var spy = sinon.spy();
+        Q().nodeify(spy);
+        setTimeout(function(){
+            sinon.assert.calledOnce(spy);
+            sinon.assert.calledWithExactly(spy, null);
+            done();
+        }, 10);
     });
 
     it("calls back with an error", function () {
@@ -28490,6 +28506,12 @@ describe("immediate failures with .then", function testFunction(done) {
         });
 
         Promise.all([a, b])
+            .caught(clearUnhandledHandler(async(done)));
+    });
+
+    specify("Already rejected promise for a collection", function testFunction(done){
+        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        Promise.settle(Promise.reject(err))
             .caught(clearUnhandledHandler(async(done)));
     });
 });
