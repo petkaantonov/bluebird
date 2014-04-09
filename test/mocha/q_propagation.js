@@ -1,14 +1,11 @@
+"use strict";
 var assert = require("assert");
-
 var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 
 var Promise = fulfilled().constructor;
-
-Promise.prototype.progress = Promise.prototype.progressed;
-
 
 var Q = function(p) {
     if( p.then ) return p;
@@ -28,8 +25,6 @@ Q.delay = Promise.delay;
 
 Q.reject = Promise.rejected;
 Q.resolve = Promise.fulfilled;
-
-Promise.prototype.fail = Promise.prototype.caught;
 
 Q.defer = function() {
     var ret = pending();
@@ -118,7 +113,7 @@ describe("propagation", function () {
         var error = new Error("Foolish mortals!");
         var nextError = new Error("Silly humans!");
         return Q.reject(error)
-        .fail(function () {
+        .caught(function () {
             throw nextError;
         })
         .then(null, function (_error) {
