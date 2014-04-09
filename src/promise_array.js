@@ -84,6 +84,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             return;
         }
         else {
+            values._unsetRejectionIsUnhandled();
             this._reject(values._settledValue);
             return;
         }
