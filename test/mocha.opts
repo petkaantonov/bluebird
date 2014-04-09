@@ -1,0 +1,4 @@
+--recursive
+--require test/mocha/helpers/exposeBluebird.js
+--reporter spec
+--timeout 500

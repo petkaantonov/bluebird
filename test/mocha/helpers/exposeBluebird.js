@@ -1,0 +1,1 @@
+global.adapter = require("../../../js/debug/bluebird.js");
