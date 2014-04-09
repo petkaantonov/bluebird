@@ -14,7 +14,9 @@ function thrower(r) {
 function Promise$_successAdapter(val, receiver) {
     var nodeback = this;
     ASSERT(typeof nodeback == "function");
-    var ret = tryCatch2(nodeback, receiver, null, val);
+    var ret = val === void 0
+        ? tryCatch1(nodeback, receiver, null)
+        : tryCatch2(nodeback, receiver, null, val);
     if (ret === errorObj) {
         async.invokeLater(thrower, void 0, ret.e);
     }
