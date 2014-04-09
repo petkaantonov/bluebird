@@ -1,4 +1,13 @@
+## 1.2.2 (2014-04-09)
+
+Bugfixes:
+
+ - Promisified methods from promisifyAll no longer call the original method when it is overriden
+ - Nodeify doesn't pass second argument to the callback if the promise is fulfilled with `undefined`
+
 ## 1.2.1 (2014-03-31)
+
+Bugfixes:
 
  - Fix [#168](https://github.com/petkaantonov/bluebird/issues/168)
 
