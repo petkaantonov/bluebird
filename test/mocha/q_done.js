@@ -190,6 +190,7 @@ describe("done", function () {
         if( isNodeJS ) {
             describe("and the errback throws", function () {
                 it("should rethrow that error in the next turn and return nothing", function () {
+                    var originalException;
                     while( originalException = process.listeners('uncaughtException').pop() ) {
                         process.removeListener('uncaughtException', originalException);
                     }
@@ -230,6 +231,7 @@ describe("done", function () {
 
             describe("and there is no errback", function () {
                 it("should throw the original error in the next turn", function () {
+                    var originalException;
                     while( originalException = process.listeners('uncaughtException').pop() ) {
                         process.removeListener('uncaughtException', originalException);
                     }

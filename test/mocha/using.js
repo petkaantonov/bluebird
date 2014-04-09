@@ -1,3 +1,4 @@
+"use strict";
 var assert = require("assert");
 
 var Promise = require("../../js/debug/bluebird.js");
