@@ -1,3 +1,4 @@
+"use strict";
 /*global describe specify require global*/
 //TODO include the copyright
     "use strict";
