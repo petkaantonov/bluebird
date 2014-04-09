@@ -110,7 +110,16 @@ describe("nodeify", function () {
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
         }, 100);
+    });
 
+    it("calls back with an undefined resolution", function (done) {
+        var spy = sinon.spy();
+        Q().nodeify(spy);
+        setTimeout(function(){
+            sinon.assert.calledOnce(spy);
+            sinon.assert.calledWithExactly(spy, null);
+            done();
+        }, 100);
     });
 
     it("calls back with an error", function () {

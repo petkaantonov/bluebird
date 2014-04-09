@@ -14,7 +14,17 @@ function thrower(r) {
 function Promise$_successAdapter(val, receiver) {
     var nodeback = this;
     ASSERT(typeof nodeback == "function");
-    var ret = tryCatch2(nodeback, receiver, null, val);
+    var ret;
+    if (val === undefined) {
+        // got no result, or result value is undefined.
+        //   ensure that the nodeback receives (arguments.length === 1),
+        //   since there is 'no result'.  arguments[1] will still be undefined.
+        ret = tryCatch1(nodeback, receiver, null);
+    }
+    else {
+        // provide the result value
+        ret = tryCatch2(nodeback, receiver, null, val);
+    }
     if (ret === errorObj) {
         async.invokeLater(thrower, void 0, ret.e);
     }
