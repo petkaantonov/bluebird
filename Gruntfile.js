@@ -342,7 +342,6 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks("grunt-saucelabs");
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-concat');
 
     function runIndependentTest( file, cb , env) {
         var fs = require("fs");
