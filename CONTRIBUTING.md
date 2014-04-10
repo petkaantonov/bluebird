@@ -66,3 +66,5 @@ Use the same style as is used in the surrounding code.
 - For checks that can be done with `typeof`: do not make helper functions, save results of `typeof` to a variable or make the type string a non-constant. Always write the check in the form `typeof expression === "constant string"` even if it feels like repeating yourself.
 
 ## Testing
+
+Make sure that all the tests run before and after you make your additions. Look in the [testing section in README.md](https://github.com/petkaantonov/bluebird#testing) for how to run the tests. Add relevant new tests.
