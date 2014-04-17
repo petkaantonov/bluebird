@@ -4585,7 +4585,7 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
 };
 
 },{"./errors.js":27,"./promise_spawn.js":40,"./util.js":55}],33:[function(require,module,exports){
-var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4607,28 +4607,17 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
  * THE SOFTWARE.
  * 
  */
-"use strict";
-module.exports = (function(){
-if (typeof this !== "undefined") {
-    return this;
-}
-if (typeof process !== "undefined" &&
-    typeof global !== "undefined" &&
-    typeof process.execPath === "string") {
-    return global;
-}
-if (typeof window !== "undefined" &&
-    typeof document !== "undefined" &&
-    typeof navigator !== "undefined" && navigator !== null &&
-    typeof navigator.appName === "string") {
-        if(window.wrappedJSObject !== undefined){
-            return window.wrappedJSObject;
-        }
-    return window;
-}
+module.exports = (function() {
+    if (this !== void 0) return this;
+    try {return global;}
+    catch(e) {}
+    try {return window;}
+    catch(e) {}
+    try {return self;}
+    catch(e) {}
 })();
 
-},{"__browserify_process":16}],34:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 

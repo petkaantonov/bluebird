@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.2.2
+ * bluebird build version 1.2.3
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel
 */
 /**
@@ -1255,25 +1255,14 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
  * THE SOFTWARE.
  * 
  */
-"use strict";
-module.exports = (function(){
-if (typeof this !== "undefined") {
-    return this;
-}
-if (typeof process !== "undefined" &&
-    typeof global !== "undefined" &&
-    typeof process.execPath === "string") {
-    return global;
-}
-if (typeof window !== "undefined" &&
-    typeof document !== "undefined" &&
-    typeof navigator !== "undefined" && navigator !== null &&
-    typeof navigator.appName === "string") {
-        if(window.wrappedJSObject !== undefined){
-            return window.wrappedJSObject;
-        }
-    return window;
-}
+module.exports = (function() {
+    if (this !== void 0) return this;
+    try {return global;}
+    catch(e) {}
+    try {return window;}
+    catch(e) {}
+    try {return self;}
+    catch(e) {}
 })();
 
 },{}],16:[function(require,module,exports){
