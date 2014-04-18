@@ -24,10 +24,6 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
     }
     this._init$(void 0, RESOLVE_ARRAY);
     var isArrayResolved = isArray(this._values);
-    //Need to keep track of holes in the array so
-    //we know where rejection values start
-    this._holes = isArrayResolved ? this._values.length - this.length() : 0;
-
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
@@ -82,7 +78,7 @@ function SomePromiseArray$_promiseRejected(reason) {
             this._reject([]);
         }
         else {
-            this._reject(this._values.slice(this.length() + this._holes));
+            this._reject(this._values.slice(this.length()));
         }
     }
 };
@@ -92,7 +88,7 @@ SomePromiseArray.prototype._fulfilled = function SomePromiseArray$_fulfilled() {
 };
 
 SomePromiseArray.prototype._rejected = function SomePromiseArray$_rejected() {
-    return this._values.length - this.length() - this._holes;
+    return this._values.length - this.length();
 };
 
 //Use the same array past .length() to store rejection reasons

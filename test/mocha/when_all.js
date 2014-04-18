@@ -72,11 +72,11 @@ describe("when.all-test", function () {
         );
     });
 
-    specify("should resolve sparse array input", function(done) {
+    specify("should not resolve sparse array input", function(done) {
         var input = [, 1, , 1, 1 ];
         when.all(input).then(
             function(results) {
-                assert.deepEqual(results, input);
+                assert.deepEqual(results, [void 0, 1, void 0, 1, 1]);
                 done()
             }, fail
         );
