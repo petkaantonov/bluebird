@@ -7,6 +7,7 @@ var util = require("./util.js");
 var canAttach = require("./errors.js").canAttach;
 var isArray = util.isArray;
 var _cast = Promise._cast;
+var es5 = require("./es5.js");
 
 function unpack(values) {
     ASSERT(this.length === 3);
@@ -35,19 +36,28 @@ function Promise$_Map(promises, fn, useBound, ref) {
         var pack = [fn, receiver, ref];
         return promises._then(unpack, void 0, void 0, pack, void 0);
     }
-    else if (!isArray(promises)) {
-        return apiRejection(COLLECTION_ERROR);
-    }
 
     var promise = new Promise(INTERNAL);
     if (receiver !== void 0) promise._setBoundTo(receiver);
     promise._setTrace(void 0);
 
-    var mapping = new Mapping(promise,
-                                fn,
-                                promises,
-                                receiver,
-                                shouldUnwrapItems);
+    var mapping;
+
+    if (isArray(promises)) {
+        mapping = new Mapping(promise,
+                                    fn,
+                                    promises,
+                                    receiver,
+                                    shouldUnwrapItems);
+    }
+    else {
+        mapping = new ObjectMapping(promise,
+                                     fn,
+                                     promises,
+                                     receiver,
+                                     shouldUnwrapItems);
+    }
+
     mapping.init();
     return promise;
 }
@@ -129,7 +139,6 @@ Mapping.prototype.iterate = function Mapping$iterate() {
     var items = this.items;
     var result = this.result;
     var len = items.length;
-    var result = this.result;
     var receiver = this.receiver;
     var callback = this.callback;
 
@@ -144,6 +153,101 @@ Mapping.prototype.iterate = function Mapping$iterate() {
     }
     this.promise._follow(all(result));
     this.items = this.result = this.callback = this.promise = null;
+};
+
+
+function ObjectMapping(promise, callback, items, receiver, shouldUnwrapItems) {
+    this.shouldUnwrapItems = shouldUnwrapItems;
+    this.index = 0;
+    this.callback = callback;
+    this.receiver = receiver;
+    this.promise = promise;
+    this.keys = es5.keys(items);
+    this.items = items;
+    this.result = new Array(this.keys.length);
+}
+util.inherits(ObjectMapping, PromiseArray);
+
+ObjectMapping.prototype.init = function ObjectMapping$init() {
+    var items = this.items;
+    var keys = this.keys;
+    var len = keys.length;
+    var result = this.result;
+    var isRejected = false;
+    for (var i = 0; i < len; ++i) {
+        var maybePromise = _cast(items[keys[i]], void 0);
+        if (maybePromise instanceof Promise) {
+            if (maybePromise.isPending()) {
+                result[i] = pending;
+                maybePromise._proxyPromiseArray(this, i);
+            }
+            else if (maybePromise.isFulfilled()) {
+                result[i] = maybePromise.value();
+            }
+            else {
+                maybePromise._unsetRejectionIsUnhandled();
+                if (!isRejected) {
+                    this.reject(maybePromise.reason());
+                    isRejected = true;
+                }
+            }
+        }
+        else {
+            result[i] = maybePromise;
+        }
+    }
+    if (!isRejected) this.iterate();
+};
+
+ObjectMapping.prototype.isResolved = function ObjectMapping$isResolved() {
+    return this.promise === null;
+};
+
+ObjectMapping.prototype._promiseProgressed =
+function ObjectMapping$_promiseProgressed(value) {
+    if (this.isResolved()) return;
+    this.promise._progress(value);
+};
+
+ObjectMapping.prototype._promiseFulfilled =
+function ObjectMapping$_promiseFulfilled(value, index) {
+    if (this.isResolved()) return;
+    this.result[index] = value;
+    if (this.shouldUnwrapItems) this.items[index] = value;
+    if (this.index === index) this.iterate();
+};
+
+ObjectMapping.prototype._promiseRejected =
+function ObjectMapping$_promiseRejected(reason) {
+    this.reject(reason);
+};
+
+ObjectMapping.prototype.reject = function ObjectMapping$reject(reason) {
+    if (this.isResolved()) return;
+    var trace = canAttach(reason) ? reason : new Error(reason + "");
+    this.promise._attachExtraTrace(trace);
+    this.promise._reject(reason, trace);
+};
+
+ObjectMapping.prototype.iterate = function ObjectMapping$iterate() {
+    var i = this.index;
+    var keys = this.keys;
+    var result = this.result;
+    var len = keys.length;
+    var receiver = this.receiver;
+    var callback = this.callback;
+
+    for (; i < len; ++i) {
+        var value = result[i];
+        if (value === pending) {
+            this.index = i;
+            return;
+        }
+        try { result[i] = callback.call(receiver, value, keys[i], len); }
+        catch (e) { return this.reject(e); }
+    }
+    this.promise._follow(all(result));
+    this.keys = this.result = this.callback = this.promise = null;
 };
 
 Promise.prototype.map = function Promise$map(fn, ref) {
