@@ -39,6 +39,7 @@ Promise.prototype.value = function Promise$value() {
 };
 
 PromiseInspection.prototype.error =
+PromiseInspection.prototype.reason =
 Promise.prototype.reason = function Promise$reason() {
     if (!this.isRejected()) {
         throw new TypeError(INSPECTION_REASON_ERROR);
