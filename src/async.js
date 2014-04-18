@@ -4,7 +4,7 @@ var schedule = require("./schedule.js");
 var Queue = require("./queue.js");
 var errorObj = require("./util.js").errorObj;
 var tryCatch1 = require("./util.js").tryCatch1;
-var process = require("./global.js").process;
+var _process = typeof process !== "undefined" ? process : void 0;
 
 function Async() {
     this._isTickUsed = false;
@@ -28,10 +28,10 @@ Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
 Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
-    if (process !== void 0 &&
-        process.domain != null &&
+    if (_process !== void 0 &&
+        _process.domain != null &&
         !fn.domain) {
-        fn = process.domain.bind(fn);
+        fn = _process.domain.bind(fn);
     }
     this._lateBuffer.push(fn, receiver, arg);
     this._queueTick();
@@ -40,10 +40,10 @@ Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
 Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
-    if (process !== void 0 &&
-        process.domain != null &&
+    if (_process !== void 0 &&
+        _process.domain != null &&
         !fn.domain) {
-        fn = process.domain.bind(fn);
+        fn = _process.domain.bind(fn);
     }
     var functionBuffer = this._functionBuffer;
     functionBuffer.push(fn, receiver, arg);
