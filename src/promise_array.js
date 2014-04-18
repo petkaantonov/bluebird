@@ -4,7 +4,6 @@ var ASSERT = require("./assert.js");
 var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
 var async = require("./async.js");
-var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
@@ -102,14 +101,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
     var isDirectScanNeeded = false;
     for (var i = 0; i < len; ++i) {
-        var promise = values[i];
-        //checking for undefined first (1 cycle instruction) in order not to
-        //punish reasonable non-sparse arrays
-        if (promise === void 0 && !hasOwn.call(values, i)) {
-            newLen--;
-            continue;
-        }
-        var maybePromise = cast(promise, void 0);
+        var maybePromise = cast(values[i], void 0);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 //Optimized for just passing the updates through
@@ -125,23 +117,10 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         }
         newValues[i] = maybePromise;
     }
-    //Array full of holes
-    if (newLen === 0) {
-        if (resolveValueIfEmpty === RESOLVE_ARRAY) {
-            this._resolve(newValues);
-        }
-        else {
-            this._resolve(toResolutionValue(resolveValueIfEmpty));
-        }
-        return;
-    }
     this._values = newValues;
     this._length = newLen;
     if (isDirectScanNeeded) {
-        var scanMethod = newLen === len
-            ? this._scanDirectValues
-            : this._scanDirectValuesHoled;
-        async.invoke(scanMethod, this, len);
+        async.invoke(this._scanDirectValues, this, len);
     }
 };
 
@@ -156,19 +135,6 @@ function PromiseArray$_settlePromiseAt(index) {
     }
     else if (value.isRejected()) {
         this._promiseRejected(value._settledValue, index);
-    }
-};
-
-PromiseArray.prototype._scanDirectValuesHoled =
-function PromiseArray$_scanDirectValuesHoled(len) {
-    ASSERT(len > this.length());
-    for (var i = 0; i < len; ++i) {
-        if (this._isResolved()) {
-            break;
-        }
-        if (hasOwn.call(this._values, i)) {
-            this._settlePromiseAt(i);
-        }
     }
 };
 
