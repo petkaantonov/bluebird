@@ -1,16 +1,16 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, apiRejection, cast) {
+module.exports = function(Promise, PromiseArray, apiRejection, cast, INTERNAL) {
 var util = require("./util.js");
 var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
 var PENDING = {};
 
-function MappingPromiseArray(promises, fn, shouldPreserveValues) {
+function MappingPromiseArray(promises, fn, _filter) {
     this.constructor$(promises);
     this._callback = fn;
-    this._preservedValues = shouldPreserveValues
-                                        ? new Array(this.length())
-                                        : null;
+    this._preservedValues = _filter === INTERNAL
+        ? new Array(this.length())
+        : null;
     this._init$(void 0, RESOLVE_ARRAY);
 }
 util.inherits(MappingPromiseArray, PromiseArray);
@@ -32,11 +32,11 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
     if (values === null) return;
 
     var length = this.length();
+    var preservedValues = this._preservedValues;
     if (values[index] === PENDING) {
         values[index] = value;
     }
     else {
-        var preservedValues = this._preservedValues;
         if (preservedValues !== null) preservedValues[index] = value;
 
         var callback = this._callback;
@@ -65,8 +65,26 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
     }
     var totalResolved = ++this._totalResolved;
     if (totalResolved >= length) {
-        this._resolve(values);
+        if (preservedValues !== null) {
+            this._filter(values, preservedValues);
+        }
+        else {
+            this._resolve(values);
+        }
+
     }
+};
+
+MappingPromiseArray.prototype._filter =
+function MappingPromiseArray$_filter(booleans, values) {
+    var len = values.length;
+    var ret = new Array(len);
+    var j = 0;
+    for (var i = 0; i < len; ++i) {
+        if (booleans[i]) ret[j++] = values[i];
+    }
+    ret.length = j;
+    this._resolve(ret);
 };
 
 MappingPromiseArray.prototype.preservedValues =
@@ -74,19 +92,19 @@ function MappingPromiseArray$preserveValues() {
     return this._preservedValues;
 };
 
-function map(promises, fn, shouldPreserveValues) {
-    return new MappingPromiseArray(promises, fn, shouldPreserveValues);
+function map(promises, fn, _filter) {
+    return new MappingPromiseArray(promises, fn, _filter);
 }
 
 Promise.prototype.map = function Promise$map(fn) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    return map(this, fn, false).promise();
+    return map(this, fn, null).promise();
 };
 
-Promise.map = function Promise$Map(promises, fn) {
+Promise.map = function Promise$Map(promises, fn, _filter) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    return map(promises, fn, false).promise();
+    return map(promises, fn, _filter).promise();
 };
 
-Promise._map = map;
+
 };
