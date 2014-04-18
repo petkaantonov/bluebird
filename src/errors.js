@@ -1,10 +1,8 @@
 "use strict";
-var global = require("./global.js");
 var Objectfreeze = require("./es5.js").freeze;
 var util = require("./util.js");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
-var Error = global.Error;
 
 function markAsOriginatingFromRejection(e) {
     try {
@@ -40,16 +38,17 @@ function subError(nameProperty, defaultMessage) {
     return SubError;
 }
 
-var TypeError = global.TypeError;
-if (typeof TypeError !== "function") {
-    TypeError = subError("TypeError", "type error");
-}
-var RangeError = global.RangeError;
-if (typeof RangeError !== "function") {
-    RangeError = subError("RangeError", "range error");
-}
+var _TypeError, _RangeError;
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
+try {
+    _TypeError = TypeError;
+    _RangeError = RangeError;
+}
+catch(e) {
+    _TypeError = subError("TypeError", "type error");
+    _RangeError = subError("RangeError", "range error");
+}
 
 function RejectionError(message) {
     this.name = "RejectionError";
@@ -70,20 +69,20 @@ inherits(RejectionError, Error);
 
 //Ensure all copies of the library throw the same error types
 var key = "__BluebirdErrorTypes__";
-var errorTypes = global[key];
+var errorTypes = Error[key];
 if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
         TimeoutError: TimeoutError,
         RejectionError: RejectionError
     });
-    notEnumerableProp(global, key, errorTypes);
+    notEnumerableProp(Error, key, errorTypes);
 }
 
 module.exports = {
     Error: Error,
-    TypeError: TypeError,
-    RangeError: RangeError,
+    TypeError: _TypeError,
+    RangeError: _RangeError,
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,

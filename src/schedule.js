@@ -1,19 +1,20 @@
 "use strict";
-var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var schedule;
-if (global.process && typeof process.version === "string") {
+var _MutationObserver;
+if (typeof process === "object" && typeof process.version === "string") {
     schedule = function Promise$_Scheduler(fn) {
         process.nextTick(fn);
     };
 }
-else if (global.MutationObserver || global.WebKitMutationObserver) {
-    schedule = (function(){
-        var MutationObserver = global.MutationObserver ||
-            global.WebKitMutationObserver;
+else if ((typeof MutationObserver !== "undefined" &&
+         (_MutationObserver = MutationObserver)) ||
+         (typeof WebKitMutationObserver !== "undefined" &&
+         (_MutationObserver = WebKitMutationObserver))) {
+    schedule = (function() {
         var div = document.createElement("div");
         var queuedFn = void 0;
-        var observer = new MutationObserver(
+        var observer = new _MutationObserver(
             function Promise$_Scheduler() {
                 ASSERT(queuedFn !== void 0);
                 var fn = queuedFn;
@@ -32,7 +33,7 @@ else if (global.MutationObserver || global.WebKitMutationObserver) {
 
     })();
 }
-else if (global.setTimeout) {
+else if (typeof setTimeout !== "undefined") {
     schedule = function Promise$_Scheduler(fn) {
         setTimeout(fn, 0);
     };
