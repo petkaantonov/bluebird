@@ -8,8 +8,6 @@ var pending = adapter.pending;
 
 var Promise = fulfilled().constructor;
 
-Promise.prototype.progress = Promise.prototype.progressed;
-
 
 var Q = function(p) {
     if( p.then ) return p;
@@ -72,9 +70,6 @@ Q.fcall= function( fn ) {
     }
     return p.promise;
 };
-
-Promise.prototype.fin = Promise.prototype.lastly;
-
 /*!
  *
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
@@ -122,7 +117,7 @@ describe("finally", function () {
             var called = false;
 
             Q("foo")
-            .fin(function () {
+            .lastly(function () {
                 called = true;
             })
             .then(function () {
@@ -133,7 +128,7 @@ describe("finally", function () {
 
         it("should fulfill with the original value", function (done) {
             Q("foo")
-            .fin(function () {
+            .lastly(function () {
                 return "bar";
             })
             .then(function (result) {
@@ -149,7 +144,7 @@ describe("finally", function () {
                     var promise = Q.delay(250);
 
                     Q("foo")
-                    .fin(function () {
+                    .lastly(function () {
                         return promise;
                     })
                     .then(function (result) {
@@ -163,7 +158,7 @@ describe("finally", function () {
             describe("that is rejected", function () {
                 it("should reject with this new rejection reason", function (done) {
                     Q("foo")
-                    .fin(function () {
+                    .lastly(function () {
                         return Q.reject(exception1);
                     })
                     .then(function () {
@@ -181,7 +176,7 @@ describe("finally", function () {
         describe("when the callback throws an exception", function () {
             it("should reject with this new exception", function (done) {
                 Q("foo")
-                .fin(function () {
+                .lastly(function () {
                     throw exception1;
                 })
                 .then(function () {
@@ -202,7 +197,7 @@ describe("finally", function () {
             var called = false;
 
             Q.reject(exception1)
-            .fin(function () {
+            .lastly(function () {
                 called = true;
             })
             .then(function () {
@@ -215,7 +210,7 @@ describe("finally", function () {
 
         it("should reject with the original reason", function (done) {
             Q.reject(exception1)
-            .fin(function () {
+            .lastly(function () {
                 return "bar";
             })
             .then(function () {
@@ -234,7 +229,7 @@ describe("finally", function () {
                     var promise = Q.delay(250);
 
                     Q.reject(exception1)
-                    .fin(function () {
+                    .lastly(function () {
                         return promise;
                     })
                     .then(function () {
@@ -251,7 +246,7 @@ describe("finally", function () {
             describe("that is rejected", function () {
                 it("should reject with the new reason", function (done) {
                     Q.reject(exception1)
-                    .fin(function () {
+                    .lastly(function () {
                         return Q.reject(exception2);
                     })
                     .then(function () {
@@ -269,7 +264,7 @@ describe("finally", function () {
         describe("when the callback throws an exception", function () {
             it("should reject with this new exception", function (done) {
                 Q.reject(exception1)
-                .fin(function () {
+                .lastly(function () {
                     throw exception2;
                 })
                 .then(function () {
@@ -297,7 +292,7 @@ describe("finally", function () {
                 };
 
                 return Q.reject(exception1)
-                .fin(function () {
+                .lastly(function () {
                     return promise;
                 })
                 .then(function () {
@@ -321,7 +316,7 @@ describe("finally", function () {
                 };
 
                 return Q.reject(exception1)
-                .fin(function () {
+                .lastly(function () {
                     return promise;
                 })
                 .then(function () {
