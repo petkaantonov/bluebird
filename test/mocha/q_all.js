@@ -112,20 +112,9 @@ describe("all", function () {
         toResolve.resolve(2);
 
         return promise.then(function (result) {
-            assert.deepEqual(result, [0,, 2]);
+            assert.deepEqual(result, [0, void 0, 2]);
         });
     });
-
-    /* hell no
-    it("modifies the input array", function () {
-        var input = [Q(0), Q(1)];
-
-        return Q.all(input).then(function (result) {
-            assert.equal(result, input);
-            assert.deepEqual(input, [0, 1]);
-        });
-    });
-    */
 
     it("sends { index, value } progress updates", function () {
         var deferred1 = Q.defer();
