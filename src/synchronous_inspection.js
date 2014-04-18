@@ -51,9 +51,5 @@ Promise.prototype.isResolved = function Promise$isResolved() {
     return (this._bitField & IS_REJECTED_OR_FULFILLED) > 0;
 };
 
-Promise.prototype.inspect = function Promise$inspect() {
-    return new PromiseInspection(this);
-};
-
 Promise.PromiseInspection = PromiseInspection;
 };
