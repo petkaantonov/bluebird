@@ -1,5 +1,4 @@
 "use strict";
-var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var es5 = require("./es5.js");
 var haveGetters = (function(){
@@ -18,18 +17,8 @@ var haveGetters = (function(){
 
 })();
 
-var canEvaluate = (function() {
-    //Cannot feature detect CSP without triggering
-    //violations
-
-    //So assume CSP if environment is browser. This is reasonable
-    //because promise throughput doesn't matter in browser and
-    //promisifcation is mostly interesting to node.js anyway
-    if (global.navigator) {
-        return false;
-    }
-    return true;
-})();
+// Assume CSP if browser
+var canEvaluate = typeof navigator == "undefined";
 
 function deprecated(msg) {
     if (typeof console !== "undefined" && console !== null &&

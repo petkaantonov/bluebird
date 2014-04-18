@@ -1,6 +1,12 @@
 "use strict";
+var old;
+if (typeof Promise !== "undefined") old = Promise;
+function noConflict(bluebird) {
+    try { if (Promise === bluebird) Promise = old; }
+    catch (e) {}
+    return bluebird;
+}
 module.exports = function() {
-var global = require("./global.js");
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
@@ -9,7 +15,6 @@ var errors = require("./errors.js");
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
-
 
 var cast = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray = require("./promise_array.js")(Promise, INTERNAL, cast);
@@ -752,7 +757,6 @@ Promise.prototype._resetTrace = function Promise$_resetTrace() {
 
 Promise.prototype._setTrace = function Promise$_setTrace(parent) {
     ASSERT(this._trace == null);
-    ASSERT(arguments.length === 1);
     if (debugging) {
         var context = this._peekContext();
         this._traceParent = context;
@@ -1050,12 +1054,8 @@ Promise.prototype._popContext = function Promise$_popContext() {
     contextStack.pop();
 };
 
-var old = global.Promise;
-Promise.noConflict = function() {
-    if (global.Promise === Promise) {
-        global.Promise = old;
-    }
-    return Promise;
+Promise.noConflict = function Promise$NoConflict() {
+    return noConflict(Promise);
 };
 
 if (!CapturedTrace.isSupported()) {
