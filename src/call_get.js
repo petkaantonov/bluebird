@@ -1,16 +1,14 @@
 "use strict";
 module.exports = function(Promise) {
-Promise.prototype.call = function Promise$call(propertyName) {
+var apiRejection = require("./errors_api_rejection.js")(Promise);
+Promise.prototype.call = function Promise$call(fn) {
+    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
     INLINE_SLICE(args, arguments, 1);
 
-    return this._then(function(obj) {
-            return obj[propertyName].apply(obj, args);
-        },
-        void 0,
-        void 0,
-        void 0,
-        void 0
-   );
+    return this.then(function(arg) {
+        args.push(arg);
+        return fn.apply(this, args);
+    });
 };
 
 function Promise$getter(obj) {
