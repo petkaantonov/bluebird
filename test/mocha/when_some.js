@@ -149,11 +149,11 @@ describe("when.some-test", function () {
         )
     });
 
-    specify("should resolve sparse array input", function(done) {
+    specify("should not resolve sparse array input", function(done) {
         var input = [, 1, , 2, 3 ];
         when.some(input, 2).then(
             function(results) {
-                assert(isSubset(results, [1,2,3]));
+                assert.deepEqual(results, [void 0, 1]);
                 done();
             },
             function() {
@@ -196,31 +196,5 @@ describe("when.some-test", function () {
         when.some(resolved(1), 1).caught(TypeError, function(e){
             done();
         });
-    });
-
-    specify("should give sparse rejection reasons", function(done) {
-        var d1 = when.defer();
-        var d2 = when.defer();
-        var d3 = when.defer();
-
-
-        var arr = [,,,,d1.promise, d2.promise, d3.promise];
-
-        when.some(arr, 2).then(assert.fail, function(rejectionReasons){
-            //Should be apparent after 2 rejections that
-            //it could never be fulfilled
-
-            //Cannot use deep equality in IE8 because non-enumerable properties are not
-            //supported
-            assert(rejectionReasons[0] === 1);
-            assert(rejectionReasons[1] === 2);
-            done();
-        });
-
-        setTimeout(function(){
-            d1.reject(1);
-            d2.reject(2);
-            d3.reject(3);
-        }, 13);
     });
 });
