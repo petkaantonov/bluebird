@@ -16,10 +16,11 @@ function promised(val) {
     });
 }
 
-function thenabled(val) {
+function thenabled(val, arr) {
     return {
         then: function(f){
             setTimeout(function() {
+                arr.push(val);
                 f(val);
             }, 4);
         }
@@ -29,67 +30,73 @@ function thenabled(val) {
 describe("Promise.prototype.each", function() {
 
 
-    it("should allow returning values", function(done) {
+    it("should return the array's values", function(done) {
         var a = [promised(1), promised(2), promised(3)];
-
+        var b = [];
         Promise.each(a, function(val) {
+            b.push(3-val);
             return val;
         }).then(function(ret) {
             assert.deepEqual(ret, [1,2,3]);
+            assert.deepEqual(b, [2, 1, 0]);
             done();
         });
     });
 
 
-    it("takes the previously returned value", function(done) {
+    it("takes value, index and length", function(done) {
         var a = [promised(1), promised(2), promised(3)];
-
-        Promise.each(a, function(val, prevVal, index) {
-            if (index > 0) return val+prevVal;
-            return val;
+        var b = [];
+        Promise.each(a, function(value, index, length) {
+            b.push(value, index, length);
         }).then(function(ret) {
-            assert.deepEqual(ret, [1,3,6]);
+            assert.deepEqual(b, [1, 0, 3, 2, 1, 3, 3, 2, 3]);
             done();
         });
     });
 
-    it("should allow returning promises", function(done) {
+    it("waits for returned promise before proceeding next", function(done) {
         var a = [promised(1), promised(2), promised(3)];
-
-        Promise.each(a, function(val) {
-            return promised(5).then(function(v) {
-                return v + val;
+        var b = [];
+        Promise.each(a, function(value) {
+            b.push(value);
+            return Promise.delay(10).then(function(){
+                b.push(value*2);
             });
         }).then(function(ret) {
-            assert.deepEqual(ret, [6,7,8]);
+            assert.deepEqual(b, [1,2,2,4,3,6]);
             done();
         });
     });
 
-
-    it("takes the previously returned promise as value", function(done) {
-        var a = [promised(1), promised(2), promised(3)];
-
-        Promise.each(a, function(val, prevVal, index) {
-            if (index > 0) return promised(5).then(function(v) {
-                                return v + val + prevVal;
-                            });
-            return promised(5).then(function(v) {
-                return val + v;
-            });
-        }).then(function(ret) {
-            assert.deepEqual(ret, [6, 13, 21]);
-            done();
-        });
-    });
-
-    it("should allow returning thenables", function(done) {
-        var a = [thenabled(1), thenabled(2), thenabled(3)];
-
+    it("waits for returned thenable before proceeding next", function(done) {
+        var b = [];
+        var a = [thenabled(1, b), thenabled(2, b), thenabled(3, b)];
         Promise.each(a, function(val) {
-            return thenabled(5);
+            b.push(val * 50);
+            return thenabled(val * 500, b);
         }).then(function(ret) {
-            assert.deepEqual(ret, [5, 5, 5]);
+            assert.deepEqual(b, [1, 2, 3, 50, 500, 100, 1000, 150, 1500]);
+            done();
+        });
+    });
+
+    it("doesnt iterate with an empty array", function(done) {
+        Promise.each([], function(val) {
+            throw new Error();
+        }).then(function(ret) {
+            assert.deepEqual(ret, []);
+            done();
+        });
+    });
+
+    it("iterates with an array of single item", function(done) {
+        var b = [];
+        Promise.each([promised(1)], function(val) {
+            b.push(val);
+            return thenabled(val*2, b);
+        }).then(function(ret) {
+            assert.deepEqual(b, [1,2]);
             done();
         });
     });

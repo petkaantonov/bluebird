@@ -65,18 +65,18 @@ module.exports = function( grunt ) {
         "race.js": ['Promise', 'INTERNAL', 'cast'],
         "call_get.js": ['Promise'],
         "generators.js": ['Promise', 'apiRejection', 'INTERNAL', 'cast'],
-        "map.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast'],
+        "map.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast', 'INTERNAL'],
         "nodeify.js": ['Promise'],
         "promisify.js": ['Promise', 'INTERNAL'],
         "props.js": ['Promise', 'PromiseArray', 'cast'],
-        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast'],
+        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast', 'INTERNAL'],
         "settle.js": ['Promise', 'PromiseArray'],
         "some.js": ['Promise', 'PromiseArray', 'apiRejection'],
         "any.js": ['Promise', 'PromiseArray'],
         "progress.js": ['Promise', 'PromiseArray'],
         "cancel.js": ['Promise', 'INTERNAL'],
-        "filter.js": ['Promise', 'apiRejection'],
-        "each.js": ['Promise', 'cast', 'apiRejection'],
+        "filter.js": ['Promise', 'INTERNAL'],
+        "each.js": ['Promise', 'INTERNAL'],
         "using.js": ['Promise', 'apiRejection', 'cast']
     };
 

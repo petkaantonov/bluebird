@@ -1,15 +1,17 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, apiRejection, cast) {
+module.exports = function(Promise, PromiseArray, apiRejection, cast, INTERNAL) {
 var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
+var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
 var PENDING = {};
 // -2=The initial current index when no initial value is given
 // -1=The initial current index when initial value is given as a pending promise
 // 0=The initial current index when initial value is given as an immediate value
-function ReductionPromiseArray(promises, fn, accum) {
+function ReductionPromiseArray(promises, fn, accum, _each) {
     this.constructor$(promises);
     var currentIndex = -2;
+    this._preservedValues = _each === INTERNAL ? [] : null;
     var maybePromise = cast(accum, void 0);
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
@@ -46,7 +48,8 @@ function ReductionPromiseArray$_resolveEmptyArray() {
     // is still a pending promise, which is handled in
     // promiseFulfilled in the -1 case
     if (this._currentIndex !== -1) {
-        this._resolve(this._accum);
+        this._resolve(this._preservedValues !== null
+                        ? [] : this._accum);
     }
 };
 
@@ -58,6 +61,8 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     if (values === null) return;
     var length = this.length();
     var currentIndex = this._currentIndex;
+    var preservedValues = this._preservedValues;
+    var isEach = preservedValues !== null;
     // Special case detection where the processing starts at index 1
     // because no initialValue was given
     if (index === 0 && currentIndex === -2) {
@@ -74,7 +79,8 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     else if (index === -1 || values[index] === PENDING) {
         accum = value;
         currentIndex++;
-        if (currentIndex >= length) return this._resolve(accum);
+        if (currentIndex >= length)
+            return this._resolve(isEach ? preservedValues : accum);
         value = values[currentIndex];
     }
     else {
@@ -105,7 +111,14 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
             }
         }
 
-        ret = tryCatch4(callback, receiver, accum, value, i, length);
+        if (isEach) {
+            preservedValues.push(value);
+            ret = tryCatch3(callback, receiver, value, i, length);
+        }
+        else {
+            ret = tryCatch4(callback, receiver, accum, value, i, length);
+        }
+
         if (ret === errorObj) return this._reject(ret.e);
 
         var maybePromise = cast(ret, void 0);
@@ -128,20 +141,20 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
         }
         accum = ret;
     }
-    this._resolve(accum);
+    this._resolve(isEach ? preservedValues : accum);
 };
 
-function reduce(promises, fn, initialValue) {
+function reduce(promises, fn, initialValue, _each) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    var array = new ReductionPromiseArray(promises, fn, initialValue);
+    var array = new ReductionPromiseArray(promises, fn, initialValue, _each);
     return array.promise();
 }
 
 Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-    return reduce(this, fn, initialValue);
+    return reduce(this, fn, initialValue, null);
 };
 
-Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-    return reduce(promises, fn, initialValue);
+Promise.reduce = function Promise$Reduce(promises, fn, initialValue, _each) {
+    return reduce(promises, fn, initialValue, _each);
 };
 };
