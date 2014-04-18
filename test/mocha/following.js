@@ -89,8 +89,8 @@ describe("a promise A that is following a promise B", function() {
         var val = {};
         var B = Promise.fulfilled(val);
         var A = Promise.fulfilled(B);
-        assert.equal( A.inspect().value(), val );
-        assert.equal( A.inspect().value(), B.inspect().value() );
+        assert.equal( A.value(), val );
+        assert.equal( A.value(), B.value() );
         done();
     });
 
@@ -99,9 +99,9 @@ describe("a promise A that is following a promise B", function() {
         var parent = Promise.fulfilled(val);
         var B = Promise.fulfilled(parent);
         var A = Promise.fulfilled(B);
-        assert.equal( A.inspect().value(), val );
-        assert.equal( A.inspect().value(), B.inspect().value() );
-        assert.equal( A.inspect().value(), parent.inspect().value() );
+        assert.equal( A.value(), val );
+        assert.equal( A.value(), B.value() );
+        assert.equal( A.value(), parent.value() );
         done();
     });
 
@@ -113,7 +113,7 @@ describe("Rejecting a promise A with promise B", function(){
         var val = {};
         var B = Promise.fulfilled(val);
         var A = Promise.rejected(B);
-        assert.equal( A.inspect().error(), B );
+        assert.equal( A.reason(), B );
         done();
     });
 });

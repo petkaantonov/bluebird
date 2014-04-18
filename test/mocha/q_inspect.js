@@ -75,22 +75,22 @@ describe("inspect", function () {
 
     it("for a fulfilled promise", function () {
         var ret = fulfilled(10);
-        assert.equal(ret.inspect().value(), 10);
-        assert.equal(ret.inspect().isFulfilled(), true );
+        assert.equal(ret.value(), 10);
+        assert.equal(ret.isFulfilled(), true );
 
     });
 
     it("for a rejected promise", function () {
         var e = new Error("In your face.");
         var ret = rejected(e);
-        assert.equal(ret.inspect().error(), e);
-        assert.equal(ret.inspect().isRejected(), true );
+        assert.equal(ret.reason(), e);
+        assert.equal(ret.isRejected(), true );
         ret.caught(function(){})
     });
 
     it("for a pending, unresolved promise", function () {
         var pending = Q.defer().promise;
-        assert.equal(pending.inspect().isPending(), true);
+        assert.equal(pending.isPending(), true);
     });
 
     it("for a promise resolved to a rejected promise", function () {
@@ -99,8 +99,8 @@ describe("inspect", function () {
         var reject = rejected(error);
         deferred.resolve(reject);
 
-        assert.equal( deferred.promise.inspect().isRejected(), true );
-        assert.equal( deferred.promise.inspect().error(), error );
+        assert.equal( deferred.promise.isRejected(), true );
+        assert.equal( deferred.promise.reason(), error );
         reject.caught(function(){})
     });
 
@@ -109,8 +109,8 @@ describe("inspect", function () {
         var fulfilled = Q(10);
         deferred.resolve(fulfilled);
 
-        assert.equal( deferred.promise.inspect().isFulfilled(), true );
-        assert.equal( deferred.promise.inspect().value(), 10 );
+        assert.equal( deferred.promise.isFulfilled(), true );
+        assert.equal( deferred.promise.value(), 10 );
     });
 
     it("for a promise resolved to a pending promise", function () {
@@ -118,7 +118,7 @@ describe("inspect", function () {
         var b = Q.defer();
         a.resolve(b.promise);
 
-        assert.equal(a.promise.inspect().isPending(), true);
+        assert.equal(a.promise.isPending(), true);
     });
 
 });
