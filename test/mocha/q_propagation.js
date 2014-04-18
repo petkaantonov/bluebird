@@ -160,7 +160,7 @@ describe("propagation", function () {
 
         var progressValues = [];
         var promise = d.promise
-        .progress(function (p) {
+        .progressed(function (p) {
             return p + 5;
         })
         .then(
@@ -185,7 +185,7 @@ describe("propagation", function () {
     it("should NOT stop progress propagation if an error is thrown", function () {
         var def = Q.defer();
         var e = new Error("boo!");
-        var p2 = def.promise.progress(function () {
+        var p2 = def.promise.progressed(function () {
             throw e
         });
 

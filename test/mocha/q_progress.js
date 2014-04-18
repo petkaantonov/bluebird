@@ -8,9 +8,6 @@ var pending = adapter.pending;
 
 var Promise = fulfilled().constructor;
 
-Promise.prototype.progress = Promise.prototype.progressed;
-
-
 var Q = function(p) {
     if( p.then ) return p;
     return fulfilled(p);
@@ -276,7 +273,7 @@ describe("progress", function () {
         var progressed = false;
         var deferred = Q.defer();
 
-        deferred.promise.progress(function () {
+        deferred.promise.progressed(function () {
             progressed = true;
         });
 
