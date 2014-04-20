@@ -55,7 +55,7 @@ describe("2.2.6: `then` may be called multiple times on the same promise.", func
 
                 var spy = sinon.spy();
                 promise.then(handler1, spy);
-                promise.then(handler2, spy);
+                promise.then(handler2, spy).caught(function(){});
                 promise.then(handler3, spy);
 
                 promise.then(function (value) {
@@ -172,7 +172,7 @@ describe("2.2.6: `then` may be called multiple times on the same promise.", func
 
                 var spy = sinon.spy();
                 promise.then(spy, handler1);
-                promise.then(spy, handler2);
+                promise.then(spy, handler2).caught(function(){});
                 promise.then(spy, handler3);
 
                 promise.then(null, function (reason) {
