@@ -20,7 +20,7 @@ function thenabled(val, arr) {
     return {
         then: function(f){
             setTimeout(function() {
-                arr.push(val);
+                if (arr) arr.push(val);
                 f(val);
             }, 4);
         }
@@ -70,8 +70,8 @@ describe("Promise.prototype.each", function() {
     });
 
     it("waits for returned thenable before proceeding next", function(done) {
-        var b = [];
-        var a = [thenabled(1, b), thenabled(2, b), thenabled(3, b)];
+        var b = [1, 2, 3];
+        var a = [thenabled(1), thenabled(2), thenabled(3)];
         Promise.each(a, function(val) {
             b.push(val * 50);
             return thenabled(val * 500, b);
