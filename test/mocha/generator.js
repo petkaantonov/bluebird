@@ -30,6 +30,10 @@ function delay() {
     });
 }
 
+Promise.coroutine.addYieldHandler(function(yieldedValue) {
+    if (Array.isArray(yieldedValue)) return Promise.all(yieldedValue);
+});
+
 var error = new Error("asd");
 
 describe("yielding", function() {
