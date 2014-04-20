@@ -74,6 +74,7 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
                 ret = maybePromise.value();
             }
             else {
+                maybePromise._unsetRejectionIsUnhandled();
                 return this._reject(maybePromise.reason());
             }
         }
