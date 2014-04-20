@@ -131,7 +131,9 @@ exports.rejected = {
     },
 
     "an already-rejected promise": function (reason) {
-        return rejected(reason);
+        var ret = rejected(reason);
+        ret.caught(function(){});
+        return ret;
     },
 
     "an eventually-rejected promise": function (reason) {

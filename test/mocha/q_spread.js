@@ -150,8 +150,6 @@ describe("spread", function () {
 
     it("calls the errback when given a rejected promise", function (done) {
         var err = new Error();
-        var abc = [fulfilled(10), rejected(err)];
-
         adapter.all([fulfilled(10), rejected(err)]).spread(assert.fail,
             function(actual){
             assert( actual === err );

@@ -11,7 +11,8 @@ var pending = adapter.pending;
 
 describe("Promise filter", function() {
 
-    var err = new Error("");
+    function ThrownError() {}
+
 
     var arr = [1,2,3];
 
@@ -22,7 +23,7 @@ describe("Promise filter", function() {
     }
 
     function assertErr(e) {
-        assert(e === err);
+        assert(e instanceof ThrownError);
     }
 
     function assertFail() {
@@ -63,20 +64,20 @@ describe("Promise filter", function() {
         specify("immediately rejected", function(done) {
             Promise.filter(arr, function(v) {
                 return new Promise(function(v, r){
-                    r(err);
+                    r(new ThrownError());
                 });
             }).then(assertFail, assertErr).then(cd(done));
         });
         specify("already rejected", function(done) {
             Promise.filter(arr, function(v) {
-                return Promise.reject(err);
+                return Promise.reject(new ThrownError());
             }).then(assertFail, assertErr).then(cd(done));
         });
         specify("eventually rejected", function(done) {
             Promise.filter(arr, function(v) {
                 return new Promise(function(v, r){
                     setTimeout(function(){
-                        r(err);
+                        r(new ThrownError());
                     }, 13);
                 });
             }).then(assertFail, assertErr).then(cd(done));
@@ -108,7 +109,7 @@ describe("Promise filter", function() {
             Promise.filter(arr, function(v) {
                 return {
                     then: function(f, r) {
-                        r(err);
+                        r(new ThrownError());
                     }
                 };
             }).then(assertFail, assertErr).then(cd(done));
@@ -118,7 +119,7 @@ describe("Promise filter", function() {
                 return {
                     then: function(f, r) {
                         setTimeout(function(){
-                            r(err);
+                            r(new ThrownError());
                         }, 13);
                     }
                 };
