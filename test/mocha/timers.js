@@ -99,6 +99,8 @@ describe("delay", function () {
     it("should not delay rejection", function (done) {
         var promise = Q.reject(5).delay(50);
 
+        promise.caught(function(){});
+
         Q.delay(20).then(function () {
             assert(!promise.isPending());
             done();

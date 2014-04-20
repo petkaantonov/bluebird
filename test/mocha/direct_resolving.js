@@ -124,13 +124,18 @@ describe("thenReturn", function () {
         describe("which reject", function() {
             var d1 = Promise.pending();
             var d2 = Promise.pending();
-            describe("already", wrap(returnThenableReject, rejected(10), 10));
+            var alreadyRejected = rejected(10);
+            alreadyRejected.caught(function(){});
+            describe("already", wrap(returnThenableReject, alreadyRejected, 10));
             describe("immediately", wrap(returnThenableReject, d1.promise, 10));
             describe("eventually", wrap(returnThenableReject, d2.promise, 10));
             d1.reject(10);
             setTimeout(function(){
                 d2.reject(10);
             }, 13);
+
+            d1.promise.caught(function(){});
+            d2.promise.caught(function(){});
         });
 
     });

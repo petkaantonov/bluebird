@@ -114,6 +114,7 @@ describe("Rejecting a promise A with promise B", function(){
         var B = Promise.fulfilled(val);
         var A = Promise.rejected(B);
         assert.equal( A.reason(), B );
+        A.caught(function(){});
         done();
     });
 });

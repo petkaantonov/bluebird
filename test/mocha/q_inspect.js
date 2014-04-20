@@ -101,7 +101,7 @@ describe("inspect", function () {
 
         assert.equal( deferred.promise.isRejected(), true );
         assert.equal( deferred.promise.reason(), error );
-        reject.caught(function(){})
+        deferred.promise.caught(function(){})
     });
 
     it("for a promise resolved to a fulfilled promise", function () {
