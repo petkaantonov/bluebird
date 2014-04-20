@@ -622,7 +622,7 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     var promiseForAll = new PromiseArray(values).promise();
     promiseForAll._then(function() {
         return targetFn.apply(boundTo, arguments);
-    }, void 0, void 0, APPLY, void 0);
+    }, INTERNAL, void 0, APPLY, void 0);
     promise._follow(promiseForAll);
 };
 
