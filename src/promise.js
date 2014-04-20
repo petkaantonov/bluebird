@@ -518,7 +518,6 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
     }
     else {
         var base = (index << 2) + index - CALLBACK_SIZE;
-        console.log("base is", base);
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         this[base + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
