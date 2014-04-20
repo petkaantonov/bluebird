@@ -5,7 +5,6 @@ var TypeError = errors.TypeError;
 var ASSERT = require("./assert.js");
 var deprecated = require("./util.js").deprecated;
 var util = require("./util.js");
-var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var yieldHandlers = [];
@@ -65,12 +64,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     else {
         var maybePromise = cast(value, void 0);
         if (!(maybePromise instanceof Promise)) {
-            if (isArray(maybePromise)) {
-                maybePromise = Promise.all(maybePromise);
-            }
-            else {
-                maybePromise = promiseFromYieldHandler(maybePromise);
-            }
+            maybePromise = promiseFromYieldHandler(maybePromise);
             ASSERT(maybePromise === null || maybePromise instanceof Promise);
             if (maybePromise === null) {
                 this._throw(new TypeError(YIELDED_NON_PROMISE_ERROR));
