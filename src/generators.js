@@ -20,7 +20,7 @@ function promiseFromYieldHandler(value) {
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
-        var maybePromise = cast(result, promiseFromYieldHandler, void 0);
+        var maybePromise = cast(result, promiseFromYieldHandler);
         if (maybePromise instanceof _Promise) return maybePromise;
     }
     return null;
