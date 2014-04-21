@@ -891,7 +891,7 @@ Note that if the node function is a method of some object, you need to pass the 
 
 ```js
 var redisGet = Promise.promisify(redisClient.get, redisClient);
-redisGet.then(function(){
+redisGet('foo').then(function(){
     //...
 });
 ```
