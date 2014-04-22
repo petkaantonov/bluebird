@@ -86,6 +86,7 @@ CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine i
 
 //errors
 CONSTANT(CONSTRUCT_ERROR_ARG, "the promise constructor requires a resolver function");
+CONSTANT(UNBOUND_RESOLVER_INVOCATION, "Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.");
 CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly");
 CONSTANT(COLLECTION_ERROR,  "expecting an array, a promise or a thenable" );
 CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function");
