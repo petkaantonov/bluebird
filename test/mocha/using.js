@@ -65,16 +65,13 @@ function connectCloseAsync(arr, value) {
 }
 
 function connect() {
-    return _connect().disposer("close");
+    return _connect().disposer(Resource.prototype.close);
 }
 
 function connectCloseError() {
-    return _connect().disposer("closeError");
+    return _connect().disposer(Resource.prototype.closeError);
 }
 
-function connectNoSuchMethod() {
-    return _connect().disposer("nosuchmethod");
-}
 
 function connectError() {
     return new Promise(function(resolve, reject) {
