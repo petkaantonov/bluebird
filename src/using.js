@@ -2,7 +2,6 @@
 module.exports = function (Promise, apiRejection, cast) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
-    var errorRef = {e: null};
     var PromiseInspection = Promise.PromiseInspection;
 
     function inspectionMapper(inspections) {
@@ -18,39 +17,49 @@ module.exports = function (Promise, apiRejection, cast) {
         return inspections;
     }
 
+    function thrower(e) {
+        setTimeout(function(){throw e;}, 0);
+    }
+
     function dispose(resources, inspection) {
-        var haveError = false;
-        var error = null;
-        for (var i = 0; i < resources.length; ++i) {
-            var maybePromise = cast(resources[i], void 0);
+        var i = 0;
+        var len = resources.length;
+        var ret = Promise.defer();
+        function iterator() {
+            if (i >= len) return ret.resolve();
+            var maybePromise = cast(resources[i++], void 0);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
-                if (!maybePromise._getDisposer().tryDispose(inspection) &&
-                    !haveError) {
-                    haveError = true;
-                    error = errorRef.e;
+                try {
+                    maybePromise = cast(maybePromise._getDisposer()
+                                        .tryDispose(inspection), void 0);
+                }
+                catch (e) {
+                    return thrower(e);
+                }
+                if (maybePromise instanceof Promise) {
+                    return maybePromise._then(iterator, thrower,
+                                              null, null, null);
                 }
             }
+            iterator();
         }
-
-        // Override return value / return Promise.reject
-        if (haveError) throw error;
+        iterator();
+        return ret.promise;
     }
 
     function disposerSuccess(value) {
         var inspection = new PromiseInspection();
         inspection._settledValue = value;
         inspection._bitField = IS_FULFILLED;
-        dispose(this, inspection);
-        return value;
+        return dispose(this, inspection).thenReturn(value);
     }
 
     function disposerFail(reason) {
         var inspection = new PromiseInspection();
         inspection._settledValue = reason;
         inspection._bitField = IS_REJECTED;
-        dispose(this, inspection);
-        return Promise.reject(reason);
+        return dispose(this, inspection).thenThrow(reason);
     }
 
     function Disposer(data, promise) {
@@ -75,16 +84,8 @@ module.exports = function (Promise, apiRejection, cast) {
 
     Disposer.prototype.tryDispose = function(inspection) {
         var resource = this.resource();
-        var ret = true;
-        if (resource !== null) {
-            try {
-                this.doDispose(resource, inspection);
-            }
-            catch (e) {
-                errorRef.e = e;
-                ret = false;
-            }
-        }
+        var ret = resource !== null
+            ? this.doDispose(resource, inspection) : null;
         this._promise._unsetDisposable();
         this._data = this._promise = null;
         return ret;
@@ -97,7 +98,7 @@ module.exports = function (Promise, apiRejection, cast) {
 
     MethodNameDisposer.prototype.doDispose = function (resource, inspection) {
         var methodName = this.data();
-        resource[methodName](inspection);
+        return resource[methodName](inspection);
     };
 
     function FunctionDisposer(fn, promise) {
@@ -107,7 +108,7 @@ module.exports = function (Promise, apiRejection, cast) {
 
     FunctionDisposer.prototype.doDispose = function (resource, inspection) {
         var fn = this.data();
-        fn(resource, inspection);
+        return fn(resource, inspection);
     };
 
     Promise.using = function Promise$using() {
