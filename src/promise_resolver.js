@@ -101,6 +101,9 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 PromiseResolver.prototype.resolve =
 PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
     var promise = this.promise;
+    if ((promise === void 0) || (promise._tryFollow === void 0)) {
+        throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
+    }
     if (promise._tryFollow(value)) {
         return;
     }
@@ -116,6 +119,9 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
  */
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
     var promise = this.promise;
+    if ((promise === void 0) || (promise._attachExtraTrace === void 0)) {
+        throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
+    }
     errors.markAsOriginatingFromRejection(reason);
     var trace = errors.canAttach(reason) ? reason : new Error(reason + "");
     promise._attachExtraTrace(trace);
