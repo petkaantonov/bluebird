@@ -2,7 +2,7 @@
 
 - [Core](#core)
     - [`new Promise(Function<Function resolve, Function reject> resolver)`](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
-    - [`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [`.then([Function fulfilledHandler] [, Function rejectedHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler----promise)
     - [`.spread([Function fulfilledHandler] [, Function rejectedHandler ])`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise)
     - [`.catch(Function handler)`](#catchfunction-handler---promise)
     - [`.catch([Function ErrorClass|Function predicate...], Function handler)`](#catchfunction-errorclassfunction-predicate-function-handler---promise)
@@ -63,7 +63,7 @@
     - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
     - [`Promise.onUnhandledRejectionHandled(Function handler)`](#promiseonunhandledrejectionhandledfunction-handler---undefined)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
-    - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----void)
+    - [`.done([Function fulfilledHandler] [, Function rejectedHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler----void)
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`Promise.defer()`](#promisedefer---promiseresolver)
@@ -117,7 +117,7 @@ The above ensures `getConnection()` fulfills the contract of a promise-returning
 
 <hr>
 
-#####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
+#####`.then([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
 [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved dedefer on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
@@ -1739,7 +1739,7 @@ On client side, long stack traces currently only work in Firefox and Chrome.
 
 <hr>
 
-#####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `void`
+#####`.done([Function fulfilledHandler] [, Function rejectedHandler ])` -> `void`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
 
