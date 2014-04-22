@@ -82,7 +82,7 @@ Core methods of `Promise` instances and core static methods of the Promise class
 
 Create a new promise. The passed in function will receive functions `resolve` and `reject` as its arguments which can be called to seal the fate of the created promise.
 
-*Note: it is **very unlikely** that you will ever need to create promises yourself, see [promisification](#promisification)*
+*Note: In Node.JS it is **very unlikely** that you will ever need to create promises yourself, see [promisification](#promisification)*
 
 Example:
 
