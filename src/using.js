@@ -91,16 +91,6 @@ module.exports = function (Promise, apiRejection, cast) {
         return ret;
     };
 
-    function MethodNameDisposer(methodName, promise) {
-        this.constructor$(methodName, promise);
-    }
-    inherits(MethodNameDisposer, Disposer);
-
-    MethodNameDisposer.prototype.doDispose = function (resource, inspection) {
-        var methodName = this.data();
-        return resource[methodName](inspection);
-    };
-
     function FunctionDisposer(fn, promise) {
         this.constructor$(fn, promise);
     }
@@ -108,7 +98,7 @@ module.exports = function (Promise, apiRejection, cast) {
 
     FunctionDisposer.prototype.doDispose = function (resource, inspection) {
         var fn = this.data();
-        return fn(resource, inspection);
+        return fn.call(resource, resource, inspection);
     };
 
     Promise.using = function Promise$using() {
@@ -154,12 +144,9 @@ module.exports = function (Promise, apiRejection, cast) {
         this._disposer = void 0;
     };
 
-    Promise.prototype.disposer = function Promise$disposer(methodName) {
-        if (typeof methodName === "string") {
-            return new MethodNameDisposer(methodName, this);
-        }
-        else if (typeof methodName === "function") {
-            return new FunctionDisposer(methodName, this);
+    Promise.prototype.disposer = function Promise$disposer(fn) {
+        if (typeof fn === "function") {
+            return new FunctionDisposer(fn, this);
         }
         throw new TypeError();
     };

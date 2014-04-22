@@ -33,7 +33,6 @@
     - [`.each(Function iterator)`](#eachfunction-iterator---promise)
 - [Resource management](#resource-management)
     - [`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise)
-    - [`.disposer(String methodName)`](#disposerstring-methodname---disposer)
     - [`.disposer(Function disposer)`](#disposerfunction-disposer---disposer)
 - [Promisification](#promisification)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
@@ -963,7 +962,7 @@ when appropriate. See [Resource management](#resource-management) and [`.dispose
 
 <hr>
 
-#####`.disposer(String methodName)` -> `Disposer`
+#####`.disposer(Function disposer)` -> `Disposer`
 
 A meta method used to specify the disposer method that cleans up a resource when using [`using()`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise).
 
@@ -1048,12 +1047,6 @@ using(externalPromiseApi.getResource1().disposer("close"),
 ```
 
 `Promise.method` also automatically casts the promises so using it was beneficial for that reason alone.
-
-<hr>
-
-#####`.disposer(Function disposer)` -> `Disposer`
-
-Like `.disposer(methodName disposer)`, but allows you to describe how to dispose the resource by a custom function rather than as a method name.
 
 Example:
 
