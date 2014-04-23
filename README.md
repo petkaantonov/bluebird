@@ -95,7 +95,7 @@ After quick start, see [API Reference and examples](https://github.com/petkaanto
 You should use promises to turn this:
 
 ```js
-readFile("file.json", function(err, val) {
+fs.readFile("file.json", function(err, val) {
     if( err ) {
         console.error("unable to read file");
     }
@@ -114,7 +114,7 @@ readFile("file.json", function(err, val) {
 Into this:
 
 ```js
-readFile("file.json").then(JSON.parse).then(function(val) {
+fs.readFileAsync("file.json").then(JSON.parse).then(function(val) {
     console.log(val.success);
 })
 .catch(SyntaxError, function(e) {
@@ -125,11 +125,13 @@ readFile("file.json").then(JSON.parse).then(function(val) {
 });
 ```
 
+*If you are wondering "there is no `readFileAsync` method on `fs` that returns a promise", see [promisification](API.md#promisification)*
+
 Actually you might notice the latter has a lot in common with code that would do the same using synchronous I/O:
 
 ```js
 try {
-    var val = JSON.parse(readFile("file.json"));
+    var val = JSON.parse(fs.readFileSync("file.json"));
     console.log(val.success);
 }
 //Syntax actually not supported in JS but drives the point
