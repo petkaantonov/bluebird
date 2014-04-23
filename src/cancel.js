@@ -27,8 +27,8 @@ module.exports = function(Promise, INTERNAL) {
         ASSERT("_cancellationParent" in this);
 
         if (reason === undefined) {
-            var err = new CancellationError();
-            this._attachExtraTrace(err);
+            reason = new CancellationError();
+            this._attachExtraTrace(reason);
         }
 
         if (token === SYNC_TOKEN) {
