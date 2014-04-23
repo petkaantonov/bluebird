@@ -1073,18 +1073,60 @@ using(getTransaction(), function(tx) {
 
 ##Promisification
 
-Promisification is converting an existing promise-unaware API to a promise-returning API.
+Promisification means converting an existing promise-unaware API to a promise-returning API.
 
 The usual way to use promises in node is to `promisifyAll` some API and start exclusively calling promise returning versions of the APIs methods. E.g.
 
 ```js
 var fs = require("fs");
 Promise.promisifyAll(fs);
-// Now you can use fs as if it was designed to use bluebird promises from the beginnig
+// Now you can use fs as if it was designed to use bluebird promises from the beginning
 
 fs.readFileAsync("file.js", "utf8").then(...)
 ```
 
+Note that the above is an exceptional case because `fs` is a singleton instance. Most libraries can be promisified by requiring the library's classes (constructor functions) and calling promisifyAll on the `.prototype`. This only needs to be done once in the entire application's lifetime and after that you may use the library's methods exactly as they are documented, except by appending the `"Async"`-suffix to method calls and using the promise interface instead of the callback interface.
+
+Some examples of the above practice applied to some popular libraries:
+
+```js
+// The most popular redis module
+var redis = require("redis");
+var Promise = require("bluebird");
+Promise.promisifyAll(redis.RedisClient.prototype);
+Promise.promisifyAll(redis.Multi.prototype);
+```
+
+```js
+// The most popular mysql module
+var Promise = require("bluebird");
+Promise.promisifyAll(require("mysql/lib/Connection").prototype);
+Promise.promisifyAll(require("mysql/lib/Pool").prototype);
+```
+
+```js
+// The most popular mongodb module
+var Promise = require("bluebird");
+var MongoDB = require("mongodb");
+// Use an automated loop since there are so many classes to promisify
+Object.keys(MongoDB).forEach(function(key) {
+    var Class = MongoDB[key]
+    if (typeof Class === "function") {
+        Promise.promisifyAll(Class.prototype);
+    }
+});
+```
+
+In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:
+
+```js
+var ParanoidLib = require("...");
+var throwAwayInstance = ParanoidLib.createInstance();
+Promise.promisifyAll(Object.getPrototypeOf(throwAwayInstance));
+// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises
+```
+
+See also [`Promise.promisifyAll()`](#promisepromisifyallobject-target---object).
 
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
@@ -1142,7 +1184,7 @@ The above uses [request](https://github.com/mikeal/request) library which has a 
 
 Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
 
-Note that the original methods on the object are not overwritten but new methods are created with the `Async`-postfix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
+Note that the original methods on the object are not overwritten but new methods are created with the `Async`-suffix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
 Example:
 
@@ -1186,7 +1228,7 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 
 The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
-If a method already has `"Async"` postfix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
+If a method name already has an `"Async"`-suffix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 
 <hr>
 
