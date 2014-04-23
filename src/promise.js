@@ -888,6 +888,17 @@ Promise.prototype._setTrace = function Promise$_setTrace(caller, parent) {
 
 Promise.prototype._attachExtraTrace =
 function Promise$_attachExtraTrace(error) {
+    if (Promise.GuaranteedStackTraces === true && error.stack === undefined) {
+        // IE 10.0 doesn't support capturing callstacks on Error creation, just when thrown.
+        // It also only supports callstacks for Error objects themselves, not subclasses.
+        // If we find an error with no callstack, attach one.
+        try {
+            throw new Error();
+        } catch (e) {
+            error.stack = e.stack;
+        }
+    }
+
     if (debugging) {
         ASSERT(canAttach(error));
         var promise = this;
@@ -1216,4 +1227,5 @@ Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 Promise.AlwaysCancellable = false;
+Promise.GuaranteedStackTraces = false;
 };
