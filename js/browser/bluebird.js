@@ -351,25 +351,34 @@ module.exports = function(Promise, INTERNAL) {
     var CancellationError = errors.CancellationError;
     var SYNC_TOKEN = {};
 
-    Promise.prototype._cancel = function Promise$_cancel() {
+    Promise.prototype._cancel = function Promise$_cancel(reason) {
         if (!this.isCancellable()) return this;
         var parent;
         if ((parent = this._cancellationParent) !== void 0) {
-            parent.cancel(SYNC_TOKEN);
+            parent.cancel(reason, SYNC_TOKEN);
             return;
         }
-        var err = new CancellationError();
-        this._attachExtraTrace(err);
-        this._rejectUnchecked(err);
+
+        if (reason === undefined) {
+            reason = new CancellationError();
+            this._attachExtraTrace(reason);
+        }
+        this._rejectUnchecked(reason);
     };
 
-    Promise.prototype.cancel = function Promise$cancel(token) {
+    Promise.prototype.cancel = function Promise$cancel(reason, token) {
         if (!this.isCancellable()) return this;
+        if (reason === undefined) {
+            reason = new CancellationError();
+            this._attachExtraTrace(reason);
+        }
+
         if (token === SYNC_TOKEN) {
-            this._cancel();
+            this._cancel(reason);
             return this;
         }
-        async.invokeLater(this._cancel, this, void 0);
+
+        async.invokeLater(this._cancel, this, reason);
         return this;
     };
 
@@ -2520,6 +2529,14 @@ Promise.prototype._setTrace = function Promise$_setTrace(caller, parent) {
 
 Promise.prototype._attachExtraTrace =
 function Promise$_attachExtraTrace(error) {
+    if (Promise.GuaranteedStackTraces === true && error.stack === undefined) {
+        try {
+            throw new Error();
+        } catch (e) {
+            error.stack = e.stack;
+        }
+    }
+
     if (debugging) {
         var promise = this;
         var stack = error.stack;
@@ -2827,6 +2844,7 @@ Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
 Promise.AlwaysCancellable = false;
+Promise.GuaranteedStackTraces = false;
 require('./timers.js')(Promise,INTERNAL);
 require('./synchronous_inspection.js')(Promise);
 require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
@@ -3182,6 +3200,7 @@ var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
+var CancellationError = errors.CancellationError;
 var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
@@ -3283,7 +3302,10 @@ function PromiseResolver$progress(value) {
 };
 
 PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
-    async.invoke(this.promise.cancel, this.promise, void 0);
+    var err = new CancellationError();
+    this._attachExtraTrace(err);
+
+    async.invoke(this.promise.cancel, this.promise, err);
 };
 
 PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
