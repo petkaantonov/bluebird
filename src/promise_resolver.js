@@ -143,7 +143,7 @@ function PromiseResolver$progress(value) {
  */
 PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
     var err = new CancellationError();
-    this._attachExtraTrace(err);
+    this.promise._attachExtraTrace(err);
 
     async.invoke(this.promise.cancel, this.promise, err);
 };
