@@ -6,27 +6,37 @@ module.exports = function(Promise, INTERNAL) {
     var CancellationError = errors.CancellationError;
     var SYNC_TOKEN = {};
 
-    Promise.prototype._cancel = function Promise$_cancel() {
+    Promise.prototype._cancel = function Promise$_cancel(reason) {
         if (!this.isCancellable()) return this;
         var parent;
         //Propagate to the last cancellable parent
         if ((parent = this._cancellationParent) !== void 0) {
-            parent.cancel(SYNC_TOKEN);
+            parent.cancel(reason, SYNC_TOKEN);
             return;
         }
-        var err = new CancellationError();
-        this._attachExtraTrace(err);
-        this._rejectUnchecked(err);
+
+        if (reason === undefined) {
+            reason = new CancellationError();
+            this._attachExtraTrace(reason);
+        }
+        this._rejectUnchecked(reason);
     };
 
-    Promise.prototype.cancel = function Promise$cancel(token) {
+    Promise.prototype.cancel = function Promise$cancel(reason, token) {
         if (!this.isCancellable()) return this;
         ASSERT("_cancellationParent" in this);
+
+        if (reason === undefined) {
+            reason = new CancellationError();
+            this._attachExtraTrace(reason);
+        }
+
         if (token === SYNC_TOKEN) {
-            this._cancel();
+            this._cancel(reason);
             return this;
         }
-        async.invokeLater(this._cancel, this, void 0);
+
+        async.invokeLater(this._cancel, this, reason);
         return this;
     };
 

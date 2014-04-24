@@ -4,6 +4,7 @@ var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
+var CancellationError = errors.CancellationError;
 var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
@@ -141,7 +142,10 @@ function PromiseResolver$progress(value) {
  *
  */
 PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
-    async.invoke(this.promise.cancel, this.promise, void 0);
+    var err = new CancellationError();
+    this.promise._attachExtraTrace(err);
+
+    async.invoke(this.promise.cancel, this.promise, err);
 };
 
 /**
