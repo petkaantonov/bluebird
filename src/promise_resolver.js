@@ -100,10 +100,11 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
  */
 PromiseResolver.prototype.resolve =
 PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
-    var promise = this.promise;
-    if ((promise === void 0) || (promise._tryFollow === void 0)) {
+    if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
+
+    var promise = this.promise;
     if (promise._tryFollow(value)) {
         return;
     }
@@ -118,10 +119,11 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
  *
  */
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
-    var promise = this.promise;
-    if ((promise === void 0) || (promise._attachExtraTrace === void 0)) {
+    if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
+
+    var promise = this.promise;
     errors.markAsOriginatingFromRejection(reason);
     var trace = errors.canAttach(reason) ? reason : new Error(reason + "");
     promise._attachExtraTrace(trace);
@@ -139,6 +141,9 @@ PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
  */
 PromiseResolver.prototype.progress =
 function PromiseResolver$progress(value) {
+    if (!(this instanceof PromiseResolver)) {
+        throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
+    }
     async.invoke(this.promise._progress, this.promise, value);
 };
 
