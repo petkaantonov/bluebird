@@ -253,6 +253,7 @@ Promise.cast = function Promise$_Cast(obj) {
     if (!(ret instanceof Promise)) {
         var val = ret;
         ret = new Promise(INTERNAL);
+        ret._setTrace(void 0);
         ret._setFulfilled();
         ret._cleanValues();
         ret._settledValue = val;
