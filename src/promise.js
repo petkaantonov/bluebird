@@ -174,34 +174,6 @@ Promise.join = function Promise$Join() {
     return new PromiseArray(args).promise();
 };
 
-Promise.resolve = Promise.fulfilled =
-function Promise$Resolve(value) {
-    var ret = new Promise(INTERNAL);
-    ret._setTrace(void 0);
-    if (ret._tryFollow(value)) {
-        return ret;
-    }
-    ret._cleanValues();
-    ret._setFulfilled();
-    ret._settledValue = value;
-    return ret;
-};
-
-Promise.reject = Promise.rejected = function Promise$Reject(reason) {
-    var ret = new Promise(INTERNAL);
-    ret._setTrace(void 0);
-    markAsOriginatingFromRejection(reason);
-    ret._cleanValues();
-    ret._setRejected();
-    ret._settledValue = reason;
-    if (!canAttach(reason)) {
-        var trace = new Error(reason + "");
-        ret._setCarriedStackTrace(trace);
-    }
-    ret._ensurePossibleRejectionHandled();
-    return ret;
-};
-
 Promise.prototype.error = function Promise$_error(fn) {
     return this.caught(originatesFromRejection, fn);
 };
@@ -279,8 +251,29 @@ Promise.bind = function Promise$Bind(thisArg) {
 Promise.cast = function Promise$_Cast(obj) {
     var ret = cast(obj, void 0);
     if (!(ret instanceof Promise)) {
-        return Promise.resolve(ret);
+        var val = ret;
+        ret = new Promise(INTERNAL);
+        ret._setFulfilled();
+        ret._cleanValues();
+        ret._settledValue = val;
     }
+    return ret;
+};
+
+Promise.resolve = Promise.fulfilled = Promise.cast;
+
+Promise.reject = Promise.rejected = function Promise$Reject(reason) {
+    var ret = new Promise(INTERNAL);
+    ret._setTrace(void 0);
+    markAsOriginatingFromRejection(reason);
+    ret._cleanValues();
+    ret._setRejected();
+    ret._settledValue = reason;
+    if (!canAttach(reason)) {
+        var trace = new Error(reason + "");
+        ret._setCarriedStackTrace(trace);
+    }
+    ret._ensurePossibleRejectionHandled();
     return ret;
 };
 
