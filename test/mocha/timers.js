@@ -67,10 +67,12 @@ describe("timeout", function () {
             progressValsSeen.push(progressVal);
         });
 
-        Q.delay(5).then(function () { deferred.progress(1); });
-        Q.delay(15).then(function () { deferred.progress(2); });
-        Q.delay(25).then(function () { deferred.progress(3); });
-        Q.delay(35).then(function () { deferred.resolve(); });
+        Q.resolve().then(function(){
+            deferred.progress(1);
+            deferred.progress(2);
+            deferred.progress(3);
+            deferred.resolve();
+        });
     });
 
     it("should reject with a custom timeout error if the promise is too slow and msg was provided", function (done) {
