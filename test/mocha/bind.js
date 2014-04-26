@@ -129,14 +129,11 @@ describe("when using .bind", function() {
 
     describe("With .call promises", function(){
         specify("this should refer to the bound object", function(done) {
-            function test(val1, val2) {
-                assert(val1 === "value");
-                assert(val2 === "value");
+            fulfilled({key: function(){return "value";}}).bind(THIS).call("key").then(function(val){
+                assert(val === "value");
                 assert(this === THIS);
                 done();
-            }
-
-            fulfilled("value").bind(THIS).call(test, "value");
+            });
         });
     });
 
