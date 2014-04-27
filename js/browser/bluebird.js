@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.2.3
+ * bluebird build version 1.2.4
  * Features enabled: core, timers, race, any, call_get, filter, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel
 */
 /**
@@ -949,7 +949,7 @@ else {
     var str = {}.toString;
     var proto = {}.constructor.prototype;
 
-    function ObjectKeys(o) {
+    var ObjectKeys = function ObjectKeys(o) {
         var ret = [];
         for (var key in o) {
             if (has.call(o, key)) {
@@ -959,16 +959,16 @@ else {
         return ret;
     }
 
-    function ObjectDefineProperty(o, key, desc) {
+    var ObjectDefineProperty = function ObjectDefineProperty(o, key, desc) {
         o[key] = desc.value;
         return o;
     }
 
-    function ObjectFreeze(obj) {
+    var ObjectFreeze = function ObjectFreeze(obj) {
         return obj;
     }
 
-    function ObjectGetPrototypeOf(obj) {
+    var ObjectGetPrototypeOf = function ObjectGetPrototypeOf(obj) {
         try {
             return Object(obj).constructor.prototype;
         }
@@ -977,7 +977,7 @@ else {
         }
     }
 
-    function ArrayIsArray(obj) {
+    var ArrayIsArray = function ArrayIsArray(obj) {
         try {
             return str.call(obj) === "[object Array]";
         }
@@ -3098,6 +3098,9 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
 PromiseResolver.prototype.resolve =
 PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
     var promise = this.promise;
+    if ((promise === void 0) || (promise._tryFollow === void 0)) {
+        throw new TypeError("Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.");
+    }
     if (promise._tryFollow(value)) {
         return;
     }
@@ -3106,6 +3109,9 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
 
 PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
     var promise = this.promise;
+    if ((promise === void 0) || (promise._attachExtraTrace === void 0)) {
+        throw new TypeError("Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.");
+    }
     errors.markAsOriginatingFromRejection(reason);
     var trace = errors.canAttach(reason) ? reason : new Error(reason + "");
     promise._attachExtraTrace(trace);
@@ -3412,9 +3418,8 @@ function parameterCount(fn) {
     return 0;
 }
 
+var rident = /^[a-z$_][a-z$_0-9]*$/i;
 function propertyAccess(id) {
-    var rident = /^[a-z$_][a-z$_0-9]*$/i;
-
     if (rident.test(id)) {
         return "." + id;
     }
@@ -3448,6 +3453,10 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
                 ? "this"
                 : "receiver")+", "+args.join(",") + comma + " fn);") +
         "break;";
+    }
+
+    if (!rident.test(callbackName)) {
+        callbackName = "promisified";
     }
 
     function generateArgumentSwitchCase() {

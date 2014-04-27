@@ -1,3 +1,10 @@
+## 1.2.4 (2014-04-27)
+
+Bugfixes:
+
+ - Fix promisifyAll causing a syntax error when a method name is not a valid identifier
+ - Fix syntax error when es5.js is used in strict mode
+
 ## 1.2.3 (2014-04-17)
 
 Bugfixes:
