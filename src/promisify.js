@@ -121,9 +121,8 @@ function parameterCount(fn) {
     return 0;
 }
 
+var rident = /^[a-z$_][a-z$_0-9]*$/i;
 function propertyAccess(id) {
-    var rident = /^[a-z$_][a-z$_0-9]*$/i;
-
     if (rident.test(id)) {
         return "." + id;
     }
@@ -159,6 +158,10 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
                 ? "this"
                 : "receiver")+", "+args.join(",") + comma + " fn);") +
         "break;";
+    }
+
+    if (!rident.test(callbackName)) {
+        callbackName = "promisified";
     }
 
     function generateArgumentSwitchCase() {

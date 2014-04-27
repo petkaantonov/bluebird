@@ -398,6 +398,8 @@ describe( "Promisify from prototype to object", function() {
 
         };
 
+        method["---invalid---"] = function(){};
+
         if ((function(){"use strict"; return this === void 0})()) {
             Object.defineProperty(method, "thrower", {
                 enumerable: true,
