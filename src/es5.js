@@ -19,7 +19,7 @@ else {
     var str = {}.toString;
     var proto = {}.constructor.prototype;
 
-    function ObjectKeys(o) {
+    var ObjectKeys = function ObjectKeys(o) {
         var ret = [];
         for (var key in o) {
             if (has.call(o, key)) {
@@ -29,16 +29,16 @@ else {
         return ret;
     }
 
-    function ObjectDefineProperty(o, key, desc) {
+    var ObjectDefineProperty = function ObjectDefineProperty(o, key, desc) {
         o[key] = desc.value;
         return o;
     }
 
-    function ObjectFreeze(obj) {
+    var ObjectFreeze = function ObjectFreeze(obj) {
         return obj;
     }
 
-    function ObjectGetPrototypeOf(obj) {
+    var ObjectGetPrototypeOf = function ObjectGetPrototypeOf(obj) {
         try {
             return Object(obj).constructor.prototype;
         }
@@ -47,7 +47,7 @@ else {
         }
     }
 
-    function ArrayIsArray(obj) {
+    var ArrayIsArray = function ArrayIsArray(obj) {
         try {
             return str.call(obj) === "[object Array]";
         }
