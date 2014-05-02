@@ -1,9 +1,13 @@
-global.useLiar = true;
+global.useNative = true;
 
-var Promise = require("liar");
+try {
+    if (Promise.race.toString() !== 'function race() { [native code] }')
+        throw 0;
+} catch (e) {
+    throw new Error("No ES6 promises available");
+}
 
 require('../lib/fakesP');
-
 
 module.exports = function upload(stream, idOrPath, tag, done) {
     var queries = new Array(global.parallelQueries);
@@ -13,7 +17,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         queries[i] = FileVersion.insert({index: i}).execWithin(tx);
     }
 
-    Promise.all(queries).then(function() {
+    Promise.all(queries).then().then(function() {
         tx.commit();
         done();
     }, function(err) {
@@ -21,4 +25,3 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         done(err);
     });
 }
-

@@ -15,7 +15,12 @@ else if (global.useKew) {
                 if (err) p.reject(err);
                 else p.resolve(res)
             };
-            nodefn.apply(this, arguments);
+            try {
+                nodefn.apply(this, arguments);
+            }
+            catch (e) {
+                p.reject(e);
+            }
             return p;
         }
     }
@@ -32,8 +37,34 @@ else if( global.useDeferred) {
 else if( global.useDavy) {
     var lifter = require("davy").wrap;
 }
+else if (global.useNative) {
+    try {
+        if (Promise.race.toString() !== 'function race() { [native code] }')
+            throw 0;
+    } catch (e) {
+        throw new Error("No ES6 promises available");
+    }
+    var lifter = function(nodefn) {
+        return function() {
+            var self = this;
+            var l = arguments.length;
+            var args = new Array(l);
+            for (var i = 0; i < l; ++i) {
+                args[i] = arguments[i];
+            }
+            return new Promise(function(resolve, reject) {
+                var callback = function(err, val) {
+                    if (err) reject(err);
+                    else resolve(val);
+                };
+                args.push(callback);
+                nodefn.apply(self, args);
+            });
+        };
+    };
+}
 else {
-    var lifter = require('when/node/function').lift
+    var lifter = require('when/node').lift;
 }
 
 var f = require('./dummy');
