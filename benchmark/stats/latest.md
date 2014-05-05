@@ -15,19 +15,20 @@ bench doxbee-sequential
 results for 10000 parallel executions, 1 ms per I/O op
 
     file                                 time(ms)  memory(MB)
-    promises-bluebird-generator.js            185       17.57
-    callbacks-baseline.js                     208       20.71
-    promises-bluebird.js                      286       26.41
-    promises-lvivski-davy.js                  569       54.44
-    promises-dfilatov-vow.js                  674       80.83
-    promises-cujojs-when.js                   750       69.09
-    callbacks-caolan-async-waterfall.js       751       43.59
-    promises-obvious-kew.js                  1106       84.92
-    promises-tildeio-rsvp.js                 1219      142.54
-    promises-ecmascript6-native.js           1289       80.89
-    promises-medikoo-deferred.js             2293      149.17
-    promises-calvinmetcalf-liar.js           5086      179.60
-    promises-kriskowal-q.js                 19876      420.27
+    promises-bluebird-generator.js            171       16.52
+    callbacks-baseline.js                     197       20.68
+    promises-bluebird.js                      280       26.64
+    promises-lvivski-davy.js                  616       58.75
+    promises-dfilatov-vow.js                  672       80.59
+    promises-cujojs-when.js                   731       68.74
+    callbacks-caolan-async-waterfall.js       733       44.57
+    promises-calvinmetcalf-lie.js            1035      113.07
+    promises-obvious-kew.js                  1047       78.50
+    promises-tildeio-rsvp.js                 1121      109.49
+    promises-ecmascript6-native.js           1298       96.05
+    promises-then-promise.js                 1775      134.73
+    promises-medikoo-deferred.js             2238      149.61
+    promises-kriskowal-q.js                 19786      415.04
 
     Platform info:
     Windows_NT 6.1.7601 ia32
@@ -40,17 +41,19 @@ bench parallel (`--p 25`)
     results for 10000 parallel executions, 1 ms per I/O op
 
     file                                time(ms)  memory(MB)
-    promises-bluebird.js                     506       63.55
-    promises-bluebird-generator.js           564       63.87
-    callbacks-baseline.js                    566       25.54
-    promises-lvivski-davy.js                1094      129.52
-    promises-cujojs-when.js                 1573      178.39
-    callbacks-caolan-async-parallel.js      1644       99.84
-    promises-dfilatov-vow.js                1750      194.39
-    promises-tildeio-rsvp.js                3767      464.02
-    promises-obvious-kew.js                 3835      364.74
-    promises-medikoo-deferred.js            4552      356.34
-    promises-ecmascript6-native.js          4697      313.50
+    promises-bluebird.js                     483       63.32
+    callbacks-baseline.js                    545       25.54
+    promises-bluebird-generator.js           574       64.66
+    promises-lvivski-davy.js                1088      128.62
+    promises-cujojs-when.js                 1527      178.57
+    callbacks-caolan-async-parallel.js      1635       99.87
+    promises-dfilatov-vow.js                1753      196.96
+    promises-then-promise.js                2553      338.36
+    promises-ecmascript6-native.js          3749      309.55
+    promises-obvious-kew.js                 3805      366.32
+    promises-tildeio-rsvp.js                3916      462.23
+    promises-calvinmetcalf-lie.js           4477      230.99
+    promises-medikoo-deferred.js            4613      356.03
 
     Platform info:
     Windows_NT 6.1.7601 ia32
