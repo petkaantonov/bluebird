@@ -66,6 +66,7 @@ else if (global.useNative) {
     }
     var lifter = function(nodefn) {
         return function() {
+            var self = this;
             var l = arguments.length;
             var args = new Array(l + 1);
             for (var i = 0; i < l; ++i) {
