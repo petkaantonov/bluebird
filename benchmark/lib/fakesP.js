@@ -26,22 +26,25 @@ else if (global.useKew) {
     }
 }
 else if(global.useLie) {
-    var Promise = require('lie');
-    var slicer = [].slice;
-    var lifter = function lifter(nodefn) {
+    var Lie = require('lie');
+    var lifter = function(nodefn) {
         return function() {
-            var $_len = arguments.length;
-            var args = new Array($_len); 
-            for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-            return new Promise(function (resolve, reject){
-                args[args.length++] = function(err, res) {
+            var self = this;
+            var l = arguments.length;
+            var args = new Array(l);
+            for (var i = 0; i < l; ++i) {
+                args[i] = arguments[i];
+            }
+            return new Lie(function(resolve, reject) {
+                var callback = function(err, val) {
                     if (err) reject(err);
-                    else resolve(res)
+                    else resolve(val);
                 };
-                nodefn.apply(this, args);
+                args.push(callback);
+                nodefn.apply(self, args);
             });
-        }
-    }
+        };
+    };
 }
 else if(global.useThenPromise) {
     var lifter = require("promise").denodeify;
