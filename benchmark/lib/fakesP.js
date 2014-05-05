@@ -31,7 +31,7 @@ else if(global.useLie) {
         return function() {
             var self = this;
             var l = arguments.length;
-            var args = new Array(l);
+            var args = [];
             for (var i = 0; i < l; ++i) {
                 args[i] = arguments[i];
             }
@@ -68,7 +68,7 @@ else if (global.useNative) {
         return function() {
             var self = this;
             var l = arguments.length;
-            var args = new Array(l);
+            var args = [];
             for (var i = 0; i < l; ++i) {
                 args[i] = arguments[i];
             }
