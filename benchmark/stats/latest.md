@@ -1,10 +1,9 @@
-    $ npm ls async deferred kew liar optimist q rsvp when vow davy bluebird
-    async-compare@0.1.0 c:\Users\Petka Antonov\bluebird\benchmark\async-compare
+    ├── async@0.7.0
     ├── davy@0.2.2
     ├── deferred@0.7.1
     ├── kew@0.4.0
-    ├── liar@0.6.0
-    ├── optimist@0.6.1
+    ├── lie@2.7.3
+    ├── promise@5.0.0
     ├── q@1.0.1
     ├── rsvp@3.0.6
     ├── vow@0.4.3
