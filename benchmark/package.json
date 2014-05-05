@@ -7,14 +7,14 @@
     "async": "~0.7.0",
     "deferred": "~0.7.0",
     "kew": "~0.4.0",
-    "liar": "~0.6.0",
     "optimist": "~0.6.0",
     "q": "~1.0.0",
     "rsvp": "~3.0.0",
     "text-table": "~0.2.0",
     "when": "~3.1.0",
     "vow": "~0.4.1",
-    "davy": "~0.2.0"
+    "davy": "~0.2.0",
+    "lie": "^2.7.2"
   },
   "devDependencies": {},
   "scripts": {

@@ -25,8 +25,21 @@ else if (global.useKew) {
         }
     }
 }
-else if( global.useLiar) {
-    var lifter = require("liar").denodify;
+else if( global.useLie) {
+    var Promise = require('lie');
+    var slicer = [].slice;
+    var lifter = function lifter(nodefn) {
+        return function() {
+            var p = new Promise(function (resolve, reject){
+                arguments[arguments.length++] = function(err, res) {
+                    if (err) reject(err);
+                    else resolve(res)
+                };
+                nodefn.apply(this, arguments);
+            });
+            return p;
+        }
+    }
 }
 else if( global.useRSVP ) {
     var lifter = require("rsvp").denodeify;
