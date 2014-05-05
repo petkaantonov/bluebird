@@ -25,7 +25,7 @@ else if (global.useKew) {
         }
     }
 }
-else if( global.useLie) {
+else if(global.useLie) {
     var Promise = require('lie');
     var slicer = [].slice;
     var lifter = function lifter(nodefn) {
@@ -36,6 +36,27 @@ else if( global.useLie) {
                     else resolve(res)
                 };
                 nodefn.apply(this, arguments);
+            });
+            return p;
+        }
+    }
+}
+else if(global.useThenPromise) {
+    var Promise = require('promise');
+    var slicer = [].slice;
+    var lifter = function lifter(nodefn) {
+        return function() {
+            var p = new Promise(function (resolve, reject){
+                arguments[arguments.length++] = function(err, res) {
+                    if (err) reject(err);
+                    else resolve(res)
+                };
+                try {
+                    nodefn.apply(this, arguments);
+                }
+                catch (e) {
+                    reject(e);
+                }
             });
             return p;
         }

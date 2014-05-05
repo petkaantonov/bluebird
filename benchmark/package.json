@@ -14,7 +14,8 @@
     "when": "~3.1.0",
     "vow": "~0.4.1",
     "davy": "~0.2.0",
-    "lie": "^2.7.2"
+    "lie": "^2.7.2",
+    "promise": "^5.0.0"
   },
   "devDependencies": {},
   "scripts": {
