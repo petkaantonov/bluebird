@@ -36,11 +36,10 @@ else if(global.useLie) {
                 args[i] = arguments[i];
             }
             return new Lie(function(resolve, reject) {
-                var callback = function(err, val) {
+                args[args.length++] = function(err, val) {
                     if (err) reject(err);
                     else resolve(val);
                 };
-                args.push(callback);
                 nodefn.apply(self, args);
             });
         };
@@ -74,11 +73,10 @@ else if (global.useNative) {
                 args[i] = arguments[i];
             }
             return new Promise(function(resolve, reject) {
-                var callback = function(err, val) {
+                args[args.length++] = function(err, val) {
                     if (err) reject(err);
                     else resolve(val);
                 };
-                args.push(callback);
                 nodefn.apply(self, args);
             });
         };
