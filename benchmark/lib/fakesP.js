@@ -44,22 +44,7 @@ else if(global.useLie) {
     }
 }
 else if(global.useThenPromise) {
-    var Promise = require('promise');
-    var slicer = [].slice;
-    var lifter = function lifter(nodefn) {
-        return function() {
-            var $_len = arguments.length;
-            var args = new Array($_len);
-            for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
-            return new Promise(function (resolve, reject){
-                args[args.length++] = function(err, res) {
-                    if (err) reject(err);
-                    else resolve(res)
-                };
-                nodefn.apply(this, args);
-            });
-        }
-    }
+    var lifter = require("promise").denodeify;
 }
 else if( global.useRSVP ) {
     var lifter = require("rsvp").denodeify;
