@@ -30,14 +30,16 @@ else if(global.useLie) {
     var slicer = [].slice;
     var lifter = function lifter(nodefn) {
         return function() {
-            var p = new Promise(function (resolve, reject){
-                arguments[arguments.length++] = function(err, res) {
+            var $_len = arguments.length;
+            var args = new Array($_len); 
+            for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+            return new Promise(function (resolve, reject){
+                args[args.length++] = function(err, res) {
                     if (err) reject(err);
                     else resolve(res)
                 };
-                nodefn.apply(this, arguments);
+                nodefn.apply(this, args);
             });
-            return p;
         }
     }
 }
@@ -46,19 +48,16 @@ else if(global.useThenPromise) {
     var slicer = [].slice;
     var lifter = function lifter(nodefn) {
         return function() {
-            var p = new Promise(function (resolve, reject){
-                arguments[arguments.length++] = function(err, res) {
+            var $_len = arguments.length;
+            var args = new Array($_len);
+            for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];}
+            return new Promise(function (resolve, reject){
+                args[args.length++] = function(err, res) {
                     if (err) reject(err);
                     else resolve(res)
                 };
-                try {
-                    nodefn.apply(this, arguments);
-                }
-                catch (e) {
-                    reject(e);
-                }
+                nodefn.apply(this, args);
             });
-            return p;
         }
     }
 }
