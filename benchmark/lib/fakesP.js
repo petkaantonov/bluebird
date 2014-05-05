@@ -31,12 +31,12 @@ else if(global.useLie) {
         return function() {
             var self = this;
             var l = arguments.length;
-            var args = [];
+            var args = new Array(l + 1);
             for (var i = 0; i < l; ++i) {
                 args[i] = arguments[i];
             }
             return new Lie(function(resolve, reject) {
-                args[args.length++] = function(err, val) {
+                args[l] = function(err, val) {
                     if (err) reject(err);
                     else resolve(val);
                 };
@@ -66,14 +66,13 @@ else if (global.useNative) {
     }
     var lifter = function(nodefn) {
         return function() {
-            var self = this;
             var l = arguments.length;
-            var args = [];
+            var args = new Array(l + 1);
             for (var i = 0; i < l; ++i) {
                 args[i] = arguments[i];
             }
             return new Promise(function(resolve, reject) {
-                args[args.length++] = function(err, val) {
+                args[l] = function(err, val) {
                     if (err) reject(err);
                     else resolve(val);
                 };
