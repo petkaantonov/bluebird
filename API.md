@@ -1,5 +1,4 @@
 #API Reference
-
 - [Core](#core)
     - [`new Promise(Function<Function resolve, Function reject> resolver)`](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
     - [`.then([Function fulfilledHandler] [, Function rejectedHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler----promise)
@@ -1788,6 +1787,28 @@ Like `.then()`, but any unhandled rejection that ends up here will be thrown as 
 <hr>
 
 ##Progression
+
+**Warning:** There are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#. For example:
+
+```js
+function returnsPromiseWithProgress(progressHandler){
+    return doFirstAction().tap(function(){
+        progressHandler(0.33);
+    }).then(doSecondAction).tap(function(){
+        progressHandler(0.66);
+    }).then(doThirdAction).tap(function(){
+        progressHandler(1.00);
+    });
+}
+
+var p = returnsPromiseWithProgress(function(progress){
+    ui.progressbar.setWidth((progress * 200) + "px"); // update with on client side
+    //updateRequestProgressState(someParam, progress); // example server side update
+});
+p.then(function(value){ // action complete
+   // entire chain is complete.
+});
+```
 
 #####`.progressed(Function handler)` -> `Promise`
 
