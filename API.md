@@ -610,7 +610,7 @@ Create a promise that is resolved with the given value. If `value` is already a 
 Example: (`$` is jQuery)
 
 ```js
-Promise.cast($.get("http://www.google.com")).then(function(){
+Promise.resolve($.get("http://www.google.com")).then(function(){
     //Returning a thenable from a handler is automatically
     //cast to a trusted Promise as per Promises/A+ specification
     return $.post("http://www.yahoo.com");
@@ -1033,8 +1033,8 @@ is being broken a lot.
 So this can be a problem with `using()`:
 
 ```js
-using(Promise.cast(externalPromiseApi.getResource1()).disposer("close"),
-    Promise.cast(externalPromiseApi.getResource2()).disposer("close"),
+using(Promise.resolve(externalPromiseApi.getResource1()).disposer("close"),
+    Promise.resolve(externalPromiseApi.getResource2()).disposer("close"),
     function(resource1, resource2) {
 
 })
@@ -1043,8 +1043,8 @@ using(Promise.cast(externalPromiseApi.getResource1()).disposer("close"),
 The issue here is that if the *call* to `.getResource2()` throws synchronously, then resource1 will leak because the code is executed like this:
 
 ```js
-var a = Promise.cast(externalPromiseApi.getResource1()).disposer("close");
-var b = Promise.cast(externalPromiseApi.getResource2()).disposer("close");
+var a = Promise.resolve(externalPromiseApi.getResource1()).disposer("close");
+var b = Promise.resolve(externalPromiseApi.getResource2()).disposer("close");
 using(a, b, function(resource1, resource2) {
 
 })
@@ -1317,7 +1317,7 @@ function fetchContent(retries) {
     if (!retries) retries = 0;
     var jqXHR = $.get("http://www.slowpage.com");
     //Cast the jQuery promise into a bluebird promise
-    return Promise.cast(jqXHR)
+    return Promise.resolve(jqXHR)
         .cancellable()
         .timeout(50)
         .catch(Promise.TimeoutError, function() {
@@ -1688,7 +1688,7 @@ Release control of the `Promise` namespace to whatever it was before this librar
 var Bluebird = Promise.noConflict();
 
 //Cast a promise from some other Promise library using the Promise namespace to Bluebird:
-var promise = Bluebird.cast(new Promise());
+var promise = Bluebird.resolve(new Promise());
 </script>
 ```
 
