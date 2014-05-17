@@ -171,6 +171,11 @@ Promise.all = function Promise$All(promises) {
 
 Promise.join = function Promise$Join() {
     INLINE_SLICE(args, arguments);
+    var len = arguments.length;
+    if (len > 1 && typeof arguments[len-1] === "function") {
+        var fn = args.pop();
+        return new PromiseArray(args).promise().spread(fn);
+    }
     return new PromiseArray(args).promise();
 };
 

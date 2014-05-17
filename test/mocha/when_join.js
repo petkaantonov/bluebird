@@ -133,4 +133,13 @@ describe("when.join-test", function () {
         );
     });
 
+    specify("should call last argument as a spread function", function(done) {
+        when.join(resolved(1), resolved(2), resolved(3), function(a, b, c) {
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+            done();
+        });
+    });
+
 });
