@@ -1073,4 +1073,5 @@ Promise.RejectionError = RejectionError;
 
 util.toFastProperties(Promise);
 util.toFastProperties(Promise.prototype);
+Promise.Promise = Promise;
 };
