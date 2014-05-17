@@ -709,7 +709,7 @@ You should check if this promise is `.isRejected()` before calling `.reason()` -
 Methods of `Promise` instances and core static methods of the Promise class to deal with collections of promises or mixed promises and values.
 
 All collection methods have a static equivalent on the Promise object, e.g. `somePromise.map(...)...` is same as `Promise.map(somePromise, ...)...`,
-`somePromise.all()` is same as `Promise.all(somePromise)` and so on.
+`somePromise.all()` is same as `Promise.all(somePromise)` and so on. `Promise.join` is the only static method that has no non-static equivalent.
 
 None of the collection methods modify the original input. Holes in arrays are treated as if they were defined with the value `undefined`.
 
@@ -731,6 +731,16 @@ Promise.all([getPictures(), getComments(), getTweets()]).then(function(results){
 ```
 
 See [`.spread()`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
+
+<hr>
+
+#####`Promise.join(Promise p1, Promise p2 ..., [Function f])` -> `Promise`
+
+When no function argument is provided, its the equivalent of `Promise.all([p1, p2 ...])`
+
+When a function argument is provided, it will call that function with the
+resolved values of the promises as its arguments, equivalent to
+`Promise.all([p1, p2 ...]).spread(f)`
 
 <hr>
 

@@ -133,4 +133,22 @@ describe("when.join-test", function () {
         );
     });
 
+    specify("should apply a function passed as last argument", function(done) {
+        when.join(resolved(1), resolved(2), function(v1, v2) {
+            return v1 + v2;
+        }).then(function(result) {
+            assert.equal(result, 3);
+            done();
+        }, fail);
+    });
+
+    specify("should run a function if passed as only argument", function(done) {
+        when.join(function() {
+            return "result"
+        }).then(function(result) {
+            assert.equal(result, "result");
+            done();
+        }, fail);
+    });
+
 });

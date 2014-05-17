@@ -170,8 +170,15 @@ Promise.all = function Promise$All(promises) {
 };
 
 Promise.join = function Promise$Join() {
-    INLINE_SLICE(args, arguments);
-    return new PromiseArray(args).promise();
+    var last = arguments.length - 1;
+    if (last >= 0 && typeof(arguments[last]) === "function") {
+        INLINE_SLICE(args, arguments, 0, last);
+        return new PromiseArray(args).promise().spread(arguments[last]);
+    }
+    else {
+        INLINE_SLICE(args, arguments);
+        return new PromiseArray(args).promise();
+    }
 };
 
 Promise.prototype.error = function Promise$_error(fn) {
