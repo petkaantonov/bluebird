@@ -23,7 +23,8 @@ describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e.
             fulfilled(dummy).then(function onFulfilled() {
                 "use strict";
 
-                assert.strictEqual(this, undefinedThisStrict);
+                assert(this === undefinedThisStrict ||
+                       this === undefinedThisSloppy);
                 done();
             });
         });
@@ -32,7 +33,8 @@ describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e.
             rejected(dummy).then(null, function onRejected() {
                 "use strict";
 
-                assert.strictEqual(this, undefinedThisStrict);
+                assert(this === undefinedThisStrict ||
+                       this === undefinedThisSloppy);
                 done();
             });
         });
