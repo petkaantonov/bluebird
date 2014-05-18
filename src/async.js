@@ -8,6 +8,7 @@ var _process = typeof process !== "undefined" ? process : void 0;
 
 function Async() {
     this._isTickUsed = false;
+    this._schedule = schedule;
     this._length = 0;
     this._lateBuffer = new Queue(LATE_BUFFER_CAPACITY);
     this._functionBuffer = new Queue(FUNCTION_BUFFER_CAPACITY);
@@ -86,7 +87,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
-        schedule(this.consumeFunctionBuffer);
+        this._schedule(this.consumeFunctionBuffer);
         this._isTickUsed = true;
     }
 };

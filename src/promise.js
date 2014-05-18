@@ -1056,6 +1056,11 @@ Promise.noConflict = function Promise$NoConflict() {
     return noConflict(Promise);
 };
 
+Promise.setScheduler = function(fn) {
+    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    async._schedule = fn;
+};
+
 if (!CapturedTrace.isSupported()) {
     Promise.longStackTraces = function(){};
     debugging = false;
