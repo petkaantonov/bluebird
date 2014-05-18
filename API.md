@@ -521,8 +521,7 @@ The above does `console.log(document.getElementById("my-element"));`. The `.bind
 
 #####`Promise.join(Promise|Thenable|value promises..., Function handler)` -> `Promise`
 
-For coordinating multiple concurrent discrete promises. [`.all()`](#) is good for handling a dynamically sized list of uniform promises. Use `Promise.join` when you have
-a fixed amount of discrete promises that you want to coordinate concurrently, for example:
+For coordinating multiple concurrent discrete promises. While [`.all()`](#all---promise) is good for handling a dynamically sized list of uniform promises, `Promise.join` is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently, for example:
 
 ```js
 Promise.join(getPictures(), getComments(), getTweets(),
