@@ -731,7 +731,6 @@ None of the collection methods modify the original input. Holes in arrays are tr
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are fulfilled. The promise's fulfillment value is an array with fulfillment values at respective positions to the original array. If any promise in the array rejects, the returned promise is rejected with the rejection reason.
 
 ```js
-
 var files = [];
 for (var i = 0; i < 100; ++i) {
     files.push(fs.writeFileAsync("file-" + ".txt", "", "utf-8"));
@@ -739,6 +738,7 @@ for (var i = 0; i < 100; ++i) {
 Promise.all(files).then(function() {
     console.log("all the files were created");
 });
+```
 
 <hr>
 
