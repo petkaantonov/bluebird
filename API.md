@@ -9,6 +9,7 @@
     - [`.error( [rejectedHandler] )`](#error-rejectedhandler----promise)
     - [`.finally(Function handler)`](#finallyfunction-handler---promise)
     - [`.bind(dynamic thisArg)`](#binddynamic-thisarg---promise)
+    - [`Promise.join(Promise|Thenable|value promises..., Function handler)`](#promisejoinpromisethenablevalue-promises-function-handler---promise)
     - [`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise)
     - [`Promise.method(Function fn)`](#promisemethodfunction-fn---function)
     - [`Promise.resolve(dynamic value)`](#promiseresolvedynamic-value---promise)
@@ -71,7 +72,6 @@
     - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.callback`](#callback---function)
-
 
 ##Core
 
@@ -140,22 +140,20 @@ promptAsync("Which url to visit?").then(function(url) {
 Like calling `.then`, but the fulfillment value or rejection reason is assumed to be an array, which is flattened to the formal parameters of the handlers.
 
 ```js
-Promise.all([task1, task2, task3]).spread(function(result1, result2, result3){
-
+Promise.delay(500).then(function() {
+   return [fs.readFileAsync("file1.txt"),
+           fs.readFileAsync("file2.txt")] ;
+}).spread(function(file1text, file2text) {
+    if (file1.text !== file2text) {
+        console.log("files are equal");
+    }
+    else {
+        console.log("files are not equal");
+    }
 });
 ```
 
-Normally when using `.then` the code would be like:
-
-```js
-Promise.all([task1, task2, task3]).then(function(results){
-    var result1 = results[0];
-    var result2 = results[1];
-    var result3 = results[2];
-});
-```
-
-This is useful when the `results` array contains items that are not conceptually items of the same list.
+If you want to coordinate several discrete concurrent promises, use [`Promise.join()`](#promisejoinpromisethenablevalue-promises-function-handler---promise)
 
 <hr>
 
@@ -521,6 +519,22 @@ The above does `console.log(document.getElementById("my-element"));`. The `.bind
 
 <hr>
 
+#####`Promise.join(Promise|Thenable|value promises..., Function handler)` -> `Promise`
+
+For coordinating multiple concurrent discrete promises. [`.all()`](#) is good for handling a dynamically sized list of uniform promises. Use `Promise.join` when you have
+a fixed amount of discrete promises that you want to coordinate concurrently, for example:
+
+```js
+Promise.join(getPictures(), getComments(), getTweets(),
+    function(pictures, comments, tweets) {
+    console.log("in total: " + pictures.length + comments.length + tweets.length);
+});
+```
+
+*Note: In 1.x and 0.x `Promise.join` used to be a `Promise.all` that took the values in as arguments instead in an array. This behavior has been deprecated but is still supported partially - when the last argument is an immediate function value the new semantics will apply*
+
+<hr>
+
 #####`Promise.try(Function fn [, Array<dynamic>|dynamic arguments] [, dynamic ctx] )` -> `Promise`
 
 Start the chain of promises with `Promise.try`. Any synchronous exceptions will be turned into rejections on the returned promise.
@@ -717,20 +731,15 @@ None of the collection methods modify the original input. Holes in arrays are tr
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are fulfilled. The promise's fulfillment value is an array with fulfillment values at respective positions to the original array. If any promise in the array rejects, the returned promise is rejected with the rejection reason.
 
-In this example we create a promise that is fulfilled only when the pictures, comments and tweets are all loaded.
-
 ```js
-Promise.all([getPictures(), getComments(), getTweets()]).then(function(results){
-    //Everything loaded and good to go
-    var pictures = results[0];
-    var comments = results[1];
-    var tweets = results[2];
-}).catch(function(e){
-    alertAsync("error when getting your stuff");
-});
-```
 
-See [`.spread()`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) for a more convenient way to extract the fulfillment values.
+var files = [];
+for (var i = 0; i < 100; ++i) {
+    files.push(fs.writeFileAsync("file-" + ".txt", "", "utf-8"));
+}
+Promise.all(files).then(function() {
+    console.log("all the files were created");
+});
 
 <hr>
 
@@ -750,11 +759,11 @@ Promise.props({
 });
 ```
 
-Note that if you have no use for the result object other than retrieving the properties, it is more convenient to use [`Promise.all`](#promiseallarraydynamic-values---promise) and [`.spread()`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise):
+Note that if you have no use for the result object other than retrieving the properties, it is more convenient to use [`Promise.join()`](#promisejoinpromisethenablevalue-promises-function-handler---promise):
 
 ```js
-Promise.all([getPictures(), getComments(), getTweets()])
-.spread(function(pictures, comments, tweets) {
+Promise.join(getPictures(), getComments(), getTweets(),
+    function(pictures, comments, tweets) {
     console.log(pictures, comments, tweets);
 });
 ```
