@@ -812,8 +812,6 @@ catch(Promise.TimeoutError, function (e) {
 
 #####`.some(int count)` -> `Promise`
 
-Same as calling [Promise.some\(thisPromise, count\)](#promisesomearraydynamicpromise-values-int-count---promise). With the exception that if this promise is [bound](#binddynamic-thisarg---promise) to a value, the returned promise is bound to that value too.
-
 Initiate a competetive race between multiple promises or values (values will become immediately fulfilled promises). When `count` amount of promises have been fulfilled, the returned promise is fulfilled with an array that contains the fulfillment values of the winners in order of resolution.
 
 This example pings 4 nameservers, and logs the fastest 2 on console:
@@ -829,7 +827,23 @@ Promise.some([
 });
 ```
 
-If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an array of rejection reasons in the order they were thrown in.
+If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an `AggregateError` of the rejection reasons in the order they were thrown in.
+
+You can get a reference to `AggregateError` from `Promise.AggregateError`. `AggregateError`s are also caught in an `.error()` handler, even if the contained errors are not operational.
+
+`AggregateError` is an array-like object, with numeric indices and a `.length` property. It supports all generic array methods such as `.forEach` directly.
+
+```js
+//For clarity assumes bluebird error types have been globalized
+Promise.some(...)
+    .then(...)
+    .then(...)
+    .catch(AggregateError, function(err) {
+        err.forEach(function(e) {
+            console.error(e.stack);
+        });
+    });
+```
 
 <hr>
 
