@@ -41,6 +41,7 @@ function subError(nameProperty, defaultMessage) {
 var _TypeError, _RangeError;
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
+var AggregateError = subError("AggregateError", "aggregate error");
 try {
     _TypeError = TypeError;
     _RangeError = RangeError;
@@ -49,6 +50,36 @@ catch(e) {
     _TypeError = subError("TypeError", "type error");
     _RangeError = subError("RangeError", "range error");
 }
+
+var methods = ("join pop push shift unshift slice filter forEach some " +
+    "every map indexOf lastIndexOf reduce reduceRight sort reverse").split(" ");
+
+for (var i = 0; i < methods.length; ++i) {
+    if (typeof Array.prototype[methods[i]] === "function") {
+        AggregateError.prototype[methods[i]] = Array.prototype[methods[i]];
+    }
+}
+
+AggregateError.prototype.length = 0;
+AggregateError.prototype.isAsync = true;
+var level = 0;
+AggregateError.prototype.toString = function() {
+    var indent = Array(level * 4 + 1).join(" ");
+    var ret = "\n" + indent + "AggregateError of:" + "\n";
+    level++;
+    indent = Array(level * 4 + 1).join(" ");
+    for (var i = 0; i < this.length; ++i) {
+        var str = this[i] + "";
+        var lines = str.split("\n");
+        for (var j = 0; j < lines.length; ++j) {
+            lines[j] = indent + lines[j];
+        }
+        str = lines.join("\n");
+        ret += str + "\n";
+    }
+    level--;
+    return ret;
+};
 
 function RejectionError(message) {
     this.name = "RejectionError";
@@ -74,7 +105,8 @@ if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
         TimeoutError: TimeoutError,
-        RejectionError: RejectionError
+        RejectionError: RejectionError,
+        AggregateError: AggregateError
     });
     notEnumerableProp(Error, key, errorTypes);
 }
@@ -86,6 +118,7 @@ module.exports = {
     CancellationError: errorTypes.CancellationError,
     RejectionError: errorTypes.RejectionError,
     TimeoutError: errorTypes.TimeoutError,
+    AggregateError: errorTypes.AggregateError,
     originatesFromRejection: originatesFromRejection,
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     canAttach: canAttach
