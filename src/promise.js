@@ -169,16 +169,6 @@ Promise.all = function Promise$All(promises) {
     return new PromiseArray(promises).promise();
 };
 
-Promise.join = function Promise$Join() {
-    INLINE_SLICE(args, arguments);
-    var len = arguments.length;
-    if (len > 1 && typeof arguments[len-1] === "function") {
-        var fn = args.pop();
-        return new PromiseArray(args).promise().spread(fn);
-    }
-    return new PromiseArray(args).promise();
-};
-
 Promise.prototype.error = function Promise$_error(fn) {
     return this.caught(originatesFromRejection, fn);
 };
@@ -1070,6 +1060,7 @@ Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER, cast);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
+require("./join.js")(Promise, PromiseArray, cast, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
