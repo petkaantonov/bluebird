@@ -281,6 +281,7 @@ module.exports = function( grunt ) {
                     "./src/cancel.js",
                     "./src/any.js",
                     "./src/race.js",
+                    "./src/join.js",
                     "./src/call_get.js",
                     "./src/filter.js",
                     "./src/generators.js",
@@ -547,7 +548,8 @@ module.exports = function( grunt ) {
         "./src/promise_array.js",
         "./src/synchronous_inspection.js",
         "./src/promise_resolver.js",
-        "./src/direct_resolve.js"
+        "./src/direct_resolve.js",
+        "./src/join.js"
     ];
 
 
