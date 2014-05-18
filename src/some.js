@@ -4,7 +4,9 @@ function(Promise, PromiseArray, apiRejection) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var RangeError = require("./errors.js").RangeError;
+var AggregateError = require("./errors.js").AggregateError;
 var isArray = util.isArray;
+
 
 function SomePromiseArray(values) {
     this.constructor$(values);
@@ -74,12 +76,11 @@ function SomePromiseArray$_promiseRejected(reason) {
     if (this._isResolved()) return;
     this._addRejected(reason);
     if (this.howMany() > this._canPossiblyFulfill()) {
-        if (this._values.length === this.length()) {
-            this._reject([]);
+        var e = new AggregateError();
+        for (var i = this.length(); i < this._values.length; ++i) {
+            e.push(this._values[i]);
         }
-        else {
-            this._reject(this._values.slice(this.length()));
-        }
+        this._reject(e);
     }
 };
 

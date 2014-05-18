@@ -177,6 +177,32 @@ describe("when.some-test", function () {
         )
     });
 
+    specify("should reject with aggregateError", function(done) {
+        var input = [resolved(1), rejected(2), rejected(3)];
+        var AggregateError = when.AggregateError;
+        when.some(input, 2)
+            .then(fail)
+            .caught(AggregateError, function(e) {
+                assert(e[0] === 2);
+                assert(e[1] === 3);
+                assert(e.length === 2);
+                done();
+            });
+    });
+
+    specify("aggregate error should be caught in .error", function(done) {
+        var input = [resolved(1), rejected(2), rejected(3)];
+        var AggregateError = when.AggregateError;
+        when.some(input, 2)
+            .then(fail)
+            .error(function(e) {
+                assert(e[0] === 2);
+                assert(e[1] === 3);
+                assert(e.length === 2);
+                done();
+            });
+    });
+
     specify("should accept a promise for an array", function(done) {
         var expected, input;
 

@@ -1075,6 +1075,7 @@ Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
 Promise.RejectionError = RejectionError;
+Promise.AggregateError = errors.AggregateError;
 
 util.toFastProperties(Promise);
 util.toFastProperties(Promise.prototype);
