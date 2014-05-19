@@ -12,7 +12,7 @@ module.exports = bluebird.coroutine(function* upload(stream, idOrPath, tag, done
     }
 
     try {
-        yield queries;
+        yield bluebird.all(queries);
         tx.commit();
         done();
     }
