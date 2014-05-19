@@ -1805,8 +1805,6 @@ On client side, long stack traces currently only work in Firefox and Chrome.
 
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ])` -> `void`
 
-Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
-
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error. Note that generally Bluebird is smart enough to figure out unhandled rejections on its own so `.done` is rarely required. As explained in the error management section, using `.done` is more of a coding style choice with Bluebird, and is used to explicitly mark the end of a promise chain. 
 <hr>
 
