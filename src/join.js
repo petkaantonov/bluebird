@@ -2,91 +2,67 @@
 module.exports =
 function(Promise, PromiseArray, cast, INTERNAL) {
 var util = require("./util.js");
+var canEvaluate = util.canEvaluate;
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
-function checkFulfillment(promise, holder) {
-    var now = holder.now;
-    now++;
-    var total = holder.total;
-    if (now >= total) {
-        var handler = callers[total];
-        var ret = tryCatch1(handler, void 0, holder);
-        if (ret === errorObj) {
-            ret._rejectUnchecked(ret.e);
-        }
-        else if (!promise._tryFollow(ret)) {
-            promise._fulfillUnchecked(ret);
-        }
+
+if (canEvaluate) {
+    var thenCallback = function(i) {
+        return new Function("value", "holder", "holder.p" + i + " = value;\n\
+            holder.checkFulfillment(this);");
+    };
+
+    var caller = function(count) {
+        var values = [];
+        for (var i = 1; i <= count; ++i) values.push("holder.p" + i);
+        return new Function("holder", "var callback = holder.fn;\n\
+            return callback("+values.join(", ")+");");
+    };
+    var thenCallbacks = [];
+    var callers = [void 0];
+    for (var i = 1; i <= 5; ++i) {
+        thenCallbacks.push(thenCallback(i));
+        callers.push(caller(i));
     }
-    else {
-        holder.now = now;
-    }
+
+    var Holder = function(total, fn) {
+        this.p1 = this.p2 = this.p3 = this.p4 = this.p5 = null;
+        this.fn = fn;
+        this.total = total;
+        this.now = 0;
+    };
+
+    Holder.prototype.callers = callers;
+    Holder.prototype.checkFulfillment = function(promise) {
+        var now = this.now;
+        now++;
+        var total = this.total;
+        if (now >= total) {
+            var handler = this.callers[total];
+            var ret = tryCatch1(handler, void 0, this);
+            if (ret === errorObj) {
+                ret._rejectUnchecked(ret.e);
+            }
+            else if (!promise._tryFollow(ret)) {
+                promise._fulfillUnchecked(ret);
+            }
+        }
+        else {
+            this.now = now;
+        }
+    };
 }
 
-var thenCallbacks = [
-    function(value, holder) {
-        holder.p1 = value;
-        checkFulfillment(this, holder);
-    },
-    function(value, holder) {
-        holder.p2 = value;
-        checkFulfillment(this, holder);
-    },
-    function(value, holder) {
-        holder.p3 = value;
-        checkFulfillment(this, holder);
-    },
-    function(value, holder) {
-        holder.p4 = value;
-        checkFulfillment(this, holder);
-    },
-    function(value, holder) {
-        holder.p5 = value;
-        checkFulfillment(this, holder);
-    }
-];
 
-var callers = [
-    function(holder) {
-        var callback = holder.fn;
-        return callback();
-    },
-    function(holder) {
-        var callback = holder.fn;
-        return callback(holder.p1);
-    },
-    function(holder) {
-        var callback = holder.fn;
-        return callback(holder.p1, holder.p2);
-    },
-    function(holder) {
-        var callback = holder.fn;
-        return callback(holder.p1, holder.p2, holder.p3);
-    },
-    function(holder) {
-        var callback = holder.fn;
-        return callback(holder.p1, holder.p2, holder.p3, holder.p4);
-    },
-    function(holder) {
-        var callback = holder.fn;
-        return callback(holder.p1, holder.p2, holder.p3, holder.p4, holder.p5);
-    }
-];
 
-function Holder(total, fn) {
-    this.p1 = this.p2 = this.p3 = this.p4 = this.p5 = null;
-    this.fn = fn;
-    this.total = total;
-    this.now = 0;
-}
 
 Promise.join = function Promise$Join() {
     var last = arguments.length - 1;
     var fn;
     if (last > 0 && typeof arguments[last] === "function") {
         fn = arguments[last];
-        if (last < 6) {
+        if (last < 6 && canEvaluate) {
             var ret = new Promise(INTERNAL);
             ret._setTrace(void 0);
             var holder = new Holder(last, fn);
