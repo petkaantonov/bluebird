@@ -258,3 +258,16 @@ describe("issues", function(){
         }, 50);
     });
 });
+
+describe("simple", function() {
+    specify("should reject with custom error", function(done) {
+        var a = new Promise(function(){}).cancellable();
+        var err = new Error();
+        a.cancel(err);
+        a.caught(function(e) {
+            assert(e === err);
+            done();
+        });
+
+    });
+});
