@@ -610,7 +610,7 @@ Create a promise that is resolved with the given value. If `value` is already a 
 Example: (`$` is jQuery)
 
 ```js
-Promise.cast($.get("http://www.google.com")).then(function(){
+Promise.resolve($.get("http://www.google.com")).then(function(){
     //Returning a thenable from a handler is automatically
     //cast to a trusted Promise as per Promises/A+ specification
     return $.post("http://www.yahoo.com");
@@ -1033,8 +1033,8 @@ is being broken a lot.
 So this can be a problem with `using()`:
 
 ```js
-using(Promise.cast(externalPromiseApi.getResource1()).disposer("close"),
-    Promise.cast(externalPromiseApi.getResource2()).disposer("close"),
+using(Promise.resolve(externalPromiseApi.getResource1()).disposer("close"),
+    Promise.resolve(externalPromiseApi.getResource2()).disposer("close"),
     function(resource1, resource2) {
 
 })
@@ -1043,8 +1043,8 @@ using(Promise.cast(externalPromiseApi.getResource1()).disposer("close"),
 The issue here is that if the *call* to `.getResource2()` throws synchronously, then resource1 will leak because the code is executed like this:
 
 ```js
-var a = Promise.cast(externalPromiseApi.getResource1()).disposer("close");
-var b = Promise.cast(externalPromiseApi.getResource2()).disposer("close");
+var a = Promise.resolve(externalPromiseApi.getResource1()).disposer("close");
+var b = Promise.resolve(externalPromiseApi.getResource2()).disposer("close");
 using(a, b, function(resource1, resource2) {
 
 })
@@ -1317,7 +1317,7 @@ function fetchContent(retries) {
     if (!retries) retries = 0;
     var jqXHR = $.get("http://www.slowpage.com");
     //Cast the jQuery promise into a bluebird promise
-    return Promise.cast(jqXHR)
+    return Promise.resolve(jqXHR)
         .cancellable()
         .timeout(50)
         .catch(Promise.TimeoutError, function() {
@@ -1688,7 +1688,7 @@ Release control of the `Promise` namespace to whatever it was before this librar
 var Bluebird = Promise.noConflict();
 
 //Cast a promise from some other Promise library using the Promise namespace to Bluebird:
-var promise = Bluebird.cast(new Promise());
+var promise = Bluebird.resolve(new Promise());
 </script>
 ```
 
@@ -1805,11 +1805,32 @@ On client side, long stack traces currently only work in Firefox and Chrome.
 
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ])` -> `void`
 
-Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error.
-
+Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error. Note that generally Bluebird is smart enough to figure out unhandled rejections on its own so `.done` is rarely required. As explained in the error management section, using `.done` is more of a coding style choice with Bluebird, and is used to explicitly mark the end of a promise chain. 
 <hr>
 
 ##Progression
+
+**Warning:** There are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#. For example:
+
+```js
+function returnsPromiseWithProgress(progressHandler){
+    return doFirstAction().tap(function(){
+        progressHandler(0.33);
+    }).then(doSecondAction).tap(function(){
+        progressHandler(0.66);
+    }).then(doThirdAction).tap(function(){
+        progressHandler(1.00);
+    });
+}
+
+var p = returnsPromiseWithProgress(function(progress){
+    ui.progressbar.setWidth((progress * 200) + "px"); // update with on client side
+    //updateRequestProgressState(someParam, progress); // example server side update
+});
+p.then(function(value){ // action complete
+   // entire chain is complete.
+});
+```
 
 #####`.progressed(Function handler)` -> `Promise`
 
