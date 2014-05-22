@@ -81,7 +81,6 @@ module.exports = function( grunt ) {
     };
 
     var optionalModuleRequireMap = {
-        "timers.js": true,
         "race.js": true,
         "call_get.js": true,
         "generators.js": true,
@@ -97,7 +96,8 @@ module.exports = function( grunt ) {
         "using.js": true,
         "filter.js": ["map.js"],
         "any.js": ["some.js"],
-        "each.js": ["reduce.js"]
+        "each.js": ["reduce.js"],
+        "timers.js": ["cancel.js"]
     };
 
     function getOptionalRequireCode( srcs ) {

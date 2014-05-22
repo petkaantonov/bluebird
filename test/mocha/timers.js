@@ -83,6 +83,20 @@ describe("timeout", function () {
             done();
         });
     });
+
+    it("should propagate the timeout error to cancellable parents", function(done) {
+        function doExpensiveOp() {
+            return new Promise(function() {
+
+            })
+            .cancellable()
+            .caught(Promise.TimeoutError, function(e) {
+                done();
+            })
+        }
+
+        doExpensiveOp().timeout(100);
+    });
 });
 
 describe("delay", function () {

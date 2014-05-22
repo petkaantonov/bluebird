@@ -26,7 +26,7 @@ var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
     var err = new TimeoutError(message);
     errors.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
-    promise._rejectUnchecked(err);
+    promise._cancel(err);
 };
 
 var afterDelay = function Promise$_afterDelay(value, promise) {
@@ -67,7 +67,7 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
     ret._propagateFrom(this, PROPAGATE_ALL);
     ret._follow(this);
     _setTimeout(afterTimeout, ms, ret, message, ms);
-    return ret;
+    return ret.cancellable();
 };
 
 };
