@@ -1823,12 +1823,37 @@ function returnsPromiseWithProgress(progressHandler){
     });
 }
 
-var p = returnsPromiseWithProgress(function(progress){
+returnsPromiseWithProgress(function(progress) {
     ui.progressbar.setWidth((progress * 200) + "px"); // update with on client side
-    //updateRequestProgressState(someParam, progress); // example server side update
-});
-p.then(function(value){ // action complete
+}).then(function(value) { // action complete
    // entire chain is complete.
+}).catch(function(e) {
+    // error
+});
+```
+
+Another example using `coroutine`:
+
+```js
+var doNothing = function(){};
+var progressSupportingCoroutine = Promise.coroutine(function* (progress) {
+        progress = typeof progress === "function" ? progress : doNothing;
+        var first = yield getFirstValue();
+        // 33% done
+        progress(0.33);
+        var second = yield getSecondValue();
+        progress(0.67);
+        var third = yield getThirdValue();
+        progress(1);
+        return [first, second, third];
+});
+
+var progressConsumingCoroutine = Promise.coroutine(function* () {
+    var allValues = yield progressSupportingCoroutine(function(p) {
+         ui.progressbar.setWidth((p * 200) + "px");
+    });
+    var second = allValues[1];
+    // ...
 });
 ```
 
