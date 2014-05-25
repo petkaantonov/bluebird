@@ -1933,7 +1933,38 @@ Like `.then()`, but any unhandled rejection that ends up here will be thrown as 
 
 ##Progression migration
 
-Progression is deprecated as there are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries for now. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#. For example:
+Progression is deprecated as there are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries for now. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#.
+
+Using jQuery before:
+
+```js
+Promise.resolve($.get(...))
+    .progressed(function() {
+        // ...
+    })
+    .then(function() {
+        // ...
+    })
+    .catch(function(e) {
+        // ...
+    })
+```
+
+Using jQuery after:
+
+```js
+Promise.resolve($.get(...).progress(function(){
+        // ...
+    }))
+    .then(function() {
+        // ...
+    })
+    .catch(function(e) {
+        // ...
+    })
+```
+
+Implementing general progress interfaces like in C#:
 
 ```js
 function returnsPromiseWithProgress(progressHandler){
