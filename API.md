@@ -790,35 +790,7 @@ Like `.some()`, with 1 as `count`. However, if the promise fulfills, the fulfill
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled or rejected as soon as a promise in the array is fulfilled or rejected with the respective rejection reason or fulfillment value.
 
-Example of implementing a timeout in terms of `Promise.race`:
-
-```js
-var Promise = require("bluebird");
-var fs = Promise.promisifyAll(require("fs"));
-
-function delay(ms) {
-    return new Promise(function (v) {
-        setTimeout(v, ms);
-    });
-}
-
-function timeout(promise, time) {
-    var timeout = delay(time).then(function () {
-        throw new Promise.TimeoutError("Operation timed out after " + time + " ms");
-    });
-
-    return Promise.race([promise, timeout]);
-}
-
-timeout(fs.readFileAsync("slowfile.txt"), 300).then(function (contents) {
-    console.log("Here are the contents", contents);
-}).
-catch(Promise.TimeoutError, function (e) {
-    console.error("Sorry retrieving file took too long");
-});
-```
-
-**Note** If you pass empty array or a sparse array with no values, or a promise/thenable for such, it will be forever pending.
+You most likely want to use the [`.any()`](#any---promise) method.
 
 <hr>
 
