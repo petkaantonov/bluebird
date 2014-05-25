@@ -57,8 +57,6 @@
     - [`.get(String propertyName)`](#getstring-propertyname---promise)
     - [`.return(dynamic value)`](#returndynamic-value---promise)
     - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
-    - [`.toString()`](#tostring---string)
-    - [`.toJSON()`](#tojson---object)
     - [`Promise.noConflict()`](#promisenoconflict---object)
 - [Built-in error types](#built-in-error-types)
     - [`RejectionError()`](#rejectionerror)
@@ -1662,16 +1660,6 @@ Convenience method for:
 Same limitations apply as with `.return()`.
 
 *For compatibility with earlier ECMAScript version, an alias `.thenThrow()` is provided for `.throw()`.*
-
-<hr>
-
-#####`.toString()` -> `String`
-
-<hr>
-
-#####`.toJSON()` -> `Object`
-
-This is implicitly called by `JSON.stringify` when serializing the object. Returns a serialized representation of the `Promise`.
 
 <hr>
 
