@@ -1309,35 +1309,41 @@ Same as calling [`Promise.delay(this, ms)`](#promisedelaydynamic-value-int-ms---
 
 #####`.timeout(int ms [, String message])` -> `Promise`
 
-Returns a promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is rejected with a `Promise.TimeoutError` instance.
+Returns a [`cancellable`](#cancellable---promise) promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is cancelled with a [`TimeoutError`](#timeouterror) as the cancellation reason.
 
 You may specify a custom error message with the `message` parameter.
 
-The example function `fetchContent` tries to fetch the contents of a web page with a 50ms timeout and sleeping 100ms between each retry. If there is no response after 5 retries, then the returned promise is rejected with a `ServerError` (made up error type). Additionally the whole process can be cancelled from outside at any point.
+The example function `fetchContent` doesn't leave the ongoing http request in the background in case the request cancelled from outside, either manually or through a timeout.
 
 ```js
-function fetchContent(retries) {
-    if (!retries) retries = 0;
+// Assumes TimeoutError and CancellationError are both globally available
+function fetchContent() {
     var jqXHR = $.get("http://www.slowpage.com");
-    //Cast the jQuery promise into a bluebird promise
+    // Resolve the jQuery promise into a bluebird promise
     return Promise.resolve(jqXHR)
         .cancellable()
-        .timeout(50)
-        .catch(Promise.TimeoutError, function() {
+        .catch(TimeoutError, CancellationError, function() {
+            jqXHR.abort();
+            // Don't swallow it
+            throw e;
+        })
+}
+
+function fetchContentWith5Retries(retries) {
+    retries = retries || 0;
+    return fetchContent()
+        .then(function(result) {
+            //..
+        })
+        .timeout(100)
+        .catch(TimeoutError, function(e) {
             if (retries < 5) {
-                return Promise.delay(100).then(function(){
-                    return fetchContent(retries+1);
-                });
+                return fetchContentWith5Retries(retries + 1);
             }
             else {
-                throw new ServerError("not responding after 5 retries");
+                throw new Error("couldn't fetch content after 5 timeouts");
             }
         })
-        .catch(Promise.CancellationError, function(er) {
-            jqXHR.abort();
-            throw er; //Don't swallow it
-        });
-}
 ```
 
 <hr>
