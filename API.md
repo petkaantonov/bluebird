@@ -46,7 +46,7 @@
 - [Cancellation](#cancellation)
     - [`.cancellable()`](#cancellable---promise)
     - [`.uncancellable()`](#uncancellable---promise)
-    - [`.cancel()`](#cancel---promise)
+    - [`.cancel([Error reason])`](#cancelerror-reason---promise)
     - [`.isCancellable()`](#iscancellable---boolean)
 - [Generators](#generators)
     - [`Promise.coroutine(GeneratorFunction generatorFunction)`](#promisecoroutinegeneratorfunction-generatorfunction---function)
@@ -1357,7 +1357,7 @@ Promise.delay(500).then(function(){
 
 ##Cancellation
 
-By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with [`CancellationError`](#cancellationerror). The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
+By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with the given reason, or [`CancellationError`](#cancellationerror) by default. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
 
 Promises marked with `.cancellable()` return cancellable promises automatically.
 
@@ -1382,7 +1382,7 @@ function ajaxGetAsync(url) {
 
 #####`.cancellable()` -> `Promise`
 
-Marks this promise as cancellable. Promises by default are not cancellable after v0.11 and must be marked as such for [`.cancel()`](#cancel---promise) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
+Marks this promise as cancellable. Promises by default are not cancellable after v0.11 and must be marked as such for [`.cancel()`](#cancelerror-reason---promise) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
 
 If you have code written prior v0.11 using cancellation, add calls to `.cancellable()` at the starts of promise chains that need to support
 cancellation in themselves or somewhere in their descendants.
@@ -1395,16 +1395,12 @@ Create an uncancellable promise based on this promise.
 
 <hr>
 
-#####`.cancel()` -> `Promise`
+#####`.cancel([Error reason])` -> `Promise`
 
-Cancel this promise. The cancellation will propagate
+Cancel this promise with the given reason. The cancellation will propagate
 to farthest cancellable ancestor promise which is still pending.
 
-That ancestor will then be rejected with a `CancellationError` (get a reference from `Promise.CancellationError`)
-object as the rejection reason.
-
-In a promise rejection handler you may check for a cancellation
-by seeing if the reason object has `.name === "Cancel"`.
+That ancestor will then be rejected with the given `reason`, or a [`CancellationError`](#cancellationerror) if it is not given. (get a reference from `Promise.CancellationError`) object as the rejection reason.
 
 Promises are by default not cancellable. Use [`.cancellable()`](#cancellable---promise) to mark a promise as cancellable.
 
@@ -1709,7 +1705,7 @@ Signals that an operation has timed out. Used as a custom cancellation reason in
 
 #####`CancellationError()`
 
-Signals that an operation has been aborted or cancelled. The default reason used by [`.cancel()`](#cancel---promise).
+Signals that an operation has been aborted or cancelled. The default reason used by [`.cancel()`](#cancelerror-reason---promise).
 
 <hr>
 
