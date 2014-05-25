@@ -1589,6 +1589,27 @@ getUser().tap(function(user) {
 });
 ```
 
+Common case includes adding logging to an existing promise chain:
+
+```js
+doSomething()
+    .then(...)
+    .then(...)
+    .then(...)
+    .then(...)
+```
+
+```js
+doSomething()
+    .then(...)
+    .then(...)
+    .tap(console.log)
+    .then(...)
+    .then(...)
+```
+
+
+
 #####`.call(String propertyName [, dynamic arg...])` -> `Promise`
 
 This is a convenience method for doing:
@@ -1597,6 +1618,26 @@ This is a convenience method for doing:
 promise.then(function(obj){
     return obj[propertyName].call(obj, arg...);
 });
+```
+
+For example ([`.some()` is a built-in array method](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/some)):
+
+```js
+var fs = Promise.promisifyAll(require("fs"));
+var path = require("path");
+var thisPath = process.argv[2] || ".";
+var now = Date.now();
+
+fs.readdirAsync(thisPath)
+    .map(function(fileName) {
+        return fs.statAsync(path.join(thisPath, fileName));
+    })
+    .call("some", function(stat) {
+        return return (now - new Date(stat.mtime)) < 10000;
+    })
+    .then(function(someFilesHaveBeenModifiedLessThanTenSecondsAgo) {
+        console.log(someFilesHaveBeenModifiedLessThanTenSecondsAgo) ;
+    });
 ```
 
 <hr>
@@ -1608,6 +1649,40 @@ This is a convenience method for doing:
 ```js
 promise.then(function(obj){
     return obj[propertyName];
+});
+```
+
+For example:
+
+```js
+db.query("...")
+    .get(0)
+    .then(function(firstRow) {
+
+    });
+```
+
+When promisifying libraries (e.g. `request`) that call the callback with multiple arguments, the promisified version of that function will fulfill with an array of the arguments. `.get` can be a nifty short-hand to get the argument of interest.
+
+For example, if you are only interested in the `body` when using `request`, using the normal `.spread()` pattern isn't the most convenient one:
+
+```js
+var Promise = require("bluebird");
+var request = Promise.promisifyAll(require("request"));
+
+request.getAsync("http://www.google.com").spread(function(response, body) {
+    // ...
+});
+```
+
+With `get`:
+
+```js
+var Promise = require("bluebird");
+var request = Promise.promisifyAll(require("request"));
+
+request.getAsync("http://www.google.com").get(1).then(function(body) {
+    // ...
 });
 ```
 
@@ -1638,6 +1713,23 @@ function getData() {
 ```
 
 because `data` is `undefined` at the time `.return` is called.
+
+Function that returns the full path of the written file:
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+var baseDir = process.argv[2] || ".";
+
+function writeFile(path, contents) {
+    var fullpath = require("path").join(baseDir, path);
+    return fs.writeFileAsync(fullpath, contents).thenReturn(fullpath);
+}
+
+writeFile("test.txt", "this is text").then(function(fullPath) {
+    console.log("Successfully file at: " + fullPath);
+});
+```
 
 *For compatibility with earlier ECMAScript version, an alias `.thenReturn()` is provided for `.return()`.*
 
