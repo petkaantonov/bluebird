@@ -60,6 +60,11 @@
     - [`.toString()`](#tostring---string)
     - [`.toJSON()`](#tojson---object)
     - [`Promise.noConflict()`](#promisenoconflict---object)
+- [Built-in error types](#built-in-error-types)
+    - [`RejectionError()`](#rejectionerror)
+    - [`TimeoutError()`](#timeouterror)
+    - [`CancellationError()`](#cancellationerror)
+    - [`AggregateError()`](#aggregateerror)
 - [Error management configuration](#error-management-configuration)
     - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
     - [`Promise.onUnhandledRejectionHandled(Function handler)`](#promiseonunhandledrejectionhandledfunction-handler---undefined)
@@ -835,11 +840,9 @@ Promise.some([
 });
 ```
 
-If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an `AggregateError` of the rejection reasons in the order they were thrown in.
+If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an [`AggregateError`](#aggregateerror) of the rejection reasons in the order they were thrown in.
 
-You can get a reference to `AggregateError` from `Promise.AggregateError`. `AggregateError`s are also caught in an `.error()` handler, even if the contained errors are not operational.
-
-`AggregateError` is an array-like object, with numeric indices and a `.length` property. It supports all generic array methods such as `.forEach` directly.
+You can get a reference to `AggregateError` from `Promise.AggregateError`.
 
 ```js
 //For clarity assumes bluebird error types have been globalized
@@ -1357,11 +1360,11 @@ Promise.delay(500).then(function(){
 
 ##Cancellation
 
-By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with `CancellationError`. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
+By default, a promise is not cancellable. A promise can be marked as cancellable with `.cancellable()`. A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with [`CancellationError`](#cancellationerror). The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
 
 Promises marked with `.cancellable()` return cancellable promises automatically.
 
-If you are the resolver for a promise, you can react to a cancel in your promise by catching the `CancellationError`:
+If you are the resolver for a promise, you can react to a cancel in your promise by catching the [`CancellationError`](#cancellationerror):
 
 ```js
 function ajaxGetAsync(url) {
@@ -1690,6 +1693,56 @@ var Bluebird = Promise.noConflict();
 //Cast a promise from some other Promise library using the Promise namespace to Bluebird:
 var promise = Bluebird.resolve(new Promise());
 </script>
+```
+
+<hr>
+
+##Built-in error types
+
+Bluebird includes a few built-in error types for common case scenarios. All error types have the same identity across different copies of bluebird
+module so that pattern matching works in [`.catch`](#catchfunction-errorclassfunction-predicate-function-handler---promise). All error types have a constructor taking a message string as their first argument, with that message
+becoming the `.message` property of the error object.
+
+By default the error types need to be referenced from the Promise constructor, e.g. to get a reference to `TimeoutError`, do `var TimeoutError = Promise.TimeoutError`. However, for convenience you will probably want to just make the references global.
+
+#####`RejectionError()`
+
+Represents an error is an explicit promise rejection as opposed to a thrown error. For example, if an error is errbacked by a callback API promisified through [`promisify()`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function) or [`promisifyAll()`](#promisepromisifyallobject-target---object)
+and is not a typed error, it will be converted to a `RejectionError` which has the original error in the `.cause` property.
+
+`RejectionError`s are caught in [`.error()`](#error-rejectedhandler----promise) handlers.
+
+<hr>
+
+#####`TimeoutError()`
+
+Signals that an operation has timed out. Used as a custom cancellation reason in [`.timeout()`](#timeoutint-ms--string-message---promise).
+
+<hr>
+
+#####`CancellationError()`
+
+Signals that an operation has been aborted or cancelled. The default reason used by [`.cancel()`](#cancel---promise).
+
+<hr>
+
+#####`AggregateError()`
+
+A collection of errors. `AggregateError` is an array-like object, with numeric indices and a `.length` property. It supports all generic array methods such as `.forEach` directly.
+
+`AggregateError`s are caught in [`.error()`](#error-rejectedhandler----promise) handlers, even if the contained errors are not operational.
+
+[`.some()`](#someint-count---promise) and [`.any()`](#any---promise) use `AggregateError` as rejection reason when they fail.
+
+
+Example:
+
+```js
+//Assumes AggregateError has been made global
+var err = new AggregateError();
+err.push(new Error("first error"));
+err.push(new Error("second error"));
+throw err;
 ```
 
 <hr>
