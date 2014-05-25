@@ -553,7 +553,7 @@ Note about second argument: if it's specifically a true array, its values become
 
 #####`Promise.method(Function fn)` -> `Function`
 
-Returns a new function that wraps the given function `fn`. The new function will always return a promise that is fulfilled with the original functions return values or rejected with thrown exceptions from the original function.
+Returns a new function that wraps the given function `fn`. The new function will always return a promise that is fulfilled with the original function's return values or rejected with thrown exceptions from the original function.
 
 This method is convenient when a function can sometimes return synchronously or throw synchronously.
 
