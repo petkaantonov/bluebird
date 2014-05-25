@@ -68,13 +68,8 @@
     - [`Promise.onUnhandledRejectionHandled(Function handler)`](#promiseonunhandledrejectionhandledfunction-handler---undefined)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler----void)
-- [Progression](#progression)
-    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
-    - [`Promise.defer()`](#promisedefer---promiseresolver)
-    - [`.resolve(dynamic value)`](#resolvedynamic-value---undefined)
-    - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
-    - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
-    - [`.callback`](#callback---function)
+- [Progression migration](#progression-migration)
+- [Deferred migration](#deferred-migration)
 
 ##Core
 
@@ -1633,7 +1628,7 @@ fs.readdirAsync(thisPath)
         return fs.statAsync(path.join(thisPath, fileName));
     })
     .call("some", function(stat) {
-        return return (now - new Date(stat.mtime)) < 10000;
+        return (now - new Date(stat.mtime)) < 10000;
     })
     .then(function(someFilesHaveBeenModifiedLessThanTenSecondsAgo) {
         console.log(someFilesHaveBeenModifiedLessThanTenSecondsAgo) ;
@@ -1936,9 +1931,9 @@ On client side, long stack traces currently only work in Firefox and Chrome.
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error. Note that generally Bluebird is smart enough to figure out unhandled rejections on its own so `.done` is rarely required. As explained in the error management section, using `.done` is more of a coding style choice with Bluebird, and is used to explicitly mark the end of a promise chain. 
 <hr>
 
-##Progression
+##Progression migration
 
-**Warning:** There are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#. For example:
+Progression is deprecated as there are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries for now. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#. For example:
 
 ```js
 function returnsPromiseWithProgress(progressHandler){
@@ -1985,78 +1980,21 @@ var progressConsumingCoroutine = Promise.coroutine(function* () {
 });
 ```
 
-#####`.progressed(Function handler)` -> `Promise`
+##Deferred migration
 
-Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
-
-<hr>
-
-#####`Promise.defer()` -> `PromiseResolver`
-
-Create a promise with undecided fate and return a `PromiseResolver` to control it. This is necessary when using progression.
-
-A `PromiseResolver` can be used to control the fate of a promise. It is like "Deferred" known in jQuery. The `PromiseResolver` objects have a `.promise` property which returns a reference to the controlled promise that can be passed to clients. `.promise` of a `PromiseResolver` is not a getter function to match other implementations.
-
-The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
-
-`PromiseResolver` API:
-
-######`.resolve(dynamic value)` -> `undefined`
-
-Resolve the underlying promise with `value` as the resolution value. If `value` is a thenable or a promise, the underlying promise will assume its state.
-
-<hr>
-
-######`.reject(dynamic reason)` -> `undefined`
-
-Reject the underlying promise with `reason` as the rejection reason.
-
-<hr>
-
-######`.progress(dynamic value)` -> `undefined`
-
-Progress the underlying promise with `value` as the progression value.
-
-Example
+Deferreds are deprecated in favor of the promise constructor. If you need deferreds for some reason, you can create them trivially using the constructor:
 
 ```js
-function delay(ms) {
-    var resolver = Promise.defer();
-    var now = Date.now();
-    setTimeout(function(){
-        resolver.resolve(Date.now() - now);
-    }, ms);
-    return resolver.promise;
+function defer() {
+    var resolve, reject;
+    var promise = new Promise(function() {
+        resolve = arguments[0];
+        reject = arguments[1];
+    });
+    return {
+        resolve: resolve,
+        reject: reject,
+        promise: promise
+    };
 }
-
-delay(500).then(function(ms){
-    console.log(ms + " ms passed");
-});
 ```
-
-<hr>
-
-######`.callback` -> `Function`
-
-Gives you a callback representation of the `PromiseResolver`. Note that this is not a method but a property. The callback accepts error object in first argument and success values on the 2nd parameter and the rest, I.E. node js conventions.
-
-If the the callback is called with multiple success values, the resolver fullfills its promise with an array of the values.
-
-```js
-var fs = require("fs");
-function readAbc() {
-    var resolver = Promise.defer();
-    fs.readFile("abc.txt", resolver.callback);
-    return resolver.promise;
-}
-
-readAbc()
-.then(function(abcContents) {
-    console.log(abcContents);
-})
-.catch(function(e) {
-    console.error(e);
-});
-```
-
-<hr>
