@@ -1180,7 +1180,7 @@ Use [`.spread`](#spreadfunction-fulfilledhandler--function-rejectedhandler----pr
 ```js
 var Promise = require("bluebird");
 var request = Promise.promisify(require('request'));
-request("http://www.google.com").spread(function(request, body) {
+request("http://www.google.com").spread(function(response, body) {
     console.log(body);
 }).catch(function(err) {
     console.error(err);
