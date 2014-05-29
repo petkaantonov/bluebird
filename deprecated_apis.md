@@ -21,9 +21,12 @@ For every use case that the methods below solve there exists a better alternativ
 
 ##Progression
 
+The old progression API was meant to be used for tracking the progress of promise resolution. In retrospect, it did not work or compose very well. We understand that problem better now and the use case could be better solved without it.
+
+See [Progression Migration](./API.md#progression-migration) for migration assistance and examples of how to convert APIs that use progression to ones that do not. 
+
 #####`.progressed(Function handler)` -> `Promise`
 
-See [Progression Migration](./API.md#progression-migration) for migration.
 
 Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
 
@@ -33,22 +36,30 @@ Shorthand for `.then(null, null, handler);`. Attach a progress handler that will
 
 The standard [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) is still supported by Bluebird and support for it will continue indefinitely . However, the variant accepting a third `progressHandler` argument is no longer supported.
 
+<hr>
+
 
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `void`
 
 Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. `.done` is still fully supported.
 
+<hr>
+
+
 #####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
 Like `.then()`, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
 
+<hr>
+
+
 ##Promise resolution
 
-A `PromiseResolver` can be used to control the fate of a promise. It is like "Deferred" known in jQuery. The `PromiseResolver` objects have a `.promise` property which returns a reference to the controlled promise that can be passed to clients. `.promise` of a `PromiseResolver` is not a getter function to match other implementations.
+A `PromiseResolver` can be used to control the fate of a promise. It is like "Deferred" in jQuery or `$q.defer` in $q. The `PromiseResolver` objects have a `.promise` property which returns a reference to the controlled promise that can be passed to clients. `.promise` of a `PromiseResolver` is not a getter function to match other implementations.
 
 The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
 
-The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`.
+**The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`.**
 
 <hr>
 
