@@ -407,6 +407,35 @@ describe( "Promisify with custom suffix", function() {
     });
 })
 
+describe("Module promisification", function() {
+    it("should promisify module", function() {
+        function RedisClient() {
+
+        }
+        RedisClient.prototype.query = function() {};
+        function Multi() {}
+        Multi.prototype.exec = function() {};
+        Multi.staticMethod = function() {}
+
+        var redis = {
+            RedisClient: RedisClient,
+            Multi: Multi,
+            moduleMethod: function() {}
+        };
+        redis.Multi.staticMethod.tooDeep = function() {};
+
+        Promise.promisifyAll(redis);
+
+        assert(typeof redis.moduleMethodAsync === "function");
+        assert(typeof redis.Multi.staticMethodAsync === "function");
+        assert(typeof redis.Multi.prototype.execAsync === "function");
+        assert(typeof redis.RedisClient.prototype.queryAsync === "function");
+        assert(typeof redis.Multi.staticMethod.tooDeepAsync === "undefined");
+        assert(Object.keys(redis.Multi.staticMethodAsync).length === 1);
+
+    })
+})
+
 describe( "Promisify from prototype to object", function() {
     var getterCalled = 0;
 

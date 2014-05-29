@@ -8,18 +8,24 @@ var nodebackForPromise = require("./promise_resolver.js")
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var deprecated = util.deprecated;
 var ASSERT = require("./assert.js");
 var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
-var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
+
 function escapeIdentRegex(str) {
     return str.replace(/([$])/, "\\$");
 }
 
 function isPromisified(fn) {
-    return fn.__isPromisified__ === true;
+    try {
+        return fn.__isPromisified__ === true;
+    }
+    catch (e) {
+        return false;
+    }
 }
+
 function hasPromisified(obj, key, suffix) {
     var containsKey = ((key + suffix) in obj);
     return containsKey ? isPromisified(obj[key + suffix])
@@ -126,7 +132,7 @@ function parameterCount(fn) {
 
 
 function propertyAccess(id) {
-    if (rident.test(id)) {
+    if (util.isIdentifier(id)) {
         return "." + id;
     }
     else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
@@ -163,7 +169,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
         "break;";
     }
 
-    if (!rident.test(callbackName)) {
+    if (!util.isIdentifier(callbackName)) {
         callbackName = "promisified";
     }
 
@@ -264,10 +270,6 @@ function _promisify(callback, receiver, isAll, suffix) {
 }
 
 Promise.promisify = function Promise$Promisify(fn, receiver) {
-    if (typeof fn === "object" && fn !== null) {
-        deprecated(OBJECT_PROMISIFY_DEPRECATED);
-        return _promisify(fn, receiver, true);
-    }
     if (typeof fn !== "function") {
         throw new TypeError(NOT_FUNCTION_ERROR);
     }
@@ -288,9 +290,23 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     var suffix = typeof options.suffix === "string"
         ? options.suffix : defaultSuffix;
 
-    if (!rident.test(suffix)) {
+    if (!util.isIdentifier(suffix)) {
         throw new RangeError("suffix must be a valid identifier");
     }
+
+    var targetKeys = es5.keys(target);
+    for (var i = 0; i < targetKeys.length; ++i) {
+        var value;
+        try {
+            value = target[targetKeys[i]];
+        } catch (e) { continue; }
+
+        if (util.isClass(value)) {
+            _promisify(value.prototype, void 0, true, suffix);
+            _promisify(value, void 0, true, suffix);
+        }
+    }
+
     return _promisify(target, void 0, true, suffix);
 };
 };

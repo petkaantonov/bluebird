@@ -1186,7 +1186,7 @@ The above uses [request](https://github.com/mikeal/request) library which has a 
 
 #####`Promise.promisifyAll(Object target [, Object options])` -> `Object`
 
-Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name suffixed with `"Async"`. Returns the input object.
+Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name suffixed with `"Async"`. Any class properties of the object (which is the case for the main export of many modules) are also promisified, both static and instance methods. Class property is a property with a function value that has a non-empty `.prototype` object. Returns the input object.
 
 Note that the original methods on the object are not overwritten but new methods are created with the `Async`-suffix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
@@ -1215,6 +1215,8 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
     console.error(e.stack);
 });
 ```
+
+See [promisification](#promisification) for more examples.
 
 The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 

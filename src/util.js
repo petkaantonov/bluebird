@@ -16,17 +16,8 @@ var haveGetters = (function(){
     }
 
 })();
-
 // Assume CSP if browser
 var canEvaluate = typeof navigator == "undefined";
-
-function deprecated(msg) {
-    if (typeof console !== "undefined" && console !== null &&
-        typeof console.warn === "function") {
-        console.warn("Bluebird: " + msg);
-    }
-}
-
 var errorObj = {e: {}};
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
@@ -144,6 +135,19 @@ function thrower(r) {
     throw r;
 }
 
+function isClass(fn) {
+    try {
+        if (typeof fn === "function") {
+            var keys = es5.keys(fn.prototype);
+            return keys.length > 0 &&
+                   !(keys.length === 1 && keys[0] === "constructor");
+        }
+        return false;
+    }
+    catch (e) {
+        return false;
+    }
+}
 
 function toFastProperties(obj) {
     /*jshint -W027*/
@@ -154,7 +158,14 @@ function toFastProperties(obj) {
     eval(obj);
 }
 
+var rident = /^[a-z$_][a-z$_0-9]*$/i;
+function isIdentifier(str) {
+    return rident.test(str);
+}
+
 var ret = {
+    isClass: isClass,
+    isIdentifier: isIdentifier,
     thrower: thrower,
     isArray: es5.isArray,
     haveGetters: haveGetters,
@@ -162,7 +173,6 @@ var ret = {
     isPrimitive: isPrimitive,
     isObject: isObject,
     canEvaluate: canEvaluate,
-    deprecated: deprecated,
     errorObj: errorObj,
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,
