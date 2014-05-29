@@ -1930,7 +1930,7 @@ Like `.then()`, but any unhandled rejection that ends up here will be thrown as 
 
 Progression is deprecated as there are composability and chaining issues with APIs that use promise progression handlers. This API is kept for backwards compatibility and for interoperability between libraries for now. As other libraries move away from the progression API since it really has little to do with promises, so will Bluebird. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#.
 
-For old code that still uses it, see [the progression docs in the deprecated API documentation](/deprecated_apis.md#progression)
+For old code that still uses it, see [the progression docs in the deprecated API documentation](/deprecated_apis.md#progression).
 
 Using jQuery before:
 
@@ -2027,4 +2027,4 @@ function defer() {
 }
 ```
 
-For old code that still uses deferred objects, see [the deprecated API docs /deprecated_apis.md#promise-resolution).
+For old code that still uses deferred objects, see [the deprecated API docs ](/deprecated_apis.md#promise-resolution).
