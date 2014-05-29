@@ -11,29 +11,32 @@ var canEvaluate = util.canEvaluate;
 var deprecated = util.deprecated;
 var ASSERT = require("./assert.js");
 var TypeError = require("./errors").TypeError;
+var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
+var rident = /^[a-z$_][a-z$_0-9]*$/i;
+function escapeIdentRegex(str) {
+    return str.replace(/([$])/, "\\$");
+}
 
-
-var rasyncSuffix = new RegExp(AFTER_PROMISIFIED_SUFFIX + "$");
 function isPromisified(fn) {
     return fn.__isPromisified__ === true;
 }
-function hasPromisified(obj, key) {
-    var containsKey = ((key + AFTER_PROMISIFIED_SUFFIX) in obj);
-    return containsKey ? isPromisified(obj[key + AFTER_PROMISIFIED_SUFFIX])
+function hasPromisified(obj, key, suffix) {
+    var containsKey = ((key + suffix) in obj);
+    return containsKey ? isPromisified(obj[key + suffix])
                        : false;
 }
-function checkValid(ret) {
+function checkValid(ret, suffix, suffixRegexp) {
     // Verify that in the list of methods to promisify there is no
-    // method that has a name ending in "Async"-postfix while
-    // also having a method with the same name but no Async postfix
+    // method that has a name ending in "Async"-suffix while
+    // also having a method with the same name but no Async suffix
     for (var i = 0; i < ret.length; i += 2) {
         var key = ret[i];
-        if (rasyncSuffix.test(key)) {
-            var keyWithoutAsyncSuffix = key.replace(rasyncSuffix, "");
+        if (suffixRegexp.test(key)) {
+            var keyWithoutAsyncSuffix = key.replace(suffixRegexp, "");
             for (var j = 0; j < ret.length; j += 2) {
                 if (ret[j] === keyWithoutAsyncSuffix) {
                     throw new TypeError("Cannot promisify an API " +
-                        "that has normal methods with Async-suffix");
+                        "that has normal methods with '"+suffix+"'-suffix");
                 }
             }
         }
@@ -44,7 +47,7 @@ var inheritedMethods = (function() {
         //Guaranteed since ES-5
         var create = Object.create;
         var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-        return function(cur) {
+        return function(cur, suffix, suffixRegexp) {
             var ret = [];
             var visitedKeys = create(null);
             var original = cur;
@@ -62,29 +65,29 @@ var inheritedMethods = (function() {
                     if (desc != null &&
                         typeof desc.value === "function" &&
                         !isPromisified(desc.value) &&
-                        !hasPromisified(original, key)) {
+                        !hasPromisified(original, key, suffix)) {
                         ret.push(key, desc.value);
                     }
                 }
                 cur = es5.getPrototypeOf(cur);
             }
-            checkValid(ret);
+            checkValid(ret, suffix, suffixRegexp);
             return ret;
         };
     }
     else {
-        return function(obj) {
+        return function(obj, suffix, suffixRegexp) {
             var ret = [];
             /*jshint forin:false */
             for (var key in obj) {
                 var fn = obj[key];
                 if (typeof fn === "function" &&
                     !isPromisified(fn) &&
-                    !hasPromisified(obj, key)) {
+                    !hasPromisified(obj, key, suffix)) {
                     ret.push(key, fn);
                 }
             }
-            checkValid(ret);
+            checkValid(ret, suffix, suffixRegexp);
             return ret;
         };
     }
@@ -121,7 +124,7 @@ function parameterCount(fn) {
     return 0;
 }
 
-var rident = /^[a-z$_][a-z$_0-9]*$/i;
+
 function propertyAccess(id) {
     if (rident.test(id)) {
         return "." + id;
@@ -129,14 +132,14 @@ function propertyAccess(id) {
     else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
 }
 
-function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
+function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
     ASSERT(typeof fn === "function");
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
 
     var callbackName = (typeof originalName === "string" ?
-        originalName + "Async" :
+        originalName + suffix :
         "promisified");
 
     function generateCallForArgumentCount(count) {
@@ -241,14 +244,16 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function _promisify(callback, receiver, isAll) {
+function _promisify(callback, receiver, isAll, suffix) {
     if (isAll) {
-        var methods = inheritedMethods(callback);
+        var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
+        var methods = inheritedMethods(callback, suffix, suffixRegexp);
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
             var fn = methods[i+1];
-            var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
-            callback[promisifiedKey] = makeNodePromisified(key, THIS, key, fn);
+            var promisifiedKey = key + suffix;
+            callback[promisifiedKey] =
+                makeNodePromisified(key, THIS, key, fn, suffix);
         }
         util.toFastProperties(callback);
         return callback;
@@ -275,11 +280,18 @@ Promise.promisify = function Promise$Promisify(fn, receiver) {
         false);
 };
 
-Promise.promisifyAll = function Promise$PromisifyAll(target) {
+Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }
-    return _promisify(target, void 0, true);
+    options = Object(options);
+    var suffix = typeof options.suffix === "string"
+        ? options.suffix : defaultSuffix;
+
+    if (!rident.test(suffix)) {
+        throw new RangeError("suffix must be a valid identifier");
+    }
+    return _promisify(target, void 0, true, suffix);
 };
 };
 

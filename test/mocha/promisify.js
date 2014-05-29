@@ -382,6 +382,30 @@ describe("promisify on objects", function(){
     });
 });
 
+describe( "Promisify with custom suffix", function() {
+    it("should define methods with the custom suffix", function(done) {
+        function Test() {
+
+        }
+
+        Test.prototype.method = function method() {};
+
+        Promise.promisifyAll(Test.prototype, {suffix: "$P"});
+        assert(typeof Test.prototype.method$P == "function");
+        assert(Test.prototype.method.name === "method" ?
+               Test.prototype.method$P.name === "method$P" : true);
+        done();
+    });
+
+    it("should throw on invalid suffix", function(done) {
+        try {
+            Promise.promisifyAll({}, {suffix: ""});
+        }
+        catch(e) {
+            done();
+        }
+    });
+})
 
 describe( "Promisify from prototype to object", function() {
     var getterCalled = 0;

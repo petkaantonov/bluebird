@@ -37,7 +37,7 @@
     - [`.disposer(Function disposer)`](#disposerfunction-disposer---disposer)
 - [Promisification](#promisification)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
-    - [`Promise.promisifyAll(Object target)`](#promisepromisifyallobject-target---object)
+    - [`Promise.promisifyAll(Object target [, Object options])`](#promisepromisifyallobject-target--object-options---object)
     - [`.nodeify([Function callback])`](#nodeifyfunction-callback---promise)
 - [Timers](#timers)
     - [`.delay(int ms)`](#delayint-ms---promise)
@@ -348,7 +348,7 @@ unable to read file, because:  ENOENT, open 'not_there.txt'
 
 Pass a handler that will be called regardless of this promise's fate. Returns a new promise chained from this promise. There are special semantics for `.finally()` in that the final value cannot be modified from the handler.
 
-*Note: using `.finally()` for resource management is not a good idea, see [resource management]()*
+*Note: using `.finally()` for resource management is not a good idea, see [resource management](#resource-management)*
 
 Consider the example:
 
@@ -1102,30 +1102,23 @@ Some examples of the above practice applied to some popular libraries:
 
 ```js
 // The most popular redis module
-var redis = require("redis");
 var Promise = require("bluebird");
-Promise.promisifyAll(redis.RedisClient.prototype);
-Promise.promisifyAll(redis.Multi.prototype);
-```
-
-```js
-// The most popular mysql module
-var Promise = require("bluebird");
-Promise.promisifyAll(require("mysql/lib/Connection").prototype);
-Promise.promisifyAll(require("mysql/lib/Pool").prototype);
+Promise.promisifyAll(require("redis"));
 ```
 
 ```js
 // The most popular mongodb module
 var Promise = require("bluebird");
-var MongoDB = require("mongodb");
-// Use an automated loop since there are so many classes to promisify
-Object.keys(MongoDB).forEach(function(key) {
-    var Class = MongoDB[key]
-    if (typeof Class === "function") {
-        Promise.promisifyAll(Class.prototype);
-    }
-});
+Promise.promisifyAll(require("mongodb"));
+```
+
+```js
+// The most popular mysql module
+var Promise = require("bluebird");
+// Note that the library's classes are not properties of the main export
+// so we require and promisifyAll them manually
+Promise.promisifyAll(require("mysql/lib/Connection").prototype);
+Promise.promisifyAll(require("mysql/lib/Pool").prototype);
 ```
 
 In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:
@@ -1137,7 +1130,7 @@ Promise.promisifyAll(Object.getPrototypeOf(throwAwayInstance));
 // Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises
 ```
 
-See also [`Promise.promisifyAll()`](#promisepromisifyallobject-target---object).
+See also [`Promise.promisifyAll()`](#promisepromisifyallobject-target--object-options---object).
 
 #####`Promise.promisify(Function nodeFunction [, dynamic receiver])` -> `Function`
 
@@ -1191,16 +1184,16 @@ The above uses [request](https://github.com/mikeal/request) library which has a 
 
 <hr>
 
-#####`Promise.promisifyAll(Object target)` -> `Object`
+#####`Promise.promisifyAll(Object target [, Object options])` -> `Object`
 
-Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name postfixed with `Async`. Returns the input object.
+Promisifies the entire object by going through the object's properties and creating an async equivalent of each function on the object and its prototype chain. The promisified method name will be the original method name suffixed with `"Async"`. Returns the input object.
 
 Note that the original methods on the object are not overwritten but new methods are created with the `Async`-suffix. For example, if you `promisifyAll()` the node.js `fs` object use `fs.statAsync()` to call the promisified `stat` method.
 
 Example:
 
 ```js
-Promise.promisifyAll(RedisClient.prototype);
+Promise.promisifyAll(require("redis"));
 
 //Later on, all redis client instances have promise returning functions:
 
@@ -1210,20 +1203,6 @@ redisClient.hexistsAsync("myhash", "field").then(function(v){
 
 });
 ```
-
-If you don't want to write on foreign prototypes, you can sub-class the target and promisify your subclass:
-
-```js
-function MyRedisClient() {
-    RedisClient.apply(this, arguments);
-}
-MyRedisClient.prototype = Object.create(RedisClient.prototype);
-MyRedisClient.prototype.constructor = MyRedisClient;
-Promise.promisify(MyRedisClient.prototype);
-```
-
-The promisified methods will be written on the `MyRedisClient.prototype` instead. This specific example doesn't actually work with `node_redis` because the `createClient` factory is hardcoded to instantiate `RedisClient` from closure.
-
 
 It also works on singletons or specific instances:
 
@@ -1240,6 +1219,26 @@ fs.readFileAsync("myfile.js", "utf8").then(function(contents){
 The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.
 
 If a method name already has an `"Async"`-suffix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
+
+Optionally, you can define a custom suffix through the options object:
+
+```js
+var fs = Promise.promisifyAll(require("fs"), {suffix: "MySuffix"});
+fs.readFileMySuffix(...).then(...);
+```
+
+All the above limitations apply to custom suffices:
+
+- Choose the suffix carefully, it must not collide with anything
+- PascalCase the suffix
+- The suffix must be a valid JavaScript identifier using ASCII letters
+- Always use the same suffix everywhere in your application, you could create a wrapper to make this easier:
+
+```js
+module.exports = function myPromisifyAll(target) {
+    return Promise.promisifyAll(target, {suffix: "MySuffix"});
+};
+```
 
 <hr>
 
@@ -1777,7 +1776,7 @@ By default the error types need to be referenced from the Promise constructor, e
 
 #####`RejectionError()`
 
-Represents an error is an explicit promise rejection as opposed to a thrown error. For example, if an error is errbacked by a callback API promisified through [`promisify()`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function) or [`promisifyAll()`](#promisepromisifyallobject-target---object)
+Represents an error is an explicit promise rejection as opposed to a thrown error. For example, if an error is errbacked by a callback API promisified through [`promisify()`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function) or [`promisifyAll()`](#promisepromisifyallobject-target--object-options---object)
 and is not a typed error, it will be converted to a `RejectionError` which has the original error in the `.cause` property.
 
 `RejectionError`s are caught in [`.error()`](#error-rejectedhandler----promise) handlers.
