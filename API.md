@@ -947,7 +947,7 @@ We can do better, retaining concurrency and not leaking resources, by using [`us
 ```js
 var using = Promise.using;
 
-using(connectionPool.getConnectionAsync().disposer("close"),
+using(getConnection(),
       fs.readFileAsync("file.sql", "utf8"), function(connection, fileContents) {
     return connection.query(fileContents);
 }).then(function() {
@@ -958,19 +958,59 @@ using(connectionPool.getConnectionAsync().disposer("close"),
 
 #####`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)` -> `Promise`
 
-Using this function out of the box is pretty much equivalent to the following code:
+In conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
+when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
+
+Simplest example (where `getConnection()` [has been defined] to return a proper `Disposer`](#disposerstring-methodname---disposer))
+
 
 ```js
-Promise.all([Promise promiseForResource1, Promise promiseForResource2 ...])
-    .spread(function(resource1, resource2 ...) {
-
-    });
-
+using(getConnection(), function(connection) {
+   return connection.queryAsync("SELECT * FROM TABLE");
+   // Code continuing here still has access to `connection`
+}).then(function(rows) {
+    // The connection has been closed by now
+    console.log(rows);
+});
 ```
 
-However, in conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
-when appropriate. See [Resource management](#resource-management) and [`.disposer()`](#disposerstring-methodname---disposer) for a better overview.
+Using multiple resources:
 
+```js
+using(getConnection(), function(conn1) {
+    return using(getConnection(), function(conn2) {
+        // use conn1 and conn 2 here
+    });
+}).then(function() {
+    // Both connections closed by now
+})
+```
+
+The above can also be written as (with a caveat, see below)
+
+```js
+using(getConnection(), getConnection(), function(conn1, conn2) {
+    // use conn1 and conn2
+}).then(function() {
+    // Both connections closed by now
+})
+```
+
+However, if the second `getConnection()` throws **synchronously**, the first connection is leaked. This will not happen
+when using APIs through bluebird promisified methods though. You can wrap functions that could throw in [`Promise.method`](#promisemethodfunction-fn---function) which will turn synchronous rejections into rejected promises.
+
+Note that you can mix promises and disposers, so that you can acquire all the things you need in parallel instead of sequentially
+
+```js
+// The files don't need resource management but you should
+// still start the process of reading them even before you have the connection
+// instead of waiting for the connection
+
+// The connection is always closed, no matter what fails at what point
+using(readFile("1.txt"), readFile("2.txt"), getConnection(), function(txt1, txt2, conn) {
+    // use conn and have access to txt1 and txt2
+});
+```
 <hr>
 
 #####`.disposer(Function disposer)` -> `Disposer`
@@ -980,96 +1020,29 @@ A meta method used to specify the disposer method that cleans up a resource when
 Example:
 
 ```js
-using(pool.getConnectionAsync().disposer("close"), function(connection) {
-   return connection.queryAsync("SELECT * FROM TABLE");
-}).then(function(rows) {
-    console.log(rows);
-});
-```
-
-Because `"close"` was specified as a disposer for the connection, `.using` will call `connection.close()` to close
-the connection after the rows are retrieved or if an error happens on the way.
-
-Note that in practice you should define the disposer at the place where the connection is created so that
-call sites can just forget about it:
-
-```js
-function getConnectionAsync() {
-    return pool.getConnectionAsync().disposer("close"):
+// This function doesn't return a promise but a Disposer
+// so it's very hard to use it wrong (not passing it to `using`)
+function getConnection() {
+    return pool.getConnectionAsync().disposer(function(connection, promise) {
+        connection.close();
+    });
 }
-
-// Now call sites are much cleaner:
-using(getConnectionAsync(), function(connection) {
-   return connection.queryAsync("SELECT * FROM TABLE");
-}).then(function(rows) {
-    console.log(rows);
-});
 ```
 
-Returns a Disposer object that is only meaningful when passed to `using()`. This enforces correct usage, e.g. it is
-very hard to use the result of `getConnectionAsync()` in the above code without going through `.using()`
-
-**Warning**
-
-In practice you will probably end up using promisified methods to get resource handles but it might be
-the case that you are using an API that was designed to use promises. As always, this is ironically much
-worse case to handle with bluebird than APIs that use callbacks.
-
-The hidden contract of promise returning functions is that they must never throw errors synchronously. Instead,
-errors must be communicated as a rejection on the returned promise. However, in practice, this contract
-is being broken a lot.
-
-So this can be a problem with `using()`:
-
-```js
-using(Promise.resolve(externalPromiseApi.getResource1()).disposer("close"),
-    Promise.resolve(externalPromiseApi.getResource2()).disposer("close"),
-    function(resource1, resource2) {
-
-})
-```
-
-The issue here is that if the *call* to `.getResource2()` throws synchronously, then resource1 will leak because the code is executed like this:
-
-```js
-var a = Promise.resolve(externalPromiseApi.getResource1()).disposer("close");
-var b = Promise.resolve(externalPromiseApi.getResource2()).disposer("close");
-using(a, b, function(resource1, resource2) {
-
-})
-```
-
-Because the line `var b = ...` throws, the `using` line is never executed, thus `a` is never released.
-
-This is not a problem with promisified callback functions because they are guaranteed not to throw.
-
-This specific situation can be fixed with `Promise.method`:
-
-```js
-externalPromiseApi.getResource1 = Promise.method(externalPromiseApi.getResource1);
-externalPromiseApi.getResource2 = Promise.method(externalPromiseApi.getResource2);
-
-// Automatic casting and guaranteed not to throw!
-using(externalPromiseApi.getResource1().disposer("close"),
-    externalPromiseApi.getResource1().disposer("close"),
-    function(resource1, resource2) {
-
-})
-```
-
-`Promise.method` also automatically casts the promises so using it was beneficial for that reason alone.
+The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.
 
 Example:
 
 ```js
 function getTransaction() {
-    // outcome is a PromiseInspection object representing the outcome of the using
-    // "block"
-    return db.getTransactionAsync().disposer(function(tx, outcome) {
-        outcome.isFulfilled() ? tx.commit() : tx.rollback();
+    return db.getTransactionAsync().disposer(function(tx, promise) {
+        promise.isFulfilled() ? tx.commit() : tx.rollback();
     });
 }
 
+
+// If the using block completes successfully, the transaction is automatically commited
+// Any error or rejection will automatically roll it back
 using(getTransaction(), function(tx) {
     return tx.queryAsync(...).then(function() {
         return tx.queryAsync(...)
