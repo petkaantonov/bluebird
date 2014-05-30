@@ -30,7 +30,7 @@
     - [`.any()`](#any---promise)
     - [`.race()`](#race---promise)
     - [`.some(int count)`](#someint-count---promise)
-    - [`.map(Function mapper)`](#mapfunction-mapper---promise)
+    - [`.map(Function mapper [, Object options])`](#mapfunction-mapper--object-options---promise)
     - [`.reduce(Function reducer [, dynamic initialValue])`](#reducefunction-reducer--dynamic-initialvalue---promise)
     - [`.filter(Function filterer)`](#filterfunction-filterer---promise)
     - [`.each(Function iterator)`](#eachfunction-iterator---promise)
@@ -505,7 +505,7 @@ something().bind(var1).then(function() {
 });
 ```
 
-Also see [this Stackoverflow answer](http://stackoverflow.com/a/19467053/995876) on a good example on how utilizing the collection instance methods like [`.map()`](#mapfunction-mapper---promise) can clean up code.
+Also see [this Stackoverflow answer](http://stackoverflow.com/a/19467053/995876) on a good example on how utilizing the collection instance methods like [`.map()`](#mapfunction-mapper--object-options---promise) can clean up code.
 
 <hr>
 
