@@ -1816,6 +1816,29 @@ var promise = Bluebird.resolve(new Promise());
 
 <hr>
 
+#####`Promise.setScheduler(Function scheduler)` -> `void`
+
+Scheduler should be a function that asynchronously schedules the calling of the passed in function:
+
+```js
+// This is just an example of how to use the api, there is no reason to do this
+Promise.setScheduler(function(fn) {
+    setTimeout(fn, 0);
+});
+```
+
+Setting a custom scheduler could be necessary when you need a faster way to schedule functions than bluebird does by default.
+
+You can also use it as a hook:
+
+```js
+// This will synchronize bluebird promise queue flushing with angulars queue flushing
+// Angular is also now responsible for choosing the actual scheduler
+Promise.setScheduler(function(fn) {
+    $rootScope.$evalAsync(fn);
+});
+```
+
 ##Built-in error types
 
 Bluebird includes a few built-in error types for common usage. All error types have the same identity across different copies of bluebird
