@@ -1793,10 +1793,10 @@ fs.readdirAsync(".").then(_)
     .call("value").all().then(_)
     .call("sortBy", "count")
     .call("reverse")
-    .call("reduce", function(output, cur) {
-        output += cur.count + " total files beginning with " + cur.firstCh + " with total size of " + cur.totalSize + " bytes.\n";
-        return output;
-    }, "")
+    .call("map", function(data) {
+        return data.count + " total files beginning with " + data.firstCh + " with total size of " + data.totalSize + " bytes";
+    })
+    .call("join", "\n")
     .then(console.log)
 ```
 
