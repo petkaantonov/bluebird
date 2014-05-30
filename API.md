@@ -1742,6 +1742,7 @@ promise.then(function(obj){
 For example ([`.some()` is a built-in array method](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/some)):
 
 ```js
+var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var path = require("path");
 var thisPath = process.argv[2] || ".";
@@ -1757,6 +1758,46 @@ fs.readdirAsync(thisPath)
     .then(function(someFilesHaveBeenModifiedLessThanTenSecondsAgo) {
         console.log(someFilesHaveBeenModifiedLessThanTenSecondsAgo) ;
     });
+```
+
+Chaining lo-dash or underscore methods (Copy-pasteable example):
+
+```js
+var Promise = require("bluebird");
+var pmap = Promise.map;
+var props = Promise.props;
+var _ = require("lodash");
+var fs = Promise.promisifyAll(require("fs"));
+
+function getTotalSize(paths) {
+    return pmap(paths, function(path) {
+        return fs.statAsync(path).get("size");
+    }).reduce(function(a, b) {
+        return a + b;
+    }, 0);
+}
+
+fs.readdirAsync(".").then(_)
+    .call("groupBy", function(fileName) {
+        return fileName.charAt(0);
+    })
+    .call("map", function(fileNames, firstCh) {
+        return props({
+            firstCh: firstCh,
+            count: fileNames.length,
+            totalSize: getTotalSize(fileNames)
+        });
+    })
+    // Since the currently wrapped array contains promises we need to unwrap it and call .all() before continuing the chain
+    // If the currently wrapped thing was an object with properties that might be promises, we would call .props() instead
+    .call("value").all().then(_)
+    .call("sortBy", "count")
+    .call("reverse")
+    .call("reduce", function(output, cur) {
+        output += cur.count + " total files beginning with " + cur.firstCh + " with total size of " + cur.totalSize + " bytes.\n";
+        return output;
+    }, "")
+    .then(console.log)
 ```
 
 <hr>
