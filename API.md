@@ -1,5 +1,7 @@
 #API Reference
 
+**Note**: This documentation is for bluebird 2.x and not valid for 1.x.
+
 - [Core](#core)
     - [`new Promise(Function<Function resolve, Function reject> resolver)`](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
     - [`.then([Function fulfilledHandler] [, Function rejectedHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler----promise)
@@ -844,11 +846,110 @@ Promise.some(...)
 
 <hr>
 
-#####`.map(Function mapper)` -> `Promise`
+#####`.map(Function mapper [, Object options])` -> `Promise`
 
 Map an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-If the `mapper` function returns promises or thenables, the returned promise will wait for all the mapped results to be resolved as well.
+The mapper function for a given item is called as soon as possible, that is, when the promise for that item's index in the input array is fulfilled. This doesn't mean that the result array has items in random order, it means that `.map` can be used for concurrency coordination unlike `.all().call("map", fn).all()`.
+
+Example (copy paste and run):
+
+```js
+var Promise = require("bluebird");
+var join = Promise.join;
+var fs = Promise.promisifyAll(require("fs"));
+fs.readdirAsync(".").map(function(fileName) {
+    var stat = fs.statAsync(fileName);
+    var contents = fs.readFileAsync(fileName).catch(function ignore() {});
+    return join(stat, contents, function(stat, contents) {
+        return {
+            stat: stat,
+            fileName: fileName,
+            contents: contents
+        }
+    });
+// The return value of .map is a promise that is fulfilled with an array of the mapped values
+// That means we only get here after all the files have been statted and their contents read
+// into memory. If you need to do more operations per file, they should be chained in the map
+// callback for concurrency.
+}).call("sort", function(a, b) {
+    return a.fileName.localeCompare(b.fileName);
+}).each(function(file) {
+    var contentLength = file.stat.isDirectory() ? "(directory)" : file.contents.length + " bytes";
+    console.log(file.fileName + " last modified " + file.stat.mtime + " " + contentLength)
+});
+```
+
+Example of static map:
+
+```js
+var Promise = require("./js/main/bluebird.js");
+var join = Promise.join;
+var fs = Promise.promisifyAll(require("fs"));
+
+var fileNames = ["file1.json", "file2.json"];
+Promise.map(fileNames, function(fileName) {
+    return fs.readFileAsync(fileName)
+        .then(JSON.parse)
+        .catch(SyntaxError, function(e) {
+            e.fileName = fileName;
+            throw e;
+        })
+}).then(function(parsedJSONs) {
+    console.log(parsedJSONs);
+}).catch(SyntaxError, function(e) {
+   console.log("Invalid JSON in file " + e.fileName + ": " + e.message);
+});
+```
+
+You may optionally specify a concurrency limit:
+
+```js
+...map(..., {concurrency: 1});
+```
+
+The concurrency limit applies to promises returned by the mapper function (since the operations the promises in the input array are "watching" are already running and thus cannot be limited). For example, if `concurrency` is `3` and the mapper callback has been called enough so that there are 3 returned promises currently pending, no further callbacks are called until one of the pending promises resolves.
+
+Playing with the first example with and without limits, and seeing how it affects the duration when reading 20 files:
+
+```js
+var Promise = require("bluebird");
+var join = Promise.join;
+var fs = Promise.promisifyAll(require("fs"));
+var concurrency = parseFloat(process.argv[2] || "Infinity");
+console.time("reading files");
+fs.readdirAsync(".").map(function(fileName) {
+    var stat = fs.statAsync(fileName);
+    var contents = fs.readFileAsync(fileName).catch(function ignore() {});
+    return join(stat, contents, function(stat, contents) {
+        return {
+            stat: stat,
+            fileName: fileName,
+            contents: contents
+        }
+    });
+// The return value of .map is a promise that is fulfilled with an array of the mapped values
+// That means we only get here after all the files have been statted and their contents read
+// into memory. If you need to do more operations per file, they should be chained in the map
+// callback for concurrency.
+}, {concurrency: concurrency}).call("sort", function(a, b) {
+    return a.fileName.localeCompare(b.fileName);
+}).then(function() {
+    console.timeEnd("reading files");
+});
+```
+
+```bash
+$ sync && echo 3 > /proc/sys/vm/drop_caches
+$ node test.js 1
+reading files 35ms
+$ sync && echo 3 > /proc/sys/vm/drop_caches
+$ node test.js Infinity
+reading files: 9ms
+```
+
+such concurrency
+
 
 
 <hr>
