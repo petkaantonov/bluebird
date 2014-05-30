@@ -10,6 +10,12 @@ var canEvaluate = util.canEvaluate;
 var ASSERT = require("./assert.js");
 var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
+var defaultFilter = function(name, func) {
+    return util.isIdentifier(name) &&
+        name.charAt(0) !== "_" &&
+        !util.isClass(func);
+};
+var defaultPromisified = {__isPromisified__: true};
 
 
 function escapeIdentRegex(str) {
@@ -26,9 +32,9 @@ function isPromisified(fn) {
 }
 
 function hasPromisified(obj, key, suffix) {
-    var containsKey = ((key + suffix) in obj);
-    return containsKey ? isPromisified(obj[key + suffix])
-                       : false;
+    var val = util.getDataPropertyOrDefault(obj, key + suffix,
+                                            defaultPromisified);
+    return val ? isPromisified(val) : false;
 }
 function checkValid(ret, suffix, suffixRegexp) {
     // Verify that in the list of methods to promisify there is no
@@ -48,7 +54,7 @@ function checkValid(ret, suffix, suffixRegexp) {
     }
 }
 
-function promisifiableMethods(obj, suffix, suffixRegexp) {
+function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
     var keys = util.inheritedDataKeys(obj);
     var ret = [];
     for (var i = 0; i < keys.length; ++i) {
@@ -56,7 +62,8 @@ function promisifiableMethods(obj, suffix, suffixRegexp) {
         var value = obj[key];
         if (typeof value === "function" &&
             !isPromisified(value) &&
-            !hasPromisified(obj, key, suffix)) {
+            !hasPromisified(obj, key, suffix) &&
+            filter(key, value, obj)) {
             ret.push(key, value);
         }
     }
@@ -215,23 +222,25 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function _promisify(callback, receiver, isAll, suffix) {
-    if (isAll) {
-        var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
-        var methods = promisifiableMethods(callback, suffix, suffixRegexp);
-        for (var i = 0, len = methods.length; i < len; i+= 2) {
-            var key = methods[i];
-            var fn = methods[i+1];
-            var promisifiedKey = key + suffix;
-            callback[promisifiedKey] =
-                makeNodePromisified(key, THIS, key, fn, suffix);
-        }
-        util.toFastProperties(callback);
-        return callback;
+function promisifyAll(obj, suffix, filter) {
+    ASSERT(typeof suffix === "string");
+    ASSERT(typeof filter === "function");
+    var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
+    var methods =
+        promisifiableMethods(obj, suffix, suffixRegexp, filter);
+    for (var i = 0, len = methods.length; i < len; i+= 2) {
+        var key = methods[i];
+        var fn = methods[i+1];
+        var promisifiedKey = key + suffix;
+        obj[promisifiedKey] =
+            makeNodePromisified(key, THIS, key, fn, suffix);
     }
-    else {
-        return makeNodePromisified(callback, receiver, void 0, callback);
-    }
+    util.toFastProperties(obj);
+    return obj;
+}
+
+function promisify(callback, receiver) {
+    return makeNodePromisified(callback, receiver, void 0, callback);
 }
 
 Promise.promisify = function Promise$Promisify(fn, receiver) {
@@ -241,10 +250,7 @@ Promise.promisify = function Promise$Promisify(fn, receiver) {
     if (isPromisified(fn)) {
         return fn;
     }
-    return _promisify(
-        fn,
-        arguments.length < 2 ? THIS : receiver,
-        false);
+    return promisify(fn, arguments.length < 2 ? THIS : receiver);
 };
 
 Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
@@ -253,6 +259,8 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     }
     var suffix = Object(options).suffix;
     if (typeof suffix !== "string") suffix = defaultSuffix;
+    var filter = Object(options).filter;
+    if (typeof filter !== "function") filter = defaultFilter;
 
     if (!util.isIdentifier(suffix)) {
         throw new RangeError("suffix must be a valid identifier");
@@ -263,12 +271,12 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
         var value = target[keys[i]];
         if (keys[i] !== "constructor" &&
             util.isClass(value)) {
-            _promisify(value.prototype, void 0, true, suffix);
-            _promisify(value, void 0, true, suffix);
+            promisifyAll(value.prototype, suffix, filter);
+            promisifyAll(value, suffix, filter);
         }
     }
 
-    return _promisify(target, void 0, true, suffix);
+    return promisifyAll(target, suffix, filter);
 };
 };
 

@@ -1248,6 +1248,31 @@ module.exports = function myPromisifyAll(target) {
 };
 ```
 
+Optionally, you can define a custom filter through the options object:
+
+```js
+Promise.promisifyAll(..., {
+    filter: function(name, func, target) {
+        // name = the property name to be promisified without suffix
+        // func = the function
+        // target = the target object where the promisified func will be put with name + suffix
+        // return boolean
+    }
+})
+```
+
+The default filter function is:
+
+```js
+function defaultFilter(name, func) {
+    return util.isIdentifier(name) &&
+        name.charAt(0) !== "_" &&
+        !util.isClass(func);
+}
+```
+
+(`util` is bluebird util, not node.js util)
+
 <hr>
 
 #####`.nodeify([Function callback])` -> `Promise`

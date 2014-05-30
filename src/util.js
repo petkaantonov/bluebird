@@ -113,6 +113,18 @@ function withAppended(target, appendee) {
     return ret;
 }
 
+function getDataPropertyOrDefault(obj, key, defaultValue) {
+    if (es5.isES5) {
+        var desc = Object.getOwnPropertyDescriptor(obj, key);
+        if (desc != null) {
+            return desc.get == null && desc.set == null
+                    ? desc.value
+                    : defaultValue;
+        }
+    } else {
+        return {}.hasOwnProperty.call(obj, key) ? obj[key] : void 0;
+    }
+}
 
 function notEnumerableProp(obj, name, value) {
     if (isPrimitive(obj)) return obj;
@@ -208,6 +220,7 @@ var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
     inheritedDataKeys: inheritedDataKeys,
+    getDataPropertyOrDefault: getDataPropertyOrDefault,
     thrower: thrower,
     isArray: es5.isArray,
     haveGetters: haveGetters,
