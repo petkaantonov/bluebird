@@ -1121,6 +1121,12 @@ Promise.promisifyAll(require("mysql/lib/Connection").prototype);
 Promise.promisifyAll(require("mysql/lib/Pool").prototype);
 ```
 
+```js
+// Mongoose
+var Promise = require("bluebird");
+Promise.promisifyAll(require("mongoose"));
+```
+
 In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:
 
 ```js

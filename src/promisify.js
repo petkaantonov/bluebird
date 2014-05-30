@@ -2,7 +2,6 @@
 module.exports = function(Promise, INTERNAL) {
 var THIS = {};
 var util = require("./util.js");
-var es5 = require("./es5.js");
 var nodebackForPromise = require("./promise_resolver.js")
     ._nodebackForPromise;
 var withAppended = util.withAppended;
@@ -48,56 +47,22 @@ function checkValid(ret, suffix, suffixRegexp) {
         }
     }
 }
-var inheritedMethods = (function() {
-    if (es5.isES5) {
-        //Guaranteed since ES-5
-        var create = Object.create;
-        var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-        return function(cur, suffix, suffixRegexp) {
-            var ret = [];
-            var visitedKeys = create(null);
-            var original = cur;
-            //Need to reinvent for-in because getOwnPropertyDescriptor
-            //only works if the property is exactly on the object
-            while (cur !== null) {
-                var keys = es5.keys(cur);
-                for (var i = 0, len = keys.length; i < len; ++i) {
-                    var key = keys[i];
-                    //For shadowing
-                    if (visitedKeys[key]) continue;
-                    visitedKeys[key] = true;
-                    var desc = getOwnPropertyDescriptor(cur, key);
 
-                    if (desc != null &&
-                        typeof desc.value === "function" &&
-                        !isPromisified(desc.value) &&
-                        !hasPromisified(original, key, suffix)) {
-                        ret.push(key, desc.value);
-                    }
-                }
-                cur = es5.getPrototypeOf(cur);
-            }
-            checkValid(ret, suffix, suffixRegexp);
-            return ret;
-        };
+function promisifiableMethods(obj, suffix, suffixRegexp) {
+    var keys = util.inheritedDataKeys(obj);
+    var ret = [];
+    for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var value = obj[key];
+        if (typeof value === "function" &&
+            !isPromisified(value) &&
+            !hasPromisified(obj, key, suffix)) {
+            ret.push(key, value);
+        }
     }
-    else {
-        return function(obj, suffix, suffixRegexp) {
-            var ret = [];
-            /*jshint forin:false */
-            for (var key in obj) {
-                var fn = obj[key];
-                if (typeof fn === "function" &&
-                    !isPromisified(fn) &&
-                    !hasPromisified(obj, key, suffix)) {
-                    ret.push(key, fn);
-                }
-            }
-            checkValid(ret, suffix, suffixRegexp);
-            return ret;
-        };
-    }
-})();
+    checkValid(ret, suffix, suffixRegexp);
+    return ret;
+}
 
 //Gives an optimal sequence of argument count to try given a formal parameter
 //.length for a function
@@ -253,7 +218,7 @@ var makeNodePromisified = canEvaluate
 function _promisify(callback, receiver, isAll, suffix) {
     if (isAll) {
         var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
-        var methods = inheritedMethods(callback, suffix, suffixRegexp);
+        var methods = promisifiableMethods(callback, suffix, suffixRegexp);
         for (var i = 0, len = methods.length; i < len; i+= 2) {
             var key = methods[i];
             var fn = methods[i+1];
@@ -286,22 +251,18 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }
-    options = Object(options);
-    var suffix = typeof options.suffix === "string"
-        ? options.suffix : defaultSuffix;
+    var suffix = Object(options).suffix;
+    if (typeof suffix !== "string") suffix = defaultSuffix;
 
     if (!util.isIdentifier(suffix)) {
         throw new RangeError("suffix must be a valid identifier");
     }
 
-    var targetKeys = es5.keys(target);
-    for (var i = 0; i < targetKeys.length; ++i) {
-        var value;
-        try {
-            value = target[targetKeys[i]];
-        } catch (e) { continue; }
-
-        if (util.isClass(value)) {
+    var keys = util.inheritedDataKeys(target, {includeHidden: true});
+    for (var i = 0; i < keys.length; ++i) {
+        var value = target[keys[i]];
+        if (keys[i] !== "constructor" &&
+            util.isClass(value)) {
             _promisify(value.prototype, void 0, true, suffix);
             _promisify(value, void 0, true, suffix);
         }

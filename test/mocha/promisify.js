@@ -408,10 +408,8 @@ describe( "Promisify with custom suffix", function() {
 })
 
 describe("Module promisification", function() {
-    it("should promisify module", function() {
-        function RedisClient() {
-
-        }
+    it("should promisify module with direct property classes", function(done) {
+        function RedisClient() {}
         RedisClient.prototype.query = function() {};
         function Multi() {}
         Multi.prototype.exec = function() {};
@@ -432,7 +430,24 @@ describe("Module promisification", function() {
         assert(typeof redis.RedisClient.prototype.queryAsync === "function");
         assert(typeof redis.Multi.staticMethod.tooDeepAsync === "undefined");
         assert(Object.keys(redis.Multi.staticMethodAsync).length === 1);
+        done();
+    })
 
+    it("should promisify module with inherited property classes", function(done) {
+        function Mongoose() {}
+        var Model = Mongoose.prototype.Model = function() {};
+        Model.prototype.find = function() {};
+        var Document = Mongoose.prototype.Document = function() {};
+        Document.prototype.create = function() {};
+        Document.staticMethod = function() {};
+        var mongoose = new Mongoose();
+
+        Promise.promisifyAll(mongoose);
+
+        assert(typeof mongoose.Model.prototype.findAsync === "function");
+        assert(typeof mongoose.Document.prototype.createAsync === "function");
+        assert(typeof mongoose.Document.staticMethodAsync === "function")
+        done();
     })
 })
 
@@ -487,7 +502,6 @@ describe( "Promisify from prototype to object", function() {
         var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
         var a = new Test();
         Promise.promisifyAll(a);
-
 
         assert( typeof a.testAsync === "function" );
         assert( a.hasOwnProperty("testAsync"));
