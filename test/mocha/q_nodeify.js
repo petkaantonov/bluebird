@@ -204,5 +204,15 @@ if( isNodeJS ) {
                 });
             })
         });
+
+        it("should spread arguments with spread option", function(done) {
+            Promise.resolve([1,2,3]).nodeify(function(err, a, b, c) {
+                assert(err === null);
+                assert(a === 1);
+                assert(b === 2);
+                assert(c === 3);
+                done();
+            }, {spread: true});
+        });
     });
 }

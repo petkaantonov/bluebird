@@ -1275,7 +1275,7 @@ function defaultFilter(name, func) {
 
 <hr>
 
-#####`.nodeify([Function callback])` -> `Promise`
+#####`.nodeify([Function callback] [, Object options])` -> `Promise`
 
 Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
 
@@ -1311,6 +1311,29 @@ getDataFor("me", function(err, dataForMe) {
 ```
 
 There is no effect on peformance if the user doesn't actually pass a node-style callback function.
+
+Some nodebacks expect more than 1 success value but there is no mapping for this in the promise world. You may specify the option `spread` to call the nodeback with multiple values when the fulfillment value is an array:
+
+```js
+Promise.resolve([1,2,3]).nodeify(function(err, result) {
+    // err == null
+    // result is the array [1,2,3]
+});
+
+Promise.resolve([1,2,3]).nodeify(function(err, a, b, c) {
+    // err == null
+    // a == 1
+    // b == 2
+    // c == 3
+}, {spread: true});
+
+Promise.resolve(123).nodeify(function(err, a, b, c) {
+    // err == null
+    // a == 123
+    // b == undefined
+    // c == undefined
+}, {spread: true});
+```
 
 <hr>
 
