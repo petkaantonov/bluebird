@@ -13,8 +13,7 @@ function thrower(r) {
 
 function Promise$_spreadAdapter(val, receiver) {
     if (!util.isArray(val)) return Promise$_successAdapter(val, receiver);
-    val.unshift(null);
-    var ret = util.tryCatchApply(this, val, receiver);
+    var ret = util.tryCatchApply(this, [null].concat(val), receiver);
     if (ret === errorObj) {
         async.invokeLater(thrower, void 0, ret.e);
     }
