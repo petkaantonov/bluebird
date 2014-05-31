@@ -13,7 +13,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 
 - [Features](#features)
 - [Quick start](#quick-start)
-- [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+- [API Reference and examples](API.md)
 - [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
 - [Questions and issues](#questions-and-issues)
 - [Error handling](#error-handling)
@@ -26,7 +26,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [License](#license)
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
 - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
-- [Changelog](https://github.com/petkaantonov/bluebird/blob/master/changelog.md)
+- [Changelog](changelog.md)
 - [Optimization guide](#optimization-guide)
 
 #Features:
@@ -35,14 +35,14 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Cancellation](https://github.com/promises-aplus)
 - [Progression](https://github.com/promises-aplus/progress-spec)
 - [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
-- [`.bind`](https://github.com/petkaantonov/bluebird/blob/master/API.md#binddynamic-thisarg---promise)
-- [Complete parallel for C# 5.0 `async` and `await`](https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
+- [`.bind`](API.md#binddynamic-thisarg---promise)
+- [Complete parallel for C# 5.0 `async` and `await`](API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
 - [Resource management through a parallel of python `with`/C# `using`](#resource-management)
-- [Collection methods](https://github.com/petkaantonov/bluebird/blob/master/API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join, race...
+- [Collection methods](API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join, race...
 - [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
-Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/cancel.js), [Progress](https://github.com/petkaantonov/bluebird/blob/master/test/mocha/q_progress.js) tests and more. See [testing](#testing).
+Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](test/mocha/cancel.js), [Progress](test/mocha/q_progress.js) tests and more. See [testing](#testing).
 
 <hr>
 
@@ -80,13 +80,13 @@ Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmas
 
 *IE7 and IE8 had to be removed from tests due to SauceLabs bug but are supported and pass all tests*
 
-**Note** that in ECMA-262, edition 3 (IE7, IE8 etc) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](https://github.com/petkaantonov/bluebird/blob/master/API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
+**Note** that in ECMA-262, edition 3 (IE7, IE8 etc) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
 
-Also, [long stack trace](https://github.com/petkaantonov/bluebird/blob/master/API.md#promiselongstacktraces---void) support is only available in Chrome and Firefox.
+Also, [long stack trace](API.md#promiselongstacktraces---void) support is only available in Chrome and Firefox.
 
 <sub>Previously bluebird required es5-shim.js and es5-sham.js to support Edition 3 - these are **no longer required** as of **0.10.4**.</sub>
 
-After quick start, see [API Reference and examples](https://github.com/petkaantonov/bluebird/blob/master/API.md)
+After quick start, see [API Reference and examples](API.md)
 
 <hr>
 
@@ -285,7 +285,7 @@ catch(e) {
 }
 ```
 
-Without such checking, unexpected errors would be silently swallowed. However, with promises, bluebird brings the future (hopefully) here now and extends the `.catch` to [accept potential error type eligibility](https://github.com/petkaantonov/bluebird/blob/master/API.md#catchfunction-errorclass-function-handler---promise).
+Without such checking, unexpected errors would be silently swallowed. However, with promises, bluebird brings the future (hopefully) here now and extends the `.catch` to [accept potential error type eligibility](API.md#catchfunction-errorclass-function-handler---promise).
 
 For instance here it is expected that some evil or incompetent entity will try to crash our server from `SyntaxError` by providing syntactically invalid JSON:
 
@@ -310,7 +310,7 @@ Example of such library is the node core library `fs`. So if we promisify it, we
 
 ```js
 //Read more about promisification in the API Reference:
-//https://github.com/petkaantonov/bluebird/blob/master/API.md
+//API.md
 var fs = Promise.promisifyAll(require("fs"));
 
 fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
@@ -332,7 +332,7 @@ Since a `catch` handler typed to `Promise.RejectionError` is expected to be used
 });
 ```
 
-See [API documentation for `.error()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#error-rejectedhandler----promise)
+See [API documentation for `.error()`](API.md#error-rejectedhandler----promise)
 
 Finally, Bluebird also supports predicate-based filters. If you pass a
 predicate function instead of an error type, the predicate will receive
@@ -499,22 +499,22 @@ Custom builds for browsers are supported through a command-line utility.
     </thead>
     <tbody>
 
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#any---promise"><code>.any</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any</code></a></td><td><code>any</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#race---promise"><code>.race</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promiseracearraypromise-promises---promise"><code>Promise.race</code></a></td><td><code>race</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#callstring-propertyname--dynamic-arg---promise"><code>.call</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#getstring-propertyname---promise"><code>.get</code></a></td><td><code>call_get</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#filterfunction-filterer---promise"><code>.filter</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisefilterarraydynamicpromise-values-function-filterer---promise"><code>Promise.filter</code></a></td><td><code>filter</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#mapfunction-mapper---promise"><code>.map</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisemaparraydynamicpromise-values-function-mapper---promise"><code>Promise.map</code></a></td><td><code>map</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#reducefunction-reducer--dynamic-initialvalue---promise"><code>.reduce</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise"><code>Promise.reduce</code></a></td><td><code>reduce</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#props---promise"><code>.props</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepropsobjectpromise-object---promise"><code>Promise.props</code></a></td><td><code>props</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#settle---promise"><code>.settle</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisesettlearraydynamicpromise-values---promise"><code>Promise.settle</code></a></td><td><code>settle</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#someint-count---promise"><code>.some</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisesomearraydynamicpromise-values-int-count---promise"><code>Promise.some</code></a></td><td><code>some</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise"><code>.nodeify</code></a></td><td><code>nodeify</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisecoroutinegeneratorfunction-generatorfunction---function"><code>Promise.coroutine</code></a> and <a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisespawngeneratorfunction-generatorfunction---promise"><code>Promise.spawn</code></a></td><td><code>generators</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#progression">Progression</a></td><td><code>progress</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#timers">Timers</a></td><td><code>timers</code></td></tr>
-        <tr><td><a href="https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management">Resource management</a></td><td><code>using</code></td></tr>
+        <tr><td><a href="API.md#any---promise"><code>.any</code></a> and <a href="API.md#promiseanyarraydynamicpromise-values---promise"><code>Promise.any</code></a></td><td><code>any</code></td></tr>
+        <tr><td><a href="API.md#race---promise"><code>.race</code></a> and <a href="API.md#promiseracearraypromise-promises---promise"><code>Promise.race</code></a></td><td><code>race</code></td></tr>
+        <tr><td><a href="API.md#callstring-propertyname--dynamic-arg---promise"><code>.call</code></a> and <a href="API.md#getstring-propertyname---promise"><code>.get</code></a></td><td><code>call_get</code></td></tr>
+        <tr><td><a href="API.md#filterfunction-filterer---promise"><code>.filter</code></a> and <a href="API.md#promisefilterarraydynamicpromise-values-function-filterer---promise"><code>Promise.filter</code></a></td><td><code>filter</code></td></tr>
+        <tr><td><a href="API.md#mapfunction-mapper---promise"><code>.map</code></a> and <a href="API.md#promisemaparraydynamicpromise-values-function-mapper---promise"><code>Promise.map</code></a></td><td><code>map</code></td></tr>
+        <tr><td><a href="API.md#reducefunction-reducer--dynamic-initialvalue---promise"><code>.reduce</code></a> and <a href="API.md#promisereducearraydynamicpromise-values-function-reducer--dynamic-initialvalue---promise"><code>Promise.reduce</code></a></td><td><code>reduce</code></td></tr>
+        <tr><td><a href="API.md#props---promise"><code>.props</code></a> and <a href="API.md#promisepropsobjectpromise-object---promise"><code>Promise.props</code></a></td><td><code>props</code></td></tr>
+        <tr><td><a href="API.md#settle---promise"><code>.settle</code></a> and <a href="API.md#promisesettlearraydynamicpromise-values---promise"><code>Promise.settle</code></a></td><td><code>settle</code></td></tr>
+        <tr><td><a href="API.md#someint-count---promise"><code>.some</code></a> and <a href="API.md#promisesomearraydynamicpromise-values-int-count---promise"><code>Promise.some</code></a></td><td><code>some</code></td></tr>
+        <tr><td><a href="API.md#nodeifyfunction-callback---promise"><code>.nodeify</code></a></td><td><code>nodeify</code></td></tr>
+        <tr><td><a href="API.md#promisecoroutinegeneratorfunction-generatorfunction---function"><code>Promise.coroutine</code></a> and <a href="API.md#promisespawngeneratorfunction-generatorfunction---promise"><code>Promise.spawn</code></a></td><td><code>generators</code></td></tr>
+        <tr><td><a href="API.md#progression">Progression</a></td><td><code>progress</code></td></tr>
+        <tr><td><a href="API.md#promisification">Promisification</a></td><td><code>promisify</code></td></tr>
+        <tr><td><a href="API.md#cancellation">Cancellation</a></td><td><code>cancel</code></td></tr>
+        <tr><td><a href="API.md#timers">Timers</a></td><td><code>timers</code></td></tr>
+        <tr><td><a href="API.md#resource-management">Resource management</a></td><td><code>using</code></td></tr>
 
     </tbody>
 </table>
@@ -554,7 +554,7 @@ module.exports = require("bluebird/js/main/promise")();
 
 Your library can then use `var Promise = require("bluebird-extended");` and do whatever it wants with it. Then if the application or other library uses their own bluebird promises they will all play well together because of Promises/A+ thenable assimilation magic.
 
-You should also know about [`.nodeify()`](https://github.com/petkaantonov/bluebird/blob/master/API.md#nodeifyfunction-callback---promise) which makes it easy to provide a dual callback/promise API.
+You should also know about [`.nodeify()`](API.md#nodeifyfunction-callback---promise) which makes it easy to provide a dual callback/promise API.
 
 <hr>
 
