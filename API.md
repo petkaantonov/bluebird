@@ -993,6 +993,7 @@ An efficient shortcut for doing:
         return stuff[1];
     });
 });
+```
 
 See [`.map()`](#mapfunction-mapper--object-options---promise);
 
