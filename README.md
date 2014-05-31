@@ -36,7 +36,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Synchronous inspection](API.md#synchronous-inspection)
 - [Concurrency coordination](API.md#collections)
 - [Promisification on steroids](API.md#promisification)
-- [Resource management through a parallel of python `with`/C# `using`](#resource-management)
+- [Resource management through a parallel of python `with`/C# `using`](API.md#resource-management)
 - [Cancellation and timeouts](API.md#cancellation)
 - [Parallel for C# `async` and `await`](API.md#generators)
 - Mind blowing utilities such as
@@ -45,7 +45,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
     - [`Promise.join()`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise)
     - [And](API.md#core) [much](API.md#timers) [more](API.md#utility)!
 - [Practical debugging solutions and sane defaults](#error-handling)
-- [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
+- [Sick performance](benchmark/stats/latest.md)
 
 <hr>
 
