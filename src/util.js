@@ -216,6 +216,14 @@ function isIdentifier(str) {
     return rident.test(str);
 }
 
+function filledRange(count, prefix, suffix) {
+    var ret = new Array(count);
+    for(var i = 0; i < count; ++i) {
+        ret[i] = prefix + i + suffix;
+    }
+    return ret;
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -239,7 +247,8 @@ var ret = {
     asString: asString,
     maybeWrapAsError: maybeWrapAsError,
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
-    toFastProperties: toFastProperties
+    toFastProperties: toFastProperties,
+    filledRange: filledRange
 };
 
 module.exports = ret;

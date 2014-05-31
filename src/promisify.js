@@ -86,12 +86,12 @@ function switchCaseArgumentOrder(likelyArgumentCount) {
     return ret;
 }
 
+function argumentSequence(argumentCount) {
+    return util.filledRange(argumentCount, "arguments[", "]");
+}
+
 function parameterDeclaration(parameterCount) {
-    var ret = new Array(parameterCount);
-    for(var i = 0; i < ret.length; ++i) {
-        ret[i] = "_arg" + i;
-    }
-    return ret.join(", ");
+    return util.filledRange(parameterCount, "_arg", "");
 }
 
 function parameterCount(fn) {
@@ -102,54 +102,51 @@ function parameterCount(fn) {
     return 0;
 }
 
-
-function propertyAccess(id) {
-    if (util.isIdentifier(id)) {
-        return "." + id;
+function generatePropertyAccess(key) {
+    if (util.isIdentifier(key)) {
+        return "." + key;
     }
-    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
+    else return "['" + key.replace(/(['\\])/g, "\\$1") + "']";
 }
 
 function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
-    ASSERT(typeof fn === "function");
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
-
-    var callbackName = (typeof originalName === "string" ?
-        originalName + suffix :
-        "promisified");
+    var callbackName =
+        (typeof originalName === "string" && util.isIdentifier(originalName)
+            ? originalName + suffix
+            : "promisified");
 
     function generateCallForArgumentCount(count) {
-        var args = new Array(count);
-        for (var i = 0, len = args.length; i < len; ++i) {
-            args[i] = "arguments[" + i + "]";
-        }
-        var template = "                                                     \n\
-                receiver[property](args, fn);                                \n\
-                break;                                                       \n\
-        ";
+        var args = argumentSequence(count).join(", ");
+        var comma = count > 0 ? ", " : "";
         var ret;
-        if (typeof callback === "string" && receiver === THIS) {
-            ret = template
-                .replace("receiver", "this")
-                .replace("[property]", propertyAccess(callback));
+        if (typeof callback === "string") {
+            ret = "                                                          \n\
+                this.method(args, fn);                                       \n\
+                break;                                                       \n\
+            ".replace(".method", generatePropertyAccess(callback));
+        }
+        else if (receiver === THIS) {
+            ret =  "                                                         \n\
+                callback.call(this, args, fn);                               \n\
+                break;                                                       \n\
+            ";
+        }
+        else if (receiver !== void 0) {
+            ret =  "                                                         \n\
+                callback.call(receiver, args, fn);                           \n\
+                break;                                                       \n\
+            ";
         }
         else {
-            var property = receiver !== void 0
-                    ? (receiver === THIS ? ".call(this, " : ".call(receiver, ")
-                    : "";
-            ret = template
-                .replace("receiver", "callback")
-                .replace("[property]", property)
-                .replace(", (", ", ");
+            ret =  "                                                         \n\
+                callback(args, fn);                                          \n\
+                break;                                                       \n\
+            ";
         }
-        return ret.replace("args", args.join(", "))
-                .replace(", ", count > 0 ? ", " : "");
-    }
-
-    if (!util.isIdentifier(callbackName)) {
-        callbackName = "promisified";
+        return ret.replace("args", args).replace(", ", comma);
     }
 
     function generateArgumentSwitchCase() {
@@ -158,14 +155,23 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             ret += "case " + argumentOrder[i] +":" +
                 generateCallForArgumentCount(argumentOrder[i]);
         }
-
-        var call = (typeof callback === "string"
-                ? "this" + propertyAccess(callback) + ".apply"
-                : "callback.apply") +
-
-                (receiver === THIS ? "(this" : "(receiver") +
-
-                ", args)";
+        var codeForCall;
+        if (typeof callback === "string") {
+            codeForCall = "                                                  \n\
+                this.property.apply(this, args);                             \n\
+            "
+                .replace(".property", generatePropertyAccess(callback));
+        }
+        else if (receiver === THIS) {
+            codeForCall = "                                                  \n\
+                callback.apply(this, args);                                  \n\
+            ";
+        }
+        else {
+            codeForCall = "                                                  \n\
+                callback.apply(receiver, args);                              \n\
+            ";
+        }
 
         ret += "                                                             \n\
         default:                                                             \n\
@@ -177,7 +183,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             args[i] = fn;                                                    \n\
             [CodeForCall]                                                    \n\
             break;                                                           \n\
-        ".replace(/"[CodeForCall]"/, call);
+        ".replace(/"[CodeForCall]"/, codeForCall);
         return ret;
     }
 
