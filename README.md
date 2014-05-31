@@ -33,13 +33,18 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 #Features:
 
 - [Promises A+ 2.0.2](http://promisesaplus.com)
-- [Cancellation](https://github.com/promises-aplus)
-- [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
-- [`.bind`](API.md#binddynamic-thisarg---promise)
-- [Complete parallel for C# 5.0 `async` and `await`](API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
+- [Synchronous inspection](API.md#synchronous-inspection)
+- [Concurrency coordination](API.md#collections)
+- [Promisification on steroids](API.md#promisification)
 - [Resource management through a parallel of python `with`/C# `using`](#resource-management)
-- [Collection methods](API.md#collections) such as All, any, some, settle, map, filter, reduce, spread, join, race...
-- [Practical debugging solutions](#error-handling) such as unhandled rejection reporting, typed catches, catching only what you expect and very long, relevant stack traces without losing perf
+- [Cancellation and timeouts](API.md#cancellation)
+- [Parallel for C# `async` and `await`](API.md#generators)
+- Mind blowing utilities such as
+    - [`.bind()`](API.md#binddynamic-thisarg---promise)
+    - [`.call()`](API.md##callstring-propertyname--dynamic-arg---promise)
+    - [`Promise.join()`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise)
+    - [And](API.md#core) [much](API.md#timers) [more](API.md#utility)!
+- [Practical debugging solutions and sane defaults](#error-handling)
 - [Sick performance](https://github.com/petkaantonov/bluebird/tree/master/benchmark/stats)
 
 Passes [AP2](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [AP3](https://github.com/petkaantonov/bluebird/tree/master/test/mocha), [Cancellation](test/mocha/cancel.js), [Progress](test/mocha/q_progress.js) tests and more. See [testing](#testing).
