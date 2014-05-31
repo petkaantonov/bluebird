@@ -14,6 +14,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Features](#features)
 - [Quick start](#quick-start)
 - [API Reference and examples](API.md)
+- [Support](#support)
 - [What are promises and why should I use them?](#what-are-promises-and-why-should-i-use-them)
 - [Questions and issues](#questions-and-issues)
 - [Error handling](#error-handling)
@@ -87,6 +88,14 @@ Also, [long stack trace](API.md#promiselongstacktraces---void) support is only a
 <sub>Previously bluebird required es5-shim.js and es5-sham.js to support Edition 3 - these are **no longer required** as of **0.10.4**.</sub>
 
 After quick start, see [API Reference and examples](API.md)
+
+<hr>
+
+#Support
+
+IRC: #promises @freenode
+StackOverflow: [bluebird tag](http://stackoverflow.com/questions/tagged/bluebird)
+Bugs and feature requests: [github issue tracker](https://github.com/petkaantonov/bluebird/issues?state=open)
 
 <hr>
 
