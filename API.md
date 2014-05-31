@@ -719,7 +719,7 @@ See if this `promise` has been rejected.
 
 #####`.isPending()` -> `boolean`
 
-See if this `promise` is still defer.
+See if this `promise` is pending (not fulfilled or rejected).
 
 <hr>
 
