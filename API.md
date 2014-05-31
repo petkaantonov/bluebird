@@ -1207,6 +1207,75 @@ var Promise = require("bluebird");
 Promise.promisifyAll(require("mongoose"));
 ```
 
+```js
+// Request
+var Promise = require("bluebird");
+Promise.promisifyAll(require("request"));
+// Use request.getAsync(...) not request(..), it will not return a promise
+```
+
+```js
+// mkdir
+var Promise = require("bluebird");
+Promise.promisifyAll(require("mkdirp"));
+// Use mkdirp.mkdirpAsync not mkdirp(..), it will not return a promise
+```
+
+```js
+// winston
+var Promise = require("bluebird");
+Promise.promisifyAll(require("winston"));
+```
+
+```js
+// rimraf
+var Promise = require("bluebird");
+// The module isn't promisified but the function returned is
+var rimrafAsync = Promise.promisify(require("rimraf"));
+```
+
+```js
+// xml2js
+var Promise = require("bluebird");
+Promise.promisifyAll(require("xml2js"));
+```
+
+```js
+// jsdom
+var Promise = require("bluebird");
+Promise.promisifyAll(require("jsdom"));
+```
+
+```js
+// fs-extra
+var Promise = require("bluebird");
+Promise.promisifyAll(require("fs-extra"));
+```
+
+```js
+// prompt
+var Promise = require("bluebird");
+Promise.promisifyAll(require("prompt"));
+```
+
+```js
+// Nodemailer
+var Promise = require("bluebird");
+Promise.promisifyAll(require("nodemailer"));
+```
+
+```js
+// ncp
+var Promise = require("bluebird");
+Promise.promisifyAll(require("ncp"));
+```
+
+```js
+// pg
+var Promise = require("bluebird");
+Promise.promisifyAll(require("pg"));
+```
+
 In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:
 
 ```js
