@@ -975,47 +975,51 @@ Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName
 
 *If `intialValue` is `undefined` (or a promise that resolves to `undefined`) and the array contains only 1 item, the callback will not be called and `undefined` is returned. If the array is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
 
+Reduce will call the reducer as soon as possible, this is why you might want to use it over `.all().call("reduce")`.
+
 <hr>
 
-#####`.filter(Function filterer)` -> `Promise`
+#####`.filter(Function filterer [, Object options])` -> `Promise`
 
-Filter an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `filterer` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
-
-The return values from the filtered functions are coerced to booleans, with the exception of promises and thenables which are awaited for their eventual result.
-
-In this example, a list of websites are pinged with 100ms timeout. [`.settle()`](#settle---promise) is used to wait until all pings are either fulfilled or rejected. Then the settled
-list of [`PromiseInspections`](#inspect---promiseinspection) is filtered for those that fulfilled (responded in under 100ms) and [`mapped`](#promisemaparraydynamicpromise-values-function-mapper---promise) to the actual fulfillment value.
+An efficient shortcut for doing:
 
 ```js
-pingWebsitesAsync({timeout: 100}).settle()
-.filter(function(inspection){
-    return inspection.isFulfilled();
-})
-.map(function(inspection){
-    return inspection.value();
-})
-.then(function(websites){
-   //List of website names which answered
+....map(function(value, index, length) {
+    return [filterer(value, index, length), value];
+}).then(function(values) {
+    return values.filter(function(stuff) {
+        return stuff[0] == true
+    }).map(function(stuff) {
+        return stuff[1];
+    });
 });
-```
 
-The above pattern is actually reusable and can be captured in a method:
-
-```js
-Promise.prototype.settledWithFulfill = function() {
-    return this.settle()
-        .filter(function(inspection){
-            return inspection.isFulfilled();
-        })
-        .map(function(inspection){
-            return inspection.value();
-        });
-};
-```
+See [`.map()`](#mapfunction-mapper--object-options---promise);
 
 <hr>
 
 #####`.each(Function iterator)` -> `Promise`
+
+Iterate over an array, or a promise of an array, which contains a promises (or a mix of promises and values) with the given `iterator` function with the signature `(item, index, value)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
+
+Resolves to the original array unmodified, this method is meant to be used for side effects. Items are called as soon as possible, in-order.
+
+Example where you might want to utilize `.each`:
+
+```js
+// Source: http://jakearchibald.com/2014/es7-async-functions/
+function loadStory() {
+  return getJSON('story.json')
+    .then(function(story) {
+      addHtmlToPage(story.heading);
+      return story.chapterURLs.map(getJSON);
+    })
+    .each(function(chapter) { addHtmlToPage(chapter.html); })
+    .then(function() { addTextToPage("All done"); })
+    .catch(function(err) { addTextToPage("Argh, broken: " + err.message); })
+    .then(function() { document.querySelector('.spinner').style.display = 'none'; });
+}
+```
 
 <hr>
 
