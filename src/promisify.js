@@ -127,20 +127,17 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                 this.method(args, fn);                                       \n\
                 break;                                                       \n\
             ".replace(".method", generatePropertyAccess(callback));
-        }
-        else if (receiver === THIS) {
+        } else if (receiver === THIS) {
             ret =  "                                                         \n\
                 callback.call(this, args, fn);                               \n\
                 break;                                                       \n\
             ";
-        }
-        else if (receiver !== void 0) {
+        } else if (receiver !== void 0) {
             ret =  "                                                         \n\
                 callback.call(receiver, args, fn);                           \n\
                 break;                                                       \n\
             ";
-        }
-        else {
+        } else {
             ret =  "                                                         \n\
                 callback(args, fn);                                          \n\
                 break;                                                       \n\
@@ -161,13 +158,11 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                 this.property.apply(this, args);                             \n\
             "
                 .replace(".property", generatePropertyAccess(callback));
-        }
-        else if (receiver === THIS) {
+        } else if (receiver === THIS) {
             codeForCall = "                                                  \n\
                 callback.apply(this, args);                                  \n\
             ";
-        }
-        else {
+        } else {
             codeForCall = "                                                  \n\
                 callback.apply(receiver, args);                              \n\
             ";
@@ -204,8 +199,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                 switch(len) {                                                \n\
                     [CodeForSwitchCase]                                      \n\
                 }                                                            \n\
-            }                                                                \n\
-            catch (e) {                                                      \n\
+            } catch (e) {                                                    \n\
                 var wrapped = maybeWrapAsError(e);                           \n\
                 promise._attachExtraTrace(wrapped);                          \n\
                 promise._reject(wrapped);                                    \n\
@@ -241,8 +235,7 @@ function makeNodePromisifiedClosure(callback, receiver) {
         var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
-        }
-        catch(e) {
+        } catch(e) {
             var wrapped = maybeWrapAsError(e);
             promise._attachExtraTrace(wrapped);
             promise._reject(wrapped);
