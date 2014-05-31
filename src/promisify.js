@@ -175,9 +175,9 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                args[i] = arguments[i];                                       \n\
             }                                                                \n\
             args[i] = fn;                                                    \n\
-            call$                                                            \n\
+            [CodeForCall]                                                    \n\
             break;                                                           \n\
-        ".replace(/call\$/, call);
+        ".replace(/"[CodeForCall]"/, call);
         return ret;
     }
 
