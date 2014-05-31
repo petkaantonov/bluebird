@@ -34,7 +34,6 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 
 - [Promises A+ 2.0.2](http://promisesaplus.com)
 - [Cancellation](https://github.com/promises-aplus)
-- [Progression](https://github.com/promises-aplus/progress-spec)
 - [Synchronous inspection](https://github.com/promises-aplus/synchronous-inspection-spec)
 - [`.bind`](API.md#binddynamic-thisarg---promise)
 - [Complete parallel for C# 5.0 `async` and `await`](API.md#promisecoroutinegeneratorfunction-generatorfunction---function)
