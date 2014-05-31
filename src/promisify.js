@@ -125,20 +125,27 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
         for (var i = 0, len = args.length; i < len; ++i) {
             args[i] = "arguments[" + i + "]";
         }
-        var comma = count > 0 ? "," : "";
-
-        if (typeof callback === "string" &&
-            receiver === THIS) {
-            return "this" + propertyAccess(callback) + "("+args.join(",") +
-                comma +" fn);"+
-                "break;";
+        var template = "                                                     \n\
+                receiver[property](args, fn);                                \n\
+                break;                                                       \n\
+        ";
+        var ret;
+        if (typeof callback === "string" && receiver === THIS) {
+            ret = template
+                .replace("receiver", "this")
+                .replace("[property]", propertyAccess(callback));
         }
-        return (receiver === void 0
-            ? "callback("+args.join(",")+ comma +" fn);"
-            : "callback.call("+(receiver === THIS
-                ? "this"
-                : "receiver")+", "+args.join(",") + comma + " fn);") +
-        "break;";
+        else {
+            var property = receiver !== void 0
+                    ? (receiver === THIS ? ".call(this, " : ".call(receiver, ")
+                    : "";
+            ret = template
+                .replace("receiver", "callback")
+                .replace("[property]", property)
+                .replace(", (", ", ");
+        }
+        return ret.replace("args", args.join(", "))
+                .replace(", ", count > 0 ? ", " : "");
     }
 
     if (!util.isIdentifier(callbackName)) {
@@ -151,46 +158,68 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             ret += "case " + argumentOrder[i] +":" +
                 generateCallForArgumentCount(argumentOrder[i]);
         }
-        ret += "default: var args = new Array(len + 1);" +
-            "var i = 0;" +
-            "for (var i = 0; i < len; ++i) { " +
-            "   args[i] = arguments[i];" +
-            "}" +
-            "args[i] = fn;" +
 
-            (typeof callback === "string"
-            ? "this" + propertyAccess(callback) + ".apply("
-            : "callback.apply(") +
+        var call = (typeof callback === "string"
+                ? "this" + propertyAccess(callback) + ".apply"
+                : "callback.apply") +
 
-            (receiver === THIS ? "this" : "receiver") +
-            ", args); break;";
+                (receiver === THIS ? "(this" : "(receiver") +
+
+                ", args)";
+
+        ret += "                                                             \n\
+        default:                                                             \n\
+            var args = new Array(len + 1);                                   \n\
+            var i = 0;                                                       \n\
+            for (var i = 0; i < len; ++i) {                                  \n\
+               args[i] = arguments[i];                                       \n\
+            }                                                                \n\
+            args[i] = fn;                                                    \n\
+            call$                                                            \n\
+            break;                                                           \n\
+        ".replace(/call\$/, call);
         return ret;
     }
 
-    return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForPromise",
-            "INTERNAL",
-        "var ret = function " + callbackName +
-        "(" + parameterDeclaration(newParameterCount) + ") {\"use strict\";" +
-        "var len = arguments.length;" +
-        "var promise = new Promise(INTERNAL);"+
-        "promise._setTrace(void 0);" +
-        "var fn = nodebackForPromise(promise);"+
-        "try {" +
-        "switch(len) {" +
-        generateArgumentSwitchCase() +
-        "}" +
-        "}" +
-        "catch(e){ " +
-        "var wrapped = maybeWrapAsError(e);" +
-        "promise._attachExtraTrace(wrapped);" +
-        "promise._reject(wrapped);" +
-        "}" +
-        "return promise;" +
-        "" +
-        "}; ret.__isPromisified__ = true; return ret;"
-   )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForPromise, INTERNAL);
+    return new Function("Promise",
+                        "callback",
+                        "receiver",
+                        "withAppended",
+                        "maybeWrapAsError",
+                        "nodebackForPromise",
+                        "INTERNAL","                                         \n\
+        var ret = function FunctionName(Parameters) {                        \n\
+            'use strict';                                                    \n\
+            var len = arguments.length;                                      \n\
+            var promise = new Promise(INTERNAL);                             \n\
+            promise._setTrace(void 0);                                       \n\
+            var fn = nodebackForPromise(promise);                            \n\
+            try {                                                            \n\
+                switch(len) {                                                \n\
+                    [CodeForSwitchCase]                                      \n\
+                }                                                            \n\
+            }                                                                \n\
+            catch (e) {                                                      \n\
+                var wrapped = maybeWrapAsError(e);                           \n\
+                promise._attachExtraTrace(wrapped);                          \n\
+                promise._reject(wrapped);                                    \n\
+            }                                                                \n\
+            return promise;                                                  \n\
+        };                                                                   \n\
+        ret.__isPromisified__ = true;                                        \n\
+        return ret;                                                          \n\
+        "
+        .replace("FunctionName", callbackName)
+        .replace("Parameters", parameterDeclaration(newParameterCount))
+        .replace("[CodeForSwitchCase]", generateArgumentSwitchCase()))(
+            Promise,
+            callback,
+            receiver,
+            withAppended,
+            maybeWrapAsError,
+            nodebackForPromise,
+            INTERNAL
+        );
 }
 
 function makeNodePromisifiedClosure(callback, receiver) {

@@ -7,16 +7,16 @@ var canEvaluate = util.canEvaluate;
 var isIdentifier = util.isIdentifier;
 
 function makeMethodCaller (methodName) {
-    return new Function("obj", "                                               \
-        var len = this.length;                                                 \
-        switch(len) {                                                          \
-            case 1: return obj. " + methodName + "(this[0]);                   \
-            case 2: return obj. " + methodName + "(this[0], this[1]);          \
-            case 3: return obj. " + methodName + "(this[0], this[1], this[2]); \
-            case 0: return obj. " + methodName + "();                          \
-            default: return obj. " + methodName + ".apply(obj, this);          \
-        }                                                                      \
-        ");
+    return new Function("obj", "                                             \n\
+        var len = this.length;                                               \n\
+        switch(len) {                                                        \n\
+            case 1: return obj.methodName(this[0]);                          \n\
+            case 2: return obj.methodName(this[0], this[1]);                 \n\
+            case 3: return obj.methodName(this[0], this[1], this[2]);        \n\
+            case 0: return obj.methodName();                                 \n\
+            default: return obj.methodName.apply(obj, this);                 \n\
+        }                                                                    \n\
+        ".replace(/methodName/g, methodName));
 }
 
 function getMethodCaller(name) {

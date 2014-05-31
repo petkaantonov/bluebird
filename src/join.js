@@ -9,15 +9,19 @@ var errorObj = util.errorObj;
 
 if (canEvaluate) {
     var thenCallback = function(i) {
-        return new Function("value", "holder", "holder.p" + i + " = value;\n\
-            holder.checkFulfillment(this);");
+        return new Function("value", "holder", "                             \n\
+            holder.pIndex = value;                                           \n\
+            holder.checkFulfillment(this);                                   \n\
+            ".replace(/Index/g, i));
     };
 
     var caller = function(count) {
         var values = [];
         for (var i = 1; i <= count; ++i) values.push("holder.p" + i);
-        return new Function("holder", "var callback = holder.fn;\n\
-            return callback("+values.join(", ")+");");
+        return new Function("holder", "                                      \n\
+            var callback = holder.fn;                                        \n\
+            return callback(values);                                         \n\
+            ".replace(/values/g, values.join(", ")));
     };
     var thenCallbacks = [];
     var callers = [void 0];
