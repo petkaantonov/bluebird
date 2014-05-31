@@ -41,7 +41,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Parallel for C# `async` and `await`](API.md#generators)
 - Mind blowing utilities such as
     - [`.bind()`](API.md#binddynamic-thisarg---promise)
-    - [`.call()`](API.md##callstring-propertyname--dynamic-arg---promise)
+    - [`.call()`](API.md#callstring-propertyname--dynamic-arg---promise)
     - [`Promise.join()`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise)
     - [And](API.md#core) [much](API.md#timers) [more](API.md#utility)!
 - [Practical debugging solutions and sane defaults](#error-handling)
