@@ -32,7 +32,7 @@
     - [`.some(int count)`](#someint-count---promise)
     - [`.map(Function mapper [, Object options])`](#mapfunction-mapper--object-options---promise)
     - [`.reduce(Function reducer [, dynamic initialValue])`](#reducefunction-reducer--dynamic-initialvalue---promise)
-    - [`.filter(Function filterer)`](#filterfunction-filterer---promise)
+    - [`.filter(Function filterer [, Object options])`](#filterfunction-filterer--object-options---promise)
     - [`.each(Function iterator)`](#eachfunction-iterator---promise)
 - [Resource management](#resource-management)
     - [`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise)
