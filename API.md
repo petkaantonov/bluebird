@@ -120,7 +120,7 @@ The above ensures `getConnection()` fulfills the contract of a promise-returning
 
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
-[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) with progress handler. Returns a new promise chained from this promise. The new promise will be rejected or resolved dedefer on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
+[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/). Returns a new promise chained from this promise. The new promise will be rejected or resolved dedefer on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
 Example:
 
@@ -173,14 +173,14 @@ This extends `.catch` to work more like catch-clauses in languages like Java or 
 Example:
 
 ```js
-somePromise.then(function(){
+somePromise.then(function() {
     return a.b.c.d();
-}).catch(TypeError, function(e){
+}).catch(TypeError, function(e) {
     //If a is defined, will end up here because
     //it is a type error to reference property of undefined
-}).catch(ReferenceError, function(e){
+}).catch(ReferenceError, function(e) {
     //Will end up here if a wasn't defined at all
-}).catch(function(e){
+}).catch(function(e) {
     //Generic catch-the rest, error wasn't TypeError nor
     //ReferenceError
 });
@@ -189,13 +189,13 @@ somePromise.then(function(){
 You may also add multiple filters for a catch handler:
 
 ```js
-somePromise.then(function(){
+somePromise.then(function() {
     return a.b.c.d();
-}).catch(TypeError, ReferenceError, function(e){
+}).catch(TypeError, ReferenceError, function(e) {
     //Will end up here on programmer error
-}).catch(NetworkError, TimeoutError, function(e){
+}).catch(NetworkError, TimeoutError, function(e) {
     //Will end up here on expected everyday network errors
-}).catch(function(e){
+}).catch(function(e) {
     //Catch any unexpected errors
 });
 ```
@@ -212,9 +212,9 @@ MyCustomError.prototype = Object.create(Error.prototype);
 Using it:
 
 ```js
-Promise.resolve().then(function(){
+Promise.resolve().then(function() {
     throw new MyCustomError();
-}).catch(MyCustomError, function(e){
+}).catch(MyCustomError, function(e) {
     //will end up here now
 });
 ```
@@ -257,13 +257,13 @@ Example of using a predicate-based filter:
 var Promise = require("bluebird");
 var request = Promise.promisify(require("request"));
 
-function clientError(e) {
+function ClientError(e) {
     return e.code >= 400 && e.code < 500;
 }
 
-request("http://www.google.com").then(function(contents){
+request("http://www.google.com").then(function(contents) {
     console.log(contents);
-}).catch(clientError, function(e){
+}).catch(ClientError, function(e) {
    //A client error like 400 Bad Request happened
 });
 ```
@@ -383,7 +383,7 @@ function ajaxGetAsync(url) {
         xhr.addEventListener("load", resolve);
         xhr.open("GET", url);
         xhr.send(null);
-    }).finally(function(){
+    }).finally(function() {
         $("#ajax-loader-animation").hide();
     });
 }
@@ -428,10 +428,10 @@ MyClass.prototype.method = function() {
     .then(function(contents) {
         var url = urlParse(contents);
         return this.httpGetAsync(url);
-    }).then(function(result){
+    }).then(function(result) {
         var refined = this.refine(result);
         return this.writeRefinedAsync(refined);
-    }).catch(function(e){
+    }).catch(function(e) {
         this.error(e.stack);
     });
 };
@@ -481,13 +481,13 @@ However, there are many differences when you look closer:
 Note that bind is only propagated with promise transformation. If you create new promise chains inside a handler, those chains are not bound to the "upper" `this`:
 
 ```js
-something().bind(var1).then(function(){
+something().bind(var1).then(function() {
     //`this` is var1 here
-    return Promise.all(getStuff()).then(function(results){
+    return Promise.all(getStuff()).then(function(results) {
         //`this` is undefined here
         //refine results here etc
     });
-}).then(function(){
+}).then(function() {
     //`this` is var1 here
 });
 ```
@@ -498,10 +498,10 @@ However, if you are utilizing the full bluebird API offering, you will *almost n
 something().bind(var1).then(function() {
     //`this` is var1 here
     return getStuff();
-}).map(function(result){
+}).map(function(result) {
     //`this` is var1 here
     //refine result here
-}).then(function(){
+}).then(function() {
     //`this` is var1 here
 });
 ```
@@ -518,10 +518,10 @@ MyClass.prototype.method = function() {
     .then(function(contents) {
         var url = urlParse(contents);
         return this.httpGetAsync(url);
-    }).then(function(result){
+    }).then(function(result) {
         var refined = this.refine(result);
         return this.writeRefinedAsync(refined);
-    }).catch(function(e){
+    }).catch(function(e) {
         this.error(e.stack);
     }).bind(); //The `thisArg` is implicitly undefined - I.E. the default promise `this` value
 };
@@ -546,9 +546,44 @@ The above does `console.log(document.getElementById("my-element"));`. The `.bind
 For coordinating multiple concurrent discrete promises. While [`.all()`](#all---promise) is good for handling a dynamically sized list of uniform promises, `Promise.join` is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently, for example:
 
 ```js
-Promise.join(getPictures(), getComments(), getTweets(),
+var Promise = require("bluebird");
+var join = Promise.join;
+
+join(getPictures(), getComments(), getTweets(),
     function(pictures, comments, tweets) {
     console.log("in total: " + pictures.length + comments.length + tweets.length);
+});
+```
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+var pg = Promise.promisifyAll(require("pg"));
+var join = Promise.join;
+var connectionString = "postgres://username:password@localhost/database";
+
+var fContents = fs.readFileAsync("file.txt", "utf8");
+var fStat = fs.statAsync("file.txt");
+var fSqlClient = pg.connectAsync(connectionString).spread(function(client, done) {
+    client.close = done;
+    return client;
+});
+
+join(fContents, fStat, fSqlClient, function(contents, stat, sqlClient) {
+    var query = "                                                              \
+        INSERT INTO files (byteSize, contents)                                 \
+        VALUES ($1, $2)                                                        \
+    ";
+   return db.queryAsync(query, [stat.size, contents]).thenReturn(query);
+})
+.then(function(query) {
+    console.log("Successfully ran the Query: " + query);
+})
+.finally(function() {
+    // This is why you want to use Promise.using for resource management
+    if (fSqlClient.isFulfilled()) {
+        fSqlClient.value().close();
+    }
 });
 ```
 
@@ -562,7 +597,7 @@ Start the chain of promises with `Promise.try`. Any synchronous exceptions will 
 
 ```js
 function getUserById(id) {
-    return Promise.try(function(){
+    return Promise.try(function() {
         if (typeof id !== "number") {
             throw new Error("id must be a number");
         }
@@ -632,13 +667,13 @@ Create a promise that is resolved with the given value. If `value` is already a 
 Example: (`$` is jQuery)
 
 ```js
-Promise.resolve($.get("http://www.google.com")).then(function(){
+Promise.resolve($.get("http://www.google.com")).then(function() {
     //Returning a thenable from a handler is automatically
     //cast to a trusted Promise as per Promises/A+ specification
     return $.post("http://www.yahoo.com");
-}).then(function(){
+}).then(function() {
 
-}).catch(function(e){
+}).catch(function(e) {
     //jQuery doesn't throw real errors so use catch-all
     console.log(e.statusText);
 });
@@ -775,7 +810,7 @@ Promise.props({
     pictures: getPictures(),
     comments: getComments(),
     tweets: getTweets()
-}).then(function(result){
+}).then(function(result) {
     console.log(result.tweets, result.pictures, result.comments);
 });
 ```
@@ -1037,7 +1072,7 @@ function doStuff() {
         return connection.query(fileContents).finally(function() {
             connection.close();
         });
-    }).then(function(){
+    }).then(function() {
         console.log("query successful and connection closed");
     });
 }
@@ -1136,6 +1171,56 @@ function getConnection() {
 }
 ```
 
+Real example:
+
+```js
+var pg = require("pg");
+// uncomment if necessary
+// var Promise = require("bluebird");
+// Promise.promisifyAll(pg);
+
+function getSqlConnection(connectionString) {
+    var close;
+    return pg.connectAsync(connectionString).spread(function(client, done) {
+        close = done;
+        return client;
+    }).disposer(function() {
+        try {
+            if (close) close();
+        } catch(e) {};
+    });
+}
+
+module.exports = getSqlConnection;
+```
+
+Real example 2:
+
+```js
+var mysql = require("mysql");
+// uncomment if necessary
+// var Promise = require("bluebird");
+// Promise.promisifyAll(mysql);
+// Promise.promisifyAll(require("mysql/lib/Connection").prototype);
+// Promise.promisifyAll(require("mysql/lib/Pool").prototype);
+var pool  = mysql.createPool({
+    connectionLimit: 10,
+    host: 'example.org',
+    user: 'bob',
+    password: 'secret'
+});
+
+function getSqlConnection() {
+    return pool.getConnectionAsync().disposer(function(connection) {
+        try {
+            connection.release();
+        } catch(e) {};
+    });
+}
+
+module.exports = getSqlConnection;
+```
+
 The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.
 
 Example:
@@ -1153,7 +1238,7 @@ function getTransaction() {
 using(getTransaction(), function(tx) {
     return tx.queryAsync(...).then(function() {
         return tx.queryAsync(...)
-    }).then(function(){
+    }).then(function() {
         return tx.queryAsync(...)
     });
 });
@@ -1300,14 +1385,14 @@ Example of promisifying the asynchronous `readFile` of node.js `fs`-module:
 ```js
 var readFile = Promise.promisify(require("fs").readFile);
 
-readFile("myfile.js", "utf8").then(function(contents){
+readFile("myfile.js", "utf8").then(function(contents) {
     return eval(contents);
-}).then(function(result){
+}).then(function(result) {
     console.log("The result of evaluating myfile.js", result);
-}).catch(SyntaxError, function(e){
+}).catch(SyntaxError, function(e) {
     console.log("File had syntax error", e);
 //Catch any other error
-}).catch(function(e){
+}).catch(function(e) {
     console.log("Error reading file", e);
 });
 ```
@@ -1316,7 +1401,7 @@ Note that if the node function is a method of some object, you need to pass the 
 
 ```js
 var redisGet = Promise.promisify(redisClient.get, redisClient);
-redisGet('foo').then(function(){
+redisGet('foo').then(function() {
     //...
 });
 ```
@@ -1352,9 +1437,9 @@ Promise.promisifyAll(require("redis"));
 
 //Later on, all redis client instances have promise returning functions:
 
-redisClient.hexistsAsync("myhash", "field").then(function(v){
+redisClient.hexistsAsync("myhash", "field").then(function(v) {
 
-}).catch(function(e){
+}).catch(function(e) {
 
 });
 ```
@@ -1364,9 +1449,9 @@ It also works on singletons or specific instances:
 ```js
 var fs = Promise.promisifyAll(require("fs"));
 
-fs.readFileAsync("myfile.js", "utf8").then(function(contents){
+fs.readFileAsync("myfile.js", "utf8").then(function(contents) {
     console.log(contents);
-}).catch(function(e){
+}).catch(function(e) {
     console.error(e.stack);
 });
 ```
@@ -1543,7 +1628,7 @@ function fetchContentWith5Retries(retries) {
 Returns a promise that will be fulfilled with `value` (or `undefined`) after given `ms` milliseconds. If `value` is a promise, the delay will start counting down when it is fulfilled and the returned promise will be fulfilled with the fulfillment value of the `value` promise.
 
 ```js
-Promise.delay(500).then(function(){
+Promise.delay(500).then(function() {
     console.log("500 ms passed");
     return "Hello world";
 }).delay(500).then(function(helloWorldString) {
@@ -1660,7 +1745,7 @@ Running the example with node version at least 0.11.2:
 
 When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
 
-Doing `Promise.coroutine(function*(){})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
+Doing `Promise.coroutine(function*() {})` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
 
 **Tip**
 
@@ -1808,7 +1893,7 @@ doSomething()
 This is a convenience method for doing:
 
 ```js
-promise.then(function(obj){
+promise.then(function(obj) {
     return obj[propertyName].call(obj, arg...);
 });
 ```
@@ -1881,7 +1966,7 @@ fs.readdirAsync(".").then(_)
 This is a convenience method for doing:
 
 ```js
-promise.then(function(obj){
+promise.then(function(obj) {
     return obj[propertyName];
 });
 ```
@@ -2098,7 +2183,7 @@ a more suitable error handling scheme. Any scheme can be implemented on top of t
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
 
 ```js
-Promise.onPossiblyUnhandledRejection(function(e, promise){
+Promise.onPossiblyUnhandledRejection(function(e, promise) {
     throw e;
 });
 ```
@@ -2152,7 +2237,7 @@ Promise.resolve().then(function outer() {
     return Promise.resolve().then(function inner() {
         return Promise.resolve().then(function evenMoreInner() {
             a.b.c.d()
-        }).catch(function catcher(e){
+        }).catch(function catcher(e) {
             console.error(e.stack);
         });
     });
@@ -2217,7 +2302,7 @@ Promise.resolve($.get(...))
 Using jQuery after:
 
 ```js
-Promise.resolve($.get(...).progress(function(){
+Promise.resolve($.get(...).progress(function() {
         // ...
     }))
     .then(function() {
@@ -2231,12 +2316,12 @@ Promise.resolve($.get(...).progress(function(){
 Implementing general progress interfaces like in C#:
 
 ```js
-function returnsPromiseWithProgress(progressHandler){
-    return doFirstAction().tap(function(){
+function returnsPromiseWithProgress(progressHandler) {
+    return doFirstAction().tap(function() {
         progressHandler(0.33);
-    }).then(doSecondAction).tap(function(){
+    }).then(doSecondAction).tap(function() {
         progressHandler(0.66);
-    }).then(doThirdAction).tap(function(){
+    }).then(doThirdAction).tap(function() {
         progressHandler(1.00);
     });
 }
@@ -2253,7 +2338,7 @@ returnsPromiseWithProgress(function(progress) {
 Another example using `coroutine`:
 
 ```js
-var doNothing = function(){};
+var doNothing = function() {};
 var progressSupportingCoroutine = Promise.coroutine(function* (progress) {
         progress = typeof progress === "function" ? progress : doNothing;
         var first = yield getFirstValue();
