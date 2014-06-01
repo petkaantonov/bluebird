@@ -574,7 +574,7 @@ join(fContents, fStat, fSqlClient, function(contents, stat, sqlClient) {
         INSERT INTO files (byteSize, contents)                                 \
         VALUES ($1, $2)                                                        \
     ";
-   return db.queryAsync(query, [stat.size, contents]).thenReturn(query);
+   return sqlClient.queryAsync(query, [stat.size, contents]).thenReturn(query);
 })
 .then(function(query) {
     console.log("Successfully ran the Query: " + query);
