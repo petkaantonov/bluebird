@@ -45,8 +45,7 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
             this._drainQueue();
             if (this._isResolved()) return;
         }
-    }
-    else {
+    } else {
         if (limit >= 1 && this._inFlight >= limit) {
             values[index] = value;
             this._queue.push(index);
@@ -69,11 +68,9 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = PENDING;
                 return maybePromise._proxyPromiseArray(this, index);
-            }
-            else if (maybePromise.isFulfilled()) {
+            } else if (maybePromise.isFulfilled()) {
                 ret = maybePromise.value();
-            }
-            else {
+            } else {
                 maybePromise._unsetRejectionIsUnhandled();
                 return this._reject(maybePromise.reason());
             }
@@ -84,8 +81,7 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
     if (totalResolved >= length) {
         if (preservedValues !== null) {
             this._filter(values, preservedValues);
-        }
-        else {
+        } else {
             this._resolve(values);
         }
 

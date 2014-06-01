@@ -26,12 +26,10 @@ function nativeAssert(callName, args, expect) {
                 callName + "("+ params.join(",") + ");");
         var fn = Function.apply(null, constructorArgs);
         return fn.apply(null, args);
-    }
-    catch (e) {
+    } catch (e) {
         if (!(e instanceof SyntaxError)) {
             throw e;
-        }
-        else {
+        } else {
             return expect;
         }
     }

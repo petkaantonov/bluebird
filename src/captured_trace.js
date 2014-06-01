@@ -21,8 +21,7 @@ function formatNonError(obj) {
         str = "[function " +
             (obj.name || "anonymous") +
             "]";
-    }
-    else {
+    } else {
         str = obj.toString();
         var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
         if (ruselessToString.test(str)) {
@@ -67,15 +66,13 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
         if (typeof reason === "object" || typeof reason === "function") {
             var stack = reason.stack;
             message = "Possibly unhandled " + formatStack(stack, reason);
-        }
-        else {
+        } else {
             message = "Possibly unhandled " + String(reason);
         }
         if (typeof console.error === "function" ||
             typeof console.error === "object") {
             console.error(message);
-        }
-        else if (typeof console.log === "function" ||
+        } else if (typeof console.log === "function" ||
             typeof console.log === "object") {
             console.log(message);
         }
@@ -90,8 +87,7 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
         if (current[curLast] === line) {
             current.pop();
             curLast--;
-        }
-        else {
+        } else {
             break;
         }
     }
@@ -188,8 +184,7 @@ var captureStackTrace = (function stackDetection() {
             }
             o.stack = ret;
         };
-    }
-    else {
+    } else {
         formatStack = function(stack, error) {
             if (typeof stack === "string") return stack;
 

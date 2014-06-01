@@ -12,9 +12,7 @@ if (isES5) {
         isArray: Array.isArray,
         isES5: isES5
     };
-}
-
-else {
+} else {
     var has = {}.hasOwnProperty;
     var str = {}.toString;
     var proto = {}.constructor.prototype;

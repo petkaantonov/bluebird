@@ -49,12 +49,10 @@ if (canEvaluate) {
             var ret = tryCatch1(handler, void 0, this);
             if (ret === errorObj) {
                 ret._rejectUnchecked(ret.e);
-            }
-            else if (!promise._tryFollow(ret)) {
+            } else if (!promise._tryFollow(ret)) {
                 promise._fulfillUnchecked(ret);
             }
-        }
-        else {
+        } else {
             this.now = now;
         }
     };
@@ -80,17 +78,14 @@ Promise.join = function Promise$Join() {
                     if (maybePromise.isPending()) {
                         maybePromise._then(callbacks[i], reject,
                                            void 0, ret, holder);
-                    }
-                    else if (maybePromise.isFulfilled()) {
+                    } else if (maybePromise.isFulfilled()) {
                         callbacks[i].call(ret,
                                           maybePromise._settledValue, holder);
-                    }
-                    else {
+                    } else {
                         ret._reject(maybePromise._settledValue);
                         maybePromise._unsetRejectionIsUnhandled();
                     }
-                }
-                else {
+                } else {
                     callbacks[i].call(ret, maybePromise, holder);
                 }
             }

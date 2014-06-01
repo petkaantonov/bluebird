@@ -62,8 +62,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
                 this.__hardReject__(err);
                 return;
             }
-        }
-        else if (values.isPending()) {
+        } else if (values.isPending()) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
             values._then(
@@ -74,14 +73,12 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
                 resolveValueIfEmpty
            );
             return;
-        }
-        else {
+        } else {
             values._unsetRejectionIsUnhandled();
             this._reject(values._settledValue);
             return;
         }
-    }
-    else if (!isArray(values)) {
+    } else if (!isArray(values)) {
         var err = new Promise.TypeError(COLLECTION_ERROR);
         this.__hardReject__(err);
         return;
@@ -106,13 +103,11 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             if (maybePromise.isPending()) {
                 //Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
-            }
-            else {
+            } else {
                 maybePromise._unsetRejectionIsUnhandled();
                 isDirectScanNeeded = true;
             }
-        }
-        else {
+        } else {
             isDirectScanNeeded = true;
         }
         newValues[i] = maybePromise;
@@ -129,11 +124,9 @@ function PromiseArray$_settlePromiseAt(index) {
     var value = this._values[index];
     if (!(value instanceof Promise)) {
         this._promiseFulfilled(value, index);
-    }
-    else if (value.isFulfilled()) {
+    } else if (value.isFulfilled()) {
         this._promiseFulfilled(value._settledValue, index);
-    }
-    else if (value.isRejected()) {
+    } else if (value.isRejected()) {
         this._promiseRejected(value._settledValue, index);
     }
 };

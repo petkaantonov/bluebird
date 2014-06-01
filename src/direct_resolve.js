@@ -17,8 +17,7 @@ var wrapper = function Promise$_wrapper(value, action) {
         return function Promise$_thrower() {
             throw value;
         };
-    }
-    else if (action === RETURN) {
+    } else if (action === RETURN) {
         return function Promise$_returner() {
             return value;
         };

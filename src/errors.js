@@ -45,8 +45,7 @@ var AggregateError = subError("AggregateError", "aggregate error");
 try {
     _TypeError = TypeError;
     _RangeError = RangeError;
-}
-catch(e) {
+} catch(e) {
     _TypeError = subError("TypeError", "type error");
     _RangeError = subError("RangeError", "range error");
 }
@@ -90,8 +89,7 @@ function RejectionError(message) {
     if (message instanceof Error) {
         this.message = message.message;
         this.stack = message.stack;
-    }
-    else if (Error.captureStackTrace) {
+    } else if (Error.captureStackTrace) {
         Error.captureStackTrace(this, this.constructor);
     }
 

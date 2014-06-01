@@ -68,13 +68,12 @@ function Promise$_Props(promises) {
 
     if (!isObject(castValue)) {
         return apiRejection(PROPS_TYPE_ERROR);
-    }
-    else if (castValue instanceof Promise) {
+    } else if (castValue instanceof Promise) {
         ret = castValue._then(Promise.props, void 0, void 0, void 0, void 0);
-    }
-    else {
+    } else {
         ret = new PropertiesPromiseArray(castValue).promise();
     }
+
     if (castValue instanceof Promise) {
         ret._propagateFrom(castValue, PROPAGATE_BIND);
     }

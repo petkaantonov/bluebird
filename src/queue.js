@@ -89,8 +89,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
     //Can perform direct linear copy
     if (oldFront + length <= oldCapacity) {
         arrayCopy(oldQueue, oldFront, this, 0, length);
-    }
-    else {//Cannot perform copy directly, perform as much as possible
+    } else {//Cannot perform copy directly, perform as much as possible
             //at the end, and then copy the rest to the beginning of the buffer
         var lengthBeforeWrapping =
             length - ((oldFront + length) & (oldCapacity - 1));

@@ -60,8 +60,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
         if (!this._promise._tryFollow(value)) {
             this._promise._fulfill(value);
         }
-    }
-    else {
+    } else {
         var maybePromise = cast(value, void 0);
         if (!(maybePromise instanceof Promise)) {
             maybePromise = promiseFromYieldHandler(maybePromise);

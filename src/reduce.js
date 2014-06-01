@@ -19,12 +19,10 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
         if (maybePromise.isPending()) {
             currentIndex = -1;
             maybePromise._proxyPromiseArray(this, -1);
-        }
-        else if (maybePromise.isFulfilled()) {
+        } else if (maybePromise.isFulfilled()) {
             accum = maybePromise.value();
             currentIndex = 0;
-        }
-        else {
+        } else {
             maybePromise._unsetRejectionIsUnhandled();
             this._reject(maybePromise.reason());
             rejected = true;
@@ -71,20 +69,17 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
         currentIndex = 1;
         if (length < 2) return this._resolve(void 0);
         value = values[1];
-    }
     // Cannot process this index right now, process it later
-    else if (index > currentIndex) {
+    } else if (index > currentIndex) {
         return;
-    }
     // Round 2 promise or the initialValue was a promise and was fulfilled
-    else if (index === -1 || values[index] === PENDING) {
+    } else if (index === -1 || values[index] === PENDING) {
         accum = value;
         currentIndex++;
         if (currentIndex >= length)
             return this._resolve(isEach ? preservedValues : accum);
         value = values[currentIndex];
-    }
-    else {
+    } else {
         accum = this._accum;
     }
 
@@ -100,14 +95,12 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
         if (value instanceof Promise) {
             if (value.isFulfilled()) {
                 value = value._settledValue;
-            }
-            else if (value.isPending()) {
+            } else if (value.isPending()) {
                 // Continue later when the promise at current index fulfills
                 this._accum = accum;
                 this._currentIndex = i;
                 return;
-            }
-            else {
+            } else {
                 value._unsetRejectionIsUnhandled();
                 return this._reject(value.reason());
             }
@@ -133,11 +126,9 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
                 this._accum = accum;
                 this._currentIndex = i;
                 return maybePromise._proxyPromiseArray(this, i);
-            }
-            else if (maybePromise.isFulfilled()) {
+            } else if (maybePromise.isFulfilled()) {
                 ret = maybePromise.value();
-            }
-            else {
+            } else {
                 maybePromise._unsetRejectionIsUnhandled();
                 return this._reject(maybePromise.reason());
             }

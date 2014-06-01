@@ -17,8 +17,7 @@ function wrapAsRejectionError(obj) {
     var ret;
     if (isUntypedError(obj)) {
         ret = new RejectionError(obj);
-    }
-    else {
+    } else {
         ret = obj;
     }
     errors.markAsOriginatingFromRejection(ret);
@@ -33,15 +32,11 @@ function nodebackForPromise(promise) {
             var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
             promise._reject(wrapped);
-        }
-        else {
-            if (arguments.length > 2) {
-                INLINE_SLICE(args, arguments, 1);
-                promise._fulfill(args);
-            }
-            else {
-                promise._fulfill(value);
-            }
+        } else if (arguments.length > 2) {
+            INLINE_SLICE(args, arguments, 1);
+            promise._fulfill(args);
+        } else {
+            promise._fulfill(value);
         }
 
         promise = null;

@@ -56,7 +56,7 @@ Async.prototype._consumeFunctionBuffer =
 function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
     ASSERT(this._isTickUsed);
-    while(functionBuffer.length() > 0) {
+    while (functionBuffer.length() > 0) {
         var fn = functionBuffer.shift();
         var receiver = functionBuffer.shift();
         var arg = functionBuffer.shift();
@@ -77,8 +77,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
             this._queueTick();
             if (fn.domain != null) {
                 fn.domain.emit("error", res.e);
-            }
-            else {
+            } else {
                 throw res.e;
             }
         }

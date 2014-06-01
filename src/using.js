@@ -33,8 +33,7 @@ module.exports = function (Promise, apiRejection, cast) {
                 try {
                     maybePromise = cast(maybePromise._getDisposer()
                                         .tryDispose(inspection), void 0);
-                }
-                catch (e) {
+                } catch (e) {
                     return thrower(e);
                 }
                 if (maybePromise instanceof Promise) {

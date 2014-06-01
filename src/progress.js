@@ -54,9 +54,8 @@ function Promise$_doProgressWith(progression) {
             promise._attachExtraTrace(trace);
             promise._progress(ret.e);
         }
-    }
     //2.2 The onProgress callback may return a promise.
-    else if (ret instanceof Promise) {
+    } else if (ret instanceof Promise) {
         //2.2.1 The callback is not considered complete
         //until the promise is fulfilled.
 
@@ -67,8 +66,7 @@ function Promise$_doProgressWith(progression) {
         //should be treated as if it was thrown by the callback
         //directly.
         ret._then(promise._progress, null, null, promise, void 0);
-    }
-    else {
+    } else {
         promise._progress(ret);
     }
 };
@@ -88,11 +86,9 @@ function Promise$_progressUnchecked(progressValue) {
             var receiver = this._receiverAt(i);
             if (typeof handler === "function") {
                 handler.call(receiver, progressValue, promise);
-            }
-            else if (receiver instanceof Promise && receiver._isProxied()) {
+            } else if (receiver instanceof Promise && receiver._isProxied()) {
                 receiver._progressUnchecked(progressValue);
-            }
-            else if (receiver instanceof PromiseArray) {
+            } else if (receiver instanceof PromiseArray) {
                 receiver._promiseProgressed(progressValue, promise);
             }
             continue;
@@ -105,8 +101,7 @@ function Promise$_progressUnchecked(progressValue) {
                 receiver: this._receiverAt(i),
                 value: progressValue
             });
-        }
-        else {
+        } else {
             async.invoke(progress, promise, progressValue);
         }
     }

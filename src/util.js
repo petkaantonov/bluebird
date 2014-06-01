@@ -196,8 +196,7 @@ function isClass(fn) {
                    !(keys.length === 1 && keys[0] === "constructor");
         }
         return false;
-    }
-    catch (e) {
+    } catch (e) {
         return false;
     }
 }

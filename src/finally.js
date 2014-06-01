@@ -25,8 +25,7 @@ function promisedFinally(ret, reasonOrValue, isFulfilled) {
     var then;
     if (wrapsPrimitiveReceiver && isPrimitive(reasonOrValue)) {
         then = isFulfilled ? return$(reasonOrValue) : throw$(reasonOrValue);
-    }
-    else {
+    } else {
         then = isFulfilled ? returnThis : throwThis;
     }
     return ret._then(then, thrower, void 0, reasonOrValue, void 0);
@@ -53,9 +52,8 @@ function finallyHandler(reasonOrValue) {
     if (promise.isRejected()) {
         NEXT_FILTER.e = reasonOrValue;
         return NEXT_FILTER;
-    }
     //or success handler
-    else {
+    } else {
         return reasonOrValue;
     }
 }

@@ -15,16 +15,14 @@ function Promise$_Race(promises, parent) {
 
     if (maybePromise instanceof Promise) {
         return raceLater(maybePromise);
-    }
-    else if (!isArray(promises)) {
+    } else if (!isArray(promises)) {
         return apiRejection(COLLECTION_ERROR);
     }
 
     var ret = new Promise(INTERNAL);
     if (parent !== void 0) {
         ret._propagateFrom(parent, PROPAGATE_ALL);
-    }
-    else {
+    } else {
         ret._setTrace(void 0);
     }
     var fulfill = ret._fulfill;
@@ -36,13 +34,7 @@ function Promise$_Race(promises, parent) {
             continue;
         }
 
-        Promise.cast(val)._then(
-            fulfill,
-            reject,
-            void 0,
-            ret,
-            null
-       );
+        Promise.cast(val)._then(fulfill, reject, void 0, ret, null);
     }
     //Yes, if promises were empty, it will be forever pending :-)
     return ret;

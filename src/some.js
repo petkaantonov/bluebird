@@ -63,8 +63,7 @@ function SomePromiseArray$_promiseFulfilled(value) {
         this._values.length = this.howMany();
         if (this.howMany() === 1 && this._unwrap) {
             this._resolve(this._values[0]);
-        }
-        else {
+        } else {
             this._resolve(this._values);
         }
     }

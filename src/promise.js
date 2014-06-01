@@ -91,8 +91,7 @@ function Promise$catch(fn) {
             var item = arguments[i];
             if (typeof item === "function") {
                 catchInstances[j++] = item;
-            }
-            else {
+            } else {
                 var catchFilterTypeError =
                     new TypeError(
                         "A catch filter must be an error constructor "
@@ -148,8 +147,7 @@ Promise.prototype.toJSON = function Promise$toJSON() {
     if (this.isFulfilled()) {
         ret.fulfillmentValue = this._settledValue;
         ret.isFulfilled = true;
-    }
-    else if (this.isRejected()) {
+    } else if (this.isRejected()) {
         ret.rejectionReason = this._settledValue;
         ret.isRejected = true;
     }
@@ -180,13 +178,11 @@ function Promise$_resolveFromSyncValue(value) {
         this._setRejected();
         this._settledValue = value.e;
         this._ensurePossibleRejectionHandled();
-    }
-    else {
+    } else {
         var maybePromise = cast(value, void 0);
         if (maybePromise instanceof Promise) {
             this._follow(maybePromise);
-        }
-        else {
+        } else {
             this._cleanValues();
             this._setFulfilled();
             this._settledValue = value;
@@ -504,8 +500,7 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
             this._fulfillmentHandler0 = fulfill;
         if (typeof reject === "function") this._rejectionHandler0 = reject;
         if (typeof progress === "function") this._progressHandler0 = progress;
-    }
-    else {
+    } else {
         var base = (index << 2) + index - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
@@ -531,8 +526,7 @@ function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
     if (index === 0) {
         this._promise0 = promiseSlotValue;
         this._receiver0 = receiver;
-    }
-    else {
+    } else {
         var base = (index << 2) + index - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
@@ -564,8 +558,7 @@ Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
     if (obj !== void 0) {
         this._bitField = this._bitField | IS_BOUND;
         this._boundTo = obj;
-    }
-    else {
+    } else {
         this._bitField = this._bitField & (~IS_BOUND);
     }
 };
@@ -642,8 +635,7 @@ function Promise$_callHandler(
     var x;
     if (receiver === APPLY && !this.isRejected()) {
         x = this._callSpread(handler, promise, value, localDebugging);
-    }
-    else {
+    } else {
         if (localDebugging) promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
@@ -675,8 +667,7 @@ function Promise$_settlePromiseFromHandler(
         var trace = canAttach(err) ? err : new Error(err + "");
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
-    }
-    else {
+    } else {
         var castValue = cast(x, promise);
         if (castValue instanceof Promise) {
             if (castValue.isRejected() &&
@@ -688,8 +679,7 @@ function Promise$_settlePromiseFromHandler(
             }
             promise._follow(castValue);
             promise._propagateFrom(castValue, PROPAGATE_CANCEL);
-        }
-        else {
+        } else {
             promise._fulfillUnchecked(x);
         }
     }
@@ -705,11 +695,9 @@ function Promise$_follow(promise) {
     if (promise.isPending()) {
         this._propagateFrom(promise, PROPAGATE_CANCEL);
         promise._proxyPromise(this);
-    }
-    else if (promise.isFulfilled()) {
+    } else if (promise.isFulfilled()) {
         this._fulfillUnchecked(promise._settledValue);
-    }
-    else {
+    } else {
         this._rejectUnchecked(promise._settledValue,
             promise._getCarriedStackTrace());
     }
@@ -753,8 +741,7 @@ Promise.prototype._setTrace = function Promise$_setTrace(parent) {
             parent._traceParent === context) {
             ASSERT(parent._trace != null);
             this._trace = parent._trace;
-        }
-        else {
+        } else {
             this._trace = new CapturedTrace(isTopLevel);
         }
     }
@@ -787,8 +774,7 @@ function Promise$_attachExtraTrace(error) {
         }
         if (stack.length <= headerLineCount) {
             error.stack = "(No stack trace)";
-        }
-        else {
+        } else {
             error.stack = stack.join("\n");
         }
     }
@@ -838,8 +824,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
 
     if (typeof handler === "function") {
         this._settlePromiseFromHandler(handler, receiver, value, promise);
-    }
-    else {
+    } else {
         var done = false;
         var isFulfilled = this.isFulfilled();
         //optimization when .then listeners on a promise are
@@ -854,8 +839,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
                 else receiver._rejectUnchecked(value,
                     this._getCarriedStackTrace());
                 done = true;
-            }
-            else if (receiver instanceof PromiseArray) {
+            } else if (receiver instanceof PromiseArray) {
                 if (isFulfilled) receiver._promiseFulfilled(value, promise);
                 else receiver._promiseRejected(value, promise);
                 done = true;
@@ -971,8 +955,7 @@ function Promise$_rejectUnchecked(reason, trace) {
 
     if (len > 0) {
         async.invoke(this._rejectPromises, this, null);
-    }
-    else {
+    } else {
         this._ensurePossibleRejectionHandled();
     }
 };

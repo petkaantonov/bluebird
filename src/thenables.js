@@ -42,8 +42,7 @@ function Promise$_Cast(obj, originalPromise) {
                 originalPromise._attachExtraTrace(then.e);
             }
             return Promise.reject(then.e);
-        }
-        else if (typeof then === "function") {
+        } else if (typeof then === "function") {
             return Promise$_doThenable(obj, then, originalPromise);
         }
     }
@@ -67,8 +66,7 @@ function Promise$_doThenable(x, then, originalPromise) {
             Promise$_rejectFromThenable,
             Promise$_progressFromThenable
         );
-    }
-    catch(e) {
+    } catch(e) {
         if (!called) {
             called = true;
             var trace = canAttach(e) ? e : new Error(e + "");

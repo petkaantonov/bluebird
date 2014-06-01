@@ -48,8 +48,7 @@ var delay = Promise.delay = function Promise$Delay(value, ms) {
         return promise.then(function(value) {
             return Promise.delay(value, ms);
         });
-    }
-    else {
+    } else {
         promise._setTrace(void 0);
         _setTimeout(afterDelay, ms, value, promise);
     }
