@@ -35,7 +35,7 @@ function getMethodCaller(name) {
     return ret;
 }
 
-function Promise$caller(obj) {
+function caller(obj) {
     return obj[this.pop()].apply(obj, this);
 }
 Promise.prototype.call = function Promise$call(methodName) {
@@ -47,13 +47,18 @@ Promise.prototype.call = function Promise$call(methodName) {
         }
     }
     args.push(methodName);
-    return this._then(Promise$caller, void 0, void 0, args, void 0);
+    return this._then(caller, void 0, void 0, args, void 0);
 };
 
-function Promise$getter(obj) {
+function namedGetter(obj) {
+    return obj[this];
+}
+function indexedGetter(obj) {
     return obj[this];
 }
 Promise.prototype.get = function Promise$get(propertyName) {
-    return this._then(Promise$getter, void 0, void 0, propertyName, void 0);
+    var isIndex = (typeof propertyName === "number");
+    return this._then(isIndex ? indexedGetter : namedGetter,
+                        void 0, void 0, propertyName, void 0);
 };
 };
