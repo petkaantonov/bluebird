@@ -10,6 +10,7 @@ var errorObj = util.errorObj;
 if (canEvaluate) {
     var thenCallback = function(i) {
         return new Function("value", "holder", "                             \n\
+            'use strict';                                                    \n\
             holder.pIndex = value;                                           \n\
             holder.checkFulfillment(this);                                   \n\
             ".replace(/Index/g, i));
@@ -19,6 +20,7 @@ if (canEvaluate) {
         var values = [];
         for (var i = 1; i <= count; ++i) values.push("holder.p" + i);
         return new Function("holder", "                                      \n\
+            'use strict';                                                    \n\
             var callback = holder.fn;                                        \n\
             return callback(values);                                         \n\
             ".replace(/values/g, values.join(", ")));
