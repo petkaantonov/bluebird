@@ -24320,8 +24320,6 @@ describe( "Promisify with custom suffix", function() {
 
         Promise.promisifyAll(Test.prototype, {suffix: "$P"});
         assert(typeof Test.prototype.method$P == "function");
-        assert(Test.prototype.method.name === "method" ?
-               Test.prototype.method$P.name === "method$P" : true);
         done();
     });
 
