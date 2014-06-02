@@ -12,7 +12,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         queries[i] = FileVersion.insert({index: i}).execWithin(tx);
     }
 
-    RSVP.Promise.all(queries).then(function() {
+    RSVP.all(queries).then(function() {
         tx.commit();
         done();
     }, function(err) {
