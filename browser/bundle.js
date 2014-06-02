@@ -24355,7 +24355,6 @@ describe("Module promisification", function() {
         assert(typeof redis.Multi.prototype.execAsync === "function");
         assert(typeof redis.RedisClient.prototype.queryAsync === "function");
         assert(typeof redis.Multi.staticMethod.tooDeepAsync === "undefined");
-        assert(Object.keys(redis.Multi.staticMethodAsync).length === 1);
         done();
     })
 
