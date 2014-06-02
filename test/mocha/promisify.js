@@ -7,7 +7,7 @@ var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
-var RejectionError = Promise.RejectionError;
+var OperationalError = Promise.OperationalError;
 
 var erroneusNode = function(a, b, c, cb) {
     setTimeout(function(){
@@ -16,7 +16,7 @@ var erroneusNode = function(a, b, c, cb) {
 };
 
 var sentinel = {};
-var sentinelError = new RejectionError();
+var sentinelError = new OperationalError();
 
 var successNode = function(a, b, c, cb) {
     setTimeout(function(){
@@ -44,7 +44,7 @@ var syncSuccessNodeMultipleValues = function(a, b, c, cb) {
 
 var errToThrow;
 var thrower = Promise.promisify(function(a, b, c, cb) {
-    errToThrow = new RejectionError();
+    errToThrow = new OperationalError();
     throw errToThrow;
 });
 
@@ -621,7 +621,7 @@ if( Promise.hasLongStackTraces() ) {
     });
 }
 
-describe("RejectionError wrapping", function() {
+describe("OperationalError wrapping", function() {
 
     var CustomError = function(){
 
@@ -676,14 +676,14 @@ describe("RejectionError wrapping", function() {
 
     specify("should wrap stringback", function(done) {
         stringback().error(function(e) {
-            assert(e instanceof RejectionError);
+            assert(e instanceof OperationalError);
             done();
         });
     });
 
     specify("should wrap errback", function(done) {
         errback().error(function(e) {
-            assert(e instanceof RejectionError);
+            assert(e instanceof OperationalError);
             done();
         });
     });

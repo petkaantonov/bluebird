@@ -62,7 +62,7 @@
     - [`Promise.noConflict()`](#promisenoconflict---object)
     - [`Promise.setScheduler(Function scheduler)`](#promisesetschedulerfunction-scheduler---void)
 - [Built-in error types](#built-in-error-types)
-    - [`RejectionError()`](#rejectionerror)
+    - [`OperationalError()`](#operationalerror)
     - [`TimeoutError()`](#timeouterror)
     - [`CancellationError()`](#cancellationerror)
     - [`AggregateError()`](#aggregateerror)
@@ -281,10 +281,10 @@ Like [`.catch`](#catchfunction-handler---promise) but instead of catching all ty
 It is equivalent to the following [`.catch`](#catchfunction-errorclassfunction-predicate-function-handler---promise) pattern:
 
 ```js
-// Assumes RejectionError has been made global
+// Assumes OperationalError has been made global
 function originatesFromRejection(e) {
     if (e == null) return false;
-    return (e instanceof RejectionError) || (e.isAsync === true);
+    return (e instanceof OperationalError) || (e.isOperational === true);
 }
 
 // Now this bit:
@@ -2173,12 +2173,12 @@ becoming the `.message` property of the error object.
 
 By default the error types need to be referenced from the Promise constructor, e.g. to get a reference to `TimeoutError`, do `var TimeoutError = Promise.TimeoutError`. However, for convenience you will probably want to just make the references global.
 
-#####`RejectionError()`
+#####`OperationalError()`
 
 Represents an error is an explicit promise rejection as opposed to a thrown error. For example, if an error is errbacked by a callback API promisified through [`promisify()`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function) or [`promisifyAll()`](#promisepromisifyallobject-target--object-options---object)
-and is not a typed error, it will be converted to a `RejectionError` which has the original error in the `.cause` property.
+and is not a typed error, it will be converted to a `OperationalError` which has the original error in the `.cause` property.
 
-`RejectionError`s are caught in [`.error()`](#error-rejectedhandler----promise) handlers.
+`OperationalError`s are caught in [`.error()`](#error-rejectedhandler----promise) handlers.
 
 <hr>
 

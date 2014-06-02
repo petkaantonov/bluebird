@@ -32,7 +32,7 @@ var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
-var RejectionError = errors.RejectionError;
+var OperationalError = errors.OperationalError;
 var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttach = errors.canAttach;
@@ -1048,7 +1048,8 @@ Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
-Promise.RejectionError = RejectionError;
+Promise.OperationalError = OperationalError;
+Promise.RejectionError = OperationalError;
 Promise.AggregateError = errors.AggregateError;
 
 util.toFastProperties(Promise);

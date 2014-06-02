@@ -6,15 +6,15 @@ var notEnumerableProp = util.notEnumerableProp;
 
 function markAsOriginatingFromRejection(e) {
     try {
-        notEnumerableProp(e, REJECTION_ERROR_KEY, true);
+        notEnumerableProp(e, OPERATIONAL_ERROR_KEY, true);
     }
     catch(ignore) {}
 }
 
 function originatesFromRejection(e) {
     if (e == null) return false;
-    return ((e instanceof RejectionError) ||
-        e[REJECTION_ERROR_KEY] === true);
+    return ((e instanceof OperationalError) ||
+        e[OPERATIONAL_ERROR_KEY] === true);
 }
 
 function isError(obj) {
@@ -60,7 +60,7 @@ for (var i = 0; i < methods.length; ++i) {
 }
 
 AggregateError.prototype.length = 0;
-AggregateError.prototype.isAsync = true;
+AggregateError.prototype[OPERATIONAL_ERROR_KEY] = true;
 var level = 0;
 AggregateError.prototype.toString = function() {
     var indent = Array(level * 4 + 1).join(" ");
@@ -80,11 +80,11 @@ AggregateError.prototype.toString = function() {
     return ret;
 };
 
-function RejectionError(message) {
-    this.name = "RejectionError";
+function OperationalError(message) {
+    this.name = "OperationalError";
     this.message = message;
     this.cause = message;
-    this.isAsync = true;
+    this[OPERATIONAL_ERROR_KEY] = true;
 
     if (message instanceof Error) {
         this.message = message.message;
@@ -94,7 +94,7 @@ function RejectionError(message) {
     }
 
 }
-inherits(RejectionError, Error);
+inherits(OperationalError, Error);
 
 //Ensure all copies of the library throw the same error types
 var key = "__BluebirdErrorTypes__";
@@ -103,7 +103,8 @@ if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
         TimeoutError: TimeoutError,
-        RejectionError: RejectionError,
+        OperationalError: OperationalError,
+        RejectionError: OperationalError,
         AggregateError: AggregateError
     });
     notEnumerableProp(Error, key, errorTypes);
@@ -114,7 +115,7 @@ module.exports = {
     TypeError: _TypeError,
     RangeError: _RangeError,
     CancellationError: errorTypes.CancellationError,
-    RejectionError: errorTypes.RejectionError,
+    OperationalError: errorTypes.OperationalError,
     TimeoutError: errorTypes.TimeoutError,
     AggregateError: errorTypes.AggregateError,
     originatesFromRejection: originatesFromRejection,

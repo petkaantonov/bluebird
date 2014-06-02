@@ -3,7 +3,7 @@ var util = require("./util.js");
 var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
-var RejectionError = errors.RejectionError;
+var OperationalError = errors.OperationalError;
 var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
@@ -13,10 +13,10 @@ function isUntypedError(obj) {
         es5.getPrototypeOf(obj) === Error.prototype;
 }
 
-function wrapAsRejectionError(obj) {
+function wrapAsOperationalError(obj) {
     var ret;
     if (isUntypedError(obj)) {
-        ret = new RejectionError(obj);
+        ret = new OperationalError(obj);
     } else {
         ret = obj;
     }
@@ -29,7 +29,7 @@ function nodebackForPromise(promise) {
         if (promise === null) return;
 
         if (err) {
-            var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
+            var wrapped = wrapAsOperationalError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
             promise._reject(wrapped);
         } else if (arguments.length > 2) {

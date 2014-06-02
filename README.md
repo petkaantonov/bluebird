@@ -314,7 +314,7 @@ Here any kind of unexpected error will automatically reported on stderr along wi
 
 Ok, so, that's pretty neat. But actually not many libraries define error types and it is in fact a complete ghetto out there with ad hoc strings being attached as some arbitrary property name like `.name`, `.type`, `.code`, not having any property at all or even throwing strings as errors and so on. So how can we still listen for expected errors?
 
-Bluebird defines a special error type `RejectionError` (you can get a reference from `Promise.RejectionError`). This type of error is given as rejection reason by promisified methods when
+Bluebird defines a special error type `OperationalError` (you can get a reference from `Promise.OperationalError`). This type of error is given as rejection reason by promisified methods when
 their underlying library gives an untyped, but expected error. Primitives such as strings, and error objects that are directly created like `new Error("database didn't respond")` are considered untyped.
 
 Example of such library is the node core library `fs`. So if we promisify it, we can catch just the errors we want pretty easily and have programmer errors be redirected to unhandled rejection handler so that we notice them:
@@ -328,14 +328,14 @@ fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
     console.log("Successful json")
 }).catch(SyntaxError, function (e) {
     console.error("file contains invalid json");
-}).catch(Promise.RejectionError, function (e) {
+}).catch(Promise.OperationalError, function (e) {
     console.error("unable to read file, because: ", e.message);
 });
 ```
 
-The last `catch` handler is only invoked when the `fs` module explicitly used the `err` argument convention of async callbacks to inform of an expected error. The `RejectionError` instance will contain the original error in its `.cause` property but it does have a direct copy of the `.message` and `.stack` too. In this code any unexpected error - be it in our code or the `fs` module - would not be caught by these handlers and therefore not swallowed.
+The last `catch` handler is only invoked when the `fs` module explicitly used the `err` argument convention of async callbacks to inform of an expected error. The `OperationalError` instance will contain the original error in its `.cause` property but it does have a direct copy of the `.message` and `.stack` too. In this code any unexpected error - be it in our code or the `fs` module - would not be caught by these handlers and therefore not swallowed.
 
-Since a `catch` handler typed to `Promise.RejectionError` is expected to be used very often, it has a neat shorthand:
+Since a `catch` handler typed to `Promise.OperationalError` is expected to be used very often, it has a neat shorthand:
 
 ```js
 .error(function (e) {
