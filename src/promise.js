@@ -412,6 +412,10 @@ function Promise$_then(
         async.invoke(this._queueSettleAt, this, callbackIndex);
     }
 
+    if (ret) {
+      ret._parent = this;
+    }
+
     return ret;
 };
 
@@ -1018,6 +1022,8 @@ function Promise$_fulfillUnchecked(value) {
 
     if (len > 0) {
         async.invoke(this._settlePromises, this, len);
+    } else if (this._isFinal()) {
+        async.invoke(this._tearDown, this, void 0);
     }
 };
 
@@ -1164,6 +1170,7 @@ if (!CapturedTrace.isSupported()) {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
+require("./tear_down.js")(Promise);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
 require("./synchronous_inspection.js")(Promise);

@@ -192,7 +192,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./global.js":15,"./queue.js":26,"./schedule.js":29,"./util.js":37}],3:[function(require,module,exports){
+},{"./global.js":15,"./queue.js":26,"./schedule.js":29,"./util.js":38}],3:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -572,7 +572,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./es5.js":11,"./util.js":37}],7:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":38}],7:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -668,7 +668,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":9,"./es5.js":11,"./util.js":37}],8:[function(require,module,exports){
+},{"./errors.js":9,"./es5.js":11,"./util.js":38}],8:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -749,7 +749,7 @@ function Promise$thenThrow(reason) {
 };
 };
 
-},{"./util.js":37}],9:[function(require,module,exports){
+},{"./util.js":38}],9:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -865,7 +865,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./es5.js":11,"./global.js":15,"./util.js":37}],10:[function(require,module,exports){
+},{"./es5.js":11,"./global.js":15,"./util.js":38}],10:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1049,7 +1049,7 @@ Promise.prototype.filter = function Promise$filter(fn) {
 };
 };
 
-},{"./util.js":37}],13:[function(require,module,exports){
+},{"./util.js":38}],13:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1174,7 +1174,7 @@ Promise.prototype.tap = function Promise$tap(handler) {
 };
 };
 
-},{"./util.js":37}],14:[function(require,module,exports){
+},{"./util.js":38}],14:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1232,7 +1232,7 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
 };
 };
 
-},{"./errors.js":9,"./promise_spawn.js":22,"./util.js":37}],15:[function(require,module,exports){
+},{"./errors.js":9,"./promise_spawn.js":22,"./util.js":38}],15:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1443,7 +1443,7 @@ Promise.map = function Promise$Map(promises, fn, ref) {
 };
 };
 
-},{"./errors.js":9,"./util.js":37}],17:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],17:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1509,7 +1509,7 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
 };
 };
 
-},{"./async.js":2,"./util.js":37}],18:[function(require,module,exports){
+},{"./async.js":2,"./util.js":38}],18:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1622,7 +1622,7 @@ function Promise$_progressUnchecked(progressValue) {
 };
 };
 
-},{"./async.js":2,"./errors.js":9,"./util.js":37}],19:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":38}],19:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -2036,6 +2036,10 @@ function Promise$_then(
 
     if (this.isResolved()) {
         async.invoke(this._queueSettleAt, this, callbackIndex);
+    }
+
+    if (ret) {
+      ret._parent = this;
     }
 
     return ret;
@@ -2583,6 +2587,8 @@ function Promise$_fulfillUnchecked(value) {
 
     if (len > 0) {
         async.invoke(this._settlePromises, this, len);
+    } else if (this._isFinal()) {
+        async.invoke(this._tearDown, this, void 0);
     }
 };
 
@@ -2724,6 +2730,7 @@ if (!CapturedTrace.isSupported()) {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
+require("./tear_down.js")(Promise);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
 require("./synchronous_inspection.js")(Promise);
@@ -2756,7 +2763,7 @@ return Promise;
 
 };
 
-},{"./any.js":1,"./async.js":2,"./call_get.js":4,"./cancel.js":5,"./captured_trace.js":6,"./catch_filter.js":7,"./direct_resolve.js":8,"./errors.js":9,"./errors_api_rejection":10,"./filter.js":12,"./finally.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":21,"./promisify.js":23,"./props.js":25,"./race.js":27,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./thenables.js":35,"./timers.js":36,"./util.js":37}],20:[function(require,module,exports){
+},{"./any.js":1,"./async.js":2,"./call_get.js":4,"./cancel.js":5,"./captured_trace.js":6,"./catch_filter.js":7,"./direct_resolve.js":8,"./errors.js":9,"./errors_api_rejection":10,"./filter.js":12,"./finally.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":21,"./promisify.js":23,"./props.js":25,"./race.js":27,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./tear_down.js":35,"./thenables.js":36,"./timers.js":37,"./util.js":38}],20:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -2991,7 +2998,7 @@ function PromiseArray$_promiseRejected(reason, index) {
 return PromiseArray;
 };
 
-},{"./async.js":2,"./errors.js":9,"./util.js":37}],21:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":38}],21:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3151,7 +3158,7 @@ function PromiseResolver$_setCarriedStackTrace(trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":2,"./errors.js":9,"./es5.js":11,"./util.js":37}],22:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./es5.js":11,"./util.js":38}],22:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3283,7 +3290,7 @@ PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
 return PromiseSpawn;
 };
 
-},{"./errors.js":9,"./util.js":37}],23:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],23:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3578,7 +3585,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./errors":9,"./es5.js":11,"./promise_resolver.js":21,"./util.js":37}],24:[function(require,module,exports){
+},{"./errors":9,"./es5.js":11,"./promise_resolver.js":21,"./util.js":38}],24:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3657,7 +3664,7 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 return PropertiesPromiseArray;
 };
 
-},{"./es5.js":11,"./util.js":37}],25:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":38}],25:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3723,7 +3730,7 @@ Promise.props = function Promise$Props(promises) {
 };
 };
 
-},{"./errors_api_rejection":10,"./properties_promise_array.js":24,"./util.js":37}],26:[function(require,module,exports){
+},{"./errors_api_rejection":10,"./properties_promise_array.js":24,"./util.js":38}],26:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3946,7 +3953,7 @@ Promise.prototype.race = function Promise$race() {
 
 };
 
-},{"./errors_api_rejection.js":10,"./util.js":37}],28:[function(require,module,exports){
+},{"./errors_api_rejection.js":10,"./util.js":38}],28:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4343,7 +4350,7 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 return SettledPromiseArray;
 };
 
-},{"./util.js":37}],32:[function(require,module,exports){
+},{"./util.js":38}],32:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4534,7 +4541,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./errors.js":9,"./util.js":37}],34:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],34:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4616,6 +4623,51 @@ Promise.PromiseInspection = PromiseInspection;
 };
 
 },{}],35:[function(require,module,exports){
+/**
+ * Copyright (c) 2014 Petka Antonov
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:</p>
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
+ */
+"use strict";
+module.exports = function(Promise) {
+
+Promise.prototype.tearDown =
+function Promise$tearDown(callback) {
+    this._tearDownResolver = callback;
+    return this;
+};
+
+Promise.prototype._tearDown =
+function Promise$_tearDown() {
+    if (this._tearDownResolver) {
+        this._tearDownResolver.call(this._boundTo);
+    }
+
+    if (this._parent) {
+        this._parent._tearDown();
+    }
+};
+
+};
+
+},{}],36:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4752,7 +4804,7 @@ function Promise$_doThenable(x, then, originalPromise) {
 Promise._cast = Promise$_Cast;
 };
 
-},{"./errors.js":9,"./util.js":37}],36:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":38}],37:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4857,7 +4909,7 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
 
 };
 
-},{"./errors.js":9,"./errors_api_rejection":10,"./global.js":15,"./util.js":37}],37:[function(require,module,exports){
+},{"./errors.js":9,"./errors_api_rejection":10,"./global.js":15,"./util.js":38}],38:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
