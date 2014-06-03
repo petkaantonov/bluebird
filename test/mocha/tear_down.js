@@ -42,4 +42,10 @@ describe("tearDown", function () {
           c = 1;
       }).done();
     });
+
+    specify("tearDown is also called on fails", function (done) {
+      Promise.reject("NaN").tearDown(function () {
+          done();
+      }).catch(function () {}).done();
+    });
 });
