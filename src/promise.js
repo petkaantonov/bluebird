@@ -22,8 +22,9 @@ var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 
+var usingContextStack = [];
 var isArray = util.isArray;
-
+var last = util.last;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
@@ -38,7 +39,6 @@ var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttach = errors.canAttach;
 var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
-
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError(CIRCULAR_RESOLUTION_ERROR);
@@ -66,6 +66,9 @@ function Promise(resolver) {
     this._settledValue = void 0;
     //for .bind
     this._boundTo = void 0;
+    var usingContext = last(usingContextStack);
+    this._usingContext = usingContext;
+    if (usingContext !== void 0) usingContext.add(this);
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -317,7 +320,8 @@ function Promise$_then(
 
     if (!haveInternalData) {
         if (debugging) {
-            var haveSameContext = this._peekContext() === this._traceParent;
+            var haveSameContext =
+                this._peekLongStackTraceContext() === this._traceParent;
             ret._traceParent = haveSameContext ? this._traceParent : this;
         }
         ret._propagateFrom(this, PROPAGATE_ALL);
@@ -350,6 +354,26 @@ Promise.prototype._isFollowing = function Promise$_isFollowing() {
 Promise.prototype._setLength = function Promise$_setLength(len) {
     this._bitField = (this._bitField & LENGTH_CLEAR_MASK) |
         (len & LENGTH_MASK);
+};
+
+Promise.prototype._setFrozen = function Promise$_setFrozen() {
+    if (this.isPending()) {
+        this._bitField = this._bitField | IS_FROZEN;
+        this._fulfillmentHandler0 =
+        this._rejectionHandler0 =
+        this._promise0 =
+        this._receiver0 =
+        this._settledValue =
+        this._boundTo =
+        this._usingContext = void 0;
+        if (this._length() > CALLBACK_SIZE) {
+            this._gc();
+        }
+    }
+};
+
+Promise.prototype._isFrozen = function Promise$_isFrozen() {
+    return (this._bitField & IS_FROZEN) > 0;
 };
 
 Promise.prototype._setFulfilled = function Promise$_setFulfilled() {
@@ -723,14 +747,15 @@ function Promise$_tryFollow(value) {
 
 Promise.prototype._resetTrace = function Promise$_resetTrace() {
     if (debugging) {
-        this._trace = new CapturedTrace(this._peekContext() === void 0);
+        this._trace =
+            new CapturedTrace(this._peekLongStackTraceContext() === void 0);
     }
 };
 
 Promise.prototype._setTrace = function Promise$_setTrace(parent) {
     ASSERT(this._trace == null);
     if (debugging) {
-        var context = this._peekContext();
+        var context = this._peekLongStackTraceContext();
         this._traceParent = context;
         var isTopLevel = context === void 0;
         if (parent !== void 0 &&
@@ -794,6 +819,11 @@ function Promise$_propagateFrom(parent, flags) {
     if ((flags & PROPAGATE_TRACE) > 0) {
         this._setTrace(parent);
     }
+    if (this._usingContext === void 0 &&
+        parent._usingContext !== void 0) {
+        this._usingContext = parent._usingContext;
+        this._usingContext.add(this);
+    }
 };
 
 Promise.prototype._fulfill = function Promise$_fulfill(value) {
@@ -808,6 +838,8 @@ function Promise$_reject(reason, carriedStackTrace) {
 };
 
 Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
+    if (this._isFrozen()) return;
+
     var handler = this.isFulfilled()
         ? this._fulfillmentHandlerAt(index)
         : this._rejectionHandlerAt(index);
@@ -1001,24 +1033,26 @@ function Promise$_notifyUnhandledRejection() {
     }
 };
 
-var contextStack = [];
-Promise.prototype._peekContext = function Promise$_peekContext() {
-    var lastIndex = contextStack.length - 1;
-    if (lastIndex >= 0) {
-        return contextStack[lastIndex];
-    }
-    return void 0;
-
+var longStackTraceContextStack = [];
+Promise.prototype._peekLongStackTraceContext =
+function Promise$_peekLongStackTraceContext() {
+    return last(longStackTraceContextStack);
 };
 
 Promise.prototype._pushContext = function Promise$_pushContext() {
+    if (this._usingContext !== void 0) {
+        usingContextStack.push(this._usingContext);
+    }
     if (!debugging) return;
-    contextStack.push(this);
+    longStackTraceContextStack.push(this);
 };
 
 Promise.prototype._popContext = function Promise$_popContext() {
+    if (this._usingContext !== void 0) {
+        usingContextStack.pop();
+    }
     if (!debugging) return;
-    contextStack.pop();
+    longStackTraceContextStack.pop();
 };
 
 Promise.noConflict = function Promise$NoConflict() {

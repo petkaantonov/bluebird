@@ -77,7 +77,7 @@ module.exports = function( grunt ) {
         "cancel.js": ['Promise', 'INTERNAL'],
         "filter.js": ['Promise', 'INTERNAL'],
         "each.js": ['Promise', 'INTERNAL'],
-        "using.js": ['Promise', 'apiRejection', 'cast']
+        "using.js": ['Promise', 'apiRejection', 'cast', 'usingContextStack']
     };
 
     var optionalModuleRequireMap = {

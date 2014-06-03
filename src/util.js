@@ -223,6 +223,13 @@ function filledRange(count, prefix, suffix) {
     return ret;
 }
 
+function last(arr) {
+    var i = arr.length - 1;
+    if (i >= 0) {
+        return arr[i];
+    }
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -247,7 +254,8 @@ var ret = {
     maybeWrapAsError: maybeWrapAsError,
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
-    filledRange: filledRange
+    filledRange: filledRange,
+    last: last
 };
 
 module.exports = ret;

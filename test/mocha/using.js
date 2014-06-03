@@ -206,3 +206,73 @@ describe("Promise.using", function() {
         });
     });
 })
+
+describe("runaway promises use-after-free", function() {
+    specify("promise.all", function(done) {
+        var usedAfterFree = false;
+        function resource() {
+            usedAfterFree = true;
+        }
+        var resource1WasClosed = false;
+        var resource1 = Promise.resolve(resource).disposer(function(){
+            resource1WasClosed = true;
+        });
+        var resource2WasClosed = false;
+        var resource2 = Promise.resolve(resource).disposer(function(){
+            resource2WasClosed = true;
+        });
+        var err = new Error();
+        using(resource1, resource2, function(res1, res2) {
+            var c1 = Promise.resolve().then(function() {
+                return Promise.delay(0).then(function() {
+                    res1();
+                    res2();
+                });
+            });
+            c1.delay(0).then(function() {
+                // no return statement - context propagation
+                // should still work
+                Promise.delay(0).then(function() {
+                    res1();
+                    res2();
+                });
+            });
+            var c2 = Promise.reject(err);
+            return Promise.all([c1, c2]);
+        }).catch(function(e) {
+            // Wait for 50 ms so that if the runaway promises were
+            // to use-after-free, they would have plenty of time
+            // to do so
+            Promise.delay(50).then(function() {
+                assert(err === e);
+                assert(resource1WasClosed);
+                assert(resource2WasClosed);
+                assert(!usedAfterFree);
+                done();
+            });
+        });
+    });
+
+    specify("nested using statements should track their own promises", function(done) {
+        // Upper using
+        using(Promise.resolve(), function() {
+            var f1, f2;
+            var p1 = new Promise(function(f) {f1 = f;});
+            var p2;
+            // Lower using
+            return using(Promise.resolve(), function() {
+                p2 = new Promise(function(f) {f2 = f;});
+            }).then(function() {
+                // p2 is frozen here because the lower using is done by now
+                f2(3);
+                assert(!p2.isFulfilled());
+                // p1 should still work because we are still in the upper using
+                f1(3);
+                assert(p1.isFulfilled() && p1.value() === 3);
+
+            })
+        }).then(function() {
+            done();
+        });
+    });
+});

@@ -1,8 +1,30 @@
 "use strict";
-module.exports = function (Promise, apiRejection, cast) {
+module.exports = function (Promise, apiRejection, cast, usingContextStack) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
+    var reject = Promise.reject;
+
+    function UsingContext(resources, handler) {
+        // List of all promises that are created inside a using block
+        this.promises = [];
+        this.resources = resources;
+        this.handler = handler;
+    }
+
+    UsingContext.prototype.add = function UsingContext$add(p) {
+        this.promises.push(p);
+    };
+
+    UsingContext.prototype.clear = function UsingContext$clear() {
+        var promises = this.promises;
+        this.promises = this.resources = this.handler = null;
+        for (var i = 0; i < promises.length; ++i) {
+            // Freeze any promises that are still pending after
+            // an using block completes
+            promises[i]._setFrozen();
+        }
+    };
 
     function inspectionMapper(inspections) {
         var len = inspections.length;
@@ -10,7 +32,7 @@ module.exports = function (Promise, apiRejection, cast) {
             var inspection = inspections[i];
             if (inspection.isRejected()) {
                 // Cheaper than throwing
-                return Promise.reject(inspection.error());
+                return reject(inspection.error());
             }
             inspections[i] = inspection.value();
         }
@@ -21,7 +43,9 @@ module.exports = function (Promise, apiRejection, cast) {
         setTimeout(function(){throw e;}, 0);
     }
 
-    function dispose(resources, inspection) {
+    function dispose(usingContext, inspection) {
+        var resources = usingContext.resources;
+        usingContext.clear();
         var i = 0;
         var len = resources.length;
         var ret = Promise.defer();
@@ -100,6 +124,17 @@ module.exports = function (Promise, apiRejection, cast) {
         return fn.call(resource, resource, inspection);
     };
 
+    function callHandler(args) {
+        usingContextStack.push(this);
+        var ret;
+        try {
+            ret = this.handler.apply(void 0, args);
+        } finally {
+            usingContextStack.pop();
+        }
+        return ret;
+    }
+
     Promise.using = function Promise$using() {
         var len = arguments.length;
         if (len < 2) return apiRejection(
@@ -117,11 +152,11 @@ module.exports = function (Promise, apiRejection, cast) {
             }
             resources[i] = resource;
         }
-
+        var context = new UsingContext(resources, fn);
         return Promise.settle(resources)
             .then(inspectionMapper)
-            .spread(fn)
-            ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
+            ._then(callHandler, void 0, void 0, context, void 0)
+            ._then(disposerSuccess, disposerFail, void 0, context, void 0);
     };
 
     Promise.prototype._setDisposable =
