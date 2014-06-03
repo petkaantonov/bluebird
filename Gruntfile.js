@@ -256,6 +256,7 @@ module.exports = function( grunt ) {
             files: {
                 src: [
                     "./src/finally.js",
+                    "./src/tear_down.js",
                     "./src/direct_resolve.js",
                     "./src/synchronous_inspection.js",
                     "./src/thenables.js",
@@ -500,6 +501,7 @@ module.exports = function( grunt ) {
 
     var mandatoryPaths = [
         "./src/finally.js",
+        "./src/tear_down.js",
         "./src/es5.js",
         "./src/bluebird.js",
         "./src/thenables.js",

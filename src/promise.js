@@ -1164,6 +1164,7 @@ if (!CapturedTrace.isSupported()) {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./finally.js")(Promise, NEXT_FILTER);
+require("./tear_down.js")(Promise);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
 require("./synchronous_inspection.js")(Promise);
