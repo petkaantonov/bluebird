@@ -5,9 +5,13 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
+
+
 #Introduction
 
 Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
+
+
 
 #Topics
 
@@ -29,6 +33,8 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 - [Changelog](changelog.md)
 - [Optimization guide](#optimization-guide)
+
+<img src="logo.png" alt="bluebird logo" align="right" />
 
 #Features:
 
