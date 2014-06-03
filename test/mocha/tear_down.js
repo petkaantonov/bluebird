@@ -1,22 +1,45 @@
 var assert = require("assert");
 
-var adapter = require("../../js/debug/bluebird.js");
-var Promise = adapter;
+var Promise = require("../../js/debug/bluebird.js");
 
 describe("tearDown", function () {
-  specify("it should be called after finally", function (done) {
-    var state = 0;
-    Promise(function (r) {
-        state = 1;
-        r();
-      }).tearDown(function () {
-        assert.equal(state, 3);
-        done();
-      }).
-      finally(function () {
-        state = 3;
-      }).then(function () {
-        state = 2;
-      });
-  });
+    specify("is called after done", function (done) {
+        new Promise(function(resolve){
+            resolve(1);
+        }).tearDown(function () {
+            done();
+        }).done();
+    });
+
+    specify("works on multiple levels", function (done) {
+        new Promise(function(resolve){
+            resolve(1);
+        }).tearDown(function () {
+            done();
+        }).then().then().done();
+    });
+
+    specify("bubbles from bottom", function (done) {
+        var c = 0;
+        new Promise(function(resolve){
+            resolve(1);
+        }).tearDown(function () {
+            assert.equal(++c, 3);
+            done();
+        }).then().tearDown(function () {
+            assert.equal(++c, 2);
+        }).then().tearDown(function () {
+            assert.equal(++c, 1);
+        }).done();
+    });
+
+    specify("works with Promise.resolve", function (done) {
+      var c = 0;
+      Promise.resolve(1).tearDown(function () {
+          assert.equal(c, 1);
+          done();
+      }).then(function (){
+          c = 1;
+      }).done();
+    });
 });

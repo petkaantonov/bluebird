@@ -129,14 +129,14 @@ function Promise$catch(fn) {
 Promise.prototype.then =
 function Promise$then(didFulfill, didReject, didProgress) {
     return this._then(didFulfill, didReject, didProgress,
-        void 0, void 0);
+        this, void 0);
 };
 
 
 Promise.prototype.done =
 function Promise$done(didFulfill, didReject, didProgress) {
     var promise = this._then(didFulfill, didReject, didProgress,
-        void 0, void 0);
+        this, void 0);
     promise._setIsFinal();
 };
 
@@ -412,6 +412,7 @@ function Promise$_then(
         async.invoke(this._queueSettleAt, this, callbackIndex);
     }
 
+    ret._parent = this;
     return ret;
 };
 
@@ -1018,6 +1019,8 @@ function Promise$_fulfillUnchecked(value) {
 
     if (len > 0) {
         async.invoke(this._settlePromises, this, len);
+    } else if (this._isFinal()) {
+        async.invoke(this._tearDown, this, void 0);
     }
 };
 
