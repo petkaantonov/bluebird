@@ -33,11 +33,7 @@ function Promise$_doProgressWith(progression) {
 
     ASSERT(typeof handler === "function");
     ASSERT(promise instanceof Promise);
-
-    this._pushContext();
     var ret = tryCatch1(handler, receiver, progressValue);
-    this._popContext();
-
     if (ret === errorObj) {
         //2.4 if the onProgress callback throws an exception
         //with a name property equal to 'StopProgressPropagation',

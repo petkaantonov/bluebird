@@ -608,7 +608,7 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
 };
 
 Promise.prototype._callSpread =
-function Promise$_callSpread(handler, promise, value, localDebugging) {
+function Promise$_callSpread(handler, promise, value) {
     //Array of non-promise values is fast case
     //.spread has a bit convoluted semantics otherwise
     var boundTo = this._boundTo;
@@ -623,23 +623,23 @@ function Promise$_callSpread(handler, promise, value, localDebugging) {
             }
         }
     }
-    if (localDebugging) promise._pushContext();
+    promise._pushContext();
     return tryCatchApply(handler, value, boundTo);
 };
 
 Promise.prototype._callHandler =
 function Promise$_callHandler(
-    handler, receiver, promise, value, localDebugging) {
+    handler, receiver, promise, value) {
     //Special receiver that means we are .applying an array of arguments
     //(for .spread() at the moment)
     var x;
     if (receiver === APPLY && !this.isRejected()) {
-        x = this._callSpread(handler, promise, value, localDebugging);
+        x = this._callSpread(handler, promise, value);
     } else {
-        if (localDebugging) promise._pushContext();
+        promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
-    if (localDebugging) promise._popContext();
+    promise._popContext();
     return x;
 };
 
@@ -653,11 +653,7 @@ function Promise$_settlePromiseFromHandler(
         handler.call(receiver, value, promise);
         return;
     }
-
-    var localDebugging = debugging;
-    var x = this._callHandler(handler, receiver,
-                                promise, value, localDebugging);
-
+    var x = this._callHandler(handler, receiver, promise, value);
     if (promise._isFollowing()) return;
 
     if (x === errorObj || x === promise || x === NEXT_FILTER) {
