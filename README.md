@@ -2,7 +2,7 @@
 
 <a href="http://promisesaplus.com/">
     <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
-         title="Promises/A+ 1.0 compliant" align="right" />
+         title="Promises/A+ 1.1 compliant" align="right" />
 </a>
 
 
@@ -38,7 +38,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 
 #Features:
 
-- [Promises A+ 2.0.2](http://promisesaplus.com)
+- [Promises A+](http://promisesaplus.com)
 - [Synchronous inspection](API.md#synchronous-inspection)
 - [Concurrency coordination](API.md#collections)
 - [Promisification on steroids](API.md#promisification)
@@ -77,7 +77,7 @@ Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/
 
 The global variable `Promise` becomes available after the above script tag.
 
-A [minimal bluebird browser build](#custom-builds) is ̃36.51KB minified*, 10.85KB gzipped and has no external dependencies.
+A [minimal bluebird browser build](#custom-builds) is ̃38.92KB minified*, 11.65KB gzipped and has no external dependencies.
 
 *Google Closure Compiler using Simple.
 

@@ -1,3 +1,41 @@
+## 2.0.0 (2014-06-04)
+
+#What's new in 2.0
+
+- [Resource management](API.md#resource-management) - never leak resources again
+- [Promisification](API.md#promisification) on steroids - entire modules can now be promisified with one line of code
+- [`.map()`](API.md#mapfunction-mapper--object-options---promise), [`.each()`](API.md#eachfunction-iterator---promise), [`.filter()`](API.md#filterfunction-filterer--object-options---promise), [`.reduce()`](API.md#reducefunction-reducer--dynamic-initialvalue---promise) reimagined from simple sugar to powerful concurrency coordination tools
+- [API Documentation](API.md) has been reorganized and more elaborate examples added
+- Deprecated [progression](#progression-migration) and [deferreds](#deferred-migration)
+- Improved performance and readability
+
+Features:
+
+- Added [`using()`](API.md#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise) and [`disposer()`](API.md#disposerfunction-disposer---disposer)
+- [`.map()`](API.md#mapfunction-mapper--object-options---promise) now calls the handler as soon as items in the input array become fulfilled
+- Added a concurrency option to [`.map()`](API.md#mapfunction-mapper--object-options---promise)
+- [`.filter()`](API.md#filterfunction-filterer--object-options---promise) now calls the handler as soon as items in the input array become fulfilled
+- Added a concurrency option to [`.filter()`](API.md#filterfunction-filterer--object-options---promise)
+- [`.reduce()`](API.md#reducefunction-reducer--dynamic-initialvalue---promise) now calls the handler as soon as items in the input array become fulfilled, but in-order
+- Added [`.each()`](API.md#eachfunction-iterator---promise)
+- [`Promise.resolve()`](API.md#promiseresolvedynamic-value---promise) behaves like `Promise.cast`. `Promise.cast` deprecated.
+- [Synchronous inspection](API.md#synchronous-inspection): Removed `.inspect()`, added [`.value()`](API.md#value---dynamic) and [`.reason()`](API.md#reason---dynamic)
+- [`Promise.join()`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise) now takes a function as the last argument
+- Added [`Promise.setScheduler()`](API.md#promisesetschedulerfunction-scheduler---void)
+- [`.cancel()`](API.md#cancelerror-reason---promise) supports a custom cancellation reason
+- [`.timeout()`](API.md#timeoutint-ms--string-message---promise) now cancels the promise instead of rejecting it
+- [`.nodeify()`](API.md#nodeifyfunction-callback--object-options---promise) now supports passing multiple success results when mapping promises to nodebacks
+- Added `suffix` and `filter` options to [`Promise.promisifyAll()`](API.md#promisepromisifyallobject-target--object-options---object)
+
+Breaking changes:
+
+- Sparse array holes are not skipped by collection methods but treated as existing elements with `undefined` value
+- `.map()` and `.filter()` do not call the given mapper or filterer function in any specific order
+- Removed the `.inspect()` method
+- Yielding an array from a coroutine is not supported by default. You can use [`coroutine.addYieldHandler()`](API.md#promisecoroutineaddyieldhandlerfunction-handler---void) to configure the old behavior (or any behavior you want).
+- [`.any()`](API.md#any---promise) and [`.some()`](API.md#someint-count---promise) no longer use an array as the rejection reason. [`AggregateError`](API.md#aggregateerror) is used instead.
+
+
 ## 1.2.4 (2014-04-27)
 
 Bugfixes:
