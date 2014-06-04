@@ -1,5 +1,5 @@
 /**
- * bluebird build version 1.2.4
+ * bluebird build version 2.0.0
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -868,15 +868,15 @@ var notEnumerableProp = util.notEnumerableProp;
 
 function markAsOriginatingFromRejection(e) {
     try {
-        notEnumerableProp(e, "isAsync", true);
+        notEnumerableProp(e, "isOperational", true);
     }
     catch(ignore) {}
 }
 
 function originatesFromRejection(e) {
     if (e == null) return false;
-    return ((e instanceof RejectionError) ||
-        e["isAsync"] === true);
+    return ((e instanceof OperationalError) ||
+        e["isOperational"] === true);
 }
 
 function isError(obj) {
@@ -922,7 +922,7 @@ for (var i = 0; i < methods.length; ++i) {
 }
 
 AggregateError.prototype.length = 0;
-AggregateError.prototype.isAsync = true;
+AggregateError.prototype["isOperational"] = true;
 var level = 0;
 AggregateError.prototype.toString = function() {
     var indent = Array(level * 4 + 1).join(" ");
@@ -942,11 +942,11 @@ AggregateError.prototype.toString = function() {
     return ret;
 };
 
-function RejectionError(message) {
-    this.name = "RejectionError";
+function OperationalError(message) {
+    this.name = "OperationalError";
     this.message = message;
     this.cause = message;
-    this.isAsync = true;
+    this["isOperational"] = true;
 
     if (message instanceof Error) {
         this.message = message.message;
@@ -956,7 +956,7 @@ function RejectionError(message) {
     }
 
 }
-inherits(RejectionError, Error);
+inherits(OperationalError, Error);
 
 var key = "__BluebirdErrorTypes__";
 var errorTypes = Error[key];
@@ -964,7 +964,8 @@ if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
         TimeoutError: TimeoutError,
-        RejectionError: RejectionError,
+        OperationalError: OperationalError,
+        RejectionError: OperationalError,
         AggregateError: AggregateError
     });
     notEnumerableProp(Error, key, errorTypes);
@@ -975,7 +976,7 @@ module.exports = {
     TypeError: _TypeError,
     RangeError: _RangeError,
     CancellationError: errorTypes.CancellationError,
-    RejectionError: errorTypes.RejectionError,
+    OperationalError: errorTypes.OperationalError,
     TimeoutError: errorTypes.TimeoutError,
     AggregateError: errorTypes.AggregateError,
     originatesFromRejection: originatesFromRejection,
@@ -1013,7 +1014,7 @@ var TypeError = require('./errors.js').TypeError;
 function apiRejection(msg) {
     var error = new TypeError(msg);
     var ret = Promise.rejected(error);
-    var parent = ret._peekContext();
+    var parent = ret._peekLongStackTraceContext();
     if (parent != null) {
         parent._attachExtraTrace(error);
     }
@@ -1826,10 +1827,7 @@ function Promise$_doProgressWith(progression) {
     var promise = progression.promise;
     var receiver = progression.receiver;
 
-    this._pushContext();
     var ret = tryCatch1(handler, receiver, progressValue);
-    this._popContext();
-
     if (ret === errorObj) {
         if (ret.e != null &&
             ret.e.name !== "StopProgressPropagation") {
@@ -1926,8 +1924,9 @@ var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 
+var usingContextStack = [];
 var isArray = util.isArray;
-
+var last = util.last;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
@@ -1936,13 +1935,12 @@ var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
-var RejectionError = errors.RejectionError;
+var OperationalError = errors.OperationalError;
 var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttach = errors.canAttach;
 var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
-
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
@@ -1962,6 +1960,9 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     this._settledValue = void 0;
     this._boundTo = void 0;
+    var usingContext = last(usingContextStack);
+    this._usingContext = usingContext;
+    if (usingContext !== void 0) usingContext.add(this);
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -2212,7 +2213,8 @@ function Promise$_then(
 
     if (!haveInternalData) {
         if (debugging) {
-            var haveSameContext = this._peekContext() === this._traceParent;
+            var haveSameContext =
+                this._peekLongStackTraceContext() === this._traceParent;
             ret._traceParent = haveSameContext ? this._traceParent : this;
         }
         ret._propagateFrom(this, 7);
@@ -2229,7 +2231,7 @@ function Promise$_then(
 };
 
 Promise.prototype._length = function Promise$_length() {
-    return this._bitField & 262143;
+    return this._bitField & 131071;
 };
 
 Promise.prototype._isFollowingOrFulfilledOrRejected =
@@ -2242,8 +2244,28 @@ Promise.prototype._isFollowing = function Promise$_isFollowing() {
 };
 
 Promise.prototype._setLength = function Promise$_setLength(len) {
-    this._bitField = (this._bitField & -262144) |
-        (len & 262143);
+    this._bitField = (this._bitField & -131072) |
+        (len & 131071);
+};
+
+Promise.prototype._setFrozen = function Promise$_setFrozen() {
+    if (this.isPending()) {
+        this._bitField = this._bitField | 131072;
+        this._fulfillmentHandler0 =
+        this._rejectionHandler0 =
+        this._promise0 =
+        this._receiver0 =
+        this._settledValue =
+        this._boundTo =
+        this._usingContext = void 0;
+        if (this._length() > 5) {
+            this._gc();
+        }
+    }
+};
+
+Promise.prototype._isFrozen = function Promise$_isFrozen() {
+    return (this._bitField & 131072) > 0;
 };
 
 Promise.prototype._setFulfilled = function Promise$_setFulfilled() {
@@ -2375,7 +2397,7 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
 ) {
     var index = this._length();
 
-    if (index >= 262143 - 5) {
+    if (index >= 131071 - 5) {
         index = 0;
         this._setLength(0);
     }
@@ -2406,7 +2428,7 @@ Promise.prototype._setProxyHandlers =
 function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
     var index = this._length();
 
-    if (index >= 262143 - 5) {
+    if (index >= 131071 - 5) {
         index = 0;
         this._setLength(0);
     }
@@ -2485,7 +2507,7 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
 };
 
 Promise.prototype._callSpread =
-function Promise$_callSpread(handler, promise, value, localDebugging) {
+function Promise$_callSpread(handler, promise, value) {
     var boundTo = this._boundTo;
     if (isArray(value)) {
         for (var i = 0, len = value.length; i < len; ++i) {
@@ -2495,21 +2517,21 @@ function Promise$_callSpread(handler, promise, value, localDebugging) {
             }
         }
     }
-    if (localDebugging) promise._pushContext();
+    promise._pushContext();
     return tryCatchApply(handler, value, boundTo);
 };
 
 Promise.prototype._callHandler =
 function Promise$_callHandler(
-    handler, receiver, promise, value, localDebugging) {
+    handler, receiver, promise, value) {
     var x;
     if (receiver === APPLY && !this.isRejected()) {
-        x = this._callSpread(handler, promise, value, localDebugging);
+        x = this._callSpread(handler, promise, value);
     } else {
-        if (localDebugging) promise._pushContext();
+        promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
-    if (localDebugging) promise._popContext();
+    promise._popContext();
     return x;
 };
 
@@ -2521,11 +2543,7 @@ function Promise$_settlePromiseFromHandler(
         handler.call(receiver, value, promise);
         return;
     }
-
-    var localDebugging = debugging;
-    var x = this._callHandler(handler, receiver,
-                                promise, value, localDebugging);
-
+    var x = this._callHandler(handler, receiver, promise, value);
     if (promise._isFollowing()) return;
 
     if (x === errorObj || x === promise || x === NEXT_FILTER) {
@@ -2591,13 +2609,14 @@ function Promise$_tryFollow(value) {
 
 Promise.prototype._resetTrace = function Promise$_resetTrace() {
     if (debugging) {
-        this._trace = new CapturedTrace(this._peekContext() === void 0);
+        this._trace =
+            new CapturedTrace(this._peekLongStackTraceContext() === void 0);
     }
 };
 
 Promise.prototype._setTrace = function Promise$_setTrace(parent) {
     if (debugging) {
-        var context = this._peekContext();
+        var context = this._peekLongStackTraceContext();
         this._traceParent = context;
         var isTopLevel = context === void 0;
         if (parent !== void 0 &&
@@ -2659,6 +2678,11 @@ function Promise$_propagateFrom(parent, flags) {
     if ((flags & 2) > 0) {
         this._setTrace(parent);
     }
+    if (this._usingContext === void 0 &&
+        parent._usingContext !== void 0) {
+        this._usingContext = parent._usingContext;
+        this._usingContext.add(this);
+    }
 };
 
 Promise.prototype._fulfill = function Promise$_fulfill(value) {
@@ -2673,6 +2697,8 @@ function Promise$_reject(reason, carriedStackTrace) {
 };
 
 Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
+    if (this._isFrozen()) return;
+
     var handler = this.isFulfilled()
         ? this._fulfillmentHandlerAt(index)
         : this._rejectionHandlerAt(index);
@@ -2853,24 +2879,26 @@ function Promise$_notifyUnhandledRejection() {
     }
 };
 
-var contextStack = [];
-Promise.prototype._peekContext = function Promise$_peekContext() {
-    var lastIndex = contextStack.length - 1;
-    if (lastIndex >= 0) {
-        return contextStack[lastIndex];
-    }
-    return void 0;
-
+var longStackTraceContextStack = [];
+Promise.prototype._peekLongStackTraceContext =
+function Promise$_peekLongStackTraceContext() {
+    return last(longStackTraceContextStack);
 };
 
 Promise.prototype._pushContext = function Promise$_pushContext() {
+    if (this._usingContext !== void 0) {
+        usingContextStack.push(this._usingContext);
+    }
     if (!debugging) return;
-    contextStack.push(this);
+    longStackTraceContextStack.push(this);
 };
 
 Promise.prototype._popContext = function Promise$_popContext() {
+    if (this._usingContext !== void 0) {
+        usingContextStack.pop();
+    }
     if (!debugging) return;
-    contextStack.pop();
+    longStackTraceContextStack.pop();
 };
 
 Promise.noConflict = function Promise$NoConflict() {
@@ -2896,7 +2924,8 @@ Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
 Promise.TypeError = TypeError;
-Promise.RejectionError = RejectionError;
+Promise.OperationalError = OperationalError;
+Promise.RejectionError = OperationalError;
 Promise.AggregateError = errors.AggregateError;
 
 util.toFastProperties(Promise);
@@ -2918,7 +2947,7 @@ require('./cancel.js')(Promise,INTERNAL);
 require('./filter.js')(Promise,INTERNAL);
 require('./any.js')(Promise,PromiseArray);
 require('./each.js')(Promise,INTERNAL);
-require('./using.js')(Promise,apiRejection,cast);
+require('./using.js')(Promise,apiRejection,cast,usingContextStack);
 
 Promise.prototype = Promise.prototype;
 return Promise;
@@ -3153,7 +3182,7 @@ var util = require("./util.js");
 var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
-var RejectionError = errors.RejectionError;
+var OperationalError = errors.OperationalError;
 var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
@@ -3163,10 +3192,10 @@ function isUntypedError(obj) {
         es5.getPrototypeOf(obj) === Error.prototype;
 }
 
-function wrapAsRejectionError(obj) {
+function wrapAsOperationalError(obj) {
     var ret;
     if (isUntypedError(obj)) {
-        ret = new RejectionError(obj);
+        ret = new OperationalError(obj);
     } else {
         ret = obj;
     }
@@ -3179,7 +3208,7 @@ function nodebackForPromise(promise) {
         if (promise === null) return;
 
         if (err) {
-            var wrapped = wrapAsRejectionError(maybeWrapAsError(err));
+            var wrapped = wrapAsOperationalError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
             promise._reject(wrapped);
         } else if (arguments.length > 2) {
@@ -4400,7 +4429,7 @@ Promise.prototype.isRejected = function Promise$isRejected() {
 
 PromiseInspection.prototype.isPending =
 Promise.prototype.isPending = function Promise$isPending() {
-    return (this._bitField & 402653184) === 0;
+    return (this._bitField & 402784256) === 0;
 };
 
 PromiseInspection.prototype.value =
@@ -4680,17 +4709,36 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
  * 
  */
 "use strict";
-module.exports = function (Promise, apiRejection, cast) {
+module.exports = function (Promise, apiRejection, cast, usingContextStack) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
+    var reject = Promise.reject;
+
+    function UsingContext(resources, handler) {
+        this.promises = [];
+        this.resources = resources;
+        this.handler = handler;
+    }
+
+    UsingContext.prototype.add = function UsingContext$add(p) {
+        this.promises.push(p);
+    };
+
+    UsingContext.prototype.clear = function UsingContext$clear() {
+        var promises = this.promises;
+        this.promises = this.resources = this.handler = null;
+        for (var i = 0; i < promises.length; ++i) {
+            promises[i]._setFrozen();
+        }
+    };
 
     function inspectionMapper(inspections) {
         var len = inspections.length;
         for (var i = 0; i < len; ++i) {
             var inspection = inspections[i];
             if (inspection.isRejected()) {
-                return Promise.reject(inspection.error());
+                return reject(inspection.error());
             }
             inspections[i] = inspection.value();
         }
@@ -4701,7 +4749,9 @@ module.exports = function (Promise, apiRejection, cast) {
         setTimeout(function(){throw e;}, 0);
     }
 
-    function dispose(resources, inspection) {
+    function dispose(usingContext, inspection) {
+        var resources = usingContext.resources;
+        usingContext.clear();
         var i = 0;
         var len = resources.length;
         var ret = Promise.defer();
@@ -4780,6 +4830,17 @@ module.exports = function (Promise, apiRejection, cast) {
         return fn.call(resource, resource, inspection);
     };
 
+    function callHandler(args) {
+        usingContextStack.push(this);
+        var ret;
+        try {
+            ret = this.handler.apply(void 0, args);
+        } finally {
+            usingContextStack.pop();
+        }
+        return ret;
+    }
+
     Promise.using = function Promise$using() {
         var len = arguments.length;
         if (len < 2) return apiRejection(
@@ -4797,11 +4858,11 @@ module.exports = function (Promise, apiRejection, cast) {
             }
             resources[i] = resource;
         }
-
+        var context = new UsingContext(resources, fn);
         return Promise.settle(resources)
             .then(inspectionMapper)
-            .spread(fn)
-            ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
+            ._then(callHandler, void 0, void 0, context, void 0)
+            ._then(disposerSuccess, disposerFail, void 0, context, void 0);
     };
 
     Promise.prototype._setDisposable =
@@ -5073,6 +5134,13 @@ function filledRange(count, prefix, suffix) {
     return ret;
 }
 
+function last(arr) {
+    var i = arr.length - 1;
+    if (i >= 0) {
+        return arr[i];
+    }
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -5097,7 +5165,8 @@ var ret = {
     maybeWrapAsError: maybeWrapAsError,
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
-    filledRange: filledRange
+    filledRange: filledRange,
+    last: last
 };
 
 module.exports = ret;
