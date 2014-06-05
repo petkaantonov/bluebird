@@ -790,7 +790,7 @@ Given an array, or a promise of an array, which contains promises (or a mix of p
 ```js
 var files = [];
 for (var i = 0; i < 100; ++i) {
-    files.push(fs.writeFileAsync("file-" + ".txt", "", "utf-8"));
+    files.push(fs.writeFileAsync("file-" + i + ".txt", "", "utf-8"));
 }
 Promise.all(files).then(function() {
     console.log("all the files were created");
