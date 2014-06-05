@@ -60,6 +60,8 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     if (values === null) return;
     var length = this.length();
     var currentIndex = this._currentIndex;
+    // Already processed
+    if (currentIndex > index) return;
     var preservedValues = this._preservedValues;
     var isEach = preservedValues !== null;
     // Special case detection where the processing starts at index 1
