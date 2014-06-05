@@ -250,7 +250,7 @@ download().then(...).then(...).done();
 
 For handling this problem, in my opinion, this is completely unacceptable and pointless. The user must remember to explicitly call `.done` and that cannot be justified when the problem is forgetting to create an error handler in the first place.
 
-The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a second turn. The default handler is to write the stack trace to stderr or `console.error` in browsers. This is close to what happens with synchronous code - your code doens't work as expected and you open console and see a stack trace. Nice.
+The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a second turn. The default handler is to write the stack trace to `stderr` or `console.error` in browsers. This is close to what happens with synchronous code - your code doesn't work as expected and you open console and see a stack trace. Nice.
 
 Of course this is not perfect, if your code for some reason needs to swoop in and attach error handler to some promise after the promise has been hanging around a while then you will see annoying messages. In that case you can use the `.done()` method to signal that any hanging exceptions should be thrown.
 
@@ -316,7 +316,7 @@ getJSONFromSomewhere().then(function(jsonString) {
 });
 ```
 
-Here any kind of unexpected error will automatically reported on stderr along with a stack trace because we only register a handler for the expected `SyntaxError`.
+Here any kind of unexpected error will automatically reported on `stderr` along with a stack trace because we only register a handler for the expected `SyntaxError`.
 
 Ok, so, that's pretty neat. But actually not many libraries define error types and it is in fact a complete ghetto out there with ad hoc strings being attached as some arbitrary property name like `.name`, `.type`, `.code`, not having any property at all or even throwing strings as errors and so on. So how can we still listen for expected errors?
 
@@ -451,7 +451,7 @@ Install [node](http://nodejs.org/), [npm](https://npmjs.org/), and [grunt](http:
 
 ##Testing
 
-To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The stdout of tests is ignored by default and everything will stop at the first failure. If you want to run tests sequentially with all output, do:
+To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The `stdout` of tests is ignored by default and everything will stop at the first failure. If you want to run tests sequentially with all output, do:
 
     grunt test --jobs=1
 
