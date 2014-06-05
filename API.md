@@ -120,7 +120,7 @@ The above ensures `getConnection()` fulfills the contract of a promise-returning
 
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
-[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/). Returns a new promise chained from this promise. The new promise will be rejected or resolved dedefer on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
+[Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/). Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
 Example:
 
@@ -1284,7 +1284,7 @@ function getTransaction() {
 }
 
 
-// If the using block completes successfully, the transaction is automatically commited
+// If the using block completes successfully, the transaction is automatically committed
 // Any error or rejection will automatically roll it back
 using(getTransaction(), function(tx) {
     return tx.queryAsync(...).then(function() {
