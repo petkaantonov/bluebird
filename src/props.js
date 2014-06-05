@@ -8,17 +8,14 @@ var es5 = require("./es5.js");
 
 function PropertiesPromiseArray(obj) {
     var keys = es5.keys(obj);
-    var values = new Array(keys.length);
-    for (var i = 0, len = values.length; i < len; ++i) {
-        values[i] = obj[keys[i]];
+    var len = keys.length;
+    var values = new Array(len * 2);
+    for (var i = 0; i < len; ++i) {
+        var key = keys[i];
+        values[i] = obj[key];
+        values[i + len] = key;
     }
     this.constructor$(values);
-    if (!this._isResolved()) {
-        for (var i = 0, len = keys.length; i < len; ++i) {
-            values.push(keys[i]);
-        }
-        ASSERT(this._values.length === 2 * this.length());
-    }
 }
 util.inherits(PropertiesPromiseArray, PromiseArray);
 
@@ -60,6 +57,12 @@ function PropertiesPromiseArray$_promiseProgressed(value, index) {
 PropertiesPromiseArray.prototype.shouldCopyValues =
 function PropertiesPromiseArray$_shouldCopyValues() {
     return false;
+};
+
+// Override
+PropertiesPromiseArray.prototype.getActualLength =
+function PropertiesPromiseArray$getActualLength(len) {
+    return len >> 1;
 };
 
 function Promise$_Props(promises) {

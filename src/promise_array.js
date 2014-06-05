@@ -3,7 +3,6 @@ module.exports = function(Promise, INTERNAL, cast) {
 var ASSERT = require("./assert.js");
 var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
-var async = require("./async.js");
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
@@ -93,7 +92,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         }
         return;
     }
-    var len = values.length;
+    var len = this.getActualLength(values.length);
     var newLen = len;
     var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
     var isDirectScanNeeded = false;
@@ -115,7 +114,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     this._values = newValues;
     this._length = newLen;
     if (isDirectScanNeeded) {
-        async.invoke(this._scanDirectValues, this, len);
+        this._scanDirectValues(len);
     }
 };
 
@@ -197,6 +196,11 @@ function PromiseArray$_promiseRejected(reason, index) {
 PromiseArray.prototype.shouldCopyValues =
 function PromiseArray$_shouldCopyValues() {
     return true;
+};
+
+PromiseArray.prototype.getActualLength =
+function PromiseArray$getActualLength(len) {
+    return len;
 };
 
 return PromiseArray;
