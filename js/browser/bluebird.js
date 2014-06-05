@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.0.3
+ * bluebird build version 2.0.4
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -2947,7 +2947,6 @@ return Promise;
 module.exports = function(Promise, INTERNAL, cast) {
 var canAttach = require("./errors.js").canAttach;
 var util = require("./util.js");
-var async = require("./async.js");
 var isArray = util.isArray;
 
 function toResolutionValue(val) {
@@ -3021,7 +3020,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         }
         return;
     }
-    var len = values.length;
+    var len = this.getActualLength(values.length);
     var newLen = len;
     var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
     var isDirectScanNeeded = false;
@@ -3042,7 +3041,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     this._values = newValues;
     this._length = newLen;
     if (isDirectScanNeeded) {
-        async.invoke(this._scanDirectValues, this, len);
+        this._scanDirectValues(len);
     }
 };
 
@@ -3117,10 +3116,15 @@ function PromiseArray$_shouldCopyValues() {
     return true;
 };
 
+PromiseArray.prototype.getActualLength =
+function PromiseArray$getActualLength(len) {
+    return len;
+};
+
 return PromiseArray;
 };
 
-},{"./async.js":2,"./errors.js":10,"./util.js":35}],22:[function(require,module,exports){
+},{"./errors.js":10,"./util.js":35}],22:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3635,16 +3639,14 @@ var es5 = require("./es5.js");
 
 function PropertiesPromiseArray(obj) {
     var keys = es5.keys(obj);
-    var values = new Array(keys.length);
-    for (var i = 0, len = values.length; i < len; ++i) {
-        values[i] = obj[keys[i]];
+    var len = keys.length;
+    var values = new Array(len * 2);
+    for (var i = 0; i < len; ++i) {
+        var key = keys[i];
+        values[i] = obj[key];
+        values[i + len] = key;
     }
     this.constructor$(values);
-    if (!this._isResolved()) {
-        for (var i = 0, len = keys.length; i < len; ++i) {
-            values.push(keys[i]);
-        }
-    }
 }
 util.inherits(PropertiesPromiseArray, PromiseArray);
 
@@ -3681,6 +3683,11 @@ function PropertiesPromiseArray$_promiseProgressed(value, index) {
 PropertiesPromiseArray.prototype.shouldCopyValues =
 function PropertiesPromiseArray$_shouldCopyValues() {
     return false;
+};
+
+PropertiesPromiseArray.prototype.getActualLength =
+function PropertiesPromiseArray$getActualLength(len) {
+    return len >> 1;
 };
 
 function Promise$_Props(promises) {
