@@ -27,7 +27,7 @@ Promise.prototype.isRejected = function Promise$isRejected() {
 
 PromiseInspection.prototype.isPending =
 Promise.prototype.isPending = function Promise$isPending() {
-    return (this._bitField & IS_REJECTED_OR_FULFILLED_OR_FROZEN) === 0;
+    return (this._bitField & IS_REJECTED_OR_FULFILLED) === 0;
 };
 
 PromiseInspection.prototype.value =
