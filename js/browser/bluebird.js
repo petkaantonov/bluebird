@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.0.4
+ * bluebird build version 2.0.5
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -3984,6 +3984,7 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     if (values === null) return;
     var length = this.length();
     var currentIndex = this._currentIndex;
+    if (currentIndex > index) return;
     var preservedValues = this._preservedValues;
     var isEach = preservedValues !== null;
     if (index === 0 && currentIndex === -2) {

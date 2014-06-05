@@ -7446,6 +7446,7 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     if (values === null) return;
     var length = this.length();
     var currentIndex = this._currentIndex;
+    if (currentIndex > index) return;
     var preservedValues = this._preservedValues;
     var isEach = preservedValues !== null;
     if (index === 0 && currentIndex === -2) {
@@ -30487,17 +30488,17 @@ var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
-var when = adapter;
-var resolved = when.fulfilled;
-var rejected = when.rejected;
+var Promise = adapter;
+var resolved = Promise.fulfilled;
+var rejected = Promise.rejected;
 var reject = rejected;
 var resolve = resolved;
-when.resolve = resolved;
-when.reject = rejected;
-when.defer = pending;
+Promise.resolve = resolved;
+Promise.reject = rejected;
+Promise.defer = pending;
 var sentinel = {};
 var other = {};
-var p = new when(function(){}).constructor.prototype;
+var p = new Promise(function(){}).constructor.prototype;
 p = pending().constructor.prototype;
 p.resolve = p.fulfill;
 p.notify = p.progress;
@@ -30536,14 +30537,14 @@ function fakeRejected(reason) {
     };
 }
 var delay = function (val, ms) {
-    var p = when.pending();
+    var p = Promise.pending();
     setTimeout(function () {
         p.fulfill(val);
     }, ms);
     return p.promise
 };
 
-describe("when.reduce-test", function () {
+describe("Promise.reduce-test", function () {
 
     function plus(sum, val) {
         return sum + val;
@@ -30555,7 +30556,7 @@ describe("when.reduce-test", function () {
 
 
     specify("should reduce values without initial value", function(done) {
-        when.reduce([1,2,3], plus).then(
+        Promise.reduce([1,2,3], plus).then(
             function(result) {
                 assert.deepEqual(result, 6);
                 done();
@@ -30565,7 +30566,7 @@ describe("when.reduce-test", function () {
     });
 
     specify("should reduce values with initial value", function(done) {
-        when.reduce([1,2,3], plus, 1).then(
+        Promise.reduce([1,2,3], plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 7);
                 done();
@@ -30575,7 +30576,7 @@ describe("when.reduce-test", function () {
     });
 
     specify("should reduce values with initial promise", function(done) {
-        when.reduce([1,2,3], plus, resolved(1)).then(
+        Promise.reduce([1,2,3], plus, resolved(1)).then(
             function(result) {
                 assert.deepEqual(result, 7);
                 done();
@@ -30586,7 +30587,7 @@ describe("when.reduce-test", function () {
 
     specify("should reduce promised values without initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
-        when.reduce(input, plus).then(
+        Promise.reduce(input, plus).then(
             function(result) {
                 assert.deepEqual(result, 6);
                 done();
@@ -30597,7 +30598,7 @@ describe("when.reduce-test", function () {
 
     specify("should reduce promised values with initial value", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
-        when.reduce(input, plus, 1).then(
+        Promise.reduce(input, plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 7);
                 done();
@@ -30608,7 +30609,7 @@ describe("when.reduce-test", function () {
 
     specify("should reduce promised values with initial promise", function(done) {
         var input = [resolved(1), resolved(2), resolved(3)];
-        when.reduce(input, plus, resolved(1)).then(
+        Promise.reduce(input, plus, resolved(1)).then(
             function(result) {
                 assert.deepEqual(result, 7);
                 done();
@@ -30619,7 +30620,7 @@ describe("when.reduce-test", function () {
 
     specify("should reduce empty input with initial value", function(done) {
         var input = [];
-        when.reduce(input, plus, 1).then(
+        Promise.reduce(input, plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 1);
                 done();
@@ -30629,7 +30630,7 @@ describe("when.reduce-test", function () {
     });
 
     specify("should reduce empty input with eventual promise", function(done) {
-        when.reduce([], plus, when.delay(1, 50)).then(
+        Promise.reduce([], plus, Promise.delay(1, 50)).then(
             function(result) {
                 assert.deepEqual(result, 1);
                 done();
@@ -30639,7 +30640,7 @@ describe("when.reduce-test", function () {
     });
 
     specify("should reduce empty input with initial promise", function(done) {
-        when.reduce([], plus, resolved(1)).then(
+        Promise.reduce([], plus, resolved(1)).then(
             function(result) {
                 assert.deepEqual(result, 1);
                 done();
@@ -30648,9 +30649,9 @@ describe("when.reduce-test", function () {
         );
     });
 
-    specify("should reject when input contains rejection", function(done) {
+    specify("should reject Promise input contains rejection", function(done) {
         var input = [resolved(1), reject(2), resolved(3)];
-        when.reduce(input, plus, resolved(1)).then(
+        Promise.reduce(input, plus, resolved(1)).then(
             fail,
             function(result) {
                 assert.deepEqual(result, 2);
@@ -30660,21 +30661,21 @@ describe("when.reduce-test", function () {
     });
 
     specify("should reduce to undefined with empty array", function(done) {
-        when.reduce([], plus).then(function(r){
+        Promise.reduce([], plus).then(function(r){
             assert(r === void 0);
             done();
         });
     });
 
     specify("should reduce to initial value with empty array", function(done) {
-        when.reduce([], plus, sentinel).then(function(r){
+        Promise.reduce([], plus, sentinel).then(function(r){
             assert(r === sentinel);
             done();
         });
     });
 
     specify("should reduce in input order", function(done) {
-        when.reduce([later(1), later(2), later(3)], plus, '').then(
+        Promise.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {
                 assert.deepEqual(result, '123');
                 done();
@@ -30684,7 +30685,7 @@ describe("when.reduce-test", function () {
     });
 
     specify("should accept a promise for an array", function(done) {
-        when.reduce(resolved([1, 2, 3]), plus, '').then(
+        Promise.reduce(resolved([1, 2, 3]), plus, '').then(
             function(result) {
                 assert.deepEqual(result, '123');
                 done();
@@ -30693,8 +30694,8 @@ describe("when.reduce-test", function () {
         );
     });
 
-    specify("should resolve to initialValue when input promise does not resolve to an array", function(done) {
-        when.reduce(resolved(123), plus, 1).caught(TypeError, function(e){
+    specify("should resolve to initialValue Promise input promise does not resolve to an array", function(done) {
+        Promise.reduce(resolved(123), plus, 1).caught(TypeError, function(e){
             done();
         });
     });
@@ -30705,7 +30706,7 @@ describe("when.reduce-test", function () {
             return arr;
         }
 
-        when.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
+        Promise.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
             function(result) {
                 assert.deepEqual(result, [1,2,3]);
                 done();
@@ -30713,6 +30714,138 @@ describe("when.reduce-test", function () {
             fail
         );
     });
+
+    describe("checks", function() {
+        function later(val, ms) {
+            return Promise.delay(val, ms);
+        }
+
+        function plus(sum, val) {
+            return sum + val;
+        }
+
+        function plusDelayed(sum, val) {
+            return Promise.delay(0).then(function() {
+                return sum + val;
+            });
+        }
+
+        function check(delay1, delay2, delay3) {
+          return Promise.reduce([
+            later(1, delay1),
+            later(2, delay2),
+            later(3, delay3)
+          ], plus, '').then(function(result) {
+            assert.deepEqual(result, '123');
+          })
+        }
+
+        function checkDelayed(delay1, delay2, delay3) {
+          return Promise.reduce([
+            later(1, delay1),
+            later(2, delay2),
+            later(3, delay3)
+          ], plusDelayed, '').then(function(result) {
+            assert.deepEqual(result, '123');
+          })
+        }
+
+        specify("16, 16, 16", function(done) {
+            check(16, 16, 16).then(function() {
+                done();
+            });
+        });
+
+        specify("16, 16, 4", function (done) {
+            check(16, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 16, 16", function (done) {
+            check(4, 16, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 4, 16", function (done) {
+            check(16, 4, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 16, 4", function (done) {
+            check(16, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 4, 16", function (done) {
+            check(4, 4, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 4, 4", function (done) {
+            check(16, 4, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 16, 4", function (done) {
+            check(4, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 4, 4", function (done) {
+            check(4, 4, 4).then(function () {
+                done();
+            });
+        });
+
+
+        specify("16, 16, 16", function(done) {
+            checkDelayed(16, 16, 16).then(function() {
+                done();
+            });
+        });
+
+        specify("16, 16, 4", function (done) {
+            checkDelayed(16, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 16, 16", function (done) {
+            checkDelayed(4, 16, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 4, 16", function (done) {
+            checkDelayed(16, 4, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 16, 4", function (done) {
+            checkDelayed(16, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 4, 16", function (done) {
+            checkDelayed(4, 4, 16).then(function () {
+                done();
+            });
+        });
+        specify("16, 4, 4", function (done) {
+            checkDelayed(16, 4, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 16, 4", function (done) {
+            checkDelayed(4, 16, 4).then(function () {
+                done();
+            });
+        });
+        specify("4, 4, 4", function (done) {
+            checkDelayed(4, 4, 4).then(function () {
+                done();
+            });
+        });
+
+    })
 });
 
 },{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
