@@ -4359,7 +4359,7 @@ var TypeError = require('./errors.js').TypeError;
 function apiRejection(msg) {
     var error = new TypeError(msg);
     var ret = Promise.rejected(error);
-    var parent = ret._peekLongStackTraceContext();
+    var parent = ret._peekContext();
     if (parent != null) {
         parent._attachExtraTrace(error);
     }
@@ -5283,9 +5283,8 @@ var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 
-var usingContextStack = [];
 var isArray = util.isArray;
-var last = util.last;
+
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
@@ -5300,6 +5299,7 @@ var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttach = errors.canAttach;
 var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
+
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
@@ -5319,9 +5319,6 @@ function Promise(resolver) {
     this._receiver0 = void 0;
     this._settledValue = void 0;
     this._boundTo = void 0;
-    var usingContext = last(usingContextStack);
-    this._usingContext = usingContext;
-    if (usingContext !== void 0) usingContext.add(this);
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -5574,8 +5571,7 @@ function Promise$_then(
 
     if (!haveInternalData) {
         if (debugging) {
-            var haveSameContext =
-                this._peekLongStackTraceContext() === this._traceParent;
+            var haveSameContext = this._peekContext() === this._traceParent;
             ret._traceParent = haveSameContext ? this._traceParent : this;
         }
         ret._propagateFrom(this, 7);
@@ -5594,7 +5590,7 @@ function Promise$_then(
 Promise.prototype._length = function Promise$_length() {
     ASSERT((arguments.length === 0),
     "arguments.length === 0");
-    return this._bitField & 131071;
+    return this._bitField & 262143;
 };
 
 Promise.prototype._isFollowingOrFulfilledOrRejected =
@@ -5607,28 +5603,8 @@ Promise.prototype._isFollowing = function Promise$_isFollowing() {
 };
 
 Promise.prototype._setLength = function Promise$_setLength(len) {
-    this._bitField = (this._bitField & -131072) |
-        (len & 131071);
-};
-
-Promise.prototype._setFrozen = function Promise$_setFrozen() {
-    if (this.isPending()) {
-        this._bitField = this._bitField | 131072;
-        this._fulfillmentHandler0 =
-        this._rejectionHandler0 =
-        this._promise0 =
-        this._receiver0 =
-        this._settledValue =
-        this._boundTo =
-        this._usingContext = void 0;
-        if (this._length() > 5) {
-            this._gc();
-        }
-    }
-};
-
-Promise.prototype._isFrozen = function Promise$_isFrozen() {
-    return (this._bitField & 131072) > 0;
+    this._bitField = (this._bitField & -262144) |
+        (len & 262143);
 };
 
 Promise.prototype._setFulfilled = function Promise$_setFulfilled() {
@@ -5770,7 +5746,7 @@ Promise.prototype._addCallbacks = function Promise$_addCallbacks(
 ) {
     var index = this._length();
 
-    if (index >= 131071 - 5) {
+    if (index >= 262143 - 5) {
         index = 0;
         this._setLength(0);
     }
@@ -5801,7 +5777,7 @@ Promise.prototype._setProxyHandlers =
 function Promise$_setProxyHandlers(receiver, promiseSlotValue) {
     var index = this._length();
 
-    if (index >= 131071 - 5) {
+    if (index >= 262143 - 5) {
         index = 0;
         this._setLength(0);
     }
@@ -6010,8 +5986,7 @@ function Promise$_tryFollow(value) {
 
 Promise.prototype._resetTrace = function Promise$_resetTrace() {
     if (debugging) {
-        this._trace =
-            new CapturedTrace(this._peekLongStackTraceContext() === void 0);
+        this._trace = new CapturedTrace(this._peekContext() === void 0);
     }
 };
 
@@ -6019,7 +5994,7 @@ Promise.prototype._setTrace = function Promise$_setTrace(parent) {
     ASSERT((this._trace == null),
     "this._trace == null");
     if (debugging) {
-        var context = this._peekLongStackTraceContext();
+        var context = this._peekContext();
         this._traceParent = context;
         var isTopLevel = context === void 0;
         if (parent !== void 0 &&
@@ -6085,11 +6060,6 @@ function Promise$_propagateFrom(parent, flags) {
     if ((flags & 2) > 0) {
         this._setTrace(parent);
     }
-    if (this._usingContext === void 0 &&
-        parent._usingContext !== void 0) {
-        this._usingContext = parent._usingContext;
-        this._usingContext.add(this);
-    }
 };
 
 Promise.prototype._fulfill = function Promise$_fulfill(value) {
@@ -6104,8 +6074,6 @@ function Promise$_reject(reason, carriedStackTrace) {
 };
 
 Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
-    if (this._isFrozen()) return;
-
     var handler = this.isFulfilled()
         ? this._fulfillmentHandlerAt(index)
         : this._rejectionHandlerAt(index);
@@ -6297,26 +6265,24 @@ function Promise$_notifyUnhandledRejection() {
     }
 };
 
-var longStackTraceContextStack = [];
-Promise.prototype._peekLongStackTraceContext =
-function Promise$_peekLongStackTraceContext() {
-    return last(longStackTraceContextStack);
+var contextStack = [];
+Promise.prototype._peekContext = function Promise$_peekContext() {
+    var lastIndex = contextStack.length - 1;
+    if (lastIndex >= 0) {
+        return contextStack[lastIndex];
+    }
+    return void 0;
+
 };
 
 Promise.prototype._pushContext = function Promise$_pushContext() {
-    if (this._usingContext !== void 0) {
-        usingContextStack.push(this._usingContext);
-    }
     if (!debugging) return;
-    longStackTraceContextStack.push(this);
+    contextStack.push(this);
 };
 
 Promise.prototype._popContext = function Promise$_popContext() {
-    if (this._usingContext !== void 0) {
-        usingContextStack.pop();
-    }
     if (!debugging) return;
-    longStackTraceContextStack.pop();
+    contextStack.pop();
 };
 
 Promise.noConflict = function Promise$NoConflict() {
@@ -6365,7 +6331,7 @@ require('./cancel.js')(Promise,INTERNAL);
 require('./filter.js')(Promise,INTERNAL);
 require('./any.js')(Promise,PromiseArray);
 require('./each.js')(Promise,INTERNAL);
-require('./using.js')(Promise,apiRejection,cast,usingContextStack);
+require('./using.js')(Promise,apiRejection,cast);
 
 Promise.prototype = Promise.prototype;
 return Promise;
@@ -7908,7 +7874,7 @@ Promise.prototype.isRejected = function Promise$isRejected() {
 
 PromiseInspection.prototype.isPending =
 Promise.prototype.isPending = function Promise$isPending() {
-    return (this._bitField & 402784256) === 0;
+    return (this._bitField & 402653184) === 0;
 };
 
 PromiseInspection.prototype.value =
@@ -8198,36 +8164,17 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
  * 
  */
 "use strict";
-module.exports = function (Promise, apiRejection, cast, usingContextStack) {
+module.exports = function (Promise, apiRejection, cast) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
-    var reject = Promise.reject;
-
-    function UsingContext(resources, handler) {
-        this.promises = [];
-        this.resources = resources;
-        this.handler = handler;
-    }
-
-    UsingContext.prototype.add = function UsingContext$add(p) {
-        this.promises.push(p);
-    };
-
-    UsingContext.prototype.clear = function UsingContext$clear() {
-        var promises = this.promises;
-        this.promises = this.resources = this.handler = null;
-        for (var i = 0; i < promises.length; ++i) {
-            promises[i]._setFrozen();
-        }
-    };
 
     function inspectionMapper(inspections) {
         var len = inspections.length;
         for (var i = 0; i < len; ++i) {
             var inspection = inspections[i];
             if (inspection.isRejected()) {
-                return reject(inspection.error());
+                return Promise.reject(inspection.error());
             }
             inspections[i] = inspection.value();
         }
@@ -8238,9 +8185,7 @@ module.exports = function (Promise, apiRejection, cast, usingContextStack) {
         setTimeout(function(){throw e;}, 0);
     }
 
-    function dispose(usingContext, inspection) {
-        var resources = usingContext.resources;
-        usingContext.clear();
+    function dispose(resources, inspection) {
         var i = 0;
         var len = resources.length;
         var ret = Promise.defer();
@@ -8319,17 +8264,6 @@ module.exports = function (Promise, apiRejection, cast, usingContextStack) {
         return fn.call(resource, resource, inspection);
     };
 
-    function callHandler(args) {
-        usingContextStack.push(this);
-        var ret;
-        try {
-            ret = this.handler.apply(void 0, args);
-        } finally {
-            usingContextStack.pop();
-        }
-        return ret;
-    }
-
     Promise.using = function Promise$using() {
         var len = arguments.length;
         if (len < 2) return apiRejection(
@@ -8347,11 +8281,11 @@ module.exports = function (Promise, apiRejection, cast, usingContextStack) {
             }
             resources[i] = resource;
         }
-        var context = new UsingContext(resources, fn);
+
         return Promise.settle(resources)
             .then(inspectionMapper)
-            ._then(callHandler, void 0, void 0, context, void 0)
-            ._then(disposerSuccess, disposerFail, void 0, context, void 0);
+            .spread(fn)
+            ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
     };
 
     Promise.prototype._setDisposable =
@@ -8625,13 +8559,6 @@ function filledRange(count, prefix, suffix) {
     return ret;
 }
 
-function last(arr) {
-    var i = arr.length - 1;
-    if (i >= 0) {
-        return arr[i];
-    }
-}
-
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -8656,8 +8583,7 @@ var ret = {
     maybeWrapAsError: maybeWrapAsError,
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
-    filledRange: filledRange,
-    last: last
+    filledRange: filledRange
 };
 
 module.exports = ret;
@@ -29159,76 +29085,6 @@ describe("Promise.using", function() {
         });
     });
 })
-
-describe("runaway promises use-after-free", function() {
-    specify("promise.all", function(done) {
-        var usedAfterFree = false;
-        function resource() {
-            usedAfterFree = true;
-        }
-        var resource1WasClosed = false;
-        var resource1 = Promise.resolve(resource).disposer(function(){
-            resource1WasClosed = true;
-        });
-        var resource2WasClosed = false;
-        var resource2 = Promise.resolve(resource).disposer(function(){
-            resource2WasClosed = true;
-        });
-        var err = new Error();
-        using(resource1, resource2, function(res1, res2) {
-            var c1 = Promise.resolve().then(function() {
-                return Promise.delay(0).then(function() {
-                    res1();
-                    res2();
-                });
-            });
-            c1.delay(0).then(function() {
-                // no return statement - context propagation
-                // should still work
-                Promise.delay(0).then(function() {
-                    res1();
-                    res2();
-                });
-            });
-            var c2 = Promise.reject(err);
-            return Promise.all([c1, c2]);
-        }).catch(function(e) {
-            // Wait for 50 ms so that if the runaway promises were
-            // to use-after-free, they would have plenty of time
-            // to do so
-            Promise.delay(50).then(function() {
-                assert(err === e);
-                assert(resource1WasClosed);
-                assert(resource2WasClosed);
-                assert(!usedAfterFree);
-                done();
-            });
-        });
-    });
-
-    specify("nested using statements should track their own promises", function(done) {
-        // Upper using
-        using(Promise.resolve(), function() {
-            var f1, f2;
-            var p1 = new Promise(function(f) {f1 = f;});
-            var p2;
-            // Lower using
-            return using(Promise.resolve(), function() {
-                p2 = new Promise(function(f) {f2 = f;});
-            }).then(function() {
-                // p2 is frozen here because the lower using is done by now
-                f2(3);
-                assert(!p2.isFulfilled());
-                // p1 should still work because we are still in the upper using
-                f1(3);
-                assert(p1.isFulfilled() && p1.value() === 3);
-
-            })
-        }).then(function() {
-            done();
-        });
-    });
-});
 
 },{"../../js/debug/bluebird.js":21,"assert":2}],136:[function(require,module,exports){
 "use strict";
