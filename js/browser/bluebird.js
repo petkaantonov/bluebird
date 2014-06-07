@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.0.5
+ * bluebird build version 2.0.6
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -2612,17 +2612,19 @@ function Promise$_attachExtraTrace(error) {
         stack = typeof stack === "string"
             ? stack.split("\n") : [];
         var headerLineCount = 1;
-
+        var combinedTraces = 1;
         while(promise != null &&
             promise._trace != null) {
             stack = CapturedTrace.combine(
                 stack,
                 promise._trace.stack.split("\n")
-           );
+            );
             promise = promise._traceParent;
+            combinedTraces++;
         }
 
-        var max = Error.stackTraceLimit + headerLineCount;
+        var stackTraceLimit = Error.stackTraceLimit || 10;
+        var max = (stackTraceLimit + headerLineCount) * combinedTraces;
         var len = stack.length;
         if (len  > max) {
             stack.length = max;
