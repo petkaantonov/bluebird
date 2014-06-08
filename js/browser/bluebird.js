@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.0.6
+ * bluebird build version 2.0.7
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -1492,7 +1492,7 @@ if (canEvaluate) {
             var handler = this.callers[total];
             var ret = tryCatch1(handler, void 0, this);
             if (ret === errorObj) {
-                ret._rejectUnchecked(ret.e);
+                promise._rejectUnchecked(ret.e);
             } else if (!promise._tryFollow(ret)) {
                 promise._fulfillUnchecked(ret);
             }

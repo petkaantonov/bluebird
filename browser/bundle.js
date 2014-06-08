@@ -4840,7 +4840,7 @@ if (canEvaluate) {
             var handler = this.callers[total];
             var ret = tryCatch1(handler, void 0, this);
             if (ret === errorObj) {
-                ret._rejectUnchecked(ret.e);
+                promise._rejectUnchecked(ret.e);
             } else if (!promise._tryFollow(ret)) {
                 promise._fulfillUnchecked(ret);
             }
@@ -30027,6 +30027,19 @@ describe("when.join-test", function () {
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
+            done();
+        });
+    });
+
+
+    specify("gh-227", function(done) {
+        function a() {
+            return when.join(when.resolve(1), function () {
+                throw new Error();
+            });
+        }
+
+        a().caught(function(e) {
             done();
         });
     });
