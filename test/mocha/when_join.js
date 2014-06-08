@@ -142,4 +142,17 @@ describe("when.join-test", function () {
         });
     });
 
+
+    specify("gh-227", function(done) {
+        function a() {
+            return when.join(when.resolve(1), function () {
+                throw new Error();
+            });
+        }
+
+        a().caught(function(e) {
+            done();
+        });
+    });
+
 });

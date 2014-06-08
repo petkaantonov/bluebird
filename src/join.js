@@ -48,7 +48,7 @@ if (canEvaluate) {
             var handler = this.callers[total];
             var ret = tryCatch1(handler, void 0, this);
             if (ret === errorObj) {
-                ret._rejectUnchecked(ret.e);
+                promise._rejectUnchecked(ret.e);
             } else if (!promise._tryFollow(ret)) {
                 promise._fulfillUnchecked(ret);
             }
