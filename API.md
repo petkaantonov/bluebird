@@ -1154,7 +1154,7 @@ using(getConnection(),
 In conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
 when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
 
-Simplest example (where `getConnection()` [has been defined] to return a proper `Disposer`](#disposerstring-methodname---disposer))
+Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerstring-methodname---disposer))
 
 
 ```js
