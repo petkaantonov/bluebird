@@ -31,8 +31,10 @@
     - [`.race()`](#race---promise)
     - [`.some(int count)`](#someint-count---promise)
     - [`.map(Function mapper [, Object options])`](#mapfunction-mapper--object-options---promise)
+        - [Option: `concurrency`](#option-concurrency)
     - [`.reduce(Function reducer [, dynamic initialValue])`](#reducefunction-reducer--dynamic-initialvalue---promise)
     - [`.filter(Function filterer [, Object options])`](#filterfunction-filterer--object-options---promise)
+        - [Option: `concurrency`](#option-concurrency)
     - [`.each(Function iterator)`](#eachfunction-iterator---promise)
 - [Resource management](#resource-management)
     - [`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)`](#promiseusingpromisedisposer-promise-promisedisposer-promise--function-handler---promise)
@@ -40,7 +42,11 @@
 - [Promisification](#promisification)
     - [`Promise.promisify(Function nodeFunction [, dynamic receiver])`](#promisepromisifyfunction-nodefunction--dynamic-receiver---function)
     - [`Promise.promisifyAll(Object target [, Object options])`](#promisepromisifyallobject-target--object-options---object)
+        - [Option: `suffix`](#option-suffix)
+        - [Option: `filter`](#option-filter)
+        - [Option: `promisifier`](#option-promisifier)
     - [`.nodeify([Function callback] [, Object options])`](#nodeifyfunction-callback--object-options---promise)
+        - [Option: `spread`](#option-spread)
 - [Timers](#timers)
     - [`.delay(int ms)`](#delayint-ms---promise)
     - [`.timeout(int ms [, String message])`](#timeoutint-ms--string-message---promise)
@@ -989,6 +995,8 @@ Promise.map(fileNames, function(fileName) {
 });
 ```
 
+######Option: `concurrency`
+
 You may optionally specify a concurrency limit:
 
 ```js
@@ -1080,6 +1088,8 @@ An efficient shortcut for doing:
     });
 });
 ```
+
+######Option: `concurrency`
 
 See [`.map()`](#mapfunction-mapper--object-options---promise);
 
@@ -1513,6 +1523,8 @@ The entire prototype chain of the object is promisified on the object. Only enum
 
 If a method name already has an `"Async"`-suffix, it will be duplicated. E.g. `getAsync`'s promisified name is `getAsyncAsync`.
 
+######Option: `suffix`
+
 Optionally, you can define a custom suffix through the options object:
 
 ```js
@@ -1532,6 +1544,8 @@ module.exports = function myPromisifyAll(target) {
     return Promise.promisifyAll(target, {suffix: "MySuffix"});
 };
 ```
+
+######Option: `filter`
 
 Optionally, you can define a custom filter through the options object:
 
@@ -1557,6 +1571,94 @@ function defaultFilter(name, func) {
 ```
 
 (`util` is bluebird util, not node.js util)
+
+######Option: `promisifier`
+
+Optionally, you can define a custom promisifier, so you could promisifyAll e.g. the chrome APIs used in Chrome extensions.
+
+The promisifier gets a reference to the original method and should return a function which returns a promise.
+
+```js
+function DOMPromisifier(originalMethod) {
+    // return a function
+    return function promisified() {
+        var args = [].slice.call(arguments);
+        // Needed so that the original method can be called with the correct receiver
+        var self = this;
+        // which returns a promise
+        return new Promise(function(resolve, reject) {
+            args.push(resolve, reject);
+            originalMethod.apply(self, args);
+        });
+    };
+}
+
+// Promisify e.g. chrome.browserAction
+Promise.promisifyAll(chrome.browserAction, {promisifer: DOMPromisifer});
+
+// Later
+chrome.browserAction.getTitleAsync({tabId: 1})
+    .then(function(result) {
+
+    });
+```
+
+Combining `filter` with `promisifier` for the restler module to promisify event emitter:
+
+```js
+var Promise = require("bluebird");
+var restler = require("restler");
+var methodNamesToPromisify = "get post put del head patch json postJson putJson".split(" ");
+
+function EventEmitterPromisifier(originalMethod) {
+    // return a function
+    return function promisified() {
+        var args = [].slice.call(arguments);
+        // Needed so that the original method can be called with the correct receiver
+        var self = this;
+        // which returns a promise
+        return new Promise(function(resolve, reject) {
+            // We call the originalMethod here because if it throws,
+            // it will reject the returned promise with the thrown error
+            var emitter = originalMethod.apply(self, args);
+
+            emitter
+                .on("success", function(data, response) {
+                    resolve([data, response]);
+                })
+                .on("fail", function(data, response) {
+                    // Erroneous response like 400
+                    resolve([data, response]);
+                })
+                .on("error", function(err) {
+                    reject(err);
+                })
+                .on("abort", function() {
+                    reject(new Promise.CancellationError());
+                })
+                .on("timeout", function() {
+                    reject(new Promise.TimeoutError());
+                });
+        });
+    };
+};
+
+Promise.promisifyAll(restler, {
+    filter: function(name) {
+        return methodNamesToPromisify.indexOf(name) > -1;
+    },
+    promisifier: EventEmitterPromisifier
+});
+
+// ...
+
+// Later in some other file
+
+var restler = require("restler");
+restler.getAsync("http://...", ...,).spread(function(data, response) {
+
+})
+```
 
 <hr>
 
@@ -1596,6 +1698,8 @@ getDataFor("me", function(err, dataForMe) {
 ```
 
 There is no effect on peformance if the user doesn't actually pass a node-style callback function.
+
+######Option: `spread`
 
 Some nodebacks expect more than 1 success value but there is no mapping for this in the promise world. You may specify the option `spread` to call the nodeback with multiple values when the fulfillment value is an array:
 

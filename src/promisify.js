@@ -250,18 +250,20 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function promisifyAll(obj, suffix, filter) {
+function promisifyAll(obj, suffix, filter, promisifier) {
     ASSERT(typeof suffix === "string");
     ASSERT(typeof filter === "function");
     var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
     var methods =
         promisifiableMethods(obj, suffix, suffixRegexp, filter);
+
     for (var i = 0, len = methods.length; i < len; i+= 2) {
         var key = methods[i];
         var fn = methods[i+1];
         var promisifiedKey = key + suffix;
-        obj[promisifiedKey] =
-            makeNodePromisified(key, THIS, key, fn, suffix);
+        obj[promisifiedKey] = promisifier === makeNodePromisified
+                ? makeNodePromisified(key, THIS, key, fn, suffix)
+                : promisifier(fn);
     }
     util.toFastProperties(obj);
     return obj;
@@ -285,10 +287,13 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }
-    var suffix = Object(options).suffix;
+    options = Object(options);
+    var suffix = options.suffix;
     if (typeof suffix !== "string") suffix = defaultSuffix;
-    var filter = Object(options).filter;
+    var filter = options.filter;
     if (typeof filter !== "function") filter = defaultFilter;
+    var promisifier = options.promisifier;
+    if (typeof promisifier !== "function") promisifier = makeNodePromisified;
 
     if (!util.isIdentifier(suffix)) {
         throw new RangeError("suffix must be a valid identifier");
@@ -299,12 +304,12 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
         var value = target[keys[i]];
         if (keys[i] !== "constructor" &&
             util.isClass(value)) {
-            promisifyAll(value.prototype, suffix, filter);
-            promisifyAll(value, suffix, filter);
+            promisifyAll(value.prototype, suffix, filter, promisifier);
+            promisifyAll(value, suffix, filter, promisifier);
         }
     }
 
-    return promisifyAll(target, suffix, filter);
+    return promisifyAll(target, suffix, filter, promisifier);
 };
 };
 

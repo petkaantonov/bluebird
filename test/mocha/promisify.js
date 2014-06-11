@@ -621,6 +621,53 @@ if( Promise.hasLongStackTraces() ) {
     });
 }
 
+describe("Custom promisifier", function() {
+    var dummy = {};
+    var err = new Error();
+    var chrome = {
+        getTab: function(tabId, callback) {
+            setTimeout(function() {
+                callback(dummy);
+            }, 1);
+        },
+        getTabErroneous: function(tabId, callback, errback) {
+            setTimeout(function() {
+                errback(err);
+            }, 1);
+        }
+    };
+
+    Promise.promisifyAll(chrome, {
+        promisifier: function(originalMethod) {
+            return function() {
+                var self = this;
+                var args = [].slice.call(arguments);
+                return new Promise(function(f, r) {
+                    args.push(f, r);
+                    originalMethod.apply(self, args);
+                });
+            };
+        }
+    });
+
+    specify("getTab", function(done) {
+        chrome.getTabAsync(1).then(function(result) {
+            assert.equal(dummy, result);
+            done();
+        });
+    });
+
+    specify("getTabErroneous", function(done) {
+        chrome.getTabErroneousAsync(2).caught(function(e) {
+            assert.equal(e, err);
+            done();
+        });
+    });
+
+
+
+});
+
 describe("OperationalError wrapping", function() {
 
     var CustomError = function(){
