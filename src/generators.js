@@ -9,13 +9,12 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var yieldHandlers = [];
 
-function promiseFromYieldHandler(value) {
-    var _yieldHandlers = yieldHandlers;
+function promiseFromYieldHandler(value, yieldHandlers) {
     var _errorObj = errorObj;
     var _Promise = Promise;
-    var len = _yieldHandlers.length;
+    var len = yieldHandlers.length;
     for (var i = 0; i < len; ++i) {
-        var result = tryCatch1(_yieldHandlers[i], void 0, value);
+        var result = tryCatch1(yieldHandlers[i], void 0, value);
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
@@ -25,12 +24,15 @@ function promiseFromYieldHandler(value) {
     return null;
 }
 
-function PromiseSpawn(generatorFunction, receiver) {
+function PromiseSpawn(generatorFunction, receiver, yieldHandler) {
     var promise = this._promise = new Promise(INTERNAL);
     promise._setTrace(void 0);
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
     this._generator = void 0;
+    this._yieldHandlers = typeof yieldHandler === "function"
+        ? [yieldHandler].concat(yieldHandlers)
+        : yieldHandlers;
 }
 
 PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
@@ -63,7 +65,8 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     } else {
         var maybePromise = cast(value, void 0);
         if (!(maybePromise instanceof Promise)) {
-            maybePromise = promiseFromYieldHandler(maybePromise);
+            maybePromise =
+                promiseFromYieldHandler(maybePromise, this._yieldHandlers);
             ASSERT(maybePromise === null || maybePromise instanceof Promise);
             if (maybePromise === null) {
                 this._throw(new TypeError(YIELDED_NON_PROMISE_ERROR));
@@ -96,18 +99,18 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
    );
 };
 
-Promise.coroutine = function Promise$Coroutine(generatorFunction) {
+Promise.coroutine =
+function Promise$Coroutine(generatorFunction, options) {
     //Throw synchronously because Promise.coroutine is semantically
     //something you call at "compile time" to annotate static functions
     if (typeof generatorFunction !== "function") {
         throw new TypeError(NOT_GENERATOR_ERROR);
     }
-    //(TODO) Check if v8 traverses the contexts or inlines the context slot
-    //location depending on this
+    var yieldHandler = Object(options).yieldHandler;
     var PromiseSpawn$ = PromiseSpawn;
     return function () {
         var generator = generatorFunction.apply(this, arguments);
-        var spawn = new PromiseSpawn$(void 0, void 0);
+        var spawn = new PromiseSpawn$(void 0, void 0, yieldHandler);
         spawn._generator = generator;
         spawn._next(void 0);
         return spawn.promise();

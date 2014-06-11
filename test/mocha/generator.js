@@ -418,4 +418,19 @@ describe("custom yield handlers", function(){
             done();
         });
     });
+
+    specify("individual yield handler", function(done) {
+        var dummy = {};
+        var yieldHandler = function(value) {
+            if (value === dummy) return Promise.resolve(3);
+        };
+        var coro = Promise.coroutine(function* () {
+            return yield dummy;
+        }, {yieldHandler: yieldHandler});
+
+        coro().then(function(result) {
+            assert(result === 3);
+            done();
+        });
+    });
 });
