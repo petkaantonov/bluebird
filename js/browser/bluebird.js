@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.1.0
+ * bluebird build version 2.1.1
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
