@@ -1,3 +1,26 @@
+## 2.1.0 (2014-06-11)
+
+Features:
+
+ - Add [`promisifier`](API.md#option-promisifier) option to `Promise.promisifyAll()`
+ - Improve performance of `.props()` and collection methods when used with immediate values
+
+
+Bugfixes:
+
+ - Fix a bug where .reduce calls the callback for an already visited item
+ - Fix a bug where stack trace limit is calculated to be too small, which resulted in too short stack traces
+
+<sub>Add undocumented experimental `yieldHandler` option to `Promise.coroutine`</sub>
+
+## 2.0.7 (2014-06-08)
+## 2.0.6 (2014-06-07)
+## 2.0.5 (2014-06-05)
+## 2.0.4 (2014-06-05)
+## 2.0.3 (2014-06-05)
+## 2.0.2 (2014-06-04)
+## 2.0.1 (2014-06-04)
+
 ## 2.0.0 (2014-06-04)
 
 #What's new in 2.0
