@@ -4650,13 +4650,12 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var yieldHandlers = [];
 
-function promiseFromYieldHandler(value) {
-    var _yieldHandlers = yieldHandlers;
+function promiseFromYieldHandler(value, yieldHandlers) {
     var _errorObj = errorObj;
     var _Promise = Promise;
-    var len = _yieldHandlers.length;
+    var len = yieldHandlers.length;
     for (var i = 0; i < len; ++i) {
-        var result = tryCatch1(_yieldHandlers[i], void 0, value);
+        var result = tryCatch1(yieldHandlers[i], void 0, value);
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
@@ -4666,12 +4665,15 @@ function promiseFromYieldHandler(value) {
     return null;
 }
 
-function PromiseSpawn(generatorFunction, receiver) {
+function PromiseSpawn(generatorFunction, receiver, yieldHandler) {
     var promise = this._promise = new Promise(INTERNAL);
     promise._setTrace(void 0);
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
     this._generator = void 0;
+    this._yieldHandlers = typeof yieldHandler === "function"
+        ? [yieldHandler].concat(yieldHandlers)
+        : yieldHandlers;
 }
 
 PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
@@ -4704,7 +4706,8 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     } else {
         var maybePromise = cast(value, void 0);
         if (!(maybePromise instanceof Promise)) {
-            maybePromise = promiseFromYieldHandler(maybePromise);
+            maybePromise =
+                promiseFromYieldHandler(maybePromise, this._yieldHandlers);
             ASSERT(((maybePromise === null) || (maybePromise instanceof Promise)),
     "maybePromise === null || maybePromise instanceof Promise");
             if (maybePromise === null) {
@@ -4736,14 +4739,16 @@ PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
    );
 };
 
-Promise.coroutine = function Promise$Coroutine(generatorFunction) {
+Promise.coroutine =
+function Promise$Coroutine(generatorFunction, options) {
     if (typeof generatorFunction !== "function") {
         throw new TypeError("generatorFunction must be a function");
     }
+    var yieldHandler = Object(options).yieldHandler;
     var PromiseSpawn$ = PromiseSpawn;
     return function () {
         var generator = generatorFunction.apply(this, arguments);
-        var spawn = new PromiseSpawn$(void 0, void 0);
+        var spawn = new PromiseSpawn$(void 0, void 0, yieldHandler);
         spawn._generator = generator;
         spawn._next(void 0);
         return spawn.promise();
@@ -7000,7 +7005,7 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function promisifyAll(obj, suffix, filter) {
+function promisifyAll(obj, suffix, filter, promisifier) {
     ASSERT(((typeof suffix) === "string"),
     "typeof suffix === \u0022string\u0022");
     ASSERT(((typeof filter) === "function"),
@@ -7008,12 +7013,14 @@ function promisifyAll(obj, suffix, filter) {
     var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
     var methods =
         promisifiableMethods(obj, suffix, suffixRegexp, filter);
+
     for (var i = 0, len = methods.length; i < len; i+= 2) {
         var key = methods[i];
         var fn = methods[i+1];
         var promisifiedKey = key + suffix;
-        obj[promisifiedKey] =
-            makeNodePromisified(key, THIS, key, fn, suffix);
+        obj[promisifiedKey] = promisifier === makeNodePromisified
+                ? makeNodePromisified(key, THIS, key, fn, suffix)
+                : promisifier(fn);
     }
     util.toFastProperties(obj);
     return obj;
@@ -7037,10 +7044,13 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError("the target of promisifyAll must be an object or a function");
     }
-    var suffix = Object(options).suffix;
+    options = Object(options);
+    var suffix = options.suffix;
     if (typeof suffix !== "string") suffix = defaultSuffix;
-    var filter = Object(options).filter;
+    var filter = options.filter;
     if (typeof filter !== "function") filter = defaultFilter;
+    var promisifier = options.promisifier;
+    if (typeof promisifier !== "function") promisifier = makeNodePromisified;
 
     if (!util.isIdentifier(suffix)) {
         throw new RangeError("suffix must be a valid identifier");
@@ -7051,12 +7061,12 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
         var value = target[keys[i]];
         if (keys[i] !== "constructor" &&
             util.isClass(value)) {
-            promisifyAll(value.prototype, suffix, filter);
-            promisifyAll(value, suffix, filter);
+            promisifyAll(value.prototype, suffix, filter, promisifier);
+            promisifyAll(value, suffix, filter, promisifier);
         }
     }
 
-    return promisifyAll(target, suffix, filter);
+    return promisifyAll(target, suffix, filter, promisifier);
 };
 };
 
@@ -24550,6 +24560,53 @@ if( Promise.hasLongStackTraces() ) {
         });
     });
 }
+
+describe("Custom promisifier", function() {
+    var dummy = {};
+    var err = new Error();
+    var chrome = {
+        getTab: function(tabId, callback) {
+            setTimeout(function() {
+                callback(dummy);
+            }, 1);
+        },
+        getTabErroneous: function(tabId, callback, errback) {
+            setTimeout(function() {
+                errback(err);
+            }, 1);
+        }
+    };
+
+    Promise.promisifyAll(chrome, {
+        promisifier: function(originalMethod) {
+            return function() {
+                var self = this;
+                var args = [].slice.call(arguments);
+                return new Promise(function(f, r) {
+                    args.push(f, r);
+                    originalMethod.apply(self, args);
+                });
+            };
+        }
+    });
+
+    specify("getTab", function(done) {
+        chrome.getTabAsync(1).then(function(result) {
+            assert.equal(dummy, result);
+            done();
+        });
+    });
+
+    specify("getTabErroneous", function(done) {
+        chrome.getTabErroneousAsync(2).caught(function(e) {
+            assert.equal(e, err);
+            done();
+        });
+    });
+
+
+
+});
 
 describe("OperationalError wrapping", function() {
 
