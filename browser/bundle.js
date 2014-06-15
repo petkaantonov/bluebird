@@ -24320,6 +24320,20 @@ describe("promisify on objects", function(){
         var model = new Model();
         model.saveAsync();
     });
+
+    specify("gh-232", function(done) {
+        function f() {
+            var args = [].slice.call(arguments, 0, -1);
+            assert.deepEqual(args, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+            var cb = [].slice.call(arguments, -1)[0];
+            cb(null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        }
+        var fAsync = Promise.promisify(f);
+        fAsync(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(result) {
+            assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+            done();
+        });
+    });
 });
 
 describe( "Promisify with custom suffix", function() {
