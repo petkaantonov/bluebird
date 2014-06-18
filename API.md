@@ -1,6 +1,6 @@
 #API Reference
 
-**Note**: This documentation is for bluebird 2.x and not valid for 1.x.
+**Note**: This documentation is for bluebird 2.x and not valid for 1.x - [1.x docs here](https://github.com/petkaantonov/bluebird/blob/ca0f2f8b204df7015eb1f7b75ba8195a81bf0d7e/API.md)
 
 - [Core](#core)
     - [`new Promise(Function<Function resolve, Function reject> resolver)`](#new-promisefunctionfunction-resolve-function-reject-resolver---promise)
