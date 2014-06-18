@@ -1902,34 +1902,13 @@ Doing `Promise.coroutine(function*() {})` is almost like using the C# `async` ke
 
 **Tip**
 
-If you yield an array then its elements are implicitly waited for. You may add your own custom special treatments with [`Promise.coroutine.addYieldHandler`](#promisecoroutineaddyieldhandlerfunction-handler---void)
-
-You can combine it with ES6 destructuring for some neat syntax:
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    [resultA, resultB] = yield [http.getAsync(urlA), http.getAsync(urlB)];
-    //use resultA
-    //use resultB
-});
-```
-
-You might wonder why not just do this?
-
-```js
-var getData = Promise.coroutine(function* (urlA, urlB) {
-    var resultA = yield http.getAsync(urlA);
-    var resultB = yield http.getAsync(urlB);
-});
-```
-
-The problem with the above is that the requests are not done in parallel. It will completely wait for request A to complete before even starting request B. In the array syntax both requests fire off at the same time in parallel.
+You are able to yield non-promise values by adding your own yield handler using  [`Promise.coroutine.addYieldHandler`](#promisecoroutineaddyieldhandlerfunction-handler---void)
 
 <hr>
 
 #####`Promise.coroutine.addYieldHandler(function handler)` -> `void`
 
-By default you can only yield Promises, Thenables and Arrays inside coroutines. You can use this function to add yielding support for arbitrary types.
+By default you can only yield Promises and Thenables inside coroutines. You can use this function to add yielding support for arbitrary types.
 
 For example, if you wanted `yield 500` to be same as `yield Promise.delay(500)`:
 
@@ -1997,6 +1976,27 @@ var readFileThunk = function(fileName, encoding) {
 var readFileJSON = Promise.coroutine(function* (fileName) {
    var contents = yield readFileThunk(fileName, "utf8");
    return JSON.parse(contents);
+});
+```
+
+An example of handling promises in parallel by adding an `addYieldHandler` for arrays :
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+
+Promise.coroutine.addYieldHandler(function(yieldedValue) {
+    if (Array.isArray(yieldedValue)) return Promise.all(yieldedValue);
+});
+
+var readFiles = Promise.coroutine(function* (fileNames) {
+   var promises = [];
+   
+   fileNames.forEach(function (fileName) {
+      promises.push(fs.readFileAsync(fileName, "utf8"));
+   });
+
+   return yield promises;
 });
 ```
 
