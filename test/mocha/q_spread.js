@@ -285,4 +285,15 @@ describe("spread", function () {
         })
     });
 
+    specify("gh-235", function(done) {
+        var P = Promise;
+        P.resolve(1).then(function(x) {
+          return [x, P.resolve(2)]
+        }).spread(function(x, y) {
+          return P.all([P.resolve(3), P.resolve(4)]);
+        }).then(function(a) {
+          assert.deepEqual([3, 4], a);
+          done();
+        });
+    })
 });

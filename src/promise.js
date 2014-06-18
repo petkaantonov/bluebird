@@ -601,10 +601,10 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     ASSERT(isArray(values));
     ASSERT(typeof targetFn === "function");
     var promiseForAll = new PromiseArray(values).promise();
-    promiseForAll._then(function() {
+    var promise2 = promiseForAll._then(function() {
         return targetFn.apply(boundTo, arguments);
-    }, INTERNAL, void 0, APPLY, void 0);
-    promise._follow(promiseForAll);
+    }, void 0, void 0, APPLY, void 0);
+    promise._follow(promise2);
 };
 
 Promise.prototype._callSpread =
