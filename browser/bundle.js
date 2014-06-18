@@ -5874,10 +5874,10 @@ function Promise$_spreadSlowCase(targetFn, promise, values, boundTo) {
     ASSERT(((typeof targetFn) === "function"),
     "typeof targetFn === \u0022function\u0022");
     var promiseForAll = new PromiseArray(values).promise();
-    promiseForAll._then(function() {
+    var promise2 = promiseForAll._then(function() {
         return targetFn.apply(boundTo, arguments);
-    }, INTERNAL, void 0, APPLY, void 0);
-    promise._follow(promiseForAll);
+    }, void 0, void 0, APPLY, void 0);
+    promise._follow(promise2);
 };
 
 Promise.prototype._callSpread =
@@ -27310,6 +27310,17 @@ describe("spread", function () {
         })
     });
 
+    specify("gh-235", function(done) {
+        var P = Promise;
+        P.resolve(1).then(function(x) {
+          return [x, P.resolve(2)]
+        }).spread(function(x, y) {
+          return P.all([P.resolve(3), P.resolve(4)]);
+        }).then(function(a) {
+          assert.deepEqual([3, 4], a);
+          done();
+        });
+    })
 });
 
 },{"../../js/debug/bluebird.js":21,"assert":2}],125:[function(require,module,exports){

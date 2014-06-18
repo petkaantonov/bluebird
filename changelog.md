@@ -1,3 +1,17 @@
+## 2.1.3 (2014-06-18)
+
+Bugfixes:
+
+ - Fix [#235](https://github.com/petkaantonov/bluebird/issues/235)
+
+## 2.1.2 (2014-06-15)
+
+Bugfixes:
+
+ - Fix [#232](https://github.com/petkaantonov/bluebird/issues/232)
+
+## 2.1.1 (2014-06-11)
+
 ## 2.1.0 (2014-06-11)
 
 Features:
