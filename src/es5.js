@@ -19,49 +19,44 @@ else {
     var str = {}.toString;
     var proto = {}.constructor.prototype;
 
-    function ObjectKeys(o) {
-        var ret = [];
-        for (var key in o) {
-            if (has.call(o, key)) {
-                ret.push(key);
-            }
-        }
-        return ret;
-    }
-
-    function ObjectDefineProperty(o, key, desc) {
-        o[key] = desc.value;
-        return o;
-    }
-
-    function ObjectFreeze(obj) {
-        return obj;
-    }
-
-    function ObjectGetPrototypeOf(obj) {
-        try {
-            return Object(obj).constructor.prototype;
-        }
-        catch (e) {
-            return proto;
-        }
-    }
-
-    function ArrayIsArray(obj) {
-        try {
-            return str.call(obj) === "[object Array]";
-        }
-        catch(e) {
-            return false;
-        }
-    }
-
     module.exports = {
-        isArray: ArrayIsArray,
-        keys: ObjectKeys,
-        defineProperty: ObjectDefineProperty,
-        freeze: ObjectFreeze,
-        getPrototypeOf: ObjectGetPrototypeOf,
+        freeze: function ObjectFreeze(obj) {
+            return obj;
+        },
+
+        defineProperty: function ObjectDefineProperty(o, key, desc) {
+            o[key] = desc.value;
+            return o;
+        },
+
+        keys: function ObjectKeys(o) {
+            var ret = [];
+            for (var key in o) {
+                if (has.call(o, key)) {
+                    ret.push(key);
+                }
+            }
+            return ret;
+        },
+
+        getPrototypeOf: function ObjectGetPrototypeOf(obj) {
+            try {
+                return Object(obj).constructor.prototype;
+            }
+            catch (e) {
+                return proto;
+            }
+        },
+
+        isArray: function ArrayIsArray(obj) {
+            try {
+                return str.call(obj) === "[object Array]";
+            }
+            catch(e) {
+                return false;
+            }
+        },
+
         isES5: isES5
     };
 }
