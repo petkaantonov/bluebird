@@ -3579,6 +3579,11 @@ function promisify(callback, receiver) {
 }
 
 Promise.promisify = function Promise$Promisify(fn, receiver) {
+    if (typeof receiver === "string") {
+        var prop = receiver;
+        receiver = fn;
+        fn = receiver[prop];
+    }
     if (typeof fn !== "function") {
         throw new TypeError("fn must be a function");
     }

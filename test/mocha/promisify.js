@@ -808,3 +808,21 @@ if (canTestArity) {
         })
     })
 }
+
+describe("promisify with object and string argument", function() {
+    var o = {
+        value: 15,
+
+        f: function(a, cb) {
+            cb(null, a + this.value);
+        }
+    };
+    var prom = Promise.promisify(o, "f");
+
+    specify("should properly bind function with receiver", function(done) {
+        prom(5).then(function(val){
+            assert.equal(val, 20);
+            done();
+        });
+    });
+});
