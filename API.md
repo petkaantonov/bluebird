@@ -1467,6 +1467,15 @@ redisGet('foo').then(function() {
 });
 ```
 
+Optionally, you may use the following shorthand to maintain context: 
+
+```js
+var redisGet = Promise.promisify(redisClient, 'get');
+redisGet('foo').then(function() {
+    //...
+});
+```
+
 **Tip**
 
 Use [`.spread`](#spreadfunction-fulfilledhandler--function-rejectedhandler----promise) with APIs that have multiple success values:
