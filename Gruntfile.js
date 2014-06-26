@@ -463,7 +463,10 @@ module.exports = function( grunt ) {
         var fs = require("fs");
         var browserify = require("browserify");
         var b = browserify("./js/main/bluebird.js");
+        var uglify = require("uglify-js");
         var dest = "./js/browser/bluebird.js";
+        var minidest = "./js/browser/bluebird.min.js";
+        var result;
 
         var header = getBrowserBuildHeader( sources );
 
@@ -478,6 +481,9 @@ module.exports = function( grunt ) {
         }).then(function( src ) {
             src = header + src;
             return Q.nfcall(fs.writeFile, dest, src );
+        }).then(function(){
+            result = uglify.minify(dest);
+            return Q.nfcall(fs.writeFile, minidest, result.code);
         });
     }
 
