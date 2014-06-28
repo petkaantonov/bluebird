@@ -4,7 +4,6 @@ var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
 var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
-var PENDING = {};
 function ReductionPromiseArray(promises, fn, accum, _each) {
     this.constructor$(promises);
     this._preservedValues = _each === INTERNAL ? [] : null;
@@ -13,9 +12,6 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     this._zerothIsAccum = (accum === void 0);
     // `true` = we've received our initialValue
     this._gotAccum = false;
-    // phase 1 = we've received its initial value
-    // phase 2 = we've received its reduced value
-    this._valuesPhase = [];
     // index of the value we are in the process of reducing
     this._reducingIndex = (this._zerothIsAccum ? 1 : 0);
 
@@ -60,8 +56,6 @@ function ReductionPromiseArray$_resolveEmptyArray() {
 // Override
 ReductionPromiseArray.prototype._promiseFulfilled =
 function ReductionPromiseArray$_promiseFulfilled(value, index) {
-    // not really fulfilled
-    if (value === PENDING) return;
     var values = this._values;
     if (values === null) return;
     var length = this.length();
@@ -69,6 +63,18 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     var isEach = preservedValues !== null;
     var gotAccum = this._gotAccum;
     var valuesPhase = this._valuesPhase;
+    var valuesPhaseIndex;
+    if (! valuesPhase) {
+        valuesPhase = this._valuesPhase = Array(length);
+        for (valuesPhaseIndex = length; valuesPhaseIndex; --valuesPhaseIndex) {
+            // 0 = no value
+            // 1 = we've received its initial value
+            // 2 = we've received its reduced value
+            // 4 = reduced value is pending
+            valuesPhase[valuesPhaseIndex] = 0;
+        }
+    }
+    valuesPhaseIndex = valuesPhase[index];
 
     // Special case detection where the processing starts at index 1
     // because no initialValue was given
@@ -77,8 +83,7 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
             this._accum = value;
             this._gotAccum = gotAccum = true;
         }
-        values[index] = value;
-        valuesPhase[index] = (valuesPhase[index] || 0) + 1;
+        valuesPhase[index] = (valuesPhaseIndex ? 2 : 1);
     // the initialValue was a promise and was fulfilled
     } else if (index === -1) {
         if (! gotAccum) {
@@ -86,10 +91,14 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
             this._gotAccum = gotAccum = true;
         }
     } else {
-        values[index] = value;
-        valuesPhase[index] = (valuesPhase[index] || 0) + 1;
-        if (gotAccum && (valuesPhase[index] > 1)) {
-            this._accum = value;
+        if (valuesPhaseIndex) {
+            valuesPhase[index] = 2;
+            if (gotAccum) {
+                this._accum = value;
+            }
+        }
+        else {
+            valuesPhase[index] = 1;
         }
     }
     // no point in reducing anything until we have an initialValue
@@ -100,16 +109,16 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
     var ret;
 
     for (var i = this._reducingIndex; i < length; ++i) {
-        var phase = valuesPhase[i];
-        if (! phase) return;
-        if (phase > 1) {
+        valuesPhaseIndex = valuesPhase[i];
+        // cannot reduce it until it has a resolved value
+        if (! (valuesPhaseIndex & 3)) return;
+        if (valuesPhaseIndex === 2) {
             // it has already been reduced
             this._reducingIndex = i + 1;
             continue;
         }
 
         value = values[i];
-        if (value === PENDING) return;
         if (value instanceof Promise) {
             if (value.isFulfilled()) {
                 value = value._settledValue;
@@ -137,8 +146,8 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
             // Callback returned a pending
             // promise so continue iteration when it fulfills
             if (maybePromise.isPending()) {
-                // Phase 2 marker
-                values[i] = PENDING;
+                // resolved value is pending
+                valuesPhase[i] = 4;
                 return maybePromise._proxyPromiseArray(this, i);
             } else if (maybePromise.isFulfilled()) {
                 ret = maybePromise.value();
