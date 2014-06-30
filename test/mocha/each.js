@@ -101,3 +101,9 @@ describe("Promise.prototype.each", function() {
         });
     });
 });
+
+describe("Promise.forEach", function() {
+    it("is an alias for Promise.each", function() {
+        assert.strictEqual(Promise.forEach, Promise.each);
+    });
+});
