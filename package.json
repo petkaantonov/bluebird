@@ -52,7 +52,7 @@
         "jquery-browserify": "~1.8.1",
         "sinon": "~1.7.3",
         "kew": "~0.2.2",
-        "browserify": "~2.35.0",
+        "browserify": "~4.2.0",
         "concurrent": "~0.3.2",
         "text-table": "~0.2.0",
         "grunt-cli": "~0.1.9",
