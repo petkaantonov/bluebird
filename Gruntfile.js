@@ -235,7 +235,6 @@ module.exports = function( grunt ) {
                 "undef": true,
                 "unused": true,
                 "strict": false,
-                "trailing": true,
                 "maxparams": 6,
                 "maxlen": 80,
 
@@ -253,7 +252,6 @@ module.exports = function( grunt ) {
                 "multistr": true,
                 "proto": false,
                 "scripturl": true,
-                "smarttabs": false,
                 "shadow": true,
                 "sub": true,
                 "supernew": false,
