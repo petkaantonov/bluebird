@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/petkaantonov/bluebird.png?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
+[![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird) [![Dependency Status](https://david-dm.org/petkaantonov/bluebird.svg)](https://david-dm.org/petkaantonov/bluebird) [![devDependency Status](https://david-dm.org/petkaantonov/bluebird/dev-status.svg)](https://david-dm.org/petkaantonov/bluebird#info=devDependencies)
 
 <a href="http://promisesaplus.com/">
     <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
