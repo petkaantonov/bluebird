@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.2.0
+ * bluebird build version 2.2.1
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -537,6 +537,22 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
         ret.push(lines[i]);
     }
     return ret;
+};
+
+CapturedTrace.protectErrorMessageNewlines = function(stack) {
+    for (var i = 0; i < stack.length; ++i) {
+        if (rtraceline.test(stack[i])) {
+            break;
+        }
+    }
+
+    if (i <= 1) return;
+
+    var errorMessageLines = [];
+    for (var j = 0; j < i; ++j) {
+        errorMessageLines.push(stack.shift());
+    }
+    stack.unshift(errorMessageLines.join("\u0002\u0000\u0001"));
 };
 
 CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
@@ -2614,8 +2630,8 @@ function Promise$_attachExtraTrace(error) {
     if (debugging) {
         var promise = this;
         var stack = error.stack;
-        stack = typeof stack === "string"
-            ? stack.split("\n") : [];
+        stack = typeof stack === "string" ? stack.split("\n") : [];
+        CapturedTrace.protectErrorMessageNewlines(stack);
         var headerLineCount = 1;
         var combinedTraces = 1;
         while(promise != null &&
@@ -2631,9 +2647,13 @@ function Promise$_attachExtraTrace(error) {
         var stackTraceLimit = Error.stackTraceLimit || 10;
         var max = (stackTraceLimit + headerLineCount) * combinedTraces;
         var len = stack.length;
-        if (len  > max) {
+        if (len > max) {
             stack.length = max;
         }
+
+        if (len > 0)
+            stack[0] = stack[0].split("\u0002\u0000\u0001").join("\n");
+
         if (stack.length <= headerLineCount) {
             error.stack = "(No stack trace)";
         } else {

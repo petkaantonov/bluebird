@@ -1,3 +1,7 @@
+## 2.2.1 (2014-07-07)
+
+ - Fix multiline error messages only showing the first line
+
 ## 2.2.0 (2014-07-07)
 
 Bugfixes:
