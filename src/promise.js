@@ -750,8 +750,8 @@ function Promise$_attachExtraTrace(error) {
         ASSERT(canAttach(error));
         var promise = this;
         var stack = error.stack;
-        stack = typeof stack === "string"
-            ? stack.split("\n") : [];
+        stack = typeof stack === "string" ? stack.split("\n") : [];
+        CapturedTrace.protectErrorMessageNewlines(stack);
         var headerLineCount = 1;
         var combinedTraces = 1;
         while(promise != null &&
@@ -767,9 +767,13 @@ function Promise$_attachExtraTrace(error) {
         var stackTraceLimit = Error.stackTraceLimit || 10;
         var max = (stackTraceLimit + headerLineCount) * combinedTraces;
         var len = stack.length;
-        if (len  > max) {
+        if (len > max) {
             stack.length = max;
         }
+
+        if (len > 0)
+            stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
+
         if (stack.length <= headerLineCount) {
             error.stack = "(No stack trace)";
         } else {

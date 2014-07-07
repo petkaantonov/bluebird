@@ -112,6 +112,23 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     return ret;
 };
 
+CapturedTrace.protectErrorMessageNewlines = function(stack) {
+    for (var i = 0; i < stack.length; ++i) {
+        if (rtraceline.test(stack[i])) {
+            break;
+        }
+    }
+
+    // No multiline error message
+    if (i <= 1) return;
+
+    var errorMessageLines = [];
+    for (var j = 0; j < i; ++j) {
+        errorMessageLines.push(stack.shift());
+    }
+    stack.unshift(errorMessageLines.join(NEWLINE_PROTECTOR));
+};
+
 CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
     return typeof captureStackTrace === "function";
 };
