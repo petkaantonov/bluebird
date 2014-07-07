@@ -1,3 +1,10 @@
+## 2.2.0 (2014-07-07)
+
+Bugfixes:
+
+ - `.any` and `.some` now consistently reject with RangeError when input array contains too few promises
+ - Fix iteration bug with `.reduce` when input array contains already fulfilled promises
+
 ## 2.1.3 (2014-06-18)
 
 Bugfixes:
