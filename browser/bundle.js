@@ -7411,30 +7411,31 @@ var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
 var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
-var PENDING = {};
 function ReductionPromiseArray(promises, fn, accum, _each) {
     this.constructor$(promises);
-    var currentIndex = -2;
     this._preservedValues = _each === INTERNAL ? [] : null;
+    this._zerothIsAccum = (accum === void 0);
+    this._gotAccum = false;
+    this._reducingIndex = (this._zerothIsAccum ? 1 : 0);
+    this._valuesPhase = undefined;
+
     var maybePromise = cast(accum, void 0);
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {
         if (maybePromise.isPending()) {
-            currentIndex = -1;
             maybePromise._proxyPromiseArray(this, -1);
         } else if (maybePromise.isFulfilled()) {
             accum = maybePromise.value();
-            currentIndex = 0;
+            this._gotAccum = true;
         } else {
             maybePromise._unsetRejectionIsUnhandled();
             this._reject(maybePromise.reason());
             rejected = true;
         }
     }
-    if (!isPromise && accum !== void 0) currentIndex = 0;
+    if (!(isPromise || this._zerothIsAccum)) this._gotAccum = true;
     this._callback = fn;
-    this._currentIndex = currentIndex;
     this._accum = accum;
     if (!rejected) this._init$(void 0, -5);
 }
@@ -7445,7 +7446,7 @@ function ReductionPromiseArray$_init() {};
 
 ReductionPromiseArray.prototype._resolveEmptyArray =
 function ReductionPromiseArray$_resolveEmptyArray() {
-    if (this._currentIndex !== -1) {
+    if (this._gotAccum || this._zerothIsAccum) {
         this._resolve(this._preservedValues !== null
                         ? [] : this._accum);
     }
@@ -7453,44 +7454,64 @@ function ReductionPromiseArray$_resolveEmptyArray() {
 
 ReductionPromiseArray.prototype._promiseFulfilled =
 function ReductionPromiseArray$_promiseFulfilled(value, index) {
-    var accum;
     var values = this._values;
     if (values === null) return;
     var length = this.length();
-    var currentIndex = this._currentIndex;
-    if (currentIndex > index) return;
     var preservedValues = this._preservedValues;
     var isEach = preservedValues !== null;
-    if (index === 0 && currentIndex === -2) {
-        accum = value;
-        currentIndex = 1;
-        if (length < 2) return this._resolve(void 0);
-        value = values[1];
-    } else if (index > currentIndex) {
-        return;
-    } else if (index === -1 || values[index] === PENDING) {
-        accum = value;
-        currentIndex++;
-        if (currentIndex >= length)
-            return this._resolve(isEach ? preservedValues : accum);
-        value = values[currentIndex];
-    } else {
-        accum = this._accum;
+    var gotAccum = this._gotAccum;
+    var valuesPhase = this._valuesPhase;
+    var valuesPhaseIndex;
+    if (!valuesPhase) {
+        valuesPhase = this._valuesPhase = Array(length);
+        for (valuesPhaseIndex=0; valuesPhaseIndex<length; ++valuesPhaseIndex) {
+            valuesPhase[valuesPhaseIndex] = 0;
+        }
     }
+    valuesPhaseIndex = valuesPhase[index];
+
+    if (index === 0 && this._zerothIsAccum) {
+        if (!gotAccum) {
+            this._accum = value;
+            this._gotAccum = gotAccum = true;
+        }
+        valuesPhase[index] = ((valuesPhaseIndex === 0)
+            ? 1 : 2);
+    } else if (index === -1) {
+        if (!gotAccum) {
+            this._accum = value;
+            this._gotAccum = gotAccum = true;
+        }
+    } else {
+        if (valuesPhaseIndex === 0) {
+            valuesPhase[index] = 1;
+        }
+        else {
+            valuesPhase[index] = 2;
+            if (gotAccum) {
+                this._accum = value;
+            }
+        }
+    }
+    if (!gotAccum) return;
 
     var callback = this._callback;
     var receiver = this._promise._boundTo;
     var ret;
 
-    for (var i = currentIndex; i < length; ++i) {
-        if (i > currentIndex) value = values[i];
+    for (var i = this._reducingIndex; i < length; ++i) {
+        valuesPhaseIndex = valuesPhase[i];
+        if (valuesPhaseIndex === 2) {
+            this._reducingIndex = i + 1;
+            continue;
+        }
+        if (valuesPhaseIndex !== 1) return;
 
+        value = values[i];
         if (value instanceof Promise) {
             if (value.isFulfilled()) {
                 value = value._settledValue;
             } else if (value.isPending()) {
-                this._accum = accum;
-                this._currentIndex = i;
                 return;
             } else {
                 value._unsetRejectionIsUnhandled();
@@ -7503,7 +7524,7 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
             ret = tryCatch3(callback, receiver, value, i, length);
         }
         else {
-            ret = tryCatch4(callback, receiver, accum, value, i, length);
+            ret = tryCatch4(callback, receiver, this._accum, value, i, length);
         }
 
         if (ret === errorObj) return this._reject(ret.e);
@@ -7511,9 +7532,7 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
         var maybePromise = cast(ret, void 0);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
-                values[i] = PENDING;
-                this._accum = accum;
-                this._currentIndex = i;
+                valuesPhase[i] = 4;
                 return maybePromise._proxyPromiseArray(this, i);
             } else if (maybePromise.isFulfilled()) {
                 ret = maybePromise.value();
@@ -7522,9 +7541,13 @@ function ReductionPromiseArray$_promiseFulfilled(value, index) {
                 return this._reject(maybePromise.reason());
             }
         }
-        accum = ret;
+
+        this._reducingIndex = i + 1;
+        this._accum = ret;
     }
-    this._resolve(isEach ? preservedValues : accum);
+
+    if (this._reducingIndex < length) return;
+    this._resolve(isEach ? preservedValues : this._accum);
 };
 
 function reduce(promises, fn, initialValue, _each) {
@@ -7735,14 +7758,12 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
         this._resolve([]);
         return;
     }
-    this._init$(void 0, -2);
+    this._init$(void 0, -5);
     var isArrayResolved = isArray(this._values);
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
-        var message = "(Promise.some) input array contains less than " +
-                        this._howMany  + " promises";
-        this._reject(new RangeError(message));
+        this._reject(this._getRangeError(this.length()));
     }
 };
 
@@ -7813,6 +7834,18 @@ function SomePromiseArray$_addFulfilled(value) {
 SomePromiseArray.prototype._canPossiblyFulfill =
 function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
+};
+
+SomePromiseArray.prototype._getRangeError =
+function SomePromiseArray$_getRangeError(count) {
+    var message = "Input array must contain at least " +
+            this._howMany + " items but contains only " + count + " items";
+    return new RangeError(message);
+};
+
+SomePromiseArray.prototype._resolveEmptyArray =
+function SomePromiseArray$_resolveEmptyArray() {
+    this._reject(this._getRangeError(0));
 };
 
 function Promise$_Some(promises, howMany) {
@@ -27480,6 +27513,18 @@ function promised(val) {
         }, 4);
     });
 }
+function promising(val) {
+    return function() {
+        return promised(val);
+    }
+}
+function promisingThen(val) {
+    return function() {
+        return promised(val).then(function(resolved) {
+            return resolved;
+        });
+    }
+}
 
 function thenabled(val) {
     return {
@@ -27490,9 +27535,113 @@ function thenabled(val) {
         }
     };
 }
+function thenabling(val) {
+    return function() { return thenabled(val); }
+}
+
+function evaluate(val) {
+    if (typeof val === 'function') {
+        val = val();
+    }
+    if (Array.isArray(val)) {
+        val = val.map(function(member) {
+            return evaluate(member);
+        });
+    }
+    return val;
+}
+
+
+var ACCUM_CRITERIA = [
+    { value: 0,                desc: "that is resolved" },
+    { value: promising(0),     desc: "as a Promise" },
+    { value: promisingThen(0), desc: "as a deferred Promise" },
+    { value: thenabling(0),    desc: "as a thenable" },
+];
+
+var VALUES_CRITERIA = [
+    { value: [],               total: 0, desc: "and no values" },
+    { value: [ 1 ],            total: 1, desc: "and a single resolved value" },
+    { value: [ 1, 2, 3 ],      total: 6, desc: "and multiple resolved values" },
+    { value: [ promising(1) ], total: 1, desc: "and a single Promise" },
+    { value: [
+        promising(1),
+        promising(2),
+        promising(3)
+    ], total: 6, desc: "and multiple Promises" },
+    { value: [
+        promisingThen(1)
+    ], total: 1, desc: "and a single deferred Promise" },
+    { value: [
+        promisingThen(1),
+        promisingThen(2),
+        promisingThen(3),
+    ], total: 6, desc: "and multiple deferred Promises" },
+    { value: [
+        thenabling(1)
+    ], total: 1, desc: "and a single thenable" },
+    { value: [
+        thenabling(1),
+        thenabling(2),
+        thenabling(3)
+    ], total: 6, desc: "and multiple thenables" },
+    { value: [
+        thenabling(1),
+        promisingThen(2),
+        promising(3),
+        4,
+    ], total: 10, desc: "and a blend of values" },
+];
+
+var ERROR = new Error("BOOM");
+
 
 describe("Promise.prototype.reduce", function() {
+    it("works with no values", function(done) {
+        Promise.resolve([]).reduce(function(total, value) {
+            return total + value + 5;
+        }).then(function(total) {
+            assert.strictEqual(total, undefined);
+        }).nodeify(done);
+    });
 
+    it("works with a single value", function(done) {
+        Promise.resolve([ 1 ]).reduce(function(total, value) {
+            return total + value + 5;
+        }).then(function(total) {
+            assert.strictEqual(total, 1);
+        }).nodeify(done);
+    });
+
+    it("works when the iterator returns a value", function(done) {
+        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+            return total + value + 5;
+        }).then(function(total) {
+            assert.strictEqual(total, (1 + 2+5 + 3+5));
+        }).nodeify(done);
+    });
+
+    it("works when the iterator returns a Promise", function(done) {
+        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+            return promised(5).then(function(bonus) {
+                return total + value + bonus;
+            });
+        }).then(function(total) {
+            assert.strictEqual(total, (1 + 2+5 + 3+5));
+        }).nodeify(done);
+    });
+
+    it("works when the iterator returns a thenable", function(done) {
+        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+            return thenabled(total + value + 5);
+        }).then(function(total) {
+            assert.strictEqual(total, (1 + 2+5 + 3+5));
+        }).nodeify(done);
+    });
+});
+
+
+describe("Promise.reduce", function() {
 
     it("should allow returning values", function(done) {
         var a = [promised(1), promised(2), promised(3)];
@@ -27543,6 +27692,243 @@ describe("Promise.prototype.reduce", function() {
         }, 0).then(assert.fail, function(err) {
             assert.equal(err, e);
             done();
+        });
+    });
+
+    describe("with no initial accumulator or values", function() {
+        it("works when the iterator returns a value", function(done) {
+            return Promise.reduce([], function(total, value) {
+                return total + value + 5;
+            }).then(function(total){
+                assert.strictEqual(total, undefined);
+            }).nodeify(done);
+        });
+
+        it("works when the iterator returns a Promise", function(done) {
+            return Promise.reduce([], function(total, value) {
+                return promised(5).then(function(bonus) {
+                    return total + value + bonus;
+                });
+            }).then(function(total){
+                assert.strictEqual(total, undefined);
+            }).nodeify(done);
+        });
+
+        it("works when the iterator returns a thenable", function(done) {
+            return Promise.reduce([], function(total, value) {
+                return thenabled(total + value + 5);
+            }).then(function(total){
+                assert.strictEqual(total, undefined);
+            }).nodeify(done);
+        });
+    });
+
+    describe("with an initial accumulator value", function() {
+        ACCUM_CRITERIA.forEach(function(criteria) {
+            var initial = criteria.value;
+
+            describe(criteria.desc, function() {
+                VALUES_CRITERIA.forEach(function(criteria) {
+                    var values = criteria.value;
+                    var valueTotal = criteria.total;
+
+                    describe(criteria.desc, function() {
+                        it("works when the iterator returns a value", function(done) {
+                            return Promise.reduce(evaluate(values), function(total, value) {
+                                return total + value + 5;
+                            }, evaluate(initial)).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+
+                        it("works when the iterator returns a Promise", function(done) {
+                            return Promise.reduce(evaluate(values), function(total, value) {
+                                return promised(5).then(function(bonus) {
+                                    return total + value + bonus;
+                                });
+                            }, evaluate(initial)).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+
+                        it("works when the iterator returns a thenable", function(done) {
+                            return Promise.reduce(evaluate(values), function(total, value) {
+                                return thenabled(total + value + 5);
+                            }, evaluate(initial)).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+                    });
+                });
+            });
+        });
+
+        it("propagates an initial Error", function(done) {
+            var initial = Promise.reject(ERROR);
+            var values = [
+                thenabling(1),
+                promisingThen(2)(),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                return value;
+            }, initial).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
+        });
+
+        it("propagates a value's Error", function(done) {
+            var initial = 0;
+            var values = [
+                thenabling(1),
+                promisingThen(2)(),
+                Promise.reject(ERROR),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                return value;
+            }, initial).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
+        });
+
+        it("propagates an Error from the iterator", function(done) {
+            var initial = 0;
+            var values = [
+                thenabling(1),
+                promisingThen(2)(),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                if (value === 2) {
+                    throw ERROR;
+                }
+                return value;
+            }, initial).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
+        });
+    });
+
+    describe("with a 0th value acting as an accumulator", function() {
+        it("acts this way when an accumulator value is provided yet `undefined`", function(done) {
+            return Promise.reduce([ 1, 2, 3 ], function(total, value) {
+                return ((total === void 0) ? 0 : total) + value + 5;
+            }, undefined).then(function(total){
+                assert.strictEqual(total, (1 + 2+5 + 3+5));
+            }).nodeify(done);
+        });
+
+        it("survives an `undefined` 0th value", function(done) {
+            return Promise.reduce([ undefined, 1, 2, 3 ], function(total, value) {
+                return ((total === void 0) ? 0 : total) + value + 5;
+            }).then(function(total){
+                assert.strictEqual(total, (1+5 + 2+5 + 3+5));
+            }).nodeify(done);
+        });
+
+        ACCUM_CRITERIA.forEach(function(criteria) {
+            var zeroth = criteria.value;
+
+            describe(criteria.desc, function() {
+                VALUES_CRITERIA.forEach(function(criteria) {
+                    var values = criteria.value;
+                    var zerothAndValues = [ zeroth ].concat(values);
+                    var valueTotal = criteria.total;
+
+                    describe(criteria.desc, function(done) {
+                        it("works when the iterator returns a value", function(done) {
+                            return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
+                                return total + value + 5;
+                            }).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+
+                        it("works when the iterator returns a Promise", function(done) {
+                            return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
+                                return promised(5).then(function(bonus) {
+                                    return total + value + bonus;
+                                });
+                            }).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+
+                        it("works when the iterator returns a thenable", function(done) {
+                            return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
+                                return thenabled(total + value + 5);
+                            }).then(function(total){
+                                assert.strictEqual(total, valueTotal + (values.length * 5));
+                            }).nodeify(done);
+                        });
+                    });
+                });
+            });
+        });
+
+        it("propagates an initial Error", function(done) {
+            var values = [
+                Promise.reject(ERROR),
+                thenabling(1),
+                promisingThen(2)(),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                return value;
+            }).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
+        });
+
+        it("propagates a value's Error", function(done) {
+            var values = [
+                0,
+                thenabling(1),
+                promisingThen(2)(),
+                Promise.reject(ERROR),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                return value;
+            }).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
+        });
+
+        it("propagates an Error from the iterator", function(done) {
+            var values = [
+                0,
+                thenabling(1),
+                promisingThen(2)(),
+                promised(3),
+                4
+            ];
+
+            Promise.reduce(values, function(total, value) {
+                if (value === 2) {
+                    throw ERROR;
+                }
+                return value;
+            }).then(assert.fail, function(err) {
+                assert.equal(err, ERROR);
+                done();
+            });
         });
     });
 });
@@ -29357,18 +29743,16 @@ function contains(arr, result) {
     return arr.indexOf(result) > -1;
 }
 
+var RangeError = when.RangeError;
+
 
 describe("when.any-test", function () {
 
-    specify("should resolve to empty array with empty input array", function(done) {
+    specify("should reject on empty input array", function(done) {
         var a = [];
-        when.any(a).then(
-            function(result) {
-                assert(result !== a);
-                assert.deepEqual(result, []);
-                done();
-            }, fail
-        );
+        when.any(a).caught(RangeError, function() {
+            done();
+        });
     });
 
     specify("should resolve with an input value", function(done) {
@@ -31230,16 +31614,14 @@ function isSubset(subset, superset) {
     return true;
 }
 
+var RangeError = when.RangeError;
+
 describe("when.some-test", function () {
 
-    specify("should resolve empty input", function(done) {
-        when.some([], 1).then(
-            function(result) {
-                assert.deepEqual(result, []);
-                done();
-            },
-            fail
-        )
+    specify("should reject empty input", function(done) {
+        when.some([], 1).caught(RangeError, function() {
+            done();
+        });
     });
 
     specify("should resolve values array", function(done) {
