@@ -24,14 +24,12 @@ SomePromiseArray.prototype._init = function SomePromiseArray$_init() {
         this._resolve([]);
         return;
     }
-    this._init$(void 0, RESOLVE_ARRAY);
+    this._init$(void 0, RESOLVE_CALL_METHOD);
     var isArrayResolved = isArray(this._values);
     if (!this._isResolved() &&
         isArrayResolved &&
         this._howMany > this._canPossiblyFulfill()) {
-        var message = "(Promise.some) input array contains less than " +
-                        this._howMany  + " promises";
-        this._reject(new RangeError(message));
+        this._reject(this._getRangeError(this.length()));
     }
 };
 
@@ -105,6 +103,18 @@ function SomePromiseArray$_addFulfilled(value) {
 SomePromiseArray.prototype._canPossiblyFulfill =
 function SomePromiseArray$_canPossiblyFulfill() {
     return this.length() - this._rejected();
+};
+
+SomePromiseArray.prototype._getRangeError =
+function SomePromiseArray$_getRangeError(count) {
+    var message = "Input array must contain at least " +
+            this._howMany + " items but contains only " + count + " items";
+    return new RangeError(message);
+};
+
+SomePromiseArray.prototype._resolveEmptyArray =
+function SomePromiseArray$_resolveEmptyArray() {
+    this._reject(this._getRangeError(0));
 };
 
 function Promise$_Some(promises, howMany) {

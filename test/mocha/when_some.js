@@ -115,16 +115,14 @@ function isSubset(subset, superset) {
     return true;
 }
 
+var RangeError = when.RangeError;
+
 describe("when.some-test", function () {
 
-    specify("should resolve empty input", function(done) {
-        when.some([], 1).then(
-            function(result) {
-                assert.deepEqual(result, []);
-                done();
-            },
-            fail
-        )
+    specify("should reject empty input", function(done) {
+        when.some([], 1).caught(RangeError, function() {
+            done();
+        });
     });
 
     specify("should resolve values array", function(done) {

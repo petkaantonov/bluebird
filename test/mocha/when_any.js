@@ -60,18 +60,16 @@ function contains(arr, result) {
     return arr.indexOf(result) > -1;
 }
 
+var RangeError = when.RangeError;
+
 
 describe("when.any-test", function () {
 
-    specify("should resolve to empty array with empty input array", function(done) {
+    specify("should reject on empty input array", function(done) {
         var a = [];
-        when.any(a).then(
-            function(result) {
-                assert(result !== a);
-                assert.deepEqual(result, []);
-                done();
-            }, fail
-        );
+        when.any(a).caught(RangeError, function() {
+            done();
+        });
     });
 
     specify("should resolve with an input value", function(done) {
