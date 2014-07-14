@@ -125,7 +125,7 @@ describe("Promise.using", function() {
         var b = connectError();
         using(b, a, function(a, b) {
             assert(false);
-        }).catch(function() {
+        }).caught(function() {
             assert(promise.value().isClosed);
             assert.equal(promise.value().closesCalled, 1);
             done();
