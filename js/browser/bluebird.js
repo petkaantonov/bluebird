@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.2.1
+ * bluebird build version 2.2.2
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -236,9 +236,12 @@ module.exports = Promise;
  */
 "use strict";
 var cr = Object.create;
-var callerCache = cr && cr(null);
-var getterCache = cr && cr(null);
-callerCache[" size"] = getterCache[" size"] = 0;
+if (cr) {
+    var callerCache = cr(null);
+    var getterCache = cr(null);
+    callerCache[" size"] = getterCache[" size"] = 0;
+}
+
 module.exports = function(Promise) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;

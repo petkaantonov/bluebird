@@ -1,3 +1,7 @@
+## 2.2.2 (2014-07-14)
+
+ - Fix [#2.2.2](https://github.com/petkaantonov/bluebird/issues/259)
+
 ## 2.2.1 (2014-07-07)
 
  - Fix multiline error messages only showing the first line
