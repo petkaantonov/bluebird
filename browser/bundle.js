@@ -3571,9 +3571,12 @@ module.exports = Promise;
  */
 "use strict";
 var cr = Object.create;
-var callerCache = cr && cr(null);
-var getterCache = cr && cr(null);
-callerCache[" size"] = getterCache[" size"] = 0;
+if (cr) {
+    var callerCache = cr(null);
+    var getterCache = cr(null);
+    callerCache[" size"] = getterCache[" size"] = 0;
+}
+
 module.exports = function(Promise) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
@@ -27541,6 +27544,7 @@ function promising(val) {
 function promisingThen(val) {
     return function() {
         return promised(val).then(function(resolved) {
+            console.log("result: " + resolved);
             return resolved;
         });
     }
@@ -27755,6 +27759,7 @@ describe("Promise.reduce", function() {
                     describe(criteria.desc, function() {
                         it("works when the iterator returns a value", function(done) {
                             return Promise.reduce(evaluate(values), function(total, value) {
+                                console.log("total " + total + " value" + value);
                                 return total + value + 5;
                             }, evaluate(initial)).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
@@ -29500,7 +29505,7 @@ describe("Promise.using", function() {
         var b = connectError();
         using(b, a, function(a, b) {
             assert(false);
-        }).catch(function() {
+        }).caught(function() {
             assert(promise.value().isClosed);
             assert.equal(promise.value().closesCalled, 1);
             done();
