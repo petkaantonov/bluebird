@@ -23,7 +23,6 @@ function promising(val) {
 function promisingThen(val) {
     return function() {
         return promised(val).then(function(resolved) {
-            console.log("result: " + resolved);
             return resolved;
         });
     }
@@ -78,7 +77,7 @@ var VALUES_CRITERIA = [
     { value: [
         promisingThen(1),
         promisingThen(2),
-        promisingThen(3),
+        promisingThen(3)
     ], total: 6, desc: "and multiple deferred Promises" },
     { value: [
         thenabling(1)
@@ -92,7 +91,7 @@ var VALUES_CRITERIA = [
         thenabling(1),
         promisingThen(2),
         promising(3),
-        4,
+        4
     ], total: 10, desc: "and a blend of values" },
 ];
 
@@ -238,7 +237,6 @@ describe("Promise.reduce", function() {
                     describe(criteria.desc, function() {
                         it("works when the iterator returns a value", function(done) {
                             return Promise.reduce(evaluate(values), function(total, value) {
-                                console.log("total " + total + " value" + value);
                                 return total + value + 5;
                             }, evaluate(initial)).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
