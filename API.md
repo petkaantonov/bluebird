@@ -979,7 +979,7 @@ fs.readdirAsync(".").map(function(fileName) {
 Example of static map:
 
 ```js
-var Promise = require("./js/main/bluebird.js");
+var Promise = require("bluebird");
 var join = Promise.join;
 var fs = Promise.promisifyAll(require("fs"));
 
