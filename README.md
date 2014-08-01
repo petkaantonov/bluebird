@@ -278,7 +278,7 @@ BLUEBIRD_DEBUG=1 node server.js
 
 to enable long stack traces in all instances of bluebird.
 
-Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, even after using every trick to optimize them.
+Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have already been created. Long stack traces imply a substantial performance penalty, even after using every trick to optimize them.
 
 Long stack traces are enabled by default in the debug build.
 
