@@ -28,7 +28,7 @@ else if ((typeof MutationObserver !== "undefined" &&
         return function Promise$_Scheduler(fn) {
             ASSERT(queuedFn === void 0);
             queuedFn = fn;
-            div.setAttribute("class", "foo");
+            div.classList.toggle("foo");
         };
 
     })();
