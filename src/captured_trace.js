@@ -101,7 +101,7 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
     //that nobody cares about
     for (var i = 0, len = lines.length; i < len; ++i) {
 
-        if ((rignore.test(lines[i]) ||
+        if (((rignore.test(lines[i]) && rtraceline.test(lines[i])) ||
             (i > 0 && !rtraceline.test(lines[i])) &&
             lines[i] !== FROM_PREVIOUS_EVENT)
        ) {
