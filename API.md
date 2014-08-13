@@ -405,6 +405,9 @@ Now the animation is hidden but an exception or the actual return value will aut
 
 Create a promise that follows this promise, but is bound to the given `thisArg` value. A bound promise will call its handlers with the bound value set to `this`. Additionally promises derived from a bound promise will also be bound promises with the same `thisArg` binding as the original promise.
 
+If `thisArg` is a promise or thenable, its resolution will be awaited for and the bound value will be the promise's fulfillment value. If `thisArg` rejects
+then the returned promise is rejected with the `thisArg's` rejection reason. Note that this means you cannot use `this` without checking inside catch handlers for promises that bind to promise because in case of rejection of `thisArg`, `this` will be `undefined`.
+
 <hr>
 
 Without arrow functions that provide lexical `this`, the correspondence between async and sync code breaks down when writing object-oriented code. `.bind()` alleviates this.
@@ -1991,7 +1994,7 @@ Promise.coroutine.addYieldHandler(function(yieldedValue) {
 
 var readFiles = Promise.coroutine(function* (fileNames) {
    var promises = [];
-   
+
    fileNames.forEach(function (fileName) {
       promises.push(fs.readFileAsync(fileName, "utf8"));
    });

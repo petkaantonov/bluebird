@@ -8,6 +8,67 @@ var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
 
+function timedThenableOf(value) {
+    return {
+        then: function(onFulfilled) {
+            setTimeout(function() {
+                onFulfilled(value);
+            }, 13);
+        }
+    };
+}
+
+function timedPromiseOf(value) {
+    return Promise.delay(value, 13);
+}
+
+function immediatePromiseOf(value) {
+    return Promise.resolve(value);
+}
+
+function immediateThenableOf(value) {
+    return {
+        then: function(onFulfilled) {
+            onFulfilled(value);
+        }
+    };
+}
+
+function timedRejectedThenableOf(value) {
+    return {
+        then: function(onFulfilled, onRejected) {
+            setTimeout(function() {
+                onRejected(value);
+            }, 13);
+        }
+    };
+}
+
+function timedRejectedPromiseOf(value) {
+    return Promise.delay(13).then(function() {
+        throw value;
+    });
+}
+
+function immediateRejectedPromiseOf(value) {
+    return Promise.reject(value);
+}
+
+function immediateRejectedThenableOf(value) {
+    return {
+        then: function(onFulfilled, onRejected) {
+            onRejected(value);
+        }
+    };
+}
+
+function toValue(valueOrPromise) {
+    if (valueOrPromise && typeof valueOrPromise.value === "function") {
+        return valueOrPromise.value();
+    }
+    return valueOrPromise
+}
+
 var THIS = {name: "this"};
 
 function CustomError1() {}
@@ -911,25 +972,129 @@ describe("when using .bind", function() {
 
 });
 
-describe("When using .bind to gratuitously rebind", function(){
-    specify("should not get confused", function(done){
-        var a = {};
-        var b = {};
-        var c = {};
-        var dones = 0;
-        function donecalls() {
-            if( ++dones === 3 ) done();
-        }
+describe("When using .bind to gratuitously rebind", function() {
+    var a = {value: 1};
+    var b = {value: 2};
+    var c = {value: 3};
 
-        Promise.bind(a).then(function(){
-            assert( this === a );
-            donecalls();
-        }).bind(b).then(function(){
-            assert( this === b );
-            donecalls();
-        }).bind(c).then(function(){
-            assert( this === c );
-            donecalls();
+    function makeTest(a, b, c) {
+        return function(done) {
+            var dones = 0;
+            function donecalls() {
+                if( ++dones === 3 ) done();
+            }
+
+            Promise.bind(a).then(function(){
+                assert(this.value === 1);
+                donecalls();
+            }).bind(b).then(function(){
+                assert(this.value === 2);
+                donecalls();
+            }).bind(c).then(function(){
+                assert(this.value === 3);
+                donecalls();
+            });
+        }
+    }
+
+    specify("should not get confused immediately", makeTest(a, b, c));
+    specify("should not get confused immediate thenable",
+        makeTest(immediateThenableOf(a), immediateThenableOf(b), immediateThenableOf(c)));
+    specify("should not get confused immediate promise",
+        makeTest(immediatePromiseOf(a), immediatePromiseOf(b), immediatePromiseOf(c)));
+    specify("should not get confused timed thenable",
+        makeTest(timedThenableOf(a), timedThenableOf(b), timedThenableOf(c)));
+    specify("should not get confused timed promise",
+        makeTest(timedPromiseOf(a), timedPromiseOf(b), timedPromiseOf(c)));
+});
+
+
+describe("Promised thisArg", function() {
+
+    var defaultThis = function() {return this}();
+    var e = {value: 1};
+
+    specify("basic case, this first", function(done) {
+        var thisPromise = Promise.delay(1, 0);
+        var promise = Promise.delay(2, 56);
+        promise.bind(thisPromise).then(function(val) {
+            assert(+this === 1);
+            assert(+val === 2);
+            done();
         });
     });
+
+    specify("basic case, main promise first", function(done) {
+        var thisPromise = Promise.delay(1, 56);
+        var promise = Promise.delay(2, 0);
+        promise.bind(thisPromise).then(function(val) {
+            assert(+this === 1);
+            assert(+val === 2);
+            done();
+        });
+    });
+
+    specify("both reject, this rejects first", function(done) {
+        var e1 = new Error();
+        var e2 = new Error();
+        var thisPromise = Promise.delay(1, 0).thenThrow(e1);
+        var promise = Promise.delay(2, 56).thenThrow(e2);
+        promise.bind(thisPromise).then(null, function(reason) {
+            assert(this === defaultThis);
+            assert(reason === e1);
+            done();
+        });
+    });
+
+    specify("both reject, main promise rejects first", function(done) {
+        var e1 = new Error("first");
+        var e2 = new Error("second");
+        var thisPromise = Promise.delay(1, 56).thenThrow(e1);
+        var promise = Promise.delay(2, 0).thenThrow(e2);
+        promise.bind(thisPromise).then(null, function(reason) {
+            assert(this === defaultThis);
+            assert(reason === e2);
+            done();
+        });
+    });
+
+    function makeThisArgRejectedTest(reason) {
+        return function(done) {
+
+            Promise.bind(reason()).caught(function(e) {
+                assert(this === defaultThis);
+                assert(e.value === 1);
+                done();
+            })
+        };
+    }
+
+    specify("if thisArg is rejected timed promise, returned promise is rejected",
+        makeThisArgRejectedTest(function() { return timedRejectedPromiseOf(e); }));
+    specify("if thisArg is rejected immediate promise, returned promise is rejected",
+        makeThisArgRejectedTest(function() { return immediateRejectedPromiseOf(e); }));
+    specify("if thisArg is rejected timed thenable, returned promise is rejected",
+        makeThisArgRejectedTest(function() { return timedRejectedThenableOf(e); }));
+    specify("if thisArg is rejected immediate thenable, returned promise is rejected",
+        makeThisArgRejectedTest(function() { return immediateRejectedThenableOf(e); }));
+
+    function makeThisArgRejectedTestMethod(reason) {
+        return function(done) {
+
+            Promise.resolve().bind(reason()).caught(function(e) {
+                assert(this === defaultThis);
+                assert(e.value === 1);
+                done();
+            })
+        };
+    }
+
+    specify("if thisArg is rejected timed promise, returned promise is rejected",
+        makeThisArgRejectedTestMethod(function() { return timedRejectedPromiseOf(e); }));
+    specify("if thisArg is rejected immediate promise, returned promise is rejected",
+        makeThisArgRejectedTestMethod(function() { return immediateRejectedPromiseOf(e); }));
+    specify("if thisArg is rejected timed thenable, returned promise is rejected",
+        makeThisArgRejectedTestMethod(function() { return timedRejectedThenableOf(e); }));
+    specify("if thisArg is rejected immediate thenable, returned promise is rejected",
+        makeThisArgRejectedTestMethod(function() { return immediateRejectedThenableOf(e); }));
 });

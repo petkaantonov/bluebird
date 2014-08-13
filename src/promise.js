@@ -69,11 +69,24 @@ function Promise(resolver) {
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
+function returnFirstElement(elements) {
+    return elements[0];
+}
+
 Promise.prototype.bind = function Promise$bind(thisArg) {
+    var maybePromise = cast(thisArg, void 0);
     var ret = new Promise(INTERNAL);
-    ret._follow(this);
+    if (maybePromise instanceof Promise) {
+        var binder = maybePromise.then(function(thisArg) {
+            ret._setBoundTo(thisArg);
+        });
+        var p = Promise.all([this, binder]).then(returnFirstElement);
+        ret._follow(p);
+    } else {
+        ret._follow(this);
+        ret._setBoundTo(thisArg);
+    }
     ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
-    ret._setBoundTo(thisArg);
     return ret;
 };
 
@@ -232,10 +245,19 @@ Promise.defer = Promise.pending = function Promise$Defer() {
 };
 
 Promise.bind = function Promise$Bind(thisArg) {
+    var maybePromise = cast(thisArg, void 0);
     var ret = new Promise(INTERNAL);
     ret._setTrace(void 0);
-    ret._setFulfilled();
-    ret._setBoundTo(thisArg);
+
+    if (maybePromise instanceof Promise) {
+        var p = maybePromise.then(function(thisArg) {
+            ret._setBoundTo(thisArg);
+        });
+        ret._follow(p);
+    } else {
+        ret._setBoundTo(thisArg);
+        ret._setFulfilled();
+    }
     return ret;
 };
 
@@ -551,7 +573,7 @@ Promise.prototype._proxyPromise = function Promise$_proxyPromise(promise) {
     ASSERT(!this.isResolved());
     ASSERT(arguments.length === 1);
     promise._setProxied();
-    this._setProxyHandlers(promise, -1);
+    this._setProxyHandlers(promise, -15);
 };
 
 Promise.prototype._setBoundTo = function Promise$_setBoundTo(obj) {
