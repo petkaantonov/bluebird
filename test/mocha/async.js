@@ -149,7 +149,7 @@ describe("Async requirement", function() {
                        return deferred.promise.then(assert.fail, test)
                    }
                 }
-                test(100).then(assert.fail, function(stack) {
+                test(10).then(assert.fail, function(stack) {
                     assertStackIsNotGrowing(stack);
                     done();
                 });
