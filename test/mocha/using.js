@@ -2,6 +2,7 @@
 var assert = require("assert");
 
 var Promise = require("../../js/debug/bluebird.js");
+var Promise2 = require("../../js/debug/promise.js")();
 
 var using = Promise.using;
 var delay = Promise.delay;
@@ -205,4 +206,16 @@ describe("Promise.using", function() {
             done();
         });
     });
+
+    specify("with using comming from another Promise instance", function(done) {
+        var res;
+        Promise2.using(connect(), function(connection){
+            res = connection;
+        }).then(function() {
+            assert(res.isClosed);
+            assert.equal(res.closesCalled, 1);
+            done();
+        });
+    });
+
 })
