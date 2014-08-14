@@ -8,7 +8,7 @@ var _setTimeout = function(fn, ms) {
     var arg2 = len >= 5 ? arguments[4] : void 0;
     setTimeout(function() {
         fn(arg0, arg1, arg2);
-    }, ms);
+    }, ms|0);
 };
 
 module.exports = function(Promise, INTERNAL, cast) {

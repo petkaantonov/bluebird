@@ -84,7 +84,7 @@ var delay = function (val, ms) {
     var p = Promise.pending();
     setTimeout(function () {
         p.fulfill(val);
-    }, ms);
+    }, ms|0);
     return p.promise
 };
 
