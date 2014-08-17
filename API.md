@@ -1667,7 +1667,7 @@ restler.getAsync("http://...", ...,).spread(function(data, response) {
 
 #####`.nodeify([Function callback] [, Object options])` -> `Promise`
 
-Register a node-style callback on this promise. When this promise is is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
+Register a node-style callback on this promise. When this promise is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
 
 Returns back this promise instead of creating a new one. If the `callback` argument is not a function, this method does not do anything.
 
