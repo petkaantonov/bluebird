@@ -122,6 +122,20 @@ function getConnection(urlString) {
 
 The above ensures `getConnection()` fulfills the contract of a promise-returning function of never throwing a synchronous exception. Also see [`Promise.try`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise) and [`Promise.method`](#promisemethodfunction-fn---function)
 
+The resolver is called synchronously (the following is for documentation purposes and not idiomatic code):
+
+```js
+function getPromiseResolveFn() {
+    var res;
+    new Promise(function (resolve) {
+        res = resolve;
+    });
+    // res is guaranteed to be set
+    return res;
+}
+```
+        
+
 <hr>
 
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
