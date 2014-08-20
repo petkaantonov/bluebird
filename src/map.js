@@ -5,7 +5,7 @@ var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
 var PENDING = {};
 var EMPTY_ARRAY = [];
-p
+
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
     this._callback = fn;
