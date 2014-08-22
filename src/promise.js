@@ -879,7 +879,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
     //this is only necessary against index inflation with long lived promises
     //that accumulate the index size over time,
     //not because the data wouldn't be GCd otherwise
-    if (index >= 256) {
+    if (index >= 4) {
         this._queueGC();
     }
 };
