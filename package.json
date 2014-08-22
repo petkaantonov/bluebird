@@ -18,7 +18,8 @@
         "fluent interface"
     ],
     "scripts": {
-        "test": "grunt test"
+        "test": "grunt test",
+        "prepublish": "grunt build"
     },
     "homepage": "https://github.com/petkaantonov/bluebird",
     "repository": {
