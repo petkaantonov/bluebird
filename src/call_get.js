@@ -43,8 +43,8 @@ function getCompiled(name, compiler, cache) {
         cache[" size"]++;
         if (cache[" size"] > 512) {
             var keys = Object.keys(cache);
-            for (var i = 0; i < 4; ++i) delete cache[keys[i]];
-            cache[" size"] = keys.length - 4;
+            for (var i = 0; i < 256; ++i) delete cache[keys[i]];
+            cache[" size"] = keys.length - 256;
         }
     }
     return ret;
