@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.3.0
+ * bluebird build version 2.3.1
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -1837,6 +1837,14 @@ Promise.prototype._progress = function Promise$_progress(progressValue) {
 
 };
 
+Promise.prototype._clearFirstHandlerData$Base =
+Promise.prototype._clearFirstHandlerData;
+Promise.prototype._clearFirstHandlerData =
+function Promise$_clearFirstHandlerData() {
+    this._clearFirstHandlerData$Base();
+    this._progressHandler0 = void 0;
+};
+
 Promise.prototype._progressHandlerAt =
 function Promise$_progressHandlerAt(index) {
     return index === 0
@@ -2754,7 +2762,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         }
     }
 
-    if (index >= 256) {
+    if (index >= 4) {
         this._queueGC();
     }
 };
@@ -2790,12 +2798,21 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 };
 
 Promise.prototype._gc = function Promise$gc() {
-    var len = this._length() * 5;
+    var len = this._length() * 5 - 5;
     for (var i = 0; i < len; i++) {
         delete this[i];
     }
+    this._clearFirstHandlerData();
     this._setLength(0);
     this._unsetGcQueued();
+};
+
+Promise.prototype._clearFirstHandlerData =
+function Promise$_clearFirstHandlerData() {
+    this._fulfillmentHandler0 = void 0;
+    this._rejectionHandler0 = void 0;
+    this._promise0 = void 0;
+    this._receiver0 = void 0;
 };
 
 Promise.prototype._queueSettleAt = function Promise$_queueSettleAt(index) {
@@ -4198,7 +4215,7 @@ else if ((typeof MutationObserver !== "undefined" &&
         });
         return function Promise$_Scheduler(fn) {
             queuedFn = fn;
-            div.setAttribute("class", "foo");
+            div.classList.toggle("foo");
         };
 
     })();
@@ -4687,7 +4704,7 @@ var _setTimeout = function(fn, ms) {
     var arg2 = len >= 5 ? arguments[4] : void 0;
     setTimeout(function() {
         fn(arg0, arg1, arg2);
-    }, ms);
+    }, ms|0);
 };
 
 module.exports = function(Promise, INTERNAL, cast) {
@@ -4794,13 +4811,23 @@ module.exports = function (Promise, apiRejection, cast) {
         setTimeout(function(){throw e;}, 0);
     }
 
+    function castPreservingDisposable(thenable) {
+        var maybePromise = cast(thenable, void 0);
+        if (maybePromise !== thenable &&
+            typeof thenable._isDisposable === "function" &&
+            typeof thenable._getDisposer === "function" &&
+            thenable._isDisposable()) {
+            maybePromise._setDisposable(thenable._getDisposer());
+        }
+        return maybePromise;
+    }
     function dispose(resources, inspection) {
         var i = 0;
         var len = resources.length;
         var ret = Promise.defer();
         function iterator() {
             if (i >= len) return ret.resolve();
-            var maybePromise = cast(resources[i++], void 0);
+            var maybePromise = castPreservingDisposable(resources[i++]);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
                 try {
@@ -4863,6 +4890,12 @@ module.exports = function (Promise, apiRejection, cast) {
         return ret;
     };
 
+    Disposer.isDisposer = function Disposer$isDisposer(d) {
+        return (d != null &&
+                typeof d.resource === "function" &&
+                typeof d.tryDispose === "function");
+    };
+
     function FunctionDisposer(fn, promise) {
         this.constructor$(fn, promise);
     }
@@ -4883,7 +4916,7 @@ module.exports = function (Promise, apiRejection, cast) {
         var resources = new Array(len);
         for (var i = 0; i < len; ++i) {
             var resource = arguments[i];
-            if (resource instanceof Disposer) {
+            if (Disposer.isDisposer(resource)) {
                 var disposer = resource;
                 resource = resource.promise();
                 resource._setDisposable(disposer);

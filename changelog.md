@@ -1,3 +1,9 @@
+## 2.3.1 (2014-08-23)
+
+Features:
+
+ - `.using` can now be used with disposers created from different bluebird copy
+
 ## 2.3.0 (2014-08-13)
 
 Features:
