@@ -16,6 +16,12 @@ var haveGetters = (function(){
     }
 
 })();
+function deprecated(msg) {
+    if (typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function") {
+        console.warn("Bluebird: " + msg);
+    }
+}
 // Assume CSP if browser
 var canEvaluate = typeof navigator == "undefined";
 var errorObj = {e: {}};
@@ -235,6 +241,7 @@ var ret = {
     isPrimitive: isPrimitive,
     isObject: isObject,
     canEvaluate: canEvaluate,
+    deprecated: deprecated,
     errorObj: errorObj,
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,

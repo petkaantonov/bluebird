@@ -4965,6 +4965,12 @@ var haveGetters = (function(){
     }
 
 })();
+function deprecated(msg) {
+    if (typeof console !== "undefined" && console !== null &&
+        typeof console.warn === "function") {
+        console.warn("Bluebird: " + msg);
+    }
+}
 var canEvaluate = typeof navigator == "undefined";
 var errorObj = {e: {}};
 function tryCatch1(fn, receiver, arg) {
@@ -5178,6 +5184,7 @@ var ret = {
     isPrimitive: isPrimitive,
     isObject: isObject,
     canEvaluate: canEvaluate,
+    deprecated: deprecated,
     errorObj: errorObj,
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,
