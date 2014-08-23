@@ -915,13 +915,24 @@ Promise.prototype._queueGC = function Promise$_queueGC() {
 };
 
 Promise.prototype._gc = function Promise$gc() {
-    var len = this._length() * CALLBACK_SIZE;
+    var len = this._length() * CALLBACK_SIZE - CALLBACK_SIZE;
+    ASSERT(!(len in this));
     for (var i = 0; i < len; i++) {
+        ASSERT(i in this);
         //Delete is cool on array indexes
         delete this[i];
     }
+    this._clearFirstHandlerData();
     this._setLength(0);
     this._unsetGcQueued();
+};
+
+Promise.prototype._clearFirstHandlerData =
+function Promise$_clearFirstHandlerData() {
+    this._fulfillmentHandler0 = void 0;
+    this._rejectionHandler0 = void 0;
+    this._promise0 = void 0;
+    this._receiver0 = void 0;
 };
 
 Promise.prototype._queueSettleAt = function Promise$_queueSettleAt(index) {
