@@ -41,7 +41,7 @@
         "grunt-contrib-watch": "latest",
         "grunt-contrib-connect": "latest",
         "grunt-contrib-concat": "latest",
-        "grunt-saucelabs": "latest",
+        "grunt-saucelabs": "~8.3.1",
         "acorn": "~0.6.0",
         "mocha": "~1.20.1",
         "q": "~1.0.1",
