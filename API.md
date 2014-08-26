@@ -128,6 +128,8 @@ The above ensures `getConnection()` fulfills the contract of a promise-returning
 
 [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/). Returns a new promise chained from this promise. The new promise will be rejected or resolved depending on the passed `fulfilledHandler`, `rejectedHandler` and the state of this promise.
 
+Note that the rejectHandler is called not only for rejections but also for exceptions. In other words, it is similar to .catch() and not to .error().
+
 Example:
 
 ```js
