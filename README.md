@@ -75,7 +75,7 @@ Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/
 <script type="text/javascript" src="/scripts/bluebird.js"></script>
 ```
 
-The global variable `Promise` becomes available after the above script tag.
+The global variables `Promise` and `P` (alias for `Promise`) become available after the above script tag.
 
 A [minimal bluebird browser build](#custom-builds) is ̃38.92KB minified*, 11.65KB gzipped and has no external dependencies.
 

@@ -460,6 +460,11 @@ module.exports = function( grunt ) {
         }));
     }
 
+    var replacements = [
+        ["self&&(self.Promise=", "self&&(self.P=self.Promise="],
+        ["global?global.Promise=", "global?global.P=global.Promise="],
+        ["window?window.Promise=", "window?window.P=window.Promise="]
+    ];
     function buildBrowser( sources ) {
         var fs = require("fs");
         var browserify = require("browserify");
@@ -477,6 +482,14 @@ module.exports = function( grunt ) {
         }).then(function() {
             return Q.nfcall(fs.readFile, dest, "utf8" );
         }).then(function( src ) {
+            // The 'standalone' parameter of browserify doesn't accept
+            // multiple aliases so they are brute forced in.
+            replacements.forEach(function(replacement) {
+                if (src.indexOf(replacement[0]) < 0) {
+                    throw new Error("could not find '" + replacement + "'' in source code");
+                }
+                src = src.replace(replacement[0], replacement[1]);
+            });
             src = header + src;
             return Q.nfcall(fs.writeFile, dest, src );
         });

@@ -1,3 +1,9 @@
+## 2.3.2 (2014-08-25)
+
+Bugfixes:
+
+ - `P` alias for `Promise` now exists in global scope when using browser builds without a module loader, fixing an issue with firefox extensions
+
 ## 2.3.1 (2014-08-23)
 
 Features:
