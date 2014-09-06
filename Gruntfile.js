@@ -77,7 +77,8 @@ module.exports = function( grunt ) {
         "cancel.js": ['Promise', 'INTERNAL'],
         "filter.js": ['Promise', 'INTERNAL'],
         "each.js": ['Promise', 'INTERNAL'],
-        "using.js": ['Promise', 'apiRejection', 'cast']
+        "using.js": ['Promise', 'apiRejection', 'cast'],
+        "ifthen.js": ['Promise']
     };
 
     var optionalModuleRequireMap = {
@@ -94,6 +95,7 @@ module.exports = function( grunt ) {
         "progress.js": true,
         "cancel.js": true,
         "using.js": true,
+        "ifthen.js": true,
         "filter.js": ["map.js"],
         "any.js": ["some.js"],
         "each.js": ["reduce.js"],
@@ -301,7 +303,8 @@ module.exports = function( grunt ) {
                     "./src/promise.js",
                     "./src/promise_array.js",
                     "./src/promise_resolver.js",
-                    "./src/using.js"
+                    "./src/using.js",
+                    "./src/ifthen.js"
                 ]
             }
         }
@@ -525,7 +528,8 @@ module.exports = function( grunt ) {
         "./src/filter.js",
         "./src/any.js",
         "./src/each.js",
-        "./src/using.js"
+        "./src/using.js",
+        "./src/ifthen.js"
     ];
 
     var mandatoryPaths = [
