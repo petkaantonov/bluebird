@@ -995,10 +995,18 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         }
     }
 
-    //this is only necessary against index inflation with long lived promises
-    //that accumulate the index size over time,
-    //not because the data wouldn't be GCd otherwise
-    if (index >= 256) {
+    // hadron has some long lived promises, which get
+    // then'ed by other short lived objects. those short lived objects
+    // account for very large memory footprints. We want to clean up
+    // these references  as soon as we can.
+    //
+    // This version of bluebird used clean up handlers
+    // after 256 of them were collected. newer version changed this to 4
+    // we want them cleaned up immediately - like other promise
+    // implementations like Q, when etc. lets clean up after (1) handler
+    // for more on this read:
+    // https://github.com/petkaantonov/bluebird/issues/296
+    if (index >= 1) {
         this._queueGC();
     }
 };
