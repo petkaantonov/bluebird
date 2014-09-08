@@ -995,14 +995,16 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         }
     }
 
-    // hadron has some long lived promises, which get
-    // then'ed by other short lived objects. those short lived objects
-    // account for very large memory footprints. We want to clean up
-    // these references  as soon as we can.
+    // This version of bluebird used to clean up settlement handlers
+    // after 256 of them were collected.
     //
-    // This version of bluebird used clean up handlers
-    // after 256 of them were collected. newer version changed this to 4
-    // we want them cleaned up immediately - like other promise
+    // this has huge implications for long lived promises, which get
+    // then'ed by some short lived objects. those short lived objects
+    // are no more short lived, and would not get GC'ed untill lots of them
+    // accumulate.
+    //
+    // newer version of bluebird changed this to 4
+    // But we want them cleaned up immediately - like other promise
     // implementations like Q, when etc. lets clean up after (1) handler
     // for more on this read:
     // https://github.com/petkaantonov/bluebird/issues/296
