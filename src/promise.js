@@ -995,10 +995,20 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         }
     }
 
-    //this is only necessary against index inflation with long lived promises
-    //that accumulate the index size over time,
-    //not because the data wouldn't be GCd otherwise
-    if (index >= 256) {
+    // This version of bluebird used to clean up settlement handlers
+    // after 256 of them were collected.
+    //
+    // this has huge implications for long lived promises, which get
+    // then'ed by some short lived objects. those short lived objects
+    // are no more short lived, and would not get GC'ed untill lots of them
+    // accumulate.
+    //
+    // newer version of bluebird changed this to 4
+    // But we want them cleaned up immediately - like other promise
+    // implementations like Q, when etc. lets clean up after (1) handler
+    // for more on this read:
+    // https://github.com/petkaantonov/bluebird/issues/296
+    if (index >= 1) {
         this._queueGC();
     }
 };
