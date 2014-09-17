@@ -6,6 +6,8 @@ var util = require("./util.js");
 var async = require("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
+var errors = require("./errors.js");
+var CancellationError = errors.CancellationError;
 
 //To avoid eagerly allocating the objects
 //and also because void 0 cannot be smuggled
@@ -31,7 +33,15 @@ function PromiseArray(values, caller, boundTo) {
         if (values._isBound()) {
             promise._setBoundTo(boundTo);
         }
+    } else {
+        var that = this;
+
+        var promise = this._promise = promise.catch(CancellationError, function (reason) {
+            that._cancelPromiseArrayItems(reason);
+            throw reason;
+        });
     }
+
     promise._setTrace(caller, parent);
     this._values = values;
     this._length = 0;
@@ -145,6 +155,16 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             ? this._scanDirectValues
             : this._scanDirectValuesHoled;
         async.invoke(scanMethod, this, len);
+    }
+};
+
+PromiseArray.prototype._cancelPromiseArrayItems =
+function PromiseArray$_cancelPromiseArrayItems(reason) {
+    for (var i = 0, len = this.length(); i < len; i++) {
+        var val = this._values[i];
+        if (Promise.is(val)) {
+            this._values[i].cancel();
+        }
     }
 };
 
