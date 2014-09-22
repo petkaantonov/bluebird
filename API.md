@@ -80,6 +80,8 @@
 - [Progression migration](#progression-migration)
 - [Deferred migration](#deferred-migration)
 
+Note that every instance promise method in the API has a static counterpart. For example `Promise.map(arr, fn)` is the same as calling `Promise.resolve(arr).map(fn)`. 
+
 ##Core
 
 Core methods of `Promise` instances and core static methods of the Promise class.
@@ -720,7 +722,11 @@ Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddyna
 
 Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use `.then()` to get at the promise's value as the callback is always called asynchronously.
 
+
+**Note**: At recent versions of Bluebird a design choise was made to expose `.reason()` and `.value` as well as other inspection methods on promises directly in order to the below use case easier to work with. The `Promise.settle` method still returns a `PromiseInspection` array as its result. Every promise is now also a `PromiseInspection` and inspection methods can be used on promises freely. 
+
 For example, if you need to use values of earlier promises in the chain, you could nest:
+
 
 ```js
 // From Q Docs https://github.com/kriskowal/q/#chaining
@@ -760,6 +766,10 @@ function authenticate() {
 ```
 
 In the latter the indentation stays flat no matter how many previous variables you need, whereas with the former each additional previous value would require an additional nesting level.
+
+#### The `PromiseInspection` Interface
+
+This interface is implemented by `Promise` instances as well as `PromiseInspection` results returned by calling `Promise.settle`. 
 
 <hr>
 
@@ -903,6 +913,23 @@ Promise.join(getPictures(), getComments(), getTweets(),
 #####`.settle()` -> `Promise`
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#synchronous-inspection) instances at respective positions in relation to the input array.
+
+This method is useful for when you have an array of promises and you'd like to know when all of them resolve - either by fulfilling of rejecting. For example:
+
+```js
+var fs = Promise.promisify(require("fs"));
+Promise.settle(['a.txt', 'b.txt'], fs.readFileAsync).then(function(results){
+    // results is a PromiseInspection array
+    // this is reached once the operations are all done, regardless if
+    // they're successful or not. 
+    var r = results[0];
+    console.log(r.isFulfilled()); // returns true if was successful
+    console.log(r.value()); // the promise's return value
+    console.log(r.isRejected()); // true if the read failed
+    // now the rejection reason, throws if fulfilled
+    console.log(r.reason());
+});
+```
 
 <hr>
 
