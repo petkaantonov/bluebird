@@ -923,11 +923,14 @@ Promise.settle(['a.txt', 'b.txt'], fs.readFileAsync).then(function(results){
     // this is reached once the operations are all done, regardless if
     // they're successful or not. 
     var r = results[0];
-    console.log(r.isFulfilled()); // returns true if was successful
-    console.log(r.value()); // the promise's return value
-    console.log(r.isRejected()); // true if the read failed
-    // now the rejection reason, throws if fulfilled
-    console.log(r.reason());
+    if(r.isFulfilled(){  // check if was successful
+        console.log(r.value()); // the promise's return value
+        r.reason(); // throws because the promise is fulfilled
+    }
+    if(r.isRejected()){ // check if the read failed
+        console.log(r.reason()); //reason
+        r.value(); // throws because the promise is rejected
+    }
 });
 ```
 
