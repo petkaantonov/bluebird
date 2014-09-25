@@ -1008,9 +1008,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
     // implementations like Q, when etc. lets clean up after (1) handler
     // for more on this read:
     // https://github.com/petkaantonov/bluebird/issues/296
-    if (index >= 1) {
-        this._queueGC();
-    }
+    this._queueGC();
 };
 
 Promise.prototype._isProxied = function Promise$_isProxied() {

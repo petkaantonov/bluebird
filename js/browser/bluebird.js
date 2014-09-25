@@ -2621,9 +2621,7 @@ Promise.prototype._settlePromiseAt = function Promise$_settlePromiseAt(index) {
         }
     }
 
-    if (index >= 1) {
-        this._queueGC();
-    }
+    this._queueGC();
 };
 
 Promise.prototype._isProxied = function Promise$_isProxied() {
