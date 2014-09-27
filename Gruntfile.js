@@ -475,8 +475,13 @@ module.exports = function( grunt ) {
             return Q.nfcall(fs.readFile, dest, "utf8" );
         }).then(function( src ) {
             src = header + src;
-            src = src + ";\nif (typeof window !== 'undefined') {\n\
-                            window.P = window.Promise;}";
+            var alias = "\
+            ;if (typeof window !== 'undefined' && window !== null) {           \
+                window.P = window.Promise;                                     \
+            } else if (typeof self !== 'undefined' && self !== null) {         \
+                self.P = self.Promise;                                         \
+            }";
+            src = src + alias;
             return Q.nfcall(fs.writeFile, dest, src );
         });
     }
