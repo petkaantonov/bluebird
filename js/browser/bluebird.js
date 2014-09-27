@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.3.3
+ * bluebird build version 2.3.4
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -5230,6 +5230,4 @@ module.exports = ret;
 },{"./es5.js":12}]},{},[3])
 (3)
 });
-;;
-if (typeof window !== 'undefined') {
-                            window.P = window.Promise;}
+;            ;if (typeof window !== 'undefined' && window !== null) {                           window.P = window.Promise;                                                 } else if (typeof self !== 'undefined' && self !== null) {                         self.P = self.Promise;                                                     }

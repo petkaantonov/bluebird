@@ -1,3 +1,7 @@
+## 2.3.4 (2014-09-27)
+
+ - `P` alias was not declared inside WebWorkers
+
 ## 2.3.3 (2014-09-27)
 
 Bugfixes:
