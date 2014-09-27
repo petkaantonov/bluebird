@@ -5397,8 +5397,7 @@ function Promise$catch(fn) {
                         + "or a filter function");
 
                 this._attachExtraTrace(catchFilterTypeError);
-                async.invoke(this._reject, this, catchFilterTypeError);
-                return;
+                return Promise.reject(catchFilterTypeError);
             }
         }
         catchInstances.length = j;
@@ -17730,9 +17729,7 @@ if( Promise.hasLongStackTraces() ) {
 
             p.caught(null, function(){
 
-            })
-
-            p.caught(function(e){
+            }).caught(function(e){
                 assert( e instanceof Promise.TypeError );
                 assertErrorHasLongTraces(e);
                 done();
