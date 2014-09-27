@@ -104,9 +104,7 @@ if( Promise.hasLongStackTraces() ) {
 
             p.caught(null, function(){
 
-            })
-
-            p.caught(function(e){
+            }).caught(function(e){
                 assert( e instanceof Promise.TypeError );
                 assertErrorHasLongTraces(e);
                 done();

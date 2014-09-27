@@ -111,8 +111,7 @@ function Promise$catch(fn) {
                         + "or a filter function");
 
                 this._attachExtraTrace(catchFilterTypeError);
-                async.invoke(this._reject, this, catchFilterTypeError);
-                return;
+                return Promise.reject(catchFilterTypeError);
             }
         }
         catchInstances.length = j;
