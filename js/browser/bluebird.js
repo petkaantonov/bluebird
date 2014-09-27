@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.3.2
+ * bluebird build version 2.3.3
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  * 
  */
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.P=window.Promise=e():"undefined"!=typeof global?global.P=global.Promise=e():"undefined"!=typeof self&&(self.P=self.Promise=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.Promise=e():"undefined"!=typeof global?global.Promise=e():"undefined"!=typeof self&&(self.Promise=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -2037,8 +2037,7 @@ function Promise$catch(fn) {
                         + "or a filter function");
 
                 this._attachExtraTrace(catchFilterTypeError);
-                async.invoke(this._reject, this, catchFilterTypeError);
-                return;
+                return Promise.reject(catchFilterTypeError);
             }
         }
         catchInstances.length = j;
@@ -5231,4 +5230,6 @@ module.exports = ret;
 },{"./es5.js":12}]},{},[3])
 (3)
 });
-;
+;;
+if (typeof window !== 'undefined') {
+                            window.P = window.Promise;}
