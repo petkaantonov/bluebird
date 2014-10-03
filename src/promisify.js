@@ -124,26 +124,26 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
         var ret;
         if (typeof callback === "string") {
             ret = "                                                          \n\
-                this.method(args, fn);                                       \n\
+                this.method({{args}}, fn);                                   \n\
                 break;                                                       \n\
             ".replace(".method", generatePropertyAccess(callback));
         } else if (receiver === THIS) {
             ret =  "                                                         \n\
-                callback.call(this, args, fn);                               \n\
+                callback.call(this, {{args}}, fn);                           \n\
                 break;                                                       \n\
             ";
         } else if (receiver !== void 0) {
             ret =  "                                                         \n\
-                callback.call(receiver, args, fn);                           \n\
+                callback.call(receiver, {{args}}, fn);                       \n\
                 break;                                                       \n\
             ";
         } else {
             ret =  "                                                         \n\
-                callback(args, fn);                                          \n\
+                callback({{args}}, fn);                                      \n\
                 break;                                                       \n\
             ";
         }
-        return ret.replace("args", args).replace(", ", comma);
+        return ret.replace("{{args}}", args).replace(", ", comma);
     }
 
     function generateArgumentSwitchCase() {
