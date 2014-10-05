@@ -394,6 +394,22 @@ describe("promisify on objects", function(){
             done();
         });
     });
+
+
+    specify("gh335", function(done) {
+        function HasArgs() { }
+        HasArgs.prototype.args = function(cb) {
+            return cb(null, "ok");
+        };
+
+        Promise.promisifyAll(HasArgs.prototype);
+        var a = new HasArgs();
+        a.argsAsync().then(function(res) {
+            assert.equal(res, "ok");
+            done();
+        });
+    });
+    
 });
 
 describe( "Promisify with custom suffix", function() {
