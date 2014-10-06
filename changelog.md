@@ -1,3 +1,9 @@
+## 2.3.5 (2014-10-06)
+
+Bugfixes:
+
+ - Fix issue when promisifying methods whose names contain the string 'args'
+
 ## 2.3.4 (2014-09-27)
 
  - `P` alias was not declared inside WebWorkers
