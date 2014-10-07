@@ -1352,6 +1352,39 @@ using(getTransaction(), function(tx) {
 });
 ```
 
+Real example 3, transactions with postgres:
+
+```js
+var pg = require('pg');
+var Promise = require('bluebird');
+Promise.promisifyAll(pg);
+
+function getTransaction(connectionString) {
+    var close;
+    return pg.connectAsync(connectionString).spread(function(client, done) {
+        close = done;
+        return client.queryAsync('BEGIN').then(function () {
+            return client;
+        });
+    }).disposer(function(client, promise) {
+        if (promise.isFulfilled()) {
+            return client.queryAsync('COMMIT').then(closeSilently);
+        } else {
+            return client.queryAsync('ROLLBACK').then(closeSilently);
+        }
+        function closeSilently() {
+            try {
+                if (close) close();
+            } catch (e) {
+            }
+        }
+    });
+}
+
+exports.getTransaction = getTransaction;
+```
+
+
 <hr>
 
 
