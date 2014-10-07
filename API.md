@@ -1336,7 +1336,7 @@ Example:
 ```js
 function getTransaction() {
     return db.getTransactionAsync().disposer(function(tx, promise) {
-        promise.isFulfilled() ? tx.commit() : tx.rollback();
+        return promise.isFulfilled() ? tx.commitAsync() : tx.rollbackAsync();
     });
 }
 
