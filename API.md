@@ -1208,10 +1208,10 @@ using(getConnection(),
 
 #####`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)` -> `Promise`
 
-In conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
+In conjunction with [`.disposer()`](#disposerfunction-disposer---disposer), `using` will make sure that no matter what, the specified disposer will be called
 when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
 
-Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerstring-methodname---disposer))
+Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerfunction-disposer---disposer)))
 
 
 ```js
