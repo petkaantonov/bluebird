@@ -1208,10 +1208,10 @@ using(getConnection(),
 
 #####`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)` -> `Promise`
 
-In conjunction with [`.disposer()`](#disposerstring-methodname---disposer), `using` will make sure that no matter what, the specified disposer will be called
+In conjunction with [`.disposer()`](#disposerfunction-disposer---disposer), `using` will make sure that no matter what, the specified disposer will be called
 when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
 
-Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerstring-methodname---disposer))
+Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerfunction-disposer---disposer)))
 
 
 ```js
@@ -1336,7 +1336,7 @@ Example:
 ```js
 function getTransaction() {
     return db.getTransactionAsync().disposer(function(tx, promise) {
-        promise.isFulfilled() ? tx.commit() : tx.rollback();
+        return promise.isFulfilled() ? tx.commitAsync() : tx.rollbackAsync();
     });
 }
 
@@ -1351,6 +1351,39 @@ using(getTransaction(), function(tx) {
     });
 });
 ```
+
+Real example 3, transactions with postgres:
+
+```js
+var pg = require('pg');
+var Promise = require('bluebird');
+Promise.promisifyAll(pg);
+
+function getTransaction(connectionString) {
+    var close;
+    return pg.connectAsync(connectionString).spread(function(client, done) {
+        close = done;
+        return client.queryAsync('BEGIN').then(function () {
+            return client;
+        });
+    }).disposer(function(client, promise) {
+        if (promise.isFulfilled()) {
+            return client.queryAsync('COMMIT').then(closeSilently);
+        } else {
+            return client.queryAsync('ROLLBACK').then(closeSilently);
+        }
+        function closeSilently() {
+            try {
+                if (close) close();
+            } catch (e) {
+            }
+        }
+    });
+}
+
+exports.getTransaction = getTransaction;
+```
+
 
 <hr>
 

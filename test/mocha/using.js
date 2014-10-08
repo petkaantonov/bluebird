@@ -22,12 +22,20 @@ Resource.prototype.commit = function () {
     this.commited = true;
 };
 
+Resource.prototype.commitAsync = function () {
+    return delay(10).bind(this).then(this.commit)
+}
+
 Resource.prototype.rollback = function () {
     if (this.commited || this.rollbacked) {
         throw new Error("was already commited or rolled back")
     }
     this.rollbacked = true;
 };
+
+Resource.prototype.rollbackAsync = function () {
+    return delay(10).bind(this).then(this.rollback)
+}
 
 Resource.prototype.closeAsync = function() {
     return delay(10).bind(this).then(this.close);
@@ -86,8 +94,16 @@ function transactionDisposer(tx, outcome) {
     outcome.isFulfilled() ? tx.commit() : tx.rollback();
 }
 
+function transactionDisposerAsync(tx, outcome) {
+    return outcome.isFulfilled() ? tx.commitAsync() : tx.rollbackAsync();
+}
+
 function transaction() {
     return _connect().disposer(transactionDisposer);
+}
+
+function transactionAsync() {
+    return _connect().disposer(transactionDisposerAsync);
 }
 
 describe("Promise.using", function() {
@@ -193,9 +209,37 @@ describe("Promise.using", function() {
         });
     });
 
+    specify("successful async transaction", function(done) {
+        var _tx;
+        using(transactionAsync(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                return tx.query(3);
+            })
+        }).then(function(){
+            assert(_tx.commited);
+            assert(!_tx.rollbacked);
+            done();
+        })
+    })
+
     specify("fail transaction", function(done) {
         var _tx;
         using(transaction(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                throw new Error();
+            })
+        }).then(assert.fail, function(){
+            assert(!_tx.commited);
+            assert(_tx.rollbacked);
+            done();
+        });
+    });
+
+    specify("fail async transaction", function(done) {
+        var _tx;
+        using(transactionAsync(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 throw new Error();
