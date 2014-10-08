@@ -162,7 +162,7 @@ module.exports = function( grunt ) {
                 if( index === 0 ) {
                     return " * @preserve " + line;
                 }
-                return " * " + line;
+                return " *" + (line ? " " + line : "");
             }).join("\n")
             preserved = "/**\n" + text + "\n */\n";
         }
