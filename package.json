@@ -65,6 +65,7 @@
     "readmeFilename": "README.md",
     "main": "./js/main/bluebird.js",
     "files": [
+        "js/browser",
         "js/main",
         "js/zalgo",
         "LICENSE",
