@@ -359,9 +359,7 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     function runIndependentTest( file, cb , env) {
-        var fs = require("fs");
         var path = require("path");
-        var sys = require('sys');
         var spawn = require('child_process').spawn;
         var p = path.join(process.cwd(), "test");
 
