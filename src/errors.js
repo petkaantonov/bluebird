@@ -28,8 +28,9 @@ function canAttach(obj) {
 function subError(nameProperty, defaultMessage) {
     function SubError(message) {
         if (!(this instanceof SubError)) return new SubError(message);
-        this.message = typeof message === "string" ? message : defaultMessage;
-        this.name = nameProperty;
+        notEnumerableProp(this, "message",
+            typeof message === "string" ? message : defaultMessage);
+        notEnumerableProp(this, "name", nameProperty);
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, this.constructor);
         }
@@ -81,14 +82,14 @@ AggregateError.prototype.toString = function() {
 };
 
 function OperationalError(message) {
-    this.name = "OperationalError";
-    this.message = message;
+    notEnumerableProp(this, "name", "OperationalError");
+    notEnumerableProp(this, "message", message);
     this.cause = message;
     this[OPERATIONAL_ERROR_KEY] = true;
 
     if (message instanceof Error) {
-        this.message = message.message;
-        this.stack = message.stack;
+        notEnumerableProp(this, "message", message.message);
+        notEnumerableProp(this, "stack", message.stack);
     } else if (Error.captureStackTrace) {
         Error.captureStackTrace(this, this.constructor);
     }
