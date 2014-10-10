@@ -672,7 +672,7 @@ MyClass.prototype.method = Promise.method(function(input) {
         throw new TypeError("input is not valid");
     }
 
-    if (this.cachedFor(input)) {
+    if (this.cache(input)) {
         return this.someCachedValue;
     }
 
