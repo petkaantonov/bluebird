@@ -253,7 +253,7 @@ download().then(...).then(...).done();
 
 For handling this problem, in my opinion, this is completely unacceptable and pointless. The user must remember to explicitly call `.done` and that cannot be justified when the problem is forgetting to create an error handler in the first place.
 
-The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a second turn. The default handler is to write the stack trace to `stderr` or `console.error` in browsers. This is close to what happens with synchronous code - your code doesn't work as expected and you open console and see a stack trace. Nice.
+The second approach, which is what bluebird by default takes, is to call a registered handler if a rejection is unhandled by the start of a [second turn of the event loop](https://github.com/petkaantonov/bluebird/issues/349#issuecomment-58949284). The default handler is to write the stack trace to `stderr` or `console.error` in browsers. This is close to what happens with synchronous code - your code doesn't work as expected and you open console and see a stack trace. Nice.
 
 Of course this is not perfect, if your code for some reason needs to swoop in and attach error handler to some promise after the promise has been hanging around a while then you will see annoying messages. In that case you can use the `.done()` method to signal that any hanging exceptions should be thrown.
 
