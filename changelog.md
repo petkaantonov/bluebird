@@ -1,3 +1,9 @@
+## 2.3.6 (2014-10-15)
+
+Features:
+
+ - Implement [`.reflect()`](API.md#reflect---promisepromiseinspection)
+
 ## 2.3.5 (2014-10-06)
 
 Bugfixes:

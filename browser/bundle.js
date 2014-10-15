@@ -3244,6 +3244,7 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/q_spread.js');}, name: '../test/mocha/q_spread.js'},
 {fn: function(){ return require('../test/mocha/race.js');}, name: '../test/mocha/race.js'},
 {fn: function(){ return require('../test/mocha/reduce.js');}, name: '../test/mocha/reduce.js'},
+{fn: function(){ return require('../test/mocha/reflect.js');}, name: '../test/mocha/reflect.js'},
 {fn: function(){ return require('../test/mocha/resolution.js');}, name: '../test/mocha/resolution.js'},
 {fn: function(){ return require('../test/mocha/reused_promise.js');}, name: '../test/mocha/reused_promise.js'},
 {fn: function(){ return require('../test/mocha/schedule.js');}, name: '../test/mocha/schedule.js'},
@@ -3262,8 +3263,10 @@ Promise.onPossiblyUnhandledRejection();(function (){
 {fn: function(){ return require('../test/mocha/when_settle.js');}, name: '../test/mocha/when_settle.js'},
 {fn: function(){ return require('../test/mocha/when_some.js');}, name: '../test/mocha/when_some.js'},
 {fn: function(){ return require('../test/mocha/when_spread.js');}, name: '../test/mocha/when_spread.js'}];
-},{"../js/debug/bluebird.js":21,"../test/mocha/2.1.2.js":70,"../test/mocha/2.1.3.js":71,"../test/mocha/2.2.1.js":72,"../test/mocha/2.2.2.js":73,"../test/mocha/2.2.3.js":74,"../test/mocha/2.2.4.js":75,"../test/mocha/2.2.5.js":76,"../test/mocha/2.2.6.js":77,"../test/mocha/2.2.7.js":78,"../test/mocha/2.3.1.js":79,"../test/mocha/2.3.2.js":80,"../test/mocha/2.3.3.js":81,"../test/mocha/2.3.4.js":82,"../test/mocha/3.2.1.js":83,"../test/mocha/3.2.2.js":84,"../test/mocha/3.2.3.js":85,"../test/mocha/3.2.4.js":86,"../test/mocha/3.2.5.js":87,"../test/mocha/3.2.6.js":88,"../test/mocha/api_exceptions.js":89,"../test/mocha/async.js":90,"../test/mocha/bind.js":91,"../test/mocha/bluebird-multiple-instances.js":92,"../test/mocha/call.js":93,"../test/mocha/cancel.js":94,"../test/mocha/catch_filter.js":95,"../test/mocha/collections_thenables.js":96,"../test/mocha/constructor.js":97,"../test/mocha/cycles.js":98,"../test/mocha/direct_resolving.js":99,"../test/mocha/domain.js":100,"../test/mocha/each.js":101,"../test/mocha/error.js":102,"../test/mocha/filter.js":103,"../test/mocha/following.js":104,"../test/mocha/get.js":105,"../test/mocha/github-2xx-76.js":106,"../test/mocha/github36.js":107,"../test/mocha/late_buffer_safety.js":112,"../test/mocha/method.js":113,"../test/mocha/promisify.js":114,"../test/mocha/props.js":115,"../test/mocha/q_all.js":116,"../test/mocha/q_done.js":117,"../test/mocha/q_fin.js":118,"../test/mocha/q_inspect.js":119,"../test/mocha/q_make_node_resolver.js":120,"../test/mocha/q_nodeify.js":121,"../test/mocha/q_progress.js":122,"../test/mocha/q_propagation.js":123,"../test/mocha/q_settle.js":124,"../test/mocha/q_spread.js":125,"../test/mocha/race.js":126,"../test/mocha/reduce.js":127,"../test/mocha/resolution.js":128,"../test/mocha/reused_promise.js":129,"../test/mocha/schedule.js":130,"../test/mocha/some.js":131,"../test/mocha/tap.js":132,"../test/mocha/timers.js":133,"../test/mocha/try.js":134,"../test/mocha/unhandled_rejections.js":135,"../test/mocha/using.js":136,"../test/mocha/when_all.js":137,"../test/mocha/when_any.js":138,"../test/mocha/when_defer.js":139,"../test/mocha/when_join.js":140,"../test/mocha/when_map.js":141,"../test/mocha/when_reduce.js":142,"../test/mocha/when_settle.js":143,"../test/mocha/when_some.js":144,"../test/mocha/when_spread.js":145,"assert":2,"sinon":55}],18:[function(require,module,exports){
+},{"../js/debug/bluebird.js":21,"../test/mocha/2.1.2.js":70,"../test/mocha/2.1.3.js":71,"../test/mocha/2.2.1.js":72,"../test/mocha/2.2.2.js":73,"../test/mocha/2.2.3.js":74,"../test/mocha/2.2.4.js":75,"../test/mocha/2.2.5.js":76,"../test/mocha/2.2.6.js":77,"../test/mocha/2.2.7.js":78,"../test/mocha/2.3.1.js":79,"../test/mocha/2.3.2.js":80,"../test/mocha/2.3.3.js":81,"../test/mocha/2.3.4.js":82,"../test/mocha/3.2.1.js":83,"../test/mocha/3.2.2.js":84,"../test/mocha/3.2.3.js":85,"../test/mocha/3.2.4.js":86,"../test/mocha/3.2.5.js":87,"../test/mocha/3.2.6.js":88,"../test/mocha/api_exceptions.js":89,"../test/mocha/async.js":90,"../test/mocha/bind.js":91,"../test/mocha/bluebird-multiple-instances.js":92,"../test/mocha/call.js":93,"../test/mocha/cancel.js":94,"../test/mocha/catch_filter.js":95,"../test/mocha/collections_thenables.js":96,"../test/mocha/constructor.js":97,"../test/mocha/cycles.js":98,"../test/mocha/direct_resolving.js":99,"../test/mocha/domain.js":100,"../test/mocha/each.js":101,"../test/mocha/error.js":102,"../test/mocha/filter.js":103,"../test/mocha/following.js":104,"../test/mocha/get.js":105,"../test/mocha/github-2xx-76.js":106,"../test/mocha/github36.js":107,"../test/mocha/late_buffer_safety.js":112,"../test/mocha/method.js":113,"../test/mocha/promisify.js":114,"../test/mocha/props.js":115,"../test/mocha/q_all.js":116,"../test/mocha/q_done.js":117,"../test/mocha/q_fin.js":118,"../test/mocha/q_inspect.js":119,"../test/mocha/q_make_node_resolver.js":120,"../test/mocha/q_nodeify.js":121,"../test/mocha/q_progress.js":122,"../test/mocha/q_propagation.js":123,"../test/mocha/q_settle.js":124,"../test/mocha/q_spread.js":125,"../test/mocha/race.js":126,"../test/mocha/reduce.js":127,"../test/mocha/reflect.js":128,"../test/mocha/resolution.js":129,"../test/mocha/reused_promise.js":130,"../test/mocha/schedule.js":131,"../test/mocha/some.js":132,"../test/mocha/tap.js":133,"../test/mocha/timers.js":134,"../test/mocha/try.js":135,"../test/mocha/unhandled_rejections.js":136,"../test/mocha/using.js":137,"../test/mocha/when_all.js":138,"../test/mocha/when_any.js":139,"../test/mocha/when_defer.js":140,"../test/mocha/when_join.js":141,"../test/mocha/when_map.js":142,"../test/mocha/when_reduce.js":143,"../test/mocha/when_settle.js":144,"../test/mocha/when_some.js":145,"../test/mocha/when_spread.js":146,"assert":2,"sinon":55}],18:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3316,6 +3319,8 @@ Promise.prototype.any = function Promise$any() {
 
 },{"./assert.js":19}],19:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3399,6 +3404,8 @@ return function assert(boolExpr, message) {
 
 },{}],20:[function(require,module,exports){
 var process=require("__browserify_process");/**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3523,6 +3530,8 @@ module.exports = new Async();
 
 },{"./assert.js":19,"./queue.js":43,"./schedule.js":46,"./util.js":53,"__browserify_process":16}],21:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3549,6 +3558,8 @@ var Promise = require("./promise.js")();
 module.exports = Promise;
 },{"./promise.js":38}],22:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3670,6 +3681,8 @@ Promise.prototype.get = function Promise$get(propertyName) {
 
 },{"./util.js":53}],23:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3750,6 +3763,8 @@ function Promise$fork(didFulfill, didReject, didProgress) {
 
 },{"./assert.js":19,"./async.js":20,"./errors.js":28}],24:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3989,6 +4004,8 @@ return CapturedTrace;
 
 },{"./assert.js":19,"./es5.js":30,"./util.js":53}],25:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4085,6 +4102,8 @@ return CatchFilter;
 
 },{"./errors.js":28,"./es5.js":30,"./util.js":53}],26:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4168,6 +4187,8 @@ function Promise$thenThrow(reason) {
 
 },{"./assert.js":19,"./util.js":53}],27:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4204,6 +4225,8 @@ Promise.each = function Promise$Each(promises, fn) {
 
 },{}],28:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4351,6 +4374,8 @@ module.exports = {
 
 },{"./es5.js":30,"./util.js":53}],29:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4391,6 +4416,8 @@ return apiRejection;
 
 },{"./errors.js":28}],30:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4480,6 +4507,8 @@ if (isES5) {
 
 },{}],31:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4516,6 +4545,8 @@ Promise.filter = function Promise$Filter(promises, fn, options) {
 
 },{}],32:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4638,6 +4669,8 @@ Promise.prototype.tap = function Promise$tap(handler) {
 
 },{"./util.js":53}],33:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4794,6 +4827,8 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
 
 },{"./assert.js":19,"./errors.js":28,"./util.js":53}],34:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4918,6 +4953,8 @@ Promise.join = function Promise$Join() {
 
 },{"./util.js":53}],35:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5069,6 +5106,8 @@ Promise.map = function Promise$Map(promises, fn, options, _filter) {
 
 },{"./util.js":53}],36:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5152,6 +5191,8 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback, options) {
 
 },{"./assert.js":19,"./async.js":20,"./util.js":53}],37:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5271,6 +5312,8 @@ function Promise$_progressUnchecked(progressValue) {
 
 },{"./assert.js":19,"./async.js":20,"./errors.js":28,"./util.js":53}],38:[function(require,module,exports){
 var process=require("__browserify_process");/**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5409,6 +5452,14 @@ function Promise$catch(fn) {
             catchFilter, void 0);
     }
     return this._then(void 0, fn, void 0, void 0, void 0);
+};
+
+function reflect() {
+    return new Promise.PromiseInspection(this);
+}
+
+Promise.prototype.reflect = function Promise$reflect() {
+    return this._then(reflect, reflect, void 0, this, void 0);
 };
 
 Promise.prototype.then =
@@ -6413,6 +6464,8 @@ return Promise;
 
 },{"./any.js":18,"./assert.js":19,"./async.js":20,"./call_get.js":22,"./cancel.js":23,"./captured_trace.js":24,"./catch_filter.js":25,"./direct_resolve.js":26,"./each.js":27,"./errors.js":28,"./errors_api_rejection":29,"./filter.js":31,"./finally.js":32,"./generators.js":33,"./join.js":34,"./map.js":35,"./nodeify.js":36,"./progress.js":37,"./promise_array.js":39,"./promise_resolver.js":40,"./promisify.js":41,"./props.js":42,"./race.js":44,"./reduce.js":45,"./settle.js":47,"./some.js":48,"./synchronous_inspection.js":49,"./thenables.js":50,"./timers.js":51,"./using.js":52,"./util.js":53,"__browserify_process":16}],39:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6644,6 +6697,8 @@ return PromiseArray;
 
 },{"./assert.js":19,"./errors.js":28,"./util.js":53}],40:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6804,6 +6859,8 @@ module.exports = PromiseResolver;
 
 },{"./async.js":20,"./errors.js":28,"./es5.js":30,"./util.js":53}],41:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7139,6 +7196,8 @@ Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
 
 },{"./assert.js":19,"./errors":28,"./promise_resolver.js":40,"./util.js":53}],42:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7252,6 +7311,8 @@ Promise.props = function Promise$Props(promises) {
 
 },{"./assert.js":19,"./errors_api_rejection":29,"./es5.js":30,"./util.js":53}],43:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7376,6 +7437,8 @@ module.exports = Queue;
 
 },{"./assert.js":19}],44:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7450,6 +7513,8 @@ Promise.prototype.race = function Promise$race() {
 
 },{"./errors_api_rejection.js":29,"./util.js":53}],45:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7633,6 +7698,8 @@ Promise.reduce = function Promise$Reduce(promises, fn, initialValue, _each) {
 
 },{"./util.js":53}],46:[function(require,module,exports){
 var process=require("__browserify_process");/**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7701,6 +7768,8 @@ module.exports = schedule;
 
 },{"./assert.js":19,"__browserify_process":16}],47:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7777,6 +7846,8 @@ Promise.prototype.settle = function Promise$settle() {
 
 },{"./assert.js":19,"./util.js":53}],48:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7943,6 +8014,8 @@ Promise._SomePromiseArray = SomePromiseArray;
 
 },{"./assert.js":19,"./errors.js":28,"./util.js":53}],49:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8021,6 +8094,8 @@ Promise.PromiseInspection = PromiseInspection;
 
 },{}],50:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8163,6 +8238,8 @@ return Promise$_Cast;
 
 },{"./assert.js":19,"./errors.js":28,"./util.js":53}],51:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8259,6 +8336,8 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
 
 },{"./assert.js":19,"./errors.js":28,"./errors_api_rejection":29,"./util.js":53}],52:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8451,6 +8530,8 @@ module.exports = function (Promise, apiRejection, cast) {
 
 },{"./errors.js":28,"./util.js":53}],53:[function(require,module,exports){
 /**
+ * The MIT License (MIT)
+ * 
  * Copyright (c) 2014 Petka Antonov
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28221,6 +28302,35 @@ describe("Promise.reduce", function() {
 "use strict";
 
 var assert = require("assert");
+var Promise = require("../../js/debug/bluebird.js");
+var testFulfilled = require("./helpers/testThreeCases").testFulfilled;
+var testRejected = require("./helpers/testThreeCases").testRejected;
+
+
+
+describe(".reflect()", function() {
+    testFulfilled(1, function(promise, done) {
+        promise.reflect().then(function(inspection) {
+            assert(inspection instanceof Promise.PromiseInspection);
+            assert(inspection.isFulfilled());
+            assert(inspection.value() === 1);
+            done();
+        });
+    });
+    testRejected(2, function(promise, done) {
+        promise.reflect().then(function(inspection) {
+            assert(inspection instanceof Promise.PromiseInspection);
+            assert(inspection.isRejected());
+            assert(inspection.reason() === 2);
+            done();
+        });
+    });
+});
+
+},{"../../js/debug/bluebird.js":21,"./helpers/testThreeCases":110,"assert":2}],129:[function(require,module,exports){
+"use strict";
+
+var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
@@ -28378,7 +28488,7 @@ describe("Implicitly cast thenable", function() {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],129:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],130:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -28450,7 +28560,7 @@ describe("If promise is reused to get at the value many times over the course of
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],130:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],131:[function(require,module,exports){
 var process=require("__browserify_process");"use strict";
 var assert   = require("assert");
 var schedule = require("../../js/debug/schedule");
@@ -28476,7 +28586,7 @@ describe("schedule", function () {
     }
 });
 
-},{"../../js/debug/schedule":46,"__browserify_process":16,"assert":2,"domain":3}],131:[function(require,module,exports){
+},{"../../js/debug/schedule":46,"__browserify_process":16,"assert":2,"domain":3}],132:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -28529,7 +28639,7 @@ describe("Promise.some", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],132:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],133:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 
@@ -28600,7 +28710,7 @@ describe("tap", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],133:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],134:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 
@@ -28781,7 +28891,7 @@ describe("delay", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],134:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],135:[function(require,module,exports){
 "use strict";
 
 var assert = require("assert");
@@ -28888,7 +28998,7 @@ describe("Promise.try", function(){
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],135:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],136:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 var Promise = require("../../js/debug/bluebird.js");
@@ -29645,7 +29755,7 @@ describe("clear unhandled handler", function() {
     Promise.onPossiblyUnhandledRejection(null);
 });
 
-},{"../../js/debug/bluebird.js":21,"./helpers/bluebird0_7_0.js":108,"assert":2,"q":54}],136:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"./helpers/bluebird0_7_0.js":108,"assert":2,"q":54}],137:[function(require,module,exports){
 "use strict";
 var assert = require("assert");
 
@@ -29670,12 +29780,20 @@ Resource.prototype.commit = function () {
     this.commited = true;
 };
 
+Resource.prototype.commitAsync = function () {
+    return delay(10).bind(this).then(this.commit)
+}
+
 Resource.prototype.rollback = function () {
     if (this.commited || this.rollbacked) {
         throw new Error("was already commited or rolled back")
     }
     this.rollbacked = true;
 };
+
+Resource.prototype.rollbackAsync = function () {
+    return delay(10).bind(this).then(this.rollback)
+}
 
 Resource.prototype.closeAsync = function() {
     return delay(10).bind(this).then(this.close);
@@ -29734,8 +29852,16 @@ function transactionDisposer(tx, outcome) {
     outcome.isFulfilled() ? tx.commit() : tx.rollback();
 }
 
+function transactionDisposerAsync(tx, outcome) {
+    return outcome.isFulfilled() ? tx.commitAsync() : tx.rollbackAsync();
+}
+
 function transaction() {
     return _connect().disposer(transactionDisposer);
+}
+
+function transactionAsync() {
+    return _connect().disposer(transactionDisposerAsync);
 }
 
 describe("Promise.using", function() {
@@ -29841,9 +29967,37 @@ describe("Promise.using", function() {
         });
     });
 
+    specify("successful async transaction", function(done) {
+        var _tx;
+        using(transactionAsync(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                return tx.query(3);
+            })
+        }).then(function(){
+            assert(_tx.commited);
+            assert(!_tx.rollbacked);
+            done();
+        })
+    })
+
     specify("fail transaction", function(done) {
         var _tx;
         using(transaction(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                throw new Error();
+            })
+        }).then(assert.fail, function(){
+            assert(!_tx.commited);
+            assert(_tx.rollbacked);
+            done();
+        });
+    });
+
+    specify("fail async transaction", function(done) {
+        var _tx;
+        using(transactionAsync(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 throw new Error();
@@ -29868,7 +30022,7 @@ describe("Promise.using", function() {
 
 })
 
-},{"../../js/debug/bluebird.js":21,"../../js/debug/promise.js":38,"assert":2}],137:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"../../js/debug/promise.js":38,"assert":2}],138:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -29986,7 +30140,7 @@ describe("when.all-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],138:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],139:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -30129,7 +30283,7 @@ describe("when.any-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],139:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],140:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -30658,7 +30812,7 @@ describe("when.defer-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],140:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],141:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -30818,7 +30972,7 @@ describe("when.join-test", function () {
 
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],141:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -31240,7 +31394,7 @@ describe("when.map-test with concurrency", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],142:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],143:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -31635,7 +31789,7 @@ describe("Promise.reduce-test", function () {
     })
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],143:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],144:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -31802,7 +31956,7 @@ describe("when.settle-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],144:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],145:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
@@ -32028,7 +32182,7 @@ describe("when.some-test", function () {
     });
 });
 
-},{"../../js/debug/bluebird.js":21,"assert":2}],145:[function(require,module,exports){
+},{"../../js/debug/bluebird.js":21,"assert":2}],146:[function(require,module,exports){
 "use strict";
 /*
 Based on When.js tests
