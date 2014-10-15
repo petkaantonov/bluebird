@@ -1146,7 +1146,7 @@ See [`.map()`](#mapfunction-mapper--object-options---promise);
 
 Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `iterator` function with the signature `(item, index, value)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-Resolves to the original array unmodified, this method is meant to be used for side effects. Items are called as soon as possible, in-order.
+Resolves to the original array unmodified, this method is meant to be used for side effects. If the iterator function returns a promise or a thenable, the result for the promise is awaited for before continuing with next iteration.
 
 Example where you might want to utilize `.each`:
 
