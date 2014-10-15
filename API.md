@@ -23,6 +23,7 @@
     - [`.isPending()`](#ispending---boolean)
     - [`.value()`](#value---dynamic)
     - [`.reason()`](#reason---dynamic)
+    - [`.reflect()`](#reflect---promisepromiseinspection)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -136,7 +137,7 @@ function getPromiseResolveFn() {
     return res;
 }
 ```
-        
+
 
 <hr>
 
@@ -806,6 +807,10 @@ Get the rejection reason of this promise. Throws an error if the promise isn't r
 You should check if this promise is `.isRejected()` before calling `.reason()` - or only call `.reason()` in code paths where it's guaranteed that this promise is rejected.
 
 <hr>
+
+#####`.reflect()` -> `Promise<PromiseInspection>`
+
+The `.reflect()` method returns a promise that is always successful when this promise is settled. Its fulfillment value is a `PromiseInspection` instance that reflects the resolution this promise. See [this issue](https://github.com/petkaantonov/bluebird/issues/346) for example usage.
 
 ##Collections
 
