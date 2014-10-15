@@ -724,7 +724,7 @@ Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddyna
 Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use `.then()` to get at the promise's value as the callback is always called asynchronously.
 
 
-**Note**: At recent versions of Bluebird a design choise was made to expose `.reason()` and `.value` as well as other inspection methods on promises directly in order to the below use case easier to work with. The `Promise.settle` method still returns a `PromiseInspection` array as its result. Every promise is now also a `PromiseInspection` and inspection methods can be used on promises freely. 
+**Note**: At recent versions of Bluebird a design choise was made to expose `.reason()` and `.value` as well as other inspection methods on promises directly in order to make the below use case easier to work with. The `Promise.settle` method still returns a `PromiseInspection` array as its result. Every promise is now also a `PromiseInspection` and inspection methods can be used on promises freely. 
 
 For example, if you need to use values of earlier promises in the chain, you could nest:
 
