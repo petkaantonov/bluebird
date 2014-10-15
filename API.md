@@ -296,7 +296,7 @@ request("http://www.google.com").then(function(contents) {
 
 #####`.error( [rejectedHandler] )` -> `Promise`
 
-Like [`.catch`](#catchfunction-handler---promise) but instead of catching all types of exceptions, it only catches those that don't originate from thrown errors but rather from explicit rejections.
+Like [`.catch`](#catchfunction-handler---promise) but instead of catching all types of exceptions, it only catches [operational errors](#operationalerror)
 
 *Note, "errors" mean errors, as in objects that are `instanceof Error` - not strings, numbers and so on. See [a string is not an error](http://www.devthought.com/2011/12/22/a-string-is-not-an-error/).*
 
@@ -304,13 +304,13 @@ It is equivalent to the following [`.catch`](#catchfunction-errorclassfunction-p
 
 ```js
 // Assumes OperationalError has been made global
-function originatesFromRejection(e) {
+function isOperationalError(e) {
     if (e == null) return false;
     return (e instanceof OperationalError) || (e.isOperational === true);
 }
 
 // Now this bit:
-.catch(originatesFromRejection, function(e) {
+.catch(isOperationalError, function(e) {
     // ...
 })
 
