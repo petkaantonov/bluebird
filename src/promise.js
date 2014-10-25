@@ -682,6 +682,7 @@ function Promise$_settlePromiseFromHandler(
         handler.call(receiver, value, promise);
         return;
     }
+    if (promise.isResolved()) return;
     var x = this._callHandler(handler, receiver, promise, value);
     if (promise._isFollowing()) return;
 
