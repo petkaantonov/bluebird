@@ -1,3 +1,9 @@
+## 2.3.7 (2014-10-25)
+
+Bugfixes:
+
+ - Fix [#359](https://github.com/petkaantonov/bluebird/issues/359), [#362](https://github.com/petkaantonov/bluebird/issues/362) and [#364](https://github.com/petkaantonov/bluebird/issues/364)
+
 ## 2.3.6 (2014-10-15)
 
 Features:
