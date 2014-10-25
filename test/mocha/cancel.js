@@ -271,3 +271,18 @@ describe("simple", function() {
 
     });
 });
+
+describe("Cancelling a promise twice should have no additional effect", function() {
+    specify("With delay", function(done) {
+        var promise = pending().promise.cancellable().catch(function(){}).then(done).catch(function() { done(new Error('Should not be called')) });
+        promise.cancel();
+        setTimeout(function() {
+            promise.cancel();
+        }, 50);
+    });
+    specify("Without delay", function(done) {
+        var promise = pending().promise.cancellable().catch(function(){}).then(done).catch(function() { done(new Error('Should not be called')) });
+        promise.cancel()
+        promise.cancel();
+    });
+});
