@@ -196,7 +196,9 @@ function Promise$_resolveFromSyncValue(value) {
     if (value === errorObj) {
         this._cleanValues();
         this._setRejected();
-        this._settledValue = value.e;
+        var wrapped = util.maybeWrapAsError(value.e);
+        this._settledValue = wrapped;
+        this._attachExtraTrace(wrapped);
         this._ensurePossibleRejectionHandled();
     } else {
         var maybePromise = cast(value, void 0);

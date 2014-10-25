@@ -80,13 +80,22 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
 };
 
 CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
-    var curLast = current.length - 1;
+    var currentLastIndex = current.length - 1;
+    var currentLastLine = current[currentLastIndex];
+    var commonRootMeetPoint = -1;
     //Eliminate common roots
     for (var i = prev.length - 1; i >= 0; --i) {
+        if (prev[i] === currentLastLine) {
+            commonRootMeetPoint = i;
+            break;
+        }
+    }
+
+    for (var i = commonRootMeetPoint; i >= 0; --i) {
         var line = prev[i];
-        if (current[curLast] === line) {
+        if (current[currentLastIndex] === line) {
             current.pop();
-            curLast--;
+            currentLastIndex--;
         } else {
             break;
         }
