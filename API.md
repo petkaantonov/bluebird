@@ -923,7 +923,8 @@ This method is useful for when you have an array of promises and you'd like to k
 
 ```js
 var fs = Promise.promisify(require("fs"));
-Promise.settle(['a.txt', 'b.txt'], fs.readFileAsync).then(function(results){
+// map array into array of promises
+Promise.settle(['a.txt', 'b.txt'].map(fs.readFileAsync)).then(function(results){
     // results is a PromiseInspection array
     // this is reached once the operations are all done, regardless if
     // they're successful or not. 
