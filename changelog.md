@@ -1,3 +1,10 @@
+## 2.3.10 (2014-10-28)
+
+Features: 
+
+ - `Promise.method` no longer wraps primitive errors
+ - `Promise.try` no longer wraps primitive errors
+
 ## 2.3.7 (2014-10-25)
 
 Bugfixes:
