@@ -196,9 +196,9 @@ function Promise$_resolveFromSyncValue(value) {
     if (value === errorObj) {
         this._cleanValues();
         this._setRejected();
-        var wrapped = util.maybeWrapAsError(value.e);
-        this._settledValue = wrapped;
-        this._attachExtraTrace(wrapped);
+        var reason = value.e;
+        this._settledValue = reason;
+        this._tryAttachExtraTrace(reason);
         this._ensurePossibleRejectionHandled();
     } else {
         var maybePromise = cast(value, void 0);
@@ -774,6 +774,13 @@ Promise.prototype._setTrace = function Promise$_setTrace(parent) {
         }
     }
     return this;
+};
+
+Promise.prototype._tryAttachExtraTrace =
+function Promise$_tryAttachExtraTrace(error) {
+    if (canAttach(error)) {
+        this._attachExtraTrace(error);
+    }
 };
 
 Promise.prototype._attachExtraTrace =
