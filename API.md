@@ -922,7 +922,7 @@ Given an array, or a promise of an array, which contains promises (or a mix of p
 This method is useful for when you have an array of promises and you'd like to know when all of them resolve - either by fulfilling of rejecting. For example:
 
 ```js
-var fs = Promise.promisify(require("fs"));
+var fs = Promise.promisifyAll(require("fs"));
 // map array into array of promises
 var files = ['a.txt', 'b.txt'].map(function(fileName) {
     return fs.readFileAsync(fileName, "utf8");
