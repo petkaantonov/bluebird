@@ -924,16 +924,17 @@ This method is useful for when you have an array of promises and you'd like to k
 ```js
 var fs = Promise.promisify(require("fs"));
 // map array into array of promises
-Promise.settle(['a.txt', 'b.txt'].map(fs.readFileAsync)).then(function(results){
+Promise.settle(['a.txt', 'b.txt']).map(function(fileName) {
+    return fs.readFileAsync(fileName, "utf8");
+}).then(function(results) {
     // results is a PromiseInspection array
     // this is reached once the operations are all done, regardless if
     // they're successful or not. 
     var r = results[0];
-    if(r.isFulfilled(){  // check if was successful
+    if (r.isFulfilled()) {  // check if was successful
         console.log(r.value()); // the promise's return value
         r.reason(); // throws because the promise is fulfilled
-    }
-    if(r.isRejected()){ // check if the read failed
+    } else if (r.isRejected()) { // check if the read failed
         console.log(r.reason()); //reason
         r.value(); // throws because the promise is rejected
     }
