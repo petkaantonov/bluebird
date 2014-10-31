@@ -1,6 +1,13 @@
+## 2.3.11 (2014-10-31)
+
+Bugfixes:
+
+ - Fix [#371](https://github.com/petkaantonov/bluebird/issues/371), [#373](https://github.com/petkaantonov/bluebird/issues/373)
+
+
 ## 2.3.10 (2014-10-28)
 
-Features: 
+Features:
 
  - `Promise.method` no longer wraps primitive errors
  - `Promise.try` no longer wraps primitive errors
