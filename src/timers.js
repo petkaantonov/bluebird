@@ -6,7 +6,7 @@ var _setTimeout = function(fn, ms) {
     var arg0 = arguments[2];
     var arg1 = arguments[3];
     var arg2 = len >= 5 ? arguments[4] : void 0;
-    setTimeout(function() {
+    return setTimeout(function() {
         fn(arg0, arg1, arg2);
     }, ms|0);
 };
@@ -59,14 +59,31 @@ Promise.prototype.delay = function Promise$delay(ms) {
     return delay(this, ms);
 };
 
+function successClear(value) {
+    var handle = this;
+    // Deal with non-strict mode wrapping.
+    if (handle instanceof Number) handle = +handle;
+    clearTimeout(handle);
+    return value;
+}
+
+function failureClear(reason) {
+    var handle = this;
+    // Deal with non-strict mode wrapping.
+    if (handle instanceof Number) handle = +handle;
+    clearTimeout(handle);
+    throw reason;
+}
+
 Promise.prototype.timeout = function Promise$timeout(ms, message) {
     ms = +ms;
 
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_ALL);
     ret._follow(this);
-    _setTimeout(afterTimeout, ms, ret, message, ms);
-    return ret.cancellable();
+    var handle = _setTimeout(afterTimeout, ms, ret, message, ms);
+    return ret.cancellable()
+              ._then(successClear, failureClear, void 0, handle, void 0);
 };
 
 };

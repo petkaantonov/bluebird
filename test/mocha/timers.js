@@ -1,12 +1,12 @@
 "use strict";
 var assert = require("assert");
-
 var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
 var Q = Promise;
+var globalObject = new Function("return this;")();
 /*
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -96,6 +96,34 @@ describe("timeout", function () {
         }
 
         doExpensiveOp().timeout(100);
+    });
+
+    it("should clear timeouts when success", function(done) {
+        var old = clearTimeout;
+        var handleSet = false;
+        clearTimeout = function(handle) {
+            handleSet = true;
+            globalObject.clearTimeout = old;
+        };
+
+        Q.delay(10).timeout(100).then(function() {
+            assert(handleSet);
+            done();
+        });
+    });
+
+    it("should clear timeouts when fail", function(done) {
+        var old = clearTimeout;
+        var handleSet = false;
+        clearTimeout = function(handle) {
+            handleSet = true;
+            globalObject.clearTimeout = old;
+        };
+
+        Q.delay(100).timeout(10).then(null, function() {
+            assert(handleSet);
+            done();
+        });
     });
 });
 
