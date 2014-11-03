@@ -1682,7 +1682,7 @@ function DOMPromisifier(originalMethod) {
 }
 
 // Promisify e.g. chrome.browserAction
-Promise.promisifyAll(chrome.browserAction, {promisifer: DOMPromisifer});
+Promise.promisifyAll(chrome.browserAction, {promisifier: DOMPromisifier});
 
 // Later
 chrome.browserAction.getTitleAsync({tabId: 1})
