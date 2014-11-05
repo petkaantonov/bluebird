@@ -1298,11 +1298,11 @@ var pg = require("pg");
 function getSqlConnection(connectionString) {
     var close;
     return pg.connectAsync(connectionString).spread(function(client, done) {
-        close = function() { done(client) };
+        close = done;
         return client;
-    }).disposer(function() {
+    }).disposer(function(client) {
         try {
-            if (close) close();
+            if (close) close(client);
         } catch(e) {};
     });
 }
@@ -1370,7 +1370,7 @@ Promise.promisifyAll(pg);
 function getTransaction(connectionString) {
     var close;
     return pg.connectAsync(connectionString).spread(function(client, done) {
-        close = function() { done(client) };
+        close = done;
         return client.queryAsync('BEGIN').then(function () {
             return client;
         });
@@ -1382,7 +1382,7 @@ function getTransaction(connectionString) {
         }
         function closeSilently() {
             try {
-                if (close) close();
+                if (close) close(client);
             } catch (e) {
             }
         }
