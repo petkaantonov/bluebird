@@ -1370,7 +1370,7 @@ Promise.promisifyAll(pg);
 function getTransaction(connectionString) {
     var close;
     return pg.connectAsync(connectionString).spread(function(client, done) {
-        close = done;
+        close = function() { done(client) };
         return client.queryAsync('BEGIN').then(function () {
             return client;
         });
