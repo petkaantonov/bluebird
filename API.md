@@ -1298,7 +1298,7 @@ var pg = require("pg");
 function getSqlConnection(connectionString) {
     var close;
     return pg.connectAsync(connectionString).spread(function(client, done) {
-        close = done;
+        close = function() { done(client) };
         return client;
     }).disposer(function() {
         try {
