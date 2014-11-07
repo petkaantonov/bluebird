@@ -1300,9 +1300,9 @@ function getSqlConnection(connectionString) {
     return pg.connectAsync(connectionString).spread(function(client, done) {
         close = done;
         return client;
-    }).disposer(function() {
+    }).disposer(function(client) {
         try {
-            if (close) close();
+            if (close) close(client);
         } catch(e) {};
     });
 }
@@ -1382,7 +1382,7 @@ function getTransaction(connectionString) {
         }
         function closeSilently() {
             try {
-                if (close) close();
+                if (close) close(client);
             } catch (e) {
             }
         }
