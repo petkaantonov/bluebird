@@ -1106,7 +1106,7 @@ such concurrency
 
 #####`.reduce(Function reducer [, dynamic initialValue])` -> `Promise`
 
-Reduce an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, current, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
+Reduce an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `reducer` function with the signature `(total, item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array, and `total` is either the initial value, or the result of the previous iteration. If any promise in the input array is rejected the returned promise is rejected as well.
 
 If the reducer function returns a promise or a thenable, the result for the promise is awaited for before continuing with next iteration.
 
