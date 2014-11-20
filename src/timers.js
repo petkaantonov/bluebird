@@ -1,32 +1,12 @@
 "use strict";
 
-var global = require("./global.js");
-var setTimeout = function(fn, time) {
-    INLINE_SLICE(args, arguments, 2);
-    global.setTimeout(function() {
-        fn.apply(void 0, args);
-    }, time);
-};
-
-//Feature detect set timeout that passes arguments.
-//
-//Because it cannot be done synchronously
-//the setTimeout defaults to shim and later on
-//will start using the faster (can be used without creating closures) one
-//if available (i.e. not <=IE8)
-var pass = {};
-global.setTimeout( function(_) {
-    if(_ === pass) {
-        setTimeout = global.setTimeout;
-    }
-}, 1, pass);
-
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
     var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
+    var async = require("./async.js");
 
     var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
         //Don't waste time concatting strings or creating stack traces
@@ -72,7 +52,12 @@ module.exports = function(Promise, INTERNAL) {
         }
         else {
             promise._setTrace(caller, void 0);
-            setTimeout(afterDelay, ms, value, promise);
+            
+            if (async.externalDispatcher !== undefined) {
+                async.externalDispatcher.setTimeout(afterDelay, ms, value, promise);
+            } else {
+                setTimeout(afterDelay, ms, value, promise);
+            }
         }
         return promise;
     };
@@ -93,7 +78,13 @@ module.exports = function(Promise, INTERNAL) {
             ret._cancellationParent = this;
         }
         ret._follow(this);
-        setTimeout(afterTimeout, ms, ret, message, ms);
+
+        if (async.externalDispatcher !== undefined) {
+            async.externalDispatcher.setTimeout(afterTimeout, ms, ret, message, ms);
+        } else {
+            setTimeout(afterTimeout, ms, ret, message, ms);
+        }
+
         return ret;
     };
 

@@ -222,7 +222,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
         if (this.externalDispatcher !== undefined) {
-            this.externalDispatcher(this.consumeFunctionBuffer);
+            this.externalDispatcher.queueCallback(this.consumeFunctionBuffer);
         } else {
             schedule(this.consumeFunctionBuffer);
         }
@@ -1739,8 +1739,8 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
 };
 
-var setExternalDispatcher = function Promise$setExternalDispatcher(fn) {
-    async.externalDispatcher = fn;
+var setExternalDispatcher = function Promise$setExternalDispatcher(dispatcher) {
+    async.externalDispatcher = dispatcher;
 };
 
 function isPromise(obj) {
@@ -2917,10 +2917,13 @@ function PromiseArray(values, caller, boundTo) {
     } else {
         var that = this;
 
-        var promise = this._promise = promise.catch(CancellationError, function (reason) {
-            that._cancelPromiseArrayItems(reason);
-            throw reason;
-        });
+        var promise = this._promise = promise.caught(
+            CancellationError,
+            function (reason) {
+                that._cancelPromiseArrayItems(reason);
+                throw reason;
+            }
+        );
     }
 
     promise._setTrace(caller, parent);
@@ -3024,7 +3027,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
 };
 
 PromiseArray.prototype._cancelPromiseArrayItems =
-function PromiseArray$_cancelPromiseArrayItems(reason) {
+function PromiseArray$_cancelPromiseArrayItems() {
     for (var i = 0, len = this.length(); i < len; i++) {
         var val = this._values[i];
         if (Promise.is(val)) {
@@ -4939,27 +4942,13 @@ module.exports = function(Promise, INTERNAL) {
  */
 "use strict";
 
-var global = require("./global.js");
-var setTimeout = function(fn, time) {
-    var $_len = arguments.length;var args = new Array($_len - 2); for(var $_i = 2; $_i < $_len; ++$_i) {args[$_i - 2] = arguments[$_i];}
-    global.setTimeout(function() {
-        fn.apply(void 0, args);
-    }, time);
-};
-
-var pass = {};
-global.setTimeout( function(_) {
-    if(_ === pass) {
-        setTimeout = global.setTimeout;
-    }
-}, 1, pass);
-
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
     var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
+    var async = require("./async.js");
 
     var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
         if (!promise.isPending()) return;
@@ -5004,7 +4993,12 @@ module.exports = function(Promise, INTERNAL) {
         }
         else {
             promise._setTrace(caller, void 0);
-            setTimeout(afterDelay, ms, value, promise);
+            
+            if (async.externalDispatcher !== undefined) {
+                async.externalDispatcher.setTimeout(afterDelay, ms, value, promise);
+            } else {
+                setTimeout(afterDelay, ms, value, promise);
+            }
         }
         return promise;
     };
@@ -5025,13 +5019,19 @@ module.exports = function(Promise, INTERNAL) {
             ret._cancellationParent = this;
         }
         ret._follow(this);
-        setTimeout(afterTimeout, ms, ret, message, ms);
+
+        if (async.externalDispatcher !== undefined) {
+            async.externalDispatcher.setTimeout(afterTimeout, ms, ret, message, ms);
+        } else {
+            setTimeout(afterTimeout, ms, ret, message, ms);
+        }
+
         return ret;
     };
 
 };
 
-},{"./assert.js":2,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./errors_api_rejection":11,"./util.js":39}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 

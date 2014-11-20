@@ -36,10 +36,13 @@ function PromiseArray(values, caller, boundTo) {
     } else {
         var that = this;
 
-        var promise = this._promise = promise.catch(CancellationError, function (reason) {
-            that._cancelPromiseArrayItems(reason);
-            throw reason;
-        });
+        var promise = this._promise = promise.caught(
+            CancellationError,
+            function (reason) {
+                that._cancelPromiseArrayItems(reason);
+                throw reason;
+            }
+        );
     }
 
     promise._setTrace(caller, parent);
@@ -159,7 +162,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
 };
 
 PromiseArray.prototype._cancelPromiseArrayItems =
-function PromiseArray$_cancelPromiseArrayItems(reason) {
+function PromiseArray$_cancelPromiseArrayItems() {
     for (var i = 0, len = this.length(); i < len; i++) {
         var val = this._values[i];
         if (Promise.is(val)) {
