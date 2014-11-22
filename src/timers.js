@@ -54,12 +54,19 @@ module.exports = function(Promise, INTERNAL) {
             promise._setTrace(caller, void 0);
             
             if (async.externalDispatcher !== undefined) {
-                async.externalDispatcher.setTimeout(afterDelay, ms, value, promise);
+                return promise.then(function() {
+                    return async.externalDispatcher.setTimeout(
+                        afterDelay, 
+                        ms, 
+                        value, 
+                        promise
+                    );
+                });
             } else {
                 setTimeout(afterDelay, ms, value, promise);
+                return promise;
             }
         }
-        return promise;
     };
 
     Promise.prototype.delay = function Promise$delay(ms) {
@@ -80,12 +87,19 @@ module.exports = function(Promise, INTERNAL) {
         ret._follow(this);
 
         if (async.externalDispatcher !== undefined) {
-            async.externalDispatcher.setTimeout(afterTimeout, ms, ret, message, ms);
+            return ret.then(function() {
+                async.externalDispatcher.setTimeout(
+                    afterTimeout, 
+                    ms, 
+                    ret, 
+                    message, 
+                    ms
+                );
+            });
         } else {
             setTimeout(afterTimeout, ms, ret, message, ms);
+            return ret;
         }
-
-        return ret;
     };
 
 };
