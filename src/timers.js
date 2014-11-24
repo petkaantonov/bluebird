@@ -1,5 +1,26 @@
 "use strict";
 
+var global = require("./global.js");
+var setTimeout = function(fn, time) {
+    INLINE_SLICE(args, arguments, 2);
+    global.setTimeout(function() {
+        fn.apply(void 0, args);
+    }, time);
+};
+
+//Feature detect set timeout that passes arguments.
+//
+//Because it cannot be done synchronously
+//the setTimeout defaults to shim and later on
+//will start using the faster (can be used without creating closures) one
+//if available (i.e. not <=IE8)
+var pass = {};
+global.setTimeout( function(_) {
+    if(_ === pass) {
+        setTimeout = global.setTimeout;
+    }
+}, 1, pass);
+
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
@@ -34,9 +55,9 @@ module.exports = function(Promise, INTERNAL) {
             caller = Promise.delay;
         }
         var maybePromise = Promise._cast(value, caller, void 0);
-        var promise = new Promise(INTERNAL);
 
         if (Promise.is(maybePromise)) {
+            var promise = new Promise(INTERNAL);
             if (maybePromise._isBound()) {
                 promise._setBoundTo(maybePromise._boundTo);
             }
@@ -51,18 +72,11 @@ module.exports = function(Promise, INTERNAL) {
             });
         }
         else {
-            promise._setTrace(caller, void 0);
-            
             if (async.externalDispatcher !== undefined) {
-                return promise.then(function() {
-                    return async.externalDispatcher.setTimeout(
-                        afterDelay, 
-                        ms, 
-                        value, 
-                        promise
-                    );
-                });
+                return async.externalDispatcher.setTimeout(ms);
             } else {
+                var promise = new Promise(INTERNAL);
+                promise._setTrace(caller, void 0);
                 setTimeout(afterDelay, ms, value, promise);
                 return promise;
             }

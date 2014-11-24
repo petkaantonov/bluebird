@@ -4942,6 +4942,21 @@ module.exports = function(Promise, INTERNAL) {
  */
 "use strict";
 
+var global = require("./global.js");
+var setTimeout = function(fn, time) {
+    var $_len = arguments.length;var args = new Array($_len - 2); for(var $_i = 2; $_i < $_len; ++$_i) {args[$_i - 2] = arguments[$_i];}
+    global.setTimeout(function() {
+        fn.apply(void 0, args);
+    }, time);
+};
+
+var pass = {};
+global.setTimeout( function(_) {
+    if(_ === pass) {
+        setTimeout = global.setTimeout;
+    }
+}, 1, pass);
+
 module.exports = function(Promise, INTERNAL) {
     var util = require("./util.js");
     var ASSERT = require("./assert.js");
@@ -4975,9 +4990,9 @@ module.exports = function(Promise, INTERNAL) {
             caller = Promise.delay;
         }
         var maybePromise = Promise._cast(value, caller, void 0);
-        var promise = new Promise(INTERNAL);
 
         if (Promise.is(maybePromise)) {
+            var promise = new Promise(INTERNAL);
             if (maybePromise._isBound()) {
                 promise._setBoundTo(maybePromise._boundTo);
             }
@@ -4992,18 +5007,11 @@ module.exports = function(Promise, INTERNAL) {
             });
         }
         else {
-            promise._setTrace(caller, void 0);
-            
             if (async.externalDispatcher !== undefined) {
-                return promise.then(function() {
-                    return async.externalDispatcher.setTimeout(
-                        afterDelay, 
-                        ms, 
-                        value, 
-                        promise
-                    );
-                });
+                return async.externalDispatcher.setTimeout(ms);
             } else {
+                var promise = new Promise(INTERNAL);
+                promise._setTrace(caller, void 0);
                 setTimeout(afterDelay, ms, value, promise);
                 return promise;
             }
@@ -5045,7 +5053,7 @@ module.exports = function(Promise, INTERNAL) {
 
 };
 
-},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./errors_api_rejection":11,"./util.js":39}],39:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
