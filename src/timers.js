@@ -90,27 +90,19 @@ module.exports = function(Promise, INTERNAL) {
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
         ms = +ms;
 
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this.timeout, this);
-
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        if (this._cancellable()) {
-            ret._setCancellable();
-            ret._cancellationParent = this;
-        }
-        ret._follow(this);
-
         if (async.externalDispatcher !== undefined) {
-            return ret.then(function() {
-                async.externalDispatcher.setTimeout(
-                    afterTimeout, 
-                    ms, 
-                    ret, 
-                    message, 
-                    ms
-                );
-            });
+            return async.externalDispatcher.setTimeout(ms);
         } else {
+            var ret = new Promise(INTERNAL);
+            ret._setTrace(this.timeout, this);
+
+            if (this._isBound()) ret._setBoundTo(this._boundTo);
+            if (this._cancellable()) {
+                ret._setCancellable();
+                ret._cancellationParent = this;
+            }
+            ret._follow(this);
+
             setTimeout(afterTimeout, ms, ret, message, ms);
             return ret;
         }
