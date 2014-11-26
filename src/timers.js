@@ -73,7 +73,9 @@ module.exports = function(Promise, INTERNAL) {
         }
         else {
             if (async.externalDispatcher !== undefined) {
-                return async.externalDispatcher.setTimeout(ms);
+                return async.externalDispatcher.setTimeout(ms).then(function () {
+                    return Promise.fulfilled(value);
+                });
             } else {
                 var promise = new Promise(INTERNAL);
                 promise._setTrace(caller, void 0);
