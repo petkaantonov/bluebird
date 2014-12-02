@@ -40,7 +40,7 @@ function PromiseArray(values, caller, boundTo) {
             CancellationError,
             function (reason) {
                 that._cancelPromiseArrayItems(reason);
-                throw reason;
+                return Promise.rejected(reason);
             }
         );
     }
