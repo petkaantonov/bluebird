@@ -286,3 +286,17 @@ describe("Cancelling a promise twice should have no additional effect", function
         promise.cancel();
     });
 });
+
+describe("Github bugs", function() {
+    specify("gh-393", function(done) {
+        var resolve;
+        var promise = new Promise(function() {
+            resolve = arguments[0];
+        }).cancellable();
+        promise.cancel();
+        resolve(1);
+        promise.caught(Promise.CancellationError, function() {
+            done();
+        });
+    });
+});
