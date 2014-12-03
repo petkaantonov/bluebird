@@ -222,7 +222,7 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
 Async.prototype._queueTick = function Async$_queue() {
     if (!this._isTickUsed) {
         if (this.externalDispatcher !== undefined) {
-            this.externalDispatcher(this.consumeFunctionBuffer);
+            this.externalDispatcher.queueCallback(this.consumeFunctionBuffer);
         } else {
             schedule(this.consumeFunctionBuffer);
         }
@@ -1739,8 +1739,8 @@ var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
     return new TypeError("circular promise resolution chain");
 };
 
-var setExternalDispatcher = function Promise$setExternalDispatcher(fn) {
-    async.externalDispatcher = fn;
+var setExternalDispatcher = function Promise$setExternalDispatcher(dispatcher) {
+    async.externalDispatcher = dispatcher;
 };
 
 function isPromise(obj) {
@@ -2917,10 +2917,13 @@ function PromiseArray(values, caller, boundTo) {
     } else {
         var that = this;
 
-        var promise = this._promise = promise.catch(CancellationError, function (reason) {
-            that._cancelPromiseArrayItems(reason);
-            throw reason;
-        });
+        var promise = this._promise = promise.caught(
+            CancellationError,
+            function (reason) {
+                that._cancelPromiseArrayItems(reason);
+                return Promise.rejected(reason);
+            }
+        );
     }
 
     promise._setTrace(caller, parent);
@@ -3024,7 +3027,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
 };
 
 PromiseArray.prototype._cancelPromiseArrayItems =
-function PromiseArray$_cancelPromiseArrayItems(reason) {
+function PromiseArray$_cancelPromiseArrayItems() {
     for (var i = 0, len = this.length(); i < len; i++) {
         var val = this._values[i];
         if (Promise.is(val)) {
@@ -4960,6 +4963,7 @@ module.exports = function(Promise, INTERNAL) {
     var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
+    var async = require("./async.js");
 
     var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
         if (!promise.isPending()) return;
@@ -4986,9 +4990,9 @@ module.exports = function(Promise, INTERNAL) {
             caller = Promise.delay;
         }
         var maybePromise = Promise._cast(value, caller, void 0);
-        var promise = new Promise(INTERNAL);
 
         if (Promise.is(maybePromise)) {
+            var promise = new Promise(INTERNAL);
             if (maybePromise._isBound()) {
                 promise._setBoundTo(maybePromise._boundTo);
             }
@@ -5003,10 +5007,17 @@ module.exports = function(Promise, INTERNAL) {
             });
         }
         else {
-            promise._setTrace(caller, void 0);
-            setTimeout(afterDelay, ms, value, promise);
+            if (async.externalDispatcher !== undefined) {
+                return async.externalDispatcher.setTimeout(ms).then(function () {
+                    return Promise.fulfilled(value);
+                });
+            } else {
+                var promise = new Promise(INTERNAL);
+                promise._setTrace(caller, void 0);
+                setTimeout(afterDelay, ms, value, promise);
+                return promise;
+            }
         }
-        return promise;
     };
 
     Promise.prototype.delay = function Promise$delay(ms) {
@@ -5016,22 +5027,27 @@ module.exports = function(Promise, INTERNAL) {
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
         ms = +ms;
 
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this.timeout, this);
+        if (async.externalDispatcher !== undefined) {
+            return async.externalDispatcher.setTimeout(ms);
+        } else {
+            var ret = new Promise(INTERNAL);
+            ret._setTrace(this.timeout, this);
 
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        if (this._cancellable()) {
-            ret._setCancellable();
-            ret._cancellationParent = this;
+            if (this._isBound()) ret._setBoundTo(this._boundTo);
+            if (this._cancellable()) {
+                ret._setCancellable();
+                ret._cancellationParent = this;
+            }
+            ret._follow(this);
+
+            setTimeout(afterTimeout, ms, ret, message, ms);
+            return ret;
         }
-        ret._follow(this);
-        setTimeout(afterTimeout, ms, ret, message, ms);
-        return ret;
     };
 
 };
 
-},{"./assert.js":2,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
+},{"./assert.js":2,"./async.js":3,"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":39}],39:[function(require,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 

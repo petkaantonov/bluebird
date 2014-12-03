@@ -27,6 +27,7 @@ module.exports = function(Promise, INTERNAL) {
     var errors = require("./errors.js");
     var apiRejection = require("./errors_api_rejection")(Promise);
     var TimeoutError = Promise.TimeoutError;
+    var async = require("./async.js");
 
     var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
         //Don't waste time concatting strings or creating stack traces
@@ -54,9 +55,9 @@ module.exports = function(Promise, INTERNAL) {
             caller = Promise.delay;
         }
         var maybePromise = Promise._cast(value, caller, void 0);
-        var promise = new Promise(INTERNAL);
 
         if (Promise.is(maybePromise)) {
+            var promise = new Promise(INTERNAL);
             if (maybePromise._isBound()) {
                 promise._setBoundTo(maybePromise._boundTo);
             }
@@ -71,10 +72,17 @@ module.exports = function(Promise, INTERNAL) {
             });
         }
         else {
-            promise._setTrace(caller, void 0);
-            setTimeout(afterDelay, ms, value, promise);
+            if (async.externalDispatcher !== undefined) {
+                return async.externalDispatcher.setTimeout(ms).then(function () {
+                    return Promise.fulfilled(value);
+                });
+            } else {
+                var promise = new Promise(INTERNAL);
+                promise._setTrace(caller, void 0);
+                setTimeout(afterDelay, ms, value, promise);
+                return promise;
+            }
         }
-        return promise;
     };
 
     Promise.prototype.delay = function Promise$delay(ms) {
@@ -84,17 +92,22 @@ module.exports = function(Promise, INTERNAL) {
     Promise.prototype.timeout = function Promise$timeout(ms, message) {
         ms = +ms;
 
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this.timeout, this);
+        if (async.externalDispatcher !== undefined) {
+            return async.externalDispatcher.setTimeout(ms);
+        } else {
+            var ret = new Promise(INTERNAL);
+            ret._setTrace(this.timeout, this);
 
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        if (this._cancellable()) {
-            ret._setCancellable();
-            ret._cancellationParent = this;
+            if (this._isBound()) ret._setBoundTo(this._boundTo);
+            if (this._cancellable()) {
+                ret._setCancellable();
+                ret._cancellationParent = this;
+            }
+            ret._follow(this);
+
+            setTimeout(afterTimeout, ms, ret, message, ms);
+            return ret;
         }
-        ret._follow(this);
-        setTimeout(afterTimeout, ms, ret, message, ms);
-        return ret;
     };
 
 };
