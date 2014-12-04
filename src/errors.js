@@ -32,9 +32,6 @@ function subError(nameProperty, defaultMessage) {
         if (!(this instanceof SubError)) return new SubError(message);
         this.message = typeof message === "string" ? message : defaultMessage;
         this.name = nameProperty;
-        if (Promise.GuaranteedStackTraces === true && Error.captureStackTrace) {
-            Error.captureStackTrace(this, this.constructor);
-        }
     }
     inherits(SubError, Error);
     return SubError;
