@@ -27,7 +27,6 @@ Promise.prototype.cancel = function Promise$cancel(reason) {
         ? (canAttach(reason) ? reason : new Error(reason + ""))
         : new CancellationError();
     async.invokeLater(this._cancel, this, reason);
-    this._setFollowing();
     return this;
 };
 
