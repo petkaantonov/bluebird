@@ -28832,7 +28832,7 @@ var rejected = adapter.rejected;
 var pending = adapter.pending;
 var Promise = adapter;
 var Q = Promise;
-var globalObject = new Function("return this;")();
+var globalObject = typeof window !== "undefined" ? window : new Function("return this;")();
 /*
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28925,9 +28925,9 @@ describe("timeout", function () {
     });
 
     it("should clear timeouts when success", function(done) {
-        var old = clearTimeout;
+        var old = globalObject.clearTimeout;
         var handleSet = false;
-        clearTimeout = function(handle) {
+        globalObject.clearTimeout = function(handle) {
             handleSet = true;
             globalObject.clearTimeout = old;
         };
@@ -28939,9 +28939,9 @@ describe("timeout", function () {
     });
 
     it("should clear timeouts when fail", function(done) {
-        var old = clearTimeout;
+        var old = globalObject.clearTimeout;
         var handleSet = false;
-        clearTimeout = function(handle) {
+        globalObject.clearTimeout = function(handle) {
             handleSet = true;
             globalObject.clearTimeout = old;
         };
