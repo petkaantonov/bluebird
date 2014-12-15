@@ -1219,7 +1219,7 @@ using(getConnection(),
 In conjunction with [`.disposer()`](#disposerfunction-disposer---disposer), `using` will make sure that no matter what, the specified disposer will be called
 when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
 
-Simplest example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerfunction-disposer---disposer)))
+Here is a simple example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerfunction-disposer---disposer)))
 
 
 ```js
@@ -1301,9 +1301,7 @@ function getSqlConnection(connectionString) {
         close = done;
         return client;
     }).disposer(function(client) {
-        try {
-            if (close) close(client);
-        } catch(e) {};
+        if (close) close(client);
     });
 }
 
@@ -1328,9 +1326,7 @@ var pool  = mysql.createPool({
 
 function getSqlConnection() {
     return pool.getConnectionAsync().disposer(function(connection) {
-        try {
-            connection.release();
-        } catch(e) {};
+        connection.release();
     });
 }
 
@@ -1376,15 +1372,12 @@ function getTransaction(connectionString) {
         });
     }).disposer(function(client, promise) {
         if (promise.isFulfilled()) {
-            return client.queryAsync('COMMIT').then(closeSilently);
+            return client.queryAsync('COMMIT').then(closeClient);
         } else {
-            return client.queryAsync('ROLLBACK').then(closeSilently);
+            return client.queryAsync('ROLLBACK').then(closeClient);
         }
-        function closeSilently() {
-            try {
-                if (close) close(client);
-            } catch (e) {
-            }
+        function closeClient() {
+            if (close) close(client);
         }
     });
 }
@@ -1392,6 +1385,11 @@ function getTransaction(connectionString) {
 exports.getTransaction = getTransaction;
 ```
 
+#### Note about disposers in node
+
+If a disposer method throws, its highly likely that it failed to dispose of the resource. In that case, Bluebird has two options - it can either ignore the error and continue with program execution or throw an exception (crashing the process in node.js). Bluebird prefers to do the later because resources are typically scarce. For example, if database connections cannot be disposed of and Bluebird ignores that, the connection pool will be quickly depleted and the process will become unusable. Since Bluebird doesn't know how to handle that, the only sensible default is to crash the process.
+
+If you anticipate thrown errors while disposing of the resource you should use a `try..catch` block (or Promise.try) and write the appropriate code to handle the errors.
 
 <hr>
 
