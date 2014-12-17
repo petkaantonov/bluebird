@@ -29,7 +29,7 @@ function CatchFilter$_safePredicate(predicate, e) {
     return retfilter;
 }
 
-CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
+CatchFilter.prototype.doFilter = function (e) {
     var cb = this._callback;
     var promise = this._promise;
     var boundTo = promise._boundTo;

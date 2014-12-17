@@ -17,7 +17,7 @@ if (isES5) {
     var str = {}.toString;
     var proto = {}.constructor.prototype;
 
-    var ObjectKeys = function ObjectKeys(o) {
+    var ObjectKeys = function (o) {
         var ret = [];
         for (var key in o) {
             if (has.call(o, key)) {
@@ -27,16 +27,16 @@ if (isES5) {
         return ret;
     }
 
-    var ObjectDefineProperty = function ObjectDefineProperty(o, key, desc) {
+    var ObjectDefineProperty = function (o, key, desc) {
         o[key] = desc.value;
         return o;
     }
 
-    var ObjectFreeze = function ObjectFreeze(obj) {
+    var ObjectFreeze = function (obj) {
         return obj;
     }
 
-    var ObjectGetPrototypeOf = function ObjectGetPrototypeOf(obj) {
+    var ObjectGetPrototypeOf = function (obj) {
         try {
             return Object(obj).constructor.prototype;
         }
@@ -45,7 +45,7 @@ if (isES5) {
         }
     }
 
-    var ArrayIsArray = function ArrayIsArray(obj) {
+    var ArrayIsArray = function (obj) {
         try {
             return str.call(obj) === "[object Array]";
         }

@@ -14,12 +14,11 @@ function Queue(capacity) {
     this._makeCapacity();
 }
 
-Queue.prototype._willBeOverCapacity =
-function Queue$_willBeOverCapacity(size) {
+Queue.prototype._willBeOverCapacity = function (size) {
     return this._capacity < size;
 };
 
-Queue.prototype._pushOne = function Queue$_pushOne(arg) {
+Queue.prototype._pushOne = function (arg) {
     var length = this.length();
     this._checkCapacity(length + 1);
     var i = (this._front + length) & (this._capacity - 1);
@@ -27,7 +26,7 @@ Queue.prototype._pushOne = function Queue$_pushOne(arg) {
     this._length = length + 1;
 };
 
-Queue.prototype.push = function Queue$push(fn, receiver, arg) {
+Queue.prototype.push = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     ASSERT(typeof fn === "function");
     var length = this.length() + 3;
@@ -48,7 +47,7 @@ Queue.prototype.push = function Queue$push(fn, receiver, arg) {
     this._length = length;
 };
 
-Queue.prototype.shift = function Queue$shift() {
+Queue.prototype.shift = function () {
     ASSERT(this.length() > 0);
     var front = this._front,
         ret = this[front];
@@ -59,24 +58,24 @@ Queue.prototype.shift = function Queue$shift() {
     return ret;
 };
 
-Queue.prototype.length = function Queue$length() {
+Queue.prototype.length = function () {
     return this._length;
 };
 
-Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
+Queue.prototype._makeCapacity = function () {
     var len = this._capacity;
     for (var i = 0; i < len; ++i) {
         this[i] = void 0;
     }
 };
 
-Queue.prototype._checkCapacity = function Queue$_checkCapacity(size) {
+Queue.prototype._checkCapacity = function (size) {
     if (this._capacity < size) {
         this._resizeTo(this._capacity << 3);
     }
 };
 
-Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
+Queue.prototype._resizeTo = function (capacity) {
     var oldFront = this._front;
     var oldCapacity = this._capacity;
     var oldQueue = new Array(oldCapacity);

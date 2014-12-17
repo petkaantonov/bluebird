@@ -189,7 +189,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                         "maybeWrapAsError",
                         "nodebackForPromise",
                         "INTERNAL","                                         \n\
-        var ret = function FunctionName(Parameters) {                        \n\
+        var ret = function (Parameters) {                        \n\
             'use strict';                                                    \n\
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
@@ -273,7 +273,7 @@ function promisify(callback, receiver) {
     return makeNodePromisified(callback, receiver, void 0, callback);
 }
 
-Promise.promisify = function Promise$Promisify(fn, receiver) {
+Promise.promisify = function (fn, receiver) {
     if (typeof fn !== "function") {
         throw new TypeError(NOT_FUNCTION_ERROR);
     }
@@ -283,7 +283,7 @@ Promise.promisify = function Promise$Promisify(fn, receiver) {
     return promisify(fn, arguments.length < 2 ? THIS : receiver);
 };
 
-Promise.promisifyAll = function Promise$PromisifyAll(target, options) {
+Promise.promisifyAll = function (target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }

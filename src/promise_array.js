@@ -30,11 +30,11 @@ function PromiseArray(values) {
     this._totalResolved = 0;
     this._init(void 0, RESOLVE_ARRAY);
 }
-PromiseArray.prototype.length = function PromiseArray$length() {
+PromiseArray.prototype.length = function () {
     return this._length;
 };
 
-PromiseArray.prototype.promise = function PromiseArray$promise() {
+PromiseArray.prototype.promise = function () {
     return this._promise;
 };
 
@@ -118,8 +118,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     }
 };
 
-PromiseArray.prototype._settlePromiseAt =
-function PromiseArray$_settlePromiseAt(index) {
+PromiseArray.prototype._settlePromiseAt = function (index) {
     var value = this._values[index];
     if (!(value instanceof Promise)) {
         this._promiseFulfilled(value, index);
@@ -130,8 +129,7 @@ function PromiseArray$_settlePromiseAt(index) {
     }
 };
 
-PromiseArray.prototype._scanDirectValues =
-function PromiseArray$_scanDirectValues(len) {
+PromiseArray.prototype._scanDirectValues = function (len) {
     ASSERT(len >= this.length());
     for (var i = 0; i < len; ++i) {
         if (this._isResolved()) {
@@ -141,11 +139,11 @@ function PromiseArray$_scanDirectValues(len) {
     }
 };
 
-PromiseArray.prototype._isResolved = function PromiseArray$_isResolved() {
+PromiseArray.prototype._isResolved = function () {
     return this._values === null;
 };
 
-PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
+PromiseArray.prototype._resolve = function (value) {
     ASSERT(!this._isResolved());
     ASSERT(!(value instanceof Promise));
     this._values = null;
@@ -153,7 +151,7 @@ PromiseArray.prototype._resolve = function PromiseArray$_resolve(value) {
 };
 
 PromiseArray.prototype.__hardReject__ =
-PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
+PromiseArray.prototype._reject = function (reason) {
     ASSERT(!this._isResolved());
     this._values = null;
     var trace = canAttach(reason) ? reason : new Error(reason + "");
@@ -161,8 +159,7 @@ PromiseArray.prototype._reject = function PromiseArray$_reject(reason) {
     this._promise._reject(reason, trace);
 };
 
-PromiseArray.prototype._promiseProgressed =
-function PromiseArray$_promiseProgressed(progressValue, index) {
+PromiseArray.prototype._promiseProgressed = function (progressValue, index) {
     if (this._isResolved()) return;
     ASSERT(isArray(this._values));
     this._promise._progress({
@@ -172,8 +169,7 @@ function PromiseArray$_promiseProgressed(progressValue, index) {
 };
 
 
-PromiseArray.prototype._promiseFulfilled =
-function PromiseArray$_promiseFulfilled(value, index) {
+PromiseArray.prototype._promiseFulfilled = function (value, index) {
     if (this._isResolved()) return;
     ASSERT(isArray(this._values));
     ASSERT(typeof index === "number");
@@ -184,8 +180,7 @@ function PromiseArray$_promiseFulfilled(value, index) {
     }
 };
 
-PromiseArray.prototype._promiseRejected =
-function PromiseArray$_promiseRejected(reason, index) {
+PromiseArray.prototype._promiseRejected = function (reason, index) {
     ASSERT(index >= 0);
     if (this._isResolved()) return;
     ASSERT(isArray(this._values));
@@ -193,13 +188,11 @@ function PromiseArray$_promiseRejected(reason, index) {
     this._reject(reason);
 };
 
-PromiseArray.prototype.shouldCopyValues =
-function PromiseArray$_shouldCopyValues() {
+PromiseArray.prototype.shouldCopyValues = function () {
     return true;
 };
 
-PromiseArray.prototype.getActualLength =
-function PromiseArray$getActualLength(len) {
+PromiseArray.prototype.getActualLength = function (len) {
     return len;
 };
 

@@ -3,7 +3,7 @@ var ASSERT = require("./assert.js");
 var schedule;
 var _MutationObserver;
 if (typeof process === "object" && typeof process.version === "string") {
-    schedule = function Promise$_Scheduler(fn) {
+    schedule = function (fn) {
         process.nextTick(fn);
     };
 }
@@ -34,7 +34,7 @@ else if ((typeof MutationObserver !== "undefined" &&
     })();
 }
 else if (typeof setTimeout !== "undefined") {
-    schedule = function Promise$_Scheduler(fn) {
+    schedule = function (fn) {
         setTimeout(fn, 0);
     };
 }

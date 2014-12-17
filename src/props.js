@@ -20,14 +20,12 @@ function PropertiesPromiseArray(obj) {
 util.inherits(PropertiesPromiseArray, PromiseArray);
 
 //Override
-PropertiesPromiseArray.prototype._init =
-function PropertiesPromiseArray$_init() {
+PropertiesPromiseArray.prototype._init = function () {
     this._init$(void 0, RESOLVE_OBJECT) ;
 };
 
 //Override
-PropertiesPromiseArray.prototype._promiseFulfilled =
-function PropertiesPromiseArray$_promiseFulfilled(value, index) {
+PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
     if (this._isResolved()) return;
     ASSERT(!(value instanceof Promise));
     this._values[index] = value;
@@ -43,8 +41,7 @@ function PropertiesPromiseArray$_promiseFulfilled(value, index) {
 };
 
 //Override
-PropertiesPromiseArray.prototype._promiseProgressed =
-function PropertiesPromiseArray$_promiseProgressed(value, index) {
+PropertiesPromiseArray.prototype._promiseProgressed = function (value, index) {
     if (this._isResolved()) return;
 
     this._promise._progress({
@@ -54,14 +51,12 @@ function PropertiesPromiseArray$_promiseProgressed(value, index) {
 };
 
 // Override
-PropertiesPromiseArray.prototype.shouldCopyValues =
-function PropertiesPromiseArray$_shouldCopyValues() {
+PropertiesPromiseArray.prototype.shouldCopyValues = function () {
     return false;
 };
 
 // Override
-PropertiesPromiseArray.prototype.getActualLength =
-function PropertiesPromiseArray$getActualLength(len) {
+PropertiesPromiseArray.prototype.getActualLength = function (len) {
     return len >> 1;
 };
 
@@ -83,11 +78,11 @@ function Promise$_Props(promises) {
     return ret;
 }
 
-Promise.prototype.props = function Promise$props() {
+Promise.prototype.props = function () {
     return Promise$_Props(this);
 };
 
-Promise.props = function Promise$Props(promises) {
+Promise.props = function (promises) {
     return Promise$_Props(promises);
 };
 };

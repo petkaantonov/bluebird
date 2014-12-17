@@ -62,7 +62,7 @@ function reject(reason) {
     this._reject(reason);
 }
 
-Promise.join = function Promise$Join() {
+Promise.join = function () {
     var last = arguments.length - 1;
     var fn;
     if (last > 0 && typeof arguments[last] === "function") {

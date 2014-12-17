@@ -3,7 +3,7 @@ module.exports = function(Promise, INTERNAL, cast) {
 var apiRejection = require("./errors_api_rejection.js")(Promise);
 var isArray = require("./util.js").isArray;
 
-var raceLater = function Promise$_raceLater(promise) {
+var raceLater = function (promise) {
     return promise.then(function(array) {
         return Promise$_Race(array, promise);
     });
@@ -40,11 +40,11 @@ function Promise$_Race(promises, parent) {
     return ret;
 }
 
-Promise.race = function Promise$Race(promises) {
+Promise.race = function (promises) {
     return Promise$_Race(promises, void 0);
 };
 
-Promise.prototype.race = function Promise$race() {
+Promise.prototype.race = function () {
     return Promise$_Race(this, void 0);
 };
 

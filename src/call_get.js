@@ -61,7 +61,7 @@ function getGetter(name) {
 function caller(obj) {
     return obj[this.pop()].apply(obj, this);
 }
-Promise.prototype.call = function Promise$call(methodName) {
+Promise.prototype.call = function (methodName) {
     INLINE_SLICE(args, arguments, 1);
     if (canEvaluate) {
         var maybeCaller = getMethodCaller(methodName);
@@ -79,7 +79,7 @@ function namedGetter(obj) {
 function indexedGetter(obj) {
     return obj[this];
 }
-Promise.prototype.get = function Promise$get(propertyName) {
+Promise.prototype.get = function (propertyName) {
     var isIndex = (typeof propertyName === "number");
     var getter;
     if (!isIndex) {

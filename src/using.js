@@ -76,15 +76,15 @@ module.exports = function (Promise, apiRejection, cast) {
         this._promise = promise;
     }
 
-    Disposer.prototype.data = function Disposer$data() {
+    Disposer.prototype.data = function () {
         return this._data;
     };
 
-    Disposer.prototype.promise = function Disposer$promise() {
+    Disposer.prototype.promise = function () {
         return this._promise;
     };
 
-    Disposer.prototype.resource = function Disposer$resource() {
+    Disposer.prototype.resource = function () {
         if (this.promise().isFulfilled()) {
             return this.promise().value();
         }
@@ -100,7 +100,7 @@ module.exports = function (Promise, apiRejection, cast) {
         return ret;
     };
 
-    Disposer.isDisposer = function Disposer$isDisposer(d) {
+    Disposer.isDisposer = function (d) {
         return (d != null &&
                 typeof d.resource === "function" &&
                 typeof d.tryDispose === "function");
@@ -116,7 +116,7 @@ module.exports = function (Promise, apiRejection, cast) {
         return fn.call(resource, resource, inspection);
     };
 
-    Promise.using = function Promise$using() {
+    Promise.using = function () {
         var len = arguments.length;
         if (len < 2) return apiRejection(
                         "you must pass at least 2 arguments to Promise.using");
@@ -140,26 +140,25 @@ module.exports = function (Promise, apiRejection, cast) {
             ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
     };
 
-    Promise.prototype._setDisposable =
-    function Promise$_setDisposable(disposer) {
+    Promise.prototype._setDisposable = function (disposer) {
         this._bitField = this._bitField | IS_DISPOSABLE;
         this._disposer = disposer;
     };
 
-    Promise.prototype._isDisposable = function Promise$_isDisposable() {
+    Promise.prototype._isDisposable = function () {
         return (this._bitField & IS_DISPOSABLE) > 0;
     };
 
-    Promise.prototype._getDisposer = function Promise$_getDisposer() {
+    Promise.prototype._getDisposer = function () {
         return this._disposer;
     };
 
-    Promise.prototype._unsetDisposable = function Promise$_unsetDisposable() {
+    Promise.prototype._unsetDisposable = function () {
         this._bitField = this._bitField & (~IS_DISPOSABLE);
         this._disposer = void 0;
     };
 
-    Promise.prototype.disposer = function Promise$disposer(fn) {
+    Promise.prototype.disposer = function (fn) {
         if (typeof fn === "function") {
             return new FunctionDisposer(fn, this);
         }

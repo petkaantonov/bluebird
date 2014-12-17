@@ -76,8 +76,7 @@ function tapHandler(value) {
     return value;
 }
 
-Promise.prototype._passThroughHandler =
-function Promise$_passThroughHandler(handler, isFinally) {
+Promise.prototype._passThroughHandler = function (handler, isFinally) {
     if (typeof handler !== "function") return this.then();
 
     var promiseAndHandler = {
@@ -92,11 +91,11 @@ function Promise$_passThroughHandler(handler, isFinally) {
 };
 
 Promise.prototype.lastly =
-Promise.prototype["finally"] = function Promise$finally(handler) {
+Promise.prototype["finally"] = function (handler) {
     return this._passThroughHandler(handler, true);
 };
 
-Promise.prototype.tap = function Promise$tap(handler) {
+Promise.prototype.tap = function (handler) {
     return this._passThroughHandler(handler, false);
 };
 };

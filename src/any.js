@@ -16,11 +16,11 @@ function Promise$_Any(promises) {
     return promise;
 }
 
-Promise.any = function Promise$Any(promises) {
+Promise.any = function (promises) {
     return Promise$_Any(promises);
 };
 
-Promise.prototype.any = function Promise$any() {
+Promise.prototype.any = function () {
     return Promise$_Any(this);
 };
 

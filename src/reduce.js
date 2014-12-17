@@ -40,12 +40,10 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
 util.inherits(ReductionPromiseArray, PromiseArray);
 
 // Override
-ReductionPromiseArray.prototype._init =
-function ReductionPromiseArray$_init() {};
+ReductionPromiseArray.prototype._init = function () {};
 
 // Override
-ReductionPromiseArray.prototype._resolveEmptyArray =
-function ReductionPromiseArray$_resolveEmptyArray() {
+ReductionPromiseArray.prototype._resolveEmptyArray = function () {
     // we may resolve
     // once we've received our initialValue,
     // or if it's the 0th value (and we don't need to wait)
@@ -56,8 +54,7 @@ function ReductionPromiseArray$_resolveEmptyArray() {
 };
 
 // Override
-ReductionPromiseArray.prototype._promiseFulfilled =
-function ReductionPromiseArray$_promiseFulfilled(value, index) {
+ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var values = this._values;
     if (values === null) return;
     var length = this.length();
@@ -168,11 +165,11 @@ function reduce(promises, fn, initialValue, _each) {
     return array.promise();
 }
 
-Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
+Promise.prototype.reduce = function (fn, initialValue) {
     return reduce(this, fn, initialValue, null);
 };
 
-Promise.reduce = function Promise$Reduce(promises, fn, initialValue, _each) {
+Promise.reduce = function (promises, fn, initialValue, _each) {
     return reduce(promises, fn, initialValue, _each);
 };
 };

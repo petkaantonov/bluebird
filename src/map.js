@@ -27,11 +27,10 @@ util.inherits(MappingPromiseArray, PromiseArray);
 // will share same memory layout as the super class instances
 
 // Override
-MappingPromiseArray.prototype._init = function MappingPromiseArray$_init() {};
+MappingPromiseArray.prototype._init = function () {};
 
 // Override
-MappingPromiseArray.prototype._promiseFulfilled =
-function MappingPromiseArray$_promiseFulfilled(value, index) {
+MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var values = this._values;
     if (values === null) return;
 
@@ -88,8 +87,7 @@ function MappingPromiseArray$_promiseFulfilled(value, index) {
     }
 };
 
-MappingPromiseArray.prototype._drainQueue =
-function MappingPromiseArray$_drainQueue() {
+MappingPromiseArray.prototype._drainQueue = function () {
     var queue = this._queue;
     var limit = this._limit;
     var values = this._values;
@@ -99,8 +97,7 @@ function MappingPromiseArray$_drainQueue() {
     }
 };
 
-MappingPromiseArray.prototype._filter =
-function MappingPromiseArray$_filter(booleans, values) {
+MappingPromiseArray.prototype._filter = function (booleans, values) {
     var len = values.length;
     var ret = new Array(len);
     var j = 0;
@@ -111,8 +108,7 @@ function MappingPromiseArray$_filter(booleans, values) {
     this._resolve(ret);
 };
 
-MappingPromiseArray.prototype.preservedValues =
-function MappingPromiseArray$preserveValues() {
+MappingPromiseArray.prototype.preservedValues = function () {
     return this._preservedValues;
 };
 
@@ -125,13 +121,13 @@ function map(promises, fn, options, _filter) {
     return new MappingPromiseArray(promises, fn, limit, _filter);
 }
 
-Promise.prototype.map = function Promise$map(fn, options) {
+Promise.prototype.map = function (fn, options) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
 
     return map(this, fn, options, null).promise();
 };
 
-Promise.map = function Promise$Map(promises, fn, options, _filter) {
+Promise.map = function (promises, fn, options, _filter) {
     if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
     return map(promises, fn, options, _filter).promise();
 };

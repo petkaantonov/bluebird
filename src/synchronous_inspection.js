@@ -16,22 +16,22 @@ function PromiseInspection(promise) {
 }
 
 PromiseInspection.prototype.isFulfilled =
-Promise.prototype.isFulfilled = function Promise$isFulfilled() {
+Promise.prototype.isFulfilled = function () {
     return (this._bitField & IS_FULFILLED) > 0;
 };
 
 PromiseInspection.prototype.isRejected =
-Promise.prototype.isRejected = function Promise$isRejected() {
+Promise.prototype.isRejected = function () {
     return (this._bitField & IS_REJECTED) > 0;
 };
 
 PromiseInspection.prototype.isPending =
-Promise.prototype.isPending = function Promise$isPending() {
+Promise.prototype.isPending = function () {
     return (this._bitField & IS_REJECTED_OR_FULFILLED) === 0;
 };
 
 PromiseInspection.prototype.value =
-Promise.prototype.value = function Promise$value() {
+Promise.prototype.value = function () {
     if (!this.isFulfilled()) {
         throw new TypeError(INSPECTION_VALUE_ERROR);
     }
@@ -40,7 +40,7 @@ Promise.prototype.value = function Promise$value() {
 
 PromiseInspection.prototype.error =
 PromiseInspection.prototype.reason =
-Promise.prototype.reason = function Promise$reason() {
+Promise.prototype.reason = function () {
     if (!this.isRejected()) {
         throw new TypeError(INSPECTION_REASON_ERROR);
     }
@@ -48,7 +48,7 @@ Promise.prototype.reason = function Promise$reason() {
 };
 
 PromiseInspection.prototype.isResolved =
-Promise.prototype.isResolved = function Promise$isResolved() {
+Promise.prototype.isResolved = function () {
     return (this._bitField & IS_REJECTED_OR_FULFILLED) > 0;
 };
 

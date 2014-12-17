@@ -7,11 +7,11 @@ var errors = require("./errors.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
-Promise.prototype.progressed = function Promise$progressed(handler) {
+Promise.prototype.progressed = function (handler) {
     return this._then(void 0, void 0, handler, void 0, void 0);
 };
 
-Promise.prototype._progress = function Promise$_progress(progressValue) {
+Promise.prototype._progress = function (progressValue) {
     if (this._isFollowingOrFulfilledOrRejected()) return;
     this._progressUnchecked(progressValue);
 
@@ -19,21 +19,18 @@ Promise.prototype._progress = function Promise$_progress(progressValue) {
 
 Promise.prototype._clearFirstHandlerData$Base =
 Promise.prototype._clearFirstHandlerData;
-Promise.prototype._clearFirstHandlerData =
-function Promise$_clearFirstHandlerData() {
+Promise.prototype._clearFirstHandlerData = function () {
     this._clearFirstHandlerData$Base();
     this._progressHandler0 = void 0;
 };
 
-Promise.prototype._progressHandlerAt =
-function Promise$_progressHandlerAt(index) {
+Promise.prototype._progressHandlerAt = function (index) {
     return index === 0
         ? this._progressHandler0
         : this[(index << 2) + index - CALLBACK_SIZE + CALLBACK_PROGRESS_OFFSET];
 };
 
-Promise.prototype._doProgressWith =
-function Promise$_doProgressWith(progression) {
+Promise.prototype._doProgressWith = function (progression) {
     var progressValue = progression.value;
     var handler = progression.handler;
     var promise = progression.promise;
@@ -76,8 +73,7 @@ function Promise$_doProgressWith(progression) {
 };
 
 
-Promise.prototype._progressUnchecked =
-function Promise$_progressUnchecked(progressValue) {
+Promise.prototype._progressUnchecked = function (progressValue) {
     if (!this.isPending()) return;
     var len = this._length();
     var progress = this._progress;

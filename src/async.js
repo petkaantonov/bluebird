@@ -16,18 +16,18 @@ function Async() {
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed
-    this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
+    this.consumeFunctionBuffer = function () {
         self._consumeFunctionBuffer();
     };
 }
 
-Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
+Async.prototype.haveItemsQueued = function () {
     return this._length > 0;
 };
 
 //When the fn absolutely needs to be called after
 //the queue has been completely flushed
-Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
+Async.prototype.invokeLater = function (fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
     if (_process !== void 0 &&
@@ -39,7 +39,7 @@ Async.prototype.invokeLater = function Async$invokeLater(fn, receiver, arg) {
     this._queueTick();
 };
 
-Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
+Async.prototype.invoke = function (fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
     if (_process !== void 0 &&
@@ -53,8 +53,7 @@ Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
     this._queueTick();
 };
 
-Async.prototype._consumeFunctionBuffer =
-function Async$_consumeFunctionBuffer() {
+Async.prototype._consumeFunctionBuffer = function () {
     var functionBuffer = this._functionBuffer;
     ASSERT(this._isTickUsed);
     while (functionBuffer.length() > 0) {
@@ -67,7 +66,7 @@ function Async$_consumeFunctionBuffer() {
     this._consumeLateBuffer();
 };
 
-Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
+Async.prototype._consumeLateBuffer = function () {
     var buffer = this._lateBuffer;
     while(buffer.length() > 0) {
         var fn = buffer.shift();
@@ -85,14 +84,14 @@ Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
     }
 };
 
-Async.prototype._queueTick = function Async$_queue() {
+Async.prototype._queueTick = function () {
     if (!this._isTickUsed) {
         this._schedule(this.consumeFunctionBuffer);
         this._isTickUsed = true;
     }
 };
 
-Async.prototype._reset = function Async$_reset() {
+Async.prototype._reset = function () {
     this._isTickUsed = false;
     this._length = 0;
 };

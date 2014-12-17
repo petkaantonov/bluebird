@@ -38,7 +38,7 @@ function Promise$_errorAdapter(reason, receiver) {
     }
 }
 
-Promise.prototype.nodeify = function Promise$nodeify(nodeback, options) {
+Promise.prototype.nodeify = function (nodeback, options) {
     if (typeof nodeback == "function") {
         var adapter = Promise$_successAdapter;
         if (options !== void 0 && Object(options).spread) {

@@ -35,18 +35,18 @@ function PromiseSpawn(generatorFunction, receiver, yieldHandler) {
         : yieldHandlers;
 }
 
-PromiseSpawn.prototype.promise = function PromiseSpawn$promise() {
+PromiseSpawn.prototype.promise = function () {
     return this._promise;
 };
 
-PromiseSpawn.prototype._run = function PromiseSpawn$_run() {
+PromiseSpawn.prototype._run = function () {
     this._generator = this._generatorFunction.call(this._receiver);
     this._receiver =
         this._generatorFunction = void 0;
     this._next(void 0);
 };
 
-PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
+PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
         this._generator = void 0;
         var trace = errors.canAttach(result.e)
@@ -85,7 +85,7 @@ PromiseSpawn.prototype._continue = function PromiseSpawn$_continue(result) {
     }
 };
 
-PromiseSpawn.prototype._throw = function PromiseSpawn$_throw(reason) {
+PromiseSpawn.prototype._throw = function (reason) {
     if (errors.canAttach(reason))
         this._promise._attachExtraTrace(reason);
     this._continue(
@@ -93,14 +93,13 @@ PromiseSpawn.prototype._throw = function PromiseSpawn$_throw(reason) {
    );
 };
 
-PromiseSpawn.prototype._next = function PromiseSpawn$_next(value) {
+PromiseSpawn.prototype._next = function (value) {
     this._continue(
         tryCatch1(this._generator.next, this._generator, value)
    );
 };
 
-Promise.coroutine =
-function Promise$Coroutine(generatorFunction, options) {
+Promise.coroutine = function (generatorFunction, options) {
     //Throw synchronously because Promise.coroutine is semantically
     //something you call at "compile time" to annotate static functions
     if (typeof generatorFunction !== "function") {
@@ -122,7 +121,7 @@ Promise.coroutine.addYieldHandler = function(fn) {
     yieldHandlers.push(fn);
 };
 
-Promise.spawn = function Promise$Spawn(generatorFunction) {
+Promise.spawn = function (generatorFunction) {
     deprecated(SPAWN_DEPRECATED);
     //Return rejected promise because Promise.spawn is semantically
     //something that will be called at runtime with possibly dynamic values

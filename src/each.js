@@ -2,11 +2,11 @@
 module.exports = function(Promise, INTERNAL) {
 var PromiseReduce = Promise.reduce;
 
-Promise.prototype.each = function Promise$each(fn) {
+Promise.prototype.each = function (fn) {
     return PromiseReduce(this, fn, null, INTERNAL);
 };
 
-Promise.each = function Promise$Each(promises, fn) {
+Promise.each = function (promises, fn) {
     return PromiseReduce(promises, fn, null, INTERNAL);
 };
 };

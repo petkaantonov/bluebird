@@ -17,7 +17,7 @@ var errors = require("./errors.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
+var afterTimeout = function (promise, message, ms) {
     //Don't waste time concatting strings or creating stack traces
     if (!promise.isPending()) return;
     if (typeof message !== "string") {
@@ -29,11 +29,11 @@ var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
     promise._cancel(err);
 };
 
-var afterDelay = function Promise$_afterDelay(value, promise) {
+var afterDelay = function (value, promise) {
     promise._fulfill(value);
 };
 
-var delay = Promise.delay = function Promise$Delay(value, ms) {
+var delay = Promise.delay = function (value, ms) {
     if (ms === void 0) {
         ms = value;
         value = void 0;
@@ -55,7 +55,7 @@ var delay = Promise.delay = function Promise$Delay(value, ms) {
     return promise;
 };
 
-Promise.prototype.delay = function Promise$delay(ms) {
+Promise.prototype.delay = function (ms) {
     return delay(this, ms);
 };
 
@@ -75,7 +75,7 @@ function failureClear(reason) {
     throw reason;
 }
 
-Promise.prototype.timeout = function Promise$timeout(ms, message) {
+Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
 
     var ret = new Promise(INTERNAL);

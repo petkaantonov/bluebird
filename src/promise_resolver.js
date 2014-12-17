@@ -56,14 +56,14 @@ function nodebackForPromise(promise) {
  */
 var PromiseResolver;
 if (!haveGetters) {
-    PromiseResolver = function PromiseResolver(promise) {
+    PromiseResolver = function (promise) {
         this.promise = promise;
         this.asCallback = nodebackForPromise(promise);
         this.callback = this.asCallback;
     };
 }
 else {
-    PromiseResolver = function PromiseResolver(promise) {
+    PromiseResolver = function (promise) {
         this.promise = promise;
     };
 }
@@ -82,7 +82,7 @@ PromiseResolver._nodebackForPromise = nodebackForPromise;
 /**
  * @return {string}
  */
-PromiseResolver.prototype.toString = function PromiseResolver$toString() {
+PromiseResolver.prototype.toString = function () {
     return "[object PromiseResolver]";
 };
 
@@ -94,7 +94,7 @@ PromiseResolver.prototype.toString = function PromiseResolver$toString() {
  *
  */
 PromiseResolver.prototype.resolve =
-PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
+PromiseResolver.prototype.fulfill = function (value) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
@@ -113,7 +113,7 @@ PromiseResolver.prototype.fulfill = function PromiseResolver$resolve(value) {
  * @param {dynamic} reason The reason why the promise was rejected.
  *
  */
-PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
+PromiseResolver.prototype.reject = function (reason) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
@@ -134,8 +134,7 @@ PromiseResolver.prototype.reject = function PromiseResolver$reject(reason) {
  * @param {dynamic} value The reason why the promise was rejected.
  *
  */
-PromiseResolver.prototype.progress =
-function PromiseResolver$progress(value) {
+PromiseResolver.prototype.progress = function (value) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
@@ -146,7 +145,7 @@ function PromiseResolver$progress(value) {
  * Cancel the promise.
  *
  */
-PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
+PromiseResolver.prototype.cancel = function () {
     async.invoke(this.promise.cancel, this.promise, void 0);
 };
 
@@ -154,7 +153,7 @@ PromiseResolver.prototype.cancel = function PromiseResolver$cancel() {
  * Resolves the promise by rejecting it with the reason
  * TimeoutError
  */
-PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
+PromiseResolver.prototype.timeout = function () {
     this.reject(new TimeoutError("timeout"));
 };
 
@@ -163,7 +162,7 @@ PromiseResolver.prototype.timeout = function PromiseResolver$timeout() {
  *
  * @return {boolean}
  */
-PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {
+PromiseResolver.prototype.isResolved = function () {
     return this.promise.isResolved();
 };
 
@@ -172,12 +171,11 @@ PromiseResolver.prototype.isResolved = function PromiseResolver$isResolved() {
  *
  * @return {dynamic}
  */
-PromiseResolver.prototype.toJSON = function PromiseResolver$toJSON() {
+PromiseResolver.prototype.toJSON = function () {
     return this.promise.toJSON();
 };
 
-PromiseResolver.prototype._setCarriedStackTrace =
-function PromiseResolver$_setCarriedStackTrace(trace) {
+PromiseResolver.prototype._setCarriedStackTrace = function (trace) {
     if (this.promise.isRejected()) {
         this.promise._setCarriedStackTrace(trace);
     }

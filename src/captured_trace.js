@@ -45,13 +45,11 @@ function CapturedTrace(ignoreUntil, isTopLevel) {
 }
 inherits(CapturedTrace, Error);
 
-CapturedTrace.prototype.captureStackTrace =
-function CapturedTrace$captureStackTrace(ignoreUntil, isTopLevel) {
+CapturedTrace.prototype.captureStackTrace = function (ignoreUntil, isTopLevel) {
     captureStackTrace(this, ignoreUntil, isTopLevel);
 };
 
-CapturedTrace.possiblyUnhandledRejection =
-function CapturedTrace$PossiblyUnhandledRejection(reason) {
+CapturedTrace.possiblyUnhandledRejection = function (reason) {
     if (typeof console === "object") {
         var message;
         if (typeof reason === "object" || typeof reason === "function") {
@@ -70,7 +68,7 @@ function CapturedTrace$PossiblyUnhandledRejection(reason) {
     }
 };
 
-CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
+CapturedTrace.combine = function (current, prev) {
     var currentLastIndex = current.length - 1;
     var currentLastLine = current[currentLastIndex];
     var commonRootMeetPoint = -1;
@@ -129,7 +127,7 @@ CapturedTrace.protectErrorMessageNewlines = function(stack) {
     stack.unshift(errorMessageLines.join(NEWLINE_PROTECTOR));
 };
 
-CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
+CapturedTrace.isSupported = function () {
     return typeof captureStackTrace === "function";
 };
 
