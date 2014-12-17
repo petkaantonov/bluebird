@@ -247,7 +247,8 @@ var ret = {
     maybeWrapAsError: maybeWrapAsError,
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
-    filledRange: filledRange
+    filledRange: filledRange,
+    lastLineError: new Error()
 };
 
 module.exports = ret;

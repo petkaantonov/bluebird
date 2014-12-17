@@ -3,15 +3,6 @@ module.exports = function() {
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
-
-var rignore = new RegExp(
-    "\\b(?:[a-zA-Z0-9.]+\\$_\\w+|" +
-    "tryCatch(?:1|2|3|4|Apply)|new \\w*PromiseArray|" +
-    "\\w*PromiseArray\\.\\w*PromiseArray|" +
-    "setTimeout|CatchFilter\\$_\\w+|makeNodePromisified|processImmediate|" +
-    "process._tickCallback|nextTick|Async\\$\\w+)\\b"
-);
-
 var rtraceline = null;
 var formatStack = null;
 
@@ -108,9 +99,9 @@ CapturedTrace.combine = function CapturedTrace$Combine(current, prev) {
 
     //Eliminate library internal stuff and async callers
     //that nobody cares about
-    for (var i = 0, len = lines.length; i < len; ++i) {
 
-        if (((rignore.test(lines[i]) && rtraceline.test(lines[i])) ||
+    for (var i = 0, len = lines.length; i < len; ++i) {
+        if (((rtraceline.test(lines[i]) && shouldIgnore(lines[i])) ||
             (i > 0 && !rtraceline.test(lines[i])) &&
             lines[i] !== FROM_PREVIOUS_EVENT)
        ) {
@@ -142,6 +133,59 @@ CapturedTrace.isSupported = function CapturedTrace$IsSupported() {
     return typeof captureStackTrace === "function";
 };
 
+// For filtering out internal calls from stack traces
+var shouldIgnore = function() { return false; };
+var parseLineInfoRegex = /[\/<\(]([^:\/]+):(\d+):(?:\d+)\)?\s*$/;
+function parseLineInfo(line) {
+    var matches = line.match(parseLineInfoRegex);
+    if (matches) {
+        return {
+            fileName: matches[1],
+            line: parseInt(matches[2], 10)
+        };
+    }
+}
+CapturedTrace.setBounds = function(firstLineError, lastLineError) {
+    if (!CapturedTrace.isSupported()) return;
+    var firstStackLines = firstLineError.stack.split("\n");
+    var lastStackLines = lastLineError.stack.split("\n");
+    var firstIndex = -1;
+    var lastIndex = -1;
+    var firstFileName;
+    var lastFileName;
+    for (var i = 0; i < firstStackLines.length; ++i) {
+        var result = parseLineInfo(firstStackLines[i]);
+        if (result) {
+            firstFileName = result.fileName;
+            firstIndex = result.line;
+            break;
+        }
+    }
+    for (var i = 0; i < lastStackLines.length; ++i) {
+        var result = parseLineInfo(lastStackLines[i]);
+        if (result) {
+            lastFileName = result.fileName;
+            lastIndex = result.line;
+            break;
+        }
+    }
+    if (firstIndex < 0 || lastIndex < 0 || !firstFileName || !lastFileName ||
+        firstFileName !== lastFileName || firstIndex >= lastIndex) {
+        return;
+    }
+
+    shouldIgnore = function(line) {
+        var info = parseLineInfo(line);
+        if (info) {
+            if (info.fileName === firstFileName &&
+                (firstIndex <= info.line && info.line <= lastIndex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+};
+
 var captureStackTrace = (function stackDetection() {
     //V8
     if (typeof Error.stackTraceLimit === "number" &&
@@ -161,6 +205,11 @@ var captureStackTrace = (function stackDetection() {
 
         };
         var captureStackTrace = Error.captureStackTrace;
+        var bluebirdRegexp = /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo)/;
+        // For node
+        shouldIgnore = function(line) {
+            return bluebirdRegexp.test(line);
+        };
         return function CapturedTrace$_captureStackTrace(
             receiver, ignoreUntil) {
             captureStackTrace(receiver, ignoreUntil);

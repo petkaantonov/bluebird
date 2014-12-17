@@ -1,4 +1,5 @@
 "use strict";
+var firstLineError = new Error();
 var ASSERT = require("./assert.js");
 var schedule = require("./schedule.js");
 var Queue = require("./queue.js");
@@ -97,3 +98,4 @@ Async.prototype._reset = function Async$_reset() {
 };
 
 module.exports = new Async();
+module.exports.firstLineError = firstLineError;

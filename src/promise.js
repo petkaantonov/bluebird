@@ -1107,4 +1107,5 @@ Promise.AggregateError = errors.AggregateError;
 util.toFastProperties(Promise);
 util.toFastProperties(Promise.prototype);
 Promise.Promise = Promise;
+CapturedTrace.setBounds(async.firstLineError, util.lastLineError);
 };
