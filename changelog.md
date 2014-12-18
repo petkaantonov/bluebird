@@ -1,3 +1,12 @@
+## 2.4.0 (2014-12-18)
+
+Features:
+
+ - Better filtering of bluebird internal calls in long stack traces, especially when using minified file in browsers
+ - Small performance improvements for all collection methods
+ - Promises now delete references to handlers attached to them as soon as possible
+ - Additional stack traces are now output on stderr/`console.warn` for errors that are thrown in the process/window from rejected `.done()` promises. See [#411](https://github.com/petkaantonov/bluebird/issues/411)
+
 ## 2.3.11 (2014-10-31)
 
 Bugfixes:
