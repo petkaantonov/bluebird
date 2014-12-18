@@ -1,17 +1,17 @@
 "use strict";
 module.exports = function(Promise) {
 function PromiseInspection(promise) {
-    if (promise !== void 0) {
+    if (promise !== undefined) {
         this._bitField = promise._bitField;
         this._settledValue = promise.isResolved()
             ? promise._settledValue
             //Don't keep a reference to something that will never be
             //used
-            : void 0;
+            : undefined;
     }
     else {
         this._bitField = 0;
-        this._settledValue = void 0;
+        this._settledValue = undefined;
     }
 }
 

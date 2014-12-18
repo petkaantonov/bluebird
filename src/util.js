@@ -122,7 +122,7 @@ function getDataPropertyOrDefault(obj, key, defaultValue) {
                     : defaultValue;
         }
     } else {
-        return {}.hasOwnProperty.call(obj, key) ? obj[key] : void 0;
+        return {}.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
     }
 }
 

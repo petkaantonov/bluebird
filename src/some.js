@@ -24,7 +24,7 @@ SomePromiseArray.prototype._init = function () {
         this._resolve([]);
         return;
     }
-    this._init$(void 0, RESOLVE_CALL_METHOD);
+    this._init$(undefined, RESOLVE_CALL_METHOD);
     var isArrayResolved = isArray(this._values);
     if (!this._isResolved() &&
         isArrayResolved &&

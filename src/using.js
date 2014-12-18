@@ -22,7 +22,7 @@ module.exports = function (Promise, apiRejection, cast) {
     }
 
     function castPreservingDisposable(thenable) {
-        var maybePromise = cast(thenable, void 0);
+        var maybePromise = cast(thenable, undefined);
         if (maybePromise !== thenable &&
             typeof thenable._isDisposable === "function" &&
             typeof thenable._getDisposer === "function" &&
@@ -42,7 +42,7 @@ module.exports = function (Promise, apiRejection, cast) {
                 maybePromise._isDisposable()) {
                 try {
                     maybePromise = cast(maybePromise._getDisposer()
-                                        .tryDispose(inspection), void 0);
+                                        .tryDispose(inspection), undefined);
                 } catch (e) {
                     return thrower(e);
                 }
@@ -137,7 +137,8 @@ module.exports = function (Promise, apiRejection, cast) {
         return Promise.settle(resources)
             .then(inspectionMapper)
             .spread(fn)
-            ._then(disposerSuccess, disposerFail, void 0, resources, void 0);
+            ._then(
+                disposerSuccess, disposerFail, undefined, resources, undefined);
     };
 
     Promise.prototype._setDisposable = function (disposer) {
@@ -155,7 +156,7 @@ module.exports = function (Promise, apiRejection, cast) {
 
     Promise.prototype._unsetDisposable = function () {
         this._bitField = this._bitField & (~IS_DISPOSABLE);
-        this._disposer = void 0;
+        this._disposer = undefined;
     };
 
     Promise.prototype.disposer = function (fn) {

@@ -15,7 +15,7 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._limit = limit;
     this._inFlight = 0;
     this._queue = limit >= 1 ? [] : EMPTY_ARRAY;
-    this._init$(void 0, RESOLVE_ARRAY);
+    this._init$(undefined, RESOLVE_ARRAY);
 }
 util.inherits(MappingPromiseArray, PromiseArray);
 
@@ -61,7 +61,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         // The MappingPromiseArray as a PromiseArray for round 2.
         // To mark an index as "round 2" (where the callback must not be called
         // anymore), the marker PENDING is put at that index
-        var maybePromise = cast(ret, void 0);
+        var maybePromise = cast(ret, undefined);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 if (limit >= 1) this._inFlight++;

@@ -8,7 +8,7 @@ var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
 Promise.prototype.progressed = function (handler) {
-    return this._then(void 0, void 0, handler, void 0, void 0);
+    return this._then(undefined, undefined, handler, undefined, undefined);
 };
 
 Promise.prototype._progress = function (progressValue) {
@@ -59,7 +59,7 @@ Promise.prototype._doProgressWith = function (progression) {
         //2.2.3 If the promise is rejected, the rejection reason
         //should be treated as if it was thrown by the callback
         //directly.
-        ret._then(promise._progress, null, null, promise, void 0);
+        ret._then(promise._progress, null, null, promise, undefined);
     } else {
         promise._progress(ret);
     }

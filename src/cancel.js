@@ -11,7 +11,7 @@ Promise.prototype._cancel = function (reason) {
     var parent;
     var promiseToReject = this;
     //Propagate to the last cancellable parent
-    while ((parent = promiseToReject._cancellationParent) !== void 0 &&
+    while ((parent = promiseToReject._cancellationParent) !== undefined &&
         parent.isCancellable()) {
         promiseToReject = parent;
     }
@@ -23,7 +23,7 @@ Promise.prototype._cancel = function (reason) {
 
 Promise.prototype.cancel = function (reason) {
     if (!this.isCancellable()) return this;
-    reason = reason !== void 0
+    reason = reason !== undefined
         ? (canAttachTrace(reason) ? reason : new Error(reason + ""))
         : new CancellationError();
     async.invokeLater(this._cancel, this, reason);
@@ -33,7 +33,7 @@ Promise.prototype.cancel = function (reason) {
 Promise.prototype.cancellable = function () {
     if (this._cancellable()) return this;
     this._setCancellable();
-    this._cancellationParent = void 0;
+    this._cancellationParent = undefined;
     return this;
 };
 
@@ -47,10 +47,10 @@ Promise.prototype.uncancellable = function () {
 
 Promise.prototype.fork = function (didFulfill, didReject, didProgress) {
     var ret = this._then(didFulfill, didReject, didProgress,
-                         void 0, void 0);
+                         undefined, undefined);
 
     ret._setCancellable();
-    ret._cancellationParent = void 0;
+    ret._cancellationParent = undefined;
     return ret;
 };
 };

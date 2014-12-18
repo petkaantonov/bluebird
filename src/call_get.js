@@ -66,11 +66,12 @@ Promise.prototype.call = function (methodName) {
     if (canEvaluate) {
         var maybeCaller = getMethodCaller(methodName);
         if (maybeCaller !== null) {
-            return this._then(maybeCaller, void 0, void 0, args, void 0);
+            return this._then(
+                maybeCaller, undefined, undefined, args, undefined);
         }
     }
     args.push(methodName);
-    return this._then(caller, void 0, void 0, args, void 0);
+    return this._then(caller, undefined, undefined, args, undefined);
 };
 
 function namedGetter(obj) {
@@ -92,6 +93,6 @@ Promise.prototype.get = function (propertyName) {
     } else {
         getter = indexedGetter;
     }
-    return this._then(getter, void 0, void 0, propertyName, void 0);
+    return this._then(getter, undefined, undefined, propertyName, undefined);
 };
 };

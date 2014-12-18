@@ -25,7 +25,7 @@ function Promise$_Cast(obj, originalPromise) {
         //Make casting from another bluebird fast
         else if (isAnyBluebirdPromise(obj)) {
             var ret = new Promise(INTERNAL);
-            ret._setTrace(void 0);
+            ret._setTrace(undefined);
             obj._then(
                 ret._fulfillUnchecked,
                 ret._rejectUncheckedCheckError,
@@ -38,7 +38,7 @@ function Promise$_Cast(obj, originalPromise) {
         }
         var then = getThen(obj);
         if (then === errorObj) {
-            if (originalPromise !== void 0 && canAttachTrace(then.e)) {
+            if (originalPromise !== undefined && canAttachTrace(then.e)) {
                 originalPromise._attachExtraTrace(then.e);
             }
             return Promise.reject(then.e);
@@ -70,7 +70,7 @@ function Promise$_doThenable(x, then, originalPromise) {
         if (!called) {
             called = true;
             var trace = canAttachTrace(e) ? e : new Error(e + "");
-            if (originalPromise !== void 0) {
+            if (originalPromise !== undefined) {
                 originalPromise._attachExtraTrace(trace);
             }
             resolver.promise._reject(e, trace);
@@ -84,10 +84,10 @@ function Promise$_doThenable(x, then, originalPromise) {
 
         if (x === y) {
             var e = Promise._makeSelfResolutionError();
-            if (originalPromise !== void 0) {
+            if (originalPromise !== undefined) {
                 originalPromise._attachExtraTrace(e);
             }
-            resolver.promise._reject(e, void 0);
+            resolver.promise._reject(e, undefined);
             return;
         }
         resolver.resolve(y);
@@ -97,7 +97,7 @@ function Promise$_doThenable(x, then, originalPromise) {
         if (called) return;
         called = true;
         var trace = canAttachTrace(r) ? r : new Error(r + "");
-        if (originalPromise !== void 0) {
+        if (originalPromise !== undefined) {
             originalPromise._attachExtraTrace(trace);
         }
         resolver.promise._reject(r, trace);

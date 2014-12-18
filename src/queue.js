@@ -52,7 +52,7 @@ Queue.prototype.shift = function () {
     var front = this._front,
         ret = this[front];
 
-    this[front] = void 0;
+    this[front] = undefined;
     this._front = (front + 1) & (this._capacity - 1);
     this._length--;
     return ret;
@@ -65,7 +65,7 @@ Queue.prototype.length = function () {
 Queue.prototype._makeCapacity = function () {
     var len = this._capacity;
     for (var i = 0; i < len; ++i) {
-        this[i] = void 0;
+        this[i] = undefined;
     }
 };
 

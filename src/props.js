@@ -21,7 +21,7 @@ util.inherits(PropertiesPromiseArray, PromiseArray);
 
 //Override
 PropertiesPromiseArray.prototype._init = function () {
-    this._init$(void 0, RESOLVE_OBJECT) ;
+    this._init$(undefined, RESOLVE_OBJECT) ;
 };
 
 //Override
@@ -62,12 +62,13 @@ PropertiesPromiseArray.prototype.getActualLength = function (len) {
 
 function Promise$_Props(promises) {
     var ret;
-    var castValue = cast(promises, void 0);
+    var castValue = cast(promises, undefined);
 
     if (!isObject(castValue)) {
         return apiRejection(PROPS_TYPE_ERROR);
     } else if (castValue instanceof Promise) {
-        ret = castValue._then(Promise.props, void 0, void 0, void 0, void 0);
+        ret = castValue._then(
+            Promise.props, undefined, undefined, undefined, undefined);
     } else {
         ret = new PropertiesPromiseArray(castValue).promise();
     }

@@ -132,7 +132,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
                 callback.call(this, {{args}}, fn);                           \n\
                 break;                                                       \n\
             ";
-        } else if (receiver !== void 0) {
+        } else if (receiver !== undefined) {
             ret =  "                                                         \n\
                 callback.call(receiver, {{args}}, fn);                       \n\
                 break;                                                       \n\
@@ -193,7 +193,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             'use strict';                                                    \n\
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
-            promise._setTrace(void 0);                                       \n\
+            promise._setTrace(undefined);                                    \n\
             var fn = nodebackForPromise(promise);                            \n\
             try {                                                            \n\
                 switch(len) {                                                \n\
@@ -231,7 +231,7 @@ function makeNodePromisifiedClosure(callback, receiver) {
         }
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
-        promise._setTrace(void 0);
+        promise._setTrace(undefined);
         var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
@@ -270,7 +270,7 @@ function promisifyAll(obj, suffix, filter, promisifier) {
 }
 
 function promisify(callback, receiver) {
-    return makeNodePromisified(callback, receiver, void 0, callback);
+    return makeNodePromisified(callback, receiver, undefined, callback);
 }
 
 Promise.promisify = function (fn, receiver) {

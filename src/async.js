@@ -5,7 +5,7 @@ var schedule = require("./schedule.js");
 var Queue = require("./queue.js");
 var errorObj = require("./util.js").errorObj;
 var tryCatch1 = require("./util.js").tryCatch1;
-var _process = typeof process !== "undefined" ? process : void 0;
+var _process = typeof process !== "undefined" ? process : undefined;
 
 function Async() {
     this._isTickUsed = false;
@@ -30,7 +30,7 @@ Async.prototype.haveItemsQueued = function () {
 Async.prototype.invokeLater = function (fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
-    if (_process !== void 0 &&
+    if (_process !== undefined &&
         _process.domain != null &&
         !fn.domain) {
         fn = _process.domain.bind(fn);
@@ -42,7 +42,7 @@ Async.prototype.invokeLater = function (fn, receiver, arg) {
 Async.prototype.invoke = function (fn, receiver, arg) {
     ASSERT(typeof fn === "function");
     ASSERT(arguments.length === 3);
-    if (_process !== void 0 &&
+    if (_process !== undefined &&
         _process.domain != null &&
         !fn.domain) {
         fn = _process.domain.bind(fn);

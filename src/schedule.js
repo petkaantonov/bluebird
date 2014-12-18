@@ -13,12 +13,12 @@ else if ((typeof MutationObserver !== "undefined" &&
          (_MutationObserver = WebKitMutationObserver))) {
     schedule = (function() {
         var div = document.createElement("div");
-        var queuedFn = void 0;
+        var queuedFn;
         var observer = new _MutationObserver(
             function Promise$_Scheduler() {
-                ASSERT(queuedFn !== void 0);
+                ASSERT(queuedFn !== undefined);
                 var fn = queuedFn;
-                queuedFn = void 0;
+                queuedFn = undefined;
                 fn();
             }
        );
@@ -26,7 +26,7 @@ else if ((typeof MutationObserver !== "undefined" &&
             attributes: true
         });
         return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
+            ASSERT(queuedFn === undefined);
             queuedFn = fn;
             div.classList.toggle("foo");
         };

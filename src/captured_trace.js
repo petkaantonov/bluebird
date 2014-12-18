@@ -194,8 +194,8 @@ var captureStackTrace = (function stackDetection() {
 
             if (typeof stack === "string") return stack;
 
-            if (error.name !== void 0 &&
-                error.message !== void 0) {
+            if (error.name !== undefined &&
+                error.message !== undefined) {
                 return error.name + ". " + error.message;
             }
             return formatNonError(error);
@@ -237,8 +237,8 @@ var captureStackTrace = (function stackDetection() {
                 return (error.name + ". " + error.message + "\n" + stack);
             }
 
-            if (error.name !== void 0 &&
-                error.message !== void 0) {
+            if (error.name !== undefined &&
+                error.message !== undefined) {
                 return error.name + ". " + error.message;
             }
             return formatNonError(error);
@@ -263,8 +263,8 @@ var captureStackTrace = (function stackDetection() {
 
             if ((typeof error === "object" ||
                 typeof error === "function") &&
-                error.name !== void 0 &&
-                error.message !== void 0) {
+                error.name !== undefined &&
+                error.message !== undefined) {
                 return error.name + ". " + error.message;
             }
             return formatNonError(error);

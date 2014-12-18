@@ -146,7 +146,7 @@ PromiseResolver.prototype.progress = function (value) {
  *
  */
 PromiseResolver.prototype.cancel = function () {
-    async.invoke(this.promise.cancel, this.promise, void 0);
+    async.invoke(this.promise.cancel, this.promise, undefined);
 };
 
 /**

@@ -28,7 +28,7 @@ function promisedFinally(ret, reasonOrValue, isFulfilled) {
     } else {
         then = isFulfilled ? returnThis : throwThis;
     }
-    return ret._then(then, thrower, void 0, reasonOrValue, void 0);
+    return ret._then(then, thrower, undefined, reasonOrValue, undefined);
 }
 
 function finallyHandler(reasonOrValue) {
@@ -40,8 +40,8 @@ function finallyHandler(reasonOrValue) {
                     : handler();
 
     //Nobody ever returns anything from a .finally handler so speed this up
-    if (ret !== void 0) {
-        var maybePromise = cast(ret, void 0);
+    if (ret !== undefined) {
+        var maybePromise = cast(ret, undefined);
         if (maybePromise instanceof Promise) {
             return promisedFinally(maybePromise, reasonOrValue,
                                     promise.isFulfilled());
@@ -67,8 +67,8 @@ function tapHandler(value) {
                     : handler(value);
 
     //Nobody ever returns anything from a .finally handler so speed this up
-    if (ret !== void 0) {
-        var maybePromise = cast(ret, void 0);
+    if (ret !== undefined) {
+        var maybePromise = cast(ret, undefined);
         if (maybePromise instanceof Promise) {
             return promisedFinally(maybePromise, value, true);
         }
@@ -86,8 +86,8 @@ Promise.prototype._passThroughHandler = function (handler, isFinally) {
 
     return this._then(
             isFinally ? finallyHandler : tapHandler,
-            isFinally ? finallyHandler : void 0, void 0,
-            promiseAndHandler, void 0);
+            isFinally ? finallyHandler : undefined, undefined,
+            promiseAndHandler, undefined);
 };
 
 Promise.prototype.lastly =

@@ -1,6 +1,6 @@
 var isES5 = (function(){
     "use strict";
-    return this === void 0;
+    return this === undefined;
 })();
 
 if (isES5) {

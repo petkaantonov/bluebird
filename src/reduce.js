@@ -9,7 +9,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     this._preservedValues = _each === INTERNAL ? [] : null;
     // `false` = initialValue provided as `accum` argument
     // `true` = treat the 0th value as initialValue
-    this._zerothIsAccum = (accum === void 0);
+    this._zerothIsAccum = (accum === undefined);
     // `true` = we've received our initialValue
     this._gotAccum = false;
     // index of the value we are in the process of reducing
@@ -17,7 +17,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     // Array is established once we have a known length
     this._valuesPhase = undefined;
 
-    var maybePromise = cast(accum, void 0);
+    var maybePromise = cast(accum, undefined);
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {
@@ -35,7 +35,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     if (!(isPromise || this._zerothIsAccum)) this._gotAccum = true;
     this._callback = fn;
     this._accum = accum;
-    if (!rejected) this._init$(void 0, RESOLVE_CALL_METHOD);
+    if (!rejected) this._init$(undefined, RESOLVE_CALL_METHOD);
 }
 util.inherits(ReductionPromiseArray, PromiseArray);
 
@@ -135,7 +135,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         if (ret === errorObj) return this._reject(ret.e);
 
-        var maybePromise = cast(ret, void 0);
+        var maybePromise = cast(ret, undefined);
         if (maybePromise instanceof Promise) {
             // Callback returned a pending
             // promise so continue iteration when it fulfills

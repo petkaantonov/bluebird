@@ -6,10 +6,10 @@ var util = require("./util.js");
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
-//and also because void 0 cannot be smuggled
+//and also because undefined cannot be smuggled
 function toResolutionValue(val) {
     switch(val) {
-    case RESOLVE_UNDEFINED: return void 0;
+    case RESOLVE_UNDEFINED: return undefined;
     case RESOLVE_ARRAY: return [];
     case RESOLVE_OBJECT: return {};
     }
@@ -19,7 +19,7 @@ function toResolutionValue(val) {
 function PromiseArray(values) {
     ASSERT(arguments.length === 1);
     var promise = this._promise = new Promise(INTERNAL);
-    var parent = void 0;
+    var parent;
     if (values instanceof Promise) {
         parent = values;
         promise._propagateFrom(parent, PROPAGATE_CANCEL | PROPAGATE_BIND);
@@ -28,7 +28,7 @@ function PromiseArray(values) {
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
-    this._init(void 0, RESOLVE_ARRAY);
+    this._init(undefined, RESOLVE_ARRAY);
 }
 PromiseArray.prototype.length = function () {
     return this._length;
@@ -40,13 +40,13 @@ PromiseArray.prototype.promise = function () {
 
 PromiseArray.prototype._init =
             //when.some resolves to [] when empty
-            //but when.any resolved to void 0 when empty :<
+            //but when.any resolved to undefined when empty :<
 function PromiseArray$_init(_, resolveValueIfEmpty) {
             //_ must be intentionally empty because smuggled
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
             //empty arrays
-    var values = cast(this._values, void 0);
+    var values = cast(this._values, undefined);
     if (values instanceof Promise) {
         this._values = values;
         values._setBoundTo(this._promise._boundTo);
@@ -67,7 +67,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             values._then(
                 PromiseArray$_init,
                 this._reject,
-                void 0,
+                undefined,
                 this,
                 resolveValueIfEmpty
            );
@@ -97,7 +97,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
     var isDirectScanNeeded = false;
     for (var i = 0; i < len; ++i) {
-        var maybePromise = cast(values[i], void 0);
+        var maybePromise = cast(values[i], undefined);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 //Optimized for just passing the updates through

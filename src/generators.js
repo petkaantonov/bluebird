@@ -14,7 +14,7 @@ function promiseFromYieldHandler(value, yieldHandlers) {
     var _Promise = Promise;
     var len = yieldHandlers.length;
     for (var i = 0; i < len; ++i) {
-        var result = tryCatch1(yieldHandlers[i], void 0, value);
+        var result = tryCatch1(yieldHandlers[i], undefined, value);
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
@@ -26,10 +26,10 @@ function promiseFromYieldHandler(value, yieldHandlers) {
 
 function PromiseSpawn(generatorFunction, receiver, yieldHandler) {
     var promise = this._promise = new Promise(INTERNAL);
-    promise._setTrace(void 0);
+    promise._setTrace(undefined);
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
-    this._generator = void 0;
+    this._generator = undefined;
     this._yieldHandlers = typeof yieldHandler === "function"
         ? [yieldHandler].concat(yieldHandlers)
         : yieldHandlers;
@@ -42,13 +42,13 @@ PromiseSpawn.prototype.promise = function () {
 PromiseSpawn.prototype._run = function () {
     this._generator = this._generatorFunction.call(this._receiver);
     this._receiver =
-        this._generatorFunction = void 0;
-    this._next(void 0);
+        this._generatorFunction = undefined;
+    this._next(undefined);
 };
 
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
-        this._generator = void 0;
+        this._generator = undefined;
         var trace = errors.canAttachTrace(result.e)
             ? result.e : new Error(result.e + "");
         this._promise._attachExtraTrace(trace);
@@ -58,12 +58,12 @@ PromiseSpawn.prototype._continue = function (result) {
 
     var value = result.value;
     if (result.done === true) {
-        this._generator = void 0;
+        this._generator = undefined;
         if (!this._promise._tryFollow(value)) {
             this._promise._fulfill(value);
         }
     } else {
-        var maybePromise = cast(value, void 0);
+        var maybePromise = cast(value, undefined);
         if (!(maybePromise instanceof Promise)) {
             maybePromise =
                 promiseFromYieldHandler(maybePromise, this._yieldHandlers);
@@ -76,7 +76,7 @@ PromiseSpawn.prototype._continue = function (result) {
         maybePromise._then(
             this._next,
             this._throw,
-            void 0,
+            undefined,
             this,
             //Don't need to smuggle null but doing so
             //triggers many fast paths
@@ -109,9 +109,9 @@ Promise.coroutine = function (generatorFunction, options) {
     var PromiseSpawn$ = PromiseSpawn;
     return function () {
         var generator = generatorFunction.apply(this, arguments);
-        var spawn = new PromiseSpawn$(void 0, void 0, yieldHandler);
+        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler);
         spawn._generator = generator;
-        spawn._next(void 0);
+        spawn._next(undefined);
         return spawn.promise();
     };
 };
