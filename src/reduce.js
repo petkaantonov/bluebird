@@ -57,6 +57,7 @@ ReductionPromiseArray.prototype._resolveEmptyArray = function () {
 ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var values = this._values;
     if (values === null) return;
+    values[index] = value;
     var length = this.length();
     var preservedValues = this._preservedValues;
     var isEach = preservedValues !== null;
@@ -111,7 +112,6 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
             continue;
         }
         if (valuesPhaseIndex !== REDUCE_PHASE_INITIAL) return;
-
         value = values[i];
         if (value instanceof Promise) {
             if (value.isFulfilled()) {

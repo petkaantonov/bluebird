@@ -93,49 +93,24 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
         return;
     }
     var len = this.getActualLength(values.length);
-    var newLen = len;
-    var newValues = this.shouldCopyValues() ? new Array(len) : this._values;
-    var isDirectScanNeeded = false;
+    this._length = len;
+    this._values = this.shouldCopyValues() ? new Array(len) : this._values;
     for (var i = 0; i < len; ++i) {
+        if (this._isResolved()) return;
         var maybePromise = cast(values[i], undefined);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
-                //Optimized for just passing the updates through
+                // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
+            } else if (maybePromise.isFulfilled()) {
+                this._promiseFulfilled(maybePromise.value(), i);
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                isDirectScanNeeded = true;
+                this._promiseRejected(maybePromise.reason(), i);
             }
         } else {
-            isDirectScanNeeded = true;
+            this._promiseFulfilled(maybePromise, i);
         }
-        newValues[i] = maybePromise;
-    }
-    this._values = newValues;
-    this._length = newLen;
-    if (isDirectScanNeeded) {
-        this._scanDirectValues(len);
-    }
-};
-
-PromiseArray.prototype._settlePromiseAt = function (index) {
-    var value = this._values[index];
-    if (!(value instanceof Promise)) {
-        this._promiseFulfilled(value, index);
-    } else if (value.isFulfilled()) {
-        this._promiseFulfilled(value._settledValue, index);
-    } else if (value.isRejected()) {
-        this._promiseRejected(value._settledValue, index);
-    }
-};
-
-PromiseArray.prototype._scanDirectValues = function (len) {
-    ASSERT(len >= this.length());
-    for (var i = 0; i < len; ++i) {
-        if (this._isResolved()) {
-            break;
-        }
-        this._settlePromiseAt(i);
     }
 };
 
