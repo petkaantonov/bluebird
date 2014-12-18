@@ -1661,6 +1661,23 @@ function defaultFilter(name, func) {
 
 (`util` is bluebird util, not node.js util)
 
+The default filter is exposed as a property on the Promise.promisifyAll function.
+
+This is not what is run internally, so while you can change it, any changes won't affect the default behaviour
+
+To run the defaultFilter in your custom filter do:
+
+```js
+Promise.promisifyAll(..., {
+    filter: function(name, func, target) {
+        if ( !Promise.promisifyAll.defaultFilter(name, func, target) )
+            return false;
+        // Your code here.
+    }
+})
+```
+
+
 ######Option: `promisifier`
 
 Optionally, you can define a custom promisifier, so you could promisifyAll e.g. the chrome APIs used in Chrome extensions.

@@ -311,5 +311,7 @@ Promise.promisifyAll = function (target, options) {
 
     return promisifyAll(target, suffix, filter, promisifier);
 };
-};
 
+Promise.promisifyAll.defaultFilter = defaultFilter;
+
+};
