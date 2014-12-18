@@ -49,23 +49,30 @@ CapturedTrace.prototype.captureStackTrace = function (ignoreUntil, isTopLevel) {
     captureStackTrace(this, ignoreUntil, isTopLevel);
 };
 
-CapturedTrace.possiblyUnhandledRejection = function (reason) {
+function formatAndLogError(error, title) {
     if (typeof console === "object") {
         var message;
-        if (typeof reason === "object" || typeof reason === "function") {
-            var stack = reason.stack;
-            message = "Possibly unhandled " + formatStack(stack, reason);
+        if (typeof error === "object" || typeof error === "function") {
+            var stack = error.stack;
+            message = title + formatStack(stack, error);
         } else {
-            message = "Possibly unhandled " + String(reason);
+            message = title + String(error);
         }
-        if (typeof console.error === "function" ||
-            typeof console.error === "object") {
-            console.error(message);
+        if (typeof console.warn === "function" ||
+            typeof console.warn === "object") {
+            console.warn(message);
         } else if (typeof console.log === "function" ||
             typeof console.log === "object") {
             console.log(message);
         }
     }
+}
+CapturedTrace.unhandledRejection = function (reason) {
+    formatAndLogError(reason, "^--- With additional stack trace: ");
+};
+
+CapturedTrace.possiblyUnhandledRejection = function (reason) {
+    formatAndLogError(reason, "Possibly unhandled ");
 };
 
 CapturedTrace.combine = function (current, prev) {

@@ -36,7 +36,6 @@ var OperationalError = errors.OperationalError;
 var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttachTrace = errors.canAttachTrace;
-var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
 
 
@@ -966,8 +965,13 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
 
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
-        async.invokeLater(thrower, undefined,
-                            trace === undefined ? reason : trace);
+        async.invokeLater(function(e) {
+            if (debugging && canAttachTrace(e)) {
+                async.invokeFirst(
+                    CapturedTrace.unhandledRejection, undefined, e);
+            }
+            throw e;
+        }, undefined, trace === undefined ? reason : trace);
         return;
     }
     var len = this._length();
