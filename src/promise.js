@@ -60,6 +60,7 @@ function Promise(resolver) {
     //which has less indirection than when using external array
     this._fulfillmentHandler0 = void 0;
     this._rejectionHandler0 = void 0;
+    this._progressHandler0 = void 0;
     this._promise0 = void 0;
     this._receiver0 = void 0;
     //reason for rejection or fulfilled value
@@ -512,7 +513,7 @@ Promise.prototype._addCallbacks = function (
         if (typeof reject === "function") this._rejectionHandler0 = reject;
         if (typeof progress === "function") this._progressHandler0 = progress;
     } else {
-        var base = (index << 2) + index - CALLBACK_SIZE;
+        var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         this[base + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
@@ -537,7 +538,7 @@ Promise.prototype._setProxyHandlers = function (receiver, promiseSlotValue) {
         this._promise0 = promiseSlotValue;
         this._receiver0 = receiver;
     } else {
-        var base = (index << 2) + index - CALLBACK_SIZE;
+        var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         this[base + CALLBACK_FULFILL_OFFSET] =
@@ -853,12 +854,28 @@ Promise.prototype._settlePromiseAt = function (index) {
             else promise._reject(value, this._getCarriedStackTrace());
         }
     }
+    this._clearHandlersAtIndex(index);
 
     //this is only necessary against index inflation with long lived promises
     //that accumulate the index size over time,
     //not because the data wouldn't be GCd otherwise
     if (index >= 4) {
         this._queueGC();
+    }
+};
+
+Promise.prototype._clearHandlersAtIndex = function(index) {
+    if (index === 0) {
+        this._fulfillmentHandler0 = void 0;
+        this._rejectionHandler0 = void 0;
+        this._progressHandler0 = void 0;
+        this._receiver0 = void 0;
+    } else {
+        var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
+        this[base + CALLBACK_RECEIVER_OFFSET] =
+        this[base + CALLBACK_FULFILL_OFFSET] =
+        this[base + CALLBACK_REJECT_OFFSET] =
+        this[base + CALLBACK_PROGRESS_OFFSET] = void 0;
     }
 };
 
@@ -894,22 +911,15 @@ Promise.prototype._queueGC = function () {
 
 Promise.prototype._gc = function () {
     var len = this._length() * CALLBACK_SIZE - CALLBACK_SIZE;
+    this._promise0 = void 0;
     ASSERT(!(len in this));
     for (var i = 0; i < len; i++) {
         ASSERT(i in this);
         //Delete is cool on array indexes
         delete this[i];
     }
-    this._clearFirstHandlerData();
     this._setLength(0);
     this._unsetGcQueued();
-};
-
-Promise.prototype._clearFirstHandlerData = function () {
-    this._fulfillmentHandler0 = void 0;
-    this._rejectionHandler0 = void 0;
-    this._promise0 = void 0;
-    this._receiver0 = void 0;
 };
 
 Promise.prototype._queueSettleAt = function (index) {

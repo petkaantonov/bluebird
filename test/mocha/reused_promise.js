@@ -11,6 +11,23 @@ var Promise = adapter;
 
 describe("If promise is reused to get at the value many times over the course of application", function() {
 
+    specify("Promise will clear handler data immediately", function(done) {
+        var three = Promise.fulfilled(3);
+        var fn = function(){};
+        three.then(fn, fn, fn);
+        assert(three._fulfillmentHandler0 === fn);
+        assert(three._rejectionHandler0 === fn);
+        assert(three._progressHandler0 === fn);
+
+        setTimeout(function() {
+            assert(three._fulfillmentHandler0 === void 0);
+            assert(three._rejectionHandler0 === void 0);
+            assert(three._progressHandler0 === void 0);
+            assert(three._receiver0 === void 0);
+            done();
+        }, 13);
+    });
+
     specify("It will not keep references to anything", function(done) {
         var three = Promise.fulfilled(3);
         var fn = function(){};
@@ -48,9 +65,6 @@ describe("If promise is reused to get at the value many times over the course of
         three.then(fn, fn, fn);
 
         assert(three._promise0 === prom);
-        assert(three._fulfillmentHandler0 === fn);
-        assert(three._rejectionHandler0 === fn);
-        assert(three._progressHandler0 === fn);
         assert(three._receiver0 === void 0);
         setTimeout(function() {
             assert(three._promise0 === void 0);

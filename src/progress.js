@@ -17,13 +17,6 @@ Promise.prototype._progress = function (progressValue) {
 
 };
 
-Promise.prototype._clearFirstHandlerData$Base =
-Promise.prototype._clearFirstHandlerData;
-Promise.prototype._clearFirstHandlerData = function () {
-    this._clearFirstHandlerData$Base();
-    this._progressHandler0 = void 0;
-};
-
 Promise.prototype._progressHandlerAt = function (index) {
     return index === 0
         ? this._progressHandler0
