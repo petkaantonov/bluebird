@@ -68,10 +68,10 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
                 values[index] = PENDING;
                 return maybePromise._proxyPromiseArray(this, index);
             } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise.value();
+                ret = maybePromise._settledValue;
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise.reason());
+                return this._reject(maybePromise._settledValue);
             }
         }
         values[index] = ret;

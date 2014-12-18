@@ -103,10 +103,10 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
             } else if (maybePromise.isFulfilled()) {
-                this._promiseFulfilled(maybePromise.value(), i);
+                this._promiseFulfilled(maybePromise._settledValue, i);
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                this._promiseRejected(maybePromise.reason(), i);
+                this._promiseRejected(maybePromise._settledValue, i);
             }
         } else {
             this._promiseFulfilled(maybePromise, i);

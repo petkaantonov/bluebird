@@ -12,7 +12,7 @@ module.exports = function (Promise, apiRejection, cast) {
                 // Cheaper than throwing
                 return Promise.reject(inspection.error());
             }
-            inspections[i] = inspection.value();
+            inspections[i] = inspection._settledValue;
         }
         return inspections;
     }
@@ -86,7 +86,7 @@ module.exports = function (Promise, apiRejection, cast) {
 
     Disposer.prototype.resource = function () {
         if (this.promise().isFulfilled()) {
-            return this.promise().value();
+            return this.promise()._settledValue;
         }
         return null;
     };

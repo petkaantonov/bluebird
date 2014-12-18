@@ -24,7 +24,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
         if (maybePromise.isPending()) {
             maybePromise._proxyPromiseArray(this, -1);
         } else if (maybePromise.isFulfilled()) {
-            accum = maybePromise.value();
+            accum = maybePromise._settledValue;
             this._gotAccum = true;
         } else {
             maybePromise._unsetRejectionIsUnhandled();
@@ -143,10 +143,10 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
                 valuesPhase[i] = REDUCE_PHASE_REDUCING;
                 return maybePromise._proxyPromiseArray(this, i);
             } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise.value();
+                ret = maybePromise._settledValue;
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise.reason());
+                return this._reject(maybePromise._settledValue);
             }
         }
 
