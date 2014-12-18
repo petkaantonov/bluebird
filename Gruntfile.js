@@ -690,12 +690,14 @@ module.exports = function( grunt ) {
             }, env);
         }
 
-        slowTests.forEach(runFile);
-
         jobs = Math.min( files.length, jobs );
-        if (jobs === 1) {
+        if (jobs === 1 || (jobs === 0 && slowTests.length === 1)) {
             grunt.option("verbose", true);
         }
+
+        slowTests.forEach(runFile);
+
+
         for( var i = 0; i < jobs; ++i ) {
             runFile( files.shift() );
         }
