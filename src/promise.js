@@ -966,7 +966,7 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
         async.invokeLater(function(e) {
-            if (debugging && canAttachTrace(e)) {
+            if ("stack" in e) {
                 async.invokeFirst(
                     CapturedTrace.unhandledRejection, undefined, e);
             }
