@@ -480,12 +480,12 @@ Promise.prototype._addCallbacks = function (
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
-        this[base + CALLBACK_FULFILL_OFFSET] = typeof fulfill === "function"
-                                            ? fulfill : undefined;
-        this[base + CALLBACK_REJECT_OFFSET] = typeof reject === "function"
-                                            ? reject : undefined;
-        this[base + CALLBACK_PROGRESS_OFFSET] = typeof progress === "function"
-                                            ? progress : undefined;
+        if (typeof fulfill === "function")
+            this[base + CALLBACK_FULFILL_OFFSET] = fulfill;
+        if (typeof reject === "function")
+            this[base + CALLBACK_REJECT_OFFSET] = reject;
+        if (typeof progress === "function")
+            this[base + CALLBACK_PROGRESS_OFFSET] = progress;
     }
     this._setLength(index + 1);
     return index;
@@ -505,9 +505,6 @@ Promise.prototype._setProxyHandlers = function (receiver, promiseSlotValue) {
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
-        this[base + CALLBACK_FULFILL_OFFSET] =
-        this[base + CALLBACK_REJECT_OFFSET] =
-        this[base + CALLBACK_PROGRESS_OFFSET] = undefined;
     }
     this._setLength(index + 1);
 };
