@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, cast) {
 var ASSERT = require("./assert.js");
-var canAttach = require("./errors.js").canAttach;
+var canAttachTrace = require("./errors.js").canAttachTrace;
 var util = require("./util.js");
 var isArray = util.isArray;
 
@@ -154,7 +154,7 @@ PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function (reason) {
     ASSERT(!this._isResolved());
     this._values = null;
-    var trace = canAttach(reason) ? reason : new Error(reason + "");
+    var trace = canAttachTrace(reason) ? reason : new Error(reason + "");
     this._promise._attachExtraTrace(trace);
     this._promise._reject(reason, trace);
 };

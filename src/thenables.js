@@ -2,7 +2,7 @@
 module.exports = function(Promise, INTERNAL) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var canAttach = require("./errors.js").canAttach;
+var canAttachTrace = require("./errors.js").canAttachTrace;
 var errorObj = util.errorObj;
 var isObject = util.isObject;
 
@@ -38,7 +38,7 @@ function Promise$_Cast(obj, originalPromise) {
         }
         var then = getThen(obj);
         if (then === errorObj) {
-            if (originalPromise !== void 0 && canAttach(then.e)) {
+            if (originalPromise !== void 0 && canAttachTrace(then.e)) {
                 originalPromise._attachExtraTrace(then.e);
             }
             return Promise.reject(then.e);
@@ -69,7 +69,7 @@ function Promise$_doThenable(x, then, originalPromise) {
     } catch(e) {
         if (!called) {
             called = true;
-            var trace = canAttach(e) ? e : new Error(e + "");
+            var trace = canAttachTrace(e) ? e : new Error(e + "");
             if (originalPromise !== void 0) {
                 originalPromise._attachExtraTrace(trace);
             }
@@ -96,7 +96,7 @@ function Promise$_doThenable(x, then, originalPromise) {
     function Promise$_rejectFromThenable(r) {
         if (called) return;
         called = true;
-        var trace = canAttach(r) ? r : new Error(r + "");
+        var trace = canAttachTrace(r) ? r : new Error(r + "");
         if (originalPromise !== void 0) {
             originalPromise._attachExtraTrace(trace);
         }

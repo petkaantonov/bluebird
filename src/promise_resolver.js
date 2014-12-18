@@ -120,7 +120,7 @@ PromiseResolver.prototype.reject = function (reason) {
 
     var promise = this.promise;
     errors.markAsOriginatingFromRejection(reason);
-    var trace = errors.canAttach(reason) ? reason : new Error(reason + "");
+    var trace = errors.canAttachTrace(reason) ? reason : new Error(reason + "");
     promise._attachExtraTrace(trace);
     async.invoke(promise._reject, promise, reason);
     if (trace !== reason) {

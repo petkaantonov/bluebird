@@ -21,7 +21,7 @@ function isError(obj) {
     return obj instanceof Error;
 }
 
-function canAttach(obj) {
+function canAttachTrace(obj) {
     return isError(obj);
 }
 
@@ -121,5 +121,5 @@ module.exports = {
     AggregateError: errorTypes.AggregateError,
     originatesFromRejection: originatesFromRejection,
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
-    canAttach: canAttach
+    canAttachTrace: canAttachTrace
 };

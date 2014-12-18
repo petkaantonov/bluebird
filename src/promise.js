@@ -35,7 +35,7 @@ var TimeoutError = errors.TimeoutError;
 var OperationalError = errors.OperationalError;
 var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
-var canAttach = errors.canAttach;
+var canAttachTrace = errors.canAttachTrace;
 var thrower = util.thrower;
 var apiRejection = require("./errors_api_rejection")(Promise);
 
@@ -288,7 +288,7 @@ Promise.reject = Promise.rejected = function (reason) {
     ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
-    if (!canAttach(reason)) {
+    if (!canAttachTrace(reason)) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
     }
@@ -589,7 +589,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         promise._fulfill(val);
     }
     function Promise$_rejecter(val) {
-        var trace = canAttach(val) ? val : new Error(val + "");
+        var trace = canAttachTrace(val) ? val : new Error(val + "");
         promise._attachExtraTrace(trace);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? void 0 : trace);
@@ -599,7 +599,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
 
     if (r !== void 0 && r === errorObj) {
         var e = r.e;
-        var trace = canAttach(e) ? e : new Error(e + "");
+        var trace = canAttachTrace(e) ? e : new Error(e + "");
         promise._reject(e, trace);
     }
 };
@@ -666,7 +666,7 @@ Promise.prototype._settlePromiseFromHandler = function (
         var err = x === promise
                     ? makeSelfResolutionError()
                     : x.e;
-        var trace = canAttach(err) ? err : new Error(err + "");
+        var trace = canAttachTrace(err) ? err : new Error(err + "");
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
     } else {
@@ -674,7 +674,7 @@ Promise.prototype._settlePromiseFromHandler = function (
         if (castValue instanceof Promise) {
             if (castValue.isRejected() &&
                 !castValue._isCarryingStackTrace() &&
-                !canAttach(castValue._settledValue)) {
+                !canAttachTrace(castValue._settledValue)) {
                 var trace = new Error(castValue._settledValue + "");
                 promise._attachExtraTrace(trace);
                 castValue._setCarriedStackTrace(trace);
@@ -749,14 +749,14 @@ Promise.prototype._setTrace = function (parent) {
 };
 
 Promise.prototype._tryAttachExtraTrace = function (error) {
-    if (canAttach(error)) {
+    if (canAttachTrace(error)) {
         this._attachExtraTrace(error);
     }
 };
 
 Promise.prototype._attachExtraTrace = function (error) {
     if (debugging) {
-        ASSERT(canAttach(error));
+        ASSERT(canAttachTrace(error));
         var promise = this;
         var stack = error.stack;
         stack = typeof stack === "string" ? stack.split("\n") : [];
@@ -945,7 +945,7 @@ Promise.prototype._fulfillUnchecked = function (value) {
 };
 
 Promise.prototype._rejectUncheckedCheckError = function (reason) {
-    var trace = canAttach(reason) ? reason : new Error(reason + "");
+    var trace = canAttachTrace(reason) ? reason : new Error(reason + "");
     this._rejectUnchecked(reason, trace === reason ? void 0 : trace);
 };
 

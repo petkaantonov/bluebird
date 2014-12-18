@@ -50,7 +50,7 @@ Promise.prototype._doProgressWith = function (progression) {
             //'StopProgressPropagation',
             // the result of the function is used as the progress
             //value to propagate.
-            var trace = errors.canAttach(ret.e)
+            var trace = errors.canAttachTrace(ret.e)
                 ? ret.e : new Error(ret.e + "");
             promise._attachExtraTrace(trace);
             promise._progress(ret.e);

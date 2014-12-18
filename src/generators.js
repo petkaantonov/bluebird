@@ -49,7 +49,7 @@ PromiseSpawn.prototype._run = function () {
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
         this._generator = void 0;
-        var trace = errors.canAttach(result.e)
+        var trace = errors.canAttachTrace(result.e)
             ? result.e : new Error(result.e + "");
         this._promise._attachExtraTrace(trace);
         this._promise._reject(result.e, trace);
@@ -86,7 +86,7 @@ PromiseSpawn.prototype._continue = function (result) {
 };
 
 PromiseSpawn.prototype._throw = function (reason) {
-    if (errors.canAttach(reason))
+    if (errors.canAttachTrace(reason))
         this._promise._attachExtraTrace(reason);
     this._continue(
         tryCatch1(this._generator["throw"], this._generator, reason)
