@@ -1216,16 +1216,19 @@ using(getConnection(),
 
 #####`Promise.using(Promise|Disposer promise, Promise|Disposer promise ..., Function handler)` -> `Promise`
 
-In conjunction with [`.disposer()`](#disposerfunction-disposer---disposer), `using` will make sure that no matter what, the specified disposer will be called
-when appropriate. The disposer is necessary because there is no standard interface in node for disposing resources.
+In conjunction with [`.disposer()`](#disposerfunction-disposer---disposer), `using` will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to `using` has settled. The disposer is necessary because there is no standard interface in node for disposing resources.
 
 Here is a simple example (where `getConnection()` [has been defined] to return a proper [`Disposer`](#disposerfunction-disposer---disposer)))
 
 
 ```js
 using(getConnection(), function(connection) {
+   // Don't leak the `connection` variable anywhere from here
+   // it is only guaranteed to be open while the promise returned from
+   // this callback is still pending
    return connection.queryAsync("SELECT * FROM TABLE");
-   // Code continuing here still has access to `connection`
+   // Code that is chained from the promise created in the line above
+   // still has access to `connection`
 }).then(function(rows) {
     // The connection has been closed by now
     console.log(rows);
