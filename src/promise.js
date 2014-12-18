@@ -1,29 +1,25 @@
 "use strict";
-var old;
-if (typeof Promise !== "undefined") old = Promise;
-function noConflict(bluebird) {
-    try { if (Promise === bluebird) Promise = old; }
-    catch (e) {}
-    return bluebird;
-}
 module.exports = function() {
+var makeSelfResolutionError = function () {
+    return new TypeError(CIRCULAR_RESOLUTION_ERROR);
+};
+var reflect = function() {
+    return new Promise.PromiseInspection(this);
+};
+var returnFirstElement = function(elements) { return elements[0]; };
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
-
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
-
 var cast = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray = require("./promise_array.js")(Promise, INTERNAL, cast);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
-
 var isArray = util.isArray;
-
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
@@ -37,11 +33,14 @@ var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttachTrace = errors.canAttachTrace;
 var apiRejection = require("./errors_api_rejection")(Promise);
-
-
-var makeSelfResolutionError = function () {
-    return new TypeError(CIRCULAR_RESOLUTION_ERROR);
-};
+var unhandledRejectionHandled;
+var debugging = __DEBUG__ || !!(
+    typeof process !== "undefined" &&
+    typeof process.execPath === "string" &&
+    typeof process.env === "object" &&
+    (process.env["BLUEBIRD_DEBUG"] ||
+        process.env["NODE_ENV"] === "development")
+);
 
 function Promise(resolver) {
     if (typeof resolver !== "function") {
@@ -67,10 +66,6 @@ function Promise(resolver) {
     //for .bind
     this._boundTo = undefined;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
-}
-
-function returnFirstElement(elements) {
-    return elements[0];
 }
 
 Promise.prototype.bind = function (thisArg) {
@@ -124,10 +119,6 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
     return this._then(undefined, fn, undefined, undefined, undefined);
 };
 
-function reflect() {
-    return new Promise.PromiseInspection(this);
-}
-
 Promise.prototype.reflect = function () {
     return this._then(reflect, reflect, undefined, this, undefined);
 };
@@ -175,6 +166,9 @@ Promise.prototype.all = function () {
     return new PromiseArray(this).promise();
 };
 
+Promise.prototype.error = function (fn) {
+    return this.caught(originatesFromRejection, fn);
+};
 
 Promise.is = function (val) {
     return val instanceof Promise;
@@ -182,30 +176,6 @@ Promise.is = function (val) {
 
 Promise.all = function (promises) {
     return new PromiseArray(promises).promise();
-};
-
-Promise.prototype.error = function (fn) {
-    return this.caught(originatesFromRejection, fn);
-};
-
-Promise.prototype._resolveFromSyncValue = function (value) {
-    if (value === errorObj) {
-        this._cleanValues();
-        this._setRejected();
-        var reason = value.e;
-        this._settledValue = reason;
-        this._attachExtraTrace(reason);
-        this._ensurePossibleRejectionHandled();
-    } else {
-        var maybePromise = cast(value, undefined);
-        if (maybePromise instanceof Promise) {
-            this._follow(maybePromise);
-        } else {
-            this._cleanValues();
-            this._setFulfilled();
-            this._settledValue = value;
-        }
-    }
 };
 
 Promise.method = function (fn) {
@@ -301,19 +271,9 @@ Promise.onPossiblyUnhandledRejection = function (fn) {
                                                     ? fn : undefined;
 };
 
-var unhandledRejectionHandled;
 Promise.onUnhandledRejectionHandled = function (fn) {
     unhandledRejectionHandled = typeof fn === "function" ? fn : undefined;
 };
-
-var debugging = __DEBUG__ || !!(
-    typeof process !== "undefined" &&
-    typeof process.execPath === "string" &&
-    typeof process.env === "object" &&
-    (process.env["BLUEBIRD_DEBUG"] ||
-        process.env["NODE_ENV"] === "development")
-);
-
 
 Promise.longStackTraces = function () {
     if (async.haveItemsQueued() &&
@@ -326,6 +286,11 @@ Promise.longStackTraces = function () {
 
 Promise.hasLongStackTraces = function () {
     return debugging && CapturedTrace.isSupported();
+};
+
+Promise.setScheduler = function(fn) {
+    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    async._schedule = fn;
 };
 
 Promise.prototype._then = function (
@@ -1047,13 +1012,24 @@ Promise.prototype._popContext = function () {
     contextStack.pop();
 };
 
-Promise.noConflict = function () {
-    return noConflict(Promise);
-};
-
-Promise.setScheduler = function(fn) {
-    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
-    async._schedule = fn;
+Promise.prototype._resolveFromSyncValue = function (value) {
+    if (value === errorObj) {
+        this._cleanValues();
+        this._setRejected();
+        var reason = value.e;
+        this._settledValue = reason;
+        this._attachExtraTrace(reason);
+        this._ensurePossibleRejectionHandled();
+    } else {
+        var maybePromise = cast(value, undefined);
+        if (maybePromise instanceof Promise) {
+            this._follow(maybePromise);
+        } else {
+            this._cleanValues();
+            this._setFulfilled();
+            this._settledValue = value;
+        }
+    }
 };
 
 if (!CapturedTrace.isSupported()) {
