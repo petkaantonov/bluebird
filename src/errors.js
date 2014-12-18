@@ -1,5 +1,6 @@
 "use strict";
 var Objectfreeze = require("./es5.js").freeze;
+var propertyIsWritable = require("./es5.js").propertyIsWritable;
 var util = require("./util.js");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
@@ -22,7 +23,7 @@ function isError(obj) {
 }
 
 function canAttachTrace(obj) {
-    return isError(obj);
+    return isError(obj) && propertyIsWritable(obj, "stack");
 }
 
 function subError(nameProperty, defaultMessage) {

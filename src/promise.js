@@ -194,7 +194,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
         this._setRejected();
         var reason = value.e;
         this._settledValue = reason;
-        this._tryAttachExtraTrace(reason);
+        this._attachExtraTrace(reason);
         this._ensurePossibleRejectionHandled();
     } else {
         var maybePromise = cast(value, void 0);
@@ -748,15 +748,8 @@ Promise.prototype._setTrace = function (parent) {
     return this;
 };
 
-Promise.prototype._tryAttachExtraTrace = function (error) {
-    if (canAttachTrace(error)) {
-        this._attachExtraTrace(error);
-    }
-};
-
 Promise.prototype._attachExtraTrace = function (error) {
-    if (debugging) {
-        ASSERT(canAttachTrace(error));
+    if (debugging && canAttachTrace(error)) {
         var promise = this;
         var stack = error.stack;
         stack = typeof stack === "string" ? stack.split("\n") : [];

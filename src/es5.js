@@ -10,7 +10,11 @@ if (isES5) {
         keys: Object.keys,
         getPrototypeOf: Object.getPrototypeOf,
         isArray: Array.isArray,
-        isES5: isES5
+        isES5: isES5,
+        propertyIsWritable: function(obj, prop) {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+            return !!(!descriptor || descriptor.writable || descriptor.set);
+        }
     };
 } else {
     var has = {}.hasOwnProperty;
@@ -60,6 +64,9 @@ if (isES5) {
         defineProperty: ObjectDefineProperty,
         freeze: ObjectFreeze,
         getPrototypeOf: ObjectGetPrototypeOf,
-        isES5: isES5
+        isES5: isES5,
+        propertyIsWritable: function() {
+            return true;
+        }
     };
 }
