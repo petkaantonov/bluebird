@@ -43,7 +43,7 @@ function tryConvertToPromise(obj, traceParent) {
             }
             return Promise.reject(then.e);
         } else if (typeof then === "function") {
-            return Promise$_doThenable(obj, then, traceParent);
+            return doThenable(obj, then, traceParent);
         }
     }
     return obj;
@@ -54,7 +54,7 @@ function isAnyBluebirdPromise(obj) {
     return hasProp.call(obj, "_promise0");
 }
 
-function Promise$_doThenable(x, then, traceParent) {
+function doThenable(x, then, traceParent) {
     ASSERT(typeof then === "function");
     ASSERT(arguments.length === 3);
     var resolver = Promise.defer();
@@ -62,9 +62,9 @@ function Promise$_doThenable(x, then, traceParent) {
     try {
         then.call(
             x,
-            Promise$_resolveFromThenable,
-            Promise$_rejectFromThenable,
-            Promise$_progressFromThenable
+            resolveFromThenable,
+            rejectFromThenable,
+            progressFromThenable
         );
     } catch(e) {
         if (!called) {
@@ -78,7 +78,7 @@ function Promise$_doThenable(x, then, traceParent) {
     }
     return resolver.promise;
 
-    function Promise$_resolveFromThenable(y) {
+    function resolveFromThenable(y) {
         if (called) return;
         called = true;
 
@@ -93,7 +93,7 @@ function Promise$_doThenable(x, then, traceParent) {
         resolver.resolve(y);
     }
 
-    function Promise$_rejectFromThenable(r) {
+    function rejectFromThenable(r) {
         if (called) return;
         called = true;
         var trace = canAttachTrace(r) ? r : new Error(r + "");
@@ -103,7 +103,7 @@ function Promise$_doThenable(x, then, traceParent) {
         resolver.promise._reject(r, trace);
     }
 
-    function Promise$_progressFromThenable(v) {
+    function progressFromThenable(v) {
         if (called) return;
         var promise = resolver.promise;
         if (typeof promise._progress === "function") {

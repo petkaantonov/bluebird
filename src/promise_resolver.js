@@ -25,7 +25,7 @@ function wrapAsOperationalError(obj) {
 }
 
 function nodebackForPromise(promise) {
-    function PromiseResolver$_callback(err, value) {
+    return function(err, value) {
         if (promise === null) return;
 
         if (err) {
@@ -40,8 +40,7 @@ function nodebackForPromise(promise) {
         }
 
         promise = null;
-    }
-    return PromiseResolver$_callback;
+    };
 }
 
 

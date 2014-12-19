@@ -11,15 +11,15 @@ function thrower(r) {
     throw r;
 }
 
-function Promise$_spreadAdapter(val, receiver) {
-    if (!util.isArray(val)) return Promise$_successAdapter(val, receiver);
+function spreadAdapter(val, receiver) {
+    if (!util.isArray(val)) return successAdapter(val, receiver);
     var ret = util.tryCatchApply(this, [null].concat(val), receiver);
     if (ret === errorObj) {
         async.invokeLater(thrower, undefined, ret.e);
     }
 }
 
-function Promise$_successAdapter(val, receiver) {
+function successAdapter(val, receiver) {
     var nodeback = this;
     ASSERT(typeof nodeback == "function");
     var ret = val === undefined
@@ -29,7 +29,7 @@ function Promise$_successAdapter(val, receiver) {
         async.invokeLater(thrower, undefined, ret.e);
     }
 }
-function Promise$_errorAdapter(reason, receiver) {
+function errorAdapter(reason, receiver) {
     var nodeback = this;
     ASSERT(typeof nodeback == "function");
     var ret = tryCatch1(nodeback, receiver, reason);
@@ -40,13 +40,13 @@ function Promise$_errorAdapter(reason, receiver) {
 
 Promise.prototype.nodeify = function (nodeback, options) {
     if (typeof nodeback == "function") {
-        var adapter = Promise$_successAdapter;
+        var adapter = successAdapter;
         if (options !== undefined && Object(options).spread) {
-            adapter = Promise$_spreadAdapter;
+            adapter = spreadAdapter;
         }
         this._then(
             adapter,
-            Promise$_errorAdapter,
+            errorAdapter,
             undefined,
             nodeback,
             this._boundTo

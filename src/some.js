@@ -109,7 +109,7 @@ SomePromiseArray.prototype._resolveEmptyArray = function () {
     this._reject(this._getRangeError(0));
 };
 
-function Promise$_Some(promises, howMany) {
+function some(promises, howMany) {
     if ((howMany | 0) !== howMany || howMany < 0) {
         return apiRejection(POSITIVE_INTEGER_ERROR);
     }
@@ -125,11 +125,11 @@ function Promise$_Some(promises, howMany) {
 }
 
 Promise.some = function (promises, howMany) {
-    return Promise$_Some(promises, howMany);
+    return some(promises, howMany);
 };
 
 Promise.prototype.some = function (howMany) {
-    return Promise$_Some(this, howMany);
+    return some(this, howMany);
 };
 
 Promise._SomePromiseArray = SomePromiseArray;

@@ -13,7 +13,7 @@ function CatchFilter(instances, callback, promise) {
     this._promise = promise;
 }
 
-function CatchFilter$_safePredicate(predicate, e) {
+function safePredicate(predicate, e) {
     var safeObject = {};
     var retfilter = tryCatch1(predicate, safeObject, e);
 
@@ -46,7 +46,7 @@ CatchFilter.prototype.doFilter = function (e) {
             }
             return ret;
         } else if (typeof item === "function" && !itemIsErrorType) {
-            var shouldHandle = CatchFilter$_safePredicate(item, e);
+            var shouldHandle = safePredicate(item, e);
             if (shouldHandle === errorObj) {
                 var trace = errors.canAttachTrace(errorObj.e)
                     ? errorObj.e

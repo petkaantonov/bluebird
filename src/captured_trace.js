@@ -215,8 +215,7 @@ var captureStackTrace = (function stackDetection() {
         shouldIgnore = function(line) {
             return bluebirdRegexp.test(line);
         };
-        return function CapturedTrace$_captureStackTrace(
-            receiver, ignoreUntil) {
+        return function(receiver, ignoreUntil) {
             captureStackTrace(receiver, ignoreUntil);
         };
     }

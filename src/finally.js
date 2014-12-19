@@ -12,12 +12,12 @@ function throwThis() {
     throw this;
 }
 function return$(r) {
-    return function Promise$_returner() {
+    return function() {
         return r;
     };
 }
 function throw$(r) {
-    return function Promise$_thrower() {
+    return function() {
         throw r;
     };
 }

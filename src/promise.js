@@ -183,7 +183,7 @@ Promise.method = function (fn) {
     if (typeof fn !== "function") {
         throw new TypeError(NOT_FUNCTION_ERROR);
     }
-    return function Promise$_method() {
+    return function () {
         var value;
         switch(arguments.length) {
         case 0: value = tryCatch1(fn, this, undefined); break;
@@ -543,22 +543,19 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     ASSERT(typeof resolver === "function");
     var promise = this;
     this._setTrace(undefined);
+    
     this._pushContext();
-
-    function Promise$_resolver(val) {
+    var r = tryCatch2(resolver, undefined, function(val) {
         if (promise._tryFollow(val)) {
             return;
         }
         promise._fulfill(val);
-    }
-    function Promise$_rejecter(val) {
+    }, function (val) {
         var trace = canAttachTrace(val) ? val : new Error(val + "");
         promise._attachExtraTrace(trace);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? undefined : trace);
-    }
-    var r = tryCatch2(
-        resolver, undefined, Promise$_resolver, Promise$_rejecter);
+    });
     this._popContext();
 
     if (r !== undefined && r === errorObj) {

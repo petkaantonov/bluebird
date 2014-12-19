@@ -60,7 +60,7 @@ PropertiesPromiseArray.prototype.getActualLength = function (len) {
     return len >> 1;
 };
 
-function Promise$_Props(promises) {
+function props(promises) {
     var ret;
     var castValue = tryConvertToPromise(promises, undefined);
 
@@ -80,10 +80,10 @@ function Promise$_Props(promises) {
 }
 
 Promise.prototype.props = function () {
-    return Promise$_Props(this);
+    return props(this);
 };
 
 Promise.props = function (promises) {
-    return Promise$_Props(promises);
+    return props(promises);
 };
 };

@@ -14,18 +14,16 @@ else if ((typeof MutationObserver !== "undefined" &&
     schedule = (function() {
         var div = document.createElement("div");
         var queuedFn;
-        var observer = new _MutationObserver(
-            function Promise$_Scheduler() {
-                ASSERT(queuedFn !== undefined);
-                var fn = queuedFn;
-                queuedFn = undefined;
-                fn();
-            }
-       );
+        var observer = new _MutationObserver(function() {
+            ASSERT(queuedFn !== undefined);
+            var fn = queuedFn;
+            queuedFn = undefined;
+            fn();
+        });
         observer.observe(div, {
             attributes: true
         });
-        return function Promise$_Scheduler(fn) {
+        return function(fn) {
             ASSERT(queuedFn === undefined);
             queuedFn = fn;
             div.classList.toggle("foo");

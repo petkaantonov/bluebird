@@ -14,11 +14,11 @@ var thrower = function () {
 
 var wrapper = function (value, action) {
     if (action === THROW) {
-        return function Promise$_thrower() {
+        return function () {
             throw value;
         };
     } else if (action === RETURN) {
-        return function Promise$_returner() {
+        return function () {
             return value;
         };
     }

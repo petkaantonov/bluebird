@@ -38,14 +38,12 @@ PromiseArray.prototype.promise = function () {
     return this._promise;
 };
 
-PromiseArray.prototype._init =
-            //when.some resolves to [] when empty
-            //but when.any resolved to undefined when empty :<
-function PromiseArray$_init(_, resolveValueIfEmpty) {
-            //_ must be intentionally empty because smuggled
-            //data is always the second argument
-            //all of this is due to when vs some having different semantics on
-            //empty arrays
+// _ must be intentionally empty because smuggled
+// data is always the second argument
+// all of this is due to when vs some having different semantics on
+// empty arrays
+PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
+
     var values = tryConvertToPromise(this._values, undefined);
     if (values instanceof Promise) {
         this._values = values;
@@ -65,7 +63,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
             values._then(
-                PromiseArray$_init,
+                init,
                 this._reject,
                 undefined,
                 this,

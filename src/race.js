@@ -5,12 +5,12 @@ var isArray = require("./util.js").isArray;
 
 var raceLater = function (promise) {
     return promise.then(function(array) {
-        return Promise$_Race(array, promise);
+        return race(array, promise);
     });
 };
 
 var hasOwn = {}.hasOwnProperty;
-function Promise$_Race(promises, parent) {
+function race(promises, parent) {
     var maybePromise = tryConvertToPromise(promises, undefined);
 
     if (maybePromise instanceof Promise) {
@@ -41,11 +41,11 @@ function Promise$_Race(promises, parent) {
 }
 
 Promise.race = function (promises) {
-    return Promise$_Race(promises, undefined);
+    return race(promises, undefined);
 };
 
 Promise.prototype.race = function () {
-    return Promise$_Race(this, undefined);
+    return race(this, undefined);
 };
 
 };
