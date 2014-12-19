@@ -1,5 +1,5 @@
 var file = process.argv[2];
-
+var singleTest = process.env.singleTest === "true";
 // Fake timers
 var currentTime = 0;
 var timers = {};
@@ -36,6 +36,16 @@ function clearTimeout(id) {
     setImmediate(tick);
 })();
 
+function printFailedTestAdvice(failedTestFileName) {
+    console.error("The test " + failedTestFileName + " failed.");
+    failedTestFileName = failedTestFileName
+        .replace("mocha", "")
+        .replace( /\.js$/, "" )
+        .replace( /[^a-zA-Z0-9_-]/g, "" );
+    console.error("For additional details you can run it individually " +
+        " ẁith the command `grunt test --run=" + failedTestFileName + "`");
+}
+
 global.setTimeout = setTimeout;
 global.clearTimeout = clearTimeout;
 global.adapter = require("./js/debug/bluebird.js");
@@ -53,7 +63,10 @@ mocha.addFile(process.argv[2]);
 mocha.run(function(err){
     process.exit(0);
 }).on( "fail", function( test, err ) {
-    process.stderr.write(file + "\n" + err.stack + "\n");
+    if (!singleTest) {
+        printFailedTestAdvice(file);
+        console.error(err.stack + "");
+    }
     process.exit(-1);
 });
 

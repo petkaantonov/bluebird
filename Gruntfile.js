@@ -370,6 +370,7 @@ module.exports = function( grunt ) {
                 : 'ignore',
             process.stderr
         ];
+        if (!env) env = {singleTest: !!grunt.option("single-test")};
         var flags = node11 ? ["--harmony-generators"] : [];
         flags.push("--allow-natives-syntax");
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
@@ -614,12 +615,6 @@ module.exports = function( grunt ) {
         return this.indexOf( str ) >= 0;
     };
 
-    function isSlowTest( file ) {
-        return file.contains("2.3.3") ||
-            file.contains("bind") ||
-            file.contains("unhandled_rejections");
-    }
-
     function testRun( testOption, jobs ) {
         var fs = require("fs");
         var path = require("path");
@@ -666,12 +661,6 @@ module.exports = function( grunt ) {
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
         });
 
-
-        var slowTests = files.filter(isSlowTest);
-        files = files.filter(function(file){
-            return !isSlowTest(file);
-        });
-
         function runFile(file) {
             totalTests++;
             grunt.log.writeln("Running test " + file );
@@ -691,12 +680,11 @@ module.exports = function( grunt ) {
         }
 
         jobs = Math.min( files.length, jobs );
-        if (jobs === 1 || (jobs === 0 && slowTests.length === 1)) {
+
+        if (jobs === 1) {
             grunt.option("verbose", true);
+            grunt.option("single-test", true);
         }
-
-        slowTests.forEach(runFile);
-
 
         for( var i = 0; i < jobs; ++i ) {
             runFile( files.shift() );
