@@ -61,15 +61,15 @@ module.exports = function( grunt ) {
 
 
     var optionalModuleDependencyMap = {
-        "timers.js": ['Promise', 'INTERNAL', 'cast'],
-        "race.js": ['Promise', 'INTERNAL', 'cast'],
+        "timers.js": ['Promise', 'INTERNAL', 'tryConvertToPromise'],
+        "race.js": ['Promise', 'INTERNAL', 'tryConvertToPromise'],
         "call_get.js": ['Promise'],
-        "generators.js": ['Promise', 'apiRejection', 'INTERNAL', 'cast'],
-        "map.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast', 'INTERNAL'],
+        "generators.js": ['Promise', 'apiRejection', 'INTERNAL', 'tryConvertToPromise'],
+        "map.js": ['Promise', 'PromiseArray', 'apiRejection', 'tryConvertToPromise', 'INTERNAL'],
         "nodeify.js": ['Promise'],
         "promisify.js": ['Promise', 'INTERNAL'],
-        "props.js": ['Promise', 'PromiseArray', 'cast'],
-        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'cast', 'INTERNAL'],
+        "props.js": ['Promise', 'PromiseArray', 'tryConvertToPromise'],
+        "reduce.js": ['Promise', 'PromiseArray', 'apiRejection', 'tryConvertToPromise', 'INTERNAL'],
         "settle.js": ['Promise', 'PromiseArray'],
         "some.js": ['Promise', 'PromiseArray', 'apiRejection'],
         "any.js": ['Promise', 'PromiseArray'],
@@ -77,7 +77,7 @@ module.exports = function( grunt ) {
         "cancel.js": ['Promise', 'INTERNAL'],
         "filter.js": ['Promise', 'INTERNAL'],
         "each.js": ['Promise', 'INTERNAL'],
-        "using.js": ['Promise', 'apiRejection', 'cast']
+        "using.js": ['Promise', 'apiRejection', 'tryConvertToPromise']
     };
 
     var optionalModuleRequireMap = {

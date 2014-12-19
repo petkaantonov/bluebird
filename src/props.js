@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, cast) {
+module.exports = function(Promise, PromiseArray, tryConvertToPromise) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
@@ -62,7 +62,7 @@ PropertiesPromiseArray.prototype.getActualLength = function (len) {
 
 function Promise$_Props(promises) {
     var ret;
-    var castValue = cast(promises, undefined);
+    var castValue = tryConvertToPromise(promises, undefined);
 
     if (!isObject(castValue)) {
         return apiRejection(PROPS_TYPE_ERROR);

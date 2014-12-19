@@ -11,7 +11,7 @@ var _setTimeout = function(fn, ms) {
     }, ms|0);
 };
 
-module.exports = function(Promise, INTERNAL, cast) {
+module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
 var util = require("./util.js");
 var errors = require("./errors.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
@@ -39,7 +39,7 @@ var delay = Promise.delay = function (value, ms) {
         value = undefined;
     }
     ms = +ms;
-    var maybePromise = cast(value, undefined);
+    var maybePromise = tryConvertToPromise(value, undefined);
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {

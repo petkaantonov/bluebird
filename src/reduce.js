@@ -1,5 +1,9 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, apiRejection, cast, INTERNAL) {
+module.exports = function(Promise,
+                          PromiseArray,
+                          apiRejection,
+                          tryConvertToPromise,
+                          INTERNAL) {
 var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
 var tryCatch3 = util.tryCatch3;
@@ -17,7 +21,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     // Array is established once we have a known length
     this._valuesPhase = undefined;
 
-    var maybePromise = cast(accum, undefined);
+    var maybePromise = tryConvertToPromise(accum, undefined);
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {
@@ -135,7 +139,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         if (ret === errorObj) return this._reject(ret.e);
 
-        var maybePromise = cast(ret, undefined);
+        var maybePromise = tryConvertToPromise(ret, undefined);
         if (maybePromise instanceof Promise) {
             // Callback returned a pending
             // promise so continue iteration when it fulfills

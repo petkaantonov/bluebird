@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-function(Promise, PromiseArray, cast, INTERNAL) {
+function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
 var tryCatch1 = util.tryCatch1;
@@ -73,7 +73,7 @@ Promise.join = function () {
             var holder = new Holder(last, fn);
             var callbacks = thenCallbacks;
             for (var i = 0; i < last; ++i) {
-                var maybePromise = cast(arguments[i], undefined);
+                var maybePromise = tryConvertToPromise(arguments[i], undefined);
                 if (maybePromise instanceof Promise) {
                     if (maybePromise.isPending()) {
                         maybePromise._then(callbacks[i], reject,

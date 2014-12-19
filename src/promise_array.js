@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL, cast) {
+module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
 var ASSERT = require("./assert.js");
 var canAttachTrace = require("./errors.js").canAttachTrace;
 var util = require("./util.js");
@@ -46,7 +46,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
             //data is always the second argument
             //all of this is due to when vs some having different semantics on
             //empty arrays
-    var values = cast(this._values, undefined);
+    var values = tryConvertToPromise(this._values, undefined);
     if (values instanceof Promise) {
         this._values = values;
         values._setBoundTo(this._promise._boundTo);
@@ -97,7 +97,7 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
     for (var i = 0; i < len; ++i) {
         if (this._isResolved()) return;
-        var maybePromise = cast(values[i], undefined);
+        var maybePromise = tryConvertToPromise(values[i], undefined);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 // Optimized for just passing the updates through

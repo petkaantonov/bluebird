@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL, cast) {
+module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
 var apiRejection = require("./errors_api_rejection.js")(Promise);
 var isArray = require("./util.js").isArray;
 
@@ -11,7 +11,7 @@ var raceLater = function (promise) {
 
 var hasOwn = {}.hasOwnProperty;
 function Promise$_Race(promises, parent) {
-    var maybePromise = cast(promises, undefined);
+    var maybePromise = tryConvertToPromise(promises, undefined);
 
     if (maybePromise instanceof Promise) {
         return raceLater(maybePromise);

@@ -14,8 +14,9 @@ var errors = require("./errors.js");
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
-var cast = require("./thenables.js")(Promise, INTERNAL);
-var PromiseArray = require("./promise_array.js")(Promise, INTERNAL, cast);
+var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
+var PromiseArray =
+    require("./promise_array.js")(Promise, INTERNAL, tryConvertToPromise);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
@@ -69,7 +70,7 @@ function Promise(resolver) {
 }
 
 Promise.prototype.bind = function (thisArg) {
-    var maybePromise = cast(thisArg, undefined);
+    var maybePromise = tryConvertToPromise(thisArg, undefined);
     var ret = new Promise(INTERNAL);
     if (maybePromise instanceof Promise) {
         var binder = maybePromise.then(function(thisArg) {
@@ -220,7 +221,7 @@ Promise.defer = Promise.pending = function () {
 };
 
 Promise.bind = function (thisArg) {
-    var maybePromise = cast(thisArg, undefined);
+    var maybePromise = tryConvertToPromise(thisArg, undefined);
     var ret = new Promise(INTERNAL);
     ret._setTrace(undefined);
 
@@ -237,7 +238,7 @@ Promise.bind = function (thisArg) {
 };
 
 Promise.cast = function (obj) {
-    var ret = cast(obj, undefined);
+    var ret = tryConvertToPromise(obj, undefined);
     if (!(ret instanceof Promise)) {
         var val = ret;
         ret = new Promise(INTERNAL);
@@ -587,7 +588,7 @@ Promise.prototype._callSpread = function (handler, promise, value) {
         //since the spread target callback will have
         //a formal parameter for each item in the array
         for (var i = 0, len = value.length; i < len; ++i) {
-            if (cast(value[i], undefined) instanceof Promise) {
+            if (tryConvertToPromise(value[i], undefined) instanceof Promise) {
                 this._spreadSlowCase(handler, promise, value, boundTo);
                 return;
             }
@@ -633,7 +634,7 @@ Promise.prototype._settlePromiseFromHandler = function (
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
     } else {
-        var castValue = cast(x, promise);
+        var castValue = tryConvertToPromise(x, promise);
         if (castValue instanceof Promise) {
             if (castValue.isRejected() &&
                 !castValue._isCarryingStackTrace() &&
@@ -680,7 +681,7 @@ Promise.prototype._tryFollow = function (value) {
         value === this) {
         return false;
     }
-    var maybePromise = cast(value, undefined);
+    var maybePromise = tryConvertToPromise(value, undefined);
     if (!(maybePromise instanceof Promise)) {
         return false;
     }
@@ -1018,7 +1019,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
         this._attachExtraTrace(reason);
         this._ensurePossibleRejectionHandled();
     } else {
-        var maybePromise = cast(value, undefined);
+        var maybePromise = tryConvertToPromise(value, undefined);
         if (maybePromise instanceof Promise) {
             this._follow(maybePromise);
         } else {
@@ -1035,10 +1036,10 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./finally.js")(Promise, NEXT_FILTER, cast);
+require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
-require("./join.js")(Promise, PromiseArray, cast, INTERNAL);
+require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;

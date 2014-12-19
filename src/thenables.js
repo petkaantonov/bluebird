@@ -16,7 +16,7 @@ function getThen(obj) {
     }
 }
 
-function Promise$_Cast(obj, originalPromise) {
+function tryConvertToPromise(obj, originalPromise) {
     ASSERT(arguments.length === 2);
     if (isObject(obj)) {
         if (obj instanceof Promise) {
@@ -112,5 +112,5 @@ function Promise$_doThenable(x, then, originalPromise) {
     }
 }
 
-return Promise$_Cast;
+return tryConvertToPromise;
 };

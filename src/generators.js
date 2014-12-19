@@ -1,5 +1,8 @@
 "use strict";
-module.exports = function(Promise, apiRejection, INTERNAL, cast) {
+module.exports = function(Promise,
+                          apiRejection,
+                          INTERNAL,
+                          tryConvertToPromise) {
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
 var ASSERT = require("./assert.js");
@@ -18,7 +21,7 @@ function promiseFromYieldHandler(value, yieldHandlers) {
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
-        var maybePromise = cast(result, promiseFromYieldHandler);
+        var maybePromise = tryConvertToPromise(result, promiseFromYieldHandler);
         if (maybePromise instanceof _Promise) return maybePromise;
     }
     return null;
@@ -63,7 +66,7 @@ PromiseSpawn.prototype._continue = function (result) {
             this._promise._fulfill(value);
         }
     } else {
-        var maybePromise = cast(value, undefined);
+        var maybePromise = tryConvertToPromise(value, undefined);
         if (!(maybePromise instanceof Promise)) {
             maybePromise =
                 promiseFromYieldHandler(maybePromise, this._yieldHandlers);

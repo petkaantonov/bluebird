@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function (Promise, apiRejection, cast) {
+module.exports = function (Promise, apiRejection, tryConvertToPromise) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
@@ -22,7 +22,7 @@ module.exports = function (Promise, apiRejection, cast) {
     }
 
     function castPreservingDisposable(thenable) {
-        var maybePromise = cast(thenable, undefined);
+        var maybePromise = tryConvertToPromise(thenable, undefined);
         if (maybePromise !== thenable &&
             typeof thenable._isDisposable === "function" &&
             typeof thenable._getDisposer === "function" &&
@@ -41,8 +41,9 @@ module.exports = function (Promise, apiRejection, cast) {
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
                 try {
-                    maybePromise = cast(maybePromise._getDisposer()
-                                        .tryDispose(inspection), undefined);
+                    maybePromise = tryConvertToPromise(
+                        maybePromise._getDisposer().tryDispose(inspection),
+                        undefined);
                 } catch (e) {
                     return thrower(e);
                 }
