@@ -139,7 +139,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         if (ret === errorObj) return this._reject(ret.e);
 
-        var maybePromise = tryConvertToPromise(ret, undefined);
+        var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
             // Callback returned a pending
             // promise so continue iteration when it fulfills

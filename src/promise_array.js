@@ -95,9 +95,10 @@ function PromiseArray$_init(_, resolveValueIfEmpty) {
     var len = this.getActualLength(values.length);
     this._length = len;
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
+    var promise = this._promise;
     for (var i = 0; i < len; ++i) {
         if (this._isResolved()) return;
-        var maybePromise = tryConvertToPromise(values[i], undefined);
+        var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 // Optimized for just passing the updates through

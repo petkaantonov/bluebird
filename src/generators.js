@@ -12,7 +12,7 @@ var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
 var yieldHandlers = [];
 
-function promiseFromYieldHandler(value, yieldHandlers) {
+function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
     var _errorObj = errorObj;
     var _Promise = Promise;
     var len = yieldHandlers.length;
@@ -21,7 +21,7 @@ function promiseFromYieldHandler(value, yieldHandlers) {
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
-        var maybePromise = tryConvertToPromise(result, promiseFromYieldHandler);
+        var maybePromise = tryConvertToPromise(result, traceParent);
         if (maybePromise instanceof _Promise) return maybePromise;
     }
     return null;
@@ -66,10 +66,12 @@ PromiseSpawn.prototype._continue = function (result) {
             this._promise._fulfill(value);
         }
     } else {
-        var maybePromise = tryConvertToPromise(value, undefined);
+        var maybePromise = tryConvertToPromise(value, this._promise);
         if (!(maybePromise instanceof Promise)) {
             maybePromise =
-                promiseFromYieldHandler(maybePromise, this._yieldHandlers);
+                promiseFromYieldHandler(maybePromise,
+                                        this._yieldHandlers,
+                                        this._promise);
             ASSERT(maybePromise === null || maybePromise instanceof Promise);
             if (maybePromise === null) {
                 this._throw(new TypeError(YIELDED_NON_PROMISE_ERROR));

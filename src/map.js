@@ -65,7 +65,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         // The MappingPromiseArray as a PromiseArray for round 2.
         // To mark an index as "round 2" (where the callback must not be called
         // anymore), the marker PENDING is put at that index
-        var maybePromise = tryConvertToPromise(ret, undefined);
+        var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
             if (maybePromise.isPending()) {
                 if (limit >= 1) this._inFlight++;

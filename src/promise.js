@@ -70,7 +70,7 @@ function Promise(resolver) {
 }
 
 Promise.prototype.bind = function (thisArg) {
-    var maybePromise = tryConvertToPromise(thisArg, undefined);
+    var maybePromise = tryConvertToPromise(thisArg, this);
     var ret = new Promise(INTERNAL);
     if (maybePromise instanceof Promise) {
         var binder = maybePromise.then(function(thisArg) {
@@ -588,7 +588,7 @@ Promise.prototype._callSpread = function (handler, promise, value) {
         //since the spread target callback will have
         //a formal parameter for each item in the array
         for (var i = 0, len = value.length; i < len; ++i) {
-            if (tryConvertToPromise(value[i], undefined) instanceof Promise) {
+            if (tryConvertToPromise(value[i], promise) instanceof Promise) {
                 this._spreadSlowCase(handler, promise, value, boundTo);
                 return;
             }
@@ -681,7 +681,7 @@ Promise.prototype._tryFollow = function (value) {
         value === this) {
         return false;
     }
-    var maybePromise = tryConvertToPromise(value, undefined);
+    var maybePromise = tryConvertToPromise(value, this);
     if (!(maybePromise instanceof Promise)) {
         return false;
     }
@@ -1019,7 +1019,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
         this._attachExtraTrace(reason);
         this._ensurePossibleRejectionHandled();
     } else {
-        var maybePromise = tryConvertToPromise(value, undefined);
+        var maybePromise = tryConvertToPromise(value, this);
         if (maybePromise instanceof Promise) {
             this._follow(maybePromise);
         } else {
