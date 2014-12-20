@@ -8,11 +8,29 @@ var currentId = 0;
 function checkTimers() {
     Object.keys(timers).forEach(function(key) {
         var timer = timers[key];
-        if (currentTime > timer.ends) {
-            delete timers[key];
+
+        if (currentTime >= (timer.started + timer.time)) {
+            if (timer.interval) {
+                timer.started = currentTime;
+            } else {
+                delete timers[key];
+            }
             timer.fn.call(global);
         }
     });
+}
+
+function setInterval(fn, time) {
+    var id = currentId++;
+    time = (+time || 0) | 0;
+    if (time < 0) time = 0;
+    timers[id] = {
+        fn: fn,
+        time: time,
+        started: currentTime,
+        interval: true
+    };
+    return id;
 }
 
 function setTimeout(fn, time) {
@@ -21,7 +39,9 @@ function setTimeout(fn, time) {
     if (time < 0) time = 0;
     timers[id] = {
         fn: fn,
-        ends: time + currentTime
+        time: time,
+        started: currentTime,
+        interval: false
     };
     return id;
 }
@@ -30,11 +50,19 @@ function clearTimeout(id) {
     delete timers[id];
 }
 
+var clearInterval = clearTimeout;
+
 (function tick() {
     currentTime += 10;
     checkTimers();
     setImmediate(tick);
 })();
+
+global.setTimeout = setTimeout;
+global.clearTimeout = clearTimeout;
+global.setInterval = setInterval;
+global.clearInterval = clearInterval;
+global.adapter = require("./js/debug/bluebird.js");
 
 function printFailedTestAdvice(failedTestFileName) {
     console.error("The test " + failedTestFileName + " failed.");
@@ -46,9 +74,6 @@ function printFailedTestAdvice(failedTestFileName) {
         " ẁith the command `grunt test --run=" + failedTestFileName + "`");
 }
 
-global.setTimeout = setTimeout;
-global.clearTimeout = clearTimeout;
-global.adapter = require("./js/debug/bluebird.js");
 
 var Mocha = require("mocha");
 var mochaOpts = {
@@ -65,8 +90,8 @@ mocha.run(function(err){
 }).on( "fail", function( test, err ) {
     if (!singleTest) {
         printFailedTestAdvice(file);
-        console.error(err.stack + "");
     }
+    console.error(err.stack + "");
     process.exit(-1);
 });
 
