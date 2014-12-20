@@ -46,8 +46,8 @@ function checkValid(ret, suffix, suffixRegexp) {
             var keyWithoutAsyncSuffix = key.replace(suffixRegexp, "");
             for (var j = 0; j < ret.length; j += 2) {
                 if (ret[j] === keyWithoutAsyncSuffix) {
-                    throw new TypeError("Cannot promisify an API " +
-                        "that has normal methods with '"+suffix+"'-suffix");
+                    throw new TypeError(PROMISIFICATION_NORMAL_METHODS_ERROR
+                        .replace("%s", suffix));
                 }
             }
         }
@@ -296,7 +296,7 @@ Promise.promisifyAll = function (target, options) {
     if (typeof promisifier !== "function") promisifier = makeNodePromisified;
 
     if (!util.isIdentifier(suffix)) {
-        throw new RangeError("suffix must be a valid identifier");
+        throw new RangeError(SUFFIX_NOT_IDENTIFIER);
     }
 
     var keys = util.inheritedDataKeys(target, {includeHidden: true});
