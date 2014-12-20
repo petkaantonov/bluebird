@@ -370,7 +370,7 @@ module.exports = function( grunt ) {
                 : 'ignore',
             process.stderr
         ];
-        if (!env) env = {singleTest: !!grunt.option("single-test")};
+        if (!env && !isCI) env = {singleTest: !!grunt.option("single-test")};
         var flags = node11 ? ["--harmony-generators"] : [];
         flags.push("--allow-natives-syntax");
         if( file.indexOf( "mocha/") > -1 || file === "aplus.js" ) {
