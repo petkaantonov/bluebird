@@ -1,3 +1,10 @@
+## 2.4.1 (2014-12-20)
+
+Features:
+
+ - Error messages now have links to wiki pages for additional information
+ - Promises now clean up all references (to handlers, child promises etc) as soon as possible.
+
 ## 2.4.0 (2014-12-18)
 
 Features:
