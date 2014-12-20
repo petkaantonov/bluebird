@@ -7,7 +7,7 @@ function apiRejection(msg) {
     var ret = Promise.rejected(error);
     var parent = ret._peekContext();
     if (parent != null) {
-        parent._attachExtraTrace(error);
+        parent.attachExtraTrace(error);
     }
     return ret;
 }

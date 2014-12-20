@@ -72,6 +72,7 @@ function Promise(resolver) {
 Promise.prototype.bind = function (thisArg) {
     var maybePromise = tryConvertToPromise(thisArg, this);
     var ret = new Promise(INTERNAL);
+    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
     if (maybePromise instanceof Promise) {
         var binder = maybePromise.then(function(thisArg) {
             ret._setBoundTo(thisArg);
@@ -82,7 +83,7 @@ Promise.prototype.bind = function (thisArg) {
         ret._follow(this);
         ret._setBoundTo(thisArg);
     }
-    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
+
     return ret;
 };
 
@@ -680,8 +681,9 @@ Promise.prototype._follow = function (promise) {
     if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
 
     if (debugging &&
-        promise._traceParent == null) {
-        promise._traceParent = this;
+        !promise._trace.hasParent()) {
+        ASSERT(this._trace instanceof CapturedTrace);
+        promise._trace.setParent(this._trace);
     }
 };
 
@@ -701,7 +703,7 @@ Promise.prototype._tryFollow = function (value) {
 
 Promise.prototype._resetTrace = function () {
     if (debugging) {
-        this._trace = new CapturedTrace(this._peekContext() === undefined);
+        this._trace = new CapturedTrace(this._peekContext());
     }
 };
 
@@ -709,14 +711,11 @@ Promise.prototype._setTrace = function (parent) {
     ASSERT(this._trace == null);
     if (debugging) {
         var context = this._peekContext();
-        this._traceParent = context;
-        var isTopLevel = context === undefined;
         if (parent !== undefined &&
-            parent._traceParent === context) {
-            ASSERT(parent._trace != null);
+            parent._trace.parent() === context) {
             this._trace = parent._trace;
         } else {
-            this._trace = new CapturedTrace(isTopLevel);
+            this._trace = new CapturedTrace(context);
         }
     }
     return this;
@@ -724,37 +723,7 @@ Promise.prototype._setTrace = function (parent) {
 
 Promise.prototype._attachExtraTrace = function (error) {
     if (debugging && canAttachTrace(error)) {
-        var promise = this;
-        var stack = error.stack;
-        stack = typeof stack === "string" ? stack.split("\n") : [];
-        CapturedTrace.protectErrorMessageNewlines(stack);
-        var headerLineCount = 1;
-        var combinedTraces = 1;
-        while(promise != null &&
-            promise._trace != null) {
-            stack = CapturedTrace.combine(
-                stack,
-                promise._trace.stack.split("\n")
-            );
-            promise = promise._traceParent;
-            combinedTraces++;
-        }
-
-        var stackTraceLimit = Error.stackTraceLimit || 10;
-        var max = (stackTraceLimit + headerLineCount) * combinedTraces;
-        var len = stack.length;
-        if (len > max) {
-            stack.length = max;
-        }
-
-        if (len > 0)
-            stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
-
-        if (stack.length <= headerLineCount) {
-            error.stack = "(No stack trace)";
-        } else {
-            error.stack = stack.join("\n");
-        }
+        this._trace.attachExtraTrace(error);
     }
 };
 
@@ -1001,7 +970,7 @@ Promise.prototype._peekContext = function () {
 
 Promise.prototype._pushContext = function () {
     if (!debugging) return;
-    contextStack.push(this);
+    contextStack.push(this._trace);
 };
 
 Promise.prototype._popContext = function () {
