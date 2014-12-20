@@ -855,9 +855,9 @@ Promise.prototype._clearCallbackDataAtIndex = function(index) {
         if (!this._isCarryingStackTrace()) {
             this._fulfillmentHandler0 = undefined;
         }
-        this._rejectionHandler0 = undefined;
-        this._progressHandler0 = undefined;
-        this._receiver0 = undefined;
+        this._rejectionHandler0 =
+        this._progressHandler0 =
+        this._receiver0 =
         this._promise0 = undefined;
     } else {
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
