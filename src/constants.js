@@ -28,7 +28,7 @@ CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for ._bitField
 //QQWF NCTR BPHS UDLL LLLL LLLL LLLL LLLL
-//Q = isGcQueued (Both bits are either on or off to represent
+//Q = isSettlePromisesQueued (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
@@ -45,7 +45,7 @@ CONSTANT(CALLBACK_SIZE, 5);
 //R = [Reserved]
 //L = Length, 18 bit unsigned
 CONSTANT(NO_STATE, 0x0|0);
-CONSTANT(IS_GC_QUEUED, 0xC0000000|0)
+CONSTANT(IS_SETTLE_PROMISES_QUEUED, 0xC0000000|0)
 CONSTANT(IS_FOLLOWING, 0x20000000|0);
 CONSTANT(IS_FULFILLED, 0x10000000|0);
 CONSTANT(IS_REJECTED, 0x8000000|0);
@@ -114,5 +114,5 @@ CONSTANT(PROMISIFY_TYPE_ERROR, "the target of promisifyAll must be an object or 
 CONSTANT(CIRCULAR_RESOLUTION_ERROR, "circular promise resolution chain");
 CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object");
 CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer");
-CONSTANT(TIMEOUT_ERROR, "operation timed out after");
+CONSTANT(TIMEOUT_ERROR, "operation timed out");
 CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value was yielded that could not be treated as a promise");

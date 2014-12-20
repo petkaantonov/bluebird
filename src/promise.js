@@ -316,7 +316,7 @@ Promise.prototype._then = function (
     var callbackIndex =
         this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
-    if (this.isResolved()) {
+    if (this.isResolved() && !this._isSettlePromisesQueued()) {
         async.invoke(this._queueSettleAt, this, callbackIndex);
     }
 
@@ -543,7 +543,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     ASSERT(typeof resolver === "function");
     var promise = this;
     this._setTrace(undefined);
-    
+
     this._pushContext();
     var r = tryCatch2(resolver, undefined, function(val) {
         if (promise._tryFollow(val)) {
@@ -613,13 +613,7 @@ Promise.prototype._callHandler = function (
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
-    //if promise is not instanceof Promise
-    //it is internally smuggled data
-    if (!(promise instanceof Promise)) {
-        handler.call(receiver, value, promise);
-        return;
-    }
-    if (promise.isResolved()) return;
+    ASSERT(!promise._isFollowingOrFulfilledOrRejected());
     var x = this._callHandler(handler, receiver, promise, value);
     if (promise._isFollowing()) return;
 
@@ -786,7 +780,13 @@ Promise.prototype._settlePromiseAt = function (index) {
     var promise = this._promiseAt(index);
 
     if (typeof handler === "function") {
-        this._settlePromiseFromHandler(handler, receiver, value, promise);
+        //if promise is not instanceof Promise
+        //it is internally smuggled data
+        if (!(promise instanceof Promise)) {
+            handler.call(receiver, value, promise);
+        } else {
+            this._settlePromiseFromHandler(handler, receiver, value, promise);
+        }
     } else {
         var done = false;
         var isFulfilled = this.isFulfilled();
@@ -795,6 +795,7 @@ Promise.prototype._settlePromiseAt = function (index) {
         if (receiver !== undefined) {
             if (receiver instanceof Promise &&
                 receiver._isProxied()) {
+                ASSERT(!receiver.isFulfilled() && !receiver.isRejected());
                 //Must be smuggled data if proxied
                 receiver._unsetProxied();
 
@@ -814,24 +815,27 @@ Promise.prototype._settlePromiseAt = function (index) {
             else promise._reject(value, this._getCarriedStackTrace());
         }
     }
-    this._clearHandlersAtIndex(index);
 
-    //this is only necessary against index inflation with long lived promises
-    //that accumulate the index size over time,
-    //not because the data wouldn't be GCd otherwise
-    if (index >= 4) {
-        this._queueGC();
+    this._clearCallbackDataAtIndex(index);
+    // Prevent index inflation, the above call only sets values to undefined
+    // it doesn't compact the handler array
+    // The test is exact equality because if it was GTE or GT, we would
+    // queue additional length clears for no reason
+    if (index === 256) {
+        async.invokeLater(this._setLength, this, 0);
     }
 };
 
-Promise.prototype._clearHandlersAtIndex = function(index) {
+Promise.prototype._clearCallbackDataAtIndex = function(index) {
     if (index === 0) {
         this._fulfillmentHandler0 = undefined;
         this._rejectionHandler0 = undefined;
         this._progressHandler0 = undefined;
         this._receiver0 = undefined;
+        this._promise0 = undefined;
     } else {
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
+        this[base + CALLBACK_PROMISE_OFFSET] =
         this[base + CALLBACK_RECEIVER_OFFSET] =
         this[base + CALLBACK_FULFILL_OFFSET] =
         this[base + CALLBACK_REJECT_OFFSET] =
@@ -851,41 +855,31 @@ Promise.prototype._unsetProxied = function () {
     this._bitField = this._bitField & (~IS_PROXIED);
 };
 
-Promise.prototype._isGcQueued = function () {
-    return (this._bitField & IS_GC_QUEUED) === IS_GC_QUEUED;
+Promise.prototype._isSettlePromisesQueued = function () {
+    return (this._bitField &
+            IS_SETTLE_PROMISES_QUEUED) === IS_SETTLE_PROMISES_QUEUED;
 };
 
-Promise.prototype._setGcQueued = function () {
-    this._bitField = this._bitField | IS_GC_QUEUED;
+Promise.prototype._setSettlePromisesQueued = function () {
+    this._bitField = this._bitField | IS_SETTLE_PROMISES_QUEUED;
 };
 
-Promise.prototype._unsetGcQueued = function () {
-    this._bitField = this._bitField & (~IS_GC_QUEUED);
+Promise.prototype._unsetSettlePromisesQueued = function () {
+    this._bitField = this._bitField & (~IS_SETTLE_PROMISES_QUEUED);
 };
 
-Promise.prototype._queueGC = function () {
-    if (this._isGcQueued()) return;
-    this._setGcQueued();
-    async.invokeLater(this._gc, this, undefined);
-};
-
-Promise.prototype._gc = function () {
-    var len = this._length() * CALLBACK_SIZE - CALLBACK_SIZE;
-    this._promise0 = undefined;
-    ASSERT(!(len in this));
-    for (var i = 0; i < len; i++) {
-        ASSERT(i in this);
-        //Delete is cool on array indexes
-        delete this[i];
+Promise.prototype._queueSettlePromises = function() {
+    if (!this._isSettlePromisesQueued()) {
+        async.invoke(this._settlePromises, this, undefined);
+        this._setSettlePromisesQueued();
     }
-    this._setLength(0);
-    this._unsetGcQueued();
 };
 
 Promise.prototype._queueSettleAt = function (index) {
     ASSERT(typeof index === "number");
     ASSERT(index >= 0);
     ASSERT(this.isFulfilled() || this.isRejected());
+    ASSERT(this._promiseAt(index) !== undefined);
     if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
     async.invoke(this._settlePromiseAt, this, index);
 };
@@ -903,7 +897,7 @@ Promise.prototype._fulfillUnchecked = function (value) {
     var len = this._length();
 
     if (len > 0) {
-        async.invoke(this._settlePromises, this, len);
+        this._queueSettlePromises();
     }
 };
 
@@ -939,21 +933,20 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
     if (trace !== undefined) this._setCarriedStackTrace(trace);
 
     if (len > 0) {
-        async.invoke(this._rejectPromises, this, null);
+        this._queueSettlePromises();
     } else {
         this._ensurePossibleRejectionHandled();
     }
 };
 
-Promise.prototype._rejectPromises = function () {
-    this._settlePromises();
-    this._unsetCarriedStackTrace();
-};
-
 Promise.prototype._settlePromises = function () {
+    this._unsetSettlePromisesQueued();
     var len = this._length();
     for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
+    }
+    if (this.isRejected() && this._isCarryingStackTrace()) {
+        this._unsetCarriedStackTrace();
     }
 };
 

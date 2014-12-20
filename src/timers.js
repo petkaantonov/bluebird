@@ -17,11 +17,11 @@ var errors = require("./errors.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function (promise, message, ms) {
+var afterTimeout = function (promise, parent, message) {
     //Don't waste time concatting strings or creating stack traces
     if (!promise.isPending()) return;
     if (typeof message !== "string") {
-        message = TIMEOUT_ERROR + " " + ms + " ms"
+        message = TIMEOUT_ERROR;
     }
     var err = new TimeoutError(message);
     errors.markAsOriginatingFromRejection(err);
@@ -77,11 +77,10 @@ function failureClear(reason) {
 
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
-
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_ALL);
-    ret._follow(this);
-    var handle = _setTimeout(afterTimeout, ms, ret, message, ms);
+    this._then(ret._fulfill, ret._reject, ret._progress, ret, null);
+    var handle = _setTimeout(afterTimeout, ms, ret, this, message);
     return ret.cancellable()
               ._then(successClear, failureClear, undefined, handle, undefined);
 };
