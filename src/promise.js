@@ -306,10 +306,6 @@ Promise.prototype._then = function (
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if (!haveInternalData) {
-        if (debugging) {
-            var haveSameContext = this._peekContext() === this._traceParent;
-            ret._traceParent = haveSameContext ? this._traceParent : this;
-        }
         ret._propagateFrom(this, PROPAGATE_ALL);
     }
 
