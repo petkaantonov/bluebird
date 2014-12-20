@@ -116,3 +116,4 @@ CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object");
 CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer");
 CONSTANT(TIMEOUT_ERROR, "operation timed out");
 CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value was yielded that could not be treated as a promise");
+CONSTANT(NOT_ERROR_TYPE_OR_PREDICATE, "Catch filter must inherit from Error or be a simple predicate function");

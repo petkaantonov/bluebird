@@ -21,9 +21,7 @@ function safePredicate(predicate, e) {
 
     var safeKeys = keys(safeObject);
     if (safeKeys.length) {
-        errorObj.e = new TypeError(
-            "Catch filter must inherit from Error "
-          + "or be a simple predicate function");
+        errorObj.e = new TypeError(NOT_ERROR_TYPE_OR_PREDICATE);
         return errorObj;
     }
     return retfilter;

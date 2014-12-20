@@ -101,13 +101,9 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             if (typeof item === "function") {
                 catchInstances[j++] = item;
             } else {
-                var catchFilterTypeError =
-                    new TypeError(
-                        "A catch filter must be an error constructor "
-                        + "or a filter function");
-
-                this._attachExtraTrace(catchFilterTypeError);
-                return Promise.reject(catchFilterTypeError);
+                var error = new TypeError(NOT_ERROR_TYPE_OR_PREDICATE);
+                this._attachExtraTrace(error);
+                return Promise.reject(error);
             }
         }
         catchInstances.length = j;
