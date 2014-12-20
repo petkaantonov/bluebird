@@ -244,8 +244,8 @@ Promise.cast = function (obj) {
         ret = new Promise(INTERNAL);
         ret._setTrace(undefined);
         ret._setFulfilled();
-        ret._cleanValues();
         ret._settledValue = val;
+        ret._cleanValues();
     }
     return ret;
 };
@@ -256,9 +256,9 @@ Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
     ret._setTrace(undefined);
     markAsOriginatingFromRejection(reason);
-    ret._cleanValues();
     ret._setRejected();
     ret._settledValue = reason;
+    ret._cleanValues();
     if (!canAttachTrace(reason)) {
         var trace = new Error(reason + "");
         ret._setCarriedStackTrace(trace);
@@ -908,12 +908,11 @@ Promise.prototype._fulfillUnchecked = function (value) {
         this._attachExtraTrace(err);
         return this._rejectUnchecked(err, undefined);
     }
-    this._cleanValues();
     this._setFulfilled();
     this._settledValue = value;
-    var len = this._length();
+    this._cleanValues();
 
-    if (len > 0) {
+    if (this._length() > 0) {
         this._queueSettlePromises();
     }
 };
@@ -930,9 +929,9 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
         this._attachExtraTrace(err);
         return this._rejectUnchecked(err);
     }
-    this._cleanValues();
     this._setRejected();
     this._settledValue = reason;
+    this._cleanValues();
 
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
@@ -945,11 +944,10 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
         }, undefined, trace === undefined ? reason : trace);
         return;
     }
-    var len = this._length();
 
     if (trace !== undefined) this._setCarriedStackTrace(trace);
 
-    if (len > 0) {
+    if (this._length() > 0) {
         this._queueSettlePromises();
     } else {
         this._ensurePossibleRejectionHandled();
@@ -1017,10 +1015,10 @@ Promise.prototype._popContext = function () {
 
 Promise.prototype._resolveFromSyncValue = function (value) {
     if (value === errorObj) {
-        this._cleanValues();
         this._setRejected();
         var reason = value.e;
         this._settledValue = reason;
+        this._cleanValues();
         this._attachExtraTrace(reason);
         this._ensurePossibleRejectionHandled();
     } else {
@@ -1028,9 +1026,9 @@ Promise.prototype._resolveFromSyncValue = function (value) {
         if (maybePromise instanceof Promise) {
             this._follow(maybePromise);
         } else {
-            this._cleanValues();
             this._setFulfilled();
             this._settledValue = value;
+            this._cleanValues();
         }
     }
 };
