@@ -26,7 +26,7 @@ PropertiesPromiseArray.prototype._init = function () {
 
 //Override
 PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     ASSERT(!(value instanceof Promise));
     this._values[index] = value;
     var totalResolved = ++this._totalResolved;
@@ -42,7 +42,7 @@ PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
 //Override
 PropertiesPromiseArray.prototype._promiseProgressed = function (value, index) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
 
     this._promise._progress({
         key: this._values[index + this.length()],

@@ -4,6 +4,7 @@ module.exports = function(Promise,
                           apiRejection,
                           tryConvertToPromise,
                           INTERNAL) {
+var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch4 = util.tryCatch4;
 var tryCatch3 = util.tryCatch3;
@@ -59,8 +60,8 @@ ReductionPromiseArray.prototype._resolveEmptyArray = function () {
 
 // Override
 ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
+    ASSERT(!this._isResolved());
     var values = this._values;
-    if (values === null) return;
     values[index] = value;
     var length = this.length();
     var preservedValues = this._preservedValues;

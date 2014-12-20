@@ -134,7 +134,7 @@ PromiseArray.prototype._reject = function (reason) {
 };
 
 PromiseArray.prototype._promiseProgressed = function (progressValue, index) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     ASSERT(isArray(this._values));
     this._promise._progress({
         index: index,
@@ -144,7 +144,7 @@ PromiseArray.prototype._promiseProgressed = function (progressValue, index) {
 
 
 PromiseArray.prototype._promiseFulfilled = function (value, index) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     ASSERT(isArray(this._values));
     ASSERT(typeof index === "number");
     this._values[index] = value;
@@ -156,7 +156,7 @@ PromiseArray.prototype._promiseFulfilled = function (value, index) {
 
 PromiseArray.prototype._promiseRejected = function (reason, index) {
     ASSERT(index >= 0);
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     ASSERT(isArray(this._values));
     this._totalResolved++;
     this._reject(reason);

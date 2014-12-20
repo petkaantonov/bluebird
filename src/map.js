@@ -4,6 +4,7 @@ module.exports = function(Promise,
                           apiRejection,
                           tryConvertToPromise,
                           INTERNAL) {
+var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
@@ -35,9 +36,8 @@ MappingPromiseArray.prototype._init = function () {};
 
 // Override
 MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
+    ASSERT(!this._isResolved());
     var values = this._values;
-    if (values === null) return;
-
     var length = this.length();
     var preservedValues = this._preservedValues;
     var limit = this._limit;
@@ -96,6 +96,7 @@ MappingPromiseArray.prototype._drainQueue = function () {
     var limit = this._limit;
     var values = this._values;
     while (queue.length > 0 && this._inFlight < limit) {
+        if (this._isResolved()) return;
         var index = queue.pop();
         this._promiseFulfilled(values[index], index);
     }

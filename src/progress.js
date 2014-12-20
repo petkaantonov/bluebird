@@ -81,7 +81,8 @@ Promise.prototype._progressUnchecked = function (progressValue) {
                 handler.call(receiver, progressValue, promise);
             } else if (receiver instanceof Promise && receiver._isProxied()) {
                 receiver._progressUnchecked(progressValue);
-            } else if (receiver instanceof PromiseArray) {
+            } else if (receiver instanceof PromiseArray &&
+                       !receiver._isResolved()) {
                 receiver._promiseProgressed(progressValue, promise);
             }
             continue;

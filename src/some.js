@@ -53,7 +53,7 @@ SomePromiseArray.prototype.setHowMany = function (count) {
 
 //override
 SomePromiseArray.prototype._promiseFulfilled = function (value) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     this._addFulfilled(value);
     if (this._fulfilled() === this.howMany()) {
         this._values.length = this.howMany();
@@ -67,7 +67,7 @@ SomePromiseArray.prototype._promiseFulfilled = function (value) {
 };
 //override
 SomePromiseArray.prototype._promiseRejected = function (reason) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     this._addRejected(reason);
     if (this.howMany() > this._canPossiblyFulfill()) {
         var e = new AggregateError();

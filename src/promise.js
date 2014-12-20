@@ -804,8 +804,14 @@ Promise.prototype._settlePromiseAt = function (index) {
                     this._getCarriedStackTrace());
                 done = true;
             } else if (receiver instanceof PromiseArray) {
-                if (isFulfilled) receiver._promiseFulfilled(value, promise);
-                else receiver._promiseRejected(value, promise);
+                if (!receiver._isResolved()) {
+                    if (isFulfilled) {
+                        receiver._promiseFulfilled(value, promise);
+                    }
+                    else {
+                        receiver._promiseRejected(value, promise);
+                    }
+                }
                 done = true;
             }
         }
