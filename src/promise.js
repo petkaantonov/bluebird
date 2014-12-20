@@ -885,7 +885,7 @@ Promise.prototype._queueSettleAt = function (index) {
 };
 
 Promise.prototype._fulfillUnchecked = function (value) {
-    if (!this.isPending()) return;
+    ASSERT(!this.isFulfilled() && !this.isRejected());
     if (value === this) {
         var err = makeSelfResolutionError();
         this._attachExtraTrace(err);
@@ -907,7 +907,7 @@ Promise.prototype._rejectUncheckedCheckError = function (reason) {
 };
 
 Promise.prototype._rejectUnchecked = function (reason, trace) {
-    if (!this.isPending()) return;
+    ASSERT(!this.isFulfilled() && !this.isRejected());
     if (reason === this) {
         var err = makeSelfResolutionError();
         this._attachExtraTrace(err);
