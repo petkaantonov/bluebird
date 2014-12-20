@@ -1,16 +1,5 @@
 "use strict";
 var ASSERT = require("./assert.js");
-var _setTimeout = function(fn, ms) {
-    var len = arguments.length;
-    ASSERT(4 <= len && len <= 5);
-    var arg0 = arguments[2];
-    var arg1 = arguments[3];
-    var arg2 = len >= 5 ? arguments[4] : undefined;
-    return setTimeout(function() {
-        fn(arg0, arg1, arg2);
-    }, ms|0);
-};
-
 module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
 var util = require("./util.js");
 var errors = require("./errors.js");
@@ -50,7 +39,9 @@ var delay = Promise.delay = function (value, ms) {
         });
     } else {
         promise._setTrace(undefined);
-        _setTimeout(afterDelay, ms, value, promise);
+        setTimeout(function delayTimeout() {
+            afterDelay(value, promise);
+        }, ms);
     }
     return promise;
 };
@@ -80,7 +71,9 @@ Promise.prototype.timeout = function (ms, message) {
     var ret = new Promise(INTERNAL).cancellable();
     ret._propagateFrom(this, PROPAGATE_ALL);
     ret._follow(this);
-    var handle = _setTimeout(afterTimeout, ms, ret, this, message);
+    var handle = setTimeout(function timeoutTimeout() {
+        afterTimeout(ret, this, message);
+    }, ms);
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };
 
