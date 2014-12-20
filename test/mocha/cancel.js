@@ -235,7 +235,7 @@ describe("issues", function(){
 
         a = a.then(function() {
             f3 = true;
-            return delay(500);
+            return delay(150);
         });
 
         a = a.then(function() {
@@ -248,7 +248,9 @@ describe("issues", function(){
             assert(f1); assert(f2); assert(f3);
             assertCancelled(waitingForLongDelay);
             assert(!f4);
-            done();
+            setTimeout(function() {
+                done();
+            }, 200);
         });
 
         assert(a.isCancellable());

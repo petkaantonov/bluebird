@@ -317,10 +317,20 @@ Promise.prototype._then = function (
         this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
     if (this.isResolved() && !this._isSettlePromisesQueued()) {
-        async.invoke(this._queueSettleAt, this, callbackIndex);
+        async.invoke(this._settlePromiseAtPostResolution, this, callbackIndex);
     }
 
     return ret;
+};
+
+Promise.prototype._settlePromiseAtPostResolution = function (index) {
+    ASSERT(typeof index === "number");
+    ASSERT(index >= 0);
+    ASSERT(this.isFulfilled() || this.isRejected());
+    ASSERT(this._promiseAt(index) !== undefined);
+    if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
+    this._setLength(0);
+    this._settlePromiseAt(index);
 };
 
 Promise.prototype._length = function () {
@@ -471,6 +481,13 @@ Promise.prototype._addCallbacks = function (
     }
 
     if (index === 0) {
+        ASSERT(this._promise0 === undefined);
+        ASSERT(this._receiver0 === undefined);
+        ASSERT(this._fulfillmentHandler0 === undefined ||
+            this._isCarryingStackTrace());
+        ASSERT(this._rejectionHandler0 === undefined);
+        ASSERT(this._progressHandler0 === undefined);
+
         this._promise0 = promise;
         if (receiver !== undefined) this._receiver0 = receiver;
         if (typeof fulfill === "function" && !this._isCarryingStackTrace())
@@ -478,6 +495,11 @@ Promise.prototype._addCallbacks = function (
         if (typeof reject === "function") this._rejectionHandler0 = reject;
         if (typeof progress === "function") this._progressHandler0 = progress;
     } else {
+        ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
+        ASSERT(this[base + CALLBACK_RECEIVER_OFFSET] === undefined);
+        ASSERT(this[base + CALLBACK_FULFILL_OFFSET] === undefined);
+        ASSERT(this[base + CALLBACK_REJECT_OFFSET] === undefined);
+        ASSERT(this[base + CALLBACK_PROGRESS_OFFSET] === undefined);
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
@@ -613,6 +635,7 @@ Promise.prototype._callHandler = function (
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
+    if (promise.isRejected()) return;
     ASSERT(!promise._isFollowingOrFulfilledOrRejected());
     var x = this._callHandler(handler, receiver, promise, value);
     if (promise._isFollowing()) return;
@@ -775,9 +798,12 @@ Promise.prototype._settlePromiseAt = function (index) {
 
     ASSERT(this.isFulfilled() || this.isRejected());
 
+    var carriedStackTrace =
+        this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
     var promise = this._promiseAt(index);
+    this._clearCallbackDataAtIndex(index);
 
     if (typeof handler === "function") {
         //if promise is not instanceof Promise
@@ -795,6 +821,7 @@ Promise.prototype._settlePromiseAt = function (index) {
         if (receiver !== undefined) {
             if (receiver instanceof Promise &&
                 receiver._isProxied()) {
+                if (receiver.isRejected()) return;
                 ASSERT(!receiver.isFulfilled() && !receiver.isRejected());
                 //Must be smuggled data if proxied
                 receiver._unsetProxied();
@@ -818,23 +845,16 @@ Promise.prototype._settlePromiseAt = function (index) {
 
         if (!done) {
             if (isFulfilled) promise._fulfill(value);
-            else promise._reject(value, this._getCarriedStackTrace());
+            else promise._reject(value, carriedStackTrace);
         }
-    }
-
-    this._clearCallbackDataAtIndex(index);
-    // Prevent index inflation, the above call only sets values to undefined
-    // it doesn't compact the handler array
-    // The test is exact equality because if it was GTE or GT, we would
-    // queue additional length clears for no reason
-    if (index === 256) {
-        async.invokeLater(this._setLength, this, 0);
     }
 };
 
 Promise.prototype._clearCallbackDataAtIndex = function(index) {
     if (index === 0) {
-        this._fulfillmentHandler0 = undefined;
+        if (!this._isCarryingStackTrace()) {
+            this._fulfillmentHandler0 = undefined;
+        }
         this._rejectionHandler0 = undefined;
         this._progressHandler0 = undefined;
         this._receiver0 = undefined;
@@ -879,15 +899,6 @@ Promise.prototype._queueSettlePromises = function() {
         async.invoke(this._settlePromises, this, undefined);
         this._setSettlePromisesQueued();
     }
-};
-
-Promise.prototype._queueSettleAt = function (index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(this.isFulfilled() || this.isRejected());
-    ASSERT(this._promiseAt(index) !== undefined);
-    if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
-    async.invoke(this._settlePromiseAt, this, index);
 };
 
 Promise.prototype._fulfillUnchecked = function (value) {
@@ -948,11 +959,9 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
 Promise.prototype._settlePromises = function () {
     this._unsetSettlePromisesQueued();
     var len = this._length();
+    this._setLength(0);
     for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
-    }
-    if (this.isRejected() && this._isCarryingStackTrace()) {
-        this._unsetCarriedStackTrace();
     }
 };
 

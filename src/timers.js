@@ -77,12 +77,11 @@ function failureClear(reason) {
 
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
-    var ret = new Promise(INTERNAL);
+    var ret = new Promise(INTERNAL).cancellable();
     ret._propagateFrom(this, PROPAGATE_ALL);
-    this._then(ret._fulfill, ret._reject, ret._progress, ret, null);
+    ret._follow(this);
     var handle = _setTimeout(afterTimeout, ms, ret, this, message);
-    return ret.cancellable()
-              ._then(successClear, failureClear, undefined, handle, undefined);
+    return ret._then(successClear, failureClear, undefined, handle, undefined);
 };
 
 };
