@@ -95,8 +95,8 @@ Async.prototype._consumeLateBuffer = function () {
 
 Async.prototype._queueTick = function () {
     if (!this._isTickUsed) {
-        this._schedule(this.consumeFunctionBuffer);
         this._isTickUsed = true;
+        this._schedule(this.consumeFunctionBuffer);
     }
 };
 

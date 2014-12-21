@@ -1,6 +1,7 @@
 "use strict";
 var assert   = require("assert");
 var schedule = require("../../js/debug/schedule");
+var Promise = adapter;
 var isNodeJS = typeof process !== "undefined" && typeof process.execPath === "string";
 
 describe("schedule", function () {
@@ -18,6 +19,20 @@ describe("schedule", function () {
                         done();
                     });
                 });
+            });
+        });
+
+        describe("Promise.setScheduler", function() {
+            it("should work with synchronous scheduler", function(done) {
+                Promise.setScheduler(function(task) {
+                    task();
+                });
+                var success = false;
+                Promise.resolve().then(function() {
+                    success = true;
+                });
+                assert(success);
+                done();
             });
         });
     }
