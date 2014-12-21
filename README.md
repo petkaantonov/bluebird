@@ -475,10 +475,9 @@ The reason for the unusual way of testing is because the majority of tests are f
 
 To test in browsers:
 
-    cd browser
-    setup
+    npm run browsers
 
-Then open the `index.html` in your browser. Requires bash (on windows the mingw32 that comes with git works fine too).
+Then open the `browser/index.html` in your browser.
 
 You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
 

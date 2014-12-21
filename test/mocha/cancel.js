@@ -235,7 +235,7 @@ describe("issues", function(){
 
         a = a.then(function() {
             f3 = true;
-            return delay(150);
+            return delay(2000);
         });
 
         a = a.then(function() {
@@ -248,16 +248,14 @@ describe("issues", function(){
             assert(f1); assert(f2); assert(f3);
             assertCancelled(waitingForLongDelay);
             assert(!f4);
-            setTimeout(function() {
-                done();
-            }, 200);
+            done();
         });
 
         assert(a.isCancellable());
         setTimeout(function() {
             assert(a.isCancellable());
             a.cancel();
-        }, 50);
+        }, 250);
     });
 });
 
@@ -276,14 +274,14 @@ describe("simple", function() {
 
 describe("Cancelling a promise twice should have no additional effect", function() {
     specify("With delay", function(done) {
-        var promise = pending().promise.cancellable().catch(function(){}).then(done).catch(function() { done(new Error('Should not be called')) });
+        var promise = pending().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
         promise.cancel();
         setTimeout(function() {
             promise.cancel();
         }, 50);
     });
     specify("Without delay", function(done) {
-        var promise = pending().promise.cancellable().catch(function(){}).then(done).catch(function() { done(new Error('Should not be called')) });
+        var promise = pending().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
         promise.cancel()
         promise.cancel();
     });

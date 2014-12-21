@@ -19,7 +19,8 @@
     ],
     "scripts": {
         "test": "grunt test",
-        "prepublish": "grunt build"
+        "prepublish": "grunt build",
+        "browsers": "browserify browser/main.js -o browser/bundle.js"
     },
     "homepage": "https://github.com/petkaantonov/bluebird",
     "repository": {
@@ -41,7 +42,7 @@
         "grunt-contrib-watch": "latest",
         "grunt-contrib-connect": "latest",
         "grunt-contrib-concat": "latest",
-        "grunt-saucelabs": "~8.3.1",
+        "grunt-saucelabs": "~8.4.1",
         "acorn": "~0.6.0",
         "mocha": "~1.20.1",
         "q": "~1.0.1",

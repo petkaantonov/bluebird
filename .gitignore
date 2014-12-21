@@ -6,9 +6,9 @@ benchmark/async-compare/node_modules/*
 benchmark/promises-benchmark/node_modules/*
 benchmark/promises-benchmark/fixtures/*
 benchmark/perf-promises/node_modules/*
-browser/main.js
 async
 sync
+browser/bundle.js
 mixed
 bench.json
 js/bluebird_sync.min.js

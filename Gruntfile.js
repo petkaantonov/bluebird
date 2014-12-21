@@ -26,12 +26,11 @@ module.exports = function( grunt ) {
     function getBrowsers() {
         //Terse format to generate the verbose format required by sauce
         var browsers = {
-            "internet explorer|WIN8": ["10"],
-            "internet explorer|WIN8.1": ["11"],
-            "firefox|Windows 7": ["3.5", "4", "25"],
-            "chrome|Windows 7": null,
-            "safari|Windows 7": ["5"],
-            "iphone|OS X 10.8": ["6.0"]
+            "internet explorer|Windows XP": ["7", "8"],
+            "internet explorer|Windows 7": ["9"],
+            "firefox|Windows 7": ["3.5", "4", "25", "33"],
+            "chrome|Windows 7": ["beta"],
+            "safari|Windows 7": ["5"]
         };
 
         var ret = [];
@@ -51,7 +50,7 @@ module.exports = function( grunt ) {
             }
             else {
                 ret.push({
-                    browserName: browser,
+                    browserNAme: browser,
                     platform: platform
                 });
             }
@@ -326,9 +325,10 @@ module.exports = function( grunt ) {
         all: {
             options: {
                 urls: ["http://127.0.0.1:9999/index.html"],
-                tunnelTimeout: 5,
+                tunnelTimeout: 30,
                 build: process.env.TRAVIS_JOB_ID,
-                concurrency: 3,
+                maxPollRetries: 3,
+                throttled: 3,
                 browsers: getBrowsers(),
                 testname: "mocha tests",
                 tags: ["master"]

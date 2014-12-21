@@ -9,7 +9,6 @@ var raceLater = function (promise) {
     });
 };
 
-var hasOwn = {}.hasOwnProperty;
 function race(promises, parent) {
     var maybePromise = tryConvertToPromise(promises, undefined);
 
@@ -30,7 +29,7 @@ function race(promises, parent) {
     for (var i = 0, len = promises.length; i < len; ++i) {
         var val = promises[i];
 
-        if (val === undefined && !(hasOwn.call(promises, i))) {
+        if (val === undefined && !(i in promises)) {
             continue;
         }
 
