@@ -157,6 +157,15 @@ describe("spread", function () {
         });
     });
 
+    it("calls the errback when given a rejected promise without all", function (done) {
+        var err = new Error();
+        adapter.resolve([fulfilled(10), rejected(err)]).spread(assert.fail,
+            function(actual){
+            assert( actual === err );
+            done();
+        });
+    });
+
     it("should wait for promises in the returned array even when not calling .all", function(done) {
         var d1 = Promise.defer();
         var d2 = Promise.defer();

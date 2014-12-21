@@ -134,8 +134,7 @@ Promise.prototype.done = function (didFulfill, didReject, didProgress) {
 };
 
 Promise.prototype.spread = function (didFulfill, didReject) {
-    return this._then(didFulfill, didReject, undefined,
-        APPLY, undefined);
+    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {
@@ -580,45 +579,16 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     }
 };
 
-Promise.prototype._spreadSlowCase =
-function (targetFn, promise, values, boundTo) {
-    ASSERT(isArray(values));
-    ASSERT(typeof targetFn === "function");
-    var promiseForAll = new PromiseArray(values).promise();
-    var promise2 = promiseForAll._then(function() {
-        return targetFn.apply(boundTo, arguments);
-    }, undefined, undefined, APPLY, undefined);
-    promise._follow(promise2);
-};
-
-Promise.prototype._callSpread = function (handler, promise, value) {
-    //Array of non-promise values is fast case
-    //.spread has a bit convoluted semantics otherwise
-    var boundTo = this._boundTo;
-    if (isArray(value)) {
-        //Shouldnt be many items to loop through
-        //since the spread target callback will have
-        //a formal parameter for each item in the array
-        for (var i = 0, len = value.length; i < len; ++i) {
-            if (tryConvertToPromise(value[i], promise) instanceof Promise) {
-                this._spreadSlowCase(handler, promise, value, boundTo);
-                return;
-            }
-        }
-    }
-    promise._pushContext();
-    return tryCatchApply(handler, value, boundTo);
-};
-
 Promise.prototype._callHandler = function (
     handler, receiver, promise, value) {
     //Special receiver that means we are .applying an array of arguments
     //(for .spread() at the moment)
     var x;
+    promise._pushContext();
     if (receiver === APPLY && !this.isRejected()) {
-        x = this._callSpread(handler, promise, value);
+        ASSERT(isArray(value));
+        x = tryCatchApply(handler, value, this._boundTo);
     } else {
-        promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
     promise._popContext();
