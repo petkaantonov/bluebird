@@ -3528,8 +3528,8 @@ Async.prototype._consumeLateBuffer = function () {
 
 Async.prototype._queueTick = function () {
     if (!this._isTickUsed) {
-        this._schedule(this.consumeFunctionBuffer);
         this._isTickUsed = true;
+        this._schedule(this.consumeFunctionBuffer);
     }
 };
 
@@ -5591,8 +5591,7 @@ Promise.prototype.done = function (didFulfill, didReject, didProgress) {
 };
 
 Promise.prototype.spread = function (didFulfill, didReject) {
-    return this._then(didFulfill, didReject, undefined,
-        APPLY, undefined);
+    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {
@@ -6063,40 +6062,15 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     }
 };
 
-Promise.prototype._spreadSlowCase =
-function (targetFn, promise, values, boundTo) {
-    ASSERT(isArray(values),
-    "isArray(values)");
-    ASSERT(((typeof targetFn) === "function"),
-    "typeof targetFn === \u0022function\u0022");
-    var promiseForAll = new PromiseArray(values).promise();
-    var promise2 = promiseForAll._then(function() {
-        return targetFn.apply(boundTo, arguments);
-    }, undefined, undefined, APPLY, undefined);
-    promise._follow(promise2);
-};
-
-Promise.prototype._callSpread = function (handler, promise, value) {
-    var boundTo = this._boundTo;
-    if (isArray(value)) {
-        for (var i = 0, len = value.length; i < len; ++i) {
-            if (tryConvertToPromise(value[i], promise) instanceof Promise) {
-                this._spreadSlowCase(handler, promise, value, boundTo);
-                return;
-            }
-        }
-    }
-    promise._pushContext();
-    return tryCatchApply(handler, value, boundTo);
-};
-
 Promise.prototype._callHandler = function (
     handler, receiver, promise, value) {
     var x;
+    promise._pushContext();
     if (receiver === APPLY && !this.isRejected()) {
-        x = this._callSpread(handler, promise, value);
+        ASSERT(isArray(value),
+    "isArray(value)");
+        x = tryCatchApply(handler, value, this._boundTo);
     } else {
-        promise._pushContext();
         x = tryCatch1(handler, receiver, value);
     }
     promise._popContext();
@@ -27703,6 +27677,15 @@ describe("spread", function () {
         });
     });
 
+    it("calls the errback when given a rejected promise without all", function (done) {
+        var err = new Error();
+        adapter.resolve([fulfilled(10), rejected(err)]).spread(assert.fail,
+            function(actual){
+            assert( actual === err );
+            done();
+        });
+    });
+
     it("should wait for promises in the returned array even when not calling .all", function(done) {
         var d1 = Promise.defer();
         var d2 = Promise.defer();
@@ -28689,6 +28672,7 @@ describe("If promise is reused to get at the value many times over the course of
 var process=require("__browserify_process");"use strict";
 var assert   = require("assert");
 var schedule = require("../../js/debug/schedule");
+var Promise = adapter;
 var isNodeJS = typeof process !== "undefined" && typeof process.execPath === "string";
 
 describe("schedule", function () {
@@ -28706,6 +28690,20 @@ describe("schedule", function () {
                         done();
                     });
                 });
+            });
+        });
+
+        describe("Promise.setScheduler", function() {
+            it("should work with synchronous scheduler", function(done) {
+                Promise.setScheduler(function(task) {
+                    task();
+                });
+                var success = false;
+                Promise.resolve().then(function() {
+                    success = true;
+                });
+                assert(success);
+                done();
             });
         });
     }

@@ -1,3 +1,10 @@
+## 2.4.2 (2014-12-21)
+
+Bugfixes:
+
+ - Fix bug where spread rejected handler is ignored in case of rejection
+ - Fix synchronous scheduler passed to `setScheduler` causing infinite loop
+
 ## 2.4.1 (2014-12-20)
 
 Features:
