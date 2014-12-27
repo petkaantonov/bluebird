@@ -611,17 +611,17 @@ Promise.prototype._settlePromiseFromHandler = function (
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
     } else {
-        var castValue = tryConvertToPromise(x, promise);
-        if (castValue instanceof Promise) {
-            if (castValue.isRejected() &&
-                !castValue._isCarryingStackTrace() &&
-                !canAttachTrace(castValue._settledValue)) {
-                var trace = new Error(castValue._settledValue + "");
+        x = tryConvertToPromise(x, promise);
+        if (x instanceof Promise) {
+            if (x.isRejected() &&
+                !x._isCarryingStackTrace() &&
+                !canAttachTrace(x._settledValue)) {
+                var trace = new Error(x._settledValue + "");
                 promise._attachExtraTrace(trace);
-                castValue._setCarriedStackTrace(trace);
+                x._setCarriedStackTrace(trace);
             }
-            promise._follow(castValue);
-            promise._propagateFrom(castValue, PROPAGATE_CANCEL);
+            promise._follow(x);
+            promise._propagateFrom(x, PROPAGATE_CANCEL);
         } else {
             promise._fulfillUnchecked(x);
         }
@@ -753,6 +753,7 @@ Promise.prototype._settlePromiseAt = function (index) {
             if (receiver instanceof Promise &&
                 receiver._isProxied()) {
                 if (receiver.isRejected()) return;
+
                 ASSERT(!receiver.isFulfilled() && !receiver.isRejected());
                 //Must be smuggled data if proxied
                 receiver._unsetProxied();
