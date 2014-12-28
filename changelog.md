@@ -1,3 +1,14 @@
+## 2.5.0 (2014-12-28)
+
+Features:
+
+ - [`.get`](#API.md#https://github.com/petkaantonov/bluebird/blob/master/API.md#getstring-propertyname---promise) now supports negative indexing.
+
+Bugfixes:
+
+ - Fix bug with `Promise.method` wrapped function returning a promise that never resolves if the function returns a promise that is resolved with another promise
+ - Fix bug with `Promise.delay` never resolving if the value is a promise that is resolved with another promise
+
 ## 2.4.3 (2014-12-28)
 
 Bugfixes:

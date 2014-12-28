@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.4.2
+ * bluebird build version 2.4.3
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -124,16 +124,6 @@ Async.prototype.haveItemsQueued = function () {
     return this._functionBuffer.length() > 0;
 };
 
-Async.prototype.invokeLater = function (fn, receiver, arg) {
-    if (_process !== undefined &&
-        _process.domain != null &&
-        !fn.domain) {
-        fn = _process.domain.bind(fn);
-    }
-    this._lateBuffer.push(fn, receiver, arg);
-    this._queueTick();
-};
-
 Async.prototype._withDomain = function(fn) {
     if (_process !== undefined &&
         _process.domain != null &&
@@ -141,6 +131,12 @@ Async.prototype._withDomain = function(fn) {
         fn = _process.domain.bind(fn);
     }
     return fn;
+};
+
+Async.prototype.invokeLater = function (fn, receiver, arg) {
+    fn = this._withDomain(fn);
+    this._lateBuffer.push(fn, receiver, arg);
+    this._queueTick();
 };
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
@@ -340,7 +336,9 @@ function namedGetter(obj) {
     return obj[this];
 }
 function indexedGetter(obj) {
-    return obj[this];
+    var index = +this;
+    if (index < 0) index = Math.max(0, index + obj.length);
+    return obj[index];
 }
 Promise.prototype.get = function (propertyName) {
     var isIndex = (typeof propertyName === "number");
@@ -2978,6 +2976,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
     } else {
         var maybePromise = tryConvertToPromise(value, this);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             this._follow(maybePromise);
         } else {
             this._setFulfilled();
@@ -4259,7 +4258,11 @@ else if (typeof setTimeout !== "undefined") {
         setTimeout(fn, 0);
     };
 }
-else throw new Error("no async scheduler available");
+else {
+    schedule = function() {
+        throw new Error("No async scheduler available\u000a\u000a    See http://goo.gl/m3OTXk\u000a");
+    };
+}
 module.exports = schedule;
 
 },{}],29:[function(require,module,exports){
@@ -4797,7 +4800,7 @@ var delay = Promise.delay = function (value, ms) {
 
     if (maybePromise instanceof Promise) {
         promise._propagateFrom(maybePromise, 7);
-        promise._follow(maybePromise);
+        promise._follow(maybePromise._target());
         return promise.then(function(value) {
             return Promise.delay(value, ms);
         });

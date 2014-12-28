@@ -63,7 +63,7 @@
 - [Utility](#utility)
     - [`.tap(Function handler)`](#tapfunction-handler---promise)
     - [`.call(String propertyName [, dynamic arg...])`](#callstring-propertyname--dynamic-arg---promise)
-    - [`.get(String propertyName)`](#getstring-propertyname---promise)
+    - [`.get(String propertyName|int index)`](#getstring-propertynameint-index---promise)
     - [`.return(dynamic value)`](#returndynamic-value---promise)
     - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.noConflict()`](#promisenoconflict---object)
@@ -2203,7 +2203,7 @@ fs.readdirAsync(".").then(_)
 
 <hr>
 
-#####`.get(String propertyName)` -> `Promise`
+#####`.get(String propertyName|int index)` -> `Promise`
 
 This is a convenience method for doing:
 
@@ -2222,6 +2222,17 @@ db.query("...")
 
     });
 ```
+
+If `index` is negative, the indexed load will become `obj.length + index`. So that -1 can be used to read last item
+in the array, -2 to read the second last and so on. For example:
+
+```js
+Promise.resolve([1,2,3]).get(-1).then(function(value) {
+    console.log(value); // 3
+});
+```
+
+If the `index` is still negative after `obj.length + index`, it will be clamped to 0.
 
 When promisifying libraries (e.g. `request`) that call the callback with multiple arguments, the promisified version of that function will fulfill with an array of the arguments. `.get` can be a nifty short-hand to get the argument of interest.
 
