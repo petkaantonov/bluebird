@@ -24,20 +24,6 @@ Async.prototype.haveItemsQueued = function () {
     return this._functionBuffer.length() > 0;
 };
 
-//When the fn absolutely needs to be called after
-//the queue has been completely flushed
-Async.prototype.invokeLater = function (fn, receiver, arg) {
-    ASSERT(typeof fn === "function");
-    ASSERT(arguments.length === 3);
-    if (_process !== undefined &&
-        _process.domain != null &&
-        !fn.domain) {
-        fn = _process.domain.bind(fn);
-    }
-    this._lateBuffer.push(fn, receiver, arg);
-    this._queueTick();
-};
-
 Async.prototype._withDomain = function(fn) {
     ASSERT(typeof fn === "function");
     if (_process !== undefined &&
@@ -46,6 +32,16 @@ Async.prototype._withDomain = function(fn) {
         fn = _process.domain.bind(fn);
     }
     return fn;
+};
+
+//When the fn absolutely needs to be called after
+//the queue has been completely flushed
+Async.prototype.invokeLater = function (fn, receiver, arg) {
+    ASSERT(typeof fn === "function");
+    ASSERT(arguments.length === 3);
+    fn = this._withDomain(fn);
+    this._lateBuffer.push(fn, receiver, arg);
+    this._queueTick();
 };
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
