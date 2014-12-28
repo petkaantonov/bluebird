@@ -1,3 +1,9 @@
+## 2.4.3 (2014-12-28)
+
+Bugfixes:
+
+ - Fix memory leak as described in [this Promises/A+ spec issue](https://github.com/promises-aplus/promises-spec/issues/179).
+
 ## 2.4.2 (2014-12-21)
 
 Bugfixes:
