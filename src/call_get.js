@@ -78,7 +78,9 @@ function namedGetter(obj) {
     return obj[this];
 }
 function indexedGetter(obj) {
-    return obj[this];
+    var index = +this;
+    if (index < 0) index = Math.max(0, index + obj.length);
+    return obj[index];
 }
 Promise.prototype.get = function (propertyName) {
     var isIndex = (typeof propertyName === "number");

@@ -5,7 +5,7 @@ var join = Promise.join;
 
 describe("indexed getter", function() {
     var p = Promise.resolve([0, 1, 2, 3, 4, 5, 7, 5,10]);
-    specify("gets index", function(done) {
+    specify("gets positive index", function(done) {
         var first = p.get(0);
         var fourth = p.get(3);
         var last = p.get(8);
@@ -14,6 +14,17 @@ describe("indexed getter", function() {
             assert(a === 0);
             assert(b === 3);
             assert(c === 10);
+            done();
+        });
+    });
+
+    specify("gets negative index", function(done) {
+        var last = p.get(-1);
+        var first = p.get(-20);
+
+        join(last, first, function(a, b) {
+            assert.equal(a, 10);
+            assert.equal(b, 0);
             done();
         });
     });
