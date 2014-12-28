@@ -67,15 +67,16 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         // anymore), the marker PENDING is put at that index
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
-            if (maybePromise.isPending()) {
+            maybePromise = maybePromise._target();
+            if (maybePromise._isPending()) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = PENDING;
                 return maybePromise._proxyPromiseArray(this, index);
-            } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise._settledValue;
+            } else if (maybePromise._isFulfilled()) {
+                ret = maybePromise._value();
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise._settledValue);
+                return this._reject(maybePromise._reason());
             }
         }
         values[index] = ret;

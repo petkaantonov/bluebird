@@ -26,14 +26,15 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {
-        if (maybePromise.isPending()) {
+        maybePromise = maybePromise._target();
+        if (maybePromise._isPending()) {
             maybePromise._proxyPromiseArray(this, -1);
-        } else if (maybePromise.isFulfilled()) {
-            accum = maybePromise._settledValue;
+        } else if (maybePromise._isFulfilled()) {
+            accum = maybePromise._value();
             this._gotAccum = true;
         } else {
             maybePromise._unsetRejectionIsUnhandled();
-            this._reject(maybePromise.reason());
+            this._reject(maybePromise._reason());
             rejected = true;
         }
     }
@@ -119,14 +120,15 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         if (valuesPhaseIndex !== REDUCE_PHASE_INITIAL) return;
         value = values[i];
         if (value instanceof Promise) {
-            if (value.isFulfilled()) {
-                value = value._settledValue;
-            } else if (value.isPending()) {
+            value = value._target();
+            if (value._isFulfilled()) {
+                value = value._value();
+            } else if (value._isPending()) {
                 // Continue later when the promise at current index fulfills
                 return;
             } else {
                 value._unsetRejectionIsUnhandled();
-                return this._reject(value.reason());
+                return this._reject(value._reason());
             }
         }
 
@@ -142,16 +144,17 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             // Callback returned a pending
             // promise so continue iteration when it fulfills
-            if (maybePromise.isPending()) {
+            if (maybePromise._isPending()) {
                 valuesPhase[i] = REDUCE_PHASE_REDUCING;
                 return maybePromise._proxyPromiseArray(this, i);
-            } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise._settledValue;
+            } else if (maybePromise._isFulfilled()) {
+                ret = maybePromise._value();
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise._settledValue);
+                return this._reject(maybePromise._reason());
             }
         }
 

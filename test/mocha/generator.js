@@ -342,21 +342,22 @@ describe("Promise.coroutine", function() {
     });
 });
 
-describe("custom yield handlers", function(){
-    Promise.coroutine.addYieldHandler(function(v) {
-        if (typeof v === "number") {
-            return Promise.delay(v);
-        }
-    });
+describe("custom yield handlers", function() {
+    specify("should work with timers", function(done) {
+        var n = 0;
+        Promise.coroutine.addYieldHandler(function(v) {
+            if (typeof v === "number") {
+                n = 1;
+                return Promise.resolve(n);
+            }
+        });
 
-    specify("should work with timers", function(done){
+
         Promise.coroutine(function*() {
-            var now = Date.now();
-            yield 50;
-            var then = Date.now() - now;
-            return then;
-        })().then(function(elapsed) {
-            assert(elapsed > 40);
+            return yield 50;
+        })().then(function(value) {
+            assert.equal(value, 1);
+            assert.equal(n, 1);
             done();
         });
     });

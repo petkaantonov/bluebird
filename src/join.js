@@ -75,14 +75,15 @@ Promise.join = function () {
             for (var i = 0; i < last; ++i) {
                 var maybePromise = tryConvertToPromise(arguments[i], undefined);
                 if (maybePromise instanceof Promise) {
-                    if (maybePromise.isPending()) {
+                    maybePromise = maybePromise._target();
+                    if (maybePromise._isPending()) {
                         maybePromise._then(callbacks[i], reject,
                                            undefined, ret, holder);
-                    } else if (maybePromise.isFulfilled()) {
+                    } else if (maybePromise._isFulfilled()) {
                         callbacks[i].call(ret,
-                                          maybePromise._settledValue, holder);
+                                          maybePromise._value(), holder);
                     } else {
-                        ret._reject(maybePromise._settledValue);
+                        ret._reject(maybePromise._reason());
                         maybePromise._unsetRejectionIsUnhandled();
                     }
                 } else {

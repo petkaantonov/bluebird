@@ -13,7 +13,7 @@ Promise.prototype.progressed = function (handler) {
 
 Promise.prototype._progress = function (progressValue) {
     if (this._isFollowingOrFulfilledOrRejected()) return;
-    this._progressUnchecked(progressValue);
+    this._target()._progressUnchecked(progressValue);
 
 };
 
@@ -67,7 +67,7 @@ Promise.prototype._doProgressWith = function (progression) {
 
 
 Promise.prototype._progressUnchecked = function (progressValue) {
-    if (!this.isPending()) return;
+    ASSERT(!this._isFollowingOrFulfilledOrRejected());
     var len = this._length();
     var progress = this._progress;
     for (var i = 0; i < len; i++) {
@@ -79,8 +79,6 @@ Promise.prototype._progressUnchecked = function (progressValue) {
             var receiver = this._receiverAt(i);
             if (typeof handler === "function") {
                 handler.call(receiver, progressValue, promise);
-            } else if (receiver instanceof Promise && receiver._isProxied()) {
-                receiver._progressUnchecked(progressValue);
             } else if (receiver instanceof PromiseArray &&
                        !receiver._isResolved()) {
                 receiver._promiseProgressed(progressValue, promise);

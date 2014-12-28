@@ -46,20 +46,21 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
 
     var values = tryConvertToPromise(this._values, undefined);
     if (values instanceof Promise) {
-        this._values = values;
         values._setBoundTo(this._promise._boundTo);
+        values = values._target();
+        this._values = values;
         //Expect the promise to be a promise
         //for an array
-        if (values.isFulfilled()) {
+        if (values._isFulfilled()) {
             //Fulfilled promise with hopefully
             //an array as a resolution value
-            values = values._settledValue;
+            values = values._value();
             if (!isArray(values)) {
                 var err = new Promise.TypeError(COLLECTION_ERROR);
                 this.__hardReject__(err);
                 return;
             }
-        } else if (values.isPending()) {
+        } else if (values._isPending()) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
             values._then(
@@ -72,7 +73,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             return;
         } else {
             values._unsetRejectionIsUnhandled();
-            this._reject(values._settledValue);
+            this._reject(values._reason());
             return;
         }
     } else if (!isArray(values)) {
@@ -98,14 +99,15 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         if (this._isResolved()) return;
         var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
-            if (maybePromise.isPending()) {
+            maybePromise = maybePromise._target();
+            if (maybePromise._isPending()) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
-            } else if (maybePromise.isFulfilled()) {
-                this._promiseFulfilled(maybePromise._settledValue, i);
+            } else if (maybePromise._isFulfilled()) {
+                this._promiseFulfilled(maybePromise._value(), i);
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                this._promiseRejected(maybePromise._settledValue, i);
+                this._promiseRejected(maybePromise._reason(), i);
             }
         } else {
             this._promiseFulfilled(maybePromise, i);

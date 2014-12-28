@@ -27,7 +27,7 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 3);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 4);
 CONSTANT(CALLBACK_SIZE, 5);
 //Layout for ._bitField
-//QQWF NCTR BPHS UDLL LLLL LLLL LLLL LLLL
+//QQWF NCTR B[R]HS UDLL LLLL LLLL LLLL LLLL
 //Q = isSettlePromisesQueued (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //W = isFollowing (The promise that is being followed is not stored explicitly)
@@ -36,8 +36,6 @@ CONSTANT(CALLBACK_SIZE, 5);
 //C = isCancellable
 //T = isFinal (used for .done() implementation)
 //B = isBound
-//P = isProxied (optimization when .then listeners on a promise are
-//                just respective fate sealers on some other promise)
 //H = isRejectionUnhandled
 //S = isCarryingStackTrace
 //U = isUnhanldedRejectionNotified
@@ -52,7 +50,6 @@ CONSTANT(IS_REJECTED, 0x8000000|0);
 CONSTANT(IS_CANCELLABLE, 0x4000000|0);
 CONSTANT(IS_FINAL, 0x2000000|0);
 CONSTANT(IS_BOUND, 0x800000|0);
-CONSTANT(IS_PROXIED, 0x400000|0);
 CONSTANT(IS_REJECTION_UNHANDLED, 0x200000|0);
 CONSTANT(IS_CARRYING_STACK_TRACE, 0x100000|0);
 CONSTANT(IS_UNHANDLED_REJECTION_NOTIFIED, 0x80000|0);

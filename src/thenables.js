@@ -33,7 +33,6 @@ function tryConvertToPromise(obj, traceParent) {
                 ret,
                 null
             );
-            ret._setFollowing();
             return ret;
         }
         var then = getThen(obj);

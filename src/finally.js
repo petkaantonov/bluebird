@@ -43,6 +43,7 @@ function finallyHandler(reasonOrValue) {
     if (ret !== undefined) {
         var maybePromise = tryConvertToPromise(ret, undefined);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, reasonOrValue,
                                     promise.isFulfilled());
         }
@@ -70,6 +71,7 @@ function tapHandler(value) {
     if (ret !== undefined) {
         var maybePromise = tryConvertToPromise(ret, undefined);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, value, true);
         }
     }

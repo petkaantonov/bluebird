@@ -6,7 +6,7 @@ var errors = require("./errors.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function (promise, parent, message) {
+var afterTimeout = function (promise, message) {
     //Don't waste time concatting strings or creating stack traces
     if (!promise.isPending()) return;
     if (typeof message !== "string") {
@@ -67,12 +67,13 @@ function failureClear(reason) {
 }
 
 Promise.prototype.timeout = function (ms, message) {
+    var target = this._target();
     ms = +ms;
     var ret = new Promise(INTERNAL).cancellable();
     ret._propagateFrom(this, PROPAGATE_ALL);
-    ret._follow(this);
+    ret._follow(target);
     var handle = setTimeout(function timeoutTimeout() {
-        afterTimeout(ret, this, message);
+        afterTimeout(ret, message);
     }, ms);
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };

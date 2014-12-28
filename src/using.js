@@ -86,8 +86,8 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
     };
 
     Disposer.prototype.resource = function () {
-        if (this.promise().isFulfilled()) {
-            return this.promise()._settledValue;
+        if (this.promise()._isFulfilled()) {
+            return this.promise()._value();
         }
         return null;
     };
@@ -162,7 +162,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
 
     Promise.prototype.disposer = function (fn) {
         if (typeof fn === "function") {
-            return new FunctionDisposer(fn, this);
+            return new FunctionDisposer(fn, this._target());
         }
         throw new TypeError();
     };
