@@ -964,6 +964,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
     } else {
         var maybePromise = tryConvertToPromise(value, this);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             this._follow(maybePromise);
         } else {
             this._setFulfilled();

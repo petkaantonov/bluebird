@@ -102,4 +102,23 @@ describe("Promise.method", function(){
             done();
         });
     });
+
+    specify("should unwrap a following promise", function(done) {
+        var resolveF;
+        var f = new Promise(function() {
+            resolveF = arguments[0];
+        });
+        var v = new Promise(function(f) {
+            setTimeout(function() {
+                f(3);
+            }, 13);
+        });
+        resolveF(v);
+        Promise.method(function(){
+            return f;
+        })().then(function(v){
+            assert(v === 3);
+            done();
+        });
+    });
 });
