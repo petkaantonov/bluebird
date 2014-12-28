@@ -401,7 +401,7 @@ Promise.prototype._cancel = function (reason) {
     }
     this._unsetCancellable();
     promiseToReject._attachExtraTrace(reason);
-    promiseToReject._rejectUnchecked(reason);
+    promiseToReject._target()._rejectUnchecked(reason);
 };
 
 Promise.prototype.cancel = function (reason) {
@@ -1390,6 +1390,7 @@ function finallyHandler(reasonOrValue) {
     if (ret !== undefined) {
         var maybePromise = tryConvertToPromise(ret, undefined);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, reasonOrValue,
                                     promise.isFulfilled());
         }
@@ -1414,6 +1415,7 @@ function tapHandler(value) {
     if (ret !== undefined) {
         var maybePromise = tryConvertToPromise(ret, undefined);
         if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, value, true);
         }
     }
@@ -1705,14 +1707,15 @@ Promise.join = function () {
             for (var i = 0; i < last; ++i) {
                 var maybePromise = tryConvertToPromise(arguments[i], undefined);
                 if (maybePromise instanceof Promise) {
-                    if (maybePromise.isPending()) {
+                    maybePromise = maybePromise._target();
+                    if (maybePromise._isPending()) {
                         maybePromise._then(callbacks[i], reject,
                                            undefined, ret, holder);
-                    } else if (maybePromise.isFulfilled()) {
+                    } else if (maybePromise._isFulfilled()) {
                         callbacks[i].call(ret,
-                                          maybePromise._settledValue, holder);
+                                          maybePromise._value(), holder);
                     } else {
-                        ret._reject(maybePromise._settledValue);
+                        ret._reject(maybePromise._reason());
                         maybePromise._unsetRejectionIsUnhandled();
                     }
                 } else {
@@ -1808,15 +1811,16 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
-            if (maybePromise.isPending()) {
+            maybePromise = maybePromise._target();
+            if (maybePromise._isPending()) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = PENDING;
                 return maybePromise._proxyPromiseArray(this, index);
-            } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise._settledValue;
+            } else if (maybePromise._isFulfilled()) {
+                ret = maybePromise._value();
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise._settledValue);
+                return this._reject(maybePromise._reason());
             }
         }
         values[index] = ret;
@@ -2000,7 +2004,7 @@ Promise.prototype.progressed = function (handler) {
 
 Promise.prototype._progress = function (progressValue) {
     if (this._isFollowingOrFulfilledOrRejected()) return;
-    this._progressUnchecked(progressValue);
+    this._target()._progressUnchecked(progressValue);
 
 };
 
@@ -2034,7 +2038,6 @@ Promise.prototype._doProgressWith = function (progression) {
 
 
 Promise.prototype._progressUnchecked = function (progressValue) {
-    if (!this.isPending()) return;
     var len = this._length();
     var progress = this._progress;
     for (var i = 0; i < len; i++) {
@@ -2044,8 +2047,6 @@ Promise.prototype._progressUnchecked = function (progressValue) {
             var receiver = this._receiverAt(i);
             if (typeof handler === "function") {
                 handler.call(receiver, progressValue, promise);
-            } else if (receiver instanceof Promise && receiver._isProxied()) {
-                receiver._progressUnchecked(progressValue);
             } else if (receiver instanceof PromiseArray &&
                        !receiver._isResolved()) {
                 receiver._promiseProgressed(progressValue, promise);
@@ -2098,9 +2099,8 @@ var makeSelfResolutionError = function () {
     return new TypeError("circular promise resolution chain\u000a\u000a    See http://goo.gl/LhFpo0\u000a");
 };
 var reflect = function() {
-    return new Promise.PromiseInspection(this);
+    return new Promise.PromiseInspection(this._target());
 };
-var returnFirstElement = function(elements) { return elements[0]; };
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
@@ -2135,7 +2135,6 @@ var debugging = false || !!(
     (process.env["BLUEBIRD_DEBUG"] ||
         process.env["NODE_ENV"] === "development")
 );
-
 function Promise(resolver) {
     if (typeof resolver !== "function") {
         throw new TypeError("the promise constructor requires a resolver function\u000a\u000a    See http://goo.gl/EC22Yn\u000a");
@@ -2158,15 +2157,18 @@ Promise.prototype.bind = function (thisArg) {
     var maybePromise = tryConvertToPromise(thisArg, this);
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, 2 | 1);
+    var target = this._target();
     if (maybePromise instanceof Promise) {
-        var binder = maybePromise.then(function(thisArg) {
-            ret._setBoundTo(thisArg);
-        });
-        var p = Promise.all([this, binder]).then(returnFirstElement);
-        ret._follow(p);
+        target._then(INTERNAL, ret._reject, ret._progress, ret, null);
+        maybePromise._then(function(thisArg) {
+            if (ret._isPending()) {
+                ret._setBoundTo(thisArg);
+                ret._follow(target);
+            }
+        }, ret._reject, ret._progress, ret, null);
     } else {
-        ret._follow(this);
         ret._setBoundTo(thisArg);
+        ret._follow(target);
     }
 
     return ret;
@@ -2235,10 +2237,10 @@ Promise.prototype.toJSON = function () {
         rejectionReason: undefined
     };
     if (this.isFulfilled()) {
-        ret.fulfillmentValue = this._settledValue;
+        ret.fulfillmentValue = this.value();
         ret.isFulfilled = true;
     } else if (this.isRejected()) {
-        ret.rejectionReason = this._settledValue;
+        ret.rejectionReason = this.reason();
         ret.isRejected = true;
     }
     return ret;
@@ -2307,10 +2309,10 @@ Promise.bind = function (thisArg) {
     ret._setTrace(undefined);
 
     if (maybePromise instanceof Promise) {
-        var p = maybePromise.then(function(thisArg) {
+        maybePromise._then(function(thisArg) {
             ret._setBoundTo(thisArg);
-        });
-        ret._follow(p);
+            ret._fulfill(undefined);
+        }, ret._reject, ret._progress, ret, null);
     } else {
         ret._setBoundTo(thisArg);
         ret._setFulfilled();
@@ -2389,11 +2391,14 @@ Promise.prototype._then = function (
         ret._propagateFrom(this, 7);
     }
 
+    var target = this._target();
+    if (target !== this && receiver === undefined) receiver = this._boundTo;
     var callbackIndex =
-        this._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
+        target._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
-    if (this.isResolved() && !this._isSettlePromisesQueued()) {
-        async.invoke(this._settlePromiseAtPostResolution, this, callbackIndex);
+    if (target._isResolved() && !target._isSettlePromisesQueued()) {
+        async.invoke(
+            target._settlePromiseAtPostResolution, target, callbackIndex);
     }
 
     return ret;
@@ -2505,7 +2510,8 @@ Promise.prototype._getCarriedStackTrace = function () {
 Promise.prototype._receiverAt = function (index) {
     var ret = index === 0
         ? this._receiver0
-        : this[(index << 2) + index - 5 + 4];
+        : this[
+            index * 5 - 5 + 4];
     if (this._isBound() && ret === undefined) {
         return this._boundTo;
     }
@@ -2515,19 +2521,19 @@ Promise.prototype._receiverAt = function (index) {
 Promise.prototype._promiseAt = function (index) {
     return index === 0
         ? this._promise0
-        : this[(index << 2) + index - 5 + 3];
+        : this[index * 5 - 5 + 3];
 };
 
 Promise.prototype._fulfillmentHandlerAt = function (index) {
     return index === 0
         ? this._fulfillmentHandler0
-        : this[(index << 2) + index - 5 + 0];
+        : this[index * 5 - 5 + 0];
 };
 
 Promise.prototype._rejectionHandlerAt = function (index) {
     return index === 0
         ? this._rejectionHandler0
-        : this[(index << 2) + index - 5 + 1];
+        : this[index * 5 - 5 + 1];
 };
 
 Promise.prototype._addCallbacks = function (
@@ -2588,11 +2594,6 @@ Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
     this._setProxyHandlers(promiseArray, index);
 };
 
-Promise.prototype._proxyPromise = function (promise) {
-    promise._setProxied();
-    this._setProxyHandlers(promise, -15);
-};
-
 Promise.prototype._setBoundTo = function (obj) {
     if (obj !== undefined) {
         this._bitField = this._bitField | 8388608;
@@ -2635,7 +2636,7 @@ Promise.prototype._callHandler = function (
     handler, receiver, promise, value) {
     var x;
     promise._pushContext();
-    if (receiver === APPLY && !this.isRejected()) {
+    if (receiver === APPLY && !this._isRejected()) {
         x = tryCatchApply(handler, value, this._boundTo);
     } else {
         x = tryCatch1(handler, receiver, value);
@@ -2647,9 +2648,8 @@ Promise.prototype._callHandler = function (
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
-    if (promise.isRejected()) return;
+    if (promise._isRejected()) return;
     var x = this._callHandler(handler, receiver, promise, value);
-    if (promise._isFollowing()) return;
 
     if (x === errorObj || x === promise || x === NEXT_FILTER) {
         var err = x === promise
@@ -2659,36 +2659,57 @@ Promise.prototype._settlePromiseFromHandler = function (
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
     } else {
-        var castValue = tryConvertToPromise(x, promise);
-        if (castValue instanceof Promise) {
-            if (castValue.isRejected() &&
-                !castValue._isCarryingStackTrace() &&
-                !canAttachTrace(castValue._settledValue)) {
-                var trace = new Error(castValue._settledValue + "");
+        x = tryConvertToPromise(x, promise);
+        if (x instanceof Promise) {
+            x = x._target();
+            if (x._isRejected() &&
+                !x._isCarryingStackTrace() &&
+                !canAttachTrace(x._reason())) {
+                var trace = new Error(x._reason() + "");
                 promise._attachExtraTrace(trace);
-                castValue._setCarriedStackTrace(trace);
+                x._setCarriedStackTrace(trace);
             }
-            promise._follow(castValue);
-            promise._propagateFrom(castValue, 1);
+            promise._follow(x);
         } else {
             promise._fulfillUnchecked(x);
         }
     }
 };
 
-Promise.prototype._follow = function (promise) {
-    this._setFollowing();
+Promise.prototype._target = function() {
+    return this._isFollowing() ? this._followee() : this;
+};
 
-    if (promise.isPending()) {
+Promise.prototype._followee = function() {
+    return this._rejectionHandler0;
+};
+
+Promise.prototype._setFollowee = function(promise) {
+    this._rejectionHandler0 = promise;
+};
+
+Promise.prototype._follow = function (promise) {
+    if (promise._isPending()) {
+        var len = this._length();
+        for (var i = 0; i < len; ++i) {
+            promise._addCallbacks(
+                this._fulfillmentHandlerAt(i),
+                this._rejectionHandlerAt(i),
+                this._progressHandlerAt(i),
+                this._promiseAt(i),
+                this._receiverAt(i)
+            );
+        }
+        this._setFollowing();
+        this._setLength(0);
+        this._setFollowee(promise);
         this._propagateFrom(promise, 1);
-        promise._proxyPromise(this);
-    } else if (promise.isFulfilled()) {
-        this._fulfillUnchecked(promise._settledValue);
+    } else if (promise._isFulfilled()) {
+        this._fulfillUnchecked(promise._value());
     } else {
-        this._rejectUnchecked(promise._settledValue,
+        this._rejectUnchecked(promise._reason(),
             promise._getCarriedStackTrace());
     }
-
     if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
 
     if (debugging &&
@@ -2706,7 +2727,7 @@ Promise.prototype._tryFollow = function (value) {
     if (!(maybePromise instanceof Promise)) {
         return false;
     }
-    this._follow(maybePromise);
+    this._follow(maybePromise._target());
     return true;
 };
 
@@ -2765,7 +2786,7 @@ Promise.prototype._reject = function (reason, carriedStackTrace) {
 };
 
 Promise.prototype._settlePromiseAt = function (index) {
-    var handler = this.isFulfilled()
+    var handler = this._isFulfilled()
         ? this._fulfillmentHandlerAt(index)
         : this._rejectionHandlerAt(index);
 
@@ -2782,36 +2803,19 @@ Promise.prototype._settlePromiseAt = function (index) {
         } else {
             this._settlePromiseFromHandler(handler, receiver, value, promise);
         }
-    } else {
-        var done = false;
-        var isFulfilled = this.isFulfilled();
-        if (receiver !== undefined) {
-            if (receiver instanceof Promise &&
-                receiver._isProxied()) {
-                if (receiver.isRejected()) return;
-                receiver._unsetProxied();
-
-                if (isFulfilled) receiver._fulfillUnchecked(value);
-                else receiver._rejectUnchecked(value,
-                    this._getCarriedStackTrace());
-                done = true;
-            } else if (receiver instanceof PromiseArray) {
-                if (!receiver._isResolved()) {
-                    if (isFulfilled) {
-                        receiver._promiseFulfilled(value, promise);
-                    }
-                    else {
-                        receiver._promiseRejected(value, promise);
-                    }
-                }
-                done = true;
+    } else if (receiver instanceof PromiseArray) {
+        if (!receiver._isResolved()) {
+            if (this._isFulfilled()) {
+                receiver._promiseFulfilled(value, promise);
+            }
+            else {
+                receiver._promiseRejected(value, promise);
             }
         }
-
-        if (!done) {
-            if (isFulfilled) promise._fulfill(value);
-            else promise._reject(value, carriedStackTrace);
-        }
+    } else if (this._isFulfilled()) {
+        promise._fulfill(value);
+    } else {
+        promise._reject(value, carriedStackTrace);
     }
 };
 
@@ -2832,18 +2836,6 @@ Promise.prototype._clearCallbackDataAtIndex = function(index) {
         this[base + 1] =
         this[base + 2] = undefined;
     }
-};
-
-Promise.prototype._isProxied = function () {
-    return (this._bitField & 4194304) === 4194304;
-};
-
-Promise.prototype._setProxied = function () {
-    this._bitField = this._bitField | 4194304;
-};
-
-Promise.prototype._unsetProxied = function () {
-    this._bitField = this._bitField & (~4194304);
 };
 
 Promise.prototype._isSettlePromisesQueued = function () {
@@ -3104,16 +3096,17 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
 
     var values = tryConvertToPromise(this._values, undefined);
     if (values instanceof Promise) {
-        this._values = values;
         values._setBoundTo(this._promise._boundTo);
-        if (values.isFulfilled()) {
-            values = values._settledValue;
+        values = values._target();
+        this._values = values;
+        if (values._isFulfilled()) {
+            values = values._value();
             if (!isArray(values)) {
                 var err = new Promise.TypeError("expecting an array, a promise or a thenable\u000a\u000a    See http://goo.gl/s8MMhc\u000a");
                 this.__hardReject__(err);
                 return;
             }
-        } else if (values.isPending()) {
+        } else if (values._isPending()) {
             values._then(
                 init,
                 this._reject,
@@ -3124,7 +3117,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             return;
         } else {
             values._unsetRejectionIsUnhandled();
-            this._reject(values._settledValue);
+            this._reject(values._reason());
             return;
         }
     } else if (!isArray(values)) {
@@ -3150,13 +3143,14 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         if (this._isResolved()) return;
         var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
-            if (maybePromise.isPending()) {
+            maybePromise = maybePromise._target();
+            if (maybePromise._isPending()) {
                 maybePromise._proxyPromiseArray(this, i);
-            } else if (maybePromise.isFulfilled()) {
-                this._promiseFulfilled(maybePromise._settledValue, i);
+            } else if (maybePromise._isFulfilled()) {
+                this._promiseFulfilled(maybePromise._value(), i);
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                this._promiseRejected(maybePromise._settledValue, i);
+                this._promiseRejected(maybePromise._reason(), i);
             }
         } else {
             this._promiseFulfilled(maybePromise, i);
@@ -3978,7 +3972,6 @@ var raceLater = function (promise) {
     });
 };
 
-var hasOwn = {}.hasOwnProperty;
 function race(promises, parent) {
     var maybePromise = tryConvertToPromise(promises, undefined);
 
@@ -3999,7 +3992,7 @@ function race(promises, parent) {
     for (var i = 0, len = promises.length; i < len; ++i) {
         var val = promises[i];
 
-        if (val === undefined && !(hasOwn.call(promises, i))) {
+        if (val === undefined && !(i in promises)) {
             continue;
         }
 
@@ -4065,14 +4058,15 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {
-        if (maybePromise.isPending()) {
+        maybePromise = maybePromise._target();
+        if (maybePromise._isPending()) {
             maybePromise._proxyPromiseArray(this, -1);
-        } else if (maybePromise.isFulfilled()) {
-            accum = maybePromise._settledValue;
+        } else if (maybePromise._isFulfilled()) {
+            accum = maybePromise._value();
             this._gotAccum = true;
         } else {
             maybePromise._unsetRejectionIsUnhandled();
-            this._reject(maybePromise.reason());
+            this._reject(maybePromise._reason());
             rejected = true;
         }
     }
@@ -4147,13 +4141,14 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         if (valuesPhaseIndex !== 1) return;
         value = values[i];
         if (value instanceof Promise) {
-            if (value.isFulfilled()) {
-                value = value._settledValue;
-            } else if (value.isPending()) {
+            value = value._target();
+            if (value._isFulfilled()) {
+                value = value._value();
+            } else if (value._isPending()) {
                 return;
             } else {
                 value._unsetRejectionIsUnhandled();
-                return this._reject(value.reason());
+                return this._reject(value._reason());
             }
         }
 
@@ -4169,14 +4164,15 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
-            if (maybePromise.isPending()) {
+            maybePromise = maybePromise._target();
+            if (maybePromise._isPending()) {
                 valuesPhase[i] = 4;
                 return maybePromise._proxyPromiseArray(this, i);
-            } else if (maybePromise.isFulfilled()) {
-                ret = maybePromise._settledValue;
+            } else if (maybePromise._isFulfilled()) {
+                ret = maybePromise._value();
             } else {
                 maybePromise._unsetRejectionIsUnhandled();
-                return this._reject(maybePromise._settledValue);
+                return this._reject(maybePromise._reason());
             }
         }
 
@@ -4516,8 +4512,9 @@ Promise._SomePromiseArray = SomePromiseArray;
 module.exports = function(Promise) {
 function PromiseInspection(promise) {
     if (promise !== undefined) {
+        promise = promise._target();
         this._bitField = promise._bitField;
-        this._settledValue = promise.isResolved()
+        this._settledValue = promise._isResolved()
             ? promise._settledValue
             : undefined;
     }
@@ -4527,23 +4524,7 @@ function PromiseInspection(promise) {
     }
 }
 
-PromiseInspection.prototype.isFulfilled =
-Promise.prototype.isFulfilled = function () {
-    return (this._bitField & 268435456) > 0;
-};
-
-PromiseInspection.prototype.isRejected =
-Promise.prototype.isRejected = function () {
-    return (this._bitField & 134217728) > 0;
-};
-
-PromiseInspection.prototype.isPending =
-Promise.prototype.isPending = function () {
-    return (this._bitField & 402653184) === 0;
-};
-
-PromiseInspection.prototype.value =
-Promise.prototype.value = function () {
+PromiseInspection.prototype.value = function () {
     if (!this.isFulfilled()) {
         throw new TypeError("cannot get fulfillment value of a non-fulfilled promise\u000a\u000a    See http://goo.gl/hc1DLj\u000a");
     }
@@ -4551,18 +4532,73 @@ Promise.prototype.value = function () {
 };
 
 PromiseInspection.prototype.error =
-PromiseInspection.prototype.reason =
-Promise.prototype.reason = function () {
+PromiseInspection.prototype.reason = function () {
     if (!this.isRejected()) {
         throw new TypeError("cannot get rejection reason of a non-rejected promise\u000a\u000a    See http://goo.gl/hPuiwB\u000a");
     }
     return this._settledValue;
 };
 
+PromiseInspection.prototype.isFulfilled =
+Promise.prototype._isFulfilled = function () {
+    return (this._bitField & 268435456) > 0;
+};
+
+PromiseInspection.prototype.isRejected =
+Promise.prototype._isRejected = function () {
+    return (this._bitField & 134217728) > 0;
+};
+
+PromiseInspection.prototype.isPending =
+Promise.prototype._isPending = function () {
+    return (this._bitField & 402653184) === 0;
+};
+
 PromiseInspection.prototype.isResolved =
-Promise.prototype.isResolved = function () {
+Promise.prototype._isResolved = function () {
     return (this._bitField & 402653184) > 0;
 };
+
+Promise.prototype.isPending = function() {
+    return this._target()._isPending();
+};
+
+Promise.prototype.isRejected = function() {
+    return this._target()._isRejected();
+};
+
+Promise.prototype.isFulfilled = function() {
+    return this._target()._isFulfilled();
+};
+
+Promise.prototype.isResolved = function() {
+    return this._target()._isResolved();
+};
+
+Promise.prototype._value = function() {
+    return this._settledValue;
+};
+
+Promise.prototype._reason = function() {
+    return this._settledValue;
+};
+
+Promise.prototype.value = function() {
+    var target = this._target();
+    if (!target.isFulfilled()) {
+        throw new TypeError("cannot get fulfillment value of a non-fulfilled promise\u000a\u000a    See http://goo.gl/hc1DLj\u000a");
+    }
+    return target._settledValue;
+};
+
+Promise.prototype.reason = function() {
+    var target = this._target();
+    if (!target.isRejected()) {
+        throw new TypeError("cannot get rejection reason of a non-rejected promise\u000a\u000a    See http://goo.gl/hPuiwB\u000a");
+    }
+    return target._settledValue;
+};
+
 
 Promise.PromiseInspection = PromiseInspection;
 };
@@ -4624,7 +4660,6 @@ function tryConvertToPromise(obj, traceParent) {
                 ret,
                 null
             );
-            ret._setFollowing();
             return ret;
         }
         var then = getThen(obj);
@@ -4736,7 +4771,7 @@ var errors = require("./errors.js");
 var apiRejection = require("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function (promise, parent, message) {
+var afterTimeout = function (promise, message) {
     if (!promise.isPending()) return;
     if (typeof message !== "string") {
         message = "operation timed out";
@@ -4794,12 +4829,13 @@ function failureClear(reason) {
 }
 
 Promise.prototype.timeout = function (ms, message) {
+    var target = this._target();
     ms = +ms;
     var ret = new Promise(INTERNAL).cancellable();
     ret._propagateFrom(this, 7);
-    ret._follow(this);
+    ret._follow(target);
     var handle = setTimeout(function timeoutTimeout() {
-        afterTimeout(ret, this, message);
+        afterTimeout(ret, message);
     }, ms);
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };
@@ -4918,8 +4954,8 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
     };
 
     Disposer.prototype.resource = function () {
-        if (this.promise().isFulfilled()) {
-            return this.promise()._settledValue;
+        if (this.promise()._isFulfilled()) {
+            return this.promise()._value();
         }
         return null;
     };
@@ -4994,7 +5030,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
 
     Promise.prototype.disposer = function (fn) {
         if (typeof fn === "function") {
-            return new FunctionDisposer(fn, this);
+            return new FunctionDisposer(fn, this._target());
         }
         throw new TypeError();
     };
