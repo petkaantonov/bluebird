@@ -36,5 +36,9 @@ else if (typeof setTimeout !== "undefined") {
         setTimeout(fn, 0);
     };
 }
-else throw new Error("no async scheduler available");
+else {
+    schedule = function() {
+        throw new Error(NO_ASYNC_SCHEDULER);
+    };
+}
 module.exports = schedule;

@@ -136,3 +136,5 @@ CONSTANT(PROMISIFICATION_NORMAL_METHODS_ERROR, "Cannot promisify an API that has
     See http://goo.gl/iWrZbw\n");
 CONSTANT(SUFFIX_NOT_IDENTIFIER, "suffix must be a valid identifier\n\n\
     See http://goo.gl/8FZo5V\n");
+CONSTANT(NO_ASYNC_SCHEDULER, "No async scheduler available\n\n\
+    See http://goo.gl/m3OTXk\n");
