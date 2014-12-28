@@ -215,4 +215,21 @@ describe("delay", function () {
         Q.delay(25).then(function () { deferred.progress(3); });
         Q.delay(35).then(function () { deferred.resolve(); });
     });
+
+    it("should resolve follower promise's value", function(done) {
+        var resolveF;
+        var f = new Promise(function() {
+            resolveF = arguments[0];
+        });
+        var v = new Promise(function(f) {
+            setTimeout(function() {
+                f(3);
+            }, 13);
+        });
+        resolveF(v);
+        Promise.delay(f, 100).then(function(value) {
+            assert.equal(value, 3);
+            done();
+        });
+    });
 });

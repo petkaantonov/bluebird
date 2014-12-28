@@ -33,7 +33,7 @@ var delay = Promise.delay = function (value, ms) {
 
     if (maybePromise instanceof Promise) {
         promise._propagateFrom(maybePromise, PROPAGATE_ALL);
-        promise._follow(maybePromise);
+        promise._follow(maybePromise._target());
         return promise.then(function(value) {
             return Promise.delay(value, ms);
         });
