@@ -1,3 +1,11 @@
+## 2.5.2 (2014-12-29)
+
+Bugfixes:
+
+ - Fix bug where already resolved promise gets attached more handlers while calling its handlers resulting in some handlers not being called
+ - Fix bug where then handlers are not called in the same order as they would run if Promises/A+ 2.3.2 was implemented as adoption
+ - Fix bug where using `Object.create(null)` as a rejection reason would crash bluebird
+
 ## 2.5.1 (2014-12-29)
 
 Bugfixes:
