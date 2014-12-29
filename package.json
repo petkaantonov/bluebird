@@ -61,7 +61,8 @@
         "jshint-stylish": "~0.2.0",
         "semver-utils": "~1.1.0",
         "rimraf": "~2.2.6",
-        "mkdirp": "~0.5.0"
+        "mkdirp": "~0.5.0",
+        "cli-table": "~0.3.1"
     },
     "readmeFilename": "README.md",
     "main": "./js/main/bluebird.js",

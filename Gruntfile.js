@@ -1,5 +1,6 @@
 "use strict";
 Error.stackTraceLimit = 100;
+var Table = require('cli-table');
 var astPasses = require("./ast_passes.js");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var Q = require("q");
@@ -368,7 +369,9 @@ module.exports = function( grunt ) {
             grunt.option("verbose")
                 ? process.stdout
                 : 'ignore',
-            process.stderr
+            grunt.option("verbose")
+                ? process.stderr
+                : 'ignore'
         ];
         if (!env && !isCI) env = {singleTest: !!grunt.option("single-test")};
         var flags = node11 ? ["--harmony-generators"] : [];
@@ -383,13 +386,18 @@ module.exports = function( grunt ) {
                              {cwd: p, stdio: stdio, env:env});
         }
         node.on('exit', exit );
+        node.on('error', function() {
+            exit(-1);
+        });
 
         function exit( code ) {
+            var callback = cb;
+            cb = function() {};
             if( code !== 0 ) {
-                cb(new Error("process didn't exit normally. Code: " + code));
+                callback(new Error("process didn't exit normally. Code: " + code));
             }
             else {
-                cb(null);
+                callback(null);
             }
         }
 
@@ -615,6 +623,45 @@ module.exports = function( grunt ) {
         return this.indexOf( str ) >= 0;
     };
 
+    var ROWS = 35;
+    var prevLog = new Array(ROWS);
+    var log = new Array(ROWS);
+    for (var i = 0; i < ROWS; ++i) log[i] = [];
+    var tableOpts = {
+        chars: {
+            'mid': '',
+            'left-mid': '',
+            'mid-mid': '',
+            'right-mid': ''
+        },
+        style: {
+            'padding-left': 0,
+            'padding-right': 0,
+            compact: true
+        }
+    };
+
+    function dumpLog() {
+        var table = new Table(tableOpts);
+        table.push.apply(table, log);
+        process.stdout.cursorTo(0, 0);
+        table = table.toString();
+        process.stdout.write(table);
+        var lines = table.split("\n").length + 1;
+        process.stdout.cursorTo(0, lines);
+    }
+
+    function logFileStatus(file, message, doOutput) {
+        if (grunt.option("single-test")) return;
+        var index = file.index;
+        var row = index % ROWS;
+        var column = (index / ROWS) | 0;
+        log[row][column] = message;
+        if (doOutput !== false) {
+            dumpLog();
+        }
+    }
+
     function testRun( testOption, jobs ) {
         var fs = require("fs");
         var path = require("path");
@@ -622,10 +669,16 @@ module.exports = function( grunt ) {
 
         var totalTests = 0;
         var testsDone = 0;
-        function testDone() {
+        var failures = 0;
+        function testDone(err) {
+            if (err) failures++;
             testsDone++;
             if( testsDone >= totalTests ) {
-                done();
+                if (failures > 0) {
+                    done(new Error("Some tests failed"));
+                } else {
+                    done();
+                }
             }
         }
         var files;
@@ -659,20 +712,29 @@ module.exports = function( grunt ) {
             return /\.js$/.test(fileName);
         }).map(function(f){
             return f.replace( /(\d)(\d)(\d)/, "$1.$2.$3" );
+        }).map(function(f, i) {
+            return {
+                name: path.basename(f),
+                path: f,
+                index: i
+            };
         });
 
         function runFile(file) {
             totalTests++;
-            grunt.log.writeln("Running test " + file );
             var env = undefined;
-            if (file.indexOf("bluebird-debug-env-flag") >= 0) {
+            if (file.path.indexOf("bluebird-debug-env-flag") >= 0) {
                 env = Object.create(process.env);
                 env["BLUEBIRD_DEBUG"] = true;
             }
-            runIndependentTest(file, function(err) {
-                if( err ) throw new Error(err + " " + file + " failed");
-                grunt.log.writeln("Test " + file + " succeeded");
-                testDone();
+            runIndependentTest(file.path, function(err) {
+                if(err) {
+                    logFileStatus(file, file.name + " \u001b[31m\u00D7 FAILURE\u001b[39m");
+                    testDone(true);
+                } else {
+                    logFileStatus(file, file.name + " \u001b[32m\u221A\u001b[39m");
+                    testDone(false);
+                }
                 if( files.length > 0 ) {
                     runFile( files.shift() );
                 }
@@ -684,10 +746,18 @@ module.exports = function( grunt ) {
         if (jobs === 1) {
             grunt.option("verbose", true);
             grunt.option("single-test", true);
+        } else {
+            process.stdout.cursorTo(0, 0);
+            process.stdout.clearScreenDown();
+            files.forEach(function(file) {
+                logFileStatus(file, file.name + "  ", false);
+            });
+
+            dumpLog();
         }
 
         for( var i = 0; i < jobs; ++i ) {
-            runFile( files.shift() );
+            runFile(files.shift());
         }
     }
 

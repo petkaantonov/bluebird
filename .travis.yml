@@ -1,7 +1,7 @@
 language: node_js
 node_js:
 - '0.10'
-install: 'npm install browserify grunt grunt-contrib-jshint grunt-contrib-watch acorn q mocha sinon grunt-cli grunt-contrib-connect grunt-saucelabs mkdirp'
+install: 'npm install browserify cli-table grunt grunt-contrib-jshint grunt-contrib-watch acorn q mocha sinon grunt-cli grunt-contrib-connect grunt-saucelabs mkdirp'
 before_script:
 - git submodule update --init --recursive
 script: 'grunt test --ci && npm run browsers && grunt test-browser --ci'
