@@ -223,6 +223,14 @@ function filledRange(count, prefix, suffix) {
     return ret;
 }
 
+function safeToString(obj) {
+    try {
+        return obj + "";
+    } catch (e) {
+        return "[no string representation]";
+    }
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -248,6 +256,7 @@ var ret = {
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
     filledRange: filledRange,
+    toString: safeToString,
     lastLineError: new Error()
 };
 

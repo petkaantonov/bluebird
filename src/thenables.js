@@ -68,7 +68,7 @@ function doThenable(x, then, traceParent) {
     } catch(e) {
         if (!called) {
             called = true;
-            var trace = canAttachTrace(e) ? e : new Error(e + "");
+            var trace = canAttachTrace(e) ? e : new Error(util.toString(e));
             if (traceParent !== undefined) {
                 traceParent._attachExtraTrace(trace);
             }
@@ -95,7 +95,7 @@ function doThenable(x, then, traceParent) {
     function rejectFromThenable(r) {
         if (called) return;
         called = true;
-        var trace = canAttachTrace(r) ? r : new Error(r + "");
+        var trace = canAttachTrace(r) ? r : new Error(util.toString(r));
         if (traceParent !== undefined) {
             traceParent._attachExtraTrace(trace);
         }

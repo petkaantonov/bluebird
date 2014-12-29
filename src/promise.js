@@ -257,7 +257,7 @@ Promise.reject = Promise.rejected = function (reason) {
     ret._settledValue = reason;
     ret._cleanValues();
     if (!canAttachTrace(reason)) {
-        var trace = new Error(reason + "");
+        var trace = new Error(util.toString(reason));
         ret._setCarriedStackTrace(trace);
     }
     ret._ensurePossibleRejectionHandled();
@@ -601,7 +601,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         }
         promise._fulfill(val);
     }, function (val) {
-        var trace = canAttachTrace(val) ? val : new Error(val + "");
+        var trace = canAttachTrace(val) ? val : new Error(util.toString(val));
         promise._attachExtraTrace(trace);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? undefined : trace);
@@ -610,7 +610,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
 
     if (r !== undefined && r === errorObj) {
         var e = r.e;
-        var trace = canAttachTrace(e) ? e : new Error(e + "");
+        var trace = canAttachTrace(e) ? e : new Error(util.toString(e));
         promise._reject(e, trace);
     }
 };
@@ -642,7 +642,7 @@ Promise.prototype._settlePromiseFromHandler = function (
         var err = x === promise
                     ? makeSelfResolutionError()
                     : x.e;
-        var trace = canAttachTrace(err) ? err : new Error(err + "");
+        var trace = canAttachTrace(err) ? err : new Error(util.toString(err));
         if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
         promise._rejectUnchecked(err, trace);
     } else {
@@ -652,7 +652,7 @@ Promise.prototype._settlePromiseFromHandler = function (
             if (x._isRejected() &&
                 !x._isCarryingStackTrace() &&
                 !canAttachTrace(x._reason())) {
-                var trace = new Error(x._reason() + "");
+                var trace = new Error(util.toString(x._reason()));
                 promise._attachExtraTrace(trace);
                 x._setCarriedStackTrace(trace);
             }
@@ -900,7 +900,8 @@ Promise.prototype._fulfillUnchecked = function (value) {
 };
 
 Promise.prototype._rejectUncheckedCheckError = function (reason) {
-    var trace = canAttachTrace(reason) ? reason : new Error(reason + "");
+    var trace = canAttachTrace(reason)
+        ? reason : new Error(util.toString(reason));
     this._rejectUnchecked(reason, trace === reason ? undefined : trace);
 };
 

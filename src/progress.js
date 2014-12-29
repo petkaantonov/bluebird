@@ -44,7 +44,7 @@ Promise.prototype._doProgressWith = function (progression) {
             // the result of the function is used as the progress
             //value to propagate.
             var trace = errors.canAttachTrace(ret.e)
-                ? ret.e : new Error(ret.e + "");
+                ? ret.e : new Error(util.toString(ret.e));
             promise._attachExtraTrace(trace);
             promise._progress(ret.e);
         }

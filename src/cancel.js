@@ -4,6 +4,7 @@ var errors = require("./errors.js");
 var canAttachTrace = errors.canAttachTrace;
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
+var util = require("./util.js");
 var CancellationError = errors.CancellationError;
 
 Promise.prototype._cancel = function (reason) {
@@ -17,15 +18,15 @@ Promise.prototype._cancel = function (reason) {
     }
     ASSERT(promiseToReject.isCancellable());
     this._unsetCancellable();
-    promiseToReject._attachExtraTrace(reason);
-    promiseToReject._target()._rejectUnchecked(reason);
+    var trace = canAttachTrace(reason) ? reason
+                                       : new Error(util.toString(reason));
+    promiseToReject._attachExtraTrace(trace);
+    promiseToReject._target()._rejectUnchecked(reason, trace);
 };
 
 Promise.prototype.cancel = function (reason) {
     if (!this.isCancellable()) return this;
-    reason = reason !== undefined
-        ? (canAttachTrace(reason) ? reason : new Error(reason + ""))
-        : new CancellationError();
+    if (reason === undefined) reason = new CancellationError();
     async.invokeLater(this._cancel, this, reason);
     return this;
 };
