@@ -1,5 +1,5 @@
 /**
- * bluebird build version 2.4.3
+ * bluebird build version 2.5.0
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 /**
@@ -2675,7 +2675,9 @@ Promise.prototype._settlePromiseFromHandler = function (
 };
 
 Promise.prototype._target = function() {
-    return this._isFollowing() ? this._followee() : this;
+    var ret = this;
+    while (ret._isFollowing()) ret = ret._followee();
+    return ret;
 };
 
 Promise.prototype._followee = function() {
