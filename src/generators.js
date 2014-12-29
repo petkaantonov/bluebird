@@ -53,7 +53,7 @@ PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
         this._generator = undefined;
         var trace = errors.canAttachTrace(result.e)
-            ? result.e : new Error(util.canAttachTrace(result.e));
+            ? result.e : new Error(util.toString(result.e));
         this._promise._attachExtraTrace(trace);
         this._promise._reject(result.e, trace);
         return;
