@@ -101,6 +101,8 @@ require('../test/mocha/when_reduce.js');
 require('../test/mocha/when_settle.js');
 require('../test/mocha/when_some.js');
 require('../test/mocha/when_spread.js');
+require('../test/mocha/rejections.js');
+require('../test/mocha/regress.js');
 
 
 window.onload = function(){
