@@ -325,8 +325,8 @@ Promise.prototype._settlePromiseAtPostResolution = function (index) {
     ASSERT(this._isFulfilled() || this._isRejected());
     ASSERT(this._promiseAt(index) !== undefined);
     if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
-    this._setLength(0);
     this._settlePromiseAt(index);
+    async.invokeLater(this._setLength, this, 0);
 };
 
 Promise.prototype._length = function () {
