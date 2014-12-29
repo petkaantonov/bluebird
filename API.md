@@ -1413,6 +1413,8 @@ fs.readFileAsync("file.js", "utf8").then(...)
 
 Note that the above is an exceptional case because `fs` is a singleton instance. Most libraries can be promisified by requiring the library's classes (constructor functions) and calling promisifyAll on the `.prototype`. This only needs to be done once in the entire application's lifetime and after that you may use the library's methods exactly as they are documented, except by appending the `"Async"`-suffix to method calls and using the promise interface instead of the callback interface.
 
+As a notable exception in `fs`, `fs.existsAsync` doesn't work as expected, because Node's `fs.exists` doesn't call back with error as first argument.  More at #418.  One possible workaround is using `fs.statAsync`.
+
 Some examples of the above practice applied to some popular libraries:
 
 ```js
