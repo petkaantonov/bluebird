@@ -330,7 +330,6 @@ Promise.prototype._settlePromiseAtPostResolution = function (index) {
     ASSERT(this._promiseAt(index) !== undefined);
     if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
     this._settlePromiseAt(index);
-    async.invokeLater(this._setLength, this, 0);
 };
 
 Promise.prototype._length = function () {
@@ -834,6 +833,13 @@ Promise.prototype._settlePromiseAt = function (index) {
     } else {
         promise._reject(value, carriedStackTrace);
     }
+
+    // Heuristic for promises that are stashed away somewhere
+    // and might accumulate large index over time
+    // The modulus is so that invokeLater is not called every time index
+    // is over 4, but every 32nd time
+    if (index >= 4 && (index & 31) === 4)
+        async.invokeLater(this._setLength, this, 0);
 };
 
 Promise.prototype._clearCallbackDataAtIndex = function(index) {
@@ -936,7 +942,6 @@ Promise.prototype._settlePromises = function () {
     for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
     }
-    async.invokeLater(this._setLength, this, 0);
 };
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
