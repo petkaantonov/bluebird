@@ -638,7 +638,9 @@ Promise.prototype._settlePromiseFromHandler = function (
 };
 
 Promise.prototype._target = function() {
-    return this._isFollowing() ? this._followee() : this;
+    var ret = this;
+    while (ret._isFollowing()) ret = ret._followee();
+    return ret;
 };
 
 Promise.prototype._followee = function() {
