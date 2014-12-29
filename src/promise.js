@@ -307,7 +307,11 @@ Promise.prototype._then = function (
     }
 
     var target = this._target();
-    if (target !== this && receiver === undefined) receiver = this._boundTo;
+    if (target !== this) {
+        if (receiver === undefined) receiver = this._boundTo;
+        if (!haveInternalData) ret._setIsMigrated();
+    }
+
     var callbackIndex =
         target._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
@@ -399,6 +403,18 @@ Promise.prototype._isRejectionUnhandled = function () {
     return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
 };
 
+Promise.prototype._setIsMigrated = function () {
+    this._bitField = this._bitField | IS_MIGRATED;
+};
+
+Promise.prototype._unsetIsMigrated = function () {
+    this._bitField = this._bitField & (~IS_MIGRATED);
+};
+
+Promise.prototype._isMigrated = function () {
+    return (this._bitField & IS_MIGRATED) > 0;
+};
+
 Promise.prototype._setUnhandledRejectionIsNotified = function () {
     this._bitField = this._bitField | IS_UNHANDLED_REJECTION_NOTIFIED;
 };
@@ -471,6 +487,17 @@ Promise.prototype._rejectionHandlerAt = function (index) {
     return index === 0
         ? this._rejectionHandler0
         : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
+};
+
+Promise.prototype._migrateCallbacks = function (
+    fulfill,
+    reject,
+    progress,
+    promise,
+    receiver
+) {
+    if (promise instanceof Promise) promise._setIsMigrated();
+    this._addCallbacks(fulfill, reject, progress, promise, receiver);
 };
 
 Promise.prototype._addCallbacks = function (
@@ -664,7 +691,7 @@ Promise.prototype._follow = function (promise) {
     if (promise._isPending()) {
         var len = this._length();
         for (var i = 0; i < len; ++i) {
-            promise._addCallbacks(
+            promise._migrateCallbacks(
                 this._fulfillmentHandlerAt(i),
                 this._rejectionHandlerAt(i),
                 this._progressHandlerAt(i),
@@ -763,6 +790,13 @@ Promise.prototype._reject = function (reason, carriedStackTrace) {
 };
 
 Promise.prototype._settlePromiseAt = function (index) {
+    var promise = this._promiseAt(index);
+    var isPromise = promise instanceof Promise;
+
+    if (isPromise && promise._isMigrated()) {
+        promise._unsetIsMigrated();
+        return async.invoke(this._settlePromiseAt, this, index);
+    }
     ASSERT(!this._isFollowing());
     var handler = this._isFulfilled()
         ? this._fulfillmentHandlerAt(index)
@@ -774,13 +808,14 @@ Promise.prototype._settlePromiseAt = function (index) {
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
-    var promise = this._promiseAt(index);
+
+
     this._clearCallbackDataAtIndex(index);
 
     if (typeof handler === "function") {
         //if promise is not instanceof Promise
         //it is internally smuggled data
-        if (!(promise instanceof Promise)) {
+        if (!isPromise) {
             handler.call(receiver, value, promise);
         } else {
             this._settlePromiseFromHandler(handler, receiver, value, promise);
