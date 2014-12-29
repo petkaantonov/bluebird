@@ -2,9 +2,23 @@ var Promise = adapter;
 var assert = require("assert");
 
 describe("Using as a rejection reason", function() {
+    var nullObject = (function() {
+        var es5 = (function(){"use strict";
+            return this;
+        })() === undefined;
+        if (es5) {
+            return function() {
+                return Object.create(null);
+            };
+        } else {
+            return function() {
+                return {};
+            };
+        }
+    })();
     describe("Object.create(null)", function() {
         specify("directly", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.reject(o).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
                 done();
@@ -12,7 +26,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through constructor by throw", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             new Promise(function() {
                 throw o;
             }).then(assert.fail, function(e) {
@@ -23,7 +37,7 @@ describe("Using as a rejection reason", function() {
 
 
         specify("through constructor immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             new Promise(function() {
                 arguments[1](o);
             }).then(assert.fail, function(e) {
@@ -33,7 +47,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through constructor eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             new Promise(function(_, r) {
                 setTimeout(function() {
                     r(o);
@@ -45,7 +59,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through defer immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             var d = Promise.defer();
             d.promise.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
@@ -55,7 +69,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through defer eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             var d = Promise.defer();
             d.promise.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
@@ -67,7 +81,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through thenThrow immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().thenThrow(o).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
                 done();
@@ -75,7 +89,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler throw", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 throw o;
             }).then(assert.fail, function(e) {
@@ -85,7 +99,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-promise immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return Promise.reject(o);
             }).then(assert.fail, function(e) {
@@ -95,7 +109,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-promise eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return new Promise(function(_, r) {
                     setTimeout(function() {
@@ -109,7 +123,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-thenable throw", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
@@ -123,7 +137,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-thenable immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
@@ -137,7 +151,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-thenable eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
@@ -154,7 +168,7 @@ describe("Using as a rejection reason", function() {
 
         var BluebirdThenable = require("../../js/debug/promise.js")();
         specify("through handler-returned-bluebird-thenable immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return BluebirdThenable.reject(o);
             }).then(assert.fail, function(e) {
@@ -164,7 +178,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through handler-returned-bluebird-thenable eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.resolve().then(function() {
                 return new BluebirdThenable(function(_, r) {
                     setTimeout(function() {
@@ -178,7 +192,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through promisified callback immediately", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.promisify(function(cb) {
                 cb(o);
             })().then(assert.fail, function(e) {
@@ -188,7 +202,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through cancel", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             var a = new Promise(function(){}).cancellable();
             a.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
@@ -198,7 +212,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through progress", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             var d = Promise.defer();
 
             d.promise.then(assert.fail, assert.fail, function() {
@@ -211,7 +225,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through immediate PromiseArray promise", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.all([Promise.reject(o)]).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
                 done();
@@ -219,7 +233,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through eventual PromiseArray promise", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.all([new Promise(function(_, r) {
                 setTimeout(function() {
                     r(o);
@@ -231,7 +245,7 @@ describe("Using as a rejection reason", function() {
         });
 
         specify("through promisified callback eventually", function(done) {
-            var o = Object.create(null);
+            var o = nullObject();
             Promise.promisify(function(cb) {
                 setTimeout(function() {
                     cb(o);
