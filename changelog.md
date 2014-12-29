@@ -1,3 +1,9 @@
+## 2.5.1 (2014-12-29)
+
+Bugfixes:
+
+ - Fix `.finally` throwing null error when it is derived from a promise that is resolved with a promise that is resolved with a promise
+
 ## 2.5.0 (2014-12-28)
 
 Features:
