@@ -154,7 +154,7 @@ describe("done", function () {
                         assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
-                    }, 4);
+                    }, 40);
                     var deferred = Q.defer();
                     Q.delay(100).then(deferred.reject);
 
@@ -219,7 +219,7 @@ describe("done", function () {
                         assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
-                    }, 4);
+                    }, 40);
                     var deferred = Q.defer();
                     Q.delay(100).then(deferred.reject);
 
@@ -255,7 +255,7 @@ describe("done", function () {
                         assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                         deferred.resolve();
-                    }, 4);
+                    }, 40);
                     var deferred = Q.defer();
                     Q.delay(100).then(deferred.reject);
 

@@ -54,8 +54,11 @@ var clearInterval = clearTimeout;
 
 (function tick() {
     currentTime += 10;
-    checkTimers();
-    setImmediate(tick);
+    try {
+        checkTimers();
+    } finally {
+        setImmediate(tick);
+    }
 })();
 
 global.setTimeout = setTimeout;

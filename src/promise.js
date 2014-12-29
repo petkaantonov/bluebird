@@ -876,13 +876,13 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
 
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
-        async.invokeLater(function(e) {
+        async.throwLater(function(e) {
             if ("stack" in e) {
                 async.invokeFirst(
                     CapturedTrace.unhandledRejection, undefined, e);
             }
             throw e;
-        }, undefined, trace === undefined ? reason : trace);
+        }, trace === undefined ? reason : trace);
         return;
     }
 
@@ -898,10 +898,10 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
 Promise.prototype._settlePromises = function () {
     this._unsetSettlePromisesQueued();
     var len = this._length();
-    this._setLength(0);
     for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
     }
+    async.invokeLater(this._setLength, this, 0);
 };
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
@@ -913,7 +913,7 @@ Promise.prototype._ensurePossibleRejectionHandled = function () {
 
 Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
     if (typeof unhandledRejectionHandled === "function") {
-        async.invokeLater(unhandledRejectionHandled, undefined, this);
+        async.throwLater(unhandledRejectionHandled, this);
     }
 };
 

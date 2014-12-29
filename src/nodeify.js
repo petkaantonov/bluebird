@@ -7,15 +7,11 @@ var tryCatch2 = util.tryCatch2;
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
-function thrower(r) {
-    throw r;
-}
-
 function spreadAdapter(val, receiver) {
     if (!util.isArray(val)) return successAdapter(val, receiver);
     var ret = util.tryCatchApply(this, [null].concat(val), receiver);
     if (ret === errorObj) {
-        async.invokeLater(thrower, undefined, ret.e);
+        async.throwLater(ret.e);
     }
 }
 
@@ -26,7 +22,7 @@ function successAdapter(val, receiver) {
         ? tryCatch1(nodeback, receiver, null)
         : tryCatch2(nodeback, receiver, null, val);
     if (ret === errorObj) {
-        async.invokeLater(thrower, undefined, ret.e);
+        async.throwLater(ret.e);
     }
 }
 function errorAdapter(reason, receiver) {
@@ -34,7 +30,7 @@ function errorAdapter(reason, receiver) {
     ASSERT(typeof nodeback == "function");
     var ret = tryCatch1(nodeback, receiver, reason);
     if (ret === errorObj) {
-        async.invokeLater(thrower, undefined, ret.e);
+        async.throwLater(ret.e);
     }
 }
 
