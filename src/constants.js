@@ -130,8 +130,9 @@ CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object\n\n\
     See http://goo.gl/OsFKC8\n");
 CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer\n\n\
     See http://goo.gl/1wAmHx\n");
-CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value was yielded that could not be treated as a promise\n\n\
-    See http://goo.gl/4Y4pDk\n");
+CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value %s was yielded that could not be treated as a promise\n\n\
+    See http://goo.gl/4Y4pDk\n\n");
+CONSTANT(FROM_COROUTINE_CREATED_AT, "From coroutine:\n");
 CONSTANT(NOT_ERROR_TYPE_OR_PREDICATE, "Catch filter must inherit from Error or be a simple predicate function\n\n\
     See http://goo.gl/o84o68\n");
 CONSTANT(UNBOUND_RESOLVER_INVOCATION, "Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.\n\n\

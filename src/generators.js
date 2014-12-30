@@ -27,9 +27,10 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
     return null;
 }
 
-function PromiseSpawn(generatorFunction, receiver, yieldHandler) {
+function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
     var promise = this._promise = new Promise(INTERNAL);
     promise._setTrace(undefined);
+    this._stack = stack;
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
     this._generator = undefined;
@@ -74,7 +75,12 @@ PromiseSpawn.prototype._continue = function (result) {
                                         this._promise);
             ASSERT(maybePromise === null || maybePromise instanceof Promise);
             if (maybePromise === null) {
-                this._throw(new TypeError(YIELDED_NON_PROMISE_ERROR));
+                this._throw(
+                    new TypeError(
+                        YIELDED_NON_PROMISE_ERROR.replace("%s", value) +
+                        FROM_COROUTINE_CREATED_AT + this._stack.split('\n').slice(1, -7).join('\n')
+                    )
+                );
                 return;
             }
         }
@@ -112,9 +118,10 @@ Promise.coroutine = function (generatorFunction, options) {
     }
     var yieldHandler = Object(options).yieldHandler;
     var PromiseSpawn$ = PromiseSpawn;
+    var stack = new Error().stack;
     return function () {
         var generator = generatorFunction.apply(this, arguments);
-        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler);
+        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler, stack);
         spawn._generator = generator;
         spawn._next(undefined);
         return spawn.promise();
