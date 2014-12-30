@@ -1,4 +1,6 @@
 node_modules/*
+cdn_upload.js
+jsdelivr
 todo.txt
 npm-debug.log
 benchmark/node_modules/*
@@ -11,11 +13,7 @@ sync
 browser/bundle.js
 mixed
 bench.json
-js/bluebird_sync.min.js
-js/bluebird.min.js
-js/zalgo/*
-js/main/*
-js/debug/*
+js
 reader.js
 read.txt
 throwaway.js
