@@ -146,10 +146,9 @@ module.exports = function( grunt ) {
         if( !license ) {
             var fs = require("fs");
             var text = fs.readFileSync("LICENSE", "utf8");
-            text = text.split("\n").map(function(line, index){
+            license = "/* @preserve\n" + text.split("\n").map(function(line) {
                 return " * " + line;
-            }).join("\n")
-            license = "/**\n" + text + "\n */\n";
+            }).join("\n") + "\n */\n";
         }
         return license
     }
@@ -464,6 +463,8 @@ module.exports = function( grunt ) {
             return writeFileAsync(path, src);
         }));
     }
+
+
 
     function buildBrowser( sources ) {
         var path = require("path");
