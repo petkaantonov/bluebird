@@ -476,9 +476,9 @@ To test in browsers:
 
     npm run browsers
 
-Then open the `browser/index.html` in your browser.
+Then open the `test/browser/index.html` in your browser.
 
-You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/browser/).
+You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/test/browser/).
 
 Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.
 

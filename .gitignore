@@ -10,7 +10,7 @@ benchmark/promises-benchmark/fixtures/*
 benchmark/perf-promises/node_modules/*
 async
 sync
-browser/bundle.js
+test/browser/bundle.js
 mixed
 bench.json
 js

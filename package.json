@@ -20,7 +20,7 @@
   "scripts": {
     "test": "grunt test",
     "prepublish": "grunt build",
-    "browsers": "browserify browser/main.js -o browser/bundle.js"
+    "browsers": "browserify test/browser/main.js -o test/browser/bundle.js"
   },
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
