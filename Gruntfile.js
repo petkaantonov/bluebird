@@ -3,6 +3,7 @@ Error.stackTraceLimit = 100;
 var Table = require('cli-table');
 var astPasses = require("./ast_passes.js");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
+var mkdirp = require("mkdirp");
 var Q = require("q");
 Q.longStackSupport = true;
 
@@ -464,10 +465,12 @@ module.exports = function( grunt ) {
     }
 
     function buildBrowser( sources ) {
+        var path = require("path");
         var fs = require("fs");
         var browserify = require("browserify");
         var b = browserify("./js/main/bluebird.js");
-        var dest = "./js/browser/bluebird.js";
+        var root = "./js/browser";
+        var dest = path.join(root, "bluebird.js");
 
         var header = getBrowserBuildHeader( sources );
 
@@ -475,8 +478,10 @@ module.exports = function( grunt ) {
                 detectGlobals: false,
                 standalone: "Promise"
         }).then(function(src) {
-            return writeFileAsync( dest,
-                getLicensePreserve() + src )
+            return Q.nfcall(require('mkdirp'), root).then(function() {
+                return writeFileAsync( dest,
+                    getLicensePreserve() + src )
+            })
         }).then(function() {
             return Q.nfcall(fs.readFile, dest, "utf8" );
         }).then(function( src ) {
