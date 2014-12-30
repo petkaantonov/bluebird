@@ -4,7 +4,6 @@ var Table = require('cli-table');
 var astPasses = require("./ast_passes.js");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var mkdirp = require("mkdirp");
-var UglifyJS = require("uglify-js");
 var Q = require("q");
 Q.longStackSupport = true;
 
@@ -467,6 +466,7 @@ module.exports = function( grunt ) {
 
 
     function buildBrowser( sources ) {
+        var UglifyJS = require("uglify-js");
         var path = require("path");
         var fs = require("fs");
         var browserify = require("browserify");
