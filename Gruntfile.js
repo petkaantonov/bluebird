@@ -28,7 +28,6 @@ module.exports = function( grunt ) {
         //Terse format to generate the verbose format required by sauce
         var browsers = {
             "internet explorer|Windows XP": ["7", "8"],
-            "internet explorer|Windows 7": ["9"],
             "firefox|Windows 7": ["3.5", "4", "25", "33"],
             "chrome|Windows 7": ["beta"],
             "safari|Windows 7": ["5"]
