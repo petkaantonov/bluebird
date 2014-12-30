@@ -69,16 +69,15 @@ var Promise = require("bluebird");
 
 ##Browsers
 
-Download the [bluebird.js](https://github.com/petkaantonov/bluebird/tree/master/js/browser) file.
-NOTE: bluebird also has a [bower](http://bower.io) package.
+There are many ways to use bluebird in browsers:
 
-And then use a script tag:
+- Direct downloads
+    - Full build [bluebird.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.js)
+    - Full build minified [bluebird.min.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js)
+- You may use browserify on the main export
+- You may use the [bower](http://bower.io) package.
 
-```html
-<script type="text/javascript" src="/scripts/bluebird.js"></script>
-```
-
-The global variables `Promise` and `P` (alias for `Promise`) become available after the above script tag.
+When using script tags the global variables `Promise` and `P` (alias for `Promise`) become available.
 
 A [minimal bluebird browser build](#custom-builds) is ̃38.92KB minified*, 11.65KB gzipped and has no external dependencies.
 
