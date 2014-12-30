@@ -314,7 +314,7 @@ module.exports = function( grunt ) {
     gruntConfig.connect = {
         server: {
             options: {
-                base: "./browser",
+                base: "./test/browser",
                 port: 9999
             }
         }
