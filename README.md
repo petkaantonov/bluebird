@@ -474,7 +474,7 @@ The reason for the unusual way of testing is because the majority of tests are f
 
 To test in browsers:
 
-    npm run browsers
+    grunt build && npm run browsers
 
 Then open the `test/browser/index.html` in your browser.
 
