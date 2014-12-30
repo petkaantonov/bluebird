@@ -4,6 +4,7 @@ var Table = require('cli-table');
 var astPasses = require("./ast_passes.js");
 var node11 = parseInt(process.versions.node.split(".")[1], 10) >= 11;
 var mkdirp = require("mkdirp");
+var UglifyJS = require("uglify-js");
 var Q = require("q");
 Q.longStackSupport = true;
 
@@ -471,6 +472,7 @@ module.exports = function( grunt ) {
         var b = browserify("./js/main/bluebird.js");
         var root = "./js/browser";
         var dest = path.join(root, "bluebird.js");
+        var minDest = path.join(root, "bluebird.min.js");
 
         var header = getBrowserBuildHeader( sources );
 
@@ -494,6 +496,12 @@ module.exports = function( grunt ) {
             }";
             src = src + alias;
             return Q.nfcall(fs.writeFile, dest, src );
+        }).then(function() {
+            var minSrc = getLicensePreserve() + header + UglifyJS.minify(dest, {
+                comments: false,
+                compress: true
+            }).code;
+            return writeFileAsync(minDest, minSrc);
         });
     }
 
@@ -501,7 +509,7 @@ module.exports = function( grunt ) {
         if (isCI) return dir;
         var fs = require("fs");
         require("rimraf").sync(dir);
-        fs.mkdirSync(dir);
+        mkdirp.sync(dir);
         return dir;
     }
 
