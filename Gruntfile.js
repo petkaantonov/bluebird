@@ -470,17 +470,17 @@ module.exports = function( grunt ) {
         var path = require("path");
         var fs = require("fs");
         var browserify = require("browserify");
-        var b = browserify("./js/main/bluebird.js");
+        var b = browserify("./js/main/bluebird.js", {
+            detectGlobals: false,
+            standalone: "Promise"
+        });
         var root = "./js/browser";
         var dest = path.join(root, "bluebird.js");
         var minDest = path.join(root, "bluebird.min.js");
 
         var header = getBrowserBuildHeader( sources );
 
-        return Q.nbind(b.bundle, b)({
-                detectGlobals: false,
-                standalone: "Promise"
-        }).then(function(src) {
+        return Q.nbind(b.bundle, b)().then(function(src) {
             return Q.nfcall(require('mkdirp'), root).then(function() {
                 return writeFileAsync( dest,
                     getLicensePreserve() + src )
