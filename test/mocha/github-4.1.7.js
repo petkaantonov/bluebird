@@ -33,7 +33,7 @@ describe("Github #417", function() {
                     return bar();
                 }))
                 .bind(this)
-                .finally(Promise.method(function() {
+                .lastly(Promise.method(function() {
                     called++;
                 }));
         });

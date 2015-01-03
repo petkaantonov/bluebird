@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise) {
-var TypeError = require('./errors.js').TypeError;
+var TypeError = require("./errors.js").TypeError;
 
 function apiRejection(msg) {
     var error = new TypeError(msg);

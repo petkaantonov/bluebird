@@ -89,13 +89,9 @@ Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmas
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/petka_antonov.svg)](https://saucelabs.com/u/petka_antonov)
 
-*IE7 and IE8 had to be removed from tests due to SauceLabs bug but are supported and pass all tests*
-
 **Note** that in ECMA-262, edition 3 (IE7, IE8 etc.) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
 
 Also, [long stack trace](API.md#promiselongstacktraces---void) support is only available in Chrome and Firefox.
-
-<sub>Previously bluebird required es5-shim.js and es5-sham.js to support Edition 3 - these are **no longer required** as of **0.10.4**.</sub>
 
 After quick start, see [API Reference and examples](API.md)
 
@@ -445,7 +441,7 @@ A better and more practical example of the differences can be seen in gorgikosev
 
 For development tasks such as running benchmarks or testing, you need to clone the repository and install dev-dependencies.
 
-Install [node](http://nodejs.org/), [npm](https://npmjs.org/), and [grunt](http://gruntjs.com/).
+Install [node](http://nodejs.org/) and [npm](https://npmjs.org/)
 
     git clone git@github.com:petkaantonov/bluebird.git
     cd bluebird
@@ -453,34 +449,42 @@ Install [node](http://nodejs.org/), [npm](https://npmjs.org/), and [grunt](http:
 
 ##Testing
 
-To run all tests, run `grunt test`. Note that 10 processes are created to run the tests in parallel. The `stdout` of tests is ignored by default and everything will stop at the first failure. If you want to run tests sequentially with all output, do:
+To run all tests, run
 
-    grunt test --jobs=1
+    node tools/test
 
-You may also give a higher `--jobs` value to run more tests concurrently (and finish faster).
+If you need to run generator tests run the `tool/test.js` script with `--harmony` argument and node 0.11+:
 
-Individual files can be run with `grunt test --run=filename` where `filename` is a test file name in `/test` folder or `/test/mocha` folder. The `.js` prefix is not needed. The dots for AP compliance tests are not needed, so to run `/test/mocha/2.3.3.js` for instance:
+    node-dev --harmony tools/test
 
-    grunt test --run=233
+You may specify an individual test file to run with the `--run` script flag:
 
-When trying to get a test to pass, run only that individual test file with `--verbose` to see the output from that test:
-
-    grunt test --run=233 --verbose
-
-The reason for the unusual way of testing is because the majority of tests are from different libraries using different testing frameworks and because it takes forever to test sequentially.
+    node tools/test --run=cancel.js
 
 
-###Testing in browsers
+This enables output from the test and may give a better idea where the test is failing. The paramter to `--run` can be any file name located in `test/mocha` folder.
 
-To test in browsers:
+####Testing in browsers
 
-    grunt build && npm run browsers
+To run the test in a browser instead of node, pass the flag `--browser` to the test tool
 
-Then open the `test/browser/index.html` in your browser.
+    node tools/test --run=cancel.js --browser
 
-You may also [visit the github hosted page](http://petkaantonov.github.io/bluebird/test/browser/).
+This will automatically create a server (default port 9999) and open it in your default browser once the tests have been compiled.
 
 Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.
+
+####Supported options by the test tool
+
+The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-browser`.
+
+ - `--run=String`. Which tests to run (or compile when testing in browser). Default `"all"`
+ - `--browser` - Whether to compile tests for browsers. Default `false`.
+ - `--port=Number` - Whe port where local server is hosted when testing in browser. Default `9999`
+ - `--execute-browser-tests` - Whether to execute the compiled tests for browser when using `--browser`. Default `true`.
+ - `--fake-timers` - Whether to use fake timers (`setTimeout` etc) when running tests in node. Default `true`.
+ - `--js-hint` - Whether to run JSHint on source files. Default `true`.
+ - `--saucelabs` Wheter to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser.Default `false`.
 
 ##Benchmarks
 
@@ -503,8 +507,6 @@ Command: `bench parallel`
 ##Custom builds
 
 Custom builds for browsers are supported through a command-line utility.
-
-
 
 
 <table>
@@ -542,19 +544,30 @@ Make sure you have cloned the repo somewhere and did `npm install` successfully.
 
 After that you can run:
 
-    grunt build --features="core"
+    node tools/build --features="core"
 
 
 The above builds the most minimal build you can get. You can add more features separated by spaces from the above list:
 
-    grunt build --features="core filter map reduce"
+    node tools/build --features="core filter map reduce"
 
 The custom build file will be found from `/js/browser/bluebird.js`. It will have a comment that lists the disabled and enabled features.
 
 Note that the build leaves the `/js/main` etc folders with same features so if you use the folder for node.js at the same time, don't forget to build
 a full version afterwards (after having taken a copy of the bluebird.js somewhere):
 
-    grunt build
+    node tools/build --debug --main --zalgo --browser --minify
+
+####Supported options by the build tool
+
+The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-debug`.
+
+ - `--main` - Whether to build the main build. The main build is placed at `js/main` directory. Default `false`.
+ - `--debug` - Whether to build the debug build. The debug build is placed at `js/debug` directory. Default `true`.
+ - `--zalgo` - Whether to build the zalgo build. The zalgo build is placed at `js/zalgo` directory. Default `false`.
+ - `--browser` - Whether to compile the browser build. The browser build file is placed at `js/browser/bluebird.js` Default `false`.
+ - `--minify` - Whether to minify the compiled browser build. The minified browser build file is placed at `js/browser/bluebird.min.js` Default `true`.
+ - `--features=String` - See [custom builds](#custom-builds)
 
 <hr>
 

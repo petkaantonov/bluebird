@@ -117,7 +117,7 @@ if( isNodeJS ) {
             setTimeout(function(){
                 assert.equal(test, 2);
                 done();
-            }, 20);
+            }, 25);
         });
 
         specify("Should return 2 from very old promise", function(done) {

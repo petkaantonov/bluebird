@@ -8,8 +8,6 @@ var pending = adapter.pending;
 
 var Promise = fulfilled().constructor;
 
-
-
 var Q = function(p) {
     if( p == null ) return fulfilled(p)
     if( p.then ) return p;

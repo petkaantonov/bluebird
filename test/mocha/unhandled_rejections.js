@@ -735,18 +735,6 @@ if (Promise.hasLongStackTraces()) {
                 });
             });
         });
-
-        specify("Q", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
-                return (e.stack.length > 100);
-            });
-
-            Promise.resolve(5).then(function(val){
-                return "Hello";
-            }).delay(5).then(function(val){
-                return require("q")().then(function(){throw "Error"});
-            });
-        });
     });
 }
 

@@ -1,9 +1,6 @@
 "use strict";
-var ASSERT = require("./assert.js");
 module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
-var util = require("./util.js");
 var errors = require("./errors.js");
-var apiRejection = require("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
 var afterTimeout = function (promise, message) {

@@ -1,77 +1,69 @@
 {
-    "name": "bluebird",
-    "description": "Full featured Promises/A+ implementation with exceptionally good performance",
-    "version": "2.5.3",
-    "keywords": [
-        "promise",
-        "performance",
-        "promises",
-        "promises-a",
-        "promises-aplus",
-        "async",
-        "await",
-        "deferred",
-        "deferreds",
-        "future",
-        "flow control",
-        "dsl",
-        "fluent interface"
-    ],
-    "scripts": {
-        "test": "grunt test",
-        "prepublish": "grunt build",
-        "browsers": "browserify test/browser/main.js -o test/browser/bundle.js"
-    },
-    "homepage": "https://github.com/petkaantonov/bluebird",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/petkaantonov/bluebird.git"
-    },
-    "bugs": {
-        "url": "http://github.com/petkaantonov/bluebird/issues"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Petka Antonov",
-        "email": "petka_antonov@hotmail.com",
-        "url": "http://github.com/petkaantonov/"
-    },
-    "devDependencies": {
-        "acorn": "~0.6.0",
-        "avow": "~2.0.1",
-        "browserify": "~4.2.0",
-        "cli-table": "~0.3.1",
-        "concurrent": "~0.3.2",
-        "deferred": "~0.7.1",
-        "grunt": "~0.4.1",
-        "grunt-cli": "~0.1.9",
-        "grunt-contrib-concat": "latest",
-        "grunt-contrib-connect": "latest",
-        "grunt-contrib-jshint": "~0.10.0",
-        "grunt-contrib-watch": "latest",
-        "grunt-saucelabs": "~8.4.1",
-        "jquery-browserify": "~1.8.1",
-        "jsdom": "~0.11.0",
-        "jshint-stylish": "~0.2.0",
-        "kew": "~0.4.0",
-        "mkdirp": "~0.5.0",
-        "mocha": "~1.20.1",
-        "open": "0.0.5",
-        "q": "~1.0.1",
-        "rimraf": "~2.2.6",
-        "rsvp": "~3.0.9",
-        "semver-utils": "~1.1.0",
-        "sinon": "~1.7.3",
-        "text-table": "~0.2.0",
-        "when": "~3.2.3"
-    },
-    "readmeFilename": "README.md",
-    "main": "./js/main/bluebird.js",
-    "files": [
-        "js/browser",
-        "js/main",
-        "js/zalgo",
-        "LICENSE",
-        "zalgo.js"
-    ]
+  "name": "bluebird",
+  "description": "Full featured Promises/A+ implementation with exceptionally good performance",
+  "version": "2.5.3",
+  "keywords": [
+    "promise",
+    "performance",
+    "promises",
+    "promises-a",
+    "promises-aplus",
+    "async",
+    "await",
+    "deferred",
+    "deferreds",
+    "future",
+    "flow control",
+    "dsl",
+    "fluent interface"
+  ],
+  "scripts": {
+    "lint": "node scripts/jshint.js",
+    "test": "node tools/test.js",
+    "prepublish": "node tools/build.js --no-debug --main --zalgo --browser --minify"
+  },
+  "homepage": "https://github.com/petkaantonov/bluebird",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/petkaantonov/bluebird.git"
+  },
+  "bugs": {
+    "url": "http://github.com/petkaantonov/bluebird/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Petka Antonov",
+    "email": "petka_antonov@hotmail.com",
+    "url": "http://github.com/petkaantonov/"
+  },
+  "devDependencies": {
+    "acorn": "~0.6.0",
+    "bluebird": "^2.5.2",
+    "browserify": "~8.0.3",
+    "cli-table": "~0.3.1",
+    "cross-spawn": "^0.2.3",
+    "glob": "^4.3.2",
+    "grunt-saucelabs": "~8.4.1",
+    "jshint": "^2.5.11",
+    "jshint-stylish": "~0.2.0",
+    "mkdirp": "~0.5.0",
+    "mocha": "~2.1",
+    "open": "~0.0.5",
+    "optimist": "~0.6.1",
+    "rimraf": "~2.2.6",
+    "semver-utils": "~1.1.0",
+    "serve-static": "^1.7.1",
+    "sinon": "~1.7.3",
+    "text-table": "~0.2.0",
+    "uglify-js": "~2.4.16"
+  },
+  "readmeFilename": "README.md",
+  "main": "./js/main/bluebird.js",
+  "files": [
+    "js/browser",
+    "js/main",
+    "js/zalgo",
+    "LICENSE",
+    "zalgo.js"
+  ]
 }

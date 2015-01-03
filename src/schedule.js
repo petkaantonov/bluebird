@@ -2,9 +2,8 @@
 var schedule;
 var _MutationObserver;
 if (typeof process === "object" && typeof process.version === "string") {
-    schedule = function (fn) {
-        process.nextTick(fn);
-    };
+    schedule = parseInt(process.version.split(".")[1], 10) > 10
+        ? setImmediate : process.nextTick;
 }
 else if ((typeof MutationObserver !== "undefined" &&
          (_MutationObserver = MutationObserver)) ||

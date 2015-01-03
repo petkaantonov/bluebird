@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+./build --main --no-debug
 benchmark=$1
 nodepath=${2:-node}
 cwd=${PWD}

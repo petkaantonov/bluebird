@@ -29,16 +29,16 @@ if (isES5) {
             }
         }
         return ret;
-    }
+    };
 
     var ObjectDefineProperty = function (o, key, desc) {
         o[key] = desc.value;
         return o;
-    }
+    };
 
     var ObjectFreeze = function (obj) {
         return obj;
-    }
+    };
 
     var ObjectGetPrototypeOf = function (obj) {
         try {
@@ -47,7 +47,7 @@ if (isES5) {
         catch (e) {
             return proto;
         }
-    }
+    };
 
     var ArrayIsArray = function (obj) {
         try {
@@ -56,7 +56,7 @@ if (isES5) {
         catch(e) {
             return false;
         }
-    }
+    };
 
     module.exports = {
         isArray: ArrayIsArray,
