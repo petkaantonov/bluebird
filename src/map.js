@@ -13,6 +13,7 @@ var EMPTY_ARRAY = [];
 
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
+    this._promise._setIsSpreadable();
     this._callback = fn;
     this._preservedValues = _filter === INTERNAL
         ? new Array(this.length())
