@@ -5,12 +5,17 @@ var browsers = [
     ["Windows XP", "internet explorer", "8"],
     ["Windows 7", "internet explorer", "9"],
     ["Windows 7", "internet explorer", "10"],
+    ["Windows 8.1", "internet explorer", "11"],
     ["Windows 7", "firefox", "3.5"],
     ["Windows 7", "firefox", "4"],
     ["Windows 7", "firefox", "25"],
     ["Windows 7", "firefox", "33"],
     ["Windows 7", "chrome", "beta"],
-    ["Windows 7", "safari", "5"]
+    ["Windows 7", "safari", "5"],
+    ["OS X 10.8", "safari", "6"],
+    ["OS X 10.9", "iphone", "8.1"],
+    ["OS X 10.9", "safari", "7"],
+    ["Linux", "android", "4.4"]
 ];
 
 var saucelabsOptions = {
