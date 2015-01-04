@@ -135,7 +135,9 @@ Promise.prototype.done = function (didFulfill, didReject, didProgress) {
 };
 
 Promise.prototype.spread = function (didFulfill, didReject) {
-    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
+    var target = this._target();
+    target = target._isSpreadable() ? this : this.all();
+    return target._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {
@@ -161,7 +163,9 @@ Promise.prototype.toJSON = function () {
 };
 
 Promise.prototype.all = function () {
-    return new PromiseArray(this).promise();
+    var ret = new PromiseArray(this).promise();
+    ret._setIsSpreadable();
+    return ret;
 };
 
 Promise.prototype.error = function (fn) {
@@ -173,7 +177,9 @@ Promise.is = function (val) {
 };
 
 Promise.all = function (promises) {
-    return new PromiseArray(promises).promise();
+    var ret = new PromiseArray(promises).promise();
+    ret._setIsSpreadable();
+    return ret;
 };
 
 Promise.method = function (fn) {
@@ -400,6 +406,14 @@ Promise.prototype._unsetRejectionIsUnhandled = function () {
 Promise.prototype._isRejectionUnhandled = function () {
     ASSERT(!this._isFollowing());
     return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
+};
+
+Promise.prototype._isSpreadable = function () {
+    return (this._bitField & IS_SPREADABLE) > 0;
+};
+
+Promise.prototype._setIsSpreadable = function () {
+    this._bitField = this._bitField | IS_SPREADABLE;
 };
 
 Promise.prototype._setIsMigrated = function () {
@@ -792,6 +806,7 @@ Promise.prototype._settlePromiseAt = function (index) {
     var promise = this._promiseAt(index);
     var isPromise = promise instanceof Promise;
 
+    ASSERT(async._isTickUsed);
     if (isPromise && promise._isMigrated()) {
         promise._unsetIsMigrated();
         return async.invoke(this._settlePromiseAt, this, index);
