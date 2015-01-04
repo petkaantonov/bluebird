@@ -1,14 +1,16 @@
 var path = require("path");
 var baseDir = path.join(__dirname, "..", "test", "browser");
 var browsers = [
-    ["Windows XP","internet explorer","7"],
-    ["Windows XP","internet explorer","8"],
-    ["Windows 7","firefox","3.5"],
-    ["Windows 7","firefox","4"],
-    ["Windows 7","firefox","25"],
-    ["Windows 7","firefox","33"],
-    ["Windows 7","chrome","beta"],
-    ["Windows 7","safari","5"]
+    ["Windows XP", "internet explorer", "7"],
+    ["Windows XP", "internet explorer", "8"],
+    ["Windows 7", "internet explorer", "9"],
+    ["Windows 7", "internet explorer", "10"],
+    ["Windows 7", "firefox", "3.5"],
+    ["Windows 7", "firefox", "4"],
+    ["Windows 7", "firefox", "25"],
+    ["Windows 7", "firefox", "33"],
+    ["Windows 7", "chrome", "beta"],
+    ["Windows 7", "safari", "5"]
 ];
 
 var saucelabsOptions = {
