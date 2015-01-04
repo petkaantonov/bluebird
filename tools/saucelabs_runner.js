@@ -45,13 +45,7 @@ module.exports = function(options) {
       console.log('=> Stopping Tunnel to Sauce Labs');
       break;
     case 'tunnelEvent':
-      if (notification.verbose) {
-        if (options.verbose) {
-          console.log(notification.text);
-        }
-      } else {
-        console.log(notification.text);
-      }
+      console.log(notification.text);
       break;
     case 'jobStarted':
       console.log('\n', notification.startedJobs, '/', notification.numberOfJobs, 'tests started');
