@@ -1,3 +1,66 @@
+(function() {
+  var currentTime = 0;
+  var timers = {};
+  var currentId = 0;
+  var global = window;
+
+  function checkTimers() {
+      Object.keys(timers).forEach(function(key) {
+          var timer = timers[key];
+
+          if (currentTime >= (timer.started + timer.time)) {
+              if (timer.interval) {
+                  timer.started = currentTime;
+              } else {
+                  delete timers[key];
+              }
+              var fn = timer.fn;
+              fn();
+          }
+      });
+  }
+
+  function setInterval(fn, time) {
+      var id = currentId++;
+      time = (+time || 0) | 0;
+      if (time < 0) time = 0;
+      timers[id] = {
+          fn: fn,
+          time: time,
+          started: currentTime,
+          interval: true
+      };
+      return id;
+  }
+
+  function setTimeout(fn, time) {
+      var id = currentId++;
+      time = (+time || 0) | 0;
+      if (time < 0) time = 0;
+      timers[id] = {
+          fn: fn,
+          time: time,
+          started: currentTime,
+          interval: false
+      };
+      return id;
+  }
+
+  function clearTimeout(id) {
+      delete timers[id];
+  }
+
+  var clearInterval = clearTimeout;
+  window.setInterval(function() {
+    currentTime += 10;
+    checkTimers();
+  }, 1);
+  window.setTimeout = setTimeout;
+  window.clearTimeout = clearTimeout;
+  window.setInterval = setInterval;
+  window.clearInterval = clearInterval;
+})();
+
 var Promise = require("../../js/debug/bluebird.js");
 window.Promise = Promise;
 window.adapter = Promise;
