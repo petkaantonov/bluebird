@@ -878,7 +878,7 @@ Promise.prototype._unsetSettlePromisesQueued = function () {
 Promise.prototype._queueSettlePromises = function() {
     ASSERT(!this._isFollowing());
     if (!this._isSettlePromisesQueued()) {
-        async.invoke(this._settlePromises, this, undefined);
+        async.settlePromises(this);
         this._setSettlePromisesQueued();
     }
 };

@@ -74,9 +74,18 @@ Async.prototype.invoke = function (fn, receiver, arg) {
     this._queueTick();
 };
 
+Async.prototype.settlePromises = function(promise) {
+    this._normalQueue._pushOne(promise);
+    this._queueTick();
+};
+
 Async.prototype._drainQueue = function(queue) {
     while (queue.length() > 0) {
         var fn = queue.shift();
+        if (typeof fn !== "function") {
+            fn._settlePromises();
+            continue;
+        }
         var receiver = queue.shift();
         var arg = queue.shift();
         fn.call(receiver, arg);
