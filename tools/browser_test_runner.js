@@ -14,8 +14,7 @@ var browsers = [
     ["Windows 7", "safari", "5"],
     ["OS X 10.8", "safari", "6"],
     ["OS X 10.9", "iphone", "8.1"],
-    ["OS X 10.9", "safari", "7"],
-    ["Linux", "android", "4.4"]
+    ["OS X 10.9", "safari", "7"]
 ];
 
 var saucelabsOptions = {

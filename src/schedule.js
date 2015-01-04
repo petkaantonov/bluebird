@@ -1,17 +1,13 @@
 "use strict";
 var schedule;
-var _MutationObserver;
 if (typeof process === "object" && typeof process.version === "string") {
     schedule = parseInt(process.version.split(".")[1], 10) > 10
         ? setImmediate : process.nextTick;
 }
-else if ((typeof MutationObserver !== "undefined" &&
-         (_MutationObserver = MutationObserver)) ||
-         (typeof WebKitMutationObserver !== "undefined" &&
-         (_MutationObserver = WebKitMutationObserver))) {
+else if (typeof MutationObserver !== "undefined") {
     schedule = function(fn) {
         var div = document.createElement("div");
-        var observer = new _MutationObserver(fn);
+        var observer = new MutationObserver(fn);
         observer.observe(div, {attributes: true});
         return function() { div.classList.toggle("foo"); };
     };
