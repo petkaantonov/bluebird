@@ -1,9 +1,9 @@
 "use strict";
 var ASSERT = require("./assert.js");
-//http://jsperf.com/deque-vs-array-2
-function arrayCopy(src, srcIndex, dst, dstIndex, len) {
+function arrayMove(src, srcIndex, dst, dstIndex, len) {
     for (var j = 0; j < len; ++j) {
         dst[j + dstIndex] = src[j + srcIndex];
+        src[j + srcIndex] = void 0;
     }
 }
 
@@ -11,7 +11,6 @@ function Queue(capacity) {
     this._capacity = capacity;
     this._length = 0;
     this._front = 0;
-    this._makeCapacity();
 }
 
 Queue.prototype._willBeOverCapacity = function (size) {
@@ -79,13 +78,6 @@ Queue.prototype.length = function () {
     return this._length;
 };
 
-Queue.prototype._makeCapacity = function () {
-    var len = this._capacity;
-    for (var i = 0; i < len; ++i) {
-        this[i] = undefined;
-    }
-};
-
 Queue.prototype._checkCapacity = function (size) {
     if (this._capacity < size) {
         this._resizeTo(this._capacity << 1);
@@ -93,26 +85,13 @@ Queue.prototype._checkCapacity = function (size) {
 };
 
 Queue.prototype._resizeTo = function (capacity) {
-    var oldFront = this._front;
     var oldCapacity = this._capacity;
-    var oldQueue = new Array(oldCapacity);
-    var length = this.length();
-
-    arrayCopy(this, 0, oldQueue, 0, oldCapacity);
     this._capacity = capacity;
-    this._makeCapacity();
-    this._front = 0;
-    //Can perform direct linear copy
-    if (oldFront + length <= oldCapacity) {
-        arrayCopy(oldQueue, oldFront, this, 0, length);
-    } else {//Cannot perform copy directly, perform as much as possible
-            //at the end, and then copy the rest to the beginning of the buffer
-        var lengthBeforeWrapping =
-            length - ((oldFront + length) & (oldCapacity - 1));
-
-        arrayCopy(oldQueue, oldFront, this, 0, lengthBeforeWrapping);
-        arrayCopy(oldQueue, 0, this, lengthBeforeWrapping,
-                    length - lengthBeforeWrapping);
+    var front = this._front;
+    var length = this._length;
+    if (front + length > oldCapacity) {
+        var moveItemsCount = (front + length) & (oldCapacity - 1);
+        arrayMove(this, 0, this, oldCapacity, moveItemsCount);
     }
 };
 
