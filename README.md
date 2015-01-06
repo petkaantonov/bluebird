@@ -51,7 +51,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
     - [`Promise.join()`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise)
     - [And](API.md#core) [much](API.md#timers) [more](API.md#utility)!
 - [Practical debugging solutions and sane defaults](#error-handling)
-- [Sick performance](benchmark/stats/latest.md)
+- [Sick performance](benchmark/)
 
 <hr>
 
