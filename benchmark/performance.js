@@ -139,25 +139,17 @@ if (args.file) {
 function measure(files, requests, time, parg, callback) {
     async.mapSeries(files, function(f, done) {
         console.log("benchmarking", f);
-
-        console.log(f);
+        var logFile = path.basename(f) + ".log";
+        var profileFlags = ["--prof", "--logfile=C:/etc/v8/" + logFile];
 
         var argsFork = [__filename,
             '--n', requests,
             '--t', time,
             '--p', parg,
             '--file', f];
+        if (args.profile) argsFork = profileFlags.concat(argsFork);
         if (args.harmony) argsFork.unshift('--harmony');
         if (args.longStackSupport) argsFork.push('--longStackSupport');
-
-        if (f.indexOf("analysis") > -1) {
-            argsFork.unshift("--trace_opt", "--trace_deopt", "--trace_inlining",
-                "--trace_generalization", "--trace_array_abuse",
-                "--trace_gc_ignore_scavenger"
-
-                );
-        }
-
         var p = cp.spawn(process.execPath, argsFork);
 
         var complete = false, timedout = false;
