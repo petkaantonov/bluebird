@@ -25,12 +25,3 @@ Generates a .jshintrc file in the project root.
 Example:
 
     node tools/jshintrc_generator
-
-###changelog_generator.js
-
-Generates changelog.md file with entries based on git history. Newly created entries will not contain
-any useful logs, they must be manually edited in afterwards.
-
-Example:
-
-    node tools/changelog_generator
