@@ -1,3 +1,12 @@
+## 2.6.0 (2015-01-06)
+
+Features:
+
+ - Significantly improve parallel promise performance and memory usage (+50% faster, -50% less memory)
+
+
+## 2.5.3 (2014-12-30)
+
 ## 2.5.2 (2014-12-29)
 
 Bugfixes:
