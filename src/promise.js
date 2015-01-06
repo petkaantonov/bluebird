@@ -629,28 +629,19 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     }
 };
 
-Promise.prototype._callHandler = function (
-    handler, receiver, promise, value) {
-    //Special receiver that means we are .applying an array of arguments
-    //(for .spread() at the moment)
-    var x;
-    promise._pushContext();
-    if (receiver === APPLY && !this._isRejected()) {
-        ASSERT(isArray(value));
-        x = tryCatchApply(handler, value, this._boundTo);
-    } else {
-        x = tryCatch1(handler, receiver, value);
-    }
-    promise._popContext();
-    return x;
-};
-
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
     if (promise._isRejected()) return;
     ASSERT(!promise._isFollowingOrFulfilledOrRejected());
-    var x = this._callHandler(handler, receiver, promise, value);
+    promise._pushContext();
+    var x;
+    if (receiver === APPLY && !this._isRejected()) {
+        x = tryCatchApply(handler, value, this._boundTo);
+    } else {
+        x = tryCatch1(handler, receiver, value);
+    }
+    promise._popContext();
 
     if (x === errorObj || x === promise || x === NEXT_FILTER) {
         var err = x === promise
