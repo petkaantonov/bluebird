@@ -409,7 +409,7 @@ describe("promisify on objects", function(){
             done();
         });
     });
-    
+
 });
 
 describe( "Promisify with custom suffix", function() {
@@ -824,3 +824,50 @@ if (canTestArity) {
         })
     })
 }
+
+describe("nodeback with multiple arguments", function() {
+    specify("spreaded with immediate values", function(done) {
+        var promise = Promise.promisify(function(cb) {
+            cb(null, 1, 2, 3);
+        })();
+
+        promise.spread(function(a, b, c) {
+            assert.equal(a, 1);
+            assert.equal(b, 2);
+            assert.equal(c, 3);
+            done();
+        });
+    });
+
+    specify("spreaded with thenable values should not be unwrapped", function(done) {
+        var a = {then: function(){}};
+        var b = a;
+        var c = a;
+        var promise = Promise.promisify(function(cb) {
+            cb(null, a, b, c);
+        })();
+
+        promise.spread(function(a_, b_, c_) {
+            assert.equal(a_, a);
+            assert.equal(b_, b);
+            assert.equal(c_, c);
+            done();
+        });
+    });
+
+    specify("spreaded with promise values should not be unwrapped", function(done) {
+        var a = Promise.resolve(1);
+        var b = Promise.resolve(2);
+        var c = Promise.resolve(3);
+        var promise = Promise.promisify(function(cb) {
+            cb(null, a, b, c);
+        })();
+
+        promise.spread(function(a_, b_, c_) {
+            assert.strictEqual(a_, a);
+            assert.strictEqual(b_, b);
+            assert.strictEqual(c_, c);
+            done();
+        });
+    });
+});
