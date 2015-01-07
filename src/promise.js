@@ -135,8 +135,10 @@ Promise.prototype.done = function (didFulfill, didReject, didProgress) {
 };
 
 Promise.prototype.spread = function (didFulfill, didReject) {
-    var target = this._target();
-    target = target._isSpreadable() ? this : this.all();
+    var followee = this._target();
+    var target = followee._isSpreadable()
+        ? (followee === this ? this : this.then())
+        : this.all();
     return target._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 

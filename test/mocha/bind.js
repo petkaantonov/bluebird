@@ -1098,3 +1098,11 @@ describe("Promised thisArg", function() {
     specify("if thisArg is rejected immediate thenable, returned promise is rejected",
         makeThisArgRejectedTestMethod(function() { return immediateRejectedThenableOf(e); }));
 });
+
+describe("github issue", function() {
+    specify("426", function() {
+        return Promise.all([Promise.delay(10)]).bind(THIS).spread(function() {
+            assert.equal(this, THIS);
+        });
+    });
+});
