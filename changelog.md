@@ -1,3 +1,9 @@
+## 2.6.1 (2015-01-07)
+
+Bugfixes:
+
+ - Fixed built browser files not being included in the git tag release for bower
+
 ## 2.6.0 (2015-01-06)
 
 Features:
