@@ -1,3 +1,9 @@
+## 2.6.2 (2015-01-07)
+
+Bugfixes:
+
+ - Fix [#426](https://github.com/petkaantonov/bluebird/issues/426)
+
 ## 2.6.1 (2015-01-07)
 
 Bugfixes:
