@@ -836,10 +836,12 @@ Promise.prototype._settlePromiseAt = function (index) {
                 receiver._promiseRejected(value, promise);
             }
         }
-    } else if (this._isFulfilled()) {
-        promise._fulfill(value);
-    } else {
-        promise._reject(value, carriedStackTrace);
+    } else if (isPromise) {
+        if (this._isFulfilled()) {
+            promise._fulfill(value);
+        } else {
+            promise._reject(value, carriedStackTrace);
+        }
     }
 
     // Heuristic for promises that are stashed away somewhere

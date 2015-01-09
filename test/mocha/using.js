@@ -7,12 +7,14 @@ var Promise2 = require("../../js/debug/promise.js")();
 var using = Promise.using;
 var delay = Promise.delay;
 var error = new Error("");
-
+var id = 0;
 function Resource() {
     this.isClosed = false;
     this.closesCalled = 0;
     this.commited = false;
     this.rollbacked = false;
+    this.id = id++;
+
 }
 
 Resource.prototype.commit = function () {
@@ -70,6 +72,12 @@ function connectCloseAsync(arr, value) {
         return resource.closeAsync().then(function() {
             arr.push(value);
         });
+    });
+}
+
+function promiseForConnectCloseAsync(arr, value) {
+    return Promise.delay(10).then(function() {
+        return connectCloseAsync(arr, value);
     });
 }
 
@@ -191,6 +199,74 @@ describe("Promise.using", function() {
             assert(p2.value().closesCalled == 1);
             assert(p3.value().closesCalled == 1);
             assert(e === err)
+            done();
+         });
+    });
+
+    specify("calls promised async disposers sequentially", function(done) {
+         var a = [];
+         var _res3 = promiseForConnectCloseAsync(a, 3);
+         var _res2 = promiseForConnectCloseAsync(a, 2);
+         var _res1 = promiseForConnectCloseAsync(a, 1);
+         using(_res1, _res2, _res3, function(res1, res2, res3) {
+            assert(res1 instanceof Resource)
+            assert(res2 instanceof Resource)
+            assert(res3 instanceof Resource)
+            _res1 = res1;
+            _res2 = res2;
+            _res3 = res3;
+         }).then(function() {
+            assert.deepEqual(a, [1,2,3]);
+            assert(_res1.isClosed);
+            assert(_res2.isClosed);
+            assert(_res3.isClosed);
+            assert(_res1.closesCalled == 1);
+            assert(_res2.closesCalled == 1);
+            assert(_res3.closesCalled == 1);
+            done();
+         });
+    });
+
+    specify("calls promised async disposers sequentially when failing", function(done) {
+         var a = [];
+         var _res3 = promiseForConnectCloseAsync(a, 3);
+         var _res2 = promiseForConnectCloseAsync(a, 2);
+         var _res1 = promiseForConnectCloseAsync(a, 1);
+         var e = new Error();
+         var promise = delay(50).thenThrow(e);
+         using(_res1, _res2, _res3, promise, function() {
+
+         }).caught(function(err) {
+            assert.deepEqual(a, [1,2,3]);
+            assert(_res1.value().promise().value().isClosed);
+            assert(_res2.value().promise().value().isClosed);
+            assert(_res3.value().promise().value().isClosed);
+            assert(_res1.value().promise().value().closesCalled == 1);
+            assert(_res2.value().promise().value().closesCalled == 1);
+            assert(_res3.value().promise().value().closesCalled == 1);
+            assert(e === err)
+            done();
+         });
+    });
+
+    specify("mixed promise, promise-for-disposer and disposer", function(done) {
+         var a = [];
+         var _res3 = promiseForConnectCloseAsync(a, 3);
+         var _res2 = connectCloseAsync(a, 2);
+         var _res1 = Promise.delay(10, 10);
+         using(_res1, _res2, _res3, function(res1, res2, res3) {
+            assert(res1 === 10);
+            assert(res2 instanceof Resource);
+            assert(res3 instanceof Resource);
+            _res1 = res1;
+            _res2 = res2;
+            _res3 = res3;
+         }).then(function() {
+            assert.deepEqual(a, [2,3]);
+            assert(_res2.isClosed);
+            assert(_res3.isClosed);
+            assert(_res2.closesCalled == 1);
+            assert(_res3.closesCalled == 1);
             done();
          });
     });

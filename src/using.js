@@ -97,7 +97,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
         var ret = resource !== null
             ? this.doDispose(resource, inspection) : null;
         this._promise._unsetDisposable();
-        this._data = this._promise = null;
+        this._data = null;
         return ret;
     };
 
@@ -117,6 +117,14 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
         return fn.call(resource, resource, inspection);
     };
 
+    function maybeUnwrapDisposer(value) {
+        if (Disposer.isDisposer(value)) {
+            this.resources[this.index]._setDisposable(value);
+            return value.promise();
+        }
+        return value;
+    }
+
     Promise.using = function () {
         var len = arguments.length;
         if (len < 2) return apiRejection(
@@ -131,6 +139,15 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
                 var disposer = resource;
                 resource = resource.promise();
                 resource._setDisposable(disposer);
+            } else {
+                var maybePromise = tryConvertToPromise(resource, undefined);
+                if (maybePromise instanceof Promise) {
+                    resource =
+                        maybePromise._then(maybeUnwrapDisposer, null, null, {
+                            resources: resources,
+                            index: i
+                    }, undefined);
+                }
             }
             resources[i] = resource;
         }
