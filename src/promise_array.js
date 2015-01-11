@@ -96,11 +96,13 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
     var promise = this._promise;
     for (var i = 0; i < len; ++i) {
-        if (this._isResolved()) return;
+        var isResolved = this._isResolved();
         var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
-            if (maybePromise._isPending()) {
+            if (isResolved) {
+                maybePromise._unsetRejectionIsUnhandled();
+            } else if (maybePromise._isPending()) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
             } else if (maybePromise._isFulfilled()) {
@@ -109,7 +111,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
                 maybePromise._unsetRejectionIsUnhandled();
                 this._promiseRejected(maybePromise._reason(), i);
             }
-        } else {
+        } else if (!isResolved) {
             this._promiseFulfilled(maybePromise, i);
         }
     }
