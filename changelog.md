@@ -1,3 +1,9 @@
+## 2.6.4 (2015-01-12)
+
+Bugfixes:
+
+ - `OperationalErrors` thrown by promisified functions retain custom properties, such as `.code` and `.path`.
+
 ## 2.6.3 (2015-01-12)
 
 Bugfixes:
