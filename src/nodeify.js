@@ -7,16 +7,19 @@ var tryCatch2 = util.tryCatch2;
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
-function spreadAdapter(val, receiver) {
-    if (!util.isArray(val)) return successAdapter(val, receiver);
-    var ret = util.tryCatchApply(this, [null].concat(val), receiver);
+function spreadAdapter(val, nodeback) {
+    var promise = this;
+    if (!util.isArray(val)) return successAdapter.call(promise, val, nodeback);
+    var ret = util.tryCatchApply(nodeback,
+                                 [null].concat(val), promise._boundTo);
     if (ret === errorObj) {
         async.throwLater(ret.e);
     }
 }
 
-function successAdapter(val, receiver) {
-    var nodeback = this;
+function successAdapter(val, nodeback) {
+    var promise = this;
+    var receiver = promise._boundTo;
     ASSERT(typeof nodeback == "function");
     var ret = val === undefined
         ? tryCatch1(nodeback, receiver, null)
@@ -25,10 +28,18 @@ function successAdapter(val, receiver) {
         async.throwLater(ret.e);
     }
 }
-function errorAdapter(reason, receiver) {
-    var nodeback = this;
+function errorAdapter(reason, nodeback) {
+    var promise = this;
+    if (!reason) {
+        var target = promise._target();
+        ASSERT(target._isCarryingStackTrace());
+        var newReason = target._getCarriedStackTrace();
+        newReason.cause = reason;
+        reason = newReason;
+        ASSERT(!!reason);
+    }
     ASSERT(typeof nodeback == "function");
-    var ret = tryCatch1(nodeback, receiver, reason);
+    var ret = tryCatch1(nodeback, promise._boundTo, reason);
     if (ret === errorObj) {
         async.throwLater(ret.e);
     }
@@ -44,8 +55,8 @@ Promise.prototype.nodeify = function (nodeback, options) {
             adapter,
             errorAdapter,
             undefined,
-            nodeback,
-            this._boundTo
+            this,
+            nodeback
         );
     }
     return this;

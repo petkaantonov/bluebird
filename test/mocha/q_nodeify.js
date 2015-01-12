@@ -214,5 +214,57 @@ if( isNodeJS ) {
                 done();
             }, {spread: true});
         });
+
+        describe("promise rejected with falsy values", function(done) {
+            specify("no reason", function(done) {
+                Promise.reject().nodeify(function(err) {
+                    assert.strictEqual(arguments.length, 1);
+                    assert.strictEqual(err.cause, undefined);
+                    done();
+                });
+            });
+            specify("null reason", function(done) {
+                Promise.reject(null).nodeify(function(err) {
+                    assert.strictEqual(arguments.length, 1);
+                    assert.strictEqual(err.cause, null);
+                    done();
+                });
+            });
+            specify("nodefying a follewer promise", function(done) {
+                new Promise(function(resolve, reject) {
+                    resolve(new Promise(function(_, reject) {
+                        setTimeout(function() {
+                            reject();
+                        }, 13);
+                    }))
+                }).nodeify(function(err) {
+                    assert.strictEqual(arguments.length, 1);
+                    assert.strictEqual(err.cause, undefined);
+                    done();
+                });
+            });
+            specify("nodefier promise becomes follower", function(done) {
+                Promise.resolve(1).then(function() {
+                    return new Promise(function(_, reject) {
+                        setTimeout(function() {
+                            reject();
+                        }, 13);
+                    });
+                }).nodeify(function(err) {
+                    assert.strictEqual(arguments.length, 1);
+                    assert.strictEqual(err.cause, undefined);
+                    done();
+                });
+            });
+        });
+        it("should wrap arguments with spread option", function(done) {
+            Promise.resolve([1,2,3]).nodeify(function(err, a, b, c) {
+                assert(err === null);
+                assert(a === 1);
+                assert(b === 2);
+                assert(c === 3);
+                done();
+            }, {spread: true});
+        });
     });
 }

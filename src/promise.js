@@ -450,13 +450,6 @@ Promise.prototype._setCarriedStackTrace = function (capturedTrace) {
     this._fulfillmentHandler0 = capturedTrace;
 };
 
-Promise.prototype._unsetCarriedStackTrace = function () {
-    ASSERT(!this._isFollowing());
-    ASSERT(this._isRejected());
-    this._bitField = this._bitField & (~IS_CARRYING_STACK_TRACE);
-    this._fulfillmentHandler0 = undefined;
-};
-
 Promise.prototype._isCarryingStackTrace = function () {
     ASSERT(!this._isFollowing());
     return (this._bitField & IS_CARRYING_STACK_TRACE) > 0;
@@ -976,7 +969,6 @@ Promise.prototype._notifyUnhandledRejection = function () {
         this._setUnhandledRejectionIsNotified();
 
         if (trace !== undefined) {
-            this._unsetCarriedStackTrace();
             reason = trace;
         }
         if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {

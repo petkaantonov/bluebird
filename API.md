@@ -1788,6 +1788,20 @@ getDataFor("me", function(err, dataForMe) {
 });
 ```
 
+Promises can be rejected with falsy values (or no value at all, equal to rejecting with `undefined`), however `.nodeify` will call the callback with an `Error` object if the promise's rejection reason is a falsy value. You can retrieve the original falsy value from the error's `.cause` property.
+
+Example:
+
+```js
+Promise.reject(null).nodeify(function(err, result) {
+    // If is executed
+    if (err) {
+        // Logs 'null'
+        console.log(err.cause);
+    }
+});
+```
+
 There is no effect on peformance if the user doesn't actually pass a node-style callback function.
 
 ######Option: `spread`
