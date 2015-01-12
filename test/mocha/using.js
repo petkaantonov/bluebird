@@ -110,6 +110,12 @@ function transaction() {
     return _connect().disposer(transactionDisposer);
 }
 
+function transactionWithAnotherPromiseAfterConnect() {
+    return _connect().then(function (connection) {
+      return Promise.resolve(connection).then(function(c) { return c; })
+    }).disposer(transactionDisposer);
+}
+
 function transactionAsync() {
     return _connect().disposer(transactionDisposerAsync);
 }
@@ -298,6 +304,20 @@ describe("Promise.using", function() {
             done();
         })
     })
+
+    specify("successful transaction with a promise before disposer creation", function(done) {
+        var _tx;
+        using(transactionWithAnotherPromiseAfterConnect(), function(tx) {
+            _tx = tx;
+            return tx.query(1).then(function() {
+                return tx.query(2);
+            })
+        }).then(function(){
+            assert(_tx.commited);
+            assert(!_tx.rollbacked);
+            done();
+        });
+    });
 
     specify("fail transaction", function(done) {
         var _tx;
