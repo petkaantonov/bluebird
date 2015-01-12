@@ -871,3 +871,26 @@ describe("nodeback with multiple arguments", function() {
         });
     });
 });
+
+describe("operational errors", function() {
+    specify("should retain custom properties", function(done) {
+        var message;
+        var name;
+        function f(cb) {
+            var err = new Error("custom message");
+            message = err.message;
+            name = err.name;
+            err.code = "ENOENT";
+            err.path = "C:\\";
+            cb(err);
+        }
+        Promise.promisify(f)().error(function(e) {
+            assert.strictEqual(e.message, message);
+            assert.strictEqual(e.name, name);
+            assert(e instanceof OperationalError);
+            assert.strictEqual(e.code, "ENOENT");
+            assert.strictEqual(e.path, "C:\\");
+            done();
+        });
+    });
+});
