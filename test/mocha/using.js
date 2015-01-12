@@ -110,9 +110,15 @@ function transaction() {
     return _connect().disposer(transactionDisposer);
 }
 
-function transactionWithAnotherPromiseAfterConnect() {
+function transactionWithImmediatePromiseAfterConnect() {
     return _connect().then(function (connection) {
       return Promise.resolve(connection).then(function(c) { return c; })
+    }).disposer(transactionDisposer);
+}
+
+function transactionWithEventualPromiseAfterConnect() {
+    return _connect().then(function (connection) {
+      return Promise.delay(100).thenReturn(connection);
     }).disposer(transactionDisposer);
 }
 
@@ -305,13 +311,23 @@ describe("Promise.using", function() {
         })
     })
 
-    specify("successful transaction with a promise before disposer creation", function(done) {
+    specify("successful transaction with an immediate promise before disposer creation", function(done) {
         var _tx;
-        using(transactionWithAnotherPromiseAfterConnect(), function(tx) {
+        using(transactionWithImmediatePromiseAfterConnect(), function(tx) {
             _tx = tx;
-            return tx.query(1).then(function() {
-                return tx.query(2);
-            })
+            return tx.query(1);
+        }).then(function(){
+            assert(_tx.commited);
+            assert(!_tx.rollbacked);
+            done();
+        });
+    });
+
+    specify("successful transaction with an eventual promise before disposer creation", function(done) {
+        var _tx;
+        using(transactionWithEventualPromiseAfterConnect(), function(tx) {
+            _tx = tx;
+            return tx.query(1);
         }).then(function(){
             assert(_tx.commited);
             assert(!_tx.rollbacked);
