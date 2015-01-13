@@ -21,6 +21,14 @@ var canEvaluate = typeof navigator == "undefined";
 var errorObj = {e: {}};
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
+function tryCatch0(fn, receiver) {
+    try { return fn.call(receiver); }
+    catch (e) {
+        errorObj.e = e;
+        return errorObj;
+    }
+}
+
 function tryCatch1(fn, receiver, arg) {
     try { return fn.call(receiver, arg); }
     catch (e) {
@@ -244,6 +252,7 @@ var ret = {
     isObject: isObject,
     canEvaluate: canEvaluate,
     errorObj: errorObj,
+    tryCatch0: tryCatch0,
     tryCatch1: tryCatch1,
     tryCatch2: tryCatch2,
     tryCatch3: tryCatch3,
