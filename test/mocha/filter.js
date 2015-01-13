@@ -1,13 +1,10 @@
 "use strict";
-    "use strict";
 
 var assert = require("assert");
 
 var adapter = require("../../js/debug/bluebird.js");
 var Promise = adapter;
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
+
 
 describe("Promise filter", function() {
 
@@ -30,71 +27,65 @@ describe("Promise filter", function() {
         assert.fail();
     }
 
-    function cd(done) {
-        return function() {
-            done();
-        };
-    }
-
     describe("should accept eventual booleans", function() {
-        specify("immediately fulfilled", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("immediately fulfilled", function() {
+            return Promise.filter(arr, function(v) {
                 return new Promise(function(r){
                     r(v !== 2);
                 });
-            }).then(assertArr).then(cd(done));
+            }).then(assertArr);
         });
 
-        specify("already fulfilled", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("already fulfilled", function() {
+            return Promise.filter(arr, function(v) {
                 return Promise.resolve(v !== 2);
-            }).then(assertArr).then(cd(done));
+            }).then(assertArr);
         });
 
-        specify("eventually fulfilled", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("eventually fulfilled", function() {
+            return Promise.filter(arr, function(v) {
                 return new Promise(function(r){
                     setTimeout(function(){
                         r(v !== 2);
                     }, 13);
                 });
-            }).then(assertArr).then(cd(done));
+            }).then(assertArr);
         });
 
-        specify("immediately rejected", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("immediately rejected", function() {
+            return Promise.filter(arr, function(v) {
                 return new Promise(function(v, r){
                     r(new ThrownError());
                 });
-            }).then(assertFail, assertErr).then(cd(done));
+            }).then(assertFail, assertErr);
         });
-        specify("already rejected", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("already rejected", function() {
+            return Promise.filter(arr, function(v) {
                 return Promise.reject(new ThrownError());
-            }).then(assertFail, assertErr).then(cd(done));
+            }).then(assertFail, assertErr);
         });
-        specify("eventually rejected", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("eventually rejected", function() {
+            return Promise.filter(arr, function(v) {
                 return new Promise(function(v, r){
                     setTimeout(function(){
                         r(new ThrownError());
                     }, 13);
                 });
-            }).then(assertFail, assertErr).then(cd(done));
+            }).then(assertFail, assertErr);
         });
 
 
-        specify("immediately fulfilled thenable", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("immediately fulfilled thenable", function() {
+            return Promise.filter(arr, function(v) {
                 return {
                     then: function(f, r) {
                         f(v !== 2);
                     }
                 };
-            }).then(assertArr).then(cd(done));
+            }).then(assertArr);
         });
-        specify("eventually fulfilled thenable", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("eventually fulfilled thenable", function() {
+            return Promise.filter(arr, function(v) {
                 return {
                     then: function(f, r) {
                         setTimeout(function(){
@@ -102,20 +93,20 @@ describe("Promise filter", function() {
                         }, 13);
                     }
                 };
-            }).then(assertArr).then(cd(done));
+            }).then(assertArr);
         });
 
-        specify("immediately rejected thenable", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("immediately rejected thenable", function() {
+            return Promise.filter(arr, function(v) {
                 return {
                     then: function(f, r) {
                         r(new ThrownError());
                     }
                 };
-            }).then(assertFail, assertErr).then(cd(done));
+            }).then(assertFail, assertErr);
         });
-        specify("eventually rejected thenable", function(done) {
-            Promise.filter(arr, function(v) {
+        specify("eventually rejected thenable", function() {
+            return Promise.filter(arr, function(v) {
                 return {
                     then: function(f, r) {
                         setTimeout(function(){
@@ -123,7 +114,7 @@ describe("Promise filter", function() {
                         }, 13);
                     }
                 };
-            }).then(assertFail, assertErr).then(cd(done));
+            }).then(assertFail, assertErr);
         });
 
     });
