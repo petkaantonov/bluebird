@@ -121,4 +121,12 @@ describe("Promise.method", function(){
             done();
         });
     });
+
+    specify("zero arguments length should remain zero", function(done) {
+
+        Promise.method(function(){
+            assert(arguments.length === 0);
+            done();
+        })();
+    });
 });

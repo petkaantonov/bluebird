@@ -21,6 +21,7 @@ var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
+var tryCatch0 = util.tryCatch0;
 var tryCatch1 = util.tryCatch1;
 var tryCatch2 = util.tryCatch2;
 var tryCatchApply = util.tryCatchApply;
@@ -191,7 +192,7 @@ Promise.method = function (fn) {
     return function () {
         var value;
         switch(arguments.length) {
-        case 0: value = tryCatch1(fn, this, undefined); break;
+        case 0: value = tryCatch0(fn, this); break;
         case 1: value = tryCatch1(fn, this, arguments[0]); break;
         case 2: value = tryCatch2(fn, this, arguments[0], arguments[1]); break;
         default:
