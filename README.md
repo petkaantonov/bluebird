@@ -1,10 +1,8 @@
-[![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
-
 <a href="http://promisesaplus.com/">
     <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
          title="Promises/A+ 1.1 compliant" align="right" />
 </a>
-
+[![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
 
 
 #Introduction
@@ -34,9 +32,8 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Changelog](changelog.md)
 - [Optimization guide](#optimization-guide)
 
+#Features
 <img src="logo.png" alt="bluebird logo" align="right" />
-
-#Features:
 
 - [Promises A+](http://promisesaplus.com)
 - [Synchronous inspection](API.md#synchronous-inspection)
@@ -79,7 +76,7 @@ There are many ways to use bluebird in browsers:
 
 When using script tags the global variables `Promise` and `P` (alias for `Promise`) become available.
 
-A [minimal bluebird browser build](#custom-builds) is ̃38.92KB minified*, 11.65KB gzipped and has no external dependencies.
+A [minimal bluebird browser build](#custom-builds) is &asymp;38.92KB minified*, 11.65KB gzipped and has no external dependencies.
 
 *Google Closure Compiler using Simple.
 
