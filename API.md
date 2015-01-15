@@ -74,6 +74,7 @@
     - [`CancellationError()`](#cancellationerror)
     - [`AggregateError()`](#aggregateerror)
 - [Error management configuration](#error-management-configuration)
+    - [Global rejection events](#global-rejection-events)
     - [`Promise.onPossiblyUnhandledRejection(Function handler)`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined)
     - [`Promise.onUnhandledRejectionHandled(Function handler)`](#promiseonunhandledrejectionhandledfunction-handler---undefined)
     - [`Promise.longStackTraces()`](#promiselongstacktraces---void)
@@ -2473,9 +2474,52 @@ a more suitable error handling scheme. Any scheme can be implemented on top of t
 - Using no hooks and using `.done()` to manually to mark end points where rejections will not be handled
 - ...
 
+If there is any rejection event hook registered, global or local, automatic logging is disabled.
+
 <hr>
 
+###Global rejection events
+
+Starting from 2.7.0 all bluebird instances also fire rejection events globally so that applications can register one universal hook for them.
+
+The global events are:
+
+ - `"unhandledRejection"` (corresponds to the local [`Promise.onPossiblyUnhandledRejection`](#promiseonpossiblyunhandledrejectionfunction-handler---undefined))
+ - `"rejectionHandled"` (corresponds to the local [`Promise.onUnhandledRejectionHandled`](#promiseonunhandledrejectionhandledfunction-handler---undefined))
+
+
+Attaching global rejection event handlers in **node.js**:
+
+```js
+process.on("unhandledRejection", function(reason, promise) {
+    // See Promise.onPossiblyUnhandledRejection for parameter documentation
+});
+
+process.on("rejectionHandled", function(promise) {
+    // See Promise.onUnhandledRejectionHandled for parameter documentation
+});
+```
+
+Attaching global rejection event handlers in **browsers**:
+
+```js
+window.onunhandledrejection = function(reason, promise) {
+    // See Promise.onPossiblyUnhandledRejection for parameter documentation
+};
+
+window.onrejectionhandled = function(promise) {
+    // See Promise.onUnhandledRejectionHandled for parameter documentation
+};
+```
+
+*Note* only the old school `window.onxxx` form is supported in browsers, DOM3 style events will not be fired.
+
+<hr>
+
+
 #####`Promise.onPossiblyUnhandledRejection(Function handler)` -> `undefined`
+
+*Note: this hook is specific to the bluebird instance its called on, application developers should use [global rejection events](#global-rejection-events)*
 
 Add `handler` as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or `console.error` in browsers.
 
@@ -2490,6 +2534,8 @@ Passing no value or a non-function will have the effect of removing any kind of 
 <hr>
 
 #####`Promise.onUnhandledRejectionHandled(Function handler)` -> `undefined`
+
+*Note: this hook is specific to the bluebird instance its called on, application developers should use [global rejection events](#global-rejection-events)*
 
 Add `handler` as the handler to call when a rejected promise that was reported as "possibly unhandled rejection" became handled.
 

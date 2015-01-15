@@ -741,3 +741,93 @@ if (Promise.hasLongStackTraces()) {
 describe("clear unhandled handler", function() {
     Promise.onPossiblyUnhandledRejection(null);
 });
+
+describe("global events", function() {
+
+    beforeEach(function() {
+        Promise.onPossiblyUnhandledRejection(null);
+        Promise.onUnhandledRejectionHandled(null);
+        detachGlobalHandlers();
+    });
+    afterEach(function() {
+        Promise.onPossiblyUnhandledRejection(null);
+        Promise.onUnhandledRejectionHandled(null);
+        detachGlobalHandlers();
+    });
+
+    var attachGlobalHandler, detachGlobalHandlers;
+    if (typeof process !== "undefined" &&
+        typeof process.version === "string" &&
+        typeof window === "undefined") {
+        attachGlobalHandler = function(name, fn) {
+            process.on(name, fn);
+        };
+        detachGlobalHandlers = function() {
+            process.removeAllListeners("unhandledRejection");
+            process.removeAllListeners("rejectionHandled");
+        };
+    } else {
+        attachGlobalHandler = function(name, fn) {
+            window[("on" + name).toLowerCase()] = fn;
+        };
+        detachGlobalHandlers = function() {
+            window.onunhandledrejection = null;
+            window.onrejectionhandled = null;
+        };
+    }
+
+    specify("are fired", function(done) {
+        var err = new Error();
+        var receivedPromise;
+        attachGlobalHandler("unhandledRejection", function(reason, promise) {
+            assert.strictEqual(reason, err);
+            receivedPromise = promise;
+        });
+        attachGlobalHandler("rejectionHandled", function(promise) {
+            assert.strictEqual(receivedPromise, promise);
+            done();
+        });
+
+        var promise = new Promise(function() {throw err;});
+        setTimeout(function() {
+            promise.caught(function(){});
+        }, 100);
+    });
+
+    specify("are fired with local events", function(done) {
+        var expectedOrder = [1, 2, 3, 4];
+        var order = [];
+        var err = new Error();
+        var receivedPromises = [];
+
+        Promise.onPossiblyUnhandledRejection(function(reason, promise) {
+            assert.strictEqual(reason, err);
+            receivedPromises.push(promise);
+            order.push(1);
+        });
+
+        Promise.onUnhandledRejectionHandled(function(promise) {
+            assert.strictEqual(receivedPromises[0], promise);
+            order.push(3);
+        });
+
+        attachGlobalHandler("unhandledRejection", function(reason, promise) {
+            assert.strictEqual(reason, err);
+            receivedPromises.push(promise);
+            order.push(2);
+        });
+
+        attachGlobalHandler("rejectionHandled", function(promise) {
+            assert.strictEqual(receivedPromises[1], promise);
+            order.push(4);
+            assert.deepEqual(expectedOrder, order);
+            assert.strictEqual(receivedPromises.length, 2);
+            done();
+        });
+
+        var promise = new Promise(function() {throw err;});
+        setTimeout(function() {
+            promise.caught(function(){});
+        }, 100);
+    });
+});

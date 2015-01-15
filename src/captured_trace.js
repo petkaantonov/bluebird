@@ -1,5 +1,6 @@
 "use strict";
 module.exports = function() {
+var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
 var defineProperty = require("./es5.js").defineProperty;
@@ -141,13 +142,38 @@ CapturedTrace.unhandledRejection = function (reason) {
         reason, "^--- With additional stack trace: ");
 };
 
-CapturedTrace.possiblyUnhandledRejection = function (reason) {
-    CapturedTrace.formatAndLogError(
-        reason, "Possibly unhandled ");
-};
-
 CapturedTrace.isSupported = function () {
     return typeof captureStackTrace === "function";
+};
+
+CapturedTrace.fireRejectionEvent =
+function(name, localHandler, reason, promise) {
+    var localEventFired = false;
+    try {
+        if (typeof localHandler === "function") {
+            localEventFired = true;
+            if (name === REJECTION_HANDLED_EVENT) {
+                localHandler(promise);
+            } else {
+                localHandler(reason, promise);
+            }
+        }
+    } catch (e) {
+        async.throwLater(e);
+    }
+
+    var globalEventFired = false;
+    try {
+        globalEventFired = fireGlobalEvent(name, reason, promise);
+    } catch (e) {
+        globalEventFired = true;
+        async.throwLater(e);
+    }
+
+    if (!globalEventFired && !localEventFired &&
+        name === UNHANDLED_REJECTION_EVENT) {
+        CapturedTrace.formatAndLogError(reason, UNHANDLED_REJECTION_HEADER);
+    }
 };
 
 function formatNonError(obj) {
@@ -322,6 +348,38 @@ var captureStackTrace = (function stackDetection() {
         };
 
         return null;
+    }
+})();
+
+var fireGlobalEvent = (function() {
+    if (typeof process !== "undefined" &&
+        typeof process.version === "string" &&
+        typeof window === "undefined") {
+        return function(name, reason, promise) {
+            if (name === REJECTION_HANDLED_EVENT) {
+                return process.emit(name, promise);
+            } else {
+                return process.emit(name, reason, promise);
+            }
+        };
+    } else {
+        var toWindowMethodNameMap = {};
+        toWindowMethodNameMap[UNHANDLED_REJECTION_EVENT] = ("on" +
+            UNHANDLED_REJECTION_EVENT).toLowerCase();
+        toWindowMethodNameMap[REJECTION_HANDLED_EVENT] = ("on" +
+            REJECTION_HANDLED_EVENT).toLowerCase();
+
+        return function(name, reason, promise) {
+            var methodName = toWindowMethodNameMap[name];
+            var method = window[methodName];
+            if (!method) return false;
+            if (name === REJECTION_HANDLED_EVENT) {
+                method.call(window, promise);
+            } else {
+                method.call(window, reason, promise);
+            }
+            return true;
+        };
     }
 })();
 

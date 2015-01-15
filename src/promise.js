@@ -35,6 +35,8 @@ var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttachTrace = errors.canAttachTrace;
 var apiRejection = require("./errors_api_rejection")(Promise);
 var unhandledRejectionHandled;
+var possiblyUnhandledRejection;
+
 var debugging = __DEBUG__ || !!(
     typeof process !== "undefined" &&
     typeof process.execPath === "string" &&
@@ -274,8 +276,7 @@ Promise.reject = Promise.rejected = function (reason) {
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
-        CapturedTrace.possiblyUnhandledRejection = typeof fn === "function"
-                                                    ? fn : undefined;
+    possiblyUnhandledRejection = typeof fn === "function" ? fn : undefined;
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
@@ -951,30 +952,20 @@ Promise.prototype._settlePromises = function () {
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     this._setRejectionIsUnhandled();
-    if (CapturedTrace.possiblyUnhandledRejection !== undefined) {
-        async.invokeLater(this._notifyUnhandledRejection, this, undefined);
-    }
+    async.invokeLater(this._notifyUnhandledRejection, this, undefined);
 };
 
 Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
-    if (typeof unhandledRejectionHandled === "function") {
-        async.throwLater(unhandledRejectionHandled, this);
-    }
+    CapturedTrace.fireRejectionEvent(REJECTION_HANDLED_EVENT,
+                                  unhandledRejectionHandled, undefined, this);
 };
 
 Promise.prototype._notifyUnhandledRejection = function () {
     if (this._isRejectionUnhandled()) {
-        var reason = this._settledValue;
-        var trace = this._getCarriedStackTrace();
-
+        var reason = this._getCarriedStackTrace() || this._settledValue;
         this._setUnhandledRejectionIsNotified();
-
-        if (trace !== undefined) {
-            reason = trace;
-        }
-        if (typeof CapturedTrace.possiblyUnhandledRejection === "function") {
-            CapturedTrace.possiblyUnhandledRejection(reason, this);
-        }
+        CapturedTrace.fireRejectionEvent(UNHANDLED_REJECTION_EVENT,
+                                      possiblyUnhandledRejection, reason, this);
     }
 };
 
