@@ -1754,6 +1754,31 @@ restler.getAsync("http://...", ...,).spread(function(data, response) {
 })
 ```
 
+Using `defaultPromisifier` parameter to add enhancements on top of normal node
+promisification:
+
+```js
+var fs = Promise.promisifyAll(require("fs"), {
+    promisifier: function(originalFunction, defaultPromisifer) {
+        var promisified = defaultPromisifier(originalFunction);
+
+        return function() {
+            // Enhance normal promisification by supporting promises as
+            // arguments
+
+            var args = [].slice.call(arguments);
+            var self = this;
+            return Promise.all(args).then(function(awaitedArgs) {
+                return promisified.apply(self, awaitedArgs);
+            });
+        };
+    }
+});
+
+// All promisified fs functions now await their arguments if they are promises
+var version = fs.readFileAsync("package.json", "utf8").then(JSON.parse).get("version");
+fs.writeFileAsync("the-version.txt", version, "utf8");
+```
 <hr>
 
 #####`.nodeify([Function callback] [, Object options])` -> `Promise`

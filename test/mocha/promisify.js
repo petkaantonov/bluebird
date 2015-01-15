@@ -694,6 +694,40 @@ describe("Custom promisifier", function() {
         });
     });
 
+    specify("custom promisifier enhancing default promisification", function(done) {
+        var obj = {
+            a: function(cb) {
+                setTimeout(function() {
+                    cb(null, 1);
+                }, 10);
+            },
+
+            b: function(val, cb) {
+                setTimeout(function() {
+                    cb(null, val);
+                }, 10);
+            }
+        };
+        obj = Promise.promisifyAll(obj, {
+            promisifier: function(originalFunction, defaultPromisifier) {
+                var promisified = defaultPromisifier(originalFunction);
+
+                return function() {
+                    var args = [].slice.call(arguments);
+                    var self = this;
+                    return Promise.all(args).then(function(awaitedArgs) {
+                        return promisified.apply(self, awaitedArgs);
+                    });
+                };
+            }
+        });
+
+        obj.bAsync(obj.aAsync()).then(function(val) {
+            assert.strictEqual(val, 1);
+            done();
+        });
+
+    });
 
 
 });
