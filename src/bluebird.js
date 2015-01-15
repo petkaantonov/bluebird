@@ -1,10 +1,11 @@
 "use strict";
 var old;
 if (typeof Promise !== "undefined") old = Promise;
-function noConflict(bluebird) {
+function noConflict() {
     try { if (Promise === bluebird) Promise = old; }
     catch (e) {}
     return bluebird;
 }
-module.exports = require("./promise.js")();
-module.exports.noConflict = noConflict;
+var bluebird = require("./promise.js")();
+bluebird.noConflict = noConflict;
+module.exports = bluebird;
