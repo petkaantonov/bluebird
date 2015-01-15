@@ -1,3 +1,17 @@
+## 2.7.0 (2015-01-15)
+
+Features:
+
+ - Added more context to stack traces originating from coroutines ([#421](https://github.com/petkaantonov/bluebird/issues/421))
+ - Implemented [global rejection events](https://github.com/petkaantonov/bluebird/blob/master/API.md#global-rejection-events) ([#428](https://github.com/petkaantonov/bluebird/issues/428), [#357](https://github.com/petkaantonov/bluebird/issues/357))
+ - [Custom promisifiers](https://github.com/petkaantonov/bluebird/blob/master/API.md#option-promisifier) are now passed the default promisifier which can be used to add enhancements on top of normal node promisification
+ - [Promisification filters](https://github.com/petkaantonov/bluebird/blob/master/API.md#option-filter) are now passed `passesDefaultFilter` boolean
+
+Bugfixes:
+
+ - Fix `.noConflict()` call signature ([#446]())
+ - Fix `Promise.method`ified functions being called with `undefined` when they were called with no arguments
+
 ## 2.6.4 (2015-01-12)
 
 Bugfixes:
