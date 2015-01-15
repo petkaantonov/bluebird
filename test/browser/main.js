@@ -7,6 +7,7 @@
   function checkTimers() {
       Object.keys(timers).forEach(function(key) {
           var timer = timers[key];
+          if (!timer) return;
 
           if (currentTime >= (timer.started + timer.time)) {
               if (timer.interval) {
