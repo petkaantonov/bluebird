@@ -10,7 +10,9 @@ var formatStack = null;
 function CapturedTrace(parent) {
     ASSERT(parent === undefined || parent instanceof CapturedTrace);
     this._parent = parent;
+    this._chainLength = 1 + (parent !== undefined ? parent._chainLength : 0);
     captureStackTrace(this, CapturedTrace);
+    this.stack = this.stack + "";
 
 }
 inherits(CapturedTrace, Error);
@@ -19,14 +21,12 @@ CapturedTrace.prototype.parent = function() {
     return this._parent;
 };
 
-CapturedTrace.prototype.setParent = function(parent) {
-    if (parent === this) return;
-    ASSERT(parent instanceof CapturedTrace);
-    this._parent = parent;
-};
-
 CapturedTrace.prototype.hasParent = function() {
     return this._parent !== undefined;
+};
+
+CapturedTrace.prototype.chainLimitReached = function() {
+    return this._chainLength > 25;
 };
 
 CapturedTrace.prototype.attachExtraTrace = function(error) {
@@ -82,9 +82,10 @@ CapturedTrace.prototype.combine = function(current) {
         }
     }
 
-    current.push(FROM_PREVIOUS_EVENT);
+    if (current[current.length - 1] !== FROM_PREVIOUS_EVENT) {
+        current.push(FROM_PREVIOUS_EVENT);
+    }
     var lines = current.concat(prev);
-
     var ret = [];
 
     //Eliminate library internal stuff and async callers

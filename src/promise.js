@@ -712,11 +712,14 @@ Promise.prototype._follow = function (promise) {
     }
     ASSERT(this._isFollowingOrFulfilledOrRejected());
     if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
-
-    if (debugging &&
-        !promise._trace.hasParent()) {
-        ASSERT(this._trace instanceof CapturedTrace);
-        promise._trace.setParent(this._trace);
+    if (debugging) {
+        if (promise._trace.chainLimitReached()) {
+            var trace = this._trace;
+            while (trace.chainLimitReached()) {
+                trace = trace._parent;
+            }
+            promise._trace = trace;
+        }
     }
 };
 
