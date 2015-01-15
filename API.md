@@ -1642,11 +1642,14 @@ Optionally, you can define a custom filter through the options object:
 
 ```js
 Promise.promisifyAll(..., {
-    filter: function(name, func, target) {
+    filter: function(name, func, target, passesDefaultFilter) {
         // name = the property name to be promisified without suffix
         // func = the function
         // target = the target object where the promisified func will be put with name + suffix
-        // return boolean
+        // passesDefaultFilter = whether the default filter would be passed
+        // return boolean (return value is coerced, so not returning anything is same as returning false)
+
+        return passesDefaultFilter && ...
     }
 })
 ```

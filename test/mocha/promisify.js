@@ -894,3 +894,16 @@ describe("operational errors", function() {
         });
     });
 });
+
+describe("filter", function() {
+    specify("gets an argument whether default filter was passed", function(done) {
+        Promise.promisifyAll({
+            abc: function() {}
+        }, {
+            filter: function(_, __, ___, passesDefaultFilter) {
+                assert.strictEqual(passesDefaultFilter, true);
+                done();
+            }
+        })
+    });
+});
