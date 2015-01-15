@@ -136,6 +136,7 @@
         "PROPS_TYPE_ERROR": false,
         "POSITIVE_INTEGER_ERROR": false,
         "YIELDED_NON_PROMISE_ERROR": false,
+        "FROM_COROUTINE_CREATED_AT": false,
         "NOT_ERROR_TYPE_OR_PREDICATE": false,
         "UNBOUND_RESOLVER_INVOCATION": false,
         "PROMISIFICATION_NORMAL_METHODS_ERROR": false,

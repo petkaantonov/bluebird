@@ -78,7 +78,8 @@ PromiseSpawn.prototype._continue = function (result) {
                 this._throw(
                     new TypeError(
                         YIELDED_NON_PROMISE_ERROR.replace("%s", value) +
-                        FROM_COROUTINE_CREATED_AT + this._stack.split('\n').slice(1, -7).join('\n')
+                        FROM_COROUTINE_CREATED_AT +
+                        this._stack.split("\n").slice(1, -7).join("\n")
                     )
                 );
                 return;
@@ -121,7 +122,8 @@ Promise.coroutine = function (generatorFunction, options) {
     var stack = new Error().stack;
     return function () {
         var generator = generatorFunction.apply(this, arguments);
-        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler, stack);
+        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler,
+                                      stack);
         spawn._generator = generator;
         spawn._next(undefined);
         return spawn.promise();
