@@ -35,7 +35,6 @@ function wrapAsOperationalError(obj) {
 }
 
 function nodebackForPromise(promise) {
-    promise._setIsSpreadable();
     return function(err, value) {
         if (promise === null) return;
 

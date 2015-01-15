@@ -194,6 +194,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
             promise._setTrace(undefined);                                    \n\
+            promise._setIsSpreadable();                                      \n\
             var fn = nodebackForPromise(promise);                            \n\
             try {                                                            \n\
                 switch(len) {                                                \n\
@@ -232,6 +233,7 @@ function makeNodePromisifiedClosure(callback, receiver) {
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
         promise._setTrace(undefined);
+        promise._setIsSpreadable();
         var fn = nodebackForPromise(promise);
         try {
             callback.apply(_receiver, withAppended(arguments, fn));
