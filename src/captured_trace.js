@@ -79,6 +79,7 @@ CapturedTrace.prototype.hasParent = function() {
 };
 
 CapturedTrace.prototype.attachExtraTrace = function(error) {
+    if (error.__stackEnhanced__) return;
     this.uncycle();
     var trace = this;
     var stack = error.stack;
@@ -103,6 +104,7 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     } else {
         error.stack = stack.join("\n");
     }
+    error.__stackEnhanced__ = true;
 };
 
 function clean(stack, initialIndex) {
