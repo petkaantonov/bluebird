@@ -45,7 +45,7 @@ function getTests(options) {
 }
 
 function needsFreshProcess(testName) {
-    return /domain|schedule/.test(testName);
+    return /domain|schedule|api_exceptions/.test(testName);
 }
 
 function runTestGroup(testGroup, options, progress) {
