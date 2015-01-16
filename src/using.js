@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function (Promise, apiRejection, tryConvertToPromise) {
+module.exports = function (Promise, apiRejection, tryConvertToPromise,
+    createContext) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
@@ -72,9 +73,10 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
         return dispose(this, inspection).thenThrow(reason);
     }
 
-    function Disposer(data, promise) {
+    function Disposer(data, promise, context) {
         this._data = data;
         this._promise = promise;
+        this._context = context;
     }
 
     Disposer.prototype.data = function () {
@@ -94,8 +96,11 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
 
     Disposer.prototype.tryDispose = function(inspection) {
         var resource = this.resource();
+        var context = this._context;
+        if (context !== undefined) context._pushContext();
         var ret = resource !== null
             ? this.doDispose(resource, inspection) : null;
+        if (context !== undefined) context._popContext();
         this._promise._unsetDisposable();
         this._data = null;
         return ret;
@@ -152,11 +157,17 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
             resources[i] = resource;
         }
 
-        return Promise.settle(resources)
+        var promise = Promise.settle(resources)
             .then(inspectionMapper)
-            .spread(fn)
+            .then(function(vals) {
+                promise._pushContext();
+                var ret = fn.apply(undefined, vals);
+                promise._popContext();
+                return ret;
+            })
             ._then(
                 disposerSuccess, disposerFail, undefined, resources, undefined);
+        return promise;
     };
 
     Promise.prototype._setDisposable = function (disposer) {
@@ -179,7 +190,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
 
     Promise.prototype.disposer = function (fn) {
         if (typeof fn === "function") {
-            return new FunctionDisposer(fn, this);
+            return new FunctionDisposer(fn, this, createContext());
         }
         throw new TypeError();
     };

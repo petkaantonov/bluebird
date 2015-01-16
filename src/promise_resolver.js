@@ -131,7 +131,6 @@ PromiseResolver.prototype.reject = function (reason) {
     errors.markAsOriginatingFromRejection(reason);
     var trace = errors.canAttachTrace(reason)
         ? reason : new Error(util.toString(reason));
-    promise._attachExtraTrace(trace);
     async.invoke(promise._reject, promise, reason);
     if (trace !== reason) {
         async.invoke(this._setCarriedStackTrace, this, trace);

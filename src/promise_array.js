@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
+module.exports = function(Promise, INTERNAL, tryConvertToPromise,
+    apiRejection) {
 var ASSERT = require("./assert.js");
 var canAttachTrace = require("./errors.js").canAttachTrace;
 var util = require("./util.js");
@@ -24,7 +25,6 @@ function PromiseArray(values) {
         parent = values;
         promise._propagateFrom(parent, PROPAGATE_CANCEL | PROPAGATE_BIND);
     }
-    promise._setTrace(parent);
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
@@ -77,8 +77,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             return;
         }
     } else if (!isArray(values)) {
-        var err = new Promise.TypeError(COLLECTION_ERROR);
-        this.__hardReject__(err);
+        this._promise._follow(apiRejection(COLLECTION_ERROR));
         return;
     }
 

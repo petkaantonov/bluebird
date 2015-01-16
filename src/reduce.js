@@ -11,6 +11,7 @@ var tryCatch3 = util.tryCatch3;
 var errorObj = util.errorObj;
 function ReductionPromiseArray(promises, fn, accum, _each) {
     this.constructor$(promises);
+    this._promise._captureStackTrace();
     this._preservedValues = _each === INTERNAL ? [] : null;
     // `false` = initialValue provided as `accum` argument
     // `true` = treat the 0th value as initialValue
@@ -132,6 +133,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
             }
         }
 
+        this._promise._pushContext();
         if (isEach) {
             preservedValues.push(value);
             ret = tryCatch3(callback, receiver, value, i, length);
@@ -139,6 +141,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         else {
             ret = tryCatch4(callback, receiver, this._accum, value, i, length);
         }
+        this._promise._popContext();
 
         if (ret === errorObj) return this._reject(ret.e);
 

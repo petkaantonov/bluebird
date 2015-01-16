@@ -3,19 +3,72 @@ module.exports = function() {
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
-var defineProperty = require("./es5.js").defineProperty;
 var rtraceline = null;
 var formatStack = null;
 
 function CapturedTrace(parent) {
     ASSERT(parent === undefined || parent instanceof CapturedTrace);
     this._parent = parent;
-    this._chainLength = 1 + (parent !== undefined ? parent._chainLength : 0);
+    var length = this._length = 1 + (parent === undefined ? 0 : parent._length);
     captureStackTrace(this, CapturedTrace);
-    this.stack = this.stack + "";
-
+    // Unless the user manually nested > 32 indentation levels,
+    // there must be cycles
+    if (length > 32) this.uncycle();
 }
 inherits(CapturedTrace, Error);
+
+CapturedTrace.prototype.uncycle = function() {
+    var length = this._length;
+    if (length < 2) return;
+    var nodes = new Array(length);
+    var stackToIndex = {};
+
+    for (var i = 0, node = this; node !== undefined; ++i) {
+        nodes[i] = node;
+        node = node._parent;
+    }
+    ASSERT(nodes[0] === this);
+    ASSERT(nodes[nodes.length - 1] instanceof CapturedTrace);
+
+    for (var i = length - 1; i >= 0; --i) {
+        var stack = nodes[i].stack;
+        if (stackToIndex[stack] === undefined) {
+            stackToIndex[stack] = i;
+        }
+    }
+    for (var i = 0; i < length; ++i) {
+        var currentStack = nodes[i].stack;
+        var index = stackToIndex[currentStack];
+        ASSERT(currentStack === nodes[index].stack);
+
+        if (index !== undefined && index !== i) {
+            if (index > 0) {
+                ASSERT(nodes[index - 1]._parent === nodes[index]);
+                nodes[index - 1]._parent = undefined;
+                nodes[index - 1]._length = 1;
+            }
+            nodes[i]._parent = undefined;
+            nodes[i]._length = 1;
+            var cycleEdgeNode = i > 0 ? nodes[i - 1] : this;
+
+            if (index < length - 1) {
+                cycleEdgeNode._parent = nodes[index + 1];
+                cycleEdgeNode._parent.uncycle();
+                cycleEdgeNode._length =
+                    cycleEdgeNode._parent._length + 1;
+            } else {
+                cycleEdgeNode._parent = undefined;
+                cycleEdgeNode._length = 1;
+            }
+            var currentChildLength = cycleEdgeNode._length + 1;
+            for (var j = i - 2; j >= 0; --j) {
+                nodes[j]._length = currentChildLength;
+                currentChildLength++;
+            }
+            return;
+        }
+    }
+};
 
 CapturedTrace.prototype.parent = function() {
     return this._parent;
@@ -25,33 +78,26 @@ CapturedTrace.prototype.hasParent = function() {
     return this._parent !== undefined;
 };
 
-CapturedTrace.prototype.chainLimitReached = function() {
-    return this._chainLength > 25;
-};
-
 CapturedTrace.prototype.attachExtraTrace = function(error) {
+    this.uncycle();
     var trace = this;
     var stack = error.stack;
     stack = typeof stack === "string" ? stack.split("\n") : [];
-    this.protectErrorMessageNewlines(stack);
+    var initialIndex = this.protectErrorMessageNewlines(stack);
+    stack = clean(stack, initialIndex);
     var headerLineCount = 1;
     var combinedTraces = 1;
-
     do {
         stack = trace.combine(stack);
         combinedTraces++;
     } while ((trace = trace.parent()) != null);
 
-    var stackTraceLimit = Error.stackTraceLimit || 10;
-    var max = (stackTraceLimit + headerLineCount) * combinedTraces;
-    var len = stack.length;
-    if (len > max) {
-        stack.length = max;
-    }
-
-    if (len > 0)
+    if (stack.length > 0) {
         stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
-
+        if (stack[stack.length - 1] === FROM_PREVIOUS_EVENT) {
+            stack.pop();
+        }
+    }
     if (stack.length <= headerLineCount) {
         error.stack = "(No stack trace)";
     } else {
@@ -59,8 +105,22 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     }
 };
 
+function clean(stack, initialIndex) {
+    ASSERT(initialIndex >= 0);
+    var ret = stack.slice(0, initialIndex);
+    for (var i = initialIndex; i < stack.length; ++i) {
+        var line = stack[i];
+        var isTraceLine = rtraceline.test(line);
+        var isInternalFrame = isTraceLine && shouldIgnore(line);
+        if (isTraceLine && !isInternalFrame) {
+            ret.push(line);
+        }
+    }
+    return ret;
+}
+
 CapturedTrace.prototype.combine = function(current) {
-    var prev = this.stack.split("\n");
+    var prev = clean(this.stack.split("\n"), 0);
     var currentLastIndex = current.length - 1;
     var currentLastLine = current[currentLastIndex];
     var commonRootMeetPoint = -1;
@@ -85,21 +145,7 @@ CapturedTrace.prototype.combine = function(current) {
     if (current[current.length - 1] !== FROM_PREVIOUS_EVENT) {
         current.push(FROM_PREVIOUS_EVENT);
     }
-    var lines = current.concat(prev);
-    var ret = [];
-
-    //Eliminate library internal stuff and async callers
-    //that nobody cares about
-    for (var i = 0, len = lines.length; i < len; ++i) {
-        if (((rtraceline.test(lines[i]) && shouldIgnore(lines[i])) ||
-            (i > 0 && !rtraceline.test(lines[i])) &&
-            lines[i] !== FROM_PREVIOUS_EVENT)
-       ) {
-            continue;
-        }
-        ret.push(lines[i]);
-    }
-    return ret;
+    return current.concat(prev);
 };
 
 CapturedTrace.prototype.protectErrorMessageNewlines = function(stack) {
@@ -110,13 +156,14 @@ CapturedTrace.prototype.protectErrorMessageNewlines = function(stack) {
     }
 
     // No multiline error message
-    if (i <= 1) return;
+    if (i <= 1) return 1;
 
     var errorMessageLines = [];
     for (var j = 0; j < i; ++j) {
         errorMessageLines.push(stack.shift());
     }
     stack.unshift(errorMessageLines.join(NEWLINE_PROTECTOR));
+    return i;
 };
 
 CapturedTrace.formatAndLogError = function(error, title) {
@@ -299,14 +346,6 @@ var captureStackTrace = (function stackDetection() {
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
 
-        // Shim Error.stackTraceLimit , this does nothing in SpiderMoney but we
-        // want to have it for calculations with Error.stackTraceLimit later
-        defineProperty(Error, "stackTraceLimit", {
-            writable: true,
-            enumerable: false,
-            configurable: false,
-            value: 25
-        });
         rtraceline = /@/;
         var rline = /[@\n]/;
 

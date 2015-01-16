@@ -20,9 +20,7 @@ function race(promises, parent) {
 
     var ret = new Promise(INTERNAL);
     if (parent !== undefined) {
-        ret._propagateFrom(parent, PROPAGATE_ALL);
-    } else {
-        ret._setTrace(undefined);
+        ret._propagateFrom(parent, PROPAGATE_BIND | PROPAGATE_CANCEL);
     }
     var fulfill = ret._fulfill;
     var reject = ret._reject;

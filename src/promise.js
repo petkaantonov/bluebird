@@ -13,9 +13,11 @@ var errors = require("./errors.js");
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
+var apiRejection = require("./errors_api_rejection")(Promise);
 var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
-    require("./promise_array.js")(Promise, INTERNAL, tryConvertToPromise);
+    require("./promise_array.js")(Promise, INTERNAL,
+                                    tryConvertToPromise, apiRejection);
 var CapturedTrace = require("./captured_trace.js")();
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
@@ -33,7 +35,6 @@ var OperationalError = errors.OperationalError;
 var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttachTrace = errors.canAttachTrace;
-var apiRejection = require("./errors_api_rejection")(Promise);
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;
 
@@ -73,7 +74,7 @@ function Promise(resolver) {
 Promise.prototype.bind = function (thisArg) {
     var maybePromise = tryConvertToPromise(thisArg, this);
     var ret = new Promise(INTERNAL);
-    ret._propagateFrom(this, PROPAGATE_TRACE | PROPAGATE_CANCEL);
+    ret._propagateFrom(this, PROPAGATE_CANCEL);
     var target = this._target();
     if (maybePromise instanceof Promise) {
         target._then(INTERNAL, ret._reject, ret._progress, ret, null);
@@ -112,8 +113,6 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
         }
         catchInstances.length = j;
         fn = arguments[i];
-
-        this._resetTrace();
         var catchFilter = new CatchFilter(catchInstances, fn, this);
         return this._then(undefined, catchFilter.doFilter, undefined,
             catchFilter, undefined);
@@ -192,7 +191,10 @@ Promise.method = function (fn) {
         throw new TypeError(NOT_FUNCTION_ERROR);
     }
     return function () {
+        var ret = new Promise(INTERNAL);
+        ret._captureStackTrace();
         var value;
+        ret._pushContext();
         switch(arguments.length) {
         case 0: value = tryCatch0(fn, this); break;
         case 1: value = tryCatch1(fn, this, arguments[0]); break;
@@ -201,8 +203,7 @@ Promise.method = function (fn) {
             INLINE_SLICE(args, arguments);
             value = tryCatchApply(fn, args, this); break;
         }
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(undefined);
+        ret._popContext();
         ret._resolveFromSyncValue(value);
         return ret;
     };
@@ -212,26 +213,25 @@ Promise.attempt = Promise["try"] = function (fn, args, ctx) {
     if (typeof fn !== "function") {
         return apiRejection(NOT_FUNCTION_ERROR);
     }
+    var ret = new Promise(INTERNAL);
+    ret._captureStackTrace();
+    ret._pushContext();
     var value = isArray(args)
         ? tryCatchApply(fn, args, ctx)
         : tryCatch1(fn, ctx, args);
-
-    var ret = new Promise(INTERNAL);
-    ret._setTrace(undefined);
+    ret._popContext();
     ret._resolveFromSyncValue(value);
     return ret;
 };
 
 Promise.defer = Promise.pending = function () {
     var promise = new Promise(INTERNAL);
-    promise._setTrace(undefined);
     return new PromiseResolver(promise);
 };
 
 Promise.bind = function (thisArg) {
     var maybePromise = tryConvertToPromise(thisArg, undefined);
     var ret = new Promise(INTERNAL);
-    ret._setTrace(undefined);
 
     if (maybePromise instanceof Promise) {
         maybePromise._then(function(thisArg) {
@@ -250,7 +250,6 @@ Promise.cast = function (obj) {
     if (!(ret instanceof Promise)) {
         var val = ret;
         ret = new Promise(INTERNAL);
-        ret._setTrace(undefined);
         ret._setFulfilled();
         ret._settledValue = val;
         ret._cleanValues();
@@ -262,7 +261,6 @@ Promise.resolve = Promise.fulfilled = Promise.cast;
 
 Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
-    ret._setTrace(undefined);
     markAsOriginatingFromRejection(reason);
     ret._setRejected();
     ret._settledValue = reason;
@@ -313,7 +311,8 @@ Promise.prototype._then = function (
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if (!haveInternalData) {
-        ret._propagateFrom(this, PROPAGATE_ALL);
+        ret._propagateFrom(this, PROPAGATE_BIND | PROPAGATE_CANCEL);
+        ret._captureStackTrace();
     }
 
     var target = this._target();
@@ -603,8 +602,9 @@ Promise.prototype._isBound = function () {
 Promise.prototype._resolveFromResolver = function (resolver) {
     ASSERT(typeof resolver === "function");
     var promise = this;
-    this._setTrace(undefined);
+    var synchronous = true;
 
+    this._captureStackTrace();
     this._pushContext();
     var r = tryCatch2(resolver, undefined, function(val) {
         if (promise._tryFollow(val)) {
@@ -613,10 +613,11 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         promise._fulfill(val);
     }, function (val) {
         var trace = canAttachTrace(val) ? val : new Error(util.toString(val));
-        promise._attachExtraTrace(trace);
+        if (!synchronous) promise._attachExtraTrace(trace);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? undefined : trace);
     });
+    synchronous = false;
     this._popContext();
 
     if (r !== undefined && r === errorObj) {
@@ -712,15 +713,6 @@ Promise.prototype._follow = function (promise) {
     }
     ASSERT(this._isFollowingOrFulfilledOrRejected());
     if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
-    if (debugging) {
-        if (promise._trace.chainLimitReached()) {
-            var trace = this._trace;
-            while (trace.chainLimitReached()) {
-                trace = trace._parent;
-            }
-            promise._trace = trace;
-        }
-    }
 };
 
 Promise.prototype._tryFollow = function (value) {
@@ -737,28 +729,17 @@ Promise.prototype._tryFollow = function (value) {
     return true;
 };
 
-Promise.prototype._resetTrace = function () {
-    if (debugging) {
-        this._trace = new CapturedTrace(this._peekContext());
-    }
-};
-
-Promise.prototype._setTrace = function (parent) {
+Promise.prototype._captureStackTrace = function () {
+    ASSERT(arguments.length === 0);
     ASSERT(this._trace == null);
     if (debugging) {
-        var context = this._peekContext();
-        if (parent !== undefined &&
-            parent._trace.parent() === context) {
-            this._trace = parent._trace;
-        } else {
-            this._trace = new CapturedTrace(context);
-        }
+        this._trace = new CapturedTrace(this._peekContext());
     }
     return this;
 };
 
 Promise.prototype._attachExtraTrace = function (error) {
-    if (debugging && canAttachTrace(error)) {
+    if (debugging && canAttachTrace(error) && this._trace !== undefined) {
         this._trace.attachExtraTrace(error);
     }
 };
@@ -778,9 +759,7 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     if ((flags & PROPAGATE_BIND) > 0) {
         this._setBoundTo(parent._boundTo);
     }
-    if ((flags & PROPAGATE_TRACE) > 0) {
-        this._setTrace(parent);
-    }
+    ASSERT((flags & PROPAGATE_TRACE) === 0);
 };
 
 Promise.prototype._fulfill = function (value) {
@@ -973,24 +952,37 @@ Promise.prototype._notifyUnhandledRejection = function () {
 };
 
 var contextStack = [];
-Promise.prototype._peekContext = function () {
+function Context() {
+    this._trace = new CapturedTrace(peekContext());
+}
+Context.prototype._pushContext = function () {
+    if (!debugging) return;
+    ASSERT(this._trace instanceof CapturedTrace);
+    contextStack.push(this._trace);
+};
+
+Context.prototype._popContext = function () {
+    if (!debugging) return;
+    ASSERT(this._trace instanceof CapturedTrace);
+    contextStack.pop();
+};
+
+ /*jshint unused:false*/
+function createContext() {
+    if (debugging) return new Context();
+}
+
+function peekContext() {
     var lastIndex = contextStack.length - 1;
     if (lastIndex >= 0) {
         return contextStack[lastIndex];
     }
     return undefined;
+}
 
-};
-
-Promise.prototype._pushContext = function () {
-    if (!debugging) return;
-    contextStack.push(this._trace);
-};
-
-Promise.prototype._popContext = function () {
-    if (!debugging) return;
-    contextStack.pop();
-};
+Promise.prototype._peekContext = peekContext;
+Promise.prototype._pushContext = Context.prototype._pushContext;
+Promise.prototype._popContext = Context.prototype._popContext;
 
 Promise.prototype._resolveFromSyncValue = function (value) {
     ASSERT(!this._isFollowing());
@@ -1013,6 +1005,8 @@ Promise.prototype._resolveFromSyncValue = function (value) {
         }
     }
 };
+
+
 
 if (!CapturedTrace.isSupported()) {
     Promise.longStackTraces = function(){};

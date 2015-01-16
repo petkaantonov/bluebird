@@ -14,6 +14,7 @@ var EMPTY_ARRAY = [];
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
     this._promise._setIsSpreadable();
+    this._promise._captureStackTrace();
     this._callback = fn;
     this._preservedValues = _filter === INTERNAL
         ? new Array(this.length())
@@ -59,7 +60,9 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         var callback = this._callback;
         var receiver = this._promise._boundTo;
+        this._promise._pushContext();
         var ret = tryCatch3(callback, receiver, value, index, length);
+        this._promise._popContext();
         if (ret === errorObj) return this._reject(ret.e);
 
         // If the mapper function returned a promise we simply reuse

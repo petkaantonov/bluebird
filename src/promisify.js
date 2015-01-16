@@ -195,7 +195,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             'use strict';                                                    \n\
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
-            promise._setTrace(undefined);                                    \n\
+            promise._captureStackTrace();                                    \n\
             promise._setIsSpreadable();                                      \n\
             var fn = nodebackForPromise(promise);                            \n\
             try {                                                            \n\
@@ -234,7 +234,7 @@ function makeNodePromisifiedClosure(callback, receiver) {
         }
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
-        promise._setTrace(undefined);
+        promise._captureStackTrace();
         promise._setIsSpreadable();
         var fn = nodebackForPromise(promise);
         try {

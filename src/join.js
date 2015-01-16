@@ -46,7 +46,9 @@ if (canEvaluate) {
         var total = this.total;
         if (now >= total) {
             var handler = this.callers[total];
+            promise._pushContext();
             var ret = tryCatch1(handler, undefined, this);
+            promise._popContext();
             if (ret === errorObj) {
                 promise._rejectUnchecked(ret.e);
             } else if (!promise._tryFollow(ret)) {
@@ -69,7 +71,7 @@ Promise.join = function () {
         fn = arguments[last];
         if (last < 6 && canEvaluate) {
             var ret = new Promise(INTERNAL);
-            ret._setTrace(undefined);
+            ret._captureStackTrace();
             var holder = new Holder(last, fn);
             var callbacks = thenCallbacks;
             for (var i = 0; i < last; ++i) {

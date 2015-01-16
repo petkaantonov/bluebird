@@ -25,7 +25,6 @@ function tryConvertToPromise(obj, traceParent) {
         //Make casting from another bluebird fast
         else if (isAnyBluebirdPromise(obj)) {
             var ret = new Promise(INTERNAL);
-            ret._setTrace(undefined);
             obj._then(
                 ret._fulfillUnchecked,
                 ret._rejectUncheckedCheckError,

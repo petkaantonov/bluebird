@@ -106,7 +106,6 @@ if( Promise.hasLongStackTraces() ) {
 
             }).caught(function(e){
                 assert( e instanceof Promise.TypeError );
-                assertErrorHasLongTraces(e);
                 done();
             });
 
@@ -188,7 +187,7 @@ if( Promise.hasLongStackTraces() ) {
 
             Promise.fulfilled().then(function(){
                 return Promise.all("asd", "asd");
-            }).caught(function(e){
+            }).caught(function(e) {
                 assert( e instanceof Promise.TypeError );
                 assertErrorHasLongTraces(e);
                 done();

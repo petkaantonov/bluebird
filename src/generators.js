@@ -17,7 +17,9 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
     var _Promise = Promise;
     var len = yieldHandlers.length;
     for (var i = 0; i < len; ++i) {
+        traceParent._pushContext();
         var result = tryCatch1(yieldHandlers[i], undefined, value);
+        traceParent._popContext();
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
         }
@@ -29,7 +31,7 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
 
 function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
     var promise = this._promise = new Promise(INTERNAL);
-    promise._setTrace(undefined);
+    promise._captureStackTrace();
     this._stack = stack;
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
@@ -100,15 +102,17 @@ PromiseSpawn.prototype._continue = function (result) {
 PromiseSpawn.prototype._throw = function (reason) {
     if (errors.canAttachTrace(reason))
         this._promise._attachExtraTrace(reason);
-    this._continue(
-        tryCatch1(this._generator["throw"], this._generator, reason)
-   );
+    this._promise._pushContext();
+    var result = tryCatch1(this._generator["throw"], this._generator, reason);
+    this._promise._popContext();
+    this._continue(result);
 };
 
 PromiseSpawn.prototype._next = function (value) {
-    this._continue(
-        tryCatch1(this._generator.next, this._generator, value)
-   );
+    this._promise._pushContext();
+    var result = tryCatch1(this._generator.next, this._generator, value);
+    this._promise._popContext();
+    this._continue(result);
 };
 
 Promise.coroutine = function (generatorFunction, options) {

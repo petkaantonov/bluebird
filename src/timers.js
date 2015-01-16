@@ -29,13 +29,12 @@ var delay = Promise.delay = function (value, ms) {
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {
-        promise._propagateFrom(maybePromise, PROPAGATE_ALL);
+        promise._propagateFrom(maybePromise, PROPAGATE_BIND | PROPAGATE_CANCEL);
         promise._follow(maybePromise._target());
         return promise.then(function(value) {
             return Promise.delay(value, ms);
         });
     } else {
-        promise._setTrace(undefined);
         setTimeout(function delayTimeout() {
             afterDelay(value, promise);
         }, ms);
@@ -67,7 +66,7 @@ Promise.prototype.timeout = function (ms, message) {
     var target = this._target();
     ms = +ms;
     var ret = new Promise(INTERNAL).cancellable();
-    ret._propagateFrom(this, PROPAGATE_ALL);
+    ret._propagateFrom(this, PROPAGATE_BIND | PROPAGATE_CANCEL);
     ret._follow(target);
     var handle = setTimeout(function timeoutTimeout() {
         afterTimeout(ret, message);
