@@ -936,7 +936,9 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
         return;
     }
 
-    if (trace !== undefined) this._setCarriedStackTrace(trace);
+    if (trace !== undefined && trace !== reason) {
+        this._setCarriedStackTrace(trace);
+    }
 
     if (this._length() > 0) {
         this._queueSettlePromises();
