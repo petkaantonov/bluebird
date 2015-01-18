@@ -265,8 +265,7 @@ var ret = {
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
     filledRange: filledRange,
-    toString: safeToString,
-    lastLineError: new Error()
+    toString: safeToString
 };
-
+try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;

@@ -1,5 +1,6 @@
 "use strict";
-var firstLineError = new Error();
+var firstLineError;
+try {throw new Error(); } catch (e) {firstLineError = e;}
 var ASSERT = require("./assert.js");
 var schedule = require("./schedule.js");
 var Queue = require("./queue.js");

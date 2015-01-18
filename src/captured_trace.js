@@ -4,7 +4,7 @@ var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
 var bluebirdFramePattern = /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo)/;
-var rtraceline = null;
+var stackFramePattern = null;
 var formatStack = null;
 
 function CapturedTrace(parent) {
@@ -117,7 +117,7 @@ function clean(stack, initialIndex) {
     var ret = stack.slice(0, initialIndex);
     for (var i = initialIndex; i < stack.length; ++i) {
         var line = stack[i];
-        var isTraceLine = rtraceline.test(line);
+        var isTraceLine = stackFramePattern.test(line);
         var isInternalFrame = isTraceLine && shouldIgnore(line);
         if (isTraceLine && !isInternalFrame) {
             ret.push(line);
@@ -157,7 +157,7 @@ CapturedTrace.prototype.combine = function(current) {
 
 CapturedTrace.prototype.protectErrorMessageNewlines = function(stack) {
     for (var i = 0; i < stack.length; ++i) {
-        if (rtraceline.test(stack[i])) {
+        if (stackFramePattern.test(stack[i])) {
             break;
         }
     }
@@ -319,23 +319,24 @@ CapturedTrace.setBounds = function(firstLineError, lastLineError) {
 };
 
 var captureStackTrace = (function stackDetection() {
+    var v8stackFramePattern = /^\s*at\s*/
+    var v8stackFormatter = function(stack, error) {
+        ASSERT(error !== null);
+
+        if (typeof stack === "string") return stack;
+
+        if (error.name !== undefined &&
+            error.message !== undefined) {
+            return error.name + ". " + error.message;
+        }
+        return formatNonError(error);
+    };
+
     //V8
     if (typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function") {
-        rtraceline = /^\s*at\s*/;
-        formatStack = function(stack, error) {
-            ASSERT(error !== null);
-
-            if (typeof stack === "string") return stack;
-
-            if (error.name !== undefined &&
-                error.message !== undefined) {
-                return error.name + ". " + error.message;
-            }
-            return formatNonError(error);
-
-
-        };
+        stackFramePattern = v8stackFramePattern;
+        formatStack = v8stackFormatter;
         var captureStackTrace = Error.captureStackTrace;
 
         // For node
@@ -354,7 +355,7 @@ var captureStackTrace = (function stackDetection() {
         (err.stack.startsWith("stackDetection@")) &&
         stackDetection.name === "stackDetection") {
 
-        rtraceline = /@/;
+        stackFramePattern = /@/;
         var rline = /[@\n]/;
 
         formatStack = function(stack, error) {
@@ -382,21 +383,37 @@ var captureStackTrace = (function stackDetection() {
             }
             o.stack = ret;
         };
-    } else {
-        formatStack = function(stack, error) {
-            if (typeof stack === "string") return stack;
-
-            if ((typeof error === "object" ||
-                typeof error === "function") &&
-                error.name !== undefined &&
-                error.message !== undefined) {
-                return error.name + ". " + error.message;
-            }
-            return formatNonError(error);
-        };
-
-        return null;
     }
+
+    var hasStackAfterThrow;
+    try { throw new Error(); }
+    catch(e) {
+        hasStackAfterThrow = ("stack" in e);
+    }
+    // IE
+    if (!("stack" in err) && hasStackAfterThrow) {
+        stackFramePattern = v8stackFramePattern;
+        formatStack = v8stackFormatter;
+        return function captureStackTrace(o) {
+            try { throw new Error(); }
+            catch(e) { o.stack = e.stack; }
+        };
+    }
+
+    formatStack = function(stack, error) {
+        if (typeof stack === "string") return stack;
+
+        if ((typeof error === "object" ||
+            typeof error === "function") &&
+            error.name !== undefined &&
+            error.message !== undefined) {
+            return error.name + ". " + error.message;
+        }
+        return formatNonError(error);
+    };
+
+    return null;
+
 })();
 
 var fireGlobalEvent = (function() {

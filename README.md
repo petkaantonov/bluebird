@@ -88,7 +88,7 @@ Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmas
 
 **Note** that in ECMA-262, edition 3 (IE7, IE8 etc.) it is not possible to use methods that have keyword names like `.catch` and `.finally`. The [API documentation](API.md) always lists a compatible alternative name that you can use if you need to support these browsers. For example `.catch` is replaced with `.caught` and `.finally` with `.lastly`.
 
-Also, [long stack trace](API.md#promiselongstacktraces---void) support is only available in Chrome and Firefox.
+Also, [long stack trace](API.md#promiselongstacktraces---void) support is only available in Chrome, Firefox and Internet Explorer 10+.
 
 After quick start, see [API Reference and examples](API.md)
 
