@@ -261,15 +261,11 @@ Promise.resolve = Promise.fulfilled = Promise.cast;
 
 Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
+    ret._captureStackTrace();
     markAsOriginatingFromRejection(reason);
-    ret._setRejected();
-    ret._settledValue = reason;
-    ret._cleanValues();
-    if (!canAttachTrace(reason)) {
-        var trace = new Error(util.toString(reason));
-        ret._setCarriedStackTrace(trace);
-    }
-    ret._ensurePossibleRejectionHandled();
+    var hasStack = canAttachTrace(reason) && typeof reason.stack === "string";
+    ret._attachExtraTrace(reason, hasStack);
+    ret._rejectUnchecked(reason, undefined);
     return ret;
 };
 
