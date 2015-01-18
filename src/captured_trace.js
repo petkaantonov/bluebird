@@ -84,7 +84,7 @@ CapturedTrace.prototype.hasParent = function() {
 };
 
 CapturedTrace.prototype.attachExtraTrace = function(error) {
-    if (error.__stackEnhanced__) return;
+    if (error.__stackCleaned__) return;
     this.uncycle();
     var trace = this;
     var stack = CapturedTrace.cleanStack(error, false);
@@ -94,13 +94,14 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
         stack = trace.combine(stack);
         combinedTraces++;
     } while ((trace = trace.parent()) != null);
+
     stack = unProtectNewlines(stack);
+
     if (stack.length <= headerLineCount) {
         error.stack = "(No stack trace)";
     } else {
         error.stack = stack.join("\n");
     }
-    error.__stackEnhanced__ = true;
 };
 
 CapturedTrace.prototype.combine = function(current) {
@@ -134,7 +135,8 @@ CapturedTrace.prototype.combine = function(current) {
 
 function protectErrorMessageNewlines (stack) {
     for (var i = 0; i < stack.length; ++i) {
-        if (stackFramePattern.test(stack[i])) {
+        var line = stack[i];
+        if (NO_STACK_TRACE === line || stackFramePattern.test(line)) {
             break;
         }
     }
@@ -165,7 +167,8 @@ function clean(stack, initialIndex) {
     var ret = stack.slice(0, initialIndex);
     for (var i = initialIndex; i < stack.length; ++i) {
         var line = stack[i];
-        var isTraceLine = stackFramePattern.test(line);
+        var isTraceLine = stackFramePattern.test(line) ||
+            NO_STACK_TRACE === line;
         var isInternalFrame = isTraceLine && shouldIgnore(line);
         if (isTraceLine && !isInternalFrame) {
             ret.push(line);
@@ -175,9 +178,12 @@ function clean(stack, initialIndex) {
 }
 
 CapturedTrace.cleanStack = function(error, shouldUnProtectNewlines) {
-    if (error.__stackEnhanced__) return;
+    if (error.__stackCleaned__) return;
+    error.__stackCleaned__ = true;
     var stack = error.stack;
-    stack = typeof stack === "string" ? stack.split("\n") : [];
+    stack = typeof stack === "string"
+        ? stack.split("\n")
+        : [error.toString(), NO_STACK_TRACE];
     var initialIndex = protectErrorMessageNewlines(stack);
     stack = clean(stack, initialIndex);
     if (shouldUnProtectNewlines) stack = unProtectNewlines(stack);

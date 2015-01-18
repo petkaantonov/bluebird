@@ -114,6 +114,7 @@
         "QUEUE_MAX_CAPACITY": false,
         "QUEUE_MIN_CAPACITY": false,
         "FROM_PREVIOUS_EVENT": false,
+        "NO_STACK_TRACE": false,
         "UNHANDLED_REJECTION_HEADER": false,
         "NEWLINE_PROTECTOR": false,
         "THROW": false,
