@@ -613,7 +613,8 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         promise._fulfill(val);
     }, function (val) {
         var trace = canAttachTrace(val) ? val : new Error(util.toString(val));
-        promise._attachExtraTrace(trace, synchronous);
+        var hasStack = trace === val && typeof trace.stack === "string";
+        promise._attachExtraTrace(trace, synchronous ? hasStack : false);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? undefined : trace);
     });
@@ -623,7 +624,8 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     if (r !== undefined && r === errorObj) {
         var e = r.e;
         var trace = canAttachTrace(e) ? e : new Error(util.toString(e));
-        promise._attachExtraTrace(trace, true);
+        var hasStack = trace === e && typeof trace.stack === "string";
+        promise._attachExtraTrace(trace, hasStack);
         promise._reject(e, trace);
     }
 };
