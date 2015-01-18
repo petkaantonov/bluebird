@@ -161,8 +161,12 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             .then(inspectionMapper)
             .then(function(vals) {
                 promise._pushContext();
-                var ret = fn.apply(undefined, vals);
-                promise._popContext();
+                var ret;
+                try {
+                    ret = fn.apply(undefined, vals);
+                } finally {
+                    promise._popContext();
+                }
                 return ret;
             })
             ._then(
