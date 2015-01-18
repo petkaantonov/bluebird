@@ -3,6 +3,7 @@ module.exports = function() {
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
+var bluebirdFramePattern = /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo)/;
 var rtraceline = null;
 var formatStack = null;
 
@@ -305,6 +306,7 @@ CapturedTrace.setBounds = function(firstLineError, lastLineError) {
     }
 
     shouldIgnore = function(line) {
+        if (bluebirdFramePattern.test(line)) return true;
         var info = parseLineInfo(line);
         if (info) {
             if (info.fileName === firstFileName &&
@@ -335,10 +337,10 @@ var captureStackTrace = (function stackDetection() {
 
         };
         var captureStackTrace = Error.captureStackTrace;
-        var bluebirdRegexp = /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo)/;
+
         // For node
         shouldIgnore = function(line) {
-            return bluebirdRegexp.test(line);
+            return bluebirdFramePattern.test(line);
         };
         return function(receiver, ignoreUntil) {
             captureStackTrace(receiver, ignoreUntil);
