@@ -435,3 +435,35 @@ describe("custom yield handlers", function() {
         });
     });
 });
+
+if (Promise.hasLongStackTraces()) {
+    describe("Long stack traces with coroutines as context", function() {
+        it("1 level", function(done) {
+            Promise.coroutine(function* () {
+                yield Promise.delay(10);
+                throw new Error();
+            })().caught(function(e) {
+                assertLongTrace(e, 1+1, [2]);
+                done();
+            });
+        });
+        it("4 levels", function(done) {
+            var secondLevel = Promise.coroutine(function* () {
+                yield thirdLevel();
+            });
+            var thirdLevel = Promise.coroutine(function* () {
+                yield fourthLevel();
+            });
+            var fourthLevel = Promise.coroutine(function* () {
+                throw new Error();
+            });
+
+            Promise.coroutine(function* () {
+                yield secondLevel();
+            })().caught(function(e) {
+                assertLongTrace(e, 4+1, [3, 3, 2, 2]);
+                done();
+            });
+        });
+    });
+}
