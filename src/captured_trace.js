@@ -20,13 +20,17 @@ inherits(CapturedTrace, Error);
 CapturedTrace.prototype.uncycle = function() {
     var length = this._length;
     if (length < 2) return;
-    var nodes = new Array(length);
+    var nodes = [];
     var stackToIndex = {};
 
     for (var i = 0, node = this; node !== undefined; ++i) {
-        nodes[i] = node;
+        nodes.push(node);
         node = node._parent;
     }
+    // the node length is only used as heuristic to decide when to decycle, as
+    // there may be multiple linked lists that share members and decycling one
+    // will fail to update lenghts in the other. This is the correct length.
+    length = this._length = i;
     ASSERT(nodes[0] === this);
     ASSERT(nodes[nodes.length - 1] instanceof CapturedTrace);
 
