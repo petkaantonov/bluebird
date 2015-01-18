@@ -90,6 +90,7 @@ CONSTANT(QUEUE_MIN_CAPACITY, 16);
 //captured_trace.js
 CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CONSTANT(NO_STACK_TRACE, "    (No stack trace)");
+CONSTANT(ADDITIONAL_STACK_TRACE, "^--- With additional stack trace: ");
 CONSTANT(UNHANDLED_REJECTION_HEADER, "Possibly unhandled ");
 CONSTANT(NEWLINE_PROTECTOR, "\\u0002\\u0000\\u0001");
 

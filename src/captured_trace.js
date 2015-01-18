@@ -211,8 +211,7 @@ CapturedTrace.formatAndLogError = function(error, title) {
 };
 
 CapturedTrace.unhandledRejection = function (reason) {
-    CapturedTrace.formatAndLogError(
-        reason, "^--- With additional stack trace: ");
+    CapturedTrace.formatAndLogError(reason, ADDITIONAL_STACK_TRACE);
 };
 
 CapturedTrace.isSupported = function () {
