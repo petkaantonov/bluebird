@@ -263,9 +263,11 @@ Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
     ret._captureStackTrace();
     markAsOriginatingFromRejection(reason);
-    var hasStack = canAttachTrace(reason) && typeof reason.stack === "string";
+    var canAttach = canAttachTrace(reason);
+    var hasStack = canAttach && typeof reason.stack === "string";
+    var trace = canAttach ? reason : new Error(util.toString(reason));
     ret._attachExtraTrace(reason, hasStack);
-    ret._rejectUnchecked(reason, undefined);
+    ret._rejectUnchecked(reason, trace === reason ? undefined : trace);
     return ret;
 };
 
@@ -602,28 +604,29 @@ Promise.prototype._resolveFromResolver = function (resolver) {
 
     this._captureStackTrace();
     this._pushContext();
-    var r = tryCatch2(resolver, undefined, function(val) {
-        if (promise._tryFollow(val)) {
+    var r = tryCatch2(resolver, undefined, function(value) {
+        if (promise._tryFollow(value)) {
             return;
         }
-        promise._fulfill(val);
-    }, function (val) {
-        markAsOriginatingFromRejection(val);
-        var trace = canAttachTrace(val) ? val
-                        : (synchronous ? val : new Error(util.toString(val)));
-        var hasStack = canAttachTrace(trace) &&
-            typeof trace.stack === "string";
+        promise._fulfill(value);
+    }, function (reason) {
+        markAsOriginatingFromRejection(reason);
+        var canAttach = canAttachTrace(reason);
+        var trace = canAttach ? reason : new Error(util.toString(reason));
+        var hasStack = canAttach && typeof trace.stack === "string";
         promise._attachExtraTrace(trace, synchronous ? hasStack : false);
-        promise._reject(val, trace === val ? undefined : trace);
+        promise._reject(reason, trace === reason ? undefined : trace);
     });
     synchronous = false;
     this._popContext();
 
     if (r !== undefined && r === errorObj) {
-        var e = r.e;
-        var hasStack = canAttachTrace(e) && typeof e.stack === "string";
-        promise._attachExtraTrace(e, hasStack);
-        promise._reject(e, undefined);
+        var reason = r.e;
+        var canAttach = canAttachTrace(reason);
+        var hasStack = canAttach && typeof reason.stack === "string";
+        var trace = canAttach ? reason : new Error(util.toString(reason));
+        promise._attachExtraTrace(reason, hasStack);
+        promise._reject(reason, trace === reason ? undefined : trace);
     }
 };
 
