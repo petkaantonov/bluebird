@@ -87,23 +87,14 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     if (error.__stackEnhanced__) return;
     this.uncycle();
     var trace = this;
-    var stack = error.stack;
-    stack = typeof stack === "string" ? stack.split("\n") : [];
-    var initialIndex = this.protectErrorMessageNewlines(stack);
-    stack = clean(stack, initialIndex);
+    var stack = CapturedTrace.cleanStack(error, false);
     var headerLineCount = 1;
     var combinedTraces = 1;
     do {
         stack = trace.combine(stack);
         combinedTraces++;
     } while ((trace = trace.parent()) != null);
-
-    if (stack.length > 0) {
-        stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
-        if (stack[stack.length - 1] === FROM_PREVIOUS_EVENT) {
-            stack.pop();
-        }
-    }
+    stack = unProtectNewlines(stack);
     if (stack.length <= headerLineCount) {
         error.stack = "(No stack trace)";
     } else {
@@ -111,20 +102,6 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     }
     error.__stackEnhanced__ = true;
 };
-
-function clean(stack, initialIndex) {
-    ASSERT(initialIndex >= 0);
-    var ret = stack.slice(0, initialIndex);
-    for (var i = initialIndex; i < stack.length; ++i) {
-        var line = stack[i];
-        var isTraceLine = stackFramePattern.test(line);
-        var isInternalFrame = isTraceLine && shouldIgnore(line);
-        if (isTraceLine && !isInternalFrame) {
-            ret.push(line);
-        }
-    }
-    return ret;
-}
 
 CapturedTrace.prototype.combine = function(current) {
     var prev = clean(this.stack.split("\n"), 0);
@@ -155,7 +132,7 @@ CapturedTrace.prototype.combine = function(current) {
     return current.concat(prev);
 };
 
-CapturedTrace.prototype.protectErrorMessageNewlines = function(stack) {
+function protectErrorMessageNewlines (stack) {
     for (var i = 0; i < stack.length; ++i) {
         if (stackFramePattern.test(stack[i])) {
             break;
@@ -171,6 +148,41 @@ CapturedTrace.prototype.protectErrorMessageNewlines = function(stack) {
     }
     stack.unshift(errorMessageLines.join(NEWLINE_PROTECTOR));
     return i;
+}
+
+function unProtectNewlines(stack) {
+    if (stack.length > 0) {
+        stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
+        if (stack[stack.length - 1] === FROM_PREVIOUS_EVENT) {
+            stack.pop();
+        }
+    }
+    return stack;
+}
+
+function clean(stack, initialIndex) {
+    ASSERT(initialIndex >= 0);
+    var ret = stack.slice(0, initialIndex);
+    for (var i = initialIndex; i < stack.length; ++i) {
+        var line = stack[i];
+        var isTraceLine = stackFramePattern.test(line);
+        var isInternalFrame = isTraceLine && shouldIgnore(line);
+        if (isTraceLine && !isInternalFrame) {
+            ret.push(line);
+        }
+    }
+    return ret;
+}
+
+CapturedTrace.cleanStack = function(error, shouldUnProtectNewlines) {
+    if (error.__stackEnhanced__) return;
+    var stack = error.stack;
+    stack = typeof stack === "string" ? stack.split("\n") : [];
+    var initialIndex = protectErrorMessageNewlines(stack);
+    stack = clean(stack, initialIndex);
+    if (shouldUnProtectNewlines) stack = unProtectNewlines(stack);
+    error.stack = stack.join("\n");
+    return stack;
 };
 
 CapturedTrace.formatAndLogError = function(error, title) {
@@ -319,7 +331,7 @@ CapturedTrace.setBounds = function(firstLineError, lastLineError) {
 };
 
 var captureStackTrace = (function stackDetection() {
-    var v8stackFramePattern = /^\s*at\s*/
+    var v8stackFramePattern = /^\s*at\s*/;
     var v8stackFormatter = function(stack, error) {
         ASSERT(error !== null);
 

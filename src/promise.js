@@ -613,7 +613,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         promise._fulfill(val);
     }, function (val) {
         var trace = canAttachTrace(val) ? val : new Error(util.toString(val));
-        if (!synchronous) promise._attachExtraTrace(trace);
+        promise._attachExtraTrace(trace, synchronous);
         markAsOriginatingFromRejection(val);
         promise._reject(val, trace === val ? undefined : trace);
     });
@@ -623,6 +623,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     if (r !== undefined && r === errorObj) {
         var e = r.e;
         var trace = canAttachTrace(e) ? e : new Error(util.toString(e));
+        promise._attachExtraTrace(trace, true);
         promise._reject(e, trace);
     }
 };
@@ -738,9 +739,27 @@ Promise.prototype._captureStackTrace = function () {
     return this;
 };
 
-Promise.prototype._attachExtraTrace = function (error) {
-    if (debugging && canAttachTrace(error) && this._trace !== undefined) {
-        this._trace.attachExtraTrace(error);
+Promise.prototype._canAttachTrace = function(error) {
+    return debugging && canAttachTrace(error);
+};
+
+Promise.prototype._attachExtraTraceIgnoreSelf = function (error) {
+    if (this._canAttachTrace(error) && this._trace._parent !== undefined) {
+        this._trace._parent.attachExtraTrace(error);
+    }
+};
+
+Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
+    if (debugging && canAttachTrace(error)) {
+        var trace = this._trace;
+        if (trace !== undefined) {
+            if (ignoreSelf) trace = trace._parent;
+        }
+        if (trace !== undefined) {
+            trace.attachExtraTrace(error);
+        } else {
+            CapturedTrace.cleanStack(error, true);
+        }
     }
 };
 
