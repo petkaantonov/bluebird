@@ -352,6 +352,7 @@ var captureStackTrace = (function stackDetection() {
     //V8
     if (typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function") {
+        Error.stackTraceLimit = Error.stackTraceLimit + 6;
         stackFramePattern = v8stackFramePattern;
         formatStack = v8stackFormatter;
         var captureStackTrace = Error.captureStackTrace;
