@@ -102,7 +102,7 @@ MappingPromiseArray.prototype._drainQueue = function () {
     var values = this._values;
     while (queue.length > 0 && this._inFlight < limit) {
         if (this._isResolved()) return;
-        var index = queue.pop();
+        var index = queue.shift();
         this._promiseFulfilled(values[index], index);
     }
 };
