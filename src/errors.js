@@ -112,6 +112,21 @@ if (!errorTypes) {
     notEnumerableProp(Error, key, errorTypes);
 }
 
+var ensureErrorObject = (function() {
+    if (!("stack" in new Error())) {
+        return function(value) {
+            if (canAttachTrace(value)) return value;
+            try {throw new Error(util.toString(value));}
+            catch(err) {return err;}
+        };
+    } else {
+        return function(value) {
+            if (canAttachTrace(value)) return value;
+            return new Error(util.toString(value));
+        };
+    }
+})();
+
 module.exports = {
     Error: Error,
     TypeError: _TypeError,
@@ -122,5 +137,6 @@ module.exports = {
     AggregateError: errorTypes.AggregateError,
     originatesFromRejection: originatesFromRejection,
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
-    canAttachTrace: canAttachTrace
+    canAttachTrace: canAttachTrace,
+    ensureErrorObject: ensureErrorObject
 };

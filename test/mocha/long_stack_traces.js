@@ -3,6 +3,9 @@ var assert = require("assert");
 
 if (!Promise.hasLongStackTraces()) return;
 
+// TODO IE and FireFox
+if (!Error.captureStackTrace) return;
+
 function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
     var envFramePattern = /(?:\(node.js:|\(module.js:)/;
     var stack = error.stack.split("\n");

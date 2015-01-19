@@ -1,10 +1,8 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var errors = require("./errors.js");
-var canAttachTrace = errors.canAttachTrace;
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
-var util = require("./util.js");
 var CancellationError = errors.CancellationError;
 
 Promise.prototype._cancel = function (reason) {
@@ -18,8 +16,7 @@ Promise.prototype._cancel = function (reason) {
     }
     ASSERT(promiseToReject.isCancellable());
     this._unsetCancellable();
-    var trace = canAttachTrace(reason) ? reason
-                                       : new Error(util.toString(reason));
+    var trace = errors.ensureErrorObject(reason);
     promiseToReject._attachExtraTrace(trace);
     promiseToReject._target()._rejectUnchecked(reason, trace);
 };
