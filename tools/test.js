@@ -45,7 +45,7 @@ function getTests(options) {
 }
 
 function needsFreshProcess(testName) {
-    return /domain|schedule|api_exceptions|promisify/.test(testName);
+    return /domain|schedule/.test(testName);
 }
 
 function runTestGroup(testGroup, options, progress) {

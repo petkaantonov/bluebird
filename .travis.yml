@@ -3,8 +3,6 @@ matrix:
   include:
     - node_js: "0.10"
       env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
-    - node_js: "0.11"
-      env: "NODE_FLAGS='--harmony' SCRIPT_FLAGS=''"
     - node_js: "0.10"
       env: "NODE_FLAGS='' SCRIPT_FLAGS='--saucelabs'"
   fast_finish: true
