@@ -89,10 +89,14 @@ if ("run" in argv) {
 }
 
 var options = {
-    generators: process.execArgv.filter(function(v) {
-        var sanitized = v.toLowerCase().replace(/[_\-]/g, "").split("=")[0];
-        return sanitized === "harmony" || sanitized === "harmonygenerators";
-    }).length > 0,
+    generators: (function() {
+        try {
+            new Function("(function*(){})");
+            return true;
+        } catch (e) {
+            return false;
+        }
+    })(),
     testName: testName,
     singleTest: false,
     saucelabs: !!argv.saucelabs,

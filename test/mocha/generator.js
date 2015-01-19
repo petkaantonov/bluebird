@@ -440,7 +440,7 @@ var nodeVersion = typeof process !== "undefined" &&
         typeof process.version === "string"
         ? process.version.replace(/[^0-9.]/g, "").split(".").map(Number)
         : null;
-var isNode11 = odeVersion[0] === 0 && nodeVersion[1] === 11
+var isNode11 = nodeVersion[0] === 0 && nodeVersion[1] === 11
 
 // Stack trace capturing is completely screwed in node 0.11.?
 if (Promise.hasLongStackTraces() && !isNode11) {
@@ -468,7 +468,7 @@ if (Promise.hasLongStackTraces() && !isNode11) {
             Promise.coroutine(function* () {
                 yield secondLevel();
             })().caught(function(e) {
-                assertLongTrace(e, 4+1, [3, 3, 2, 2]);
+                assertLongTrace(e, 4+1, [2, 2, 2, 2]);
                 done();
             });
         });

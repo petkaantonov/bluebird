@@ -15,7 +15,7 @@ function dependsOnSinon(test) {
 
 module.exports = function(tests, options) {
     var testRequires = tests.filter(function(test) {
-        return !dependsOnSinon(test);
+        return !dependsOnSinon(test) && test.name.indexOf("generator") === -1;
     }).map(function(test) {
         var code = "require('../mocha/" + test.name + "');";
         if (test.name.indexOf("2.3.3") >= 0) {
