@@ -1,3 +1,12 @@
+## 2.8.0 (2015-01-19)
+
+Features:
+
+ - Major debuggability improvements:
+    - Long stack traces have been re-designed. They are now much more readable,
+      succint, relevant and consistent across bluebird features.
+    - Long stack traces are supported now in IE10+
+
 ## 2.7.1 (2015-01-15)
 
 Bugfixes:
