@@ -23,6 +23,7 @@ var globals = fs.readFileAsync(constantsFile, "utf8").then(function(contents) {
         __DEBUG__: false,
         __BROWSER__: false,
         process: true,
+        self: true,
         "console": false,
         "require": false,
         "module": false,

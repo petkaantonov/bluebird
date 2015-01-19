@@ -453,12 +453,12 @@ var fireGlobalEvent = (function() {
 
         return function(name, reason, promise) {
             var methodName = toWindowMethodNameMap[name];
-            var method = window[methodName];
+            var method = self[methodName];
             if (!method) return false;
             if (name === REJECTION_HANDLED_EVENT) {
-                method.call(window, promise);
+                method.call(self, promise);
             } else {
-                method.call(window, reason, promise);
+                method.call(self, reason, promise);
             }
             return true;
         };
