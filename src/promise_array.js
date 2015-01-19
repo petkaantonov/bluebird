@@ -72,7 +72,6 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
            );
             return;
         } else {
-            values._unsetRejectionIsUnhandled();
             this._reject(values._reason());
             return;
         }
@@ -107,7 +106,6 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             } else if (maybePromise._isFulfilled()) {
                 this._promiseFulfilled(maybePromise._value(), i);
             } else {
-                maybePromise._unsetRejectionIsUnhandled();
                 this._promiseRejected(maybePromise._reason(), i);
             }
         } else if (!isResolved) {

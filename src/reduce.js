@@ -34,7 +34,6 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
             accum = maybePromise._value();
             this._gotAccum = true;
         } else {
-            maybePromise._unsetRejectionIsUnhandled();
             this._reject(maybePromise._reason());
             rejected = true;
         }
@@ -128,7 +127,6 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
                 // Continue later when the promise at current index fulfills
                 return;
             } else {
-                value._unsetRejectionIsUnhandled();
                 return this._reject(value._reason());
             }
         }
@@ -156,7 +154,6 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
             } else if (maybePromise._isFulfilled()) {
                 ret = maybePromise._value();
             } else {
-                maybePromise._unsetRejectionIsUnhandled();
                 return this._reject(maybePromise._reason());
             }
         }

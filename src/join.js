@@ -90,7 +90,6 @@ Promise.join = function () {
                                           maybePromise._value(), holder);
                     } else {
                         ret._reject(maybePromise._reason());
-                        maybePromise._unsetRejectionIsUnhandled();
                     }
                 } else {
                     callbacks[i].call(ret, maybePromise, holder);

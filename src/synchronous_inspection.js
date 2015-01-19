@@ -77,6 +77,7 @@ Promise.prototype._value = function() {
 Promise.prototype._reason = function() {
     ASSERT(!this._isFollowing());
     ASSERT(this._isRejected());
+    this._unsetRejectionIsUnhandled();
     return this._settledValue;
 };
 
