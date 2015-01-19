@@ -1,10 +1,16 @@
 var Promise = adapter;
 var assert = require("assert");
 var assertLongTrace = require("./helpers/assert_long_trace.js");
+var nodeVersion = typeof process !== "undefined" &&
+        typeof process.version === "string"
+        ? process.version.replace(/[^0-9.]/g, "").split(".").map(Number)
+        : null;
+
 if (!Promise.hasLongStackTraces()) return;
 // TODO IE and FireFox
 if (!Error.captureStackTrace) return;
-
+// Stack trace capturing is completely screwed in node 0.11.?
+if (nodeVersion[0] === 0 && nodeVersion[1] === 11) return;
 
 
 describe(".then as context", function() {
