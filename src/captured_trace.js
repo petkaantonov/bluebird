@@ -86,52 +86,66 @@ CapturedTrace.prototype.hasParent = function() {
 CapturedTrace.prototype.attachExtraTrace = function(error) {
     if (error.__stackCleaned__) return;
     this.uncycle();
+    var header = CapturedTrace.cleanHeaderStack(error, false);
+    var stacks = [header.slice(1)];
     var trace = this;
-    var stack = CapturedTrace.cleanStack(error, false);
-    var headerLineCount = 1;
-    var combinedTraces = 1;
-    do {
-        stack = trace.combine(stack);
-        combinedTraces++;
-    } while ((trace = trace.parent()) != null);
 
-    stack = unProtectNewlines(stack);
-
-    if (stack.length <= headerLineCount) {
-        error.stack = "(No stack trace)";
-    } else {
-        error.stack = stack.join("\n");
+    while (trace !== undefined) {
+        stacks.push(cleanStack(trace.stack.split("\n"), 0));
+        trace = trace._parent;
     }
+    removeCommonRoots(stacks);
+    removeDuplicateOrEmptyJumps(stacks);
+    var message = header[0].split(NEWLINE_PROTECTOR).join("\n");
+    error.stack = reconstructStack(message, stacks);
 };
 
-CapturedTrace.prototype.combine = function(current) {
-    var prev = clean(this.stack.split("\n"), 0);
-    var currentLastIndex = current.length - 1;
-    var currentLastLine = current[currentLastIndex];
-    var commonRootMeetPoint = -1;
-    //Eliminate common roots
-    for (var i = prev.length - 1; i >= 0; --i) {
-        if (prev[i] === currentLastLine) {
-            commonRootMeetPoint = i;
-            break;
+function reconstructStack(message, stacks) {
+    for (var i = 0; i < stacks.length - 1; ++i) {
+        stacks[i].push(FROM_PREVIOUS_EVENT);
+        stacks[i] = stacks[i].join("\n");
+    }
+    stacks[i] = stacks[i].join("\n");
+    return message + "\n" + stacks.join("\n");
+}
+
+function removeDuplicateOrEmptyJumps(stacks) {
+    for (var i = 0; i < stacks.length; ++i) {
+        if (stacks[i].length === 0 ||
+            ((i + 1 < stacks.length) && stacks[i][0] === stacks[i+1][0])) {
+            stacks.splice(i, 1);
+            i--;
         }
     }
+}
 
-    for (var i = commonRootMeetPoint; i >= 0; --i) {
-        var line = prev[i];
-        if (current[currentLastIndex] === line) {
-            current.pop();
-            currentLastIndex--;
-        } else {
-            break;
+function removeCommonRoots(stacks) {
+    var current = stacks[0];
+    for (var i = 1; i < stacks.length; ++i) {
+        var prev = stacks[i];
+        var currentLastIndex = current.length - 1;
+        var currentLastLine = current[currentLastIndex];
+        var commonRootMeetPoint = -1;
+
+        for (var j = prev.length - 1; j >= 0; --j) {
+            if (prev[j] === currentLastLine) {
+                commonRootMeetPoint = j;
+                break;
+            }
         }
-    }
 
-    if (current[current.length - 1] !== FROM_PREVIOUS_EVENT) {
-        current.push(FROM_PREVIOUS_EVENT);
+        for (var j = commonRootMeetPoint; j >= 0; --j) {
+            var line = prev[j];
+            if (current[currentLastIndex] === line) {
+                current.pop();
+                currentLastIndex--;
+            } else {
+                break;
+            }
+        }
+        current = prev;
     }
-    return current.concat(prev);
-};
+}
 
 function protectErrorMessageNewlines (stack) {
     for (var i = 0; i < stack.length; ++i) {
@@ -140,10 +154,8 @@ function protectErrorMessageNewlines (stack) {
             break;
         }
     }
-
     // No multiline error message
     if (i <= 1) return 1;
-
     var errorMessageLines = [];
     for (var j = 0; j < i; ++j) {
         errorMessageLines.push(stack.shift());
@@ -155,14 +167,11 @@ function protectErrorMessageNewlines (stack) {
 function unProtectNewlines(stack) {
     if (stack.length > 0) {
         stack[0] = stack[0].split(NEWLINE_PROTECTOR).join("\n");
-        if (stack[stack.length - 1] === FROM_PREVIOUS_EVENT) {
-            stack.pop();
-        }
     }
     return stack;
 }
 
-function clean(stack, initialIndex) {
+function cleanStack(stack, initialIndex) {
     ASSERT(initialIndex >= 0);
     var ret = stack.slice(0, initialIndex);
     for (var i = initialIndex; i < stack.length; ++i) {
@@ -177,7 +186,7 @@ function clean(stack, initialIndex) {
     return ret;
 }
 
-CapturedTrace.cleanStack = function(error, shouldUnProtectNewlines) {
+CapturedTrace.cleanHeaderStack = function(error, shouldUnProtectNewlines) {
     if (error.__stackCleaned__) return;
     error.__stackCleaned__ = true;
     var stack = error.stack;
@@ -185,7 +194,7 @@ CapturedTrace.cleanStack = function(error, shouldUnProtectNewlines) {
         ? stack.split("\n")
         : [error.toString(), NO_STACK_TRACE];
     var initialIndex = protectErrorMessageNewlines(stack);
-    stack = clean(stack, initialIndex);
+    stack = cleanStack(stack, initialIndex);
     if (shouldUnProtectNewlines) stack = unProtectNewlines(stack);
     error.stack = stack.join("\n");
     return stack;
@@ -362,7 +371,9 @@ var captureStackTrace = (function stackDetection() {
             return bluebirdFramePattern.test(line);
         };
         return function(receiver, ignoreUntil) {
+            Error.stackTraceLimit = Error.stackTraceLimit + 6;
             captureStackTrace(receiver, ignoreUntil);
+            Error.stackTraceLimit = Error.stackTraceLimit - 6;
         };
     }
     var err = new Error();

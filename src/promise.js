@@ -759,7 +759,7 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
         if (trace !== undefined) {
             trace.attachExtraTrace(error);
         } else {
-            CapturedTrace.cleanStack(error, true);
+            CapturedTrace.cleanHeaderStack(error, true);
         }
     }
 };
