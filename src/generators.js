@@ -13,10 +13,7 @@ var tryCatch = util.tryCatch;
 var yieldHandlers = [];
 
 function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
-    var _errorObj = errorObj;
-    var _Promise = Promise;
-    var len = yieldHandlers.length;
-    for (var i = 0; i < len; ++i) {
+    for (var i = 0; i < yieldHandlers.length; ++i) {
         traceParent._pushContext();
         var result = tryCatch(yieldHandlers[i])(value);
         traceParent._popContext();
@@ -27,7 +24,7 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
             return ret;
         }
         var maybePromise = tryConvertToPromise(result, traceParent);
-        if (maybePromise instanceof _Promise) return maybePromise;
+        if (maybePromise instanceof Promise) return maybePromise;
     }
     return null;
 }
