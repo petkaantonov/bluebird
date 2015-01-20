@@ -21,8 +21,7 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     this._reducingIndex = (this._zerothIsAccum ? 1 : 0);
     // Array is established once we have a known length
     this._valuesPhase = undefined;
-
-    var maybePromise = tryConvertToPromise(accum, undefined);
+    var maybePromise = tryConvertToPromise(accum, this._promise);
     var rejected = false;
     var isPromise = maybePromise instanceof Promise;
     if (isPromise) {

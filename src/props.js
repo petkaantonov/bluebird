@@ -62,7 +62,7 @@ PropertiesPromiseArray.prototype.getActualLength = function (len) {
 
 function props(promises) {
     var ret;
-    var castValue = tryConvertToPromise(promises, undefined);
+    var castValue = tryConvertToPromise(promises);
 
     if (!isObject(castValue)) {
         return apiRejection(PROPS_TYPE_ERROR);

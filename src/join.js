@@ -74,7 +74,7 @@ Promise.join = function () {
             var holder = new Holder(last, fn);
             var callbacks = thenCallbacks;
             for (var i = 0; i < last; ++i) {
-                var maybePromise = tryConvertToPromise(arguments[i], undefined);
+                var maybePromise = tryConvertToPromise(arguments[i], ret);
                 if (maybePromise instanceof Promise) {
                     maybePromise = maybePromise._target();
                     if (maybePromise._isPending()) {

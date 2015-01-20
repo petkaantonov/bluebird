@@ -69,7 +69,7 @@ function Promise(resolver) {
 }
 
 Promise.prototype.bind = function (thisArg) {
-    var maybePromise = tryConvertToPromise(thisArg, this);
+    var maybePromise = tryConvertToPromise(thisArg);
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_CANCEL);
     var target = this._target();
@@ -219,7 +219,7 @@ Promise.defer = Promise.pending = function () {
 };
 
 Promise.bind = function (thisArg) {
-    var maybePromise = tryConvertToPromise(thisArg, undefined);
+    var maybePromise = tryConvertToPromise(thisArg);
     var ret = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {
@@ -235,7 +235,7 @@ Promise.bind = function (thisArg) {
 };
 
 Promise.cast = function (obj) {
-    var ret = tryConvertToPromise(obj, undefined);
+    var ret = tryConvertToPromise(obj);
     if (!(ret instanceof Promise)) {
         var val = ret;
         ret = new Promise(INTERNAL);
@@ -968,14 +968,16 @@ function Context() {
 }
 Context.prototype._pushContext = function () {
     if (!debugging) return;
-    ASSERT(this._trace instanceof CapturedTrace);
-    contextStack.push(this._trace);
+    if (this._trace !== undefined) {
+        contextStack.push(this._trace);
+    }
 };
 
 Context.prototype._popContext = function () {
     if (!debugging) return;
-    ASSERT(this._trace instanceof CapturedTrace);
-    contextStack.pop();
+    if (this._trace !== undefined) {
+        contextStack.pop();
+    }
 };
 
  /*jshint unused:false*/

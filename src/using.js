@@ -23,7 +23,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
     }
 
     function castPreservingDisposable(thenable) {
-        var maybePromise = tryConvertToPromise(thenable, undefined);
+        var maybePromise = tryConvertToPromise(thenable);
         if (maybePromise !== thenable &&
             typeof thenable._isDisposable === "function" &&
             typeof thenable._getDisposer === "function" &&
@@ -44,7 +44,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                 try {
                     maybePromise = tryConvertToPromise(
                         maybePromise._getDisposer().tryDispose(inspection),
-                        undefined);
+                        resources.promise);
                 } catch (e) {
                     return thrower(e);
                 }
@@ -145,7 +145,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                 resource = resource.promise();
                 resource._setDisposable(disposer);
             } else {
-                var maybePromise = tryConvertToPromise(resource, undefined);
+                var maybePromise = tryConvertToPromise(resource);
                 if (maybePromise instanceof Promise) {
                     resource =
                         maybePromise._then(maybeUnwrapDisposer, null, null, {
@@ -171,6 +171,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             })
             ._then(
                 disposerSuccess, disposerFail, undefined, resources, undefined);
+        resources.promise = promise;
         return promise;
     };
 

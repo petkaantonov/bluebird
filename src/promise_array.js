@@ -42,8 +42,7 @@ PromiseArray.prototype.promise = function () {
 // all of this is due to when vs some having different semantics on
 // empty arrays
 PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
-
-    var values = tryConvertToPromise(this._values, undefined);
+    var values = tryConvertToPromise(this._values, this._promise);
     if (values instanceof Promise) {
         values._setBoundTo(this._promise._boundTo);
         values = values._target();

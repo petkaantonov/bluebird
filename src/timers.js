@@ -25,7 +25,7 @@ var delay = Promise.delay = function (value, ms) {
         value = undefined;
     }
     ms = +ms;
-    var maybePromise = tryConvertToPromise(value, undefined);
+    var maybePromise = tryConvertToPromise(value);
     var promise = new Promise(INTERNAL);
 
     if (maybePromise instanceof Promise) {

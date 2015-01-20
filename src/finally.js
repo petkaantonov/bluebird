@@ -41,7 +41,7 @@ function finallyHandler(reasonOrValue) {
 
     //Nobody ever returns anything from a .finally handler so speed this up
     if (ret !== undefined) {
-        var maybePromise = tryConvertToPromise(ret, undefined);
+        var maybePromise = tryConvertToPromise(ret, promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, reasonOrValue,
@@ -69,7 +69,7 @@ function tapHandler(value) {
 
     //Nobody ever returns anything from a .finally handler so speed this up
     if (ret !== undefined) {
-        var maybePromise = tryConvertToPromise(ret, undefined);
+        var maybePromise = tryConvertToPromise(ret, promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
             return promisedFinally(maybePromise, value, true);

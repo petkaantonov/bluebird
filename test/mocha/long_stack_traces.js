@@ -445,3 +445,129 @@ describe(".using as context", function() {
         });
     });
 });
+
+describe("Long stack traces from thenable rejections", function() {
+    var es5 = (function(){"use strict"; return this})() === undefined;
+    // Todo, for 100% coverage thenables should be tested with every
+    // feature, not just then
+    var syncRej = function() {
+        return {
+            then: function(_, rej) {
+                rej(new Error());
+            }
+        };
+    };
+    var asyncRej = function() {
+        return {
+            then: function(_, rej) {
+                setTimeout(function() {
+                    rej(new Error());
+                }, 13);
+            }
+        };
+    };
+    var throwRej = function() {
+        return {
+            then: function(_, rej) {
+                throw(new Error());
+            }
+        };
+    };
+    var thenGetRej = function() {
+        var ret = {};
+        Object.defineProperty(ret, "then", {
+            get: function() {
+                throw new Error()
+            }
+        });
+        return ret;
+    };
+    it("1 level sync reject", function(done) {
+        Promise.resolve().then(function() {
+            return syncRej();
+        }).caught(function(e) {
+            assertLongTrace(e, 1+1, [1]);
+            done();
+        });
+    });
+    it("4 levels sync reject", function(done) {
+        Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
+                return Promise.resolve().then(function() {
+                    return Promise.resolve().then(function() {
+                        return syncRej();
+                    });
+                });
+            });
+        }).caught(function(e) {
+            assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
+            done();
+        });
+    });
+    it("1 level async reject", function(done) {
+        Promise.resolve().then(function() {
+            return asyncRej();
+        }).caught(function(e) {
+            assertLongTrace(e, 2 + 1, [6, 0]);
+            done();
+        });
+    });
+    it("4 levels async reject", function(done) {
+        Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
+                return Promise.resolve().then(function() {
+                    return Promise.resolve().then(function() {
+                        return asyncRej();
+                    });
+                });
+            });
+        }).caught(function(e) {
+            assertLongTrace(e, 4 + 1, [6, 1, 1, 1]);
+            done();
+        });
+    });
+    it("1 level throw", function(done) {
+        Promise.resolve().then(function() {
+            return throwRej();
+        }).caught(function(e) {
+            assertLongTrace(e, 1 + 1, [1]);
+            done();
+        });
+    });
+    it("4 levels throw", function(done) {
+        Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
+                return Promise.resolve().then(function() {
+                    return Promise.resolve().then(function() {
+                        return throwRej();
+                    });
+                });
+            });
+        }).caught(function(e) {
+            assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
+            done();
+        });
+    });
+    it("1 level getter throw", function(done) {
+        Promise.resolve().then(function() {
+            return thenGetRej();
+        }).caught(function(e) {
+            assertLongTrace(e, 1 + 1, [1]);
+            done();
+        });
+    });
+    it("4 levels getter throw", function(done) {
+        Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
+                return Promise.resolve().then(function() {
+                    return Promise.resolve().then(function() {
+                        return thenGetRej();
+                    });
+                });
+            });
+        }).caught(function(e) {
+            assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
+            done();
+        });
+    });
+});

@@ -10,7 +10,7 @@ var raceLater = function (promise) {
 };
 
 function race(promises, parent) {
-    var maybePromise = tryConvertToPromise(promises, undefined);
+    var maybePromise = tryConvertToPromise(promises);
 
     if (maybePromise instanceof Promise) {
         return raceLater(maybePromise);
