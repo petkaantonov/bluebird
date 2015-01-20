@@ -251,7 +251,20 @@ function(name, localHandler, reason, promise) {
         async.throwLater(e);
     }
 
-    if (!globalEventFired && !localEventFired &&
+    var domEventFired = false;
+    if (fireDomEvent) {
+        try {
+            domEventFired = fireDomEvent(name.toLowerCase(), {
+                reason: reason,
+                promise: promise
+            });
+        } catch (e) {
+            domEventFired = true;
+            async.throwLater(e);
+        }
+    }
+
+    if (!globalEventFired && !localEventFired && !domEventFired &&
         name === UNHANDLED_REJECTION_EVENT) {
         CapturedTrace.formatAndLogError(reason, UNHANDLED_REJECTION_HEADER);
     }
@@ -445,6 +458,7 @@ var captureStackTrace = (function stackDetection() {
 
 })();
 
+var fireDomEvent;
 var fireGlobalEvent = (function() {
     if (typeof process !== "undefined" &&
         typeof process.version === "string" &&
@@ -457,6 +471,29 @@ var fireGlobalEvent = (function() {
             }
         };
     } else {
+        var customEventWorks = false;
+        try {
+            var ev = new self.CustomEvent("test");
+            customEventWorks = ev instanceof CustomEvent;
+        } catch (e) {}
+        fireDomEvent = function(type, detail) {
+            var event;
+            // WebWorkers and Up-to-date browsers
+            if (customEventWorks) {
+                event = new self.CustomEvent(type, {
+                    detail: detail,
+                    bubbles: false,
+                    cancelable: true
+                });
+            // IE9
+            } else if (self.dispatchEvent) {
+                event = document.createEvent("CustomEvent");
+                event.initCustomEvent(type, false, true, detail);
+            }
+
+            return event ? !self.dispatchEvent(event) : false;
+        };
+
         var toWindowMethodNameMap = {};
         toWindowMethodNameMap[UNHANDLED_REJECTION_EVENT] = ("on" +
             UNHANDLED_REJECTION_EVENT).toLowerCase();

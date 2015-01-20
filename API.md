@@ -2491,10 +2491,12 @@ The global events are:
 Attaching global rejection event handlers in **node.js**:
 
 ```js
+// NOTE: event name is camelCase as per node convention
 process.on("unhandledRejection", function(reason, promise) {
     // See Promise.onPossiblyUnhandledRejection for parameter documentation
 });
 
+// NOTE: event name is camelCase as per node convention
 process.on("rejectionHandled", function(promise) {
     // See Promise.onUnhandledRejectionHandled for parameter documentation
 });
@@ -2502,18 +2504,44 @@ process.on("rejectionHandled", function(promise) {
 
 Attaching global rejection event handlers in **browsers**:
 
+Using DOM3 `addEventListener` APIs (support starting from IE9+):
+
 ```js
+// NOTE: event name is all lower case as per DOM convention
+window.addEventListener("unhandledrejection", function(e) {
+    // NOTE: e.preventDefault() must be manually called
+    e.preventDefault();
+    // NOTE: parameters are properties of the event detail property
+    var reason = e.detail.reason;
+    var promise = e.detail.promise;
+    // See Promise.onPossiblyUnhandledRejection for parameter documentation
+});
+
+// NOTE: event name is all lower case as per DOM convention
+window.addEventListener("rejectionhandled", function(e) {
+    // NOTE: e.preventDefault() must be manually called
+    e.preventDefault();
+    // NOTE: parameters are properties of the event detail property
+    var promise = e.detail.promise;
+    // See Promise.onUnhandledRejectionHandled for parameter documentation
+});
+```
+
+In Web Workers you may use `self.addEventListener(...)`.
+
+Using legacy APIs (support starting from IE6+):
+
+```js
+// NOTE: event name is all lower case as per legacy convention
 window.onunhandledrejection = function(reason, promise) {
     // See Promise.onPossiblyUnhandledRejection for parameter documentation
 };
 
+// NOTE: event name is all lower case as per legacy convention
 window.onrejectionhandled = function(promise) {
     // See Promise.onUnhandledRejectionHandled for parameter documentation
 };
 ```
-
-*Note* only the old school `window.onxxx` form is supported in browsers, DOM3 style events will not be fired.
-
 <hr>
 
 

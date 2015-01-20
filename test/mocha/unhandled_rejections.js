@@ -831,3 +831,62 @@ describe("global events", function() {
         }, 100);
     });
 });
+
+if (typeof document !== "undefined" && document.dispatchEvent) {
+    describe("dom events", function() {
+        var events = [];
+
+        beforeEach(detachEvents);
+        afterEach(detachEvents);
+        function detachEvents() {
+            events.forEach(function(e) {
+                self.removeEventListener(e.type, e.fn, false);
+            });
+            events = [];
+        }
+
+        function attachEvent(type, fn) {
+            events.push({type: type, fn: fn});
+            self.addEventListener(type, fn, false);
+        }
+
+        specify("are fired", function(done) {
+            var order = [];
+            var err = new Error();
+            var promise = Promise.reject(err);
+            attachEvent("unhandledrejection", function(e) {
+                e.preventDefault();
+                assert.strictEqual(e.detail.promise, promise);
+                assert.strictEqual(e.detail.reason, err);
+                order.push(1);
+            });
+            attachEvent("unhandledrejection", function(e) {
+                assert.strictEqual(e.detail.promise, promise);
+                assert.strictEqual(e.detail.reason, err);
+                assert.strictEqual(e.defaultPrevented, true);
+                order.push(2);
+            });
+            attachEvent("rejectionhandled", function(e) {
+                e.preventDefault();
+                assert.strictEqual(e.detail.promise, promise);
+                assert.strictEqual(e.detail.reason, undefined);
+                order.push(3);
+            });
+            attachEvent("rejectionhandled", function(e) {
+                assert.strictEqual(e.detail.promise, promise);
+                assert.strictEqual(e.detail.reason, undefined);
+                assert.strictEqual(e.defaultPrevented, true);
+                order.push(4);
+            });
+
+            setTimeout(function() {
+                promise.caught(function(r) {
+                    order.push(5);
+                    assert.strictEqual(r, err);
+                    assert.deepEqual(order, [1,2,3,4,5]);
+                    done();
+                });
+            }, 100);
+        })
+    });
+}
