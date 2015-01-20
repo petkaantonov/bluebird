@@ -105,9 +105,8 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             if (typeof item === "function") {
                 catchInstances[j++] = item;
             } else {
-                var error = new TypeError(NOT_ERROR_TYPE_OR_PREDICATE);
-                this._attachExtraTrace(error);
-                return Promise.reject(error);
+                return Promise.reject(
+                    new TypeError(NOT_ERROR_TYPE_OR_PREDICATE));
             }
         }
         catchInstances.length = j;
@@ -636,27 +635,10 @@ Promise.prototype._settlePromiseFromHandler = function (
     promise._popContext();
 
     if (x === errorObj || x === promise || x === NEXT_FILTER) {
-        var err = x === promise
-                    ? makeSelfResolutionError()
-                    : x.e;
-        var trace = canAttachTrace(err) ? err : new Error(util.toString(err));
-        if (x !== NEXT_FILTER) promise._attachExtraTrace(trace);
-        promise._rejectUnchecked(err, trace);
+        var err = x === promise ? makeSelfResolutionError() : x.e;
+        promise._rejectCallback(err, false, true);
     } else {
-        x = tryConvertToPromise(x, promise);
-        if (x instanceof Promise) {
-            x = x._target();
-            if (x._isRejected() &&
-                !x._isCarryingStackTrace() &&
-                !canAttachTrace(x._reason())) {
-                var trace = new Error(util.toString(x._reason()));
-                promise._attachExtraTrace(trace);
-                x._setCarriedStackTrace(trace);
-            }
-            promise._follow(x);
-        } else {
-            promise._fulfillUnchecked(x);
-        }
+        promise._resolveCallback(x);
     }
 };
 

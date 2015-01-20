@@ -46,10 +46,6 @@ CatchFilter.prototype.doFilter = function (e) {
         } else if (typeof item === "function" && !itemIsErrorType) {
             var shouldHandle = safePredicate(item, e);
             if (shouldHandle === errorObj) {
-                var trace = util.canAttachTrace(errorObj.e)
-                    ? errorObj.e
-                    : new Error(util.toString(errorObj.e));
-                this._promise._attachExtraTrace(trace);
                 e = errorObj.e;
                 break;
             } else if (shouldHandle) {
