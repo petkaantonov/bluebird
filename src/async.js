@@ -8,8 +8,13 @@ var tryCatch1 = require("./util.js").tryCatch1;
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._lateBuffer = new Queue();
-    this._functionBuffer = new Queue(25000 * BUFFER_STRIDE);
+    // The initial sizes were manually determined.
+    // I ran HBO GO under stressful conditions and looked at how large they grew.
+    // It should be a better estimate than stock-bluebird (which underestimated
+    // _lateBuffer and overestimated _functionBuffer), which will save us memory,
+    // GC overhead, and resize cost.
+    this._lateBuffer = new Queue(16384);
+    this._functionBuffer = new Queue(2048);
     var self = this;
     //Optimized around the fact that no arguments
     //need to be passed

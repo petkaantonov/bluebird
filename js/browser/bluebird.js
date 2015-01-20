@@ -167,8 +167,8 @@ var tryCatch1 = require("./util.js").tryCatch1;
 function Async() {
     this._isTickUsed = false;
     this._length = 0;
-    this._lateBuffer = new Queue();
-    this._functionBuffer = new Queue(25000 * 3);
+    this._lateBuffer = new Queue(16384);
+    this._functionBuffer = new Queue(2048);
     var self = this;
     this.consumeFunctionBuffer = function Async$consumeFunctionBuffer() {
         self._consumeFunctionBuffer();
@@ -4017,7 +4017,7 @@ Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
 
 Queue.prototype._checkCapacity = function Queue$_checkCapacity(size) {
     if (this._capacity < size) {
-        this._resizeTo(this._capacity << 3);
+        this._resizeTo(this._capacity << 1);
     }
 };
 
