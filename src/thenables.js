@@ -51,17 +51,14 @@ function doThenable(x, then, context) {
     promise._captureStackTrace();
     if (context) context._popContext();
     var synchronous = true;
-    try {
-        then.call(
-            x,
-            resolveFromThenable,
-            rejectFromThenable,
-            progressFromThenable
-        );
-    } catch(e) {
-        promise._rejectCallback(e, true, true);
-    }
+    var result = util.tryCatch(then).call(x,
+                                        resolveFromThenable,
+                                        rejectFromThenable,
+                                        progressFromThenable);
     synchronous = false;
+    if (result === errorObj) {
+        promise._rejectCallback(result.e, true, true);
+    }
 
     function resolveFromThenable(value) {
         if (x === value) {
