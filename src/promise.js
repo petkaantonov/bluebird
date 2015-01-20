@@ -29,9 +29,9 @@ var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
 var TimeoutError = errors.TimeoutError;
 var OperationalError = errors.OperationalError;
-var originatesFromRejection = errors.originatesFromRejection;
-var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
-var canAttachTrace = errors.canAttachTrace;
+var originatesFromRejection = util.originatesFromRejection;
+var markAsOriginatingFromRejection = util.markAsOriginatingFromRejection;
+var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;
 
@@ -593,7 +593,7 @@ function(reason, synchronous, shouldNotMarkOriginatingFromRejection) {
     if (!shouldNotMarkOriginatingFromRejection) {
         markAsOriginatingFromRejection(reason);
     }
-    var trace = errors.ensureErrorObject(reason);
+    var trace = util.ensureErrorObject(reason);
     var hasStack = canAttachTrace(reason) &&
         typeof trace.stack === "string";
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
@@ -897,7 +897,7 @@ Promise.prototype._fulfillUnchecked = function (value) {
 };
 
 Promise.prototype._rejectUncheckedCheckError = function (reason) {
-    var trace = errors.ensureErrorObject(reason);
+    var trace = util.ensureErrorObject(reason);
     this._rejectUnchecked(reason, trace === reason ? undefined : trace);
 };
 

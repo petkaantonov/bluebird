@@ -55,7 +55,7 @@ PromiseSpawn.prototype._run = function () {
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
         this._generator = undefined;
-        var trace = errors.canAttachTrace(result.e)
+        var trace = util.canAttachTrace(result.e)
             ? result.e : new Error(util.toString(result.e));
         this._promise._attachExtraTrace(trace);
         this._promise._reject(result.e, trace);
@@ -100,7 +100,7 @@ PromiseSpawn.prototype._continue = function (result) {
 };
 
 PromiseSpawn.prototype._throw = function (reason) {
-    if (errors.canAttachTrace(reason))
+    if (util.canAttachTrace(reason))
         this._promise._attachExtraTrace(reason);
     this._promise._pushContext();
     var result = tryCatch(this._generator["throw"])

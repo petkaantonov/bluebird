@@ -1,30 +1,8 @@
 "use strict";
 var Objectfreeze = require("./es5.js").freeze;
-var propertyIsWritable = require("./es5.js").propertyIsWritable;
 var util = require("./util.js");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
-
-function markAsOriginatingFromRejection(e) {
-    try {
-        notEnumerableProp(e, OPERATIONAL_ERROR_KEY, true);
-    }
-    catch(ignore) {}
-}
-
-function originatesFromRejection(e) {
-    if (e == null) return false;
-    return ((e instanceof OperationalError) ||
-        e[OPERATIONAL_ERROR_KEY] === true);
-}
-
-function isError(obj) {
-    return obj instanceof Error;
-}
-
-function canAttachTrace(obj) {
-    return isError(obj) && propertyIsWritable(obj, "stack");
-}
 
 function subError(nameProperty, defaultMessage) {
     function SubError(message) {
@@ -99,8 +77,7 @@ function OperationalError(message) {
 inherits(OperationalError, Error);
 
 //Ensure all copies of the library throw the same error types
-var key = "__BluebirdErrorTypes__";
-var errorTypes = Error[key];
+var errorTypes = Error[BLUEBIRD_ERRORS];
 if (!errorTypes) {
     errorTypes = Objectfreeze({
         CancellationError: CancellationError,
@@ -109,23 +86,8 @@ if (!errorTypes) {
         RejectionError: OperationalError,
         AggregateError: AggregateError
     });
-    notEnumerableProp(Error, key, errorTypes);
+    notEnumerableProp(Error, BLUEBIRD_ERRORS, errorTypes);
 }
-
-var ensureErrorObject = (function() {
-    if (!("stack" in new Error())) {
-        return function(value) {
-            if (canAttachTrace(value)) return value;
-            try {throw new Error(util.toString(value));}
-            catch(err) {return err;}
-        };
-    } else {
-        return function(value) {
-            if (canAttachTrace(value)) return value;
-            return new Error(util.toString(value));
-        };
-    }
-})();
 
 module.exports = {
     Error: Error,
@@ -134,9 +96,5 @@ module.exports = {
     CancellationError: errorTypes.CancellationError,
     OperationalError: errorTypes.OperationalError,
     TimeoutError: errorTypes.TimeoutError,
-    AggregateError: errorTypes.AggregateError,
-    originatesFromRejection: originatesFromRejection,
-    markAsOriginatingFromRejection: markAsOriginatingFromRejection,
-    canAttachTrace: canAttachTrace,
-    ensureErrorObject: ensureErrorObject
+    AggregateError: errorTypes.AggregateError
 };

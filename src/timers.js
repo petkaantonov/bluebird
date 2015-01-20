@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
-var errors = require("./errors.js");
+var util = require("./util.js");
 var TimeoutError = Promise.TimeoutError;
 
 var afterTimeout = function (promise, message) {
@@ -10,7 +10,7 @@ var afterTimeout = function (promise, message) {
         message = TIMEOUT_ERROR;
     }
     var err = new TimeoutError(message);
-    errors.markAsOriginatingFromRejection(err);
+    util.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
     promise._cancel(err);
 };

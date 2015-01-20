@@ -3,7 +3,6 @@ module.exports = function(Promise, PromiseArray) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
-var errors = require("./errors.js");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 
@@ -43,7 +42,7 @@ Promise.prototype._doProgressWith = function (progression) {
             //'StopProgressPropagation',
             // the result of the function is used as the progress
             //value to propagate.
-            var trace = errors.canAttachTrace(ret.e)
+            var trace = util.canAttachTrace(ret.e)
                 ? ret.e : new Error(util.toString(ret.e));
             promise._attachExtraTrace(trace);
             promise._progress(ret.e);

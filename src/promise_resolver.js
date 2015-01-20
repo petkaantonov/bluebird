@@ -29,7 +29,7 @@ function wrapAsOperationalError(obj) {
         }
         return ret;
     }
-    errors.markAsOriginatingFromRejection(obj);
+    util.markAsOriginatingFromRejection(obj);
     return obj;
 }
 

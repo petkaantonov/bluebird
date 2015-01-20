@@ -207,6 +207,38 @@ function safeToString(obj) {
     }
 }
 
+function markAsOriginatingFromRejection(e) {
+    try {
+        notEnumerableProp(e, OPERATIONAL_ERROR_KEY, true);
+    }
+    catch(ignore) {}
+}
+
+function originatesFromRejection(e) {
+    if (e == null) return false;
+    return ((e instanceof Error[BLUEBIRD_ERRORS].OperationalError) ||
+        e[OPERATIONAL_ERROR_KEY] === true);
+}
+
+function canAttachTrace(obj) {
+    return obj instanceof Error && es5.propertyIsWritable(obj, "stack");
+}
+
+var ensureErrorObject = (function() {
+    if (!("stack" in new Error())) {
+        return function(value) {
+            if (canAttachTrace(value)) return value;
+            try {throw new Error(safeToString(value));}
+            catch(err) {return err;}
+        };
+    } else {
+        return function(value) {
+            if (canAttachTrace(value)) return value;
+            return new Error(safeToString(value));
+        };
+    }
+})();
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -228,7 +260,11 @@ var ret = {
     wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
     filledRange: filledRange,
-    toString: safeToString
+    toString: safeToString,
+    canAttachTrace: canAttachTrace,
+    ensureErrorObject: ensureErrorObject,
+    originatesFromRejection: originatesFromRejection,
+    markAsOriginatingFromRejection: markAsOriginatingFromRejection
 };
 try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;

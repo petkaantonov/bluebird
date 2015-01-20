@@ -102,7 +102,8 @@ CONSTANT(RETURN, 2);
 CONSTANT(MAX_PARAM_COUNT, 1023);
 CONSTANT(PARAM_COUNTS_TO_TRY, 5);
 
-
+//error.js
+CONSTANT(BLUEBIRD_ERRORS, "__BluebirdErrorTypes__");
 
 //deprecated
 CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.\n\n\

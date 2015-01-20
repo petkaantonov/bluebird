@@ -46,7 +46,7 @@ CatchFilter.prototype.doFilter = function (e) {
         } else if (typeof item === "function" && !itemIsErrorType) {
             var shouldHandle = safePredicate(item, e);
             if (shouldHandle === errorObj) {
-                var trace = errors.canAttachTrace(errorObj.e)
+                var trace = util.canAttachTrace(errorObj.e)
                     ? errorObj.e
                     : new Error(util.toString(errorObj.e));
                 this._promise._attachExtraTrace(trace);

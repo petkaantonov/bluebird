@@ -2,7 +2,7 @@
 module.exports = function(Promise, INTERNAL) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var canAttachTrace = require("./errors.js").canAttachTrace;
+var canAttachTrace = util.canAttachTrace;
 var errorObj = util.errorObj;
 var isObject = util.isObject;
 

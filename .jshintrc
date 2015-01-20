@@ -123,6 +123,7 @@
         "RETURN": false,
         "MAX_PARAM_COUNT": false,
         "PARAM_COUNTS_TO_TRY": false,
+        "BLUEBIRD_ERRORS": false,
         "OBJECT_PROMISIFY_DEPRECATED": false,
         "SPAWN_DEPRECATED": false,
         "TIMEOUT_ERROR": false,
