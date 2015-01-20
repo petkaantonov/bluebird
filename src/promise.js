@@ -6,6 +6,9 @@ var makeSelfResolutionError = function () {
 var reflect = function() {
     return new Promise.PromiseInspection(this._target());
 };
+var apiRejection = function(msg) {
+    return Promise.reject(new TypeError(msg));
+};
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
@@ -18,9 +21,6 @@ var OperationalError = errors.OperationalError;
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
-var apiRejection = function(msg) {
-    return Promise.reject(new TypeError(msg));
-};
 var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
