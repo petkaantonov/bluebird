@@ -53,7 +53,9 @@ module.exports = function(options) {
         ret = createServer().then(function() {
             var url = "http://localhost:" + options.port;
             console.log("Test can be run at " + url);
-            return Promise.promisify(open)(url);
+            if (options.openBrowser) {
+                return Promise.promisify(open)(url);
+            }
         });
     }
     return ret;

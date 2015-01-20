@@ -103,6 +103,7 @@ var options = {
     testBrowser: !!argv.saucelabs || !!argv.browser,
     executeBrowserTests: !!argv.saucelabs || (typeof argv["execute-browser-tests"] === "boolean" ?
         argv["execute-browser-tests"] : !!argv.browser),
+    openBrowser: typeof argv["open-browser"] === "boolean" ? argv["js-hint"] : true,
     port: argv.port || 9999,
     fakeTimers: typeof argv["fake-timers"] === "boolean"
         ? argv["fake-timers"] : true,

@@ -479,6 +479,7 @@ The value of boolean flags is determined by presence, if you want to pass false 
  - `--browser` - Whether to compile tests for browsers. Default `false`.
  - `--port=Number` - Whe port where local server is hosted when testing in browser. Default `9999`
  - `--execute-browser-tests` - Whether to execute the compiled tests for browser when using `--browser`. Default `true`.
+ - `--open-browser` - Whether to open the default browser when executing browser tests. Default `true`.
  - `--fake-timers` - Whether to use fake timers (`setTimeout` etc) when running tests in node. Default `true`.
  - `--js-hint` - Whether to run JSHint on source files. Default `true`.
  - `--saucelabs` Wheter to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser.Default `false`.
