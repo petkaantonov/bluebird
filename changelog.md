@@ -1,3 +1,9 @@
+## 2.8.1 (2015-01-20)
+
+Bugfixes:
+
+ - Fix long stack trace stiching consistency when rejected from thenables
+
 ## 2.8.0 (2015-01-19)
 
 Features:
