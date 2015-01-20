@@ -508,7 +508,7 @@ describe("Long stack traces from thenable rejections", function() {
         Promise.resolve().then(function() {
             return asyncRej();
         }).caught(function(e) {
-            assertLongTrace(e, 2 + 1, [6, 0]);
+            assertLongTrace(e, 1 + 1, [5, 0]);
             done();
         });
     });
@@ -522,7 +522,7 @@ describe("Long stack traces from thenable rejections", function() {
                 });
             });
         }).caught(function(e) {
-            assertLongTrace(e, 4 + 1, [6, 1, 1, 1]);
+            assertLongTrace(e, 4 + 1, [5, 1, 1, 1]);
             done();
         });
     });

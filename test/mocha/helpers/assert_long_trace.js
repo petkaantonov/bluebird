@@ -1,7 +1,7 @@
 var assert = require("assert");
 
 function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
-    var envFramePattern = /(?:\(node.js:|\(module.js:)/;
+    var envFramePattern = /(?:\(node.js:|\(module.js:|\(timers.js:)/;
     var stack = error.stack.split("\n");
     var frameLinePattern = /(^\s+at|@|\s+\(No stack trace\))/;
     var previousEventPattern = /^From previous event/;
@@ -19,24 +19,34 @@ function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
     var jumpCount = 1;
     var jumpIndex = 0;
     var currentJumpFramesCount = 0;
+    var envFramesCount = 0;
     for (var i = firstLine; i < stack.length; ++i) {
         var line = stack[i];
         if (previousEventPattern.test(line)) {
-            if (previousEventPattern.test(prev)) {
-                throw new Error("2 consecutive From previous events");
+            var jumpContainsOnlyEnvFrames =
+                currentJumpFramesCount === 0 && envFramesCount > 0;
+            if (!jumpContainsOnlyEnvFrames) {
+                if (previousEventPattern.test(prev)) {
+                    throw new Error("2 consecutive From previous events");
+                }
+                if (jumpIndex < expectedFramesForJumpsMap.length) {
+                    assert.strictEqual(expectedFramesForJumpsMap[jumpIndex],
+                        currentJumpFramesCount,
+                        "Expected " + (jumpIndex+1) + "nth jump to contain" +
+                        expectedFramesForJumpsMap[jumpIndex] + " frames " +
+                        "but it contains " + currentJumpFramesCount + " frames");
+                }
+                jumpCount++;
+                jumpIndex++;
             }
-            if (jumpIndex < expectedFramesForJumpsMap.length) {
-                assert.strictEqual(expectedFramesForJumpsMap[jumpIndex],
-                    currentJumpFramesCount,
-                    "Expected " + (jumpIndex+1) + "nth jump to contain" +
-                    expectedFramesForJumpsMap[jumpIndex] + " frames " +
-                    "but it contains " + currentJumpFramesCount + " frames");
-            }
-            jumpCount++;
-            jumpIndex++;
             currentJumpFramesCount = 0;
-        } else if (frameLinePattern.test(line) && !envFramePattern.test(line)) {
-            currentJumpFramesCount++;
+            envFramesCount = 0;
+        } else if (frameLinePattern.test(line)) {
+            if (envFramePattern.test(line)) {
+                envFramesCount++;
+            } else {
+                currentJumpFramesCount++;
+            }
         }
         prev = line;
     }
