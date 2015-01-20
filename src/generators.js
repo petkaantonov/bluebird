@@ -9,7 +9,7 @@ var ASSERT = require("./assert.js");
 var deprecated = require("./util.js").deprecated;
 var util = require("./util.js");
 var errorObj = util.errorObj;
-var tryCatch1 = util.tryCatch1;
+var tryCatch = util.tryCatch;
 var yieldHandlers = [];
 
 function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
@@ -18,7 +18,7 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
     var len = yieldHandlers.length;
     for (var i = 0; i < len; ++i) {
         traceParent._pushContext();
-        var result = tryCatch1(yieldHandlers[i], undefined, value);
+        var result = tryCatch(yieldHandlers[i])(value);
         traceParent._popContext();
         if (result === _errorObj) {
             return _Promise.reject(_errorObj.e);
@@ -103,14 +103,15 @@ PromiseSpawn.prototype._throw = function (reason) {
     if (errors.canAttachTrace(reason))
         this._promise._attachExtraTrace(reason);
     this._promise._pushContext();
-    var result = tryCatch1(this._generator["throw"], this._generator, reason);
+    var result = tryCatch(this._generator["throw"])
+        .call(this._generator, reason);
     this._promise._popContext();
     this._continue(result);
 };
 
 PromiseSpawn.prototype._next = function (value) {
     this._promise._pushContext();
-    var result = tryCatch1(this._generator.next, this._generator, value);
+    var result = tryCatch(this._generator.next).call(this._generator, value);
     this._promise._popContext();
     this._continue(result);
 };

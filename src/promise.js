@@ -23,10 +23,7 @@ var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
-var tryCatch0 = util.tryCatch0;
-var tryCatch1 = util.tryCatch1;
-var tryCatch2 = util.tryCatch2;
-var tryCatchApply = util.tryCatchApply;
+var tryCatch = util.tryCatch;
 var RangeError = errors.RangeError;
 var TypeError = errors.TypeError;
 var CancellationError = errors.CancellationError;
@@ -195,14 +192,7 @@ Promise.method = function (fn) {
         ret._captureStackTrace();
         var value;
         ret._pushContext();
-        switch(arguments.length) {
-        case 0: value = tryCatch0(fn, this); break;
-        case 1: value = tryCatch1(fn, this, arguments[0]); break;
-        case 2: value = tryCatch2(fn, this, arguments[0], arguments[1]); break;
-        default:
-            INLINE_SLICE(args, arguments);
-            value = tryCatchApply(fn, args, this); break;
-        }
+        value = tryCatch(fn).apply(this, arguments);
         ret._popContext();
         ret._resolveFromSyncValue(value);
         return ret;
@@ -217,8 +207,8 @@ Promise.attempt = Promise["try"] = function (fn, args, ctx) {
     ret._captureStackTrace();
     ret._pushContext();
     var value = isArray(args)
-        ? tryCatchApply(fn, args, ctx)
-        : tryCatch1(fn, ctx, args);
+        ? tryCatch(fn).apply(ctx, args)
+        : tryCatch(fn).call(ctx, args);
     ret._popContext();
     ret._resolveFromSyncValue(value);
     return ret;
@@ -603,7 +593,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
 
     this._captureStackTrace();
     this._pushContext();
-    var r = tryCatch2(resolver, undefined, function(value) {
+    var r = tryCatch(resolver)(function(value) {
         if (promise._tryFollow(value)) {
             return;
         }
@@ -637,9 +627,9 @@ Promise.prototype._settlePromiseFromHandler = function (
     promise._pushContext();
     var x;
     if (receiver === APPLY && !this._isRejected()) {
-        x = tryCatchApply(handler, value, this._boundTo);
+        x = tryCatch(handler).apply(this._boundTo, value);
     } else {
-        x = tryCatch1(handler, receiver, value);
+        x = tryCatch(handler).call(receiver, value);
     }
     promise._popContext();
 

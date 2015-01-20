@@ -4,7 +4,7 @@ var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
-var tryCatch1 = util.tryCatch1;
+var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 
 Promise.prototype.progressed = function (handler) {
@@ -31,7 +31,7 @@ Promise.prototype._doProgressWith = function (progression) {
 
     ASSERT(typeof handler === "function");
     ASSERT(promise instanceof Promise);
-    var ret = tryCatch1(handler, receiver, progressValue);
+    var ret = tryCatch(handler).call(receiver, progressValue);
     if (ret === errorObj) {
         //2.4 if the onProgress callback throws an exception
         //with a name property equal to 'StopProgressPropagation',

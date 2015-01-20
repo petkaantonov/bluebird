@@ -6,7 +6,7 @@ module.exports = function(Promise,
                           INTERNAL) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var tryCatch3 = util.tryCatch3;
+var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var PENDING = {};
 var EMPTY_ARRAY = [];
@@ -61,7 +61,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         var callback = this._callback;
         var receiver = this._promise._boundTo;
         this._promise._pushContext();
-        var ret = tryCatch3(callback, receiver, value, index, length);
+        var ret = tryCatch(callback).call(receiver, value, index, length);
         this._promise._popContext();
         if (ret === errorObj) return this._reject(ret.e);
 

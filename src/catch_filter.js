@@ -2,7 +2,7 @@
 module.exports = function(NEXT_FILTER) {
 var util = require("./util.js");
 var errors = require("./errors.js");
-var tryCatch1 = util.tryCatch1;
+var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var keys = require("./es5.js").keys;
 var TypeError = errors.TypeError;
@@ -15,7 +15,7 @@ function CatchFilter(instances, callback, promise) {
 
 function safePredicate(predicate, e) {
     var safeObject = {};
-    var retfilter = tryCatch1(predicate, safeObject, e);
+    var retfilter = tryCatch(predicate).call(safeObject, e);
 
     if (retfilter === errorObj) return retfilter;
 
@@ -37,7 +37,7 @@ CatchFilter.prototype.doFilter = function (e) {
             (item != null && item.prototype instanceof Error);
 
         if (itemIsErrorType && e instanceof item) {
-            var ret = tryCatch1(cb, boundTo, e);
+            var ret = tryCatch(cb).call(boundTo, e);
             if (ret === errorObj) {
                 NEXT_FILTER.e = ret.e;
                 return NEXT_FILTER;
@@ -53,7 +53,7 @@ CatchFilter.prototype.doFilter = function (e) {
                 e = errorObj.e;
                 break;
             } else if (shouldHandle) {
-                var ret = tryCatch1(cb, boundTo, e);
+                var ret = tryCatch(cb).call(boundTo, e);
                 if (ret === errorObj) {
                     NEXT_FILTER.e = ret.e;
                     return NEXT_FILTER;

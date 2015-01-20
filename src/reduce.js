@@ -6,8 +6,7 @@ module.exports = function(Promise,
                           INTERNAL) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var tryCatch4 = util.tryCatch4;
-var tryCatch3 = util.tryCatch3;
+var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 function ReductionPromiseArray(promises, fn, accum, _each) {
     this.constructor$(promises);
@@ -134,10 +133,11 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         this._promise._pushContext();
         if (isEach) {
             preservedValues.push(value);
-            ret = tryCatch3(callback, receiver, value, i, length);
+            ret = tryCatch(callback).call(receiver, value, i, length);
         }
         else {
-            ret = tryCatch4(callback, receiver, this._accum, value, i, length);
+            ret = tryCatch(callback)
+                .call(receiver, this._accum, value, i, length);
         }
         this._promise._popContext();
 

@@ -3,7 +3,7 @@ module.exports =
 function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
-var tryCatch1 = util.tryCatch1;
+var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var errors = require("./errors.js");
 
@@ -47,7 +47,7 @@ if (canEvaluate) {
         if (now >= total) {
             var handler = this.callers[total];
             promise._pushContext();
-            var ret = tryCatch1(handler, undefined, this);
+            var ret = tryCatch(handler)(this);
             promise._popContext();
             if (ret === errorObj) {
                 var reason = ret.e;

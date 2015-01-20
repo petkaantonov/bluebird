@@ -1,6 +1,8 @@
 "use strict";
 var ASSERT = require("./assert.js");
 var es5 = require("./es5.js");
+// Assume CSP if browser
+var canEvaluate = typeof navigator == "undefined";
 var haveGetters = (function(){
     try {
         var o = {};
@@ -16,57 +18,23 @@ var haveGetters = (function(){
     }
 
 })();
-// Assume CSP if browser
-var canEvaluate = typeof navigator == "undefined";
-var errorObj = {e: {}};
+
 //Try catch is not supported in optimizing
 //compiler, so it is isolated
-function tryCatch0(fn, receiver) {
-    try { return fn.call(receiver); }
-    catch (e) {
+var errorObj = {e: {}};
+var tryCatchTarget;
+function tryCatcher() {
+    try {
+        return tryCatchTarget.apply(this, arguments);
+    } catch (e) {
         errorObj.e = e;
         return errorObj;
     }
 }
-
-function tryCatch1(fn, receiver, arg) {
-    try { return fn.call(receiver, arg); }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatch2(fn, receiver, arg, arg2) {
-    try { return fn.call(receiver, arg, arg2); }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatch3(fn, receiver, arg, arg2, arg3) {
-    try { return fn.call(receiver, arg, arg2, arg3); }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatch4(fn, receiver, arg, arg2, arg3, arg4) {
-    try { return fn.call(receiver, arg, arg2, arg3, arg4); }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
-}
-
-function tryCatchApply(fn, args, receiver) {
-    try { return fn.apply(receiver, args); }
-    catch (e) {
-        errorObj.e = e;
-        return errorObj;
-    }
+function tryCatch(fn) {
+    ASSERT(typeof fn === "function");
+    tryCatchTarget = fn;
+    return tryCatcher;
 }
 
 //Un-magical enough that using this doesn't prevent
@@ -252,12 +220,7 @@ var ret = {
     isObject: isObject,
     canEvaluate: canEvaluate,
     errorObj: errorObj,
-    tryCatch0: tryCatch0,
-    tryCatch1: tryCatch1,
-    tryCatch2: tryCatch2,
-    tryCatch3: tryCatch3,
-    tryCatch4: tryCatch4,
-    tryCatchApply: tryCatchApply,
+    tryCatch: tryCatch,
     inherits: inherits,
     withAppended: withAppended,
     asString: asString,
