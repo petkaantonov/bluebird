@@ -180,24 +180,6 @@ describe("when.map-test", function () {
         );
     });
 
-    specify("should propagate progress", function(done) {
-        var input = [1, 2, 3];
-        var donecalls = 0;
-        function donecall() {
-            if( ++donecalls === 3 ) done();
-        }
-
-        when.map(input, function(x) {
-            var d = when.pending();
-            d.progress(x);
-            setTimeout(d.fulfill.bind(d, x), 0);
-            return d.promise;
-        }).then(null, null, function(update) {
-            assert(update.value === input.shift());
-            donecall();
-        });
-    });
-
     specify("should propagate progress 2", function(done) {
          // Thanks @depeele for this test
         var input, ncall;
@@ -333,24 +315,6 @@ describe("when.map-test with concurrency", function () {
                 done();
             }
         );
-    });
-
-    specify("should propagate progress with concurrency", function(done) {
-        var input = [1, 2, 3];
-        var donecalls = 0;
-        function donecall() {
-            if( ++donecalls === 3 ) done();
-        }
-
-        when.map(input, function(x) {
-            var d = when.pending();
-            d.progress(x);
-            setTimeout(d.fulfill.bind(d, x), 0);
-            return d.promise;
-        }, concurrency).then(null, null, function(update) {
-            assert(update.value === input.shift());
-            donecall();
-        });
     });
 
     specify("should propagate progress 2 with concurrency", function(done) {

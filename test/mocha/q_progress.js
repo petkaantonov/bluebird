@@ -401,14 +401,15 @@ describe("progress", function () {
         var _d = Promise.defer();
         var progress = 0;
 
-        _d.progress(progress)
-        _d.resolve()
         _d.promise.progressed(function() {
             order.push(1);
             p.then(function() {
                 order.push(3);
             })
         })
+        _d.progress(progress)
+        _d.resolve()
+
 
         _d.promise.then(function() {
             order.push(2);

@@ -4,7 +4,6 @@ var maybeWrapAsError = util.maybeWrapAsError;
 var errors = require("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var OperationalError = errors.OperationalError;
-var async = require("./async.js");
 var haveGetters = util.haveGetters;
 var es5 = require("./es5.js");
 
@@ -107,12 +106,7 @@ PromiseResolver.prototype.fulfill = function (value) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
-
-    var promise = this.promise;
-    if (promise._tryFollow(value)) {
-        return;
-    }
-    async.invoke(promise._fulfill, promise, value);
+    this.promise._resolveCallback(value);
 };
 
 /**
@@ -126,14 +120,7 @@ PromiseResolver.prototype.reject = function (reason) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
-
-    var promise = this.promise;
-    errors.markAsOriginatingFromRejection(reason);
-    var trace = errors.ensureErrorObject(reason);
-    async.invoke(promise._reject, promise, reason);
-    if (trace !== reason) {
-        async.invoke(this._setCarriedStackTrace, this, trace);
-    }
+    this.promise._rejectCallback(reason);
 };
 
 /**
@@ -146,7 +133,7 @@ PromiseResolver.prototype.progress = function (value) {
     if (!(this instanceof PromiseResolver)) {
         throw new TypeError(UNBOUND_RESOLVER_INVOCATION);
     }
-    async.invoke(this.promise._progress, this.promise, value);
+    this.promise._progress(value);
 };
 
 /**
@@ -154,7 +141,7 @@ PromiseResolver.prototype.progress = function (value) {
  *
  */
 PromiseResolver.prototype.cancel = function () {
-    async.invoke(this.promise.cancel, this.promise, undefined);
+    this.promise.cancel();
 };
 
 /**
@@ -181,12 +168,6 @@ PromiseResolver.prototype.isResolved = function () {
  */
 PromiseResolver.prototype.toJSON = function () {
     return this.promise.toJSON();
-};
-
-PromiseResolver.prototype._setCarriedStackTrace = function (trace) {
-    if (this.promise.isRejected()) {
-        this.promise._setCarriedStackTrace(trace);
-    }
 };
 
 module.exports = PromiseResolver;
