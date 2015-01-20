@@ -20,8 +20,11 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
         traceParent._pushContext();
         var result = tryCatch(yieldHandlers[i])(value);
         traceParent._popContext();
-        if (result === _errorObj) {
-            return _Promise.reject(_errorObj.e);
+        if (result === errorObj) {
+            traceParent._pushContext();
+            var ret = Promise.reject(errorObj.e);
+            traceParent._popContext();
+            return ret;
         }
         var maybePromise = tryConvertToPromise(result, traceParent);
         if (maybePromise instanceof _Promise) return maybePromise;
