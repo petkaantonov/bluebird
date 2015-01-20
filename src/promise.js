@@ -10,10 +10,17 @@ var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
+var RangeError = errors.RangeError;
+var TypeError = errors.TypeError;
+var CancellationError = errors.CancellationError;
+var TimeoutError = errors.TimeoutError;
+var OperationalError = errors.OperationalError;
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
-var apiRejection = require("./errors_api_rejection")(Promise);
+var apiRejection = function(msg) {
+    return Promise.reject(new TypeError(msg));
+};
 var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
@@ -24,11 +31,6 @@ var PromiseResolver = require("./promise_resolver.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
-var RangeError = errors.RangeError;
-var TypeError = errors.TypeError;
-var CancellationError = errors.CancellationError;
-var TimeoutError = errors.TimeoutError;
-var OperationalError = errors.OperationalError;
 var originatesFromRejection = util.originatesFromRejection;
 var markAsOriginatingFromRejection = util.markAsOriginatingFromRejection;
 var canAttachTrace = util.canAttachTrace;

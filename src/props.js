@@ -1,8 +1,8 @@
 "use strict";
-module.exports = function(Promise, PromiseArray, tryConvertToPromise) {
+module.exports = function(
+    Promise, PromiseArray, tryConvertToPromise, apiRejection) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var apiRejection = require("./errors_api_rejection")(Promise);
 var isObject = util.isObject;
 var es5 = require("./es5.js");
 
