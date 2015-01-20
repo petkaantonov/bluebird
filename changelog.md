@@ -1,3 +1,9 @@
+## 2.8.2 (2015-01-20)
+
+Features:
+
+ - [Global rejection events](https://github.com/petkaantonov/bluebird/blob/master/API.md#global-rejection-events) are now fired both as DOM3 events and as legacy events in browsers
+
 ## 2.8.1 (2015-01-20)
 
 Bugfixes:
