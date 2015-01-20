@@ -4,7 +4,7 @@ var assertLongTrace = require("./helpers/assert_long_trace.js");
 var nodeVersion = typeof process !== "undefined" &&
         typeof process.version === "string"
         ? process.version.replace(/[^0-9.]/g, "").split(".").map(Number)
-        : null;
+        : [-1, -1, -1];
 
 if (!Promise.hasLongStackTraces()) return;
 // TODO IE and FireFox
