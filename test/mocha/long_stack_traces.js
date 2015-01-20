@@ -70,7 +70,6 @@ describe(".then as context", function() {
             if (i++ > 5) throw new Error()
             return Promise.resolve().then(circle);
         })().caught(function(e) {
-            console.log(e.stack)
             assertLongTrace(e, 1 + 1, [1]);
             done();
         });
