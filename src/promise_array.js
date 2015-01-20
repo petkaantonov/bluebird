@@ -3,7 +3,6 @@ module.exports = function(Promise, INTERNAL, tryConvertToPromise,
     apiRejection) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var errors = require("./errors.js");
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
@@ -129,9 +128,7 @@ PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function (reason) {
     ASSERT(!this._isResolved());
     this._values = null;
-    var trace = errors.ensureErrorObject(reason);
-    this._promise._attachExtraTrace(trace);
-    this._promise._reject(reason, trace);
+    this._promise._rejectCallback(reason, false, true);
 };
 
 PromiseArray.prototype._promiseProgressed = function (progressValue, index) {

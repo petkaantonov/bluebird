@@ -16,9 +16,7 @@ Promise.prototype._cancel = function (reason) {
     }
     ASSERT(promiseToReject.isCancellable());
     this._unsetCancellable();
-    var trace = errors.ensureErrorObject(reason);
-    promiseToReject._attachExtraTrace(trace);
-    promiseToReject._target()._rejectUnchecked(reason, trace);
+    promiseToReject._target()._rejectCallback(reason, false, true);
 };
 
 Promise.prototype.cancel = function (reason) {

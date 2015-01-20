@@ -5,7 +5,6 @@ var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
-var errors = require("./errors.js");
 
 if (canEvaluate) {
     var thenCallback = function(i) {
@@ -50,11 +49,7 @@ if (canEvaluate) {
             var ret = tryCatch(handler)(this);
             promise._popContext();
             if (ret === errorObj) {
-                var reason = ret.e;
-                var trace = errors.ensureErrorObject(reason);
-                promise._attachExtraTrace(trace);
-                promise._rejectUnchecked(reason,
-                    trace === reason ? undefined : trace);
+                promise._rejectCallback(ret.e, false, true);
             } else if (!promise._tryFollow(ret)) {
                 promise._fulfillUnchecked(ret);
             }

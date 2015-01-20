@@ -190,9 +190,8 @@ Promise.method = function (fn) {
     return function () {
         var ret = new Promise(INTERNAL);
         ret._captureStackTrace();
-        var value;
         ret._pushContext();
-        value = tryCatch(fn).apply(this, arguments);
+        var value = tryCatch(fn).apply(this, arguments);
         ret._popContext();
         ret._resolveFromSyncValue(value);
         return ret;
@@ -252,11 +251,7 @@ Promise.resolve = Promise.fulfilled = Promise.cast;
 Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
     ret._captureStackTrace();
-    markAsOriginatingFromRejection(reason);
-    var hasStack = canAttachTrace(reason) && typeof reason.stack === "string";
-    var trace = errors.ensureErrorObject(reason);
-    ret._attachExtraTrace(reason, hasStack);
-    ret._rejectUnchecked(reason, trace === reason ? undefined : trace);
+    ret._rejectCallback(reason, true);
     return ret;
 };
 
@@ -586,36 +581,41 @@ Promise.prototype._isBound = function () {
     return (this._bitField & IS_BOUND) === IS_BOUND;
 };
 
+Promise.prototype._resolveCallback = function(value) {
+    if (this._tryFollow(value)) {
+        return;
+    }
+    this._fulfill(value);
+};
+
+Promise.prototype._rejectCallback =
+function(reason, synchronous, shouldNotMarkOriginatingFromRejection) {
+    if (!shouldNotMarkOriginatingFromRejection) {
+        markAsOriginatingFromRejection(reason);
+    }
+    var trace = errors.ensureErrorObject(reason);
+    var hasStack = canAttachTrace(reason) &&
+        typeof trace.stack === "string";
+    this._attachExtraTrace(trace, synchronous ? hasStack : false);
+    this._reject(reason, trace === reason ? undefined : trace);
+};
+
 Promise.prototype._resolveFromResolver = function (resolver) {
     ASSERT(typeof resolver === "function");
     var promise = this;
-    var synchronous = true;
-
     this._captureStackTrace();
     this._pushContext();
+    var synchronous = true;
     var r = tryCatch(resolver)(function(value) {
-        if (promise._tryFollow(value)) {
-            return;
-        }
-        promise._fulfill(value);
+        promise._resolveCallback(value);
     }, function (reason) {
-        markAsOriginatingFromRejection(reason);
-        var trace = errors.ensureErrorObject(reason);
-        var hasStack = canAttachTrace(reason) &&
-            typeof trace.stack === "string";
-        promise._attachExtraTrace(trace, synchronous ? hasStack : false);
-        promise._reject(reason, trace === reason ? undefined : trace);
+        promise._rejectCallback(reason, synchronous);
     });
     synchronous = false;
     this._popContext();
 
     if (r !== undefined && r === errorObj) {
-        var reason = r.e;
-        var hasStack = canAttachTrace(reason) &&
-            typeof reason.stack === "string";
-        var trace = errors.ensureErrorObject(reason);
-        promise._attachExtraTrace(reason, hasStack);
-        promise._reject(reason, trace === reason ? undefined : trace);
+        promise._rejectCallback(r.e, true, true);
     }
 };
 
