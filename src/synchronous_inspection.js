@@ -5,11 +5,7 @@ function PromiseInspection(promise) {
     if (promise !== undefined) {
         promise = promise._target();
         this._bitField = promise._bitField;
-        this._settledValue = promise._isResolved()
-            ? promise._settledValue
-            //Don't keep a reference to something that will never be
-            //used
-            : undefined;
+        this._settledValue = promise._settledValue;
     }
     else {
         this._bitField = 0;
