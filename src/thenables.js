@@ -47,6 +47,7 @@ function isAnyBluebirdPromise(obj) {
 function doThenable(x, then, context) {
     ASSERT(typeof then === "function");
     var promise = new Promise(INTERNAL);
+    var ret = promise;
     if (context) context._pushContext();
     promise._captureStackTrace();
     if (context) context._popContext();
@@ -56,28 +57,35 @@ function doThenable(x, then, context) {
                                         rejectFromThenable,
                                         progressFromThenable);
     synchronous = false;
-    if (result === errorObj) {
+    if (promise && result === errorObj) {
         promise._rejectCallback(result.e, true, true);
+        promise = null;
     }
 
     function resolveFromThenable(value) {
+        if (!promise) return;
         if (x === value) {
-            return promise._rejectCallback(
+            promise._rejectCallback(
                 Promise._makeSelfResolutionError(), false, true);
+        } else {
+            promise._resolveCallback(value);
         }
-        promise._resolveCallback(value);
+        promise = null;
     }
 
     function rejectFromThenable(reason) {
+        if (!promise) return;
         promise._rejectCallback(reason, synchronous, true);
+        promise = null;
     }
 
     function progressFromThenable(value) {
+        if (!promise) return;
         if (typeof promise._progress === "function") {
             promise._progress(value);
         }
     }
-    return promise;
+    return ret;
 }
 
 return tryConvertToPromise;
