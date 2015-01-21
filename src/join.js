@@ -5,7 +5,9 @@ var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
+var reject;
 
+if (!__BROWSER__) {
 if (canEvaluate) {
     var thenCallback = function(i) {
         return new Function("value", "holder", "                             \n\
@@ -57,10 +59,11 @@ if (canEvaluate) {
             this.now = now;
         }
     };
-}
 
-function reject(reason) {
-    this._reject(reason);
+    var reject = function (reason) {
+        this._reject(reason);
+    };
+}
 }
 
 Promise.join = function () {
@@ -68,29 +71,31 @@ Promise.join = function () {
     var fn;
     if (last > 0 && typeof arguments[last] === "function") {
         fn = arguments[last];
-        if (last < 6 && canEvaluate) {
-            var ret = new Promise(INTERNAL);
-            ret._captureStackTrace();
-            var holder = new Holder(last, fn);
-            var callbacks = thenCallbacks;
-            for (var i = 0; i < last; ++i) {
-                var maybePromise = tryConvertToPromise(arguments[i], ret);
-                if (maybePromise instanceof Promise) {
-                    maybePromise = maybePromise._target();
-                    if (maybePromise._isPending()) {
-                        maybePromise._then(callbacks[i], reject,
-                                           undefined, ret, holder);
-                    } else if (maybePromise._isFulfilled()) {
-                        callbacks[i].call(ret,
-                                          maybePromise._value(), holder);
+        if (!__BROWSER__) {
+            if (last < 6 && canEvaluate) {
+                var ret = new Promise(INTERNAL);
+                ret._captureStackTrace();
+                var holder = new Holder(last, fn);
+                var callbacks = thenCallbacks;
+                for (var i = 0; i < last; ++i) {
+                    var maybePromise = tryConvertToPromise(arguments[i], ret);
+                    if (maybePromise instanceof Promise) {
+                        maybePromise = maybePromise._target();
+                        if (maybePromise._isPending()) {
+                            maybePromise._then(callbacks[i], reject,
+                                               undefined, ret, holder);
+                        } else if (maybePromise._isFulfilled()) {
+                            callbacks[i].call(ret,
+                                              maybePromise._value(), holder);
+                        } else {
+                            ret._reject(maybePromise._reason());
+                        }
                     } else {
-                        ret._reject(maybePromise._reason());
+                        callbacks[i].call(ret, maybePromise, holder);
                     }
-                } else {
-                    callbacks[i].call(ret, maybePromise, holder);
                 }
+                return ret;
             }
-            return ret;
         }
     }
     INLINE_SLICE(args, arguments);

@@ -17,11 +17,6 @@ var defaultFilter = function(name, func) {
 };
 var defaultPromisified = {__isPromisified__: true};
 
-
-function escapeIdentRegex(str) {
-    return str.replace(/([$])/, "\\$");
-}
-
 function isPromisified(fn) {
     try {
         return fn.__isPromisified__ === true;
@@ -73,9 +68,15 @@ function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
     return ret;
 }
 
+var makeNodePromisifiedEval;
+if (!__BROWSER__) {
+
+var escapeIdentRegex = function(str) {
+    return str.replace(/([$])/, "\\$");
+};
 //Gives an optimal sequence of argument count to try given a formal parameter
 //.length for a function
-function switchCaseArgumentOrder(likelyArgumentCount) {
+var switchCaseArgumentOrder = function(likelyArgumentCount) {
     var ret = [likelyArgumentCount];
     var min = Math.max(0, likelyArgumentCount - 1 - PARAM_COUNTS_TO_TRY);
     for(var i = likelyArgumentCount - 1; i >= min; --i) {
@@ -86,32 +87,33 @@ function switchCaseArgumentOrder(likelyArgumentCount) {
         ret.push(i);
     }
     return ret;
-}
+};
 
-function argumentSequence(argumentCount) {
+var argumentSequence = function(argumentCount) {
     return util.filledRange(argumentCount, "arguments[", "]");
-}
+};
 
-function parameterDeclaration(parameterCount) {
+var parameterDeclaration = function(parameterCount) {
     return util.filledRange(parameterCount, "_arg", "");
-}
+};
 
-function parameterCount(fn) {
+var parameterCount = function(fn) {
     if (typeof fn.length === "number") {
         return Math.max(Math.min(fn.length, MAX_PARAM_COUNT + 1), 0);
     }
     //Unsupported .length for functions
     return 0;
-}
+};
 
-function generatePropertyAccess(key) {
+var generatePropertyAccess = function(key) {
     if (util.isIdentifier(key)) {
         return "." + key;
     }
     else return "['" + key.replace(/(['\\])/g, "\\$1") + "']";
-}
+};
 
-function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
+makeNodePromisifiedEval =
+function(callback, receiver, originalName, fn, suffix) {
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
@@ -223,6 +225,7 @@ function makeNodePromisifiedEval(callback, receiver, originalName, fn, suffix) {
             nodebackForPromise,
             INTERNAL
         );
+};
 }
 
 function makeNodePromisifiedClosure(callback, receiver) {

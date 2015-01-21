@@ -561,7 +561,7 @@ a full version afterwards (after having taken a copy of the bluebird.js somewher
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-debug`.
 
  - `--main` - Whether to build the main build. The main build is placed at `js/main` directory. Default `false`.
- - `--debug` - Whether to build the debug build. The debug build is placed at `js/debug` directory. Default `true`.
+ - `--debug` - Whether to build the debug build. The debug build is placed at `js/debug` directory. Default `false`.
  - `--zalgo` - Whether to build the zalgo build. The zalgo build is placed at `js/zalgo` directory. Default `false`.
  - `--browser` - Whether to compile the browser build. The browser build file is placed at `js/browser/bluebird.js` Default `false`.
  - `--minify` - Whether to minify the compiled browser build. The minified browser build file is placed at `js/browser/bluebird.min.js` Default `true`.

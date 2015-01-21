@@ -192,50 +192,73 @@ function buildZalgo(sources, depsRequireCode, dir) {
     });
 }
 
-function buildBrowser(sources, dir, minify, npmPackage, license) {
-    return Promise.join(dir, npmPackage, license, function(dir, npmPackage, license) {
-        var header = getBrowserBuildHeader(sources, npmPackage);
-        return jobRunner.run(function() {
-            var UglifyJS = require("uglify-js");
-            var browserify = require("browserify");
-            var dest = path.join(root, "bluebird.js");
-            var minDest = path.join(root, "bluebird.min.js");
-            var b = browserify({
-                entries: "./js/main/bluebird.js",
-                detectGlobals: false,
-                standalone: "Promise"
-            });
-            return Promise.promisify(b.bundle, b)().then(function(src) {
-                var alias = "\
-                ;if (typeof window !== 'undefined' && window !== null) {       \
-                    window.P = window.Promise;                                 \
-                } else if (typeof self !== 'undefined' && self !== null) {     \
-                    self.P = self.Promise;                                     \
-                }";
-                src = src + alias;
-                var minWrite, write;
-                if (minify) {
-                    var minSrc = UglifyJS.minify(src, {
-                        comments: false,
-                        compress: true,
-                        fromString: true
-                    }).code;
-                    minSrc  = license + header + minSrc;
-                    minWrite = fs.writeFileAsync(minDest, minSrc);
+function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage, license) {
+    return Promise.join(dir, tmpDir, npmPackage, license, function(dir, tmpDir, npmPackage, license) {
+        return Promise.map(sources, function(source) {
+            return jobRunner.run(function() {
+                var code = source.source;
+                var sourceFileName = source.sourceFileName;
+                code = astPasses.removeAsserts(code, sourceFileName);
+                code = astPasses.inlineExpansion(code, sourceFileName);
+                code = astPasses.expandConstants(code, sourceFileName);
+                code = code.replace( /__DEBUG__/g, "false" );
+                code = code.replace( /__BROWSER__/g, "true" );
+                if (sourceFileName === "promise.js") {
+                    code = applyOptionalRequires(code, depsRequireCode);
                 }
-                src = license + header + src;
-                write = fs.writeFileAsync(dest, src);
+                return fs.writeFileAsync(path.join(root, sourceFileName), code);
+            }, {
+                context: {
+                    depsRequireCode: depsRequireCode,
+                    source: source,
+                    root: tmpDir
+                }
+            });
+        }).then(function() {
+            var header = getBrowserBuildHeader(sources, npmPackage);
+            return jobRunner.run(function() {
+                var UglifyJS = require("uglify-js");
+                var browserify = require("browserify");
+                var dest = path.join(root, "bluebird.js");
+                var minDest = path.join(root, "bluebird.min.js");
+                var b = browserify({
+                    entries: entries,
+                    detectGlobals: false,
+                    standalone: "Promise"
+                });
+                return Promise.promisify(b.bundle, b)().then(function(src) {
+                    var alias = "\
+                    ;if (typeof window !== 'undefined' && window !== null) {       \
+                        window.P = window.Promise;                                 \
+                    } else if (typeof self !== 'undefined' && self !== null) {     \
+                        self.P = self.Promise;                                     \
+                    }";
+                    src = src + alias;
+                    var minWrite, write;
+                    if (minify) {
+                        var minSrc = UglifyJS.minify(src, {
+                            comments: false,
+                            compress: true,
+                            fromString: true
+                        }).code;
+                        minSrc  = license + header + minSrc;
+                        minWrite = fs.writeFileAsync(minDest, minSrc);
+                    }
+                    src = license + header + src;
+                    write = fs.writeFileAsync(dest, src);
 
-                return Promise.all([write, minWrite]);
+                    return Promise.all([write, minWrite]);
+                })
+            }, {
+                context: {
+                    header: header,
+                    root: dir,
+                    entries: path.join(tmpDir, "bluebird.js"),
+                    license: license,
+                    minify: minify
+                }
             })
-        }, {
-            context: {
-                header: header,
-                root: dir,
-                license: license,
-                minify: minify
-            }
-        })
+        });
     });
 }
 
@@ -243,10 +266,12 @@ function build(options) {
     var npmPackage = fs.readFileAsync("./package.json").then(JSON.parse);
     var sourceFileNames = getSourcePaths(options.features);
     var license = utils.getLicense();
-    var mainDir = ensureDirectory("./js/main", options.main);
-    var debugDir = ensureDirectory("./js/debug", options.debug);
-    var zalgoDir = ensureDirectory("./js/zalgo", options.zalgo);
-    var browserDir = ensureDirectory("./js/browser", options.main && options.browser);
+    var root = process.cwd();
+    var mainDir = ensureDirectory(path.join(root, "js", "main"), options.main);
+    var debugDir = ensureDirectory(path.join(root, "js", "debug"), options.debug);
+    var zalgoDir = ensureDirectory(path.join(root, "js", "zalgo"), options.zalgo);
+    var browserDir = ensureDirectory(path.join(root, "js", "browser"), options.browser);
+    var browserTmpDir = ensureDirectory(path.join(root, "js", "tmp"), options.browser);
     return license.then(function(license) {
         return sourceFileNames.map(function(sourceFileName) {
             return jobRunner.run(function() {
@@ -282,10 +307,9 @@ function build(options) {
             debug = buildDebug(results, depsRequireCode, debugDir);
         if (options.zalgo)
             zalgo = buildZalgo(results, depsRequireCode, zalgoDir);
-        if (options.main && options.browser)
-            browser = main.then(function() {
-                return buildBrowser(results, browserDir, options.minify, npmPackage, license);
-            });
+        if (options.browser)
+            browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, npmPackage, license);
+            
         return Promise.all([main, debug, zalgo, browser]);
     });
 }
@@ -299,8 +323,8 @@ if (require.main === module) {
     module.exports({
         minify: browser && (typeof argv.minify !== "boolean" ? true : argv.minify),
         browser: browser,
-        debug: (typeof argv.debug !== "boolean" ? true : argv.debug),
-        main: (typeof argv.main !== "boolean" ? false : argv.main) || browser,
+        debug: !!argv.debug,
+        main: !!argv.main,
         zalgo: !!argv.zalgo,
         features: argv.features || null
     });
