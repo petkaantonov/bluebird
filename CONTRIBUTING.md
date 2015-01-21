@@ -1,9 +1,13 @@
+#READ BEFORE CREATING A NEW ISSUE
+
+The issue tracker is for bug reports and feature requests. If you'd like help with a usage question please use [the [bluebird] tag in Stack Overflow](http://stackoverflow.com/tags/bluebird) and ask there. The tag is monitored regularly.
+
+
 # Contributing to bluebird
 
 1. [Directory structure](#directory-structure)
 2. [Style guide](#style-guide)
 3. [Testing](#testing)
-3. [Issues](#issues)
 
 ## Directory structure
 
@@ -45,6 +49,3 @@ Use the same style as is used in the surrounding code.
 
 Make sure that all the tests run before and after you make your additions. Look in the [testing section in README.md](https://github.com/petkaantonov/bluebird#testing) for how to run the tests. Add relevant new tests.
 
-## Issues
-
-The issue tracker is for bug reports and feature requests. If you'd like help with a usage question please use [the [bluebird] tag in Stack Overflow](http://stackoverflow.com/tags/bluebird) and ask there. The tag is monitored regularly. 
