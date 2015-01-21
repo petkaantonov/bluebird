@@ -155,4 +155,18 @@ describe("when.join-test", function () {
         });
     });
 
+    specify("should not pass the callback as argument, <5 arguments", function(done) {
+        when.join(1, 2, 3, function() {
+            assert.strictEqual(arguments.length, 3);
+            done();
+        });
+    });
+
+    specify("should not pass the callback as argument >5 arguments", function(done) {
+        when.join(1, 2, 3, 4, 5, 6, 7, function() {
+            assert.strictEqual(arguments.length, 7);
+            done();
+        });
+    });
+
 });

@@ -94,6 +94,7 @@ Promise.join = function () {
         }
     }
     INLINE_SLICE(args, arguments);
+    if (fn) args.pop();
     var ret = new PromiseArray(args).promise();
     return fn !== undefined ? ret.spread(fn) : ret;
 };
