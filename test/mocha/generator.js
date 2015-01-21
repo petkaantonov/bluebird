@@ -436,14 +436,7 @@ describe("custom yield handlers", function() {
     });
 });
 
-var nodeVersion = typeof process !== "undefined" &&
-        typeof process.version === "string"
-        ? process.version.replace(/[^0-9.]/g, "").split(".").map(Number)
-        : null;
-var isNode11 = nodeVersion[0] === 0 && nodeVersion[1] === 11
-
-// Stack trace capturing is completely screwed in node 0.11.?
-if (Promise.hasLongStackTraces() && !isNode11) {
+if (Promise.hasLongStackTraces()) {
     describe("Long stack traces with coroutines as context", function() {
         it("1 level", function(done) {
             Promise.coroutine(function* () {

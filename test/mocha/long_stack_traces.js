@@ -9,9 +9,6 @@ var nodeVersion = typeof process !== "undefined" &&
 if (!Promise.hasLongStackTraces()) return;
 // TODO IE and FireFox
 if (!Error.captureStackTrace) return;
-// Stack trace capturing is completely screwed in node 0.11.?
-if (nodeVersion[0] === 0 && nodeVersion[1] === 11) return;
-
 
 describe(".then as context", function() {
     it("1 level", function(done) {
