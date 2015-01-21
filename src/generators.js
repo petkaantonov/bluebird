@@ -54,20 +54,12 @@ PromiseSpawn.prototype._run = function () {
 
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
-        this._generator = undefined;
-        var trace = util.canAttachTrace(result.e)
-            ? result.e : new Error(util.toString(result.e));
-        this._promise._attachExtraTrace(trace);
-        this._promise._reject(result.e, trace);
-        return;
+        return this._promise._rejectCallback(result.e, false, true);
     }
 
     var value = result.value;
     if (result.done === true) {
-        this._generator = undefined;
-        if (!this._promise._tryFollow(value)) {
-            this._promise._fulfill(value);
-        }
+        this._promise._resolveCallback(value);
     } else {
         var maybePromise = tryConvertToPromise(value, this._promise);
         if (!(maybePromise instanceof Promise)) {
