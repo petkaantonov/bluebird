@@ -91,7 +91,8 @@ Queue.prototype._makeCapacity = function Queue$_makeCapacity() {
 
 Queue.prototype._checkCapacity = function Queue$_checkCapacity(size) {
     if (this._capacity < size) {
-        this._resizeTo(this._capacity << 3);
+        // If we need to resize, double it.
+        this._resizeTo(this._capacity << 1);
     }
 };
 
