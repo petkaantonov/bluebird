@@ -606,15 +606,20 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     this._pushContext();
     var synchronous = true;
     var r = tryCatch(resolver)(function(value) {
+        if (promise === null) return;
         promise._resolveCallback(value);
+        promise = null;
     }, function (reason) {
+        if (promise === null) return;
         promise._rejectCallback(reason, synchronous);
+        promise = null;
     });
     synchronous = false;
     this._popContext();
 
-    if (r !== undefined && r === errorObj) {
+    if (r !== undefined && r === errorObj && promise !== null) {
         promise._rejectCallback(r.e, true, true);
+        promise = null;
     }
 };
 
