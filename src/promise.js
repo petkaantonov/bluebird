@@ -240,9 +240,7 @@ Promise.cast = function (obj) {
     if (!(ret instanceof Promise)) {
         var val = ret;
         ret = new Promise(INTERNAL);
-        ret._setFulfilled();
-        ret._settledValue = val;
-        ret._cleanValues();
+        ret._fulfillUnchecked(val);
     }
     return ret;
 };
@@ -984,26 +982,11 @@ Promise.prototype._popContext = Context.prototype._popContext;
 Promise.prototype._resolveFromSyncValue = function (value) {
     ASSERT(!this._isFollowing());
     if (value === errorObj) {
-        this._setRejected();
-        var reason = value.e;
-        this._settledValue = reason;
-        this._cleanValues();
-        this._attachExtraTrace(reason);
-        this._ensurePossibleRejectionHandled();
+        this._rejectCallback(value.e, false, true);
     } else {
-        var maybePromise = tryConvertToPromise(value, this);
-        if (maybePromise instanceof Promise) {
-            maybePromise = maybePromise._target();
-            this._follow(maybePromise);
-        } else {
-            this._setFulfilled();
-            this._settledValue = value;
-            this._cleanValues();
-        }
+        this._resolveCallback(value);
     }
 };
-
-
 
 if (!CapturedTrace.isSupported()) {
     Promise.longStackTraces = function(){};
