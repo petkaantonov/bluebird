@@ -42,6 +42,19 @@ Promise.prototype.bind = function (thisArg) {
     return ret;
 };
 
+Promise.prototype._setBoundTo = function (obj) {
+    if (obj !== undefined) {
+        this._bitField = this._bitField | IS_BOUND;
+        this._boundTo = obj;
+    } else {
+        this._bitField = this._bitField & (~IS_BOUND);
+    }
+};
+
+Promise.prototype._isBound = function () {
+    return (this._bitField & IS_BOUND) === IS_BOUND;
+};
+
 Promise.bind = function (thisArg, value) {
     var maybePromise = tryConvertToPromise(thisArg);
     var ret = new Promise(INTERNAL);
