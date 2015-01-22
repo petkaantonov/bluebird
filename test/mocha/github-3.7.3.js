@@ -1,7 +1,7 @@
 "use strict";
 
 var assert = require("assert");
-var Promise = require("../../js/debug/bluebird.js");
+var Promise = adapter;
 
 describe("github-373", function() {
     specify("unhandled unsuccessful Promise.join should result in correct error being reported", function(done) {

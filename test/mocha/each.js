@@ -2,7 +2,6 @@
 
 var assert = require("assert");
 
-var adapter = require("../../js/debug/bluebird.js");
 var Promise = adapter;
 
 function promised(val) {

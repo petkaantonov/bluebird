@@ -5,7 +5,6 @@
 
 var assert = require("assert");
 
-var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;

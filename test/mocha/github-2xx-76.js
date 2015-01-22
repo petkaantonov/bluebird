@@ -1,7 +1,7 @@
 "use strict";
 
 
-var Promise = require("../../js/debug/bluebird.js");
+var Promise = adapter;
 Promise.longStackTraces();
 var assert = require("assert");
 var isNodeJS = typeof process !== "undefined" &&

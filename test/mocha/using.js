@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert");
 
-var Promise = require("../../js/debug/bluebird.js");
+var Promise = adapter;
 var Promise2 = require("../../js/debug/promise.js")();
 
 var using = Promise.using;

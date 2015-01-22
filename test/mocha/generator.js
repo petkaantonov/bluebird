@@ -2,7 +2,6 @@
 
 var assert = require("assert");
 var assertLongTrace = require("./helpers/assert_long_trace.js");
-var adapter = require("../../js/debug/bluebird.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
