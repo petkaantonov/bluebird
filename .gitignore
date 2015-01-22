@@ -2,3 +2,4 @@ node_modules
 test/browser/bundle.js
 js/*
 zalgo.js
+coverage/*

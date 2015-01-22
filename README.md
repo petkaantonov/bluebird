@@ -3,6 +3,7 @@
          title="Promises/A+ 1.1 compliant" align="right" />
 </a>
 [![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
+<!-- coverage -->[![coverage-88%](http://img.shields.io/badge/coverage-88%-green.svg)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)<!-- /coverage -->
 
 
 #Introduction
@@ -476,6 +477,7 @@ Keep the test tab active because some tests are timing-sensitive and will fail i
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-browser`.
 
  - `--run=String`. Which tests to run (or compile when testing in browser). Default `"all"`
+ - `--cover=String`. Create code coverage using the String as istanbul reporter. Coverage is created in the ./coverage folder. No coverage is created by default, default reporter is `"html"` (use `--cover` to use default reporter).
  - `--browser` - Whether to compile tests for browsers. Default `false`.
  - `--port=Number` - Whe port where local server is hosted when testing in browser. Default `9999`
  - `--execute-browser-tests` - Whether to execute the compiled tests for browser when using `--browser`. Default `true`.

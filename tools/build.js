@@ -262,16 +262,31 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
     });
 }
 
+var root = process.cwd();
+// Since rm -rf is called, better be sure...
+if (path.basename(root).toLowerCase() !== "bluebird") {
+    throw new Error("cwd must be se to bluebird project root. Cwd is currently\n\n" +
+        "         " + process.cwd() + "\n");
+}
+var dirs = {
+    main: path.join(root, "js", "main"),
+    debug: path.join(root, "js", "debug"),
+    zalgo: path.join(root, "js", "zalgoDir"),
+    browser: path.join(root, "js", "browser"),
+    browserTmp: path.join(root, "js", "tmp"),
+    instrumented: path.join(root, "js", "instrumented"),
+    coverage: path.join(root, "coverage")
+};
+
 function build(options) {
     var npmPackage = fs.readFileAsync("./package.json").then(JSON.parse);
     var sourceFileNames = getSourcePaths(options.features);
     var license = utils.getLicense();
-    var root = process.cwd();
-    var mainDir = ensureDirectory(path.join(root, "js", "main"), options.main);
-    var debugDir = ensureDirectory(path.join(root, "js", "debug"), options.debug);
-    var zalgoDir = ensureDirectory(path.join(root, "js", "zalgo"), options.zalgo);
-    var browserDir = ensureDirectory(path.join(root, "js", "browser"), options.browser);
-    var browserTmpDir = ensureDirectory(path.join(root, "js", "tmp"), options.browser);
+    var mainDir = ensureDirectory(dirs.main, options.main);
+    var debugDir = ensureDirectory(dirs.debug, options.debug);
+    var zalgoDir = ensureDirectory(dirs.zalgo, options.zalgo);
+    var browserDir = ensureDirectory(dirs.browser, options.browser);
+    var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser);
     return license.then(function(license) {
         return sourceFileNames.map(function(sourceFileName) {
             return jobRunner.run(function() {
@@ -309,12 +324,14 @@ function build(options) {
             zalgo = buildZalgo(results, depsRequireCode, zalgoDir);
         if (options.browser)
             browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, npmPackage, license);
-            
+
         return Promise.all([main, debug, zalgo, browser]);
     });
 }
 
 module.exports = build;
+module.exports.ensureDirectory = ensureDirectory;
+module.exports.dirs = dirs;
 
 
 if (require.main === module) {

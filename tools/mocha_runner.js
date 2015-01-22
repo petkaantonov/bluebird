@@ -65,7 +65,10 @@ module.exports = function mochaRun(progress) {
         global.clearInterval = clearInterval;
     }
     var failures = [];
-    global.adapter = require("./js/debug/bluebird.js");
+    global.adapter = cover
+        ? require("./js/instrumented/bluebird.js")
+        : require("./js/debug/bluebird.js");
+    global.Promise = adapter;
     return Promise.each(testGroup, function(test, index, length) {
         var mocha = new Mocha({
             reporter: "spec",
@@ -110,6 +113,9 @@ module.exports = function mochaRun(progress) {
                 error.noStackPrint = true;
             }
             throw error;
+        }
+        if (cover) {
+            return __coverage__;
         }
     });
 };

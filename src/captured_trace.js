@@ -3,7 +3,8 @@ module.exports = function() {
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var inherits = require("./util.js").inherits;
-var bluebirdFramePattern = /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo)/;
+var bluebirdFramePattern =
+    /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo|instrumented)/;
 var stackFramePattern = null;
 var formatStack = null;
 

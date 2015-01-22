@@ -35,7 +35,7 @@ function getLicense() {
 }
 
 
-function run(cmd, args, dir, pipe) {
+function run(cmd, args, dir, log) {
     return new Promise(function(resolve, reject) {
         function makeResult(errorMessage) {
             var ret = errorMessage ? new Error(errorMessage) : {};
@@ -49,9 +49,11 @@ function run(cmd, args, dir, pipe) {
         var c = spawn(cmd, args, {stdin: ["ignore", "ignore", "ignore"], cwd: dir || process.cwd()});
 
         c.stdout.on("data", function(data) {
+            if (log) process.stdout.write(data.toString());
             out += data;
         });
         c.stderr.on("data", function(data) {
+            if (log) process.stderr.write(data.toString());
             err += data;
         });
 
