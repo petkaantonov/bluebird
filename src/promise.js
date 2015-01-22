@@ -70,27 +70,6 @@ function Promise(resolver) {
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
-Promise.prototype.bind = function (thisArg) {
-    var maybePromise = tryConvertToPromise(thisArg);
-    var ret = new Promise(INTERNAL);
-    ret._propagateFrom(this, PROPAGATE_CANCEL);
-    var target = this._target();
-    if (maybePromise instanceof Promise) {
-        target._then(INTERNAL, ret._reject, ret._progress, ret, null);
-        maybePromise._then(function(thisArg) {
-            if (ret._isPending()) {
-                ret._setBoundTo(thisArg);
-                ret._follow(target);
-            }
-        }, ret._reject, ret._progress, ret, null);
-    } else {
-        ret._setBoundTo(thisArg);
-        ret._follow(target);
-    }
-
-    return ret;
-};
-
 Promise.prototype.toString = function () {
     return "[object Promise]";
 };
@@ -217,22 +196,6 @@ Promise.attempt = Promise["try"] = function (fn, args, ctx) {
 Promise.defer = Promise.pending = function () {
     var promise = new Promise(INTERNAL);
     return new PromiseResolver(promise);
-};
-
-Promise.bind = function (thisArg) {
-    var maybePromise = tryConvertToPromise(thisArg);
-    var ret = new Promise(INTERNAL);
-
-    if (maybePromise instanceof Promise) {
-        maybePromise._then(function(thisArg) {
-            ret._setBoundTo(thisArg);
-            ret._fulfill(undefined);
-        }, ret._reject, ret._progress, ret, null);
-    } else {
-        ret._setBoundTo(thisArg);
-        ret._setFulfilled();
-    }
-    return ret;
 };
 
 Promise.cast = function (obj) {
@@ -999,6 +962,7 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
 require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
