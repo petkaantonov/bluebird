@@ -24,9 +24,15 @@ module.exports = function(tests, options) {
         return code;
     }).join("\n");
 
-    return readFile(path.join(baseDir, "main.js"), "utf8").then(function(contents) {
+    var promiseExport = options.cover
+        ? readFile(path.join(baseDir, "promise_instrumented.js"), "utf8")
+        : readFile(path.join(baseDir, "promise_debug.js"), "utf8");
+
+    var main = readFile(path.join(baseDir, "main.js"), "utf8")
+
+    return Promise.join(promiseExport, main, function(promiseExport, main) {
         var browserify = require("browserify");
-        contents = contents + "\n" + testRequires;
+        var contents = promiseExport + "\n" + main + "\n" + testRequires;
         var b = browserify({
             basedir: baseDir,
             entries: stringToStream(contents)

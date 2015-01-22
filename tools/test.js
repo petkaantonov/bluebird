@@ -8,6 +8,7 @@ var argv = require("optimist").argv;
 var glob = Promise.promisify(require("glob"));
 var path = require("path");
 var mkdirp = Promise.promisify(require("mkdirp"));
+var rimraf = Promise.promisify(require("rimraf"));
 var jobRunner = require("./job-runner/job-runner.js");
 var mochaRunner = require("./mocha_runner.js");
 var fs = Promise.promisifyAll(require("fs"));
@@ -149,7 +150,7 @@ var options = {
             return false;
         }
     })(),
-    cover: false,
+    cover: !!argv["cover"],
     testName: testName,
     singleTest: false,
     saucelabs: !!argv.saucelabs,
@@ -162,7 +163,6 @@ var options = {
         ? argv["fake-timers"] : true,
     jsHint: typeof argv["js-hint"] === "boolean" ? argv["js-hint"] : true
 };
-options.cover = !!argv["cover"] && !options.testBrowser;
 
 if (options.cover && typeof argv["cover"] === "string") {
     options.coverFormat = argv["cover"];
@@ -178,7 +178,14 @@ var buildResult = build({
 if (options.cover) {
     var exclusions = ["assert.js", "captured_trace.js"];
     var coverageInstrumentedRoot = build.ensureDirectory(build.dirs.instrumented,options.cover);
-    var coverageReportsRoot = build.ensureDirectory(build.dirs.coverage, true);
+    var coverageReportsRoot = mkdirp(build.dirs.coverage, true).then(function() {
+        return fs.readdirAsync(build.dirs.coverage);
+    }).map(function(fileName) {
+        var filePath = path.join(build.dirs.coverage, fileName);
+        if (path.extname(fileName).indexOf("json") === -1) {
+            return rimraf(filePath);
+        }
+    });
     buildResult = Promise.join(coverageInstrumentedRoot, buildResult, coverageReportsRoot, function() {
         return utils.run("npm", ["-v"]).then(function(result) {
             var version = result.stdout.split(".").map(Number);

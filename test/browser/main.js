@@ -61,10 +61,6 @@
   window.setInterval = setInterval;
   window.clearInterval = clearInterval;
 })();
-
-var Promise = require("../../js/debug/bluebird.js");
-window.Promise = Promise;
-window.adapter = Promise;
 window.assert = require("assert");
 
 var prev = window.assert.deepEqual;
@@ -96,6 +92,9 @@ window.onload = function(){
     runner.on('end', function(){
       window.mochaResults = runner.stats;
       window.mochaResults.reports = failedTests;
+      if (window.__coverage__) {
+        postCoverage();
+      }
     });
 
     runner.on('fail', logFailure);
@@ -114,3 +113,13 @@ window.onload = function(){
       failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
     }
 };
+
+function postCoverage() {
+  var json = JSON.stringify(window.__coverage__);
+  var xhr = new XMLHttpRequest();
+  var browser = (navigator.userAgent + "").replace(/[^a-zA-Z0-9]/g, "");
+  var data = "json=" + encodeURIComponent(json) + "&browser=" + encodeURIComponent(browser);
+  xhr.open("POST", "/coverdata", true);
+  xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+  xhr.send(data);
+}

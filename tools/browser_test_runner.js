@@ -1,4 +1,7 @@
 var path = require("path");
+var build = require("./build.js");
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
 var baseDir = path.join(__dirname, "..", "test", "browser");
 var browsers = [
     ["Windows XP", "internet explorer", "7"],
@@ -32,10 +35,34 @@ module.exports = function(options) {
     function createServer() {
         var http = require("http");
         var serve = require("serve-static")(baseDir, {'index': ['index.html']});
+        var bodyParser = require("body-parser").urlencoded({
+            limit: "100mb",
+            extended: false
+        });
         var server = http.createServer(function(req, res) {
             serve(req, res, function() {
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end('404\n');
+                if (options.cover &&
+                    req.url.indexOf("coverdata") >= 0 &&
+                    req.method.toLowerCase() === "post") {
+                    bodyParser(req, res, function() {
+                        try {
+                            var json = JSON.parse(req.body.json);
+                        } catch (e) {
+                            res.writeHead(404, {'Content-Type': 'text/plain'});
+                            res.end('404\n');
+                            return;
+                        }
+                        var browser = (req.body.browser + "").replace(/[^a-zA-Z0-9]/g, "");
+                        var fileName = path.join(build.dirs.coverage, "coverage-" + browser + ".json");
+                        fs.writeFileAsync(fileName, JSON.stringify(json), "utf8").then(function() {
+                            res.writeHead(200, {'Content-Type': 'text/plain'});
+                            res.end('Success\n');
+                        });
+                    });
+                } else {
+                    res.writeHead(404, {'Content-Type': 'text/plain'});
+                    res.end('404\n');
+                }
             });
         });
         return Promise.promisify(server.listen, server)(options.port)
@@ -53,7 +80,7 @@ module.exports = function(options) {
         ret = createServer().then(function() {
             var url = "http://localhost:" + options.port;
             console.log("Test can be run at " + url);
-            if (options.openBrowser) {
+            if (options.openBrowser && !options.cover) {
                 return Promise.promisify(open)(url);
             }
         });
