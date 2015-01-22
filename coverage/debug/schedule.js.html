@@ -195,20 +195,20 @@
     </style>
 </head>
 <body>
-<div class="header low">
+<div class="header high">
     <h1>Code coverage report for <span class="entity">debug\schedule.js</span></h1>
     <h2>
         
-        Statements: <span class="metric">23.53% <small>(4 / 17)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Statements: <span class="metric">88.24% <small>(15 / 17)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Branches: <span class="metric">40% <small>(4 / 10)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">80% <small>(8 / 10)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Functions: <span class="metric">0% <small>(0 / 4)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">75% <small>(3 / 4)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Lines: <span class="metric">25% <small>(4 / 16)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">87.5% <small>(14 / 16)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
     </h2>
@@ -245,23 +245,23 @@
 27
 28
 29</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10</span>
+<span class="cline-any cline-yes">10</span>
 <span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">3005</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3</span>
+<span class="cline-any cline-yes">3</span>
+<span class="cline-any cline-yes">6595</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -269,27 +269,27 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
+<span class="cline-any cline-yes">10</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function () { "use strict";
 var schedule;
-<span class="missing-if-branch" title="else path not taken" >E</span>if (typeof process === "object" &amp;&amp; typeof process.version === "string") {
+if (typeof process === "object" &amp;&amp; typeof process.version === "string") {
     schedule = parseInt(process.version.split(".")[1], 10) &gt; 10
         ? <span class="branch-0 cbranch-no" title="branch not covered" >setImmediate </span>: process.nextTick;
 }
-else <span class="cstat-no" title="statement not covered" >if (typeof MutationObserver !== "undefined") {</span>
-<span class="cstat-no" title="statement not covered" >    schedule = <span class="fstat-no" title="function not covered" >function(fn) {</span></span>
-<span class="cstat-no" title="statement not covered" >        var div = document.createElement("div");</span>
-<span class="cstat-no" title="statement not covered" >        var observer = new MutationObserver(fn);</span>
-<span class="cstat-no" title="statement not covered" >        observer.observe(div, {attributes: true});</span>
-<span class="cstat-no" title="statement not covered" >        return <span class="fstat-no" title="function not covered" >function() {</span> <span class="cstat-no" title="statement not covered" >div.classList.toggle("foo"); </span>};</span>
+else if (typeof MutationObserver !== "undefined") {
+    schedule = function(fn) {
+        var div = document.createElement("div");
+        var observer = new MutationObserver(fn);
+        observer.observe(div, {attributes: true});
+        return function() { div.classList.toggle("foo"); };
     };
-<span class="cstat-no" title="statement not covered" >    schedule.isStatic = true;</span>
+    schedule.isStatic = true;
 }
-else <span class="cstat-no" title="statement not covered" >if (typeof setTimeout !== "undefined") {</span>
-<span class="cstat-no" title="statement not covered" >    schedule = <span class="fstat-no" title="function not covered" >function (fn) {</span></span>
-<span class="cstat-no" title="statement not covered" >        setTimeout(fn, 0);</span>
+else <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof setTimeout !== "undefined") {
+    schedule = function (fn) {
+        setTimeout(fn, 0);
     };
 }
 else {
@@ -305,7 +305,7 @@ module.exports = schedule;
 
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 22 2015 12:15:53 GMT+0200 (FLE Standard Time)</div>
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 22 2015 14:38:50 GMT+0200 (FLE Standard Time)</div>
 </div>
 
 <script src="../prettify.js"></script>
