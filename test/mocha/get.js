@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert");
-var Promise= require("../../js/debug/bluebird.js");
+var Promise = adapter;
 var join = Promise.join;
 
 describe("indexed getter", function() {
