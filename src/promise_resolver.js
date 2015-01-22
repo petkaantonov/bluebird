@@ -140,8 +140,8 @@ PromiseResolver.prototype.progress = function (value) {
  * Cancel the promise.
  *
  */
-PromiseResolver.prototype.cancel = function () {
-    this.promise.cancel();
+PromiseResolver.prototype.cancel = function (err) {
+    this.promise.cancel(err);
 };
 
 /**

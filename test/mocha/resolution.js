@@ -176,36 +176,104 @@ IN THE SOFTWARE.
 */
 
 
-describe("PromiseResolver.callback", function () {
+describe("PromiseResolver", function () {
 
-    it("fulfills a promise with a single callback argument", function (done) {
-        var resolver = Promise.defer();
-        resolver.callback(null, 10);
-        resolver.promise.then(function (value) {
-            assert(value === 10);
+    describe(".callback", function() {
+        it("fulfills a promise with a single callback argument", function (done) {
+            var resolver = Promise.defer();
+            resolver.callback(null, 10);
+            resolver.promise.then(function (value) {
+                assert(value === 10);
+                done();
+            });
+        });
+
+        it("fulfills a promise with multiple callback arguments", function (done) {
+            var resolver = Promise.defer();
+            resolver.callback(null, 10, 20);
+            resolver.promise.then(function (value) {
+                assert.deepEqual(value, [ 10, 20 ]);
+                done();
+            });
+        });
+
+        it("rejects a promise", function (done) {
+            var resolver = Promise.defer();
+            var exception = new Error("Holy Exception of Anitoch");
+            resolver.callback(exception);
+            resolver.promise.then(assert.fail, function (_exception) {
+                assert(exception === _exception.cause);
+                done();
+            });
+        });
+    });
+
+    specify(".toString()", function() {
+        assert.strictEqual(Promise.defer().toString(), "[object PromiseResolver]");
+    });
+
+    specify(".cancel()", function(done) {
+        var err = new Error();
+        var d = Promise.defer();
+        d.promise.cancellable();
+        d.cancel(err);
+        d.promise.caught(function(e) {
+            assert.strictEqual(err, e);
             done();
         });
     });
 
-    it("fulfills a promise with multiple callback arguments", function (done) {
-        var resolver = Promise.defer();
-        resolver.callback(null, 10, 20);
-        resolver.promise.then(function (value) {
-            assert.deepEqual(value, [ 10, 20 ]);
+    specify(".timeout()", function(done) {
+        var d = Promise.defer();
+        d.timeout();
+        d.promise.caught(function(e) {
+            assert(e instanceof Promise.TimeoutError);
             done();
         });
     });
 
-    it("rejects a promise", function (done) {
-        var resolver = Promise.defer();
-        var exception = new Error("Holy Exception of Anitoch");
-        resolver.callback(exception);
-        resolver.promise.then(assert.fail, function (_exception) {
-            assert(exception === _exception.cause);
-            done();
-        });
+    specify(".isResolved()", function() {
+        var d = Promise.defer();
+        assert.strictEqual(d.isResolved(), false);
     });
 
+    specify(".toJSON()", function() {
+        var d = Promise.defer();
+        assert.equal(JSON.stringify(d), '{"isFulfilled":false,"isRejected":false}');
+    });
+
+    describe("unbound calls should throw", function() {
+        specify(".resolve", function() {
+            var resolve = Promise.defer().resolve;
+            try {
+                resolve()
+            } catch (e) {
+                assert(e.message.indexOf("Illegal invocation") >= 0);
+                return;
+            }
+            assert.fail()
+        });
+        specify(".reject", function() {
+            var reject = Promise.defer().reject;
+            try {
+                reject()
+            } catch (e) {
+                assert(e.message.indexOf("Illegal invocation") >= 0);
+                return;
+            }
+            assert.fail()
+        });
+        specify(".progress", function() {
+            var progress = Promise.defer().progress;
+            try {
+                progress()
+            } catch (e) {
+                assert(e.message.indexOf("Illegal invocation") >= 0);
+                return;
+            }
+            assert.fail()
+        });
+    });
 });
 
 /*!
