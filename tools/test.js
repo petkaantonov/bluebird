@@ -83,7 +83,7 @@ function getCoverage() {
 function generateCoverageBadge(coverage) {
     var text = "coverage-" + coverage + "%";
     var color = getColorForCoverage(coverage);
-    var imgSrc = "http://img.shields.io/badge/" + text + "-" + color + ".svg";
+    var imgSrc = "http://img.shields.io/badge/" + text + "-" + color + ".svg?style=flat";
     var link = "http://petkaantonov.github.io/bluebird/coverage/debug/index.html";
     var markdown = "[!["+text+"]("+imgSrc+")]("+link+")";
     return markdown;
