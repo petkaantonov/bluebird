@@ -13,11 +13,13 @@ var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var async = require("./async.js");
 var errors = require("./errors.js");
-var RangeError = errors.RangeError;
-var TypeError = errors.TypeError;
-var CancellationError = errors.CancellationError;
-var TimeoutError = errors.TimeoutError;
-var OperationalError = errors.OperationalError;
+var TypeError = Promise.TypeError = errors.TypeError;
+Promise.RangeError = errors.RangeError;
+Promise.CancellationError = errors.CancellationError;
+Promise.TimeoutError = errors.TimeoutError;
+Promise.OperationalError = errors.OperationalError;
+Promise.RejectionError = errors.OperationalError;
+Promise.AggregateError = errors.AggregateError;
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
@@ -34,9 +36,6 @@ var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
-var originatesFromRejection = util.originatesFromRejection;
-var markAsOriginatingFromRejection = util.markAsOriginatingFromRejection;
-var canAttachTrace = util.canAttachTrace;
 
 function Promise(resolver) {
     if (typeof resolver !== "function") {
@@ -144,7 +143,7 @@ Promise.prototype.all = function () {
 };
 
 Promise.prototype.error = function (fn) {
-    return this.caught(originatesFromRejection, fn);
+    return this.caught(util.originatesFromRejection, fn);
 };
 
 Promise.is = function (val) {
@@ -431,10 +430,10 @@ Promise.prototype._resolveCallback = function(value) {
 Promise.prototype._rejectCallback =
 function(reason, synchronous, shouldNotMarkOriginatingFromRejection) {
     if (!shouldNotMarkOriginatingFromRejection) {
-        markAsOriginatingFromRejection(reason);
+        util.markAsOriginatingFromRejection(reason);
     }
     var trace = util.ensureErrorObject(reason);
-    var hasStack = canAttachTrace(reason) &&
+    var hasStack = util.canAttachTrace(reason) &&
         typeof trace.stack === "string";
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
     this._reject(reason, trace === reason ? undefined : trace);
@@ -738,13 +737,6 @@ Promise.prototype._settlePromises = function () {
     }
 };
 
-Promise.RangeError = RangeError;
-Promise.CancellationError = CancellationError;
-Promise.TimeoutError = TimeoutError;
-Promise.TypeError = TypeError;
-Promise.OperationalError = OperationalError;
-Promise.RejectionError = OperationalError;
-Promise.AggregateError = errors.AggregateError;
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
 require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
