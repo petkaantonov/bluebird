@@ -1,13 +1,9 @@
 "use strict";
 var assert = require("assert");
-
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
-
-var Promise = fulfilled().constructor;
-
-
+var Promise = adapter;
 var Q = function(p) {
     if( p.then ) return p;
     return fulfilled(p);
@@ -326,7 +322,31 @@ describe("finally", function () {
                     done();
                 });
             });
+            it("should reject with the new primitive reason", function (done) {
+                var primitive = 3;
+                var promise = {
+                    then: function(f, fn) {
+                        setTimeout(function(){
+                            fn(primitive);
+                        }, 13);
+                    }
+                };
+
+                return Q.reject(exception1)
+                .lastly(function () {
+                    return promise;
+                })
+                .then(function () {
+                    assert.equal(false,true);
+                },
+                function (exception) {
+                    assert.strictEqual(exception, primitive);
+                    done();
+                });
+            });
         });
+
+
 
     });
 });

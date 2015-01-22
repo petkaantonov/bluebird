@@ -1,6 +1,5 @@
 "use strict";
 var assert = require("assert");
-var Promise = adapter;
 var join = Promise.join;
 
 describe("indexed getter", function() {
@@ -46,14 +45,43 @@ describe("identifier getter", function() {
             done();
         });
     });
+
+    specify("gets same property", function(done) {
+        var o = {o: 1};
+        var o2 = {o: 2};
+        o = Promise.resolve(o).get("o");
+        o2 = Promise.resolve(o2).get("o");
+        join(o, o2, function(one, two) {
+            assert.strictEqual(1, one);
+            assert.strictEqual(2, two);
+            done();
+        });
+    });
 });
 
-describe("non identifier getter", function() {
+describe("non identifier getters", function() {
     var p = Promise.resolve({"-": "val"});
-    specify("gets property", function(done) {
+    specify("get property", function(done) {
         p.get("-").then(function(val) {
             assert(val === "val");
             done();
         });
+    });
+
+    specify("overflow cache", function(done) {
+        var a = new Array(1024);
+        var o = {};
+        for (var i = 0; i < a.length; ++i) {
+            a[i] = String.fromCharCode(i);
+            o[String.fromCharCode(i)] = i*2;
+        }
+        var b = Promise.map(a, function(item, index) {
+            return Promise.resolve(o).get(a[index]);
+        }).filter(function(value, index) {
+            return value === index * 2;
+        }).then(function(values) {
+            assert.strictEqual(values.length, a.length);
+            done();
+        })
     });
 });

@@ -65,6 +65,7 @@ module.exports = function mochaRun(progress) {
         global.clearInterval = clearInterval;
     }
     var failures = [];
+    delete Error.__BluebirdErrorTypes__;
     global.adapter = cover
         ? require("./js/instrumented/bluebird.js")
         : require("./js/debug/bluebird.js");

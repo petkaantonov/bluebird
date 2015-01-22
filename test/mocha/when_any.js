@@ -27,16 +27,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 var assert = require("assert");
-
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
 var when = adapter;
-var resolved = when.fulfilled;
-var rejected = when.rejected;
-when.resolve = resolved;
-when.reject = rejected;
-when.defer = pending;
 var sentinel = {};
 var other = {};
 var p = new when(function(){}).constructor.prototype;
@@ -82,7 +73,7 @@ describe("when.any-test", function () {
     });
 
     specify("should resolve with a promised input value", function(done) {
-        var input = [resolved(1), resolved(2), resolved(3)];
+        var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
         when.any(input).then(
             function(result) {
                 assert(contains([1, 2, 3], result));
@@ -92,7 +83,7 @@ describe("when.any-test", function () {
     });
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
-        var input = [rejected(1), rejected(2), rejected(3)];
+        var input = [Promise.reject(1), Promise.reject(2), Promise.reject(3)];
         var promise = when.any(input);
 
         promise.then(
@@ -112,7 +103,7 @@ describe("when.any-test", function () {
         var expected, input;
 
         expected = [1, 2, 3];
-        input = resolved(expected);
+        input = Promise.resolve(expected);
 
         when.any(input).then(
             function(result) {
@@ -133,7 +124,15 @@ describe("when.any-test", function () {
     });
 
     specify("should resolve to empty array when input promise does not resolve to array", function(done) {
-        when.any(resolved(1)).caught(TypeError, function(e){
+        when.any(Promise.resolve(1)).caught(TypeError, function(e){
+            done();
+        });
+    });
+
+    specify("should reject when given immediately rejected promise", function(done) {
+        var err = new Error();
+        Promise.any(Promise.reject(err)).caught(function(e) {
+            assert.strictEqual(err, e);
             done();
         });
     });

@@ -61,6 +61,8 @@ AggregateError.prototype.toString = function() {
 };
 
 function OperationalError(message) {
+    if (!(this instanceof OperationalError))
+        return new OperationalError(message);
     notEnumerableProp(this, "name", "OperationalError");
     notEnumerableProp(this, "message", message);
     this.cause = message;

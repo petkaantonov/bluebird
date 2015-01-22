@@ -6,7 +6,6 @@ module.exports = function(Promise,
 var errors = require("./errors.js");
 var TypeError = errors.TypeError;
 var ASSERT = require("./assert.js");
-var deprecated = require("./util.js").deprecated;
 var util = require("./util.js");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
@@ -92,8 +91,7 @@ PromiseSpawn.prototype._continue = function (result) {
 };
 
 PromiseSpawn.prototype._throw = function (reason) {
-    if (util.canAttachTrace(reason))
-        this._promise._attachExtraTrace(reason);
+    this._promise._attachExtraTrace(reason);
     this._promise._pushContext();
     var result = tryCatch(this._generator["throw"])
         .call(this._generator, reason);
@@ -133,7 +131,6 @@ Promise.coroutine.addYieldHandler = function(fn) {
 };
 
 Promise.spawn = function (generatorFunction) {
-    deprecated(SPAWN_DEPRECATED);
     //Return rejected promise because Promise.spawn is semantically
     //something that will be called at runtime with possibly dynamic values
     if (typeof generatorFunction !== "function") {

@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert");
-
+var processError = require("./helpers/error.js");
 var fulfilled = adapter.fulfilled;
 var rejected = adapter.rejected;
 var pending = adapter.pending;
@@ -148,48 +148,23 @@ describe("nodeify", function () {
 
 if( isNodeJS ) {
     describe("nodeify", function () {
-
         var h = [];
-
-        function clearHandlers() {
-            var originalException;
-            while( originalException = process.listeners('uncaughtException').pop() ) {
-                process.removeListener('uncaughtException', originalException);
-                h.push(originalException);
-            }
-        }
-
-        function clearHandlersNoRestore() {
-            var originalException;
-            while( originalException = process.listeners('uncaughtException').pop() ) {
-                process.removeListener('uncaughtException', originalException);
-            }
-        }
-
-        function addHandlersBack() {
-            for( var i = 0, len = h.length; i < len; ++i ) {
-                process.addListener('uncaughtException', h[i]);
-            }
-        }
         var e = new Error();
         function thrower() {
             throw e;
         }
 
         it("throws normally in the node process if the function throws", function (done) {
-            clearHandlers();
             var promise = Q(10);
             var turns = 0;
             process.nextTick(function(){
                 turns++;
             });
             promise.nodeify(thrower);
-            process.addListener("uncaughtException", function(err) {
-                clearHandlersNoRestore();
+            processError(function(err){
                 assert( err === e );
                 assert( turns === 1);
-                done();
-            });
+            }, done)
         });
 
         it("always returns promise for now", function(done){
@@ -264,6 +239,36 @@ if( isNodeJS ) {
                 assert(c === 3);
                 done();
             }, {spread: true});
+        });
+
+        it("should work then result is not an array", function(done) {
+            Promise.resolve(3).nodeify(function(err, a) {
+                assert(err === null);
+                assert(a === 3);
+                done();
+            }, {spread: true});
+        });
+
+        it("should work if the callback throws when spread", function(done) {
+            var err = new Error();
+            Promise.resolve([1,2,3]).nodeify(function(_, a) {
+                throw err;
+            }, {spread: true});
+
+            processError(function(e) {
+                assert.strictEqual(err, e);
+            }, done);
+        });
+
+        it("should work if the callback throws when rejected", function(done) {
+            var err = new Error();
+            Promise.reject(new Error()).nodeify(function(_, a) {
+                throw err;
+            });
+
+            processError(function(e) {
+                assert.strictEqual(err, e);
+            }, done);
         });
     });
 }

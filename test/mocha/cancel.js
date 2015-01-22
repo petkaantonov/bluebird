@@ -4,13 +4,8 @@
     "use strict";
 
 var assert = require("assert");
-
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 var delay = Promise.delay;
-var CancellationError = adapter.CancellationError;
+var CancellationError = Promise.CancellationError;
 
 var sentinel = {
     sentinel: "sentinel"
@@ -31,7 +26,7 @@ function assertCancelled(promise) {
 
 describe("If the promise is not cancellable the 'cancel' call has no effect.", function() {
     specify("single-parent", function(done) {
-        var parent = pending().promise.cancellable();
+        var parent = Promise.defer().promise.cancellable();
         var promise = parent.uncancellable();
 
         parent.then(assert.fail, assert.fail, assert.fail);
@@ -48,7 +43,7 @@ describe("If the promise is not cancellable the 'cancel' call has no effect.", f
     });
 
     specify("2 parents", function(done) {
-        var grandParent = pending().promise.cancellable();
+        var grandParent = Promise.defer().promise.cancellable();
         var parent = grandParent.then(assert.fail, assert.fail, assert.fail);
         var promise = parent.uncancellable();
 
@@ -70,7 +65,7 @@ describe("If the promise is not cancellable the 'cancel' call has no effect.", f
 
 describe("Cancel.1: If the promise is not pending the 'cancel' call has no effect.", function() {
     specify("already-fulfilled", function(done) {
-        var promise = fulfilled(sentinel).cancellable();
+        var promise = Promise.resolve(sentinel).cancellable();
         var result = promise.then(function(value) {
             assert.strictEqual(value, sentinel);
             done();
@@ -80,7 +75,7 @@ describe("Cancel.1: If the promise is not pending the 'cancel' call has no effec
     });
 
     specify("already-rejected", function(done) {
-        var promise = rejected(sentinel).cancellable();
+        var promise = Promise.reject(sentinel).cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.strictEqual(reason, sentinel);
             done();
@@ -96,7 +91,7 @@ describe("Cancel.1: If the promise is not pending the 'cancel' call has no effec
 describe("Cancel.3: If the promise is pending and waiting on another promise the 'cancel' call should instead propagate to this parent promise but MUST be done asynchronously after this call returns.", function() {
     specify("parent pending", function(done) {
         var parentCancelled = false;
-        var tuple = pending();
+        var tuple = Promise.defer();
         var parent = tuple.promise.cancellable();
         var unhandled = parent.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
@@ -119,7 +114,7 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
         var parentCancelled = false;
         var uncleCancelled = false;
 
-        var tuple = pending();
+        var tuple = Promise.defer();
         var grandparent = tuple.promise.cancellable();
 
 
@@ -150,7 +145,7 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
 
 describe("Cancel.4: Otherwise the promise is rejected with a CancellationError.", function() {
     specify("simple", function(done) {
-        var promise = pending().promise.cancellable();
+        var promise = Promise.defer().promise.cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             done();
@@ -159,8 +154,8 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
     });
 
     specify("then fulfilled assumption", function(done) {
-        var assumed = pending().promise.cancellable();
-        var promise = fulfilled().cancellable().then(function() {
+        var assumed = Promise.defer().promise.cancellable();
+        var promise = Promise.resolve().cancellable().then(function() {
             return assumed;
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
@@ -172,9 +167,9 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
     });
 
     specify("then rejected assumption", function(done) {
-        var assumed = pending().promise.cancellable();
+        var assumed = Promise.defer().promise.cancellable();
 
-        var promise = rejected().cancellable().then(null, function() {
+        var promise = Promise.reject().cancellable().then(null, function() {
             return assumed;
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
@@ -187,10 +182,10 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
 
 
     specify("then chain-fulfilled assumption", function(done) {
-        var assumed = pending().promise.cancellable();
+        var assumed = Promise.defer().promise.cancellable();
 
-        var promise = fulfilled().cancellable().then(function() {
-            return fulfilled();
+        var promise = Promise.resolve().cancellable().then(function() {
+            return Promise.resolve();
         }).then(function() {
             return assumed;
         }).then(assert.fail, function(reason) {
@@ -204,9 +199,9 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
 
 
     specify("then chain-rejected assumption", function(done) {
-        var assumed = pending().promise.cancellable();
-        var promise = rejected().cancellable().then(null, function() {
-            return rejected();
+        var assumed = Promise.defer().promise.cancellable();
+        var promise = Promise.reject().cancellable().then(null, function() {
+            return Promise.reject();
         }).then(null, function() {
             return assumed;
         }).then(assert.fail, function(reason) {
@@ -267,20 +262,24 @@ describe("simple", function() {
             assert(e === err);
             done();
         });
-
+    });
+    specify("cancellable called on cancellable promise", function() {
+        var p = Promise.defer().promise.cancellable();
+        var p2 = p.cancellable();
+        assert.strictEqual(p, p2);
     });
 });
 
 describe("Cancelling a promise twice should have no additional effect", function() {
     specify("With delay", function(done) {
-        var promise = pending().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
+        var promise = Promise.defer().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
         promise.cancel();
         setTimeout(function() {
             promise.cancel();
         }, 50);
     });
     specify("Without delay", function(done) {
-        var promise = pending().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
+        var promise = Promise.defer().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
         promise.cancel()
         promise.cancel();
     });

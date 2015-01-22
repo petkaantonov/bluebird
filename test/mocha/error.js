@@ -1,10 +1,5 @@
 "use strict";
-
 var assert = require("assert");
-
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
 var Promise = adapter;
 
 describe("Promise.prototype.error", function(){
@@ -128,3 +123,85 @@ describe("Promise.prototype.error", function(){
 
     });
 })
+
+describe("Error constructors", function() {
+    describe("OperationalError", function() {
+        it("should work without new", function() {
+            var a = Promise.OperationalError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.OperationalError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+    });
+
+    describe("CancellationError", function() {
+        it("should work without new", function() {
+            var a = Promise.CancellationError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.CancellationError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+    });
+
+    describe("TimeoutError", function() {
+        it("should work without new", function() {
+            var a = Promise.TimeoutError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.TimeoutError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+    });
+
+    describe("AggregateError", function() {
+        it("should work without new", function() {
+            var a = Promise.AggregateError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.AggregateError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should stringify without circular errors", function() {
+            var a = Promise.AggregateError();
+            a.push(new Error("1"));
+            a.push(new Error("2"));
+            a.push(new Error("3"));
+            a = a.toString();
+            assert(a.indexOf("Error: 1") >= 0);
+            assert(a.indexOf("Error: 2") >= 0);
+            assert(a.indexOf("Error: 3") >= 0);
+        });
+
+        it("should stringify with circular errors", function() {
+            var a = Promise.AggregateError();
+            a.push(new Error("1"));
+            a.push(a);
+            a.push(new Error("3"));
+            a = a.toString();
+            assert(a.indexOf("Error: 1") >= 0);
+            assert(a.indexOf("[Circular AggregateError]") >= 0);
+            assert(a.indexOf("Error: 3") >= 0);
+        });
+    });
+
+
+});

@@ -2,11 +2,6 @@
 
 var assert = require("assert");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
-
 var CustomError = function(){};
 
 CustomError.prototype = new Error();
@@ -161,6 +156,17 @@ describe("A promise handler that throws a custom error", function() {
         }).caught(assert.fail);
 
         a.fulfill(3);
+    });
+
+    specify("Throws after matched type handler throws", function(done) {
+        var err = new Promise.TypeError();
+        var err2 = new Error();
+        Promise.reject(err).caught(Promise.TypeError, function() {
+            throw err2;
+        }).caught(function(e) {
+            assert.strictEqual(err2, e);
+            done();
+        });
     });
 });
 
@@ -392,10 +398,6 @@ describe("A promise handler with a predicate filter", function() {
             assert.fail();
         });
         a.fulfill(3);
-
-
     });
-
-
 });
 

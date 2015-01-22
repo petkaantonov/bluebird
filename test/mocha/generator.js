@@ -341,6 +341,21 @@ describe("Promise.coroutine", function() {
     });
 });
 
+describe("Spawn", function() {
+    it("should work", function() {
+        Promise.spawn(function*() {
+            return yield Promise.resolve(1);
+        }).then(function(value) {
+            assert.strictEqual(value, 1);
+        });
+    });
+    it("should return rejected promise when passed non function", function() {
+        Promise.spawn({}).caught(function(err) {
+            assert(err instanceof Promise.TypeError);
+        });
+    });
+});
+
 describe("custom yield handlers", function() {
     specify("should work with timers", function(done) {
         var n = 0;
@@ -420,7 +435,7 @@ describe("custom yield handlers", function() {
     });
 
     specify("individual yield handler", function(done) {
-            var dummy = {};
+        var dummy = {};
         var yieldHandler = function(value) {
             if (value === dummy) return Promise.resolve(3);
         };
@@ -432,6 +447,34 @@ describe("custom yield handlers", function() {
             assert(result === 3);
             done();
         });
+    });
+
+    specify("yield handler that throws", function(done) {
+        var dummy = {};
+        var unreached = false;
+        var err = new Error();
+        var yieldHandler = function(value) {
+            if (value === dummy) throw err;
+        };
+
+        var coro = Promise.coroutine(function* () {
+            yield dummy;
+            unreached = true;
+        }, {yieldHandler: yieldHandler});
+
+        coro().caught(function(e) {
+            assert.strictEqual(e, err);
+            assert(!unreached);
+            done();
+        });
+    });
+
+    specify("yield handler is not a function", function() {
+        try {
+            Promise.coroutine.addYieldHandler({});
+        } catch (e) {
+            assert(e instanceof Promise.TypeError);
+        }
     });
 });
 
