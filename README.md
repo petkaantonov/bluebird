@@ -34,7 +34,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Optimization guide](#optimization-guide)
 
 #Features
-<img src="logo.png" alt="bluebird logo" align="right" />
+<img src="http://petkaantonov.github.io/bluebird/logo.png" alt="bluebird logo" align="right" />
 
 - [Promises A+](http://promisesaplus.com)
 - [Synchronous inspection](API.md#synchronous-inspection)
