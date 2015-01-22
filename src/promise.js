@@ -26,7 +26,7 @@ var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
 var CapturedTrace = require("./captured_trace.js")();
-var isDebugging = function() {return debugging;};
+var isDebugging = require("./debuggability.js")(Promise, CapturedTrace);
  /*jshint unused:false*/
 var createContext =
     require("./context.js")(Promise, CapturedTrace, isDebugging);
@@ -37,16 +37,7 @@ var tryCatch = util.tryCatch;
 var originatesFromRejection = util.originatesFromRejection;
 var markAsOriginatingFromRejection = util.markAsOriginatingFromRejection;
 var canAttachTrace = util.canAttachTrace;
-var unhandledRejectionHandled;
-var possiblyUnhandledRejection;
 
-var debugging = __DEBUG__ || !!(
-    typeof process !== "undefined" &&
-    typeof process.execPath === "string" &&
-    typeof process.env === "object" &&
-    (process.env["BLUEBIRD_DEBUG"] ||
-        process.env["NODE_ENV"] === "development")
-);
 function Promise(resolver) {
     if (typeof resolver !== "function") {
         throw new TypeError(CONSTRUCT_ERROR_ARG);
@@ -190,27 +181,6 @@ Promise.reject = Promise.rejected = function (reason) {
     return ret;
 };
 
-Promise.onPossiblyUnhandledRejection = function (fn) {
-    possiblyUnhandledRejection = typeof fn === "function" ? fn : undefined;
-};
-
-Promise.onUnhandledRejectionHandled = function (fn) {
-    unhandledRejectionHandled = typeof fn === "function" ? fn : undefined;
-};
-
-Promise.longStackTraces = function () {
-    if (async.haveItemsQueued() &&
-        debugging === false
-   ) {
-        throw new Error(LONG_STACK_TRACES_ERROR);
-    }
-    debugging = CapturedTrace.isSupported();
-};
-
-Promise.hasLongStackTraces = function () {
-    return debugging && CapturedTrace.isSupported();
-};
-
 Promise.setScheduler = function(fn) {
     if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
     async._schedule = fn;
@@ -308,26 +278,6 @@ Promise.prototype._unsetCancellable = function () {
     this._bitField = this._bitField & (~IS_CANCELLABLE);
 };
 
-Promise.prototype._setRejectionIsUnhandled = function () {
-    ASSERT(!this._isFollowing());
-    ASSERT(this._isRejected());
-    this._bitField = this._bitField | IS_REJECTION_UNHANDLED;
-};
-
-Promise.prototype._unsetRejectionIsUnhandled = function () {
-    ASSERT(!this._isFollowing());
-    this._bitField = this._bitField & (~IS_REJECTION_UNHANDLED);
-    if (this._isUnhandledRejectionNotified()) {
-        this._unsetUnhandledRejectionIsNotified();
-        this._notifyUnhandledRejectionIsHandled();
-    }
-};
-
-Promise.prototype._isRejectionUnhandled = function () {
-    ASSERT(!this._isFollowing());
-    return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
-};
-
 Promise.prototype._isSpreadable = function () {
     return (this._bitField & IS_SPREADABLE) > 0;
 };
@@ -346,38 +296,6 @@ Promise.prototype._unsetIsMigrated = function () {
 
 Promise.prototype._isMigrated = function () {
     return (this._bitField & IS_MIGRATED) > 0;
-};
-
-Promise.prototype._setUnhandledRejectionIsNotified = function () {
-    this._bitField = this._bitField | IS_UNHANDLED_REJECTION_NOTIFIED;
-};
-
-Promise.prototype._unsetUnhandledRejectionIsNotified = function () {
-    this._bitField = this._bitField & (~IS_UNHANDLED_REJECTION_NOTIFIED);
-};
-
-Promise.prototype._isUnhandledRejectionNotified = function () {
-    return (this._bitField & IS_UNHANDLED_REJECTION_NOTIFIED) > 0;
-};
-
-Promise.prototype._setCarriedStackTrace = function (capturedTrace) {
-    ASSERT(!this._isFollowing());
-    ASSERT(this._isRejected());
-    this._bitField = this._bitField | IS_CARRYING_STACK_TRACE;
-    //Since this field is not used in rejected promises, smuggle the trace there
-    this._fulfillmentHandler0 = capturedTrace;
-};
-
-Promise.prototype._isCarryingStackTrace = function () {
-    ASSERT(!this._isFollowing());
-    return (this._bitField & IS_CARRYING_STACK_TRACE) > 0;
-};
-
-Promise.prototype._getCarriedStackTrace = function () {
-    ASSERT(this._isRejected());
-    return this._isCarryingStackTrace()
-        ? this._fulfillmentHandler0
-        : undefined;
 };
 
 Promise.prototype._receiverAt = function (index) {
@@ -631,39 +549,6 @@ Promise.prototype._tryFollow = function (value) {
     return true;
 };
 
-Promise.prototype._captureStackTrace = function () {
-    ASSERT(arguments.length === 0);
-    ASSERT(this._trace == null);
-    if (debugging) {
-        this._trace = new CapturedTrace(this._peekContext());
-    }
-    return this;
-};
-
-Promise.prototype._canAttachTrace = function(error) {
-    return debugging && canAttachTrace(error);
-};
-
-Promise.prototype._attachExtraTraceIgnoreSelf = function (error) {
-    if (this._canAttachTrace(error) && this._trace._parent !== undefined) {
-        this._trace._parent.attachExtraTrace(error);
-    }
-};
-
-Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
-    if (debugging && canAttachTrace(error)) {
-        var trace = this._trace;
-        if (trace !== undefined) {
-            if (ignoreSelf) trace = trace._parent;
-        }
-        if (trace !== undefined) {
-            trace.attachExtraTrace(error);
-        } else {
-            CapturedTrace.cleanHeaderStack(error, true);
-        }
-    }
-};
-
 Promise.prototype._cleanValues = function () {
     ASSERT(!this._isFollowing());
     if (this._cancellable()) {
@@ -852,30 +737,6 @@ Promise.prototype._settlePromises = function () {
         this._settlePromiseAt(i);
     }
 };
-
-Promise.prototype._ensurePossibleRejectionHandled = function () {
-    this._setRejectionIsUnhandled();
-    async.invokeLater(this._notifyUnhandledRejection, this, undefined);
-};
-
-Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
-    CapturedTrace.fireRejectionEvent(REJECTION_HANDLED_EVENT,
-                                  unhandledRejectionHandled, undefined, this);
-};
-
-Promise.prototype._notifyUnhandledRejection = function () {
-    if (this._isRejectionUnhandled()) {
-        var reason = this._getCarriedStackTrace() || this._settledValue;
-        this._setUnhandledRejectionIsNotified();
-        CapturedTrace.fireRejectionEvent(UNHANDLED_REJECTION_EVENT,
-                                      possiblyUnhandledRejection, reason, this);
-    }
-};
-
-if (!CapturedTrace.isSupported()) {
-    Promise.longStackTraces = function(){};
-    debugging = false;
-}
 
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
