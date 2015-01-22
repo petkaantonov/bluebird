@@ -243,14 +243,7 @@ var testResults = Promise.join(tests, buildResult, function(tests) {
             if (options.cover) {
                 var coverage = getCoverage();
                 if (process.execPath.indexOf("iojs") >= 0 && testName === "all") {
-                    var badge = coverage.then(generateCoverageBadge);
-                    var readme = fs.readFileAsync("README.md", "utf8");
-                    p = Promise.join(readme, badge, function(readmeContents, badgeMarkDown) {
-                        var coveragePattern = /<!-- coverage -->.*?<!-- \/coverage -->/
-                        badgeMarkDown = "<!-- coverage -->" + badgeMarkDown+ "<!-- /coverage -->";
-                        readmeContents = readmeContents.replace(coveragePattern, badgeMarkDown);
-                        return fs.writeFileAsync("README.md", readmeContents, "utf8");
-                    });
+                    p = p.return(coverage).then(generateCoverageBadge).then(console.log);
                 }
                 p = p.then(function() {
                     return utils.run("npm", ["run", "istanbul", "--", "report", options.coverFormat], null, true);

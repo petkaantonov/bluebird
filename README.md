@@ -3,7 +3,7 @@
          title="Promises/A+ 1.1 compliant" align="right" />
 </a>
 [![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
-<!-- coverage -->[![coverage-88%](http://img.shields.io/badge/coverage-88%-green.svg)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)<!-- /coverage -->
+[![coverage-88%](http://img.shields.io/badge/coverage-88%-green.svg)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)
 
 
 #Introduction
