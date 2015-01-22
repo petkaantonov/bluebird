@@ -1,84 +1,9 @@
 "use strict";
 var assert = require("assert");
-var processError = require("./helpers/error.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-
-var Promise = fulfilled().constructor;
-
-
-
-var Q = function(p) {
-    if( p == null ) return fulfilled(p)
-    if( p.then ) return p;
-    return fulfilled(p);
-};
-
-Q.progress = function(p, cb) {
-    return Q(p).then(null, null, cb);
-};
-
-Q.when = function() {
-    return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
-};
-
-var freeMs;
-function resolver( fulfill ) {
-    setTimeout(fulfill, freeMs );
-};
-
-Q.delay = Promise.delay;
-Q.defer = function() {
-    var ret = pending();
-    return {
-        reject: function(a){
-            return ret.reject(a)
-        },
-        resolve: function(a) {
-            return ret.fulfill(a);
-        },
-
-        notify: function(a) {
-            return ret.progress(a);
-        },
-
-        promise: ret.promise
-    };
-};
-
-Q.reject = Promise.rejected;
-Q.resolve = Promise.fulfilled;
-
-Q.allSettled = Promise.settle;
-
-Q.spread = function(){
-    return Q(arguments[0]).spread(arguments[1], arguments[2], arguments[3]);
-};
-
-Q.isPending = function( p ) {
-    return p.isPending();
-};
-
-Q.fcall= function( fn ) {
-    var p = Promise.pending();
-
-    try {
-        p.fulfill(fn());
-    }
-    catch(e){
-        p.reject(e);
-    }
-    return p.promise;
-};
-
+var testUtils = require("./helpers/util.js");
+var processError = testUtils.processError;
 var sinon = require("sinon");
-
-
-var isNodeJS = typeof process !== "undefined" &&
-    typeof process.execPath === "string";
-
-
+var isNodeJS = testUtils.isNodeJS;
 /*
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -104,7 +29,7 @@ describe("nodeify", function () {
 
     it("calls back with a resolution", function () {
         var spy = sinon.spy();
-        Q(10).nodeify(spy);
+        Promise.resolve(10).nodeify(spy);
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
@@ -113,7 +38,7 @@ describe("nodeify", function () {
 
     it("calls back with an undefined resolution", function (done) {
         var spy = sinon.spy();
-        Q().nodeify(spy);
+        Promise.resolve().nodeify(spy);
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWithExactly(spy, null);
@@ -123,7 +48,7 @@ describe("nodeify", function () {
 
     it("calls back with an error", function () {
         var spy = sinon.spy();
-        Q.reject(10).nodeify(spy);
+        Promise.reject(10).nodeify(spy);
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, 10);
@@ -131,13 +56,13 @@ describe("nodeify", function () {
     });
 
     it("forwards a promise", function () {
-        return Q(10).nodeify().then(function (ten) {
+        return Promise.resolve(10).nodeify().then(function (ten) {
             assert(10 === ten);
         });
     });
 
     it("returns undefined when a callback is passed", function () {
-        return 'undefined' === typeof Q(10).nodeify(function () {});
+        return 'undefined' === typeof Promise.resolve(10).nodeify(function () {});
     });
 
 });
@@ -146,7 +71,7 @@ describe("nodeify", function () {
 //Should be the last test because it is ridiculously hard to test
 //if something throws in the node process
 
-if( isNodeJS ) {
+if (isNodeJS) {
     describe("nodeify", function () {
         var h = [];
         var e = new Error();
@@ -155,15 +80,15 @@ if( isNodeJS ) {
         }
 
         it("throws normally in the node process if the function throws", function (done) {
-            var promise = Q(10);
+            var promise = Promise.resolve(10);
             var turns = 0;
             process.nextTick(function(){
                 turns++;
             });
             promise.nodeify(thrower);
             processError(function(err){
-                assert( err === e );
-                assert( turns === 1);
+                assert(err === e);
+                assert(turns === 1);
             }, done)
         });
 

@@ -1,12 +1,9 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 var helpers = require("./helpers/testThreeCases.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 var TypeError = Promise.TypeError;
 
 function passthru(fn) {
@@ -38,7 +35,7 @@ describe("Cyclical promises should throw TypeError when", function(){
 
     describe("fulfill with itself when using a ", function() {
         specify("deferred", function(done) {
-            var d = Promise.pending();
+            var d = Promise.defer();
             d.fulfill(d.promise);
             d.promise.caught(TypeError, passthru(done));
         });
@@ -55,7 +52,7 @@ describe("Cyclical promises should throw TypeError when", function(){
 
     describe("reject with itself when using a ", function() {
         specify("deferred", function(done) {
-            var d = Promise.pending();
+            var d = Promise.defer();
             d.reject(d.promise);
             d.promise.caught(TypeError, passthru(done));
         });

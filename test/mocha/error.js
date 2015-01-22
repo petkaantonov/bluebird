@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert");
-var Promise = adapter;
+var testUtils = require("./helpers/util.js");
 
 describe("Promise.prototype.error", function(){
     describe("catches stuff originating from explicit rejections", function() {
@@ -89,8 +89,8 @@ describe("Promise.prototype.error", function(){
 
     specify("gh-54-1", function(done) {
         function doThing(arg) {
-          return new Promise(function (resolve, reject) {
-            if (typeof arg !== "string") return reject(new Error("invalid thing"));
+          return new Promise(function (resolve, rej) {
+            if (typeof arg !== "string") return rej(new Error("invalid thing"));
           });
         }
 
@@ -106,7 +106,7 @@ describe("Promise.prototype.error", function(){
         function doBuggyThing(arg) {
           return new Promise(function (resolve, rej) {
             // arg2 & reject dont exist. this is buggy.
-            if (arg2 && typeof arg2 !== "string") return reject(new Error("invalid thing"));
+            if (arg2 && typeof arg2 !== "string") return Promise.reject(new Error("invalid thing"));
           });
         }
         var called = false;

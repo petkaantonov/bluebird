@@ -1,52 +1,6 @@
 "use strict";
 var assert = require("assert");
-
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-
-var Promise = fulfilled().constructor;
-
-
-
-var Q = function(p) {
-    if( p.then ) return p;
-    return fulfilled(p);
-};
-
-Q.reject= function(p, cb) {
-    return Q(p).then(null, cb);
-};
-
-Q.when = function() {
-    return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
-};
-
-var freeMs;
-function resolver( fulfill ) {
-    setTimeout(fulfill, freeMs );
-};
-
-Q.delay = Promise.delay;
-
-Q.defer = function() {
-    var ret = pending();
-    return {
-        reject: function(a){
-            return ret.reject(a)
-        },
-        resolve: function(a) {
-            return ret.fulfill(a);
-        },
-
-        notify: function(a) {
-            return ret.progress(a);
-        },
-
-        promise: ret.promise
-    };
-};
-
+var testUtils = require("./helpers/util.js");
 /*!
  *
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
@@ -73,48 +27,48 @@ var calledAsFunctionThis = (function () { return this; }());
 describe("inspect", function () {
 
     it("for a fulfilled promise", function () {
-        var ret = fulfilled(10);
+        var ret = Promise.resolve(10);
         assert.equal(ret.value(), 10);
-        assert.equal(ret.isFulfilled(), true );
+        assert.equal(ret.isFulfilled(), true);
 
     });
 
     it("for a rejected promise", function () {
         var e = new Error("In your face.");
-        var ret = rejected(e);
+        var ret = Promise.reject(e);
         assert.equal(ret.reason(), e);
-        assert.equal(ret.isRejected(), true );
+        assert.equal(ret.isRejected(), true);
         ret.caught(function(){})
     });
 
     it("for a pending, unresolved promise", function () {
-        var pending = Q.defer().promise;
+        var pending = Promise.defer().promise;
         assert.equal(pending.isPending(), true);
     });
 
     it("for a promise resolved to a rejected promise", function () {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
         var error = new Error("Rejected!");
-        var reject = rejected(error);
+        var reject = Promise.reject(error);
         deferred.resolve(reject);
 
-        assert.equal( deferred.promise.isRejected(), true );
-        assert.equal( deferred.promise.reason(), error );
+        assert.equal(deferred.promise.isRejected(), true);
+        assert.equal(deferred.promise.reason(), error);
         deferred.promise.caught(function(){})
     });
 
     it("for a promise resolved to a fulfilled promise", function () {
-        var deferred = Q.defer();
-        var fulfilled = Q(10);
+        var deferred = Promise.defer();
+        var fulfilled = Promise.resolve(10);
         deferred.resolve(fulfilled);
 
-        assert.equal( deferred.promise.isFulfilled(), true );
-        assert.equal( deferred.promise.value(), 10 );
+        assert.equal(deferred.promise.isFulfilled(), true);
+        assert.equal(deferred.promise.value(), 10);
     });
 
     it("for a promise resolved to a pending promise", function () {
-        var a = Q.defer();
-        var b = Q.defer();
+        var a = Promise.defer();
+        var b = Promise.defer();
         a.resolve(b.promise);
 
         assert.equal(a.promise.isPending(), true);

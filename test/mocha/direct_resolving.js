@@ -3,12 +3,9 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 var helpers = require("./helpers/testThreeCases.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 var TypeError = Promise.TypeError;
 
 function passthru(fn) {
@@ -110,9 +107,9 @@ describe("thenReturn", function () {
 
     describe("promises", function() {
         describe("which fulfill", function() {
-            var d1 = Promise.pending();
-            var d2 = Promise.pending();
-            describe("already", wrap(returnThenable, fulfilled(10), 10));
+            var d1 = Promise.defer();
+            var d2 = Promise.defer();
+            describe("already", wrap(returnThenable, Promise.resolve(10), 10));
             describe("immediately", wrap(returnThenable, d1.promise, 10));
             describe("eventually", wrap(returnThenable, d2.promise, 10));
             d1.fulfill(10);
@@ -121,9 +118,9 @@ describe("thenReturn", function () {
             }, 13);
         });
         describe("which reject", function() {
-            var d1 = Promise.pending();
-            var d2 = Promise.pending();
-            var alreadyRejected = rejected(10);
+            var d1 = Promise.defer();
+            var d2 = Promise.defer();
+            var alreadyRejected = Promise.reject(10);
             alreadyRejected.caught(function(){});
             describe("already", wrap(returnThenableReject, alreadyRejected, 10));
             describe("immediately", wrap(returnThenableReject, d1.promise, 10));

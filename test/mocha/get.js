@@ -1,5 +1,6 @@
 "use strict";
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var join = Promise.join;
 
 describe("indexed getter", function() {

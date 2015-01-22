@@ -1,11 +1,8 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var assertLongTrace = require("./helpers/assert_long_trace.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 function get(arg) {
     return {
@@ -21,12 +18,6 @@ function fail(arg) {
             rej(arg)
         }
     };
-}
-
-function delay() {
-    return new Promise(function(a){
-        setTimeout(a, 15);
-    });
 }
 
 Promise.coroutine.addYieldHandler(function(yieldedValue) {
@@ -45,27 +36,27 @@ describe("yielding", function() {
             assert.fail();
             return 4;
 
-        })().then(assert.fail).catch(function(e){
-            assert( e instanceof TypeError );
+        })().then(assert.fail).catch (function(e){
+            assert(e instanceof TypeError);
             done();
         });
     });
 
     specify("an array should implicitly Promise.all them", function(done) {
-        var a = Promise.pending();
+        var a = Promise.defer();
         var ap = a.promise;
-        var b = Promise.pending();
+        var b = Promise.defer();
         var bp = b.promise;
-        var c = Promise.pending();
+        var c = Promise.defer();
         var cp = c.promise;
         Promise.coroutine(function*(){
             return yield [ap, bp, cp];
         })().then(function(r) {
             //.spread will also implicitly use .all() so that cannot be used here
             var a = r[0]; var b = r[1]; var c = r[2];
-            assert( a === 1 );
-            assert( b === 2 );
-            assert( c === 3);
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
             done();
         });
 
@@ -83,15 +74,15 @@ describe("yielding", function() {
                 var a = yield {};
                 assert.fail();
             }
-            catch(e){
-                assert( e instanceof TypeError );
+            catch (e){
+                assert(e instanceof TypeError);
                 return 4;
             }
 
         })().then(function(val){
             assert.equal(val, 4);
             done();
-        }).catch(assert.fail)
+        }).catch (assert.fail)
     });
 });
 
@@ -132,7 +123,7 @@ describe("thenables", function(){
             try {
                 var a = yield fail(error);
             }
-            catch(e) {
+            catch (e) {
                 return e;
             }
             assert.fail();
@@ -163,7 +154,7 @@ describe("yield loop", function(){
         Promise.coroutine(function* () {
             var a = [1,2,3,4,5];
 
-            for( var i = 0, len = a.length; i < len; ++i ) {
+            for (var i = 0, len = a.length; i < len; ++i) {
                 a[i] = yield get(a[i] * 2);
             }
 
@@ -242,7 +233,7 @@ describe("Promise.coroutine", function() {
                 try {
                     var a = yield fail(error);
                 }
-                catch(e) {
+                catch (e) {
                     return e;
                 }
                 assert.fail();
@@ -273,7 +264,7 @@ describe("Promise.coroutine", function() {
             Promise.coroutine(function* () {
                 var a = [1,2,3,4,5];
 
-                for( var i = 0, len = a.length; i < len; ++i ) {
+                for (var i = 0, len = a.length; i < len; ++i) {
                     a[i] = yield get(a[i] * 2);
                 }
 
@@ -325,7 +316,7 @@ describe("Promise.coroutine", function() {
         });
 
 
-        specify("generator function's receiver should be the instance too", function( done ) {
+        specify("generator function's receiver should be the instance too", function(done) {
             var a = new MyClass();
             var b = new MyClass();
 
@@ -412,7 +403,7 @@ describe("custom yield handlers", function() {
     Promise.coroutine.addYieldHandler(function(v) {
         if (typeof v === "function") {
             var def = Promise.defer();
-            try { v(def.callback); } catch(e) { def.reject(e); }
+            try { v(def.callback); } catch (e) { def.reject(e); }
             return def.promise;
         }
     });

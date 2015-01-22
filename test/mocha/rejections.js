@@ -1,5 +1,5 @@
-var Promise = adapter;
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 describe("Using as a rejection reason", function() {
     var nullObject = (function() {

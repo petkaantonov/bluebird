@@ -1,11 +1,8 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 describe("github36", function(){
     specify("should work", function(done){
@@ -36,7 +33,7 @@ describe("github36", function(){
 
         var f3 = function() {
             called++;
-            if(called > 15) {
+            if (called > 15) {
                 if (!donecalled) {
                     donecalled = true;
                     done();

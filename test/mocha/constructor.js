@@ -1,11 +1,8 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 function fulfills(value, test) {
     specify("immediately-fulfilled", function (done) {

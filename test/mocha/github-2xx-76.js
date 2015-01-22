@@ -1,11 +1,11 @@
 "use strict";
 
 
-var Promise = adapter;
 Promise.longStackTraces();
 var assert = require("assert");
-var isNodeJS = typeof process !== "undefined" &&
-    typeof process.execPath === "string";
+var testUtils = require("./helpers/util.js");
+var isNodeJS = testUtils.isNodeJS;
+
 
 if (isNodeJS) {
     describe("github276 - stack trace cleaner", function(){

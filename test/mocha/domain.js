@@ -1,13 +1,10 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
-var isNodeJS = typeof process !== "undefined" &&
-    typeof process.execPath === "string";
+var isNodeJS = testUtils.isNodeJS;
+
 
 
 if (isNodeJS) {
@@ -26,7 +23,7 @@ if (isNodeJS) {
                 done();
               })
               .run(function() {
-                  var P = new Promise(function(resolve,reject){ reject(e) });
+                  var P = new Promise(function(resolve,reject){ Promise.reject(e) });
               });
 
         });

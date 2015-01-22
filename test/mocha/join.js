@@ -27,113 +27,64 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var when = adapter;
-var resolved = when.fulfilled;
-var rejected = when.rejected;
-when.resolve = resolved;
-when.reject = rejected;
-when.defer = pending;
-var sentinel = {};
-var other = {};
-var p = new when(function(){}).constructor.prototype;
-p = pending().constructor.prototype;
-p.resolve = p.fulfill;
-p.notify = p.progress;
-
-function fail() {
-    assert.fail();
-}
-
-var refute = {
-    defined: function(val) {
-        assert( typeof val === "undefined" );
-    },
-
-    equals: function( a, b ) {
-        assert.notDeepEqual( a, b );
-    }
-};
-
-function contains(arr, result) {
-    return arr.indexOf(result) > -1;
-}
-
-function fakeResolved(val) {
-    return {
-        then: function(callback) {
-            return fakeResolved(callback ? callback(val) : val);
-        }
-    };
-}
-
-function fakeRejected(reason) {
-    return {
-        then: function(callback, errback) {
-            return errback ? fakeResolved(errback(reason)) : fakeRejected(reason);
-        }
-    };
-}
-
-describe("when.join-test", function () {
+describe("Promise.join-test", function () {
 
 
 
     specify("should resolve empty input", function(done) {
-        return when.join().then(
+        return Promise.join().then(
             function(result) {
                 assert.deepEqual(result, []);
                 done();
             },
-            fail
+            assert.fail
         );
     });
 
     specify("should join values", function(done) {
-        when.join(1, 2, 3).then(
+        Promise.join(1, 2, 3).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
                 done();
             },
-            fail
+            assert.fail
         );
     });
 
     specify("should join promises array", function(done) {
-        when.join(resolved(1), resolved(2), resolved(3)).then(
+        Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
                 done();
             },
-            fail
+            assert.fail
         );
     });
 
     specify("should join mixed array", function(done) {
-        when.join(resolved(1), 2, resolved(3), 4).then(
+        Promise.join(Promise.resolve(1), 2, Promise.resolve(3), 4).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3, 4]);
                 done();
             },
-            fail
+            assert.fail
         );
     });
 
     specify("should reject if any input promise rejects", function(done) {
-        when.join(resolved(1), rejected(2), resolved(3)).then(
-            fail,
-            function(failed) {
-                assert.deepEqual(failed, 2);
+        Promise.join(Promise.resolve(1), Promise.reject(2), Promise.resolve(3)).then(
+            assert.fail,
+            function(err) {
+                assert.deepEqual(err, 2);
                 done();
             }
         );
     });
 
     specify("should call last argument as a spread function", function(done) {
-        when.join(resolved(1), resolved(2), resolved(3), function(a, b, c) {
+        Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), function(a, b, c) {
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
@@ -144,7 +95,7 @@ describe("when.join-test", function () {
 
     specify("gh-227", function(done) {
         function a() {
-            return when.join(when.resolve(1), function () {
+            return Promise.join(Promise.resolve(1), function () {
                 throw new Error();
             });
         }
@@ -155,14 +106,14 @@ describe("when.join-test", function () {
     });
 
     specify("should not pass the callback as argument, <5 arguments", function(done) {
-        when.join(1, 2, 3, function() {
+        Promise.join(1, 2, 3, function() {
             assert.strictEqual(arguments.length, 3);
             done();
         });
     });
 
     specify("should not pass the callback as argument >5 arguments", function(done) {
-        when.join(1, 2, 3, 4, 5, 6, 7, function() {
+        Promise.join(1, 2, 3, 4, 5, 6, 7, function() {
             assert.strictEqual(arguments.length, 7);
             done();
         });

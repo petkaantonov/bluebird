@@ -1,10 +1,7 @@
 "use strict";
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var Promise = adapter;
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
 
 describe("tap", function () {
     specify("passes through value", function(done) {

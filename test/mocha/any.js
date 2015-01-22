@@ -27,67 +27,46 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 var assert = require("assert");
-var when = adapter;
+var testUtils = require("./helpers/util.js");
 var sentinel = {};
 var other = {};
-var p = new when(function(){}).constructor.prototype;
+var RangeError = Promise.RangeError;
 
-function fail() {
-    assert.fail();
-}
-
-var refute = {
-    defined: function(val) {
-        assert( typeof val === "undefined" );
-    },
-
-    equals: function( a, b ) {
-        assert.notDeepEqual( a, b );
-    }
-};
-
-function contains(arr, result) {
-    return arr.indexOf(result) > -1;
-}
-
-var RangeError = when.RangeError;
-
-
-describe("when.any-test", function () {
+describe("Promise.any-test", function () {
 
     specify("should reject on empty input array", function(done) {
         var a = [];
-        when.any(a).caught(RangeError, function() {
+        Promise.any(a).caught(RangeError, function() {
             done();
         });
     });
 
     specify("should resolve with an input value", function(done) {
         var input = [1, 2, 3];
-        when.any(input).then(
+        Promise.any(input).then(
             function(result) {
-                assert(contains(input, result));
+                assert(testUtils.contains(input, result));
                 done();
-            }, fail
+            }, assert.fail
         );
     });
 
     specify("should resolve with a promised input value", function(done) {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        when.any(input).then(
+        Promise.any(input).then(
             function(result) {
-                assert(contains([1, 2, 3], result));
+                assert(testUtils.contains([1, 2, 3], result));
                 done();
-            }, fail
+            }, assert.fail
         );
     });
 
     specify("should reject with all rejected input values if all inputs are rejected", function(done) {
         var input = [Promise.reject(1), Promise.reject(2), Promise.reject(3)];
-        var promise = when.any(input);
+        var promise = Promise.any(input);
 
         promise.then(
-            fail,
+            assert.fail,
             function(result) {
                 //Cannot use deep equality in IE8 because non-enumerable properties are not
                 //supported
@@ -105,26 +84,26 @@ describe("when.any-test", function () {
         expected = [1, 2, 3];
         input = Promise.resolve(expected);
 
-        when.any(input).then(
+        Promise.any(input).then(
             function(result) {
-                refute.equals(expected.indexOf(result), -1);
+                assert.notDeepEqual(expected.indexOf(result), -1);
                 done();
-            }, fail
+            }, assert.fail
         );
     });
 
     specify("should allow zero handlers", function(done) {
         var input = [1, 2, 3];
-        when.any(input).then(
+        Promise.any(input).then(
             function(result) {
-                assert(contains(input, result));
+                assert(testUtils.contains(input, result));
                 done();
-            }, fail
+            }, assert.fail
         );
     });
 
     specify("should resolve to empty array when input promise does not resolve to array", function(done) {
-        when.any(Promise.resolve(1)).caught(TypeError, function(e){
+        Promise.any(Promise.resolve(1)).caught(TypeError, function(e){
             done();
         });
     });

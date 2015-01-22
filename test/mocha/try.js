@@ -1,10 +1,7 @@
 "use strict";
 
 var assert = require("assert");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
+var testUtils = require("./helpers/util.js");
 
 var obj = {};
 var error = new Error();
@@ -26,7 +23,7 @@ var receiver = function() {
 
 var tryy = Promise["try"];
 
-describe("Promise.try", function(){
+describe("Promise.attempt", function(){
     specify("should reject when the function throws", function(done) {
         var async = false;
         tryy(thrower).then(assert.fail, function(e) {
@@ -74,7 +71,7 @@ describe("Promise.try", function(){
     });
 
     specify("should unwrap returned promise", function(done){
-        var d = Promise.pending();
+        var d = Promise.defer();
 
         tryy(function(){
             return d.promise;

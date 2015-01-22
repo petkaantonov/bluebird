@@ -1,11 +1,8 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 var obj = {};
 var error = new Error();
@@ -41,7 +38,7 @@ describe("Promise.method", function(){
         try {
             Promise.method(null);
         }
-        catch(e) {
+        catch (e) {
             assert(e instanceof TypeError);
             done();
         }
@@ -75,7 +72,7 @@ describe("Promise.method", function(){
     });
 
     specify("should unwrap returned promise", function(done){
-        var d = Promise.pending();
+        var d = Promise.defer();
 
         Promise.method(function(){
             return d.promise;

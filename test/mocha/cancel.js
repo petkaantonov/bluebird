@@ -4,6 +4,7 @@
     "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var delay = Promise.delay;
 var CancellationError = Promise.CancellationError;
 
@@ -219,17 +220,17 @@ describe("issues", function(){
         var a = Promise.resolve().cancellable();
         a = a.then(function() {
             f1 = true;
-            return delay(5);
+            return Promise.delay(5);
         });
 
         a = a.then(function() {
             f2 = true;
-            return delay(5);
+            return Promise.delay(5);
         });
 
         a = a.then(function() {
             f3 = true;
-            return delay(2000);
+            return Promise.delay(2000);
         });
 
         a = a.then(function() {

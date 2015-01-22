@@ -1,9 +1,6 @@
 "use strict";
 var assert = require("assert");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
+var testUtils = require("./helpers/util.js");
 var Q = Promise;
 var globalObject = typeof window !== "undefined" ? window : new Function("return this;")();
 /*
@@ -29,14 +26,14 @@ IN THE SOFTWARE.
 
 describe("timeout", function () {
     it("should do nothing if the promise fulfills quickly", function (done) {
-        Q.delay(10).timeout(200).then(function(){
+        Promise.delay(10).timeout(200).then(function(){
             done();
         });
     });
 
     it("should do nothing if the promise rejects quickly", function (done) {
         var goodError = new Error("haha!");
-        Q.delay(10)
+        Promise.delay(10)
         .then(function () {
             throw goodError;
         })
@@ -48,7 +45,7 @@ describe("timeout", function () {
     });
 
     it("should reject with a timeout error if the promise is too slow", function (done) {
-        Q.delay(100)
+        Promise.delay(100)
         .timeout(10)
         .caught(Promise.TimeoutError, function(){
             done();
@@ -56,17 +53,17 @@ describe("timeout", function () {
     });
 
     it("should pass through progress notifications", function (done) {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
         var progressValsSeen = [];
-        var promise = Q.resolve(deferred.promise).timeout(300).then(function () {
+        var promise = Promise.resolve(deferred.promise).timeout(300).then(function () {
             assert.deepEqual(progressValsSeen, [1, 2, 3]);
             done();
         }, undefined, function (progressVal) {
             progressValsSeen.push(progressVal);
         });
 
-        Q.resolve().then(function(){
+        Promise.resolve().then(function(){
             deferred.progress(1);
             deferred.progress(2);
             deferred.progress(3);
@@ -75,7 +72,7 @@ describe("timeout", function () {
     });
 
     it("should reject with a custom timeout error if the promise is too slow and msg was provided", function (done) {
-        Q.delay(100)
+        Promise.delay(100)
         .timeout(10, "custom")
         .caught(Promise.TimeoutError, function(e){
             assert(/custom/i.test(e.message));
@@ -115,13 +112,13 @@ describe("timeout", function () {
                 globalObject.clearTimeout = old;
             };
 
-            Q.delay(10).timeout(100).then(function() {
+            Promise.delay(10).timeout(100).then(function() {
                 assert(handleSet);
                 done();
             });
         });
 
-        it("should clear timeouts when fail", function(done) {
+        it("should clear timeouts when assert.fail", function(done) {
             var old = globalObject.clearTimeout;
             var handleSet = false;
             globalObject.clearTimeout = function(handle) {
@@ -129,7 +126,7 @@ describe("timeout", function () {
                 globalObject.clearTimeout = old;
             };
 
-            Q.delay(100).timeout(10).then(null, function() {
+            Promise.delay(100).timeout(10).then(null, function() {
                 assert(handleSet);
                 done();
             });
@@ -139,7 +136,7 @@ describe("timeout", function () {
 
 describe("delay", function () {
     it("should delay fulfillment", function (done) {
-        var promise = Q.delay(80);
+        var promise = Promise.delay(80);
 
         setTimeout(function () {
             assert(promise.isPending())
@@ -151,18 +148,18 @@ describe("delay", function () {
     });
 
     it("should not delay rejection", function (done) {
-        var promise = Q.reject(5).delay(50);
+        var promise = Promise.reject(5).delay(50);
 
         promise.caught(function(){});
 
-        Q.delay(20).then(function () {
+        Promise.delay(20).then(function () {
             assert(!promise.isPending());
             done();
         });
     });
 
     it("should treat a single argument as a time", function (done) {
-        var promise = Q.delay(50);
+        var promise = Promise.delay(50);
 
         setTimeout(function () {
             assert(promise.isPending());
@@ -172,7 +169,7 @@ describe("delay", function () {
     });
 
     it("should treat two arguments as a value + a time", function (done) {
-        var promise = Q.delay("what", 50);
+        var promise = Promise.delay("what", 50);
 
         setTimeout(function () {
             assert(promise.isPending());
@@ -185,7 +182,7 @@ describe("delay", function () {
     });
 
     it("should delay after resolution", function () {
-        var promise1 = Q.delay("what", 30);
+        var promise1 = Promise.delay("what", 30);
         var promise2 = promise1.delay(30);
 
         setTimeout(function () {
@@ -199,20 +196,20 @@ describe("delay", function () {
     });
 
     it("should pass through progress notifications from passed promises", function (done) {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
         var progressValsSeen = [];
-        var promise = Q.delay(deferred.promise, 100).then(function () {
+        var promise = Promise.delay(deferred.promise, 100).then(function () {
             assert.deepEqual(progressValsSeen, [1, 2, 3]);
             done();
         }, undefined, function (progressVal) {
             progressValsSeen.push(progressVal);
         });
 
-        Q.delay(5).then(function () { deferred.progress(1); });
-        Q.delay(15).then(function () { deferred.progress(2); });
-        Q.delay(25).then(function () { deferred.progress(3); });
-        Q.delay(35).then(function () { deferred.resolve(); });
+        Promise.delay(5).then(function () { deferred.progress(1); });
+        Promise.delay(15).then(function () { deferred.progress(2); });
+        Promise.delay(25).then(function () { deferred.progress(3); });
+        Promise.delay(35).then(function () { deferred.resolve(); });
     });
 
     it("should resolve follower promise's value", function(done) {

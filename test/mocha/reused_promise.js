@@ -1,17 +1,14 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 
 describe("If promise is reused to get at the value many times over the course of application", function() {
 
     specify("Promise will clear handler data immediately", function(done) {
-        var three = Promise.fulfilled(3);
+        var three = Promise.resolve(3);
         var fn = function(){};
         three.then(fn, fn, fn);
         assert(three._fulfillmentHandler0 === fn);
@@ -29,7 +26,7 @@ describe("If promise is reused to get at the value many times over the course of
     });
 
     specify("It will not keep references to anything", function(done) {
-        var three = Promise.fulfilled(3);
+        var three = Promise.resolve(3);
         var fn = function(){};
         var len;
         three.then(fn, fn, fn);
@@ -50,7 +47,7 @@ describe("If promise is reused to get at the value many times over the course of
     });
 
     specify("It will prevent index inflation", function(done) {
-        var three = Promise.fulfilled(3);
+        var three = Promise.resolve(3);
         var called = 0;
         function fn() {
             called++;

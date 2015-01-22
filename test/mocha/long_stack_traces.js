@@ -1,5 +1,5 @@
-var Promise = adapter;
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var assertLongTrace = require("./helpers/assert_long_trace.js");
 var nodeVersion = typeof process !== "undefined" &&
         typeof process.version === "string"
@@ -36,7 +36,7 @@ describe(".then as context", function() {
     it("1 level using promise reject with no stack", function(done) {
         Promise.resolve().then(function() {
             var e;
-            try {throw new Error()} catch(err){e = err;}
+            try {throw new Error()} catch (err){e = err;}
             e.stack;
             delete e.stack;
             return Promise.reject(e);
@@ -51,7 +51,7 @@ describe(".then as context", function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
                         var e;
-                        try {throw new Error()} catch(err){e = err;}
+                        try {throw new Error()} catch (err){e = err;}
                         return Promise.reject(e);
                     });
                 });

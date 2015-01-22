@@ -1,14 +1,11 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 
 function assertErrorHasLongTraces(e) {
-    assert( e.stack.indexOf( "From previous event:" ) > -1 );
+    assert(e.stack.indexOf("From previous event:") > -1);
 }
 
 function testCollection(name, a1, a2, a3) {
@@ -74,7 +71,7 @@ function testCollection(name, a1, a2, a3) {
     });
 }
 
-if( Promise.hasLongStackTraces() ) {
+if (Promise.hasLongStackTraces()) {
 
 
     describe("runtime API misuse should result in rejections", function(){
@@ -82,7 +79,7 @@ if( Promise.hasLongStackTraces() ) {
         // Todo fix for firefox
         if (Error.captureStackTrace) {
         specify("returning promises circularly", function(done) {
-            var d = Promise.pending();
+            var d = Promise.defer();
             var p = d.promise;
 
             var c = p.then(function(){
@@ -90,7 +87,7 @@ if( Promise.hasLongStackTraces() ) {
             });
 
             c.caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);
                 done();
             });
@@ -100,96 +97,96 @@ if( Promise.hasLongStackTraces() ) {
 
         specify("using illegal catchfilter", function(done) {
 
-            var d = Promise.pending();
+            var d = Promise.defer();
             var p = d.promise;
 
             p.caught(null, function(){
 
             }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 done();
             });
 
             d.fulfill(3);
         });
 
-        specify( "non-function to map", function(done) {
+        specify("non-function to map", function(done) {
 
             Promise.map([], []).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 done();
             });
         });
 
 
-        specify( "non-function to map inside then", function(done) {
+        specify("non-function to map inside then", function(done) {
 
-            Promise.fulfilled().then(function(){
+            Promise.resolve().then(function(){
                 return Promise.map([], []);
             }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);
                 done();
             });
         });
 
 
-        specify( "non-function to reduce", function(done) {
+        specify("non-function to reduce", function(done) {
 
             Promise.reduce([], []).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 done();
             });
         });
 
 
-        specify( "non-function to reduce inside then", function(done) {
+        specify("non-function to reduce inside then", function(done) {
 
-            Promise.fulfilled().then(function(){
+            Promise.resolve().then(function(){
                 return Promise.reduce([], []);
             }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);
                 done();
             });
         });
 
 
-        specify( "non-integer to some", function(done) {
+        specify("non-integer to some", function(done) {
 
             Promise.some([], "asd").caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 done();
             });
         });
 
 
-        specify( "non-integer to some inside then", function(done) {
+        specify("non-integer to some inside then", function(done) {
 
-            Promise.fulfilled().then(function(){
+            Promise.resolve().then(function(){
                 return Promise.some([], "asd")
             }).caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);
                 done();
             });
         });
 
-        specify( "non-array to all", function(done) {
+        specify("non-array to all", function(done) {
 
             Promise.all("asd", "asd").caught(function(e){
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 done();
             });
         });
 
 
-        specify( "non-array to all inside then", function(done) {
+        specify("non-array to all inside then", function(done) {
 
-            Promise.fulfilled().then(function(){
+            Promise.resolve().then(function(){
                 return Promise.all("asd", "asd");
             }).caught(function(e) {
-                assert( e instanceof Promise.TypeError );
+                assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);
                 done();
             });
@@ -205,43 +202,43 @@ if( Promise.hasLongStackTraces() ) {
                 new Promise();
                 assert.fail();
             }
-            catch(e) {
+            catch (e) {
                 assert(e instanceof Promise.TypeError);
                 done();
             }
         });
 
-        specify( "non-function to coroutine", function(done) {
+        specify("non-function to coroutine", function(done) {
             try {
                 Promise.coroutine();
                 assert.fail();
             }
-            catch( e ) {
-                assert( e instanceof Promise.TypeError );
+            catch (e) {
+                assert(e instanceof Promise.TypeError);
                 done();
             }
         });
 
 
-        specify( "non-object to promisifyAll", function(done) {
+        specify("non-object to promisifyAll", function(done) {
             try {
                 Promise.promisifyAll();
                 assert.fail();
             }
-            catch( e ) {
-                assert( e instanceof Promise.TypeError );
+            catch (e) {
+                assert(e instanceof Promise.TypeError);
                 done();
             }
         });
 
 
-        specify( "non-function to promisify", function(done) {
+        specify("non-function to promisify", function(done) {
             try {
                 Promise.promisify();
                 assert.fail();
             }
-            catch( e ) {
-                assert( e instanceof Promise.TypeError );
+            catch (e) {
+                assert(e instanceof Promise.TypeError);
                 done();
             }
         });

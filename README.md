@@ -476,7 +476,7 @@ Keep the test tab active because some tests are timing-sensitive and will fail i
 
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-browser`.
 
- - `--run=String`. Which tests to run (or compile when testing in browser). Default `"all"`
+ - `--run=String`. Which tests to run (or compile when testing in browser). Default `"all"`. Can also be a glob string (relative to ./test/mocha folder)
  - `--cover=String`. Create code coverage using the String as istanbul reporter. Coverage is created in the ./coverage folder. No coverage is created by default, default reporter is `"html"` (use `--cover` to use default reporter).
  - `--browser` - Whether to compile tests for browsers. Default `false`.
  - `--port=Number` - Whe port where local server is hosted when testing in browser. Default `9999`

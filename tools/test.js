@@ -20,6 +20,8 @@ function getTests(options) {
         g = "./test/mocha/*.js";
     } else if (options.testName === "aplus") {
         g = "./test/mocha/[0-9].[0-9].[0-9].js";
+    } else if (options.testName.indexOf("*") >= 0) {
+        g = "./test/mocha/" + options.testName;
     } else {
         var testName = options.testName.replace(/^(\d)(\d)(\d)$/, "$1.$2.$3");
         g = "./test/mocha/" + testName + ".js";
@@ -135,10 +137,12 @@ function combineTests(tests) {
 
 var testName = "all";
 if ("run" in argv) {
-    testName = (argv.run + "")
-        .toLowerCase()
-        .replace( /\.js$/, "" )
-        .replace( /[^a-zA-Z0-9_\-.]/g, "" );
+    testName = (argv.run + "");
+    if (testName.indexOf("*") === -1) {
+        testName = testName.toLowerCase()
+            .replace( /\.js$/, "" )
+            .replace( /[^a-zA-Z0-9_\-.]/g, "" );
+    }
 }
 
 var options = {

@@ -1,50 +1,6 @@
 "use strict";
 var assert = require("assert");
-
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-
-var Promise = fulfilled().constructor;
-
-var Q = function(p) {
-    if( p.then ) return p;
-    return fulfilled(p);
-};
-
-Q.progress = function(p, cb) {
-    return Q(p).then(null, null, cb);
-};
-
-Q.when = function() {
-    return Q(arguments[0]).then(arguments[1], arguments[2], arguments[3]);
-};
-
-var freeMs;
-function resolver( fulfill ) {
-    setTimeout(fulfill, freeMs );
-};
-
-Q.delay = Promise.delay;
-
-Q.defer = function() {
-    var ret = pending();
-    return {
-        reject: function(a){
-            return ret.reject(a)
-        },
-        resolve: function(a) {
-            return ret.fulfill(a);
-        },
-
-        notify: function(a) {
-            return ret.progress(a);
-        },
-
-        promise: ret.promise
-    };
-};
-
+var testUtils = require("./helpers/util.js");
 /*!
  *
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
@@ -72,11 +28,9 @@ describe("progress", function () {
 
     it("calls a single progress listener", function () {
         var progressed = false;
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.equal(progressed,true);
             },
             function () {
@@ -87,7 +41,7 @@ describe("progress", function () {
             }
         );
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return promise;
@@ -96,10 +50,8 @@ describe("progress", function () {
     it("calls multiple progress listeners", function () {
         var progressed1 = false;
         var progressed2 = false;
-        var deferred = Q.defer();
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var deferred = Promise.defer();
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.equal(progressed1,true);
                 assert.equal(progressed2,true);
             },
@@ -110,11 +62,11 @@ describe("progress", function () {
                 progressed1 = true;
             }
         );
-        Q.when(deferred.promise, null, null, function () {
+        Promise.resolve(deferred.promise).then(null, null, function () {
             progressed2 = true;
         });
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return promise;
@@ -124,10 +76,8 @@ describe("progress", function () {
         var progressed1 = false;
         var progressed2 = false;
         var progressed3 = false;
-        var deferred = Q.defer();
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var deferred = Promise.defer();
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.equal(progressed1,true);
                 assert.equal(progressed2,true);
                 assert.equal(progressed3,true);
@@ -140,17 +90,17 @@ describe("progress", function () {
             }
         );
 
-        Q.onerror = function () { };
+        Promise.onerror = function () { };
 
-        Q.when(deferred.promise, null, null, function () {
+        Promise.resolve(deferred.promise).then(null, null, function () {
             progressed2 = true;
             throw new Error("just a test, ok if it shows up in the console");
         });
-        Q.when(deferred.promise, null, null, function () {
+        Promise.resolve(deferred.promise).then(null, null, function () {
             progressed3 = true;
         });
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return promise;
@@ -158,10 +108,8 @@ describe("progress", function () {
 
     it("calls the progress listener even if later rejected", function () {
         var progressed = false;
-        var deferred = Q.defer();
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var deferred = Promise.defer();
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.equal(true,false);
             },
             function () {
@@ -172,7 +120,7 @@ describe("progress", function () {
             }
         );
 
-        deferred.notify();
+        deferred.progress();
         deferred.reject();
 
         return promise;
@@ -181,10 +129,8 @@ describe("progress", function () {
     it("calls the progress listener with the notify values", function () {
         var progressValues = [];
         var desiredProgressValues = [{}, {}, "foo", 5];
-        var deferred = Q.defer();
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var deferred = Promise.defer();
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 for (var i = 0; i < desiredProgressValues.length; ++i) {
                     var desired = desiredProgressValues[i];
                     var actual = progressValues[i];
@@ -200,7 +146,7 @@ describe("progress", function () {
         );
 
         for (var i = 0; i < desiredProgressValues.length; ++i) {
-            deferred.notify(desiredProgressValues[i]);
+            deferred.progress(desiredProgressValues[i]);
         }
         deferred.resolve();
 
@@ -208,33 +154,33 @@ describe("progress", function () {
     });
 
     it("does not call the progress listener if notify is called after fulfillment", function () {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
         var called = false;
 
-        Q.when(deferred.promise, null, null, function () {
+        Promise.resolve(deferred.promise).then(null, null, function () {
             called = true;
         });
 
         deferred.resolve();
-        deferred.notify();
+        deferred.progress();
 
-        return Q.delay(10).then(function () {
+        return Promise.delay(10).then(function () {
             assert.equal(called,false);
         });
     });
 
     it("does not call the progress listener if notify is called after rejection", function () {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
         var called = false;
 
-        Q.when(deferred.promise, null, null, function () {
+        Promise.resolve(deferred.promise).then(null, null, function () {
             called = true;
         }).caught(function(){});
 
         deferred.reject();
-        deferred.notify();
+        deferred.progress();
 
-        return Q.delay(10).then(function () {
+        return Promise.delay(10).then(function () {
             assert.equal(called,false);
         });
 
@@ -242,16 +188,14 @@ describe("progress", function () {
     });
 
     it("should not save and re-emit progress notifications", function () {
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
         var progressValues = [];
 
-        deferred.notify(1);
-        //Add delay(30), cannot pass original when giving async guarantee
-        return Q.delay(30).then(function(){
+        deferred.progress(1);
+        //Add Promise.delay(30), cannot pass original when giving async guarantee
+        return Promise.delay(30).then(function(){
 
-            var promise = Q.when(
-                deferred.promise,
-                function () {
+            var promise = Promise.resolve(deferred.promise).then(function () {
                     assert.deepEqual(progressValues, [2]);
                 },
                 function () {
@@ -261,7 +205,7 @@ describe("progress", function () {
                     progressValues.push(progressValue);
                 }
             );
-            deferred.notify(2);
+            deferred.progress(2);
             deferred.resolve();
 
             return promise;
@@ -270,27 +214,27 @@ describe("progress", function () {
 
     it("should allow attaching progress listeners w/ .progress", function () {
         var progressed = false;
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
         deferred.promise.progressed(function () {
             progressed = true;
         });
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return deferred.promise;
     });
 
-    it("should allow attaching progress listeners w/ Q.progress", function () {
+    it("should allow attaching progress listeners w/ Promise.progress", function () {
         var progressed = false;
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
-        Q.progress(deferred.promise, function () {
+        Promise.resolve(deferred.promise).progressed(function () {
             progressed = true;
         });
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return deferred.promise;
@@ -299,10 +243,8 @@ describe("progress", function () {
     it("should call the progress listener with undefined context", function () {
         var progressed = false;
         var progressContext = {};
-        var deferred = Q.defer();
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var deferred = Promise.defer();
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.equal(progressed,true);
                 assert.equal(progressContext, calledAsFunctionThis);
             },
@@ -315,7 +257,7 @@ describe("progress", function () {
             }
         );
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return promise;
@@ -323,11 +265,9 @@ describe("progress", function () {
 
     it("should forward only the first notify argument to listeners", function () {
         var progressValueArrays = [];
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
-        var promise = Q.when(
-            deferred.promise,
-            function () {
+        var promise = Promise.resolve(deferred.promise).then(function () {
                 assert.deepEqual(progressValueArrays, [[1], [2], [4]]);
             },
             function () {
@@ -339,9 +279,9 @@ describe("progress", function () {
             }
         );
 
-        deferred.notify(1);
-        deferred.notify(2, 3);
-        deferred.notify(4, 5, 6);
+        deferred.progress(1);
+        deferred.progress(2, 3);
+        deferred.progress(4, 5, 6);
         deferred.resolve();
 
         return promise;
@@ -349,7 +289,7 @@ describe("progress", function () {
 
     it("should work with .then as well", function () {
         var progressed = false;
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
         var promise = deferred.promise.then(
             function () {
@@ -363,7 +303,7 @@ describe("progress", function () {
             }
         );
 
-        deferred.notify();
+        deferred.progress();
         deferred.resolve();
 
         return promise;
@@ -371,7 +311,7 @@ describe("progress", function () {
 
 
     specify("should not choke when internal functions are registered on the promise", function(done) {
-        var d = adapter.defer();
+        var d = Promise.defer();
         var progress = 0;
 
         //calls ._then on the d.promise with smuggled data and void 0 progress handler
@@ -428,7 +368,7 @@ describe("progress", function () {
             then: function(f, r, p) {
                 setTimeout(function(){
                     var l = 10;
-                    while(l--) {
+                    while (l--) {
                         p(4);
                     }
                     setTimeout(function(){

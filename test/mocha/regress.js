@@ -1,5 +1,5 @@
-var Promise = adapter;
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 describe("regressions", function() {
     specify("should be able to call .then more than once inside that promise's handler", function(done) {

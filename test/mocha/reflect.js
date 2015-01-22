@@ -1,7 +1,7 @@
 "use strict";
 
 var assert = require("assert");
-var Promise = adapter;
+var testUtils = require("./helpers/util.js");
 var testFulfilled = require("./helpers/testThreeCases").testFulfilled;
 var testRejected = require("./helpers/testThreeCases").testRejected;
 

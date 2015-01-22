@@ -1,8 +1,8 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var Promise = adapter;
 
 
 describe("Promise filter", function() {

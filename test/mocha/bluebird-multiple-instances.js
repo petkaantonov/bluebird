@@ -1,60 +1,58 @@
 "use strict";
-
-var isNodeJS = typeof process !== "undefined" && process !== null &&
-    typeof process.execPath === "string";
-
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
+var isNodeJS = testUtils.isNodeJS;
 var OldPromise = require("./helpers/bluebird0_7_0.js");
 
-if( isNodeJS ) {
-    var Promise1 = require( "../../js/debug/promise.js")();
-    var Promise2 = require( "../../js/debug/promise.js")();
+if (isNodeJS) {
+    var Promise1 = require("../../js/debug/promise.js")();
+    var Promise2 = require("../../js/debug/promise.js")();
 
     var err1 = new Error();
     var err2 = new Error();
 
     describe("Separate instances of bluebird", function() {
 
-        specify("Should have identical Error types", function( done ) {
-            assert( Promise1.CancellationError === Promise2.CancellationError );
-            assert( Promise1.RejectionError === Promise2.RejectionError );
-            assert( Promise1.TimeoutError === Promise2.TimeoutError );
+        specify("Should have identical Error types", function(done) {
+            assert(Promise1.CancellationError === Promise2.CancellationError);
+            assert(Promise1.RejectionError === Promise2.RejectionError);
+            assert(Promise1.TimeoutError === Promise2.TimeoutError);
             done();
         });
 
-        specify("Should not be identical", function( done ) {
-            assert( Promise1.onPossiblyUnhandledRejection !==
-                    Promise2.onPossiblyUnhandledRejection );
-            assert( Promise1 !== Promise2 );
+        specify("Should not be identical", function(done) {
+            assert(Promise1.onPossiblyUnhandledRejection !==
+                    Promise2.onPossiblyUnhandledRejection);
+            assert(Promise1 !== Promise2);
             done();
         });
 
         specify("Should have different unhandled rejection handlers", function(done) {
             var dones = 0;
             var donecall = function() {
-                if( ++dones === 2 ) {
+                if (++dones === 2) {
                     done();
                 }
             }
             Promise1.onPossiblyUnhandledRejection(function(e, promise) {
-                assert( promise instanceof Promise1 );
-                assert( !(promise instanceof Promise2) );
+                assert(promise instanceof Promise1);
+                assert(!(promise instanceof Promise2));
                 assert(e === err1);
                 donecall();
             });
 
             Promise2.onPossiblyUnhandledRejection(function(e, promise) {
-                assert( promise instanceof Promise2 );
-                assert( !(promise instanceof Promise1) );
+                assert(promise instanceof Promise2);
+                assert(!(promise instanceof Promise1));
                 assert(e === err2);
                 donecall();
             });
 
-            assert( Promise1.onPossiblyUnhandledRejection !==
-                    Promise2.onPossiblyUnhandledRejection );
+            assert(Promise1.onPossiblyUnhandledRejection !==
+                    Promise2.onPossiblyUnhandledRejection);
 
-            var d1 = Promise1.pending();
-            var d2 = Promise2.pending();
+            var d1 = Promise1.defer();
+            var d2 = Promise2.defer();
 
             d1.promise.then(function(){
                 throw err1;
@@ -71,14 +69,14 @@ if( isNodeJS ) {
         });
 
         specify("Should use fast cast", function(done) {
-            var a = Promise1.pending();
+            var a = Promise1.defer();
             var b = Promise2.cast(a.promise);
             assert(a.promise._receiver0 === b);
             done();
         });
 
         specify("Should pass through progress with fast cast", function(done){
-            var a = Promise1.pending();
+            var a = Promise1.defer();
             var b = Promise2.cast(a.promise);
             var test = 0;
             b.then(function() {

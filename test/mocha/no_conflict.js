@@ -1,4 +1,5 @@
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 describe("Promise.noConflict", function() {
     specify("should work", function() {

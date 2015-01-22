@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var Promise = adapter;
 var Promise2 = require("../../js/debug/promise.js")();
 
 var using = Promise.using;
@@ -25,7 +25,7 @@ Resource.prototype.commit = function () {
 };
 
 Resource.prototype.commitAsync = function () {
-    return delay(10).bind(this).then(this.commit)
+    return Promise.delay(10).bind(this).then(this.commit)
 }
 
 Resource.prototype.rollback = function () {
@@ -36,11 +36,11 @@ Resource.prototype.rollback = function () {
 };
 
 Resource.prototype.rollbackAsync = function () {
-    return delay(10).bind(this).then(this.rollback)
+    return Promise.delay(10).bind(this).then(this.rollback)
 }
 
 Resource.prototype.closeAsync = function() {
-    return delay(10).bind(this).then(this.close);
+    return Promise.delay(10).bind(this).then(this.close);
 };
 
 Resource.prototype.close = function() {
@@ -145,7 +145,7 @@ describe("Promise.using", function() {
 
         using(connect(), function(connection) {
             res = connection;
-            return delay(50).then(function() {
+            return Promise.delay(50).then(function() {
                 async = true;
             });
         }).then(function() {
@@ -190,7 +190,7 @@ describe("Promise.using", function() {
          });
     });
 
-    specify("calls async disposers sequentially when failing", function(done) {
+    specify("calls async disposers sequentially when assert.failing", function(done) {
          var a = [];
          var _res3 = connectCloseAsync(a, 3);
          var _res2 = connectCloseAsync(a, 2);
@@ -199,7 +199,7 @@ describe("Promise.using", function() {
          var p2 = _res2.promise();
          var p3 = _res3.promise();
          var e = new Error();
-         var promise = delay(50).thenThrow(e);
+         var promise = Promise.delay(50).thenThrow(e);
          using(_res1, _res2, _res3, promise, function() {
 
          }).caught(function(err) {
@@ -239,13 +239,13 @@ describe("Promise.using", function() {
          });
     });
 
-    specify("calls promised async disposers sequentially when failing", function(done) {
+    specify("calls promised async disposers sequentially when assert.failing", function(done) {
          var a = [];
          var _res3 = promiseForConnectCloseAsync(a, 3);
          var _res2 = promiseForConnectCloseAsync(a, 2);
          var _res1 = promiseForConnectCloseAsync(a, 1);
          var e = new Error();
-         var promise = delay(50).thenThrow(e);
+         var promise = Promise.delay(50).thenThrow(e);
          using(_res1, _res2, _res3, promise, function() {
 
          }).caught(function(err) {
@@ -335,7 +335,7 @@ describe("Promise.using", function() {
         });
     });
 
-    specify("fail transaction", function(done) {
+    specify("assert.fail transaction", function(done) {
         var _tx;
         using(transaction(), function(tx) {
             _tx = tx;
@@ -349,7 +349,7 @@ describe("Promise.using", function() {
         });
     });
 
-    specify("fail async transaction", function(done) {
+    specify("assert.fail async transaction", function(done) {
         var _tx;
         using(transactionAsync(), function(tx) {
             _tx = tx;

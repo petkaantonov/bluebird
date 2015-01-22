@@ -1,8 +1,8 @@
 "use strict";
-var assert   = require("assert");
+var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var schedule = require("../../js/debug/schedule");
-var Promise = adapter;
-var isNodeJS = typeof process !== "undefined" && typeof process.execPath === "string";
+var isNodeJS = testUtils.isNodeJS;
 
 describe("schedule", function () {
     if (isNodeJS) {
