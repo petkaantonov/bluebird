@@ -26,9 +26,12 @@ var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
 var CapturedTrace = require("./captured_trace.js")();
+var isDebugging = function() {return debugging;};
+ /*jshint unused:false*/
+var createContext =
+    require("./context.js")(Promise, CapturedTrace, isDebugging);
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
-var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 var originatesFromRejection = util.originatesFromRejection;
@@ -160,36 +163,6 @@ Promise.is = function (val) {
 Promise.all = function (promises) {
     var ret = new PromiseArray(promises).promise();
     ret._setIsSpreadable();
-    return ret;
-};
-
-Promise.method = function (fn) {
-    if (typeof fn !== "function") {
-        throw new TypeError(NOT_FUNCTION_ERROR);
-    }
-    return function () {
-        var ret = new Promise(INTERNAL);
-        ret._captureStackTrace();
-        ret._pushContext();
-        var value = tryCatch(fn).apply(this, arguments);
-        ret._popContext();
-        ret._resolveFromSyncValue(value);
-        return ret;
-    };
-};
-
-Promise.attempt = Promise["try"] = function (fn, args, ctx) {
-    if (typeof fn !== "function") {
-        return apiRejection(NOT_FUNCTION_ERROR);
-    }
-    var ret = new Promise(INTERNAL);
-    ret._captureStackTrace();
-    ret._pushContext();
-    var value = isArray(args)
-        ? tryCatch(fn).apply(ctx, args)
-        : tryCatch(fn).call(ctx, args);
-    ret._popContext();
-    ret._resolveFromSyncValue(value);
     return ret;
 };
 
@@ -528,19 +501,6 @@ Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
     ASSERT(typeof index === "number");
     ASSERT((index | 0) === index);
     this._setProxyHandlers(promiseArray, index);
-};
-
-Promise.prototype._setBoundTo = function (obj) {
-    if (obj !== undefined) {
-        this._bitField = this._bitField | IS_BOUND;
-        this._boundTo = obj;
-    } else {
-        this._bitField = this._bitField & (~IS_BOUND);
-    }
-};
-
-Promise.prototype._isBound = function () {
-    return (this._bitField & IS_BOUND) === IS_BOUND;
 };
 
 Promise.prototype._resolveCallback = function(value) {
@@ -912,61 +872,11 @@ Promise.prototype._notifyUnhandledRejection = function () {
     }
 };
 
-var contextStack = [];
-function Context() {
-    this._trace = new CapturedTrace(peekContext());
-}
-Context.prototype._pushContext = function () {
-    if (!debugging) return;
-    if (this._trace !== undefined) {
-        contextStack.push(this._trace);
-    }
-};
-
-Context.prototype._popContext = function () {
-    if (!debugging) return;
-    if (this._trace !== undefined) {
-        contextStack.pop();
-    }
-};
-
- /*jshint unused:false*/
-function createContext() {
-    if (debugging) return new Context();
-}
-
-function peekContext() {
-    var lastIndex = contextStack.length - 1;
-    if (lastIndex >= 0) {
-        return contextStack[lastIndex];
-    }
-    return undefined;
-}
-
-Promise.prototype._peekContext = peekContext;
-Promise.prototype._pushContext = Context.prototype._pushContext;
-Promise.prototype._popContext = Context.prototype._popContext;
-
-Promise.prototype._resolveFromSyncValue = function (value) {
-    ASSERT(!this._isFollowing());
-    if (value === errorObj) {
-        this._rejectCallback(value.e, false, true);
-    } else {
-        this._resolveCallback(value);
-    }
-};
-
 if (!CapturedTrace.isSupported()) {
     Promise.longStackTraces = function(){};
     debugging = false;
 }
 
-Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
-require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
-require("./direct_resolve.js")(Promise);
-require("./synchronous_inspection.js")(Promise);
-require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
@@ -974,6 +884,13 @@ Promise.TypeError = TypeError;
 Promise.OperationalError = OperationalError;
 Promise.RejectionError = OperationalError;
 Promise.AggregateError = errors.AggregateError;
+Promise._makeSelfResolutionError = makeSelfResolutionError;
+require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
+require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
+require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
+require("./direct_resolve.js")(Promise);
+require("./synchronous_inspection.js")(Promise);
+require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
 
 util.toFastProperties(Promise);
 util.toFastProperties(Promise.prototype);
