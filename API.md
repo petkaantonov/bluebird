@@ -162,7 +162,7 @@ promptAsync("Which url to visit?").then(function(url) {
 
 #####`.spread([Function fulfilledHandler] [, Function rejectedHandler ])` -> `Promise`
 
-Like calling `.then`, but the fulfillment value or rejection reason is assumed to be an array, which is flattened to the formal parameters of the handlers.
+Like calling `.then`, but the fulfillment value or rejection reason _must be_ an array, which is flattened to the formal parameters of the handlers.
 
 ```js
 Promise.delay(500).then(function() {
