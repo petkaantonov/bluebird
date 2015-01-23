@@ -116,9 +116,7 @@ function some(promises, howMany) {
     }
     var ret = new SomePromiseArray(promises);
     var promise = ret.promise();
-    if (promise.isRejected()) {
-        return promise;
-    }
+    ASSERT(promise.isPending());
     ASSERT(ret instanceof SomePromiseArray);
     ret.setHowMany(howMany);
     ret.init();

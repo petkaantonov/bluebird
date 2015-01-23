@@ -6,9 +6,7 @@ var ASSERT = require("./assert.js");
 function any(promises) {
     var ret = new SomePromiseArray(promises);
     var promise = ret.promise();
-    if (promise.isRejected()) {
-        return promise;
-    }
+    ASSERT(promise.isPending());
     ASSERT(ret instanceof SomePromiseArray);
     ret.setHowMany(1);
     ret.setUnwrap();
