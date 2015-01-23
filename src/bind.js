@@ -1,73 +1,84 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
-var rejectThis = function(_, e) {
-    this._reject(e);
-};
+var ASSERT = require("./assert.js");
 
-var targetRejected = function(e, context) {
-    context.promiseRejectionQueued = true;
-    context.bindingPromise._then(rejectThis, rejectThis, null, this, e);
-};
-
-var bindingResolved = function(thisArg, context) {
-    this._setBoundTo(thisArg);
-    if (this._isPending()) {
-        this._follow(context.target);
-    }
-};
-
-var bindingRejected = function(e, context) {
-    if (!context.promiseRejectionQueued) this._reject(e);
-};
-
+function returnThis() { return this.value; }
+function throwThis() { throw this.reason; }
+function awaitBindingThenResolve(value) {
+    return this._then(returnThis, null, null, {value: value}, undefined);
+}
+function awaitBindingThenReject(reason) {
+    return this._then(throwThis, throwThis, null, {reason: reason}, undefined);
+}
+function setBinding(binding) { this._setBoundTo(binding); }
 Promise.prototype.bind = function (thisArg) {
     var maybePromise = tryConvertToPromise(thisArg);
+    if (maybePromise instanceof Promise) {
+        if (maybePromise.isFulfilled()) {
+            thisArg = maybePromise.value();
+        } else if (maybePromise.isRejected()) {
+            return Promise.reject(maybePromise.reason());
+        } else {
+            var ret = this.then();
+            var parent = ret;
+            ret = ret._then(awaitBindingThenResolve,
+                            awaitBindingThenReject,
+                            null, maybePromise, undefined);
+            maybePromise._then(setBinding, ret._reject, null, ret, null);
+            // In case ret is set to cancellable in future, parent must be
+            // set to cancellable as well.
+            if (!ret._cancellable()) ret._setPendingCancellationParent(parent);
+            return ret;
+        }
+    }
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_CANCEL);
-    var target = this._target();
-    if (maybePromise instanceof Promise) {
-        var context = {
-            promiseRejectionQueued: false,
-            promise: ret,
-            target: target,
-            bindingPromise: maybePromise
-        };
-        target._then(INTERNAL, targetRejected, ret._progress, ret, context);
-        maybePromise._then(
-            bindingResolved, bindingRejected, ret._progress, ret, context);
-    } else {
-        ret._setBoundTo(thisArg);
-        ret._follow(target);
-    }
+    ret._setBoundTo(thisArg);
+    ret._follow(this._target());
     return ret;
-};
-
-Promise.prototype._setBoundTo = function (obj) {
-    if (obj !== undefined) {
-        this._bitField = this._bitField | IS_BOUND;
-        this._boundTo = obj;
-    } else {
-        this._bitField = this._bitField & (~IS_BOUND);
-    }
-};
-
-Promise.prototype._isBound = function () {
-    return (this._bitField & IS_BOUND) === IS_BOUND;
 };
 
 Promise.bind = function (thisArg, value) {
-    var maybePromise = tryConvertToPromise(thisArg);
-    var ret = new Promise(INTERNAL);
+    return Promise.resolve(value).bind(thisArg);
+};
 
-    if (maybePromise instanceof Promise) {
-        maybePromise._then(function(thisArg) {
-            ret._setBoundTo(thisArg);
-            ret._resolveCallback(value);
-        }, ret._reject, ret._progress, ret, null);
-    } else {
-        ret._setBoundTo(thisArg);
-        ret._resolveCallback(value);
+Promise.prototype._setPendingCancellationParent = function(parent) {
+    ASSERT(this.isPending());
+    ASSERT(parent.isPending());
+    ASSERT(!this._cancellable());
+    ASSERT(!parent._cancellable());
+    ASSERT(parent instanceof Promise);
+    this._settledValue = parent;
+};
+
+Promise.prototype._pendingCancellationParent = function() {
+    if (this.isPending() && this._settledValue !== undefined) {
+        ASSERT(this._settledValue instanceof Promise);
+        var ret = this._settledValue;
+        ASSERT(!ret._cancellable());
+        ret.cancellable();
+        this._settledValue = undefined;
+        return ret;
     }
-    return ret;
+};
+
+Promise.prototype._setIsMigratingBinding = function () {
+    this._bitField = this._bitField | IS_MIGRATING_BINDING;
+};
+
+Promise.prototype._unsetIsMigratingBinding = function () {
+    this._bitField = this._bitField & (~IS_MIGRATING_BINDING);
+};
+
+Promise.prototype._isMigratingBinding = function () {
+    return (this._bitField & IS_MIGRATING_BINDING) === IS_MIGRATING_BINDING;
+};
+
+Promise.prototype._setBoundTo = function (obj) {
+    this._boundTo = obj;
+};
+
+Promise.prototype._isBound = function () {
+    return this._boundTo !== undefined;
 };
 };

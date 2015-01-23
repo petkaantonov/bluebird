@@ -203,8 +203,13 @@ Promise.prototype._then = function (
 
     var target = this._target();
     if (target !== this) {
-        if (receiver === undefined) receiver = this._boundTo;
-        if (!haveInternalData) ret._setIsMigrated();
+        if (!haveInternalData) {
+            ret._setIsMigrated();
+            if (receiver === undefined) {
+                ret._setIsMigratingBinding();
+                receiver = this;
+            }
+        }
     }
 
     var callbackIndex =
@@ -332,14 +337,19 @@ Promise.prototype._rejectionHandlerAt = function (index) {
         : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
-Promise.prototype._migrateCallbacks = function (
-    fulfill,
-    reject,
-    progress,
-    promise,
-    receiver
-) {
-    if (promise instanceof Promise) promise._setIsMigrated();
+Promise.prototype._migrateCallbacks = function (follower, index) {
+    var fulfill = follower._fulfillmentHandlerAt(index);
+    var reject = follower._rejectionHandlerAt(index);
+    var progress = follower._progressHandlerAt(index);
+    var promise = follower._promiseAt(index);
+    var receiver = follower._receiverAt(index);
+    if (promise instanceof Promise) {
+        promise._setIsMigrated();
+        if (receiver === undefined) {
+            receiver = follower;
+            promise._setIsMigratingBinding();
+        }
+    }
     this._addCallbacks(fulfill, reject, progress, promise, receiver);
 };
 
@@ -512,13 +522,7 @@ Promise.prototype._follow = function (promise) {
     if (promise._isPending()) {
         var len = this._length();
         for (var i = 0; i < len; ++i) {
-            promise._migrateCallbacks(
-                this._fulfillmentHandlerAt(i),
-                this._rejectionHandlerAt(i),
-                this._progressHandlerAt(i),
-                this._promiseAt(i),
-                this._receiverAt(i)
-            );
+            promise._migrateCallbacks(this, i);
         }
         this._setFollowing();
         this._setLength(0);
@@ -595,7 +599,10 @@ Promise.prototype._settlePromiseAt = function (index) {
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
-
+    if (isPromise && promise._isMigratingBinding()) {
+        promise._unsetIsMigratingBinding();
+        receiver = receiver._boundTo;
+    }
 
     this._clearCallbackDataAtIndex(index);
 

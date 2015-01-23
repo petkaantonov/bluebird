@@ -1007,7 +1007,8 @@ describe("When using .bind to gratuitously rebind", function() {
             function donecalls() {
                 if (++dones === 3) done();
             }
-            Promise.bind(a).then(function(){
+
+            Promise.bind(a).then(function() {
                 assert(this.value === 1);
                 donecalls();
             }).bind(b).then(function(){
@@ -1050,21 +1051,21 @@ describe("Promised thisArg", function() {
     specify("basic case, main promise first", function(done) {
         var thisPromise = Promise.delay(1, 56);
         var promise = Promise.delay(2, 0);
-        promise.bind(thisPromise).then(function(val) {
-            assert(+this === 1);
-            assert(+val === 2);
+        var a = promise.bind(thisPromise).then(function(val) {
+            assert.strictEqual(+this, 1);
+            assert.strictEqual(+val, 2);
             done();
         });
     });
 
     specify("both reject, this rejects first", function(done) {
-        var e1 = new Error();
-        var e2 = new Error();
+        var e1 = new Error("e1");
+        var e2 = new Error("e2");
         var thisPromise = Promise.delay(1, 0).thenThrow(e1);
         var promise = Promise.delay(2, 56).thenThrow(e2);
         promise.bind(thisPromise).then(null, function(reason) {
             assert(this === defaultThis);
-            assert(reason === e1);
+            assert.strictEqual(reason, e1);
             done();
         });
     });
@@ -1076,12 +1077,12 @@ describe("Promised thisArg", function() {
         var promise = Promise.delay(2, 0).thenThrow(e2);
         promise.bind(thisPromise).then(null, function(reason) {
             assert(this === defaultThis);
-            assert(reason === e2);
+            assert.strictEqual(reason, e2);
             done();
         });
     });
 
-    specify("main promise is cancelled before binding resolves", function(done) {
+    specify("root promise is cancelled before binding resolves", function(done) {
         var t = Promise.delay(THIS, 100);
         var ret = new Promise(function() {}).cancellable().bind(t);
         var err = new Error();
@@ -1093,6 +1094,58 @@ describe("Promised thisArg", function() {
             assert.strictEqual(e, err);
             assert.strictEqual(this, THIS);
             done();
+        });
+    });
+
+    specify("returned promise is cancelled before binding resolves", function(done) {
+        var t = Promise.delay(THIS, 100);
+        var ret = new Promise(function() {}).bind(t).cancellable();
+        var err = new Error();
+        Promise.delay(1).then(function() {
+            ret.cancel(err);
+        });
+        ret.caught(function(e) {
+            assert.strictEqual(t.value(), THIS);
+            assert.strictEqual(e, err);
+            assert.strictEqual(this, THIS);
+            done();
+        });
+    });
+
+    specify("Immediate value waits for deferred this", function(done) {
+        var t = Promise.delay(THIS, 100);
+        var t2 = {};
+        Promise.resolve(t2).bind(t).then(function(value) {
+            assert.strictEqual(this, THIS);
+            assert.strictEqual(t2, value);
+            done();
+        });
+    });
+
+
+    specify("Immediate error waits for deferred this", function(done) {
+        var t = Promise.delay(THIS, 100);
+        var err = new Error();
+        Promise.reject(err).bind(t).caught(function(e) {
+            assert.strictEqual(this, THIS);
+            assert.strictEqual(err, e);
+            done();
+        });
+    });
+
+
+    specify("static promise is cancelled before binding resolves", function(done) {
+        var t = Promise.delay(THIS, 100);
+        var promise = Promise.bind(t, new Promise(function(){})).cancellable();
+        var err = new Error();
+        promise.caught(function(e) {
+            assert.strictEqual(t.value(), THIS);
+            assert.strictEqual(e, err);
+            assert.strictEqual(this, THIS);
+            done();
+        });
+        Promise.delay(1).then(function() {
+            promise.cancel(err);
         });
     });
 
