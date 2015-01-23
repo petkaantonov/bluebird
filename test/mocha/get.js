@@ -73,8 +73,8 @@ describe("non identifier getters", function() {
         var a = new Array(1024);
         var o = {};
         for (var i = 0; i < a.length; ++i) {
-            a[i] = String.fromCharCode(i);
-            o[String.fromCharCode(i)] = i*2;
+            a[i] = "get" + i;
+            o["get" + i] = i*2;
         }
         var b = Promise.map(a, function(item, index) {
             return Promise.resolve(o).get(a[index]);
