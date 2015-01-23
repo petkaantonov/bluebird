@@ -9,7 +9,6 @@ var isArray = util.isArray;
 //and also because undefined cannot be smuggled
 function toResolutionValue(val) {
     switch(val) {
-    case RESOLVE_UNDEFINED: return undefined;
     case RESOLVE_ARRAY: return [];
     case RESOLVE_OBJECT: return {};
     }

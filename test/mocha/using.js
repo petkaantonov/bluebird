@@ -397,19 +397,21 @@ describe("Promise.using", function() {
         });
     });
 
-    specify("disposer throwing should throw in progress", function(done) {
-        var err = new Error();
-        var disposer = Promise.resolve().disposer(function() {
-            throw err;
+    if (testUtils.isNodeJS) {
+        specify("disposer throwing should throw in progress", function(done) {
+            var err = new Error();
+            var disposer = Promise.resolve().disposer(function() {
+                throw err;
+            });
+            Promise.using(disposer, function() {
+
+            }).then(done, done);
+
+            testUtils.processError(function(e) {
+                assert.strictEqual(e, err);
+            }, done);
         });
-        Promise.using(disposer, function() {
-
-        }).then(done, done);
-
-        testUtils.processError(function(e) {
-            assert.strictEqual(e, err);
-        }, done);
-    });
+    }
 
     specify("Return rejected promise with less than 2 arguments", function(done) {
         Promise.using(1).caught(Promise.TypeError, function(e) {

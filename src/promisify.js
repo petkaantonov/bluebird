@@ -80,7 +80,6 @@ var switchCaseArgumentOrder = function(likelyArgumentCount) {
     var ret = [likelyArgumentCount];
     var min = Math.max(0, likelyArgumentCount - 1 - PARAM_COUNTS_TO_TRY);
     for(var i = likelyArgumentCount - 1; i >= min; --i) {
-        if (i === likelyArgumentCount) continue;
         ret.push(i);
     }
     for(var i = likelyArgumentCount + 1; i <= PARAM_COUNTS_TO_TRY; ++i) {

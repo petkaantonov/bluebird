@@ -48,7 +48,7 @@ SomePromiseArray.prototype.howMany = function () {
 };
 
 SomePromiseArray.prototype.setHowMany = function (count) {
-    if (this._isResolved()) return;
+    ASSERT(!this._isResolved());
     this._howMany = count;
 };
 

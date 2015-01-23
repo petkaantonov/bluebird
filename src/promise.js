@@ -531,7 +531,6 @@ Promise.prototype._follow = function (promise) {
             promise._getCarriedStackTrace());
     }
     ASSERT(this._isFollowingOrFulfilledOrRejected());
-    if (promise._isRejectionUnhandled()) promise._unsetRejectionIsUnhandled();
 };
 
 Promise.prototype._tryFollow = function (value) {
@@ -668,10 +667,9 @@ Promise.prototype._unsetSettlePromisesQueued = function () {
 
 Promise.prototype._queueSettlePromises = function() {
     ASSERT(!this._isFollowing());
-    if (!this._isSettlePromisesQueued()) {
-        async.settlePromises(this);
-        this._setSettlePromisesQueued();
-    }
+    ASSERT(!this._isSettlePromisesQueued());
+    async.settlePromises(this);
+    this._setSettlePromisesQueued();
 };
 
 Promise.prototype._fulfillUnchecked = function (value) {

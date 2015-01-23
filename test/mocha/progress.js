@@ -309,6 +309,49 @@ describe("progress", function () {
         return promise;
     });
 
+    specify("from fulfilled thenable should not do anything", function(done) {
+        var thenable = {
+            then: function(r, _, p) {
+                r(1);
+                setTimeout(function() {
+                    p(1);
+                }, 1);
+            }
+        };
+        var progressions = 0;
+        var result = Promise.resolve(thenable).progressed(function() {
+            progressions++;
+        });
+
+        Promise.delay(result, 100).then(function(result) {
+            assert.strictEqual(1, result);
+            done();
+        });
+    });
+
+    specify("from fulfilled thenable should not do anything if progress is not a function", function(done) {
+        var thenable = {
+            then: function(r, _, p) {
+                setTimeout(function() {
+                    p(1);
+                    setTimeout(function() {
+                        r(1);
+                    }, 1);
+                }, 1);
+            }
+        };
+        var progressions = 0;
+        var result = Promise.resolve(thenable);
+        result._progress = null;
+        result.progressed(function() {
+            progressions++;
+        });
+
+        Promise.delay(result, 100).then(function(result) {
+            assert.strictEqual(1, result);
+            done();
+        });
+    });
 
     specify("should not choke when internal functions are registered on the promise", function(done) {
         var d = Promise.defer();

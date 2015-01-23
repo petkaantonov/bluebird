@@ -126,6 +126,26 @@ if (isNodeJS) {
                 done();
             });
         });
+
+        specify("Should reject primitive from fast cast", function(done) {
+            var a = OldPromise.pending();
+            var b = Promise.resolve(a.promise);
+            a.reject(1);
+            b.caught(function(e) {
+                assert.strictEqual(e, 1);
+                done();
+            });
+        });
+        specify("Should reject object from fast cast", function(done) {
+            var err = new Error();
+            var a = OldPromise.pending();
+            var b = Promise.resolve(a.promise);
+            a.reject(err);
+            b.caught(function(e) {
+                assert.strictEqual(e, err);
+                done();
+            });
+        });
     });
 
 }

@@ -137,6 +137,27 @@ describe("Error constructors", function() {
             assert.strictEqual(a.message, "msg");
             assert(a instanceof Error);
         });
+
+        it("should retain custom properties", function(done) {
+            var message;
+            var name;
+            function f(cb) {
+                var err = new Error("custom message");
+                message = err.message;
+                name = err.name;
+                err.code = "ENOENT";
+                err.path = "C:\\";
+                cb(err);
+            }
+            Promise.promisify(f)().error(function(e) {
+                assert.strictEqual(e.message, message);
+                assert.strictEqual(e.name, name);
+                assert(e instanceof Promise.OperationalError);
+                assert.strictEqual(e.code, "ENOENT");
+                assert.strictEqual(e.path, "C:\\");
+                done();
+            });
+        });
     });
 
     describe("CancellationError", function() {
@@ -180,27 +201,29 @@ describe("Error constructors", function() {
             assert(a instanceof Error);
         });
 
-        it("should stringify without circular errors", function() {
-            var a = Promise.AggregateError();
-            a.push(new Error("1"));
-            a.push(new Error("2"));
-            a.push(new Error("3"));
-            a = a.toString();
-            assert(a.indexOf("Error: 1") >= 0);
-            assert(a.indexOf("Error: 2") >= 0);
-            assert(a.indexOf("Error: 3") >= 0);
-        });
+        if (testUtils.isNodeJS) {
+            it("should stringify without circular errors", function() {
+                var a = Promise.AggregateError();
+                a.push(new Error("1"));
+                a.push(new Error("2"));
+                a.push(new Error("3"));
+                a = a.toString();
+                assert(a.indexOf("Error: 1") >= 0);
+                assert(a.indexOf("Error: 2") >= 0);
+                assert(a.indexOf("Error: 3") >= 0);
+            });
 
-        it("should stringify with circular errors", function() {
-            var a = Promise.AggregateError();
-            a.push(new Error("1"));
-            a.push(a);
-            a.push(new Error("3"));
-            a = a.toString();
-            assert(a.indexOf("Error: 1") >= 0);
-            assert(a.indexOf("[Circular AggregateError]") >= 0);
-            assert(a.indexOf("Error: 3") >= 0);
-        });
+            it("should stringify with circular errors", function() {
+                var a = Promise.AggregateError();
+                a.push(new Error("1"));
+                a.push(a);
+                a.push(new Error("3"));
+                a = a.toString();
+                assert(a.indexOf("Error: 1") >= 0);
+                assert(a.indexOf("[Circular AggregateError]") >= 0);
+                assert(a.indexOf("Error: 3") >= 0);
+            });
+        }
     });
 
 

@@ -34,6 +34,13 @@ describe("schedule", function () {
                 assert(success);
                 done();
             });
+            it("should throw for non function", function(done) {
+                try {
+                    Promise.setScheduler({});
+                } catch (e) {
+                    done();
+                }
+            });
         });
     }
 });

@@ -10,7 +10,7 @@ var baseDir = path.join(__dirname, "..", "test", "browser");
 // the browserify bundle ends up taking megabyte and having high risk of
 // IE-incompatible code
 function dependsOnSinon(test) {
-    return /3\.2\.5\.|q_done|q_nodeify|2\.2\.6/.test(test.name);
+    return /3\.2\.5\.|done|nodeify|2\.2\.6/.test(test.name);
 };
 
 module.exports = function(tests, options) {

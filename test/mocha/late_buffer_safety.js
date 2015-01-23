@@ -9,8 +9,7 @@ function async(cb){
 }
 
 if (isNodeJS) {
-    describe("Late buffer", function(){
-
+    describe("Late buffer", function() {
         specify("shouldn't stop at first error but continue consumption until everything is consumed", function(done){
             var length = 10;
             var l = length;

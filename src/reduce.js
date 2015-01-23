@@ -69,7 +69,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var valuesPhase = this._valuesPhase;
     var valuesPhaseIndex;
     if (!valuesPhase) {
-        valuesPhase = this._valuesPhase = Array(length);
+        valuesPhase = this._valuesPhase = new Array(length);
         for (valuesPhaseIndex=0; valuesPhaseIndex<length; ++valuesPhaseIndex) {
             valuesPhase[valuesPhaseIndex] = REDUCE_PHASE_MISSING;
         }
@@ -79,27 +79,23 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     // Special case detection where the processing starts at index 1
     // because no initialValue was given
     if (index === 0 && this._zerothIsAccum) {
-        if (!gotAccum) {
-            this._accum = value;
-            this._gotAccum = gotAccum = true;
-        }
+        ASSERT(!gotAccum);
+        this._accum = value;
+        this._gotAccum = gotAccum = true;
         valuesPhase[index] = ((valuesPhaseIndex === REDUCE_PHASE_MISSING)
             ? REDUCE_PHASE_INITIAL : REDUCE_PHASE_REDUCED);
     // the initialValue was a promise and was fulfilled
     } else if (index === -1) {
-        if (!gotAccum) {
-            this._accum = value;
-            this._gotAccum = gotAccum = true;
-        }
+        ASSERT(!gotAccum);
+        this._accum = value;
+        this._gotAccum = gotAccum = true;
     } else {
         if (valuesPhaseIndex === REDUCE_PHASE_MISSING) {
             valuesPhase[index] = REDUCE_PHASE_INITIAL;
-        }
-        else {
+        } else {
+            ASSERT(gotAccum);
             valuesPhase[index] = REDUCE_PHASE_REDUCED;
-            if (gotAccum) {
-                this._accum = value;
-            }
+            this._accum = value;
         }
     }
     // no point in reducing anything until we have an initialValue
@@ -117,18 +113,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         }
         if (valuesPhaseIndex !== REDUCE_PHASE_INITIAL) return;
         value = values[i];
-        if (value instanceof Promise) {
-            value = value._target();
-            if (value._isFulfilled()) {
-                value = value._value();
-            } else if (value._isPending()) {
-                // Continue later when the promise at current index fulfills
-                return;
-            } else {
-                return this._reject(value._reason());
-            }
-        }
-
+        ASSERT(!(value instanceof Promise));
         this._promise._pushContext();
         if (isEach) {
             preservedValues.push(value);
@@ -162,7 +147,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     }
 
     // end-game, once everything has been resolved
-    if (this._reducingIndex < length) return;
+    ASSERT(this._reducingIndex === length);
     this._resolve(isEach ? preservedValues : this._accum);
 };
 

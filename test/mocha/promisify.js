@@ -102,6 +102,41 @@ describe("when calling promisified function it should ", function(){
         });
     });
 
+    specify("do nothing when called more than 1 times", function(done) {
+        var err = new Error();
+        var stack = err.stack;
+
+        var fn = Promise.promisify(function(cb) {
+            cb(null);
+            cb(err);
+        });
+
+        fn().then(function() {
+            return Promise.delay(100).then(function() {
+                assert.strictEqual(stack, err.stack);
+                done();
+            })
+        });
+    });
+
+    specify("undefined as receiver", function(done) {
+        Promise.promisify(function(cb) {
+            assert.strictEqual(this, (function(){return this;})());
+            cb(null, 1);
+        }, undefined)().then(function(result) {
+            assert.strictEqual(1, result);
+            done();
+        });
+    });
+
+    specify("double promisification returns same function back", function() {
+        var c = function(){};
+        var a = Promise.promisify(function(){});
+        var b = Promise.promisify(a);
+        assert.notEqual(c, a);
+        assert.strictEqual(a, b);
+    });
+
     specify("call future attached handlers later", function(done) {
         var a = error(1,2,3);
         var b = success(1,2,3);
@@ -902,29 +937,6 @@ describe("nodeback with multiple arguments", function() {
     });
 });
 
-describe("operational errors", function() {
-    specify("should retain custom properties", function(done) {
-        var message;
-        var name;
-        function f(cb) {
-            var err = new Error("custom message");
-            message = err.message;
-            name = err.name;
-            err.code = "ENOENT";
-            err.path = "C:\\";
-            cb(err);
-        }
-        Promise.promisify(f)().error(function(e) {
-            assert.strictEqual(e.message, message);
-            assert.strictEqual(e.name, name);
-            assert(e instanceof OperationalError);
-            assert.strictEqual(e.code, "ENOENT");
-            assert.strictEqual(e.path, "C:\\");
-            done();
-        });
-    });
-});
-
 describe("filter", function() {
     specify("gets an argument whether default filter was passed", function(done) {
         Promise.promisifyAll({
@@ -935,5 +947,22 @@ describe("filter", function() {
                 done();
             }
         })
+    });
+
+    specify("doesn't fail when allowing non-identifier methods", function(done) {
+        var a = Promise.promisifyAll({
+            " a s d ": function(cb) {
+                cb(null, 1);
+            }
+        }, {
+            filter: function() {
+                return true;
+            }
+        });
+
+        a[" a s d Async"]().then(function(val) {
+            assert.strictEqual(1, val);
+            done();
+        });
     });
 });

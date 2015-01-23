@@ -90,6 +90,7 @@ Promise.prototype.reason = function() {
     if (!target.isRejected()) {
         throw new TypeError(INSPECTION_REASON_ERROR);
     }
+    target._unsetRejectionIsUnhandled();
     return target._settledValue;
 };
 

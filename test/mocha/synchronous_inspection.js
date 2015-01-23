@@ -1,6 +1,30 @@
 "use strict";
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
+
+describe("Promise.prototype.toJSON", function() {
+    it("should match pending state", function() {
+        var a = new Promise(function(){}).toJSON();
+        assert.strictEqual(a.isFulfilled, false);
+        assert.strictEqual(a.isRejected, false);
+        assert.strictEqual(a.rejectionReason, undefined);
+        assert.strictEqual(a.fulfillmentValue, undefined);
+    });
+    it("should match rejected state", function() {
+        var a = Promise.reject(3).toJSON();
+        assert.strictEqual(a.isFulfilled, false);
+        assert.strictEqual(a.isRejected, true);
+        assert.strictEqual(a.rejectionReason, 3);
+        assert.strictEqual(a.fulfillmentValue, undefined);
+    });
+    it("should match fulfilled state", function() {
+        var a = Promise.resolve(3).toJSON();
+        assert.strictEqual(a.isFulfilled, true);
+        assert.strictEqual(a.isRejected, false);
+        assert.strictEqual(a.rejectionReason, undefined);
+        assert.strictEqual(a.fulfillmentValue, 3);
+    });
+});
 /*!
  *
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
@@ -74,4 +98,48 @@ describe("inspect", function () {
         assert.equal(a.promise.isPending(), true);
     });
 
+    describe(".value()", function() {
+        specify("of unfulfilled inspection should throw", function(done) {
+            Promise.reject(1).reflect().then(function(inspection) {
+                try {
+                    inspection.value();
+                } catch (e) {
+                    return done();
+                }
+                assert.fail();
+            });
+        });
+        specify("of unfulfilled promise should throw", function(done) {
+            var r = Promise.reject(1);
+            r.reason();
+            try {
+                r.value();
+            } catch (e) {
+                return done();
+            }
+            assert.fail();
+        });
+    });
+
+    describe(".reason()", function() {
+        specify("of unrejected inspection should throw", function(done) {
+            Promise.resolve(1).reflect().then(function(inspection) {
+                try {
+                    inspection.reason();
+                } catch (e) {
+                    return done();
+                }
+                assert.fail();
+            });
+        });
+
+        specify("of unrejected promise should throw", function(done) {
+            try {
+                Promise.resolve(1).reason();
+            } catch (e) {
+                return done();
+            }
+            assert.fail();
+        });
+    });
 });

@@ -178,4 +178,12 @@ describe("Promise.some-test", function () {
             done();
         });
     });
+
+    specify("should reject when given immediately rejected promise", function(done) {
+        var err = new Error();
+        Promise.some(Promise.reject(err), 1).caught(function(e) {
+            assert.strictEqual(err, e);
+            done();
+        });
+    });
 });
