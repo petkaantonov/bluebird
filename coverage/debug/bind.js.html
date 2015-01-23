@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Code coverage report for debug\join.js</title>
+    <title>Code coverage report for debug\bind.js</title>
     <meta charset="utf-8">
 
     <link rel="stylesheet" href="../prettify.css">
@@ -196,23 +196,23 @@
 </head>
 <body>
 <div class="header high">
-    <h1>Code coverage report for <span class="entity">debug\join.js</span></h1>
+    <h1>Code coverage report for <span class="entity">debug\bind.js</span></h1>
     <h2>
         
-        Statements: <span class="metric">100% <small>(72 / 72)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Statements: <span class="metric">100% <small>(58 / 58)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Branches: <span class="metric">93.33% <small>(28 / 30)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">100% <small>(12 / 12)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Functions: <span class="metric">100% <small>(7 / 7)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">100% <small>(15 / 15)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Lines: <span class="metric">100% <small>(67 / 67)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">100% <small>(54 / 54)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
     </h2>
-    <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">debug\</a> &#187; join.js</div>
+    <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">debug\</a> &#187; bind.js</div>
 </div>
 <div class="body">
 <pre><table class="coverage">
@@ -307,239 +307,185 @@
 89
 90
 91
-92
-93
-94
-95
-96
-97
-98
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-yes">8</span>
+92</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8</span>
 <span class="cline-any cline-yes">8</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18</span>
+<span class="cline-any cline-yes">18</span>
 <span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-yes">30</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">18</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-yes">30</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">333</span>
+<span class="cline-any cline-yes">333</span>
 <span class="cline-any cline-yes">90</span>
-<span class="cline-any cline-yes">30</span>
+<span class="cline-any cline-yes">27</span>
+<span class="cline-any cline-yes">63</span>
+<span class="cline-any cline-yes">12</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51</span>
+<span class="cline-any cline-yes">51</span>
+<span class="cline-any cline-yes">51</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51</span>
+<span class="cline-any cline-yes">51</span>
+<span class="cline-any cline-yes">51</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">30</span>
-<span class="cline-any cline-yes">30</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
+<span class="cline-any cline-yes">270</span>
+<span class="cline-any cline-yes">270</span>
+<span class="cline-any cline-yes">270</span>
+<span class="cline-any cline-yes">270</span>
+<span class="cline-any cline-yes">270</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">6</span>
+<span class="cline-any cline-yes">8</span>
 <span class="cline-any cline-yes">36</span>
-<span class="cline-any cline-yes">36</span>
-<span class="cline-any cline-yes">36</span>
-<span class="cline-any cline-yes">36</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-yes">3</span>
-<span class="cline-any cline-yes">9</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">123</span>
 <span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6</span>
+<span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6</span>
+<span class="cline-any cline-yes">6</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8</span>
-<span class="cline-any cline-yes">67</span>
-<span class="cline-any cline-yes">67</span>
-<span class="cline-any cline-yes">67</span>
-<span class="cline-any cline-yes">39</span>
-<span class="cline-any cline-yes">39</span>
-<span class="cline-any cline-yes">39</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">14</span>
-<span class="cline-any cline-yes">38</span>
-<span class="cline-any cline-yes">38</span>
-<span class="cline-any cline-yes">18</span>
-<span class="cline-any cline-yes">18</span>
-<span class="cline-any cline-yes">12</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6</span>
-<span class="cline-any cline-yes">5</span>
+<span class="cline-any cline-yes">1269</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">1217</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">17721</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">19009</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">193</span>
-<span class="cline-any cline-yes">53</span>
-<span class="cline-any cline-yes">53</span>
-<span class="cline-any cline-yes">53</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8</span>
+<span class="cline-any cline-yes">28437</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function () { "use strict";
-module.exports =
-function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
-var util = require("./util.js");
-var canEvaluate = util.canEvaluate;
-var tryCatch = util.tryCatch;
-var errorObj = util.errorObj;
-var reject;
+module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
+var ASSERT = require("./assert.js");
 &nbsp;
-<span class="missing-if-branch" title="else path not taken" >E</span>if (!false) {
-if (canEvaluate) {
-    var thenCallback = function(i) {
-        return new Function("value", "holder", "                             \n\
-            'use strict';                                                    \n\
-            holder.pIndex = value;                                           \n\
-            holder.checkFulfillment(this);                                   \n\
-            ".replace(/Index/g, i));
-    };
-&nbsp;
-    var caller = function(count) {
-        var values = [];
-        for (var i = 1; i &lt;= count; ++i) values.push("holder.p" + i);
-        return new Function("holder", "                                      \n\
-            'use strict';                                                    \n\
-            var callback = holder.fn;                                        \n\
-            return callback(values);                                         \n\
-            ".replace(/values/g, values.join(", ")));
-    };
-    var thenCallbacks = [];
-    var callers = [undefined];
-    for (var i = 1; i &lt;= 5; ++i) {
-        thenCallbacks.push(thenCallback(i));
-        callers.push(caller(i));
-    }
-&nbsp;
-    var Holder = function(total, fn) {
-        this.p1 = this.p2 = this.p3 = this.p4 = this.p5 = null;
-        this.fn = fn;
-        this.total = total;
-        this.now = 0;
-    };
-&nbsp;
-    Holder.prototype.callers = callers;
-    Holder.prototype.checkFulfillment = function(promise) {
-        var now = this.now;
-        now++;
-        var total = this.total;
-        if (now &gt;= total) {
-            var handler = this.callers[total];
-            promise._pushContext();
-            var ret = tryCatch(handler)(this);
-            promise._popContext();
-            if (ret === errorObj) {
-                promise._rejectCallback(ret.e, false, true);
-            } else if (!promise._tryFollow(ret)) {
-                promise._fulfillUnchecked(ret);
-            }
+function returnThis() { return this.value; }
+function throwThis() { throw this.reason; }
+function awaitBindingThenResolve(value) {
+    return this._then(returnThis, null, null, {value: value}, undefined);
+}
+function awaitBindingThenReject(reason) {
+    return this._then(throwThis, throwThis, null, {reason: reason}, undefined);
+}
+function setBinding(binding) { this._setBoundTo(binding); }
+Promise.prototype.bind = function (thisArg) {
+    var maybePromise = tryConvertToPromise(thisArg);
+    if (maybePromise instanceof Promise) {
+        if (maybePromise.isFulfilled()) {
+            thisArg = maybePromise.value();
+        } else if (maybePromise.isRejected()) {
+            return Promise.reject(maybePromise.reason());
         } else {
-            this.now = now;
-        }
-    };
-&nbsp;
-    var reject = function (reason) {
-        this._reject(reason);
-    };
-}
-}
-&nbsp;
-Promise.join = function () {
-    var last = arguments.length - 1;
-    var fn;
-    if (last &gt; 0 &amp;&amp; typeof arguments[last] === "function") {
-        fn = arguments[last];
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (!false) {
-            if (last &lt; 6 &amp;&amp; canEvaluate) {
-                var ret = new Promise(INTERNAL);
-                ret._captureStackTrace();
-                var holder = new Holder(last, fn);
-                var callbacks = thenCallbacks;
-                for (var i = 0; i &lt; last; ++i) {
-                    var maybePromise = tryConvertToPromise(arguments[i], ret);
-                    if (maybePromise instanceof Promise) {
-                        maybePromise = maybePromise._target();
-                        if (maybePromise._isPending()) {
-                            maybePromise._then(callbacks[i], reject,
-                                               undefined, ret, holder);
-                        } else if (maybePromise._isFulfilled()) {
-                            callbacks[i].call(ret,
-                                              maybePromise._value(), holder);
-                        } else {
-                            ret._reject(maybePromise._reason());
-                        }
-                    } else {
-                        callbacks[i].call(ret, maybePromise, holder);
-                    }
-                }
-                return ret;
-            }
+            var ret = this.then();
+            var parent = ret;
+            ret = ret._then(awaitBindingThenResolve,
+                            awaitBindingThenReject,
+                            null, maybePromise, undefined);
+            maybePromise._then(setBinding, ret._reject, null, ret, null);
+            if (!ret._cancellable()) ret._setPendingCancellationParent(parent);
+            return ret;
         }
     }
-    var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i &lt; $_len; ++$_i) {args[$_i] = arguments[$_i];}
-    if (fn) args.pop();
-    var ret = new PromiseArray(args).promise();
-    return fn !== undefined ? ret.spread(fn) : ret;
+    var ret = new Promise(INTERNAL);
+    ret._propagateFrom(this, 1);
+    ret._setBoundTo(thisArg);
+    ret._follow(this._target());
+    return ret;
 };
 &nbsp;
+Promise.bind = function (thisArg, value) {
+    return Promise.resolve(value).bind(thisArg);
+};
+&nbsp;
+Promise.prototype._setPendingCancellationParent = function(parent) {
+    ASSERT(this.isPending(),
+    "this.isPending()");
+    ASSERT(parent.isPending(),
+    "parent.isPending()");
+    ASSERT((! this._cancellable()),
+    "!this._cancellable()");
+    ASSERT((! parent._cancellable()),
+    "!parent._cancellable()");
+    ASSERT((parent instanceof Promise),
+    "parent instanceof Promise");
+    this._settledValue = parent;
+};
+&nbsp;
+Promise.prototype._pendingCancellationParent = function() {
+    if (this.isPending() &amp;&amp; this._settledValue !== undefined) {
+        ASSERT((this._settledValue instanceof Promise),
+    "this._settledValue instanceof Promise");
+        var ret = this._settledValue;
+        ASSERT((! ret._cancellable()),
+    "!ret._cancellable()");
+        ret.cancellable();
+        this._settledValue = undefined;
+        return ret;
+    }
+};
+&nbsp;
+Promise.prototype._setIsMigratingBinding = function () {
+    this._bitField = this._bitField | 8388608;
+};
+&nbsp;
+Promise.prototype._unsetIsMigratingBinding = function () {
+    this._bitField = this._bitField &amp; (~8388608);
+};
+&nbsp;
+Promise.prototype._isMigratingBinding = function () {
+    return (this._bitField &amp; 8388608) === 8388608;
+};
+&nbsp;
+Promise.prototype._setBoundTo = function (obj) {
+    this._boundTo = obj;
+};
+&nbsp;
+Promise.prototype._isBound = function () {
+    return this._boundTo !== undefined;
+};
 };
 &nbsp;
 }());
