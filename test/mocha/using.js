@@ -67,6 +67,14 @@ function _connect() {
     });
 }
 
+function _connect2() {
+    return new Promise2(function(resolve) {
+        setTimeout(function(){
+            resolve(new Resource())
+        }, 13);
+    });
+}
+
 function connectCloseAsync(arr, value) {
     return _connect().disposer(function(resource){
         return resource.closeAsync().then(function() {
@@ -83,6 +91,10 @@ function promiseForConnectCloseAsync(arr, value) {
 
 function connect() {
     return _connect().disposer(Resource.prototype.close);
+}
+
+function connect2() {
+    return _connect2().disposer(Resource.prototype.close);
 }
 
 function connectCloseError() {
@@ -363,7 +375,7 @@ describe("Promise.using", function() {
         });
     });
 
-    specify("with using comming from another Promise instance", function(done) {
+    specify("with using coming from another Promise instance", function(done) {
         var res;
         Promise2.using(connect(), function(connection){
             res = connection;
@@ -374,4 +386,64 @@ describe("Promise.using", function() {
         });
     });
 
+    specify("with using coming from another Promise instance other way around", function(done) {
+        var res;
+        Promise.using(connect2(), function(connection){
+            res = connection;
+        }).then(function() {
+            assert(res.isClosed);
+            assert.equal(res.closesCalled, 1);
+            done();
+        });
+    });
+
+    specify("disposer throwing should throw in progress", function(done) {
+        var err = new Error();
+        var disposer = Promise.resolve().disposer(function() {
+            throw err;
+        });
+        Promise.using(disposer, function() {
+
+        }).then(done, done);
+
+        testUtils.processError(function(e) {
+            assert.strictEqual(e, err);
+        }, done);
+    });
+
+    specify("Return rejected promise with less than 2 arguments", function(done) {
+        Promise.using(1).caught(Promise.TypeError, function(e) {
+            done();
+        });
+    });
+
+    specify("Throw if disposer is not passed a function", function(done) {
+        try {
+            Promise.resolve().disposer({});
+        } catch (e) {
+            return done();
+        }
+        assert.fail();
+    });
+
+    specify("Mixed rejected disposers are not called", function(done) {
+        var err = new Error("rejected should not be called");
+        var a = Promise.delay(100).thenThrow(err).disposer(function() {
+            done(err);
+        });
+        var b = Promise.delay(50).thenReturn(connect());
+        Promise.using(a, b, function() {
+            done(new Error("should not be here"));
+        }).caught(function(e) {
+            assert.strictEqual(b.value()._promise.value().isClosed, true);
+            assert.strictEqual(b.value()._promise.value().closesCalled, 1);
+            done();
+        });
+    });
+
+    specify("Return rejected promise when last argument is not function", function(done) {
+        Promise.using({}, {}, {}, {}).caught(Promise.TypeError, function(e) {
+            done();
+        });
+    });
 })
