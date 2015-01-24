@@ -1783,7 +1783,7 @@ fs.writeFileAsync("the-version.txt", version, "utf8");
 ```
 <hr>
 
-#####`Promise.fromNode(Function resolver) -> `Promise`
+#####`Promise.fromNode(Function resolver)` -> `Promise`
 
 Returns a promise that is resolved by a node style callback function. This is the most fitting way to do on the fly promisification when libraries don't expose classes for automatic promisification by [`promisifyAll`](#promisepromisifyallobject-target--object-options---object).
 
