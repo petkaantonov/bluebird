@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
+module.exports = function(Promise, INTERNAL) {
 var util = require("./util.js");
 var TimeoutError = Promise.TimeoutError;
 
@@ -15,31 +15,17 @@ var afterTimeout = function (promise, message) {
     promise._cancel(err);
 };
 
-var afterDelay = function (value, promise) {
-    promise._fulfill(value);
-};
-
+var afterValue = function(value) { return delay(+this).thenReturn(value); };
 var delay = Promise.delay = function (value, ms) {
     if (ms === undefined) {
         ms = value;
         value = undefined;
+        var ret = new Promise(INTERNAL);
+        setTimeout(function() { ret._fulfill(); }, ms);
+        return ret;
     }
     ms = +ms;
-    var maybePromise = tryConvertToPromise(value);
-    var promise = new Promise(INTERNAL);
-
-    if (maybePromise instanceof Promise) {
-        promise._propagateFrom(maybePromise, PROPAGATE_BIND | PROPAGATE_CANCEL);
-        promise._follow(maybePromise._target());
-        return promise.then(function(value) {
-            return Promise.delay(value, ms);
-        });
-    } else {
-        setTimeout(function delayTimeout() {
-            afterDelay(value, promise);
-        }, ms);
-    }
-    return promise;
+    return Promise.resolve(value)._then(afterValue, null, null, ms, undefined);
 };
 
 Promise.prototype.delay = function (ms) {
@@ -47,27 +33,19 @@ Promise.prototype.delay = function (ms) {
 };
 
 function successClear(value) {
-    var handle = this;
-    // Deal with non-strict mode wrapping.
-    if (handle instanceof Number) handle = +handle;
-    clearTimeout(handle);
+    clearTimeout(+this);
     return value;
 }
 
 function failureClear(reason) {
-    var handle = this;
-    // Deal with non-strict mode wrapping.
-    if (handle instanceof Number) handle = +handle;
-    clearTimeout(handle);
+    clearTimeout(+this);
     throw reason;
 }
 
 Promise.prototype.timeout = function (ms, message) {
-    var target = this._target();
     ms = +ms;
-    var ret = new Promise(INTERNAL).cancellable();
-    ret._propagateFrom(this, PROPAGATE_BIND | PROPAGATE_CANCEL);
-    ret._follow(target);
+    var ret = this.then().cancellable();
+    ret._cancellationParent = this;
     var handle = setTimeout(function timeoutTimeout() {
         afterTimeout(ret, message);
     }, ms);

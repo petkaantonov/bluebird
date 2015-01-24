@@ -449,7 +449,21 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
 
     var propagationFlags = PROPAGATE_CANCEL | (shouldBind ? PROPAGATE_BIND : 0);
     this._propagateFrom(maybePromise, propagationFlags);
-    this._follow(maybePromise._target());
+    var promise = maybePromise._target();
+    if (promise._isPending()) {
+        var len = this._length();
+        for (var i = 0; i < len; ++i) {
+            promise._migrateCallbacks(this, i);
+        }
+        this._setFollowing();
+        this._setLength(0);
+        this._setFollowee(promise);
+    } else if (promise._isFulfilled()) {
+        this._fulfillUnchecked(promise._value());
+    } else {
+        this._rejectUnchecked(promise._reason(),
+            promise._getCarriedStackTrace());
+    }
 };
 
 Promise.prototype._rejectCallback =
@@ -526,44 +540,6 @@ Promise.prototype._setFollowee = function(promise) {
     ASSERT(this._isFollowing());
     ASSERT(!(this._rejectionHandler0 instanceof Promise));
     this._rejectionHandler0 = promise;
-};
-
-Promise.prototype._follow = function (promise) {
-    ASSERT(arguments.length === 1);
-    ASSERT(!this._isFollowingOrFulfilledOrRejected());
-    ASSERT(!promise._isFollowing());
-    ASSERT(promise !== this);
-
-    if (promise._isPending()) {
-        var len = this._length();
-        for (var i = 0; i < len; ++i) {
-            promise._migrateCallbacks(this, i);
-        }
-        this._setFollowing();
-        this._setLength(0);
-        this._setFollowee(promise);
-        this._propagateFrom(promise, PROPAGATE_CANCEL);
-    } else if (promise._isFulfilled()) {
-        this._fulfillUnchecked(promise._value());
-    } else {
-        this._rejectUnchecked(promise._reason(),
-            promise._getCarriedStackTrace());
-    }
-    ASSERT(this._isFollowingOrFulfilledOrRejected());
-};
-
-Promise.prototype._tryFollow = function (value) {
-    ASSERT(arguments.length === 1);
-    if (this._isFollowingOrFulfilledOrRejected() ||
-        value === this) {
-        return false;
-    }
-    var maybePromise = tryConvertToPromise(value, this);
-    if (!(maybePromise instanceof Promise)) {
-        return false;
-    }
-    this._follow(maybePromise._target());
-    return true;
 };
 
 Promise.prototype._cleanValues = function () {

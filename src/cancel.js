@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise) {
 var errors = require("./errors.js");
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
@@ -34,9 +34,7 @@ Promise.prototype.cancellable = function () {
 };
 
 Promise.prototype.uncancellable = function () {
-    var ret = new Promise(INTERNAL);
-    ret._propagateFrom(this, PROPAGATE_BIND);
-    ret._follow(this);
+    var ret = this.then();
     ret._unsetCancellable();
     return ret;
 };

@@ -31,10 +31,8 @@ Promise.prototype.bind = function (thisArg) {
             return ret;
         }
     }
-    var ret = new Promise(INTERNAL);
-    ret._propagateFrom(this, PROPAGATE_CANCEL);
+    var ret = this.then();
     ret._setBoundTo(thisArg);
-    ret._follow(this._target());
     return ret;
 };
 

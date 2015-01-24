@@ -73,7 +73,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             return;
         }
     } else if (!isArray(values)) {
-        this._promise._follow(apiRejection(COLLECTION_ERROR));
+        this._promise._reject(apiRejection(COLLECTION_ERROR)._reason());
         return;
     }
 
