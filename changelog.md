@@ -1,3 +1,21 @@
+## 2.9.0 (2015-01-24)
+
+Features:
+
+ - Add [`Promise.fromNode`](API.md#promisefromnodefunction-resolver---promise)
+ - Add new paramter `value` for [`Promise.bind`](API.md#promisebinddynamic-thisarg--dynamic-value---promise)
+
+Bugfixes:
+
+ - Fix several issues with [`cancellation`](API.md#cancellation) and [`.bind()`](API.md#binddynamic-thisarg---promise) interoperation when `thisArg` is a promise or thenable
+ - Fix promises created in [`disposers`](API#disposerfunction-disposer---disposer) not having proper long stack trace context
+ - Fix [`Promise.join`](API.md#promisejoinpromisethenablevalue-promises-function-handler---promise) sometimes passing the passed in callback function as the last argument to itself.
+
+Misc:
+
+ - Reduce minified full browser build file size by not including unused code generation functionality.
+ - Major internal refactoring related to testing code and source code file layout
+
 ## 2.8.2 (2015-01-20)
 
 Features:
