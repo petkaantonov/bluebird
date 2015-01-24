@@ -46,6 +46,7 @@
         - [Option: `suffix`](#option-suffix)
         - [Option: `filter`](#option-filter)
         - [Option: `promisifier`](#option-promisifier)
+    - [`Promise.fromNode(Function resolver)`](#promisefromnodefunction-resolver---promise)
     - [`.nodeify([Function callback] [, Object options])`](#nodeifyfunction-callback--object-options---promise)
         - [Option: `spread`](#option-spread)
 - [Timers](#timers)
@@ -1780,6 +1781,36 @@ var fs = Promise.promisifyAll(require("fs"), {
 var version = fs.readFileAsync("package.json", "utf8").then(JSON.parse).get("version");
 fs.writeFileAsync("the-version.txt", version, "utf8");
 ```
+<hr>
+
+#####`Promise.fromNode(Function resolver) -> `Promise`
+
+Returns a promise that is resolved by a node style callback function. This is the most fitting way to do on the fly promisification when libraries don't expose classes for automatic promisification by [`promisifyAll`](#promisepromisifyallobject-target--object-options---object).
+
+The resolver function is passed a callback that expects to be called back according to error-first node conventions.
+
+Using manual resolver:
+
+```js
+// TODO use real library that doesn't expose prototypes for promisification
+var object = crummyLibrary.create();
+Promise.fromNode(function(callback) {
+    object.foo("firstArgument", callback);
+}).then(function(result) {
+    console.log(result);
+})
+```
+
+The same can also be written with `.bind`:
+
+```js
+// TODO use real library that doesn't expose prototypes for promisification
+var object = crummyLibrary.create();
+Promise.fromNode(object.foo.bind(object, "firstArgument")).then(function(result) {
+    console.log(result);
+})
+```
+
 <hr>
 
 #####`.nodeify([Function callback] [, Object options])` -> `Promise`

@@ -831,3 +831,45 @@ describe("Promise.defer-test", function () {
         assert(undefined === d.progress());
     });
 });
+
+describe("Promise.fromNode", function() {
+    specify("rejects thrown errors from resolver", function(done) {
+        var err = new Error();
+        Promise.fromNode(function(callback) {
+            throw err;
+        }).caught(function(e) {
+            assert.strictEqual(err, e);
+            done();
+        });
+    });
+    specify("rejects rejections as operational errors", function(done) {
+        var err = new Error();
+        Promise.fromNode(function(callback) {
+            callback(err);
+        }).caught(Promise.OperationalError, function(e) {
+            assert.strictEqual(err, e.cause);
+            done();
+        });
+    });
+    specify("resolves normally", function(done) {
+        var result = {};
+        Promise.fromNode(function(callback) {
+            callback(null, result);
+        }).then(function(res) {
+            assert.strictEqual(result, res);
+            done();
+        });
+    });
+    specify("resolves with bound thunk", function(done) {
+        var nodeFn = function(param, cb) {
+            setTimeout(function() {
+                cb(null, param);
+            }, 1);
+        };
+
+        Promise.fromNode(nodeFn.bind(null, 1)).then(function(res) {
+            assert.strictEqual(1, res);
+            done();
+        });
+    });
+});

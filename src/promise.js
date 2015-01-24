@@ -34,6 +34,7 @@ var createContext =
     require("./context.js")(Promise, CapturedTrace, isDebugging);
 var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var PromiseResolver = require("./promise_resolver.js");
+var nodebackForPromise = PromiseResolver._nodebackForPromise;
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 
@@ -148,6 +149,15 @@ Promise.prototype.error = function (fn) {
 
 Promise.is = function (val) {
     return val instanceof Promise;
+};
+
+Promise.fromNode = function(fn) {
+    var ret = new Promise(INTERNAL);
+    var result = tryCatch(fn)(nodebackForPromise(ret));
+    if (result === errorObj) {
+        ret._rejectCallback(result.e, true, true);
+    }
+    return ret;
 };
 
 Promise.all = function (promises) {
