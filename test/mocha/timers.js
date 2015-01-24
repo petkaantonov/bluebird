@@ -188,7 +188,7 @@ describe("delay", function () {
         setTimeout(function () {
             assert(!promise1.isPending())
             assert(promise2.isPending());
-        }, 40);
+        }, 50);
 
         return promise2.then(function (value) {
             assert(value === "what");
