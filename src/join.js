@@ -52,8 +52,8 @@ if (canEvaluate) {
             promise._popContext();
             if (ret === errorObj) {
                 promise._rejectCallback(ret.e, false, true);
-            } else if (!promise._tryFollow(ret)) {
-                promise._fulfillUnchecked(ret);
+            } else {
+                promise._resolveCallback(ret);
             }
         } else {
             this.now = now;

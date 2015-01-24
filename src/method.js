@@ -40,6 +40,7 @@ Promise.prototype._resolveFromSyncValue = function (value) {
     if (value === util.errorObj) {
         this._rejectCallback(value.e, false, true);
     } else {
+        this._resolveCallback(value, true);
         this._resolveCallback(value);
     }
 };

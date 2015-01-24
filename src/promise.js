@@ -440,11 +440,16 @@ Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
     this._setProxyHandlers(promiseArray, index);
 };
 
-Promise.prototype._resolveCallback = function(value) {
-    if (this._tryFollow(value)) {
-        return;
-    }
-    this._fulfill(value);
+Promise.prototype._resolveCallback = function(value, shouldBind) {
+    if (this._isFollowingOrFulfilledOrRejected()) return;
+    if (value === this)
+        return this._rejectCallback(makeSelfResolutionError(), false, true);
+    var maybePromise = tryConvertToPromise(value, this);
+    if (!(maybePromise instanceof Promise)) return this._fulfill(value);
+
+    var propagationFlags = PROPAGATE_CANCEL | (shouldBind ? PROPAGATE_BIND : 0);
+    this._propagateFrom(maybePromise, propagationFlags);
+    this._follow(maybePromise._target());
 };
 
 Promise.prototype._rejectCallback =

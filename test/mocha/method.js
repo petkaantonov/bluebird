@@ -125,4 +125,14 @@ describe("Promise.method", function(){
             done();
         })();
     });
+    specify("should retain binding from returned promise", function(done) {
+        var THIS = {};
+        Promise.method(function() {
+            return Promise.bind(THIS, 1);
+        })().then(function(value) {
+            assert.strictEqual(THIS, this);
+            assert.strictEqual(1, value);
+            done();
+        });
+    });
 });
