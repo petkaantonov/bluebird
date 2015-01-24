@@ -1,3 +1,9 @@
+## 2.9.1 (2015-01-24)
+
+Features:
+
+ - If a bound promise is returned by the callback to [`Promise.method`](#promisemethodfunction-fn---function) and [`Promise.try`](#promisetryfunction-fn--arraydynamicdynamic-arguments--dynamic-ctx----promise), the returned promise will be bound to the same value
+
 ## 2.9.0 (2015-01-24)
 
 Features:
