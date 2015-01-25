@@ -285,11 +285,5 @@ Promise.all([testResults, jsHint]).spread(function(_, jsHintResponse) {
     } else {
         console.error(e.noStackPrint ? e.message : e.stack);
     }
-
-    if (e) {
-        Object.keys(e).forEach(function(key) {
-            console.error(key, e[key]);
-        });
-    }
     process.exit(2);
 });

@@ -7,7 +7,13 @@ var fs = Promise.promisifyAll(require("fs"));
 var notAscii = /[^\u0019-\u007E]/;
 var Table = require('cli-table');
 
-function checkAscii(path, contents) {
+function noStackError(message) {
+    var e = new Error(message);
+    e.noStackPrint = true;
+    return e;
+}
+
+function checkAscii(fileName, contents) {
     if (notAscii.test(contents)) {
         contents.split("\n").forEach(function(line, i) {
             if (notAscii.test(line)) {
@@ -16,8 +22,9 @@ function checkAscii(path, contents) {
                 var code = "U+" + (("0000" + line.charCodeAt(col-1)
                                                     .toString(16)).slice(-4));
                 code = RegExp.lastMatch + " (" + code.toUpperCase() + ")";
-                throw new Error(path +":" + lineNo +":" + col +
-                        " Non-ASCII character: " + code);
+                var fullPath = path.join(process.cwd(), "src", fileName);
+                throw noStackError("The file " + fullPath + "\ncontains an illegal character: " +
+                    code + " on line " + lineNo + " at column " + col);
             }
         });
     }
