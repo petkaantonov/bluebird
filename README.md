@@ -97,6 +97,7 @@ After quick start, see [API Reference and examples](API.md)
 
 #Support
 
+- Mailing list: [bluebird-js@googlegroups.com](https://groups.google.com/forum/#!forum/bluebird-js)
 - IRC: #promises @freenode
 - StackOverflow: [bluebird tag](http://stackoverflow.com/questions/tagged/bluebird)
 - Bugs and feature requests: [github issue tracker](https://github.com/petkaantonov/bluebird/issues?state=open)

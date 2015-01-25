@@ -1,6 +1,6 @@
 #READ BEFORE CREATING A NEW ISSUE
 
-The issue tracker is for bug reports and feature requests. If you'd like help with a usage question please use [the [bluebird] tag in Stack Overflow](http://stackoverflow.com/tags/bluebird) and ask there. The tag is monitored regularly.
+The issue tracker is for bug reports and feature requests. If you'd like help with a usage question please use [the [bluebird] tag in Stack Overflow](http://stackoverflow.com/tags/bluebird) and ask there. The tag is monitored regularly. You may also discuss things that are out of scope for the issue tracker on the [mailing list](https://groups.google.com/forum/#!forum/bluebird-js).
 
 
 # Contributing to bluebird
