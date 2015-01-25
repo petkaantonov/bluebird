@@ -182,8 +182,8 @@ describe("delay", function () {
     });
 
     it("should delay after resolution", function () {
-        var promise1 = Promise.delay("what", 30);
-        var promise2 = promise1.delay(30);
+        var promise1 = Promise.delay("what", 10);
+        var promise2 = promise1.delay(100);
 
         setTimeout(function () {
             assert(!promise1.isPending())
