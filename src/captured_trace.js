@@ -480,7 +480,7 @@ var fireGlobalEvent = (function() {
         } catch (e) {}
         if (!customEventWorks) {
             try {
-                event = document.createEvent("CustomEvent");
+                var event = document.createEvent("CustomEvent");
                 event.initCustomEvent("testingtheevent", false, true, {});
                 self.dispatchEvent(event);
             } catch (e) {
