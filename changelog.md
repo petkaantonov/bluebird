@@ -1,3 +1,13 @@
+## 2.9.2 (2015-01-26)
+
+Bugfixes:
+
+ - Fix critical bug regarding to using promisifyAll in browser that was introduced in 2.9.0 ([#466](https://github.com/petkaantonov/bluebird/issues/466)).
+
+Misc:
+
+ - Add `"browser"` entry point to package.json
+
 ## 2.9.1 (2015-01-24)
 
 Features:
