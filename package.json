@@ -60,6 +60,7 @@
   },
   "readmeFilename": "README.md",
   "main": "./js/main/bluebird.js",
+  "browser": "./js/browser/bluebird.js",
   "files": [
     "js/browser",
     "js/main",
