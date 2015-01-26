@@ -473,27 +473,39 @@ var fireGlobalEvent = (function() {
         };
     } else {
         var customEventWorks = false;
+        var anyEventWorks = true;
         try {
             var ev = new self.CustomEvent("test");
             customEventWorks = ev instanceof CustomEvent;
         } catch (e) {}
-        fireDomEvent = function(type, detail) {
-            var event;
-            // WebWorkers and Up-to-date browsers
-            if (customEventWorks) {
-                event = new self.CustomEvent(type, {
-                    detail: detail,
-                    bubbles: false,
-                    cancelable: true
-                });
-            // IE9
-            } else if (self.dispatchEvent) {
+        if (!customEventWorks) {
+            try {
                 event = document.createEvent("CustomEvent");
-                event.initCustomEvent(type, false, true, detail);
+                event.initCustomEvent("testingtheevent", false, true, {});
+                self.dispatchEvent(event);
+            } catch (e) {
+                anyEventWorks = false;
             }
+        }
+        if (anyEventWorks) {
+            fireDomEvent = function(type, detail) {
+                var event;
+                // WebWorkers and Up-to-date browsers
+                if (customEventWorks) {
+                    event = new self.CustomEvent(type, {
+                        detail: detail,
+                        bubbles: false,
+                        cancelable: true
+                    });
+                // IE9
+                } else if (self.dispatchEvent) {
+                    event = document.createEvent("CustomEvent");
+                    event.initCustomEvent(type, false, true, detail);
+                }
 
-            return event ? !self.dispatchEvent(event) : false;
-        };
+                return event ? !self.dispatchEvent(event) : false;
+            };
+        }
 
         var toWindowMethodNameMap = {};
         toWindowMethodNameMap[UNHANDLED_REJECTION_EVENT] = ("on" +
