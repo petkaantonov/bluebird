@@ -473,7 +473,7 @@ function(reason, synchronous, shouldNotMarkOriginatingFromRejection) {
     }
     var trace = util.ensureErrorObject(reason);
     var hasStack = util.canAttachTrace(reason) &&
-        typeof trace.stack === "string";
+        typeof trace.stack === "string" && trace.stack.length > 0;
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
     this._reject(reason, trace === reason ? undefined : trace);
 };

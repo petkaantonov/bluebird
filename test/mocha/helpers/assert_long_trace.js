@@ -30,11 +30,20 @@ function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
                     throw new Error("2 consecutive From previous events");
                 }
                 if (jumpIndex < expectedFramesForJumpsMap.length) {
-                    assert.strictEqual(expectedFramesForJumpsMap[jumpIndex],
-                        currentJumpFramesCount,
-                        "Expected " + (jumpIndex+1) + "th jump to contain " +
-                        expectedFramesForJumpsMap[jumpIndex] + " frames " +
-                        "but it contains " + currentJumpFramesCount + " frames");
+                    var expectedFrames = expectedFramesForJumpsMap[jumpIndex];
+                    var expectedMessage = typeof expectedFrames === "number"
+                        ? (expectedFrames + "")
+                        : (expectedFrames[0] + "-" + expectedFrames[1]);
+                    var message = "Expected " + (jumpIndex+1) + "th jump to contain " +
+                        expectedMessage + " frames " +
+                        "but it contains " + currentJumpFramesCount + " frames";
+                    if (typeof expectedFrames === "number") {
+                        assert(expectedFrames === currentJumpFramesCount, message);
+                    } else {
+                        assert(expectedFrames[0] <= currentJumpFramesCount &&
+                               currentJumpFramesCount <= expectedFrames[1],
+                               message);
+                    }
                 }
                 jumpCount++;
                 jumpIndex++;

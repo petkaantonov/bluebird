@@ -7,20 +7,17 @@ var nodeVersion = typeof process !== "undefined" &&
         : [-1, -1, -1];
 
 if (!Promise.hasLongStackTraces()) return;
-// TODO IE and FireFox
-if (!Error.captureStackTrace) return;
 
 describe(".then as context", function() {
-    it("1 level", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level", function() {
+        return Promise.resolve().then(function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -30,11 +27,10 @@ describe(".then as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
-    it("1 level using promise reject with no stack", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level using promise reject with no stack", function() {
+        return Promise.resolve().then(function() {
             var e;
             try {throw new Error()} catch (err){e = err;}
             e.stack;
@@ -42,11 +38,10 @@ describe(".then as context", function() {
             return Promise.reject(e);
         }).caught(function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
-            done();
         });
     });
-    it("4 levels using promise reject", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels using promise reject", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -58,22 +53,20 @@ describe(".then as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
-    it("Circular 1 level", function(done) {
+    it("Circular 1 level", function() {
         var i = 0;
-        (function circle() {
+        return (function circle() {
             if (i++ > 5) throw new Error()
             return Promise.resolve().then(circle);
         })().caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("Circular 4 levels", function(done) {
+    it("Circular 4 levels", function() {
         var i = 0;
-        (function circle() {
+        return (function circle() {
             if (i++ > 5) throw new Error()
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
@@ -84,12 +77,11 @@ describe(".then as context", function() {
             });
         })().caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 
-    it("followers unaffected", function(done) {
-        Promise.resolve().then(function() {
+    it("followers unaffected", function() {
+        return Promise.resolve().then(function() {
             return new Promise(function(res) {
                 res(Promise.delay(13).then(function() {
                     return new Promise(function(res) {
@@ -104,11 +96,10 @@ describe(".then as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
-            done();
         });
     });
 
-    it("3 distinct episodes of circularity with unique frames in between", function(done) {
+    it("3 distinct episodes of circularity with unique frames in between", function() {
         var i = 0;
         var j = 0;
         var k = 0;
@@ -172,7 +163,7 @@ describe(".then as context", function() {
             });
         }
 
-        circle1().caught(function(e) {
+        return circle1().caught(function(e) {
             assertLongTrace(e,
                 (4 + 1) + (4 + 1) + (4 + 1) + 1,
                 [
@@ -180,22 +171,20 @@ describe(".then as context", function() {
                     1, 1, 2, 1, 1,
                     1, 1, 2, 1, 1
                 ]);
-            done();
         });
     });
 });
 
 describe(".spread as context", function() {
-    it("1 level", function(done) {
-        Promise.resolve([]).spread(function() {
+    it("1 level", function() {
+        return Promise.resolve([]).spread(function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.resolve([]).spread(function() {
+    it("4 levels", function() {
+        return Promise.resolve([]).spread(function() {
             return Promise.resolve([]).spread(function() {
                 return Promise.resolve([]).spread(function() {
                     return Promise.resolve([]).spread(function() {
@@ -205,43 +194,39 @@ describe(".spread as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe("constructor as context", function() {
-    it("0 level", function(done) {
-        new Promise(function() {
+    it("0 level", function() {
+        return new Promise(function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1, []);
-            done();
         });
     });
-    it("1 level", function(done) {
-        new Promise(function(res) {
+    it("1 level", function() {
+        return new Promise(function(res) {
             res(new Promise(function() {
                 throw new Error();
             }))
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [2]);
-            done();
         });
     });
-    it("0 level, no stack property", function(done) {
-        new Promise(function(_ ,rej) {
+    it("0 level, no stack property", function() {
+        return new Promise(function(_ ,rej) {
             var e = new Error();
             e.stack;
             delete e.stack;
             rej(e);
         }).caught(function(e) {
             assertLongTrace(e, 2, [1]);
-            done();
         });
     });
-    it("1 level, no stack property", function(done) {
-        new Promise(function(res) {
+    it("1 level, no stack property", function() {
+        return new Promise(function(res) {
             res(new Promise(function(_, rej) {
                 var e = new Error();
                 e.stack;
@@ -250,12 +235,11 @@ describe("constructor as context", function() {
             }))
         }).caught(function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
-            done();
         });
     });
 
-    it("4 levels", function(done) {
-        new Promise(function(res) {
+    it("4 levels", function() {
+        return new Promise(function(res) {
             res(new Promise(function(res) {
                 res(new Promise(function(res) {
                     res(new Promise(function(res) {
@@ -267,30 +251,29 @@ describe("constructor as context", function() {
             }));
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [2, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe(".join as context", function() {
-    it("0 level", function(done) {
-        Promise.join(1, 2, Promise.reject(new Error()), function() {
+    it("0 level", function() {
+        var err;
+        try {throw new Error(); } catch(e) {err = e;};
+        return Promise.join(1, 2, Promise.reject(err), function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 0 + 1, []);
-            done();
         });
     });
-    it("1 level", function(done) {
-        Promise.join(1, 2, 3, function() {
+    it("1 level", function() {
+        return Promise.join(1, 2, 3, function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.join(1, 2, 3, function() {
+    it("4 levels", function() {
+        return Promise.join(1, 2, 3, function() {
             return Promise.join(1, 2, 3, function() {
                 return Promise.join(1, 2, 3, function() {
                     return Promise.join(1, 2, 3, function() {
@@ -300,22 +283,20 @@ describe(".join as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe(".map as context", function() {
-    it("1 level", function(done) {
-        Promise.map([1,2,3], function() {
+    it("1 level", function() {
+        return Promise.map([1,2,3], function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.map([1,2,3], function() {
+    it("4 levels", function() {
+        return Promise.map([1,2,3], function() {
             return Promise.map([1,2,3], function() {
                 return Promise.map([1,2,3], function() {
                     return Promise.map([1,2,3], function() {
@@ -325,22 +306,20 @@ describe(".map as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe(".reduce as context", function() {
-    it("1 level", function(done) {
-        Promise.reduce([1,2,3], function() {
+    it("1 level", function() {
+        return Promise.reduce([1,2,3], function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.reduce([1,2,3], function() {
+    it("4 levels", function() {
+        return Promise.reduce([1,2,3], function() {
             return Promise.reduce([1,2,3], function() {
                 return Promise.reduce([1,2,3], function() {
                     return Promise.reduce([1,2,3], function() {
@@ -350,21 +329,19 @@ describe(".reduce as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe(".method as context", function() {
-    it("1 level", function(done) {
-        Promise.method(function() {
+    it("1 level", function() {
+        return Promise.method(function() {
             throw new Error();
         })().caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
+    it("4 levels", function() {
         var second = Promise.method(function() {
             return third();
         });
@@ -375,27 +352,25 @@ describe(".method as context", function() {
             throw new Error();
         });
 
-        Promise.method(function() {
+        return Promise.method(function() {
             return second();
         })().caught(function(e) {
-            assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
+            assertLongTrace(e, 4 + 1, [[1,2], 1, 1, 1]);
         });
     });
 });
 
 describe(".try as context", function() {
-    it("1 level", function(done) {
-        Promise.attempt(function() {
+    it("1 level", function() {
+        return Promise.attempt(function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
 
-    it("4 levels", function(done) {
-        Promise.attempt(function() {
+    it("4 levels", function() {
+        return Promise.attempt(function() {
             return Promise.attempt(function() {
                 return Promise.attempt(function() {
                     return Promise.attempt(function() {
@@ -405,30 +380,29 @@ describe(".try as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
 
 describe(".using as context", function() {
-    it("0 level", function(done) {
-        Promise.using(1, 2, Promise.reject(new Error()), function() {
+    it("0 level", function() {
+        var err;
+        try {throw new Error(); } catch(e) {err = e};
+        return Promise.using(1, 2, Promise.reject(err), function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 0 + 1, []);
-            done();
         });
     });
-    it("1 level", function(done) {
-        Promise.using(1, 2, 3, function() {
+    it("1 level", function() {
+        return Promise.using(1, 2, 3, function() {
             throw new Error();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels", function(done) {
-        Promise.using(1, 2, 3, function() {
+    it("4 levels", function() {
+        return Promise.using(1, 2, 3, function() {
             return Promise.using(1, 2, 3, function() {
                 return Promise.using(1, 2, 3, function() {
                     return Promise.using(1, 2, 3, function() {
@@ -438,7 +412,6 @@ describe(".using as context", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });
@@ -479,16 +452,15 @@ describe("Long stack traces from thenable rejections", function() {
         });
         return ret;
     };
-    it("1 level sync reject", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level sync reject", function() {
+        return Promise.resolve().then(function() {
             return syncRej();
         }).caught(function(e) {
             assertLongTrace(e, 1+1, [1]);
-            done();
         });
     });
-    it("4 levels sync reject", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels sync reject", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -498,19 +470,17 @@ describe("Long stack traces from thenable rejections", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
-    it("1 level async reject", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level async reject", function() {
+        return Promise.resolve().then(function() {
             return asyncRej();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels async reject", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels async reject", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -520,19 +490,17 @@ describe("Long stack traces from thenable rejections", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
-    it("1 level throw", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level throw", function() {
+        return Promise.resolve().then(function() {
             return throwRej();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels throw", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels throw", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -542,19 +510,17 @@ describe("Long stack traces from thenable rejections", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
-    it("1 level getter throw", function(done) {
-        Promise.resolve().then(function() {
+    it("1 level getter throw", function() {
+        return Promise.resolve().then(function() {
             return thenGetRej();
         }).caught(function(e) {
             assertLongTrace(e, 1 + 1, [1]);
-            done();
         });
     });
-    it("4 levels getter throw", function(done) {
-        Promise.resolve().then(function() {
+    it("4 levels getter throw", function() {
+        return Promise.resolve().then(function() {
             return Promise.resolve().then(function() {
                 return Promise.resolve().then(function() {
                     return Promise.resolve().then(function() {
@@ -564,7 +530,6 @@ describe("Long stack traces from thenable rejections", function() {
             });
         }).caught(function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
-            done();
         });
     });
 });

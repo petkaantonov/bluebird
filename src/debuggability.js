@@ -102,8 +102,10 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
         }
         if (trace !== undefined) {
             trace.attachExtraTrace(error);
-        } else {
-            CapturedTrace.cleanHeaderStack(error, true);
+        } else if (!error.__stackCleaned__) {
+            var parsed = CapturedTrace.parseStackAndMessage(error);
+            error.stack = parsed.stack.join("\n");
+            error.__stackCleaned__ = true;
         }
     }
 };
