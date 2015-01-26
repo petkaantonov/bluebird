@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "acorn": "~0.6.0",
-    "bluebird": "^2.8.0",
+    "bluebird": "^2.9.2",
     "body-parser": "^1.10.2",
     "browserify": "^8.1.1",
     "cli-table": "~0.3.1",
