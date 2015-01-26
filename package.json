@@ -41,7 +41,7 @@
     "acorn": "~0.6.0",
     "bluebird": "^2.8.0",
     "body-parser": "^1.10.2",
-    "browserify": "~8.0.3",
+    "browserify": "^8.1.1",
     "cli-table": "~0.3.1",
     "cross-spawn": "^0.2.3",
     "glob": "^4.3.2",

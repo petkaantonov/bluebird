@@ -234,6 +234,7 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                         self.P = self.Promise;                                     \
                     }";
                     src = src + alias;
+                    src = src.replace(/\brequire\b/g, "_dereq_");
                     var minWrite, write;
                     if (minify) {
                         var minSrc = UglifyJS.minify(src, {

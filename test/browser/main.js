@@ -1,65 +1,66 @@
 (function() {
-  var currentTime = 0;
-  var timers = {};
-  var currentId = 0;
-  var global = window;
+    var currentTime = 0;
+    var timers = {};
+    var currentId = 0;
+    var global = window;
 
-  function checkTimers() {
-      Object.keys(timers).forEach(function(key) {
-          var timer = timers[key];
-          if (!timer) return;
+    function checkTimers() {
+        var keys = Object.keys(timers);
+        for (var i = 0; i < keys.length; ++i) {
+            key = keys[i];
+            var timer = timers[key];
+            if (!timer) continue;
+            if (currentTime >= (timer.started + timer.time)) {
+                if (timer.interval) {
+                    timer.started = currentTime;
+                } else {
+                    delete timers[key];
+                }
+                var fn = timer.fn;
+                fn();
+            }
+        }
+    }
 
-          if (currentTime >= (timer.started + timer.time)) {
-              if (timer.interval) {
-                  timer.started = currentTime;
-              } else {
-                  delete timers[key];
-              }
-              var fn = timer.fn;
-              fn();
-          }
-      });
-  }
+    function setInterval(fn, time) {
+        var id = currentId++;
+        time = (+time || 0) | 0;
+        if (time < 0) time = 0;
+        timers[id] = {
+            fn: fn,
+            time: time,
+            started: currentTime,
+            interval: true
+        };
+        return id;
+    }
 
-  function setInterval(fn, time) {
-      var id = currentId++;
-      time = (+time || 0) | 0;
-      if (time < 0) time = 0;
-      timers[id] = {
-          fn: fn,
-          time: time,
-          started: currentTime,
-          interval: true
-      };
-      return id;
-  }
+    function setTimeout(fn, time) {
+        var id = currentId++;
+        time = (+time || 0) | 0;
+        if (time < 0) time = 0;
+        timers[id] = {
+            fn: fn,
+            time: time,
+            started: currentTime,
+            interval: false
+        };
+        return id;
+    }
 
-  function setTimeout(fn, time) {
-      var id = currentId++;
-      time = (+time || 0) | 0;
-      if (time < 0) time = 0;
-      timers[id] = {
-          fn: fn,
-          time: time,
-          started: currentTime,
-          interval: false
-      };
-      return id;
-  }
+    function clearTimeout(id) {
+        delete timers[id];
+    }
 
-  function clearTimeout(id) {
-      delete timers[id];
-  }
-
-  var clearInterval = clearTimeout;
-  window.setInterval(function() {
-    currentTime += 10;
-    checkTimers();
-  }, 1);
-  window.setTimeout = setTimeout;
-  window.clearTimeout = clearTimeout;
-  window.setInterval = setInterval;
-  window.clearInterval = clearInterval;
+    var clearInterval = clearTimeout;
+    window.setInterval(function timerLoop() {
+        currentTime += 10;
+        checkTimers();
+    }, 1);
+    window.setTimeout = setTimeout;
+    window.clearTimeout = clearTimeout;
+    window.setInterval = setInterval;
+    window.clearInterval = clearInterval;
 })();
 window.assert = require("assert");
 
@@ -82,7 +83,7 @@ window.assert.deepEqual = function(a, b) {
 };
 
 window.setImmediate = function(fn){
-    setTimeout(fn, 0);
+        setTimeout(fn, 0);
 };
 
 window.onload = function(){
@@ -90,36 +91,36 @@ window.onload = function(){
 
     var failedTests = [];
     runner.on('end', function(){
-      window.mochaResults = runner.stats;
-      window.mochaResults.reports = failedTests;
-      if (window.__coverage__) {
-        postCoverage();
-      }
+        window.mochaResults = runner.stats;
+        window.mochaResults.reports = failedTests;
+        if (window.__coverage__) {
+          postCoverage();
+        }
     });
 
     runner.on('fail', logFailure);
 
     function logFailure(test, err) {
 
-      var flattenTitles = function(test){
+    var flattenTitles = function(test){
         var titles = [];
         while (test.parent.title){
-          titles.push(test.parent.title);
-          test = test.parent;
+            titles.push(test.parent.title);
+            test = test.parent;
         }
         return titles.reverse();
-      };
+    };
 
-      failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+    failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
     }
 };
 
 function postCoverage() {
-  var json = JSON.stringify(window.__coverage__);
-  var xhr = new XMLHttpRequest();
-  var browser = (navigator.userAgent + "").replace(/[^a-zA-Z0-9]/g, "");
-  var data = "json=" + encodeURIComponent(json) + "&browser=" + encodeURIComponent(browser);
-  xhr.open("POST", "/coverdata", true);
-  xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-  xhr.send(data);
+    var json = JSON.stringify(window.__coverage__);
+    var xhr = new XMLHttpRequest();
+    var browser = (navigator.userAgent + "").replace(/[^a-zA-Z0-9]/g, "");
+    var data = "json=" + encodeURIComponent(json) + "&browser=" + encodeURIComponent(browser);
+    xhr.open("POST", "/coverdata", true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send(data);
 }

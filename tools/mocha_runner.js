@@ -4,18 +4,21 @@ module.exports = function mochaRun(progress) {
     var currentId = 0;
 
     function checkTimers() {
-        Object.keys(timers).forEach(function(key) {
+        var keys = Object.keys(timers);
+        for (var i = 0; i < keys.length; ++i) {
+            key = keys[i];
             var timer = timers[key];
-
+            if (!timer) continue;
             if (currentTime >= (timer.started + timer.time)) {
                 if (timer.interval) {
                     timer.started = currentTime;
                 } else {
                     delete timers[key];
                 }
-                timer.fn.call(global);
+                var fn = timer.fn;
+                fn();
             }
-        });
+        }
     }
 
     function setInterval(fn, time) {
@@ -50,12 +53,12 @@ module.exports = function mochaRun(progress) {
 
     var clearInterval = clearTimeout;
     if (fakeTimers) {
-        (function tick() {
+        (function timerLoop() {
             currentTime += 10;
             try {
                 checkTimers();
             } finally {
-                setImmediate(tick);
+                setImmediate(timerLoop);
             }
         })();
 

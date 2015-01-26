@@ -99,7 +99,7 @@ function writeCoverageFile(coverage, groupNumber) {
 }
 
 function needsFreshProcess(testName) {
-    return /domain|schedule/.test(testName);
+    return /domain|schedule|api_exceptions/.test(testName);
 }
 
 function runTestGroup(testGroup, options, progress) {
@@ -176,9 +176,14 @@ if (options.cover && typeof argv["cover"] === "string") {
 
 var jsHint = options.jsHint ? require("./jshint.js")() : Promise.resolve();
 var tests = getTests(options);
-var buildResult = build({
+var buildOpts = {
     debug: true
-});
+};
+if (options.testBrowser) {
+    buildOpts.browser = true;
+    buildOpts.minify = true;
+}
+var buildResult = build(buildOpts);
 if (options.cover) {
     var exclusions = ["assert.js", "captured_trace.js"];
     var coverageInstrumentedRoot = build.ensureDirectory(build.dirs.instrumented,options.cover);

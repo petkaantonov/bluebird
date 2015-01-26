@@ -1,7 +1,7 @@
 var assert = require("assert");
 
 function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
-    var envFramePattern = /(?:\(node.js:|\(module.js:|\(timers.js:)/;
+    var envFramePattern = /(?:\(node.js:|\(module.js:|\(timers.js:|\bcheckTimers\b|\bdrainQueue\b|\btimerLoop\b|\b_onImmediate\b|\b_immediateCallback\b)/;
     var stack = error.stack.split("\n");
     var frameLinePattern = /(^\s+at|@|\s+\(No stack trace\))/;
     var previousEventPattern = /^From previous event/;
@@ -32,7 +32,7 @@ function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
                 if (jumpIndex < expectedFramesForJumpsMap.length) {
                     assert.strictEqual(expectedFramesForJumpsMap[jumpIndex],
                         currentJumpFramesCount,
-                        "Expected " + (jumpIndex+1) + "nth jump to contain" +
+                        "Expected " + (jumpIndex+1) + "th jump to contain " +
                         expectedFramesForJumpsMap[jumpIndex] + " frames " +
                         "but it contains " + currentJumpFramesCount + " frames");
                 }

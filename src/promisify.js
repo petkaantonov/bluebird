@@ -68,12 +68,12 @@ function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
     return ret;
 }
 
-var makeNodePromisifiedEval;
-if (!__BROWSER__) {
-
 var escapeIdentRegex = function(str) {
     return str.replace(/([$])/, "\\$");
 };
+
+var makeNodePromisifiedEval;
+if (!__BROWSER__) {
 //Gives an optimal sequence of argument count to try given a formal parameter
 //.length for a function
 var switchCaseArgumentOrder = function(likelyArgumentCount) {
