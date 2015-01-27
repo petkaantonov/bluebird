@@ -689,8 +689,15 @@ describe("global events", function() {
 
     });
 });
-
-if (typeof document !== "undefined" && document.dispatchEvent) {
+var windowDomEventSupported = true;
+try {
+    var event = document.createEvent("CustomEvent");
+    event.initCustomEvent("testingtheevent", false, true, {});
+    self.dispatchEvent(event);
+} catch (e) {
+    windowDomEventSupported = false;
+}
+if (windowDomEventSupported) {
     describe("dom events", function() {
         var events = [];
 
