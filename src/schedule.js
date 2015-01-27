@@ -1,7 +1,8 @@
 "use strict";
 var schedule;
 if (typeof process === "object" && typeof process.version === "string") {
-    schedule = parseInt(process.version.split(".")[1], 10) > 10
+    var version = process.version.split(".").map(Number);
+    schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
         ? global.setImmediate : process.nextTick;
 }
 else if (typeof MutationObserver !== "undefined") {
