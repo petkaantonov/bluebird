@@ -391,7 +391,7 @@ var captureStackTrace = (function stackDetection() {
 
     //SpiderMonkey
     if (typeof err.stack === "string" &&
-        err.stack.split("\n")[0].indexOf("@") >= 0) {
+        err.stack.split("\n")[0].indexOf("stackDetection@") >= 0) {
         stackFramePattern = /@/;
         formatStack = v8stackFormatter;
         indentStackFrames = true;
@@ -431,7 +431,7 @@ var captureStackTrace = (function stackDetection() {
 
     return null;
 
-})();
+})([]);
 
 var fireDomEvent;
 var fireGlobalEvent = (function() {
