@@ -64,7 +64,7 @@ describe("non identifier getters", function() {
         });
     });
 
-    specify("overflow cache", function() {
+    specify.skip("overflow cache", function() {
         var a = new Array(1024);
         var o = {};
         for (var i = 0; i < a.length; ++i) {

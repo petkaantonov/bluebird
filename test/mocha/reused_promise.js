@@ -44,7 +44,7 @@ describe("If promise is reused to get at the value many times over the course of
         });
     });
 
-    specify("It will prevent index inflation", function() {
+    specify.skip("It will prevent index inflation", function() {
         var three = Promise.resolve(3);
         var called = 0;
         function fn() {
