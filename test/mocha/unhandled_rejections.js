@@ -6,10 +6,8 @@ var isStrictModeSupported = testUtils.isStrictModeSupported;
 var onUnhandledFail = testUtils.onUnhandledFail;
 var onUnhandledSucceed = testUtils.onUnhandledSucceed;
 
-function e() {
-    var ret = new Error();
-    ret.propagationTest = true;
-    return ret;
+function yesE() {
+    return new Error();
 }
 
 function notE() {
@@ -32,21 +30,21 @@ describe("Will report rejections that are not handled in time", function() {
 
     specify("Immediately rejected not handled at all", function testFunction() {
         var promise = Promise.defer();
-        promise.reject(e());
+        promise.reject(yesE());
         return onUnhandledSucceed();
     });
 
     specify("Eventually rejected not handled at all", function testFunction() {
         var promise = Promise.defer();
         setTimeout(function(){
-            promise.reject(e());
+            promise.reject(yesE());
         }, 1);
         return onUnhandledSucceed();
     });
 
     specify("Immediately rejected handled too late", function testFunction() {
         var promise = Promise.defer();
-        promise.reject(e());
+        promise.reject(yesE());
         setTimeout(function() {
             promise.promise.then(assert.fail, function(){});
         }, 1);
@@ -55,7 +53,7 @@ describe("Will report rejections that are not handled in time", function() {
     specify("Eventually rejected handled too late", function testFunction() {
         var promise = Promise.defer();
         setTimeout(function(){
-            promise.reject(e());
+            promise.reject(yesE());
             setTimeout(function() {
                 promise.promise.then(assert.fail, function(){});
             }, 1);
@@ -90,7 +88,7 @@ describe("Will report rejections that are code errors", function() {
     });
 
     specify("Already fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
-        var err = e();
+        var err = yesE();
         var promise = Promise.resolve(null);
         promise.then(function(itsNull){
             itsNull.will.fail.four.sure();
@@ -105,7 +103,7 @@ describe("Will report rejections that are code errors", function() {
     });
 
     specify("Immediately fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
-        var err = e();
+        var err = yesE();
         var deferred = Promise.defer();
         var promise = deferred.promise;
         deferred.fulfill(null);
@@ -123,7 +121,7 @@ describe("Will report rejections that are code errors", function() {
     });
 
     specify("Eventually fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
-        var err = e();
+        var err = yesE();
         var deferred = Promise.defer();
         var promise = deferred.promise;
 
@@ -145,7 +143,7 @@ describe("Will report rejections that are code errors", function() {
     });
 
     specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failDeferred again", function testFunction() {
-        var err = e();
+        var err = yesE();
         var promise = Promise.resolve(null);
         promise.then(function(itsNull){
             itsNull.will.fail.four.sure();
@@ -208,14 +206,14 @@ describe("Will not report rejections that are handled in time", function() {
     setupCleanUps();
 
     specify("Already rejected handled", function testFunction() {
-        var failDeferred = Promise.reject(e()).caught(noop);
+        var failDeferred = Promise.reject(yesE()).caught(noop);
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
     specify("Immediately rejected handled", function testFunction() {
         var failDeferred = Promise.defer();
         failDeferred.promise.caught(noop);
-        failDeferred.reject(e());
+        failDeferred.reject(yesE());
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
@@ -223,14 +221,14 @@ describe("Will not report rejections that are handled in time", function() {
     specify("Eventually rejected handled", function testFunction() {
         var failDeferred = Promise.defer();
         setTimeout(function() {
-            failDeferred.reject(e());
+            failDeferred.reject(yesE());
         }, 1);
         failDeferred.promise.caught(noop);
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
     specify("Already rejected handled in a deep sequence", function testFunction() {
-        var failDeferred = Promise.reject(e());
+        var failDeferred = Promise.reject(yesE());
 
         failDeferred
             .then(function(){})
@@ -251,7 +249,7 @@ describe("Will not report rejections that are handled in time", function() {
             .caught(noop);
 
 
-        failDeferred.reject(e());
+        failDeferred.reject(yesE());
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
@@ -259,7 +257,7 @@ describe("Will not report rejections that are handled in time", function() {
     specify("Eventually handled in a deep sequence", function testFunction() {
         var failDeferred = Promise.defer();
         setTimeout(function() {
-            failDeferred.reject(e());
+            failDeferred.reject(yesE());
         }, 1);
         failDeferred.promise.then(function(){})
             .then(function(){}, null, function(){})
@@ -271,7 +269,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 
     specify("Already rejected handled in a middle parallel deep sequence", function testFunction() {
-        var failDeferred = Promise.reject(e());
+        var failDeferred = Promise.reject(yesE());
 
         failDeferred
             .then(function(){})
@@ -317,7 +315,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){});
 
-        failDeferred.reject(e());
+        failDeferred.reject(yesE());
         return onUnhandledSucceed(undefined, 2);
     });
 
@@ -345,7 +343,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 
         setTimeout(function(){
-            failDeferred.reject(e());
+            failDeferred.reject(yesE());
         }, 1);
         return onUnhandledSucceed(undefined, 2);
     });
