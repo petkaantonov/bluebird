@@ -37,4 +37,21 @@ describe("call", function() {
             assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 3], res);
         });
     });
-})
+    specify("method not found", function() {
+        var promises = [
+          Promise.resolve([]).call("abc").then(assert.fail, testUtils.noop),
+          Promise.resolve([]).call("abc", 1, 2, 3, 4, 5, 6, 7).then(assert.fail, testUtils.noop),
+          Promise.resolve([]).call("abc ").then(assert.fail, testUtils.noop),
+          Promise.resolve(null).call("abc", 1, 2, 3, 4, 5, 6, 7).then(assert.fail, testUtils.noop),
+          Promise.resolve(null).call("abc").then(assert.fail, testUtils.noop),
+          Promise.resolve(null).call("abc ").then(assert.fail, testUtils.noop)
+        ];
+
+        return Promise.all(promises).then(function(errors) {
+            for (var i = 0; i < errors.length; ++i) {
+                var message = errors[i].message || errors[i].toString();
+                assert(message.indexOf("has no method") >= 0);
+            }
+        });
+    });
+});
