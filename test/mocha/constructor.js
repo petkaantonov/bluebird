@@ -5,34 +5,34 @@ var testUtils = require("./helpers/util.js");
 
 
 function fulfills(value, test) {
-    specify("immediately-fulfilled", function (done) {
-        test(new Promise(function(resolve){
+    specify("immediately-fulfilled", function() {
+        return test(new Promise(function(resolve){
             resolve(value);
-        }), done);
+        }));
     });
 
-    specify("eventually-fulfilled", function (done) {
-        test(new Promise(function(resolve){
+    specify("eventually-fulfilled", function() {
+        return test(new Promise(function(resolve){
             setTimeout(function(){
                 resolve(value);
-            }, 13);
-        }), done);
+            }, 1);
+        }));
     });
 };
 
 function rejects(reason, test) {
-    specify("immediately-rejected", function (done) {
-        test(new Promise(function(resolve, reject){
+    specify("immediately-rejected", function() {
+        return test(new Promise(function(resolve, reject){
             reject(reason);
-        }), done);
+        }));
     });
 
-    specify("eventually-rejected", function (done) {
-        test(new Promise(function(resolve, reject){
+    specify("eventually-rejected", function() {
+        return test(new Promise(function(resolve, reject){
             setTimeout(function(){
                 reject(reason);
-            }, 13);
-        }), done);
+            }, 1);
+        }));
     });
 };
 
@@ -56,7 +56,7 @@ function testFulfilled(value, test) {
         fulfills(a.promise, test);
         setTimeout(function(){
             a.resolve(value);
-        }, 13)
+        }, 1)
 
     });
 
@@ -73,7 +73,7 @@ function testFulfilled(value, test) {
             then: function (f) {
                 setTimeout(function () {
                     f(value);
-                }, 13);
+                }, 1);
             }
         }, test);
     });
@@ -87,22 +87,24 @@ function testRejected(reason, test) {
 
 
 describe("Promise constructor", function() {
-    it("should throw type error when called as function", function(done) {
+    it("should throw type error when called as function", function() {
         try {
             Promise(function(){});
         }
         catch (e) {
-            done();
+            return;
         }
+        assert.fail();
     });
 
-    it("should throw type error when passed non-function", function(done) {
+    it("should throw type error when passed non-function", function() {
         try {
             new Promise({});
         }
         catch (e) {
-            done();
+            return;
         }
+        assert.fail();
     });
 
 
@@ -110,98 +112,88 @@ describe("Promise constructor", function() {
         return this;
     })();
 
-    it("calls the resolver as a function", function(done){
+    it("calls the resolver as a function", function(){
         new Promise(function() {
             assert(this === defaultThis);
-            done();
         });
     });
 
-    it("passes arguments even if parameters are not defined", function(done){
+    it("passes arguments even if parameters are not defined", function(){
         new Promise(function() {
             assert(arguments.length === 2);
-            done();
         });
     });
 
 
-    it("should reject with any thrown error", function(done) {
+    it("should reject with any thrown error", function() {
         var e = new Error();
-        new Promise(function(){
+        return new Promise(function(){
             throw e;
         }).then(assert.fail, function(err) {
             assert(err === e)
-            done();
         });
     });
 
-    it("should call the resolver function synchronously", function(done) {
+    it("should call the resolver function synchronously", function() {
         var e = new Error();
         var a = 0;
         new Promise(function(){
             a = 1;
         });
         assert(a === 1);
-        done();
     });
 
 
     describe("resolves the promise with the given object value", function() {
         var value = {};
-        testFulfilled(value, function(promise, done) {
-            promise.then(function(v){
+        testFulfilled(value, function(promise) {
+            return promise.then(function(v){
                 assert(v === value);
-                done();
             });
         });
     });
 
     describe("resolves the promise with the given primitive value", function() {
         var value = 3;
-        testFulfilled(value, function(promise, done) {
-            promise.then(function(v){
+        testFulfilled(value, function(promise) {
+            return promise.then(function(v){
                 assert(v === value);
-                done();
             });
         });
     });
 
     describe("resolves the promise with the given undefined value", function() {
         var value = void 0;
-        testFulfilled(value, function(promise, done) {
-            promise.then(function(v){
+        testFulfilled(value, function(promise) {
+            return promise.then(function(v){
                 assert(v === value);
-                done();
             });
         });
     });
 
     describe("rejects the promise with the given object reason", function() {
         var reason = {};
-        testRejected(reason, function(promise, done) {
-            promise.then(assert.fail, function(v){
+        testRejected(reason, function(promise) {
+            return promise.then(assert.fail, function(v){
                 assert(v === reason);
-                done();
             });
         });
     });
 
     describe("rejects the promise with the given primitive reason", function() {
         var reason = 3;
-        testRejected(reason, function(promise, done) {
-            promise.then(assert.fail, function(v){
+        testRejected(reason, function(promise) {
+            return promise.then(assert.fail, function(v){
                 assert(v === reason);
-                done();
             });
         });
     });
 
     describe("rejects the promise with the given undefined reason", function() {
         var reason = void 0;
-        testRejected(reason, function(promise, done) {
-            promise.then(assert.fail, function(v){
+        testRejected(reason, function(promise) {
+            return promise.then(assert.fail, function(v){
                 assert(v === reason);
-                done();
             });
         });
     });

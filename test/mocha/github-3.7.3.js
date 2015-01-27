@@ -1,17 +1,14 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 var Promise = adapter;
 
 describe("github-373", function() {
-    specify("unhandled unsuccessful Promise.join should result in correct error being reported", function(done) {
+    specify("unhandled unsuccessful Promise.join should result in correct error being reported", function() {
         var err = new Error("test");
-        var rejected = Promise.delay(30).thenThrow(err);
-        Promise.onPossiblyUnhandledRejection(function(error) {
-            Promise.onPossiblyUnhandledRejection(null);
-            assert(err === error);
-            done();
-        });
+        var rejected = Promise.delay(1).thenThrow(err);
         Promise.join(rejected, Promise.resolve(1), function(){});
+        return testUtils.onUnhandledSucceed(err);
     });
 });

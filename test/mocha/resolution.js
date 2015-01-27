@@ -11,61 +11,58 @@ var getValues = function() {
 
     setTimeout(function(){
         d.resolve(3);
-    }, 40);
+    }, 1);
 
     return {
         value: 3,
-        thenableFulfill: {then: function(fn){setTimeout(function(){fn(3)}, 40);}},
-        thenableReject: {then: function(_, fn){setTimeout(function(){fn(3)}, 40);}},
+        thenableFulfill: {then: function(fn){setTimeout(function(){fn(3)}, 1);}},
+        thenableReject: {then: function(_, fn){setTimeout(function(){fn(3)}, 1);}},
         promiseFulfilled: f,
         promiseRejected: r,
         promiseEventual: d.promise
     };
 };
 
+function expect(count, callback) {
+    var cur = 0;
+    return new Promise(function() {
+
+    });
+}
+
 function expect(count, done) {
     var total = 0;
     return function() {
         total++;
         if (total >= count) {
-            done();
         }
     }
 }
 
 describe("Promise.resolve", function() {
-    specify("follows thenables and promises", function(done) {
-        done = expect(6, done);
+    specify("follows thenables and promises", function() {
         var values = getValues();
         var async = false;
-
-        function onFulfilled(v) {
-            assert(v === 3);
+        var ret = Promise.all([
+            Promise.resolve(values.value).then(testUtils.noop),
+            Promise.resolve(values.thenableFulfill).then(testUtils.noop),
+            Promise.resolve(values.thenableReject).then(assert.fail, testUtils.noop),
+            Promise.resolve(values.promiseFulfilled).then(testUtils.noop),
+            Promise.resolve(values.promiseRejected).then(assert.fail, testUtils.noop),
+            Promise.resolve(values.promiseEventual).then(testUtils.noop)
+        ]).then(function(v) {
+            assert.deepEqual(v, [3, 3, 3, 3, 3, 3]);
             assert(async);
-            done();
-        }
-
-        Promise.resolve(values.value).then(onFulfilled);
-        Promise.resolve(values.thenableFulfill).then(onFulfilled);
-        Promise.resolve(values.thenableReject).then(assert.fail, onFulfilled);
-        Promise.resolve(values.promiseFulfilled).then(onFulfilled);
-        Promise.resolve(values.promiseRejected).then(assert.fail, onFulfilled);
-        Promise.resolve(values.promiseEventual).then(onFulfilled);
+        });
         async = true;
+        return ret;
     });
 });
 
 describe("PromiseResolver.resolve", function() {
-    specify("follows thenables and promises", function(done) {
-        done = expect(6, done);
+    specify("follows thenables and promises", function() {
         var values = getValues();
         var async = false;
-
-        function onFulfilled(v) {
-            assert(v === 3);
-            assert(async);
-            done();
-        }
 
         var d1 = Promise.defer();
         var d2 = Promise.defer();
@@ -73,20 +70,27 @@ describe("PromiseResolver.resolve", function() {
         var d4 = Promise.defer();
         var d5 = Promise.defer();
         var d6 = Promise.defer();
+        var arr = [];
 
         d1.resolve(values.value);
-        d1.promise.then(onFulfilled);
+        arr.push(d1.promise.then(testUtils.noop));
         d2.resolve(values.thenableFulfill);
-        d2.promise.then(onFulfilled);
+        arr.push(d2.promise.then(testUtils.noop));
         d3.resolve(values.thenableReject);
-        d3.promise.then(assert.fail, onFulfilled);
+        arr.push(d3.promise.then(assert.fail, testUtils.noop));
         d4.resolve(values.promiseFulfilled);
-        d4.promise.then(onFulfilled);
+        arr.push(d4.promise.then(testUtils.noop));
         d5.resolve(values.promiseRejected);
-        d5.promise.then(assert.fail, onFulfilled);
+        arr.push(d5.promise.then(assert.fail, testUtils.noop));
         d6.resolve(values.promiseEventual);
-        d6.promise.then(onFulfilled);
+        arr.push(d6.promise.then(testUtils.noop));
+
+        var ret = Promise.all(arr).then(function(v) {
+            assert.deepEqual(v, [3, 3, 3, 3, 3, 3]);
+            assert(async);
+        });
         async = true;
+        return ret;
     });
 });
 
@@ -104,20 +108,18 @@ describe("Cast thenable", function() {
         }
     };
 
-    specify("fulfills with itself", function(done) {
+    specify("fulfills with itself", function() {
         var promise = Promise.cast(a);
 
-        promise.then(assert.fail).caught(Promise.TypeError, function(){
-            done();
+        return promise.then(assert.fail).caught(Promise.TypeError, function(){
         });
     });
 
-    specify("rejects with itself", function(done) {
+    specify("rejects with itself", function() {
         var promise = Promise.cast(b);
 
-        promise.caught(function(v){
+        return promise.then(assert.fail, function(v){
            assert(v === b);
-           done();
         });
     });
 });
@@ -136,20 +138,18 @@ describe("Implicitly cast thenable", function() {
         }
     };
 
-    specify("fulfills with itself", function(done) {
-        Promise.resolve().then(function(){
+    specify("fulfills with itself", function() {
+        return Promise.resolve().then(function(){
             return a;
         }).caught(Promise.TypeError, function(){
-            done();
         });
     });
 
-    specify("rejects with itself", function(done) {
-        Promise.resolve().then(function(){
+    specify("rejects with itself", function() {
+        return Promise.resolve().then(function(){
             return b;
-        }).caught(function(v){
+        }).then(assert.fail, function(v){
             assert(v === b);
-            done();
         });
     });
 });
@@ -179,31 +179,28 @@ IN THE SOFTWARE.
 describe("PromiseResolver", function () {
 
     describe(".callback", function() {
-        it("fulfills a promise with a single callback argument", function (done) {
+        it("fulfills a promise with a single callback argument", function() {
             var resolver = Promise.defer();
             resolver.callback(null, 10);
-            resolver.promise.then(function (value) {
+            return resolver.promise.then(function (value) {
                 assert(value === 10);
-                done();
             });
         });
 
-        it("fulfills a promise with multiple callback arguments", function (done) {
+        it("fulfills a promise with multiple callback arguments", function() {
             var resolver = Promise.defer();
             resolver.callback(null, 10, 20);
-            resolver.promise.then(function (value) {
+            return resolver.promise.then(function (value) {
                 assert.deepEqual(value, [ 10, 20 ]);
-                done();
             });
         });
 
-        it("rejects a promise", function (done) {
+        it("rejects a promise", function() {
             var resolver = Promise.defer();
             var exception = new Error("Holy Exception of Anitoch");
             resolver.callback(exception);
-            resolver.promise.then(assert.fail, function (_exception) {
+            return resolver.promise.then(assert.fail, function (_exception) {
                 assert(exception === _exception.cause);
-                done();
             });
         });
     });
@@ -212,23 +209,21 @@ describe("PromiseResolver", function () {
         assert.strictEqual(Promise.defer().toString(), "[object PromiseResolver]");
     });
 
-    specify(".cancel()", function(done) {
+    specify(".cancel()", function() {
         var err = new Error();
         var d = Promise.defer();
         d.promise.cancellable();
         d.cancel(err);
-        d.promise.caught(function(e) {
+        return d.promise.then(assert.fail, function(e) {
             assert.strictEqual(err, e);
-            done();
         });
     });
 
-    specify(".timeout()", function(done) {
+    specify(".timeout()", function() {
         var d = Promise.defer();
         d.timeout();
-        d.promise.caught(function(e) {
+        return d.promise.then(assert.fail, function(e) {
             assert(e instanceof Promise.TimeoutError);
-            done();
         });
     });
 
@@ -473,70 +468,63 @@ var other = {};
 describe("Promise.defer-test", function () {
 
 
-    specify("should fulfill with an immediate value", function(done) {
+    specify("should fulfill with an immediate value", function() {
         var d = Promise.defer();
-
-        d.promise.then(
+        d.resolve(sentinel);
+        return d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
-                done();
             },
             assert.fail
         );
-
-        d.resolve(sentinel);
     });
 
-    specify("should return a promise for the resolution value", function(done) {
+    specify("should return a promise for the resolution value", function() {
         var d = Promise.defer();
 
         d.resolve(sentinel);
-        d.promise.then(
+        return d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should return a promise for a promised resolution value", function(done) {
+    specify("should return a promise for a promised resolution value", function() {
         var d = Promise.defer();
 
         d.resolve(Promise.resolve(sentinel))
-        d.promise.then(
+        return d.promise.then(
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should return a promise for a promised rejection value", function(done) {
+    specify("should return a promise for a promised rejection value", function() {
         var d = Promise.defer();
 
         // Both the returned promise, and the deferred's own promise should
         // be rejected with the same value
         d.resolve(Promise.reject(sentinel))
-        d.promise.then(
+        return d.promise.then(
             assert.fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
-                done();
             }
         );
     });
 
-    specify("should invoke newly added callback when already resolved", function(done) {
+    specify("should invoke newly added callback when already resolved", function() {
         var d = Promise.defer();
 
         d.resolve(sentinel);
 
-        d.promise.then(
+        return d.promise.then(
             function(val) {
                 assert.equal(val, sentinel);
-                done();
             },
             assert.fail
         );
@@ -544,105 +532,101 @@ describe("Promise.defer-test", function () {
 
 
 
-    specify("should reject with an immediate value", function(done) {
+    specify("should reject with an immediate value", function() {
         var d = Promise.defer();
-
-        d.promise.then(
+        d.reject(sentinel);
+        return d.promise.then(
             assert.fail,
             function(val) {
                 assert.equal(val, sentinel);
-                done();
             }
         );
-
-        d.reject(sentinel);
     });
 
-    specify("should reject with fulfilled promised", function(done) {
+    specify("should reject with fulfilled promised", function() {
         var d, expected;
 
         d = Promise.defer();
         expected = testUtils.fakeResolved(sentinel);
 
-        d.promise.then(
+        var ret = d.promise.then(
             assert.fail,
             function(val) {
                 assert.equal(val, expected);
-                done();
             }
         );
 
         d.reject(expected);
+        return ret;
     });
 
-    specify("should reject with rejected promise", function(done) {
+    specify("should reject with rejected promise", function() {
         var d, expected;
 
         d = Promise.defer();
         expected = testUtils.fakeRejected(sentinel);
 
-        d.promise.then(
+        var ret = d.promise.then(
             assert.fail,
             function(val) {
                 assert.equal(val, expected);
-                done();
             }
         );
 
         d.reject(expected);
+        return ret;
     });
 
 
-    specify("should return a promise for the rejection value", function(done) {
+    specify("should return a promise for the rejection value", function() {
         var d = Promise.defer();
 
         // Both the returned promise, and the deferred's own promise should
         // be rejected with the same value
         d.reject(sentinel);
-        d.promise.then(
+        return d.promise.then(
             assert.fail,
             function(returnedPromiseVal) {
                 assert.deepEqual(returnedPromiseVal, sentinel);
-                done();
             }
         );
     });
 
-    specify("should invoke newly added errback when already rejected", function(done) {
+    specify("should invoke newly added errback when already rejected", function() {
         var d = Promise.defer();
 
         d.reject(sentinel);
 
-        d.promise.then(
+        return d.promise.then(
             assert.fail,
             function (val) {
                 assert.deepEqual(val, sentinel);
-                done();
             }
         );
     });
 
 
 
-    specify("should notify of progress updates", function(done) {
+    specify("should notify of progress updates", function() {
         var d = Promise.defer();
 
-        d.promise.then(
+        var ret = d.promise.then(
             assert.fail,
             assert.fail,
             function(val) {
                 assert.equal(val, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         d.progress(sentinel);
+        return ret;
     });
 
-    specify("should propagate progress to downstream promises", function(done) {
+    specify("should propagate progress to downstream promises", function() {
         var d = Promise.defer();
 
-        d.promise
+        var ret =  d.promise
         .then(assert.fail, assert.fail,
             function(update) {
                 return update;
@@ -651,17 +635,18 @@ describe("Promise.defer-test", function () {
         .then(assert.fail, assert.fail,
             function(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         d.progress(sentinel);
+        return ret;
     });
 
-    specify("should propagate transformed progress to downstream promises", function(done) {
+    specify("should propagate transformed progress to downstream promises", function() {
         var d = Promise.defer();
 
-        d.promise
+        var ret = d.promise
         .then(assert.fail, assert.fail,
             function() {
                 return sentinel;
@@ -670,17 +655,18 @@ describe("Promise.defer-test", function () {
         .then(assert.fail, assert.fail,
             function(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         d.progress(other);
+        return ret;
     });
 
-    specify("should propagate caught exception value as progress", function(done) {
+    specify("should propagate caught exception value as progress", function() {
         var d = Promise.defer();
 
-        d.promise
+        var ret = d.promise
         .then(assert.fail, assert.fail,
             function() {
                 throw sentinel;
@@ -689,14 +675,15 @@ describe("Promise.defer-test", function () {
         .then(assert.fail, assert.fail,
             function(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         d.progress(other);
+        return ret;
     });
 
-    specify("should forward progress events when intermediary callback (tied to a resolved promise) returns a promise", function(done) {
+    specify("should forward progress events when intermediary callback (tied to a resolved promise) returns a promise", function() {
         var d, d2;
 
         d = Promise.defer();
@@ -705,51 +692,53 @@ describe("Promise.defer-test", function () {
         // resolve d BEFORE calling attaching progress handler
         d.resolve();
 
-        d.promise.then(
+        var ret = d.promise.then(
             function() {
                 var ret = Promise.defer();
                 setTimeout(function(){
                     ret.progress(sentinel);
-                }, 0)
+                }, 1)
                 return ret.promise;
             }
         ).then(null, null,
             function onProgress(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
+        return ret;
     });
 
-    specify("should forward progress events when intermediary callback (tied to an unresovled promise) returns a promise", function(done) {
+    specify("should forward progress events when intermediary callback (tied to an unresovled promise) returns a promise", function() {
         var d = Promise.defer();
 
-        d.promise.then(
+        var ret = d.promise.then(
             function() {
                 var ret = Promise.defer();
                 setTimeout(function(){
                     ret.progress(sentinel);
-                }, 0)
+                }, 1)
                 return ret.promise;
             }
         ).then(null, null,
             function onProgress(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         // resolve d AFTER calling attaching progress handler
         d.resolve();
+        return ret;
     });
 
-    specify("should forward progress when resolved with another promise", function(done) {
+    specify("should forward progress when resolved with another promise", function() {
         var d, d2;
 
         d = Promise.defer();
         d2 = Promise.defer();
 
-        d.promise
+        var ret = d.promise
         .then(assert.fail, assert.fail,
             function() {
                 return sentinel;
@@ -758,23 +747,23 @@ describe("Promise.defer-test", function () {
         .then(assert.fail, assert.fail,
             function(update) {
                 assert.equal(update, sentinel);
-                done();
+                ret._resolveCallback();
             }
         );
 
         d.resolve(d2.promise);
 
         d2.progress();
+        return ret;
     });
 
-    specify("should allow resolve after progress", function(done) {
+    specify("should allow resolve after progress", function() {
         var d = Promise.defer();
 
         var progressed = false;
-        d.promise.then(
+        var ret = d.promise.then(
             function() {
                 assert(progressed);
-                done();
             },
             assert.fail,
             function() {
@@ -784,17 +773,17 @@ describe("Promise.defer-test", function () {
 
         d.progress();
         d.resolve();
+        return ret;
     });
 
-    specify("should allow reject after progress", function(done) {
+    specify("should allow reject after progress", function() {
         var d = Promise.defer();
 
         var progressed = false;
-        d.promise.then(
+        var ret = d.promise.then(
             assert.fail,
             function() {
                 assert(progressed);
-                done();
             },
             function() {
                 progressed = true;
@@ -803,6 +792,7 @@ describe("Promise.defer-test", function () {
 
         d.progress();
         d.reject();
+        return ret;
     });
 
     specify("should be indistinguishable after resolution", function() {
@@ -827,49 +817,45 @@ describe("Promise.defer-test", function () {
     specify("should return silently on progress when already rejected", function() {
         var d = Promise.defer();
         d.reject();
-        d.promise.caught(function(){});
+        d.promise.then(assert.fail, function(){});
         assert(undefined === d.progress());
     });
 });
 
 describe("Promise.fromNode", function() {
-    specify("rejects thrown errors from resolver", function(done) {
+    specify("rejects thrown errors from resolver", function() {
         var err = new Error();
-        Promise.fromNode(function(callback) {
+        return Promise.fromNode(function(callback) {
             throw err;
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assert.strictEqual(err, e);
-            done();
         });
     });
-    specify("rejects rejections as operational errors", function(done) {
+    specify("rejects rejections as operational errors", function() {
         var err = new Error();
-        Promise.fromNode(function(callback) {
+        return Promise.fromNode(function(callback) {
             callback(err);
         }).caught(Promise.OperationalError, function(e) {
             assert.strictEqual(err, e.cause);
-            done();
         });
     });
-    specify("resolves normally", function(done) {
+    specify("resolves normally", function() {
         var result = {};
-        Promise.fromNode(function(callback) {
+        return Promise.fromNode(function(callback) {
             callback(null, result);
         }).then(function(res) {
             assert.strictEqual(result, res);
-            done();
         });
     });
-    specify("resolves with bound thunk", function(done) {
+    specify("resolves with bound thunk", function() {
         var nodeFn = function(param, cb) {
             setTimeout(function() {
                 cb(null, param);
             }, 1);
         };
 
-        Promise.fromNode(nodeFn.bind(null, 1)).then(function(res) {
+        return Promise.fromNode(nodeFn.bind(null, 1)).then(function(res) {
             assert.strictEqual(1, res);
-            done();
         });
     });
 });

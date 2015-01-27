@@ -54,7 +54,6 @@ describe("inspect", function () {
         var ret = Promise.resolve(10);
         assert.equal(ret.value(), 10);
         assert.equal(ret.isFulfilled(), true);
-
     });
 
     it("for a rejected promise", function () {
@@ -62,7 +61,7 @@ describe("inspect", function () {
         var ret = Promise.reject(e);
         assert.equal(ret.reason(), e);
         assert.equal(ret.isRejected(), true);
-        ret.caught(function(){})
+        return ret.then(assert.fail, function(){});
     });
 
     it("for a pending, unresolved promise", function () {
@@ -78,7 +77,7 @@ describe("inspect", function () {
 
         assert.equal(deferred.promise.isRejected(), true);
         assert.equal(deferred.promise.reason(), error);
-        deferred.promise.caught(function(){})
+        return deferred.promise.then(assert.fail, function(){});
     });
 
     it("for a promise resolved to a fulfilled promise", function () {
@@ -99,45 +98,45 @@ describe("inspect", function () {
     });
 
     describe(".value()", function() {
-        specify("of unfulfilled inspection should throw", function(done) {
+        specify("of unfulfilled inspection should throw", function() {
             Promise.reject(1).reflect().then(function(inspection) {
                 try {
                     inspection.value();
                 } catch (e) {
-                    return done();
+                    return Promise.resolve();
                 }
                 assert.fail();
             });
         });
-        specify("of unfulfilled promise should throw", function(done) {
+        specify("of unfulfilled promise should throw", function() {
             var r = Promise.reject(1);
             r.reason();
             try {
                 r.value();
             } catch (e) {
-                return done();
+                return Promise.resolve();
             }
             assert.fail();
         });
     });
 
     describe(".reason()", function() {
-        specify("of unrejected inspection should throw", function(done) {
+        specify("of unrejected inspection should throw", function() {
             Promise.resolve(1).reflect().then(function(inspection) {
                 try {
                     inspection.reason();
                 } catch (e) {
-                    return done();
+                    return Promise.resolve();
                 }
                 assert.fail();
             });
         });
 
-        specify("of unrejected promise should throw", function(done) {
+        specify("of unrejected promise should throw", function() {
             try {
                 Promise.resolve(1).reason();
             } catch (e) {
-                return done();
+                return Promise.resolve();
             }
             assert.fail();
         });

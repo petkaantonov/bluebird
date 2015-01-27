@@ -46,7 +46,7 @@ describe("Promise filter", function() {
                 return new Promise(function(r){
                     setTimeout(function(){
                         r(v !== 2);
-                    }, 13);
+                    }, 1);
                 });
             }).then(assertArr);
         });
@@ -68,7 +68,7 @@ describe("Promise filter", function() {
                 return new Promise(function(v, r){
                     setTimeout(function(){
                         r(new ThrownError());
-                    }, 13);
+                    }, 1);
                 });
             }).then(assertFail, assertErr);
         });
@@ -89,7 +89,7 @@ describe("Promise filter", function() {
                     then: function(f, r) {
                         setTimeout(function(){
                             f(v !== 2);
-                        }, 13);
+                        }, 1);
                     }
                 };
             }).then(assertArr);
@@ -110,7 +110,7 @@ describe("Promise filter", function() {
                     then: function(f, r) {
                         setTimeout(function(){
                             r(new ThrownError());
-                        }, 13);
+                        }, 1);
                     }
                 };
             }).then(assertFail, assertErr);

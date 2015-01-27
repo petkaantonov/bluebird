@@ -7,7 +7,7 @@ var testUtils = require("./helpers/util.js");
 
 describe("If promise is reused to get at the value many times over the course of application", function() {
 
-    specify("Promise will clear handler data immediately", function(done) {
+    specify("Promise will clear handler data immediately", function() {
         var three = Promise.resolve(3);
         var fn = function(){};
         three.then(fn, fn, fn);
@@ -15,17 +15,16 @@ describe("If promise is reused to get at the value many times over the course of
         assert(three._rejectionHandler0 === fn);
         assert(three._progressHandler0 === fn);
 
-        setTimeout(function() {
+        return Promise.delay(1).then(function() {
             assert(three._fulfillmentHandler0 === void 0);
             assert(three._rejectionHandler0 === void 0);
             assert(three._progressHandler0 === void 0);
             assert(three._receiver0 === void 0);
             assert(three._promise0 === void 0);
-            done();
-        }, 13);
+        });
     });
 
-    specify("It will not keep references to anything", function(done) {
+    specify("It will not keep references to anything", function() {
         var three = Promise.resolve(3);
         var fn = function(){};
         var len;
@@ -38,15 +37,14 @@ describe("If promise is reused to get at the value many times over the course of
         len = three._length();
         assert(len > 0);
 
-        setTimeout(function() {
+        return Promise.delay(1).then(function() {
             for (var i = 0; i < len; ++i) {
                 assert(three[i] === undefined);
             }
-            done();
-        }, 13);
+        });
     });
 
-    specify("It will prevent index inflation", function(done) {
+    specify("It will prevent index inflation", function() {
         var three = Promise.resolve(3);
         var called = 0;
         function fn() {
@@ -56,13 +54,12 @@ describe("If promise is reused to get at the value many times over the course of
             three.then(fn, fn, fn);
         }
         assert.equal(three._length(), 512);
-        setTimeout(function () {
+        return Promise.delay(1).then(function() {
             function noop(){}
             assert.equal(called, 512);
             assert.equal(three._length(), 0);
             three.then(noop);
             assert.equal(three._fulfillmentHandler0, noop);
-            done();
-        }, 66);
+        });
     });
 });

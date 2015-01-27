@@ -3,29 +3,24 @@
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 
-var isNodeJS = testUtils.isNodeJS;
-
-
-
-if (isNodeJS) {
-    describe("domain", function(){
-        specify("gh-148", function(done) {
-            Promise.onPossiblyUnhandledRejection(function(error,promise) {
-                throw error
-            });
+if (testUtils.isRecentNode) {
+    describe("domain", function() {
+        afterEach(function() {
+            Promise.onPossiblyUnhandledRejection(null);
+        });
+        specify("gh-148", function() {
             var called = false;
             var e = new Error();
             Promise.resolve(23).then(function(){called = true});
-            require('domain').create()
-              .on('error', function(E) {
+            return testUtils.awaitDomainException(function(E) {
                 assert.equal(e, E);
                 assert(called);
-                done();
-              })
-              .run(function() {
-                  var P = new Promise(function(resolve,reject){ Promise.reject(e) });
-              });
-
+            }, function() {
+                Promise.onPossiblyUnhandledRejection(function(error) {
+                    throw error;
+                });
+                var P = new Promise(function(_, reject){reject(e);});
+            });
         });
     });
 }

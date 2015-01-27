@@ -17,114 +17,106 @@ describe("Using as a rejection reason", function() {
         }
     })();
     describe("Object.create(null)", function() {
-        specify("directly", function(done) {
+        specify("directly", function() {
             var o = nullObject();
-            Promise.reject(o).then(assert.fail, function(e) {
+            return Promise.reject(o).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through constructor by throw", function(done) {
+        specify("through constructor by throw", function() {
             var o = nullObject();
-            new Promise(function() {
+            return new Promise(function() {
                 throw o;
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
 
-        specify("through constructor immediately", function(done) {
+        specify("through constructor immediately", function() {
             var o = nullObject();
-            new Promise(function() {
+            return new Promise(function() {
                 arguments[1](o);
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through constructor eventually", function(done) {
+        specify("through constructor eventually", function() {
             var o = nullObject();
-            new Promise(function(_, r) {
+            return new Promise(function(_, r) {
                 setTimeout(function() {
                     r(o);
-                }, 25);
+                }, 1);
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through defer immediately", function(done) {
+        specify("through defer immediately", function() {
             var o = nullObject();
             var d = Promise.defer();
-            d.promise.then(assert.fail, function(e) {
+            var ret = d.promise.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
             d.reject(o);
+            return ret;
         });
 
-        specify("through defer eventually", function(done) {
+        specify("through defer eventually", function() {
             var o = nullObject();
             var d = Promise.defer();
-            d.promise.then(assert.fail, function(e) {
+            var ret = d.promise.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
             setTimeout(function() {
                 d.reject(o);
-            }, 25);
+            }, 1);
+            return ret;
         });
 
-        specify("through thenThrow immediately", function(done) {
+        specify("through thenThrow immediately", function() {
             var o = nullObject();
-            Promise.resolve().thenThrow(o).then(assert.fail, function(e) {
+            return Promise.resolve().thenThrow(o).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler throw", function(done) {
+        specify("through handler throw", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 throw o;
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-promise immediately", function(done) {
+        specify("through handler-returned-promise immediately", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return Promise.reject(o);
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-promise eventually", function(done) {
+        specify("through handler-returned-promise eventually", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return new Promise(function(_, r) {
                     setTimeout(function() {
                         r(o);
-                    }, 25);
+                    }, 1);
                 });
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-thenable throw", function(done) {
+        specify("through handler-returned-thenable throw", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
                         throw o;
@@ -132,13 +124,12 @@ describe("Using as a rejection reason", function() {
                 };
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-thenable immediately", function(done) {
+        specify("through handler-returned-thenable immediately", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
                         r(o);
@@ -146,113 +137,106 @@ describe("Using as a rejection reason", function() {
                 };
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-thenable eventually", function(done) {
+        specify("through handler-returned-thenable eventually", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return {
                     then: function(_, r) {
                         setTimeout(function() {
                             r(o);
-                        }, 25);
+                        }, 1);
                     }
                 };
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
         var BluebirdThenable = require("../../js/debug/promise.js")();
-        specify("through handler-returned-bluebird-thenable immediately", function(done) {
+        specify("through handler-returned-bluebird-thenable immediately", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return BluebirdThenable.reject(o);
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through handler-returned-bluebird-thenable eventually", function(done) {
+        specify("through handler-returned-bluebird-thenable eventually", function() {
             var o = nullObject();
-            Promise.resolve().then(function() {
+            return Promise.resolve().then(function() {
                 return new BluebirdThenable(function(_, r) {
                     setTimeout(function() {
                         r(o);
-                    }, 25);
+                    }, 1);
                 });
             }).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through promisified callback immediately", function(done) {
+        specify("through promisified callback immediately", function() {
             var o = nullObject();
-            Promise.promisify(function(cb) {
+            return Promise.promisify(function(cb) {
                 cb(o);
             })().then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through cancel", function(done) {
+        specify("through cancel", function() {
             var o = nullObject();
             var a = new Promise(function(){}).cancellable();
-            a.then(assert.fail, function(e) {
+            var ret = a.then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
             a.cancel(o);
+            return ret;
         });
 
-        specify("through progress", function(done) {
+        specify("through progress", function() {
             var o = nullObject();
             var d = Promise.defer();
 
-            d.promise.then(assert.fail, assert.fail, function() {
+            var ret = d.promise.then(assert.fail, assert.fail, function() {
                 throw o;
             }).then(assert.fail, assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
+                ret._resolveCallback();
             })
             d.progress();
+            return ret;
         });
 
-        specify("through immediate PromiseArray promise", function(done) {
+        specify("through immediate PromiseArray promise", function() {
             var o = nullObject();
-            Promise.all([Promise.reject(o)]).then(assert.fail, function(e) {
+            return Promise.all([Promise.reject(o)]).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through eventual PromiseArray promise", function(done) {
+        specify("through eventual PromiseArray promise", function() {
             var o = nullObject();
-            Promise.all([new Promise(function(_, r) {
+            return Promise.all([new Promise(function(_, r) {
                 setTimeout(function() {
                     r(o);
-                }, 25);
+                }, 1);
             })]).then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 
-        specify("through promisified callback eventually", function(done) {
+        specify("through promisified callback eventually", function() {
             var o = nullObject();
-            Promise.promisify(function(cb) {
+            return Promise.promisify(function(cb) {
                 setTimeout(function() {
                     cb(o);
-                }, 25);
+                }, 1);
             })().then(assert.fail, function(e) {
                 assert.strictEqual(e, o);
-                done();
             });
         });
 

@@ -25,69 +25,70 @@ var receiver = Promise.method(function() {
 
 
 describe("Promise.method", function(){
-    specify("should reject when the function throws", function(done) {
+    specify("should reject when the function throws", function() {
         var async = false;
-        thrower().then(assert.fail, function(e) {
+        var ret = thrower().then(assert.fail, function(e) {
             assert(async);
             assert(e === error);
-            done();
         });
         async = true;
+        return ret;
     });
-    specify("should throw when the function is not a function", function(done) {
+    specify("should throw when the function is not a function", function() {
         try {
             Promise.method(null);
         }
         catch (e) {
             assert(e instanceof TypeError);
-            done();
+            return;
         }
+        assert.fail();
     });
-    specify("should call the function with the given receiver", function(done){
+    specify("should call the function with the given receiver", function(){
         var async = false;
-        receiver.call(obj).then(function(val) {
+        var ret = receiver.call(obj).then(function(val) {
             assert(async);
             assert(val === obj);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
-    specify("should call the function with the given value", function(done){
+    specify("should call the function with the given value", function(){
         var async = false;
-        identity(obj).then(function(val) {
+        var ret = identity(obj).then(function(val) {
             assert(async);
             assert(val === obj);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
-    specify("should apply the function if given value is array", function(done){
+    specify("should apply the function if given value is array", function(){
         var async = false;
-        array(1, 2, 3).then(function(val) {
+        var ret = array(1, 2, 3).then(function(val) {
             assert(async);
             assert.deepEqual(val, [1,2,3]);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
 
-    specify("should unwrap returned promise", function(done){
+    specify("should unwrap returned promise", function(){
         var d = Promise.defer();
 
-        Promise.method(function(){
+        var ret = Promise.method(function(){
             return d.promise;
         })().then(function(v){
             assert(v === 3);
-            done();
         })
 
         setTimeout(function(){
             d.fulfill(3);
-        }, 13);
+        }, 1);
+        return ret;
     });
-    specify("should unwrap returned thenable", function(done){
+    specify("should unwrap returned thenable", function(){
 
-        Promise.method(function(){
+        return Promise.method(function(){
             return {
                 then: function(f, v) {
                     f(3);
@@ -95,11 +96,10 @@ describe("Promise.method", function(){
             }
         })().then(function(v){
             assert(v === 3);
-            done();
         });
     });
 
-    specify("should unwrap a following promise", function(done) {
+    specify("should unwrap a following promise", function() {
         var resolveF;
         var f = new Promise(function() {
             resolveF = arguments[0];
@@ -107,32 +107,28 @@ describe("Promise.method", function(){
         var v = new Promise(function(f) {
             setTimeout(function() {
                 f(3);
-            }, 13);
+            }, 1);
         });
         resolveF(v);
-        Promise.method(function(){
+        return Promise.method(function(){
             return f;
         })().then(function(v){
             assert(v === 3);
-            done();
         });
     });
 
-    specify("zero arguments length should remain zero", function(done) {
-
-        Promise.method(function(){
+    specify("zero arguments length should remain zero", function() {
+        return Promise.method(function(){
             assert(arguments.length === 0);
-            done();
         })();
     });
-    specify("should retain binding from returned promise", function(done) {
+    specify("should retain binding from returned promise", function() {
         var THIS = {};
-        Promise.method(function() {
+        return Promise.method(function() {
             return Promise.bind(THIS, 1);
         })().then(function(value) {
             assert.strictEqual(THIS, this);
             assert.strictEqual(1, value);
-            done();
         });
     });
 });

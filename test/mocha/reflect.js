@@ -8,20 +8,18 @@ var testRejected = require("./helpers/testThreeCases").testRejected;
 
 
 describe(".reflect()", function() {
-    testFulfilled(1, function(promise, done) {
-        promise.reflect().then(function(inspection) {
+    testFulfilled(1, function(promise) {
+        return promise.reflect().then(function(inspection) {
             assert(inspection instanceof Promise.PromiseInspection);
             assert(inspection.isFulfilled());
             assert(inspection.value() === 1);
-            done();
         });
     });
-    testRejected(2, function(promise, done) {
-        promise.reflect().then(function(inspection) {
+    testRejected(2, function(promise) {
+        return promise.reflect().then(function(inspection) {
             assert(inspection instanceof Promise.PromiseInspection);
             assert(inspection.isRejected());
             assert(inspection.reason() === 2);
-            done();
         });
     });
 });

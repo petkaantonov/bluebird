@@ -5,57 +5,55 @@ var testUtils = require("./helpers/util.js");
 
 
 describe("github36", function(){
-    specify("should work", function(done){
-        var called = 0;
-        var donecalled = false;
-        var _d = Promise.defer();
+    specify("should work", function() {
+        return new Promise(function(resolve, reject) {
+            var called = 0;
+            var donecalled = false;
+            var _d = Promise.defer();
 
-        _d.resolve()
+            _d.resolve()
 
-        var f1 = function() {
-            return _d.promise.then(function() {
-                return true;
-            })
-        }
-
-        var f2 = function() {
-            var d1 = Promise.defer()
-
-            setTimeout(function() {
-                d1.resolve()
-            }, 10)
-
-            return d1.promise.then(function() {
+            var f1 = function() {
                 return _d.promise.then(function() {
+                    return true;
                 })
-            });
-        }
-
-        var f3 = function() {
-            called++;
-            if (called > 15) {
-                if (!donecalled) {
-                    donecalled = true;
-                    done();
-                }
-                return;
             }
-            var promise = f1().then(function() {
-                f2()
-                    .then(function() {
-                        f3()
-                    })
-            })
 
-            promise.lastly(function() {
+            var f2 = function() {
+                var d1 = Promise.defer()
+
                 setTimeout(function() {
-                    f3()
-                }, 10)
-            })
+                    d1.resolve()
+                }, 1)
 
-        }
+                return d1.promise.then(function() {
+                    return _d.promise.then(function() {
+                    })
+                });
+            }
 
-        f3();
+            var f3 = function() {
+                called++;
+                if (called > 15) {
+                    return resolve();
+                }
+                var promise = f1().then(function() {
+                    f2()
+                        .then(function() {
+                            f3()
+                        })
+                })
+
+                promise.lastly(function() {
+                    setTimeout(function() {
+                        f3()
+                    }, 1)
+                })
+
+            }
+
+            f3();
+        });
     });
 });
 

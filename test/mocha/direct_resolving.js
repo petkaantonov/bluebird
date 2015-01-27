@@ -22,37 +22,33 @@ function wrap(fn, val) {
 }
 
 function returnValue(value) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(value).then(function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(value).then(function(v){
             assert(v === value);
-            done();
         });
     });
 }
 
 function throwValue(value) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenThrow(value).then(assert.fail, function(v) {
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenThrow(value).then(assert.fail, function(v) {
             assert(v === value);
-            done();
         });
     });
 }
 
 function returnThenable(thenable, expected) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(thenable).then(function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(thenable).then(function(v){
             assert(v === expected);
-            done();
         });
     });
 }
 
 function returnThenableReject(thenable, expected) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(thenable).then(assert.fail, function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(thenable).then(assert.fail, function(v){
             assert(v === expected);
-            done();
         });
     });
 }
@@ -85,7 +81,7 @@ describe("thenReturn", function () {
                 then: function(f) {
                     setTimeout(function() {
                         f(10);
-                    }, 13);
+                    }, 1);
                 }
             }, 10));
         });
@@ -99,7 +95,7 @@ describe("thenReturn", function () {
                 then: function(f, r) {
                     setTimeout(function() {
                         r(10);
-                    }, 13);
+                    }, 1);
                 }
             }, 10));
         });
@@ -115,20 +111,20 @@ describe("thenReturn", function () {
             d1.fulfill(10);
             setTimeout(function(){
                 d2.fulfill(10);
-            }, 13);
+            }, 1);
         });
         describe("which reject", function() {
             var d1 = Promise.defer();
             var d2 = Promise.defer();
             var alreadyRejected = Promise.reject(10);
-            alreadyRejected.caught(function(){});
+            alreadyRejected.then(assert.fail, function(){});
             describe("already", wrap(returnThenableReject, alreadyRejected, 10));
             describe("immediately", wrap(returnThenableReject, d1.promise, 10));
             describe("eventually", wrap(returnThenableReject, d2.promise, 10));
             d1.reject(10);
             setTimeout(function(){
                 d2.reject(10);
-            }, 13);
+            }, 1);
 
             d1.promise.caught(function(){});
             d2.promise.caught(function(){});
@@ -138,10 +134,9 @@ describe("thenReturn", function () {
 
     describe("doesn't swallow errors", function() {
         var e = {};
-        helpers.testRejected(e, function(promise, done){
-            promise.thenReturn(3).then(assert.fail, function(err) {
+        helpers.testRejected(e, function(promise){
+            return promise.thenReturn(3).then(assert.fail, function(err) {
                 assert(err = e);
-                done();
             });
         });
     });
@@ -166,10 +161,9 @@ describe("thenThrow", function () {
 
     describe("doesn't swallow errors", function() {
         var e = {};
-        helpers.testRejected(e, function(promise, done){
-            promise.thenThrow(3).then(assert.fail, function(err) {
+        helpers.testRejected(e, function(promise){
+            return promise.thenThrow(3).then(assert.fail, function(err) {
                 assert(err = e);
-                done();
             });
         });
     });

@@ -12,7 +12,7 @@ describe(".then as context", function() {
     it("1 level", function() {
         return Promise.resolve().then(function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -25,7 +25,7 @@ describe(".then as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -36,7 +36,7 @@ describe(".then as context", function() {
             e.stack;
             delete e.stack;
             return Promise.reject(e);
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
         });
     });
@@ -51,7 +51,7 @@ describe(".then as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -60,7 +60,7 @@ describe(".then as context", function() {
         return (function circle() {
             if (i++ > 5) throw new Error()
             return Promise.resolve().then(circle);
-        })().caught(function(e) {
+        })().then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -75,7 +75,7 @@ describe(".then as context", function() {
                     });
                 });
             });
-        })().caught(function(e) {
+        })().then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -90,11 +90,11 @@ describe(".then as context", function() {
                         }));
                     });
                 }));
-            }).caught(function(e) {
+            }).then(assert.fail, function(e) {
                 assertLongTrace(e, 5 + 1, [1, 1, 1, 1, 1]);
                 throw new Error();
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
         });
     });
@@ -163,7 +163,7 @@ describe(".then as context", function() {
             });
         }
 
-        return circle1().caught(function(e) {
+        return circle1().then(assert.fail, function(e) {
             assertLongTrace(e,
                 (4 + 1) + (4 + 1) + (4 + 1) + 1,
                 [
@@ -179,7 +179,7 @@ describe(".spread as context", function() {
     it("1 level", function() {
         return Promise.resolve([]).spread(function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -192,7 +192,7 @@ describe(".spread as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -202,7 +202,7 @@ describe("constructor as context", function() {
     it("0 level", function() {
         return new Promise(function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1, []);
         });
     });
@@ -211,7 +211,7 @@ describe("constructor as context", function() {
             res(new Promise(function() {
                 throw new Error();
             }))
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [2]);
         });
     });
@@ -221,7 +221,7 @@ describe("constructor as context", function() {
             e.stack;
             delete e.stack;
             rej(e);
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 2, [1]);
         });
     });
@@ -233,7 +233,7 @@ describe("constructor as context", function() {
                 delete e.stack;
                 rej(e);
             }))
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 2 + 1, [1, 1]);
         });
     });
@@ -249,7 +249,7 @@ describe("constructor as context", function() {
                     }));
                 }));
             }));
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [2, 1, 1, 1]);
         });
     });
@@ -261,14 +261,14 @@ describe(".join as context", function() {
         try {throw new Error(); } catch(e) {err = e;};
         return Promise.join(1, 2, Promise.reject(err), function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 0 + 1, []);
         });
     });
     it("1 level", function() {
         return Promise.join(1, 2, 3, function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -281,7 +281,7 @@ describe(".join as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -291,7 +291,7 @@ describe(".map as context", function() {
     it("1 level", function() {
         return Promise.map([1,2,3], function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -304,7 +304,7 @@ describe(".map as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -314,7 +314,7 @@ describe(".reduce as context", function() {
     it("1 level", function() {
         return Promise.reduce([1,2,3], function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -327,7 +327,7 @@ describe(".reduce as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -337,7 +337,7 @@ describe(".method as context", function() {
     it("1 level", function() {
         return Promise.method(function() {
             throw new Error();
-        })().caught(function(e) {
+        })().then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -354,7 +354,7 @@ describe(".method as context", function() {
 
         return Promise.method(function() {
             return second();
-        })().caught(function(e) {
+        })().then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [[1,2], 1, 1, 1]);
         });
     });
@@ -364,7 +364,7 @@ describe(".try as context", function() {
     it("1 level", function() {
         return Promise.attempt(function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -378,7 +378,7 @@ describe(".try as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -390,14 +390,14 @@ describe(".using as context", function() {
         try {throw new Error(); } catch(e) {err = e};
         return Promise.using(1, 2, Promise.reject(err), function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 0 + 1, []);
         });
     });
     it("1 level", function() {
         return Promise.using(1, 2, 3, function() {
             throw new Error();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -410,7 +410,7 @@ describe(".using as context", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
@@ -432,7 +432,7 @@ describe("Long stack traces from thenable rejections", function() {
             then: function(_, rej) {
                 setTimeout(function() {
                     rej(new Error());
-                }, 13);
+                }, 1);
             }
         };
     };
@@ -455,7 +455,7 @@ describe("Long stack traces from thenable rejections", function() {
     it("1 level sync reject", function() {
         return Promise.resolve().then(function() {
             return syncRej();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1+1, [1]);
         });
     });
@@ -468,14 +468,14 @@ describe("Long stack traces from thenable rejections", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
     it("1 level async reject", function() {
         return Promise.resolve().then(function() {
             return asyncRej();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -488,14 +488,14 @@ describe("Long stack traces from thenable rejections", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
     it("1 level throw", function() {
         return Promise.resolve().then(function() {
             return throwRej();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -508,14 +508,14 @@ describe("Long stack traces from thenable rejections", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });
     it("1 level getter throw", function() {
         return Promise.resolve().then(function() {
             return thenGetRej();
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 1 + 1, [1]);
         });
     });
@@ -528,7 +528,7 @@ describe("Long stack traces from thenable rejections", function() {
                     });
                 });
             });
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assertLongTrace(e, 4 + 1, [1, 1, 1, 1]);
         });
     });

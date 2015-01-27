@@ -24,69 +24,68 @@ var receiver = function() {
 var tryy = Promise["try"];
 
 describe("Promise.attempt", function(){
-    specify("should reject when the function throws", function(done) {
+    specify("should reject when the function throws", function() {
         var async = false;
-        tryy(thrower).then(assert.fail, function(e) {
+        var ret = tryy(thrower).then(assert.fail, function(e) {
             assert(async);
             assert(e === error);
-            done();
         });
         async = true;
+        return ret;
     });
-    specify("should reject when the function is not a function", function(done) {
+    specify("should reject when the function is not a function", function() {
         var async = false;
-        tryy(null).then(assert.fail, function(e) {
+        var ret = tryy(null).then(assert.fail, function(e) {
             assert(async);
             assert(e instanceof Promise.TypeError);
-            done();
         });
         async = true;
+        return ret;
     });
-    specify("should call the function with the given receiver", function(done){
+    specify("should call the function with the given receiver", function(){
         var async = false;
-        tryy(receiver, void 0, obj).then(function(val) {
+        var ret = tryy(receiver, void 0, obj).then(function(val) {
             assert(async);
             assert(val === obj);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
-    specify("should call the function with the given value", function(done){
+    specify("should call the function with the given value", function(){
         var async = false;
-        tryy(identity, obj).then(function(val) {
+        var ret = tryy(identity, obj).then(function(val) {
             assert(async);
             assert(val === obj);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
-    specify("should apply the function if given value is array", function(done){
+    specify("should apply the function if given value is array", function(){
         var async = false;
-        tryy(array, [1,2,3]).then(function(val) {
+        var ret = tryy(array, [1,2,3]).then(function(val) {
             assert(async);
             assert.deepEqual(val, [1,2,3]);
-            done();
         }, assert.fail);
         async = true;
+        return ret;
     });
 
-    specify("should unwrap returned promise", function(done){
+    specify("should unwrap returned promise", function(){
         var d = Promise.defer();
 
-        tryy(function(){
+        var ret = tryy(function(){
             return d.promise;
         }).then(function(v){
             assert(v === 3);
-            done();
         })
 
         setTimeout(function(){
             d.fulfill(3);
-        }, 13);
+        }, 1);
+        return ret;
     });
-    specify("should unwrap returned thenable", function(done){
-
-        tryy(function(){
+    specify("should unwrap returned thenable", function(){
+        return tryy(function(){
             return {
                 then: function(f, v) {
                     f(3);
@@ -94,7 +93,7 @@ describe("Promise.attempt", function(){
             }
         }).then(function(v){
             assert(v === 3);
-            done();
         });
+
     });
 });

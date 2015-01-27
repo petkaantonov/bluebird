@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
-var processError = testUtils.processError;
+var awaitGlobalException = testUtils.awaitGlobalException;
 var sinon = require("sinon");
 var isNodeJS = testUtils.isNodeJS;
 /*
@@ -33,17 +33,16 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, null, 10);
-        }, 100);
+        }, 1);
     });
 
-    it("calls back with an undefined resolution", function (done) {
+    it("calls back with an undefined resolution", function() {
         var spy = sinon.spy();
         Promise.resolve().nodeify(spy);
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWithExactly(spy, null);
-            done();
-        }, 10);
+        }, 1);
     });
 
     it("calls back with an error", function () {
@@ -52,7 +51,7 @@ describe("nodeify", function () {
         setTimeout(function(){
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, 10);
-        }, 100);
+        }, 1);
     });
 
     it("forwards a promise", function () {
@@ -66,11 +65,7 @@ describe("nodeify", function () {
     });
 
 });
-
-
-//Should be the last test because it is ridiculously hard to test
-//if something throws in the node process
-
+var getSpy = testUtils.getSpy;
 if (isNodeJS) {
     describe("nodeify", function () {
         var h = [];
@@ -79,121 +74,127 @@ if (isNodeJS) {
             throw e;
         }
 
-        it("throws normally in the node process if the function throws", function (done) {
+        it("throws normally in the node process if the function throws", function() {
             var promise = Promise.resolve(10);
             var turns = 0;
             process.nextTick(function(){
                 turns++;
             });
             promise.nodeify(thrower);
-            processError(function(err){
+            return awaitGlobalException(function(err) {
                 assert(err === e);
                 assert(turns === 1);
-            }, done)
+            });
         });
 
-        it("always returns promise for now", function(done){
-            Promise.resolve(3).nodeify().then(function() {
+        it("always returns promise for now", function() {
+            return Promise.resolve(3).nodeify().then(function() {
                 var a = 0;
                 Promise.resolve(3).nodeify(function(){
                     a++;
-                }).then(function(){
+                }).then(function() {
                     assert(1 == 1);
-                    done();
                 });
-            })
+            });
         });
 
-        it("should spread arguments with spread option", function(done) {
-            Promise.resolve([1,2,3]).nodeify(function(err, a, b, c) {
+        it("should spread arguments with spread option", function() {
+            var spy = getSpy();
+            Promise.resolve([1,2,3]).nodeify(spy(function(err, a, b, c) {
                 assert(err === null);
                 assert(a === 1);
                 assert(b === 2);
                 assert(c === 3);
-                done();
-            }, {spread: true});
+            }), {spread: true});
+            return spy.promise;
         });
 
-        describe("promise rejected with falsy values", function(done) {
-            specify("no reason", function(done) {
-                Promise.reject().nodeify(function(err) {
+        describe("promise rejected with falsy values", function() {
+            specify("no reason", function() {
+                var spy = getSpy();
+                Promise.reject().nodeify(spy(function(err) {
                     assert.strictEqual(arguments.length, 1);
                     assert.strictEqual(err.cause, undefined);
-                    done();
-                });
+                }));
+                return spy.promise;
             });
-            specify("null reason", function(done) {
-                Promise.reject(null).nodeify(function(err) {
+            specify("null reason", function() {
+                var spy = getSpy();
+                Promise.reject(null).nodeify(spy(function(err) {
                     assert.strictEqual(arguments.length, 1);
                     assert.strictEqual(err.cause, null);
-                    done();
-                });
+                }));
+                return spy.promise;
             });
-            specify("nodefying a follewer promise", function(done) {
+            specify("nodefying a follewer promise", function() {
+                var spy = getSpy();
                 new Promise(function(resolve, reject) {
                     resolve(new Promise(function(_, reject) {
                         setTimeout(function() {
                             reject();
-                        }, 13);
+                        }, 1);
                     }))
-                }).nodeify(function(err) {
+                }).nodeify(spy(function(err) {
                     assert.strictEqual(arguments.length, 1);
                     assert.strictEqual(err.cause, undefined);
-                    done();
-                });
+                }));
+                return spy.promise;
             });
-            specify("nodefier promise becomes follower", function(done) {
+            specify("nodefier promise becomes follower", function() {
+                var spy = getSpy();
                 Promise.resolve(1).then(function() {
                     return new Promise(function(_, reject) {
                         setTimeout(function() {
                             reject();
-                        }, 13);
+                        }, 1);
                     });
-                }).nodeify(function(err) {
+                }).nodeify(spy(function(err) {
                     assert.strictEqual(arguments.length, 1);
                     assert.strictEqual(err.cause, undefined);
-                    done();
-                });
+                }));
+                return spy.promise;
             });
         });
-        it("should wrap arguments with spread option", function(done) {
-            Promise.resolve([1,2,3]).nodeify(function(err, a, b, c) {
+        it("should wrap arguments with spread option", function() {
+            var spy = getSpy();
+            Promise.resolve([1,2,3]).nodeify(spy(function(err, a, b, c) {
                 assert(err === null);
                 assert(a === 1);
                 assert(b === 2);
                 assert(c === 3);
-                done();
-            }, {spread: true});
+            }), {spread: true});
+            return spy.promise;
         });
 
-        it("should work then result is not an array", function(done) {
-            Promise.resolve(3).nodeify(function(err, a) {
+        it("should work then result is not an array", function() {
+            var spy = getSpy();
+            Promise.resolve(3).nodeify(spy(function(err, a) {
                 assert(err === null);
                 assert(a === 3);
-                done();
-            }, {spread: true});
+            }), {spread: true});
+            return spy.promise;
         });
 
-        it("should work if the callback throws when spread", function(done) {
+        it("should work if the callback throws when spread", function() {
             var err = new Error();
             Promise.resolve([1,2,3]).nodeify(function(_, a) {
                 throw err;
             }, {spread: true});
 
-            processError(function(e) {
+            return awaitGlobalException(function(e) {
                 assert.strictEqual(err, e);
-            }, done);
+            });
         });
 
-        it("should work if the callback throws when rejected", function(done) {
+        it("should work if the callback throws when rejected", function() {
             var err = new Error();
             Promise.reject(new Error()).nodeify(function(_, a) {
                 throw err;
             });
 
-            processError(function(e) {
+            return awaitGlobalException(function(e) {
                 assert.strictEqual(err, e);
-            }, done);
+            });
         });
     });
 }

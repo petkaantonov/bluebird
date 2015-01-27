@@ -32,7 +32,7 @@ describe("github-364", function() {
             calls++
         });
 
-        Promise.delay(50).then(function() {
+        Promise.delay(1).then(function() {
             assert.equal(calls, 3);
             done();
         });

@@ -25,40 +25,36 @@ IN THE SOFTWARE.
 */
 
 describe("timeout", function () {
-    it("should do nothing if the promise fulfills quickly", function (done) {
-        Promise.delay(10).timeout(200).then(function(){
-            done();
+    it("should do nothing if the promise fulfills quickly", function() {
+        Promise.delay(1).timeout(200).then(function(){
         });
     });
 
-    it("should do nothing if the promise rejects quickly", function (done) {
+    it("should do nothing if the promise rejects quickly", function() {
         var goodError = new Error("haha!");
-        Promise.delay(10)
+        return Promise.delay(1)
         .then(function () {
             throw goodError;
         })
         .timeout(200)
         .then(undefined, function (error) {
             assert(error === goodError);
-            done();
         });
     });
 
-    it("should reject with a timeout error if the promise is too slow", function (done) {
-        Promise.delay(100)
+    it("should reject with a timeout error if the promise is too slow", function() {
+        return Promise.delay(1)
         .timeout(10)
         .caught(Promise.TimeoutError, function(){
-            done();
         })
     });
 
-    it("should pass through progress notifications", function (done) {
+    it("should pass through progress notifications", function() {
         var deferred = Promise.defer();
 
         var progressValsSeen = [];
         var promise = Promise.resolve(deferred.promise).timeout(300).then(function () {
             assert.deepEqual(progressValsSeen, [1, 2, 3]);
-            done();
         }, undefined, function (progressVal) {
             progressValsSeen.push(progressVal);
         });
@@ -69,29 +65,28 @@ describe("timeout", function () {
             deferred.progress(3);
             deferred.resolve();
         });
+        return promise;
     });
 
-    it("should reject with a custom timeout error if the promise is too slow and msg was provided", function (done) {
-        Promise.delay(100)
+    it("should reject with a custom timeout error if the promise is too slow and msg was provided", function() {
+        return Promise.delay(1)
         .timeout(10, "custom")
         .caught(Promise.TimeoutError, function(e){
             assert(/custom/i.test(e.message));
-            done();
         });
     });
 
-    it("should propagate the timeout error to cancellable parents", function(done) {
+    it("should propagate the timeout error to cancellable parents", function() {
         function doExpensiveOp() {
             return new Promise(function() {
 
             })
             .cancellable()
             .caught(Promise.TimeoutError, function(e) {
-                done();
             })
         }
 
-        doExpensiveOp().timeout(100);
+        return doExpensiveOp().timeout(100);
     });
 
     var globalsAreReflectedInGlobalObject = (function(window) {
@@ -104,7 +99,7 @@ describe("timeout", function () {
     })(globalObject);
 
     if (globalsAreReflectedInGlobalObject) {
-        it("should clear timeouts when success", function(done) {
+        it("should clear timeouts when success", function() {
             var old = globalObject.clearTimeout;
             var handleSet = false;
             globalObject.clearTimeout = function(handle) {
@@ -112,13 +107,12 @@ describe("timeout", function () {
                 globalObject.clearTimeout = old;
             };
 
-            Promise.delay(10).timeout(100).then(function() {
+            return Promise.delay(1).timeout(100).then(function() {
                 assert(handleSet);
-                done();
             });
         });
 
-        it("should clear timeouts when assert.fail", function(done) {
+        it("should clear timeouts when assert.fail", function() {
             var old = globalObject.clearTimeout;
             var handleSet = false;
             globalObject.clearTimeout = function(handle) {
@@ -126,93 +120,55 @@ describe("timeout", function () {
                 globalObject.clearTimeout = old;
             };
 
-            Promise.delay(100).timeout(10).then(null, function() {
+            return Promise.delay(1).timeout(10).then(null, function() {
                 assert(handleSet);
-                done();
             });
         });
     }
 });
 
 describe("delay", function () {
-    it("should delay fulfillment", function (done) {
-        var promise = Promise.delay(80);
+    it("should not delay rejection", function() {
+        var promise = Promise.reject(5).delay(1);
 
-        setTimeout(function () {
-            assert(promise.isPending())
-            setTimeout(function(){
-                assert(promise.isFulfilled());
-                done();
-            }, 80);
-        }, 30);
-    });
+        promise.then(assert.fail, function(){});
 
-    it("should not delay rejection", function (done) {
-        var promise = Promise.reject(5).delay(50);
-
-        promise.caught(function(){});
-
-        Promise.delay(20).then(function () {
+        return Promise.delay(1).then(function () {
             assert(!promise.isPending());
-            done();
-        });
-    });
-
-    it("should treat a single argument as a time", function (done) {
-        var promise = Promise.delay(50);
-
-        setTimeout(function () {
-            assert(promise.isPending());
-            done();
-        }, 40);
-
-    });
-
-    it("should treat two arguments as a value + a time", function (done) {
-        var promise = Promise.delay("what", 50);
-
-        setTimeout(function () {
-            assert(promise.isPending());
-        }, 25);
-
-        promise.then(function (value) {
-            assert(value === "what");
-            done();
         });
     });
 
     it("should delay after resolution", function () {
-        var promise1 = Promise.delay("what", 10);
-        var promise2 = promise1.delay(100);
-
-        setTimeout(function () {
-            assert(!promise1.isPending())
-            assert(promise2.isPending());
-        }, 50);
+        var promise1 = Promise.delay("what", 1);
+        var promise2 = promise1.delay(1);
 
         return promise2.then(function (value) {
             assert(value === "what");
         });
     });
 
-    it("should pass through progress notifications from passed promises", function (done) {
+    it("should pass through progress notifications from passed promises", function() {
         var deferred = Promise.defer();
 
         var progressValsSeen = [];
-        var promise = Promise.delay(deferred.promise, 100).then(function () {
+        var promise = Promise.delay(deferred.promise, 1).then(function () {
             assert.deepEqual(progressValsSeen, [1, 2, 3]);
-            done();
         }, undefined, function (progressVal) {
             progressValsSeen.push(progressVal);
         });
 
-        Promise.delay(5).then(function () { deferred.progress(1); });
-        Promise.delay(15).then(function () { deferred.progress(2); });
-        Promise.delay(25).then(function () { deferred.progress(3); });
-        Promise.delay(35).then(function () { deferred.resolve(); });
+        Promise.delay(1)
+            .then(function () { deferred.progress(1); })
+            .delay(1)
+            .then(function () { deferred.progress(2); })
+            .delay(1)
+            .then(function () { deferred.progress(3); })
+            .delay(1)
+            .then(function () { deferred.resolve(); });
+        return promise;
     });
 
-    it("should resolve follower promise's value", function(done) {
+    it("should resolve follower promise's value", function() {
         var resolveF;
         var f = new Promise(function() {
             resolveF = arguments[0];
@@ -220,12 +176,11 @@ describe("delay", function () {
         var v = new Promise(function(f) {
             setTimeout(function() {
                 f(3);
-            }, 13);
+            }, 1);
         });
         resolveF(v);
-        Promise.delay(f, 100).then(function(value) {
+        return Promise.delay(f, 1).then(function(value) {
             assert.equal(value, 3);
-            done();
         });
     });
 });

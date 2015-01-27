@@ -12,34 +12,29 @@ var c = {
 };
 
 describe("call", function() {
-    specify("0 args", function(done) {
-        Promise.resolve(c).call("method").then(function(res) {
+    specify("0 args", function() {
+        return Promise.resolve(c).call("method").then(function(res) {
             assert.deepEqual([3], res);
-            done();
         });
     });
-    specify("1 args", function(done) {
-        Promise.resolve(c).call("method", 1).then(function(res) {
+    specify("1 args", function() {
+        return Promise.resolve(c).call("method", 1).then(function(res) {
             assert.deepEqual([1, 3], res);
-            done();
         });
     });
-    specify("2 args", function(done) {
-        Promise.resolve(c).call("method", 1, 2).then(function(res) {
+    specify("2 args", function() {
+        return Promise.resolve(c).call("method", 1, 2).then(function(res) {
             assert.deepEqual([1, 2, 3], res);
-            done();
         });
     });
-    specify("3 args", function(done) {
-        Promise.resolve(c).call("method", 1, 2, 3).then(function(res) {
+    specify("3 args", function() {
+        return Promise.resolve(c).call("method", 1, 2, 3).then(function(res) {
             assert.deepEqual([1, 2, 3, 3], res);
-            done();
         });
     });
-    specify("10 args", function(done) {
-        Promise.resolve(c).call("method", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(res) {
+    specify("10 args", function() {
+        return Promise.resolve(c).call("method", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(res) {
             assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 3], res);
-            done();
         });
     });
 })

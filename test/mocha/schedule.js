@@ -7,24 +7,25 @@ var isNodeJS = testUtils.isNodeJS;
 describe("schedule", function () {
     if (isNodeJS) {
         describe("for Node.js", function () {
-            it("should preserve the active domain", function (done) {
+            it("should preserve the active domain", function() {
                 var domain       = require("domain");
                 var activeDomain = domain.create();
-
-                activeDomain.run(function () {
-                    schedule(function () {
-                        assert(domain.active);
-                        assert.equal(domain.active, activeDomain);
-
-                        done();
+                return new Promise(function(resolve) {
+                    activeDomain.run(function () {
+                        schedule(function () {
+                            assert(domain.active);
+                            assert.equal(domain.active, activeDomain);
+                            resolve();
+                        });
                     });
                 });
+
             });
         });
 
         describe("Promise.setScheduler", function() {
-            it("should work with synchronous scheduler", function(done) {
-                Promise.setScheduler(function(task) {
+            it("should work with synchronous scheduler", function() {
+                var prev = Promise.setScheduler(function(task) {
                     task();
                 });
                 var success = false;
@@ -32,14 +33,15 @@ describe("schedule", function () {
                     success = true;
                 });
                 assert(success);
-                done();
+                Promise.setScheduler(prev);
             });
-            it("should throw for non function", function(done) {
+            it("should throw for non function", function() {
                 try {
                     Promise.setScheduler({});
                 } catch (e) {
-                    done();
+                    return Promise.resolve();
                 }
+                assert.fail();
             });
         });
     }

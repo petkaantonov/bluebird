@@ -8,7 +8,7 @@ function promised(val) {
     return new Promise(function(f) {
         setTimeout(function() {
             f(val);
-        }, 4);
+        }, 1);
     });
 }
 function promising(val) {
@@ -29,7 +29,7 @@ function thenabled(val) {
         then: function(f){
             setTimeout(function() {
                 f(val);
-            }, 4);
+            }, 1);
         }
     };
 }
@@ -95,129 +95,125 @@ var ERROR = new Error("BOOM");
 
 
 describe("Promise.prototype.reduce", function() {
-    it("works with no values", function(done) {
-        Promise.resolve([]).reduce(function(total, value) {
+    it("works with no values", function() {
+        return Promise.resolve([]).reduce(function(total, value) {
             return total + value + 5;
         }).then(function(total) {
             assert.strictEqual(total, undefined);
-        }).nodeify(done);
+        });
     });
 
-    it("works with a single value", function(done) {
-        Promise.resolve([ 1 ]).reduce(function(total, value) {
+    it("works with a single value", function() {
+        return Promise.resolve([ 1 ]).reduce(function(total, value) {
             return total + value + 5;
         }).then(function(total) {
             assert.strictEqual(total, 1);
-        }).nodeify(done);
+        });
     });
 
-    it("works when the iterator returns a value", function(done) {
-        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+    it("works when the iterator returns a value", function() {
+        return Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
             return total + value + 5;
         }).then(function(total) {
             assert.strictEqual(total, (1 + 2+5 + 3+5));
-        }).nodeify(done);
+        });
     });
 
-    it("works when the iterator returns a Promise", function(done) {
-        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+    it("works when the iterator returns a Promise", function() {
+        return Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
             return promised(5).then(function(bonus) {
                 return total + value + bonus;
             });
         }).then(function(total) {
             assert.strictEqual(total, (1 + 2+5 + 3+5));
-        }).nodeify(done);
+        });
     });
 
-    it("works when the iterator returns a thenable", function(done) {
-        Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
+    it("works when the iterator returns a thenable", function() {
+        return Promise.resolve([ 1, 2, 3 ]).reduce(function(total, value) {
             return thenabled(total + value + 5);
         }).then(function(total) {
             assert.strictEqual(total, (1 + 2+5 + 3+5));
-        }).nodeify(done);
+        });
     });
 });
 
 
 describe("Promise.reduce", function() {
 
-    it("should allow returning values", function(done) {
+    it("should allow returning values", function() {
         var a = [promised(1), promised(2), promised(3)];
 
-        Promise.reduce(a, function(total, a) {
+        return Promise.reduce(a, function(total, a) {
             return total + a + 5;
         }, 0).then(function(total){
             assert.equal(total, 1+5 + 2+5 + 3+5);
-            done();
         });
     });
 
-    it("should allow returning promises", function(done) {
+    it("should allow returning promises", function() {
         var a = [promised(1), promised(2), promised(3)];
 
-        Promise.reduce(a, function(total, a) {
+        return Promise.reduce(a, function(total, a) {
             return promised(5).then(function(b) {
                 return total + a + b;
             });
         }, 0).then(function(total){
             assert.equal(total, 1+5 + 2+5 + 3+5);
-            done();
         });
     });
 
-    it("should allow returning thenables", function(done) {
+    it("should allow returning thenables", function() {
         var b = [1,2,3];
         var a = [];
 
-        Promise.reduce(b, function(total, cur) {
+        return Promise.reduce(b, function(total, cur) {
             a.push(cur);
             return thenabled(3);
-        }, 0).then(function(total){
+        }, 0).then(function(total) {
             assert.equal(total, 3);
-            assert.deepEqual(a, b),
-            done();
+            assert.deepEqual(a, b);
         });
     });
 
-    it("propagates error", function(done) {
+    it("propagates error", function() {
         var a = [promised(1), promised(2), promised(3)];
         var e = new Error("asd");
-        Promise.reduce(a, function(total, a) {
+        return Promise.reduce(a, function(total, a) {
             if (a > 2) {
                 throw e;
             }
             return total + a + 5;
         }, 0).then(assert.fail, function(err) {
             assert.equal(err, e);
-            done();
         });
     });
 
     describe("with no initial accumulator or values", function() {
-        it("works when the iterator returns a value", function(done) {
+        it("works when the iterator returns a value", function() {
             return Promise.reduce([], function(total, value) {
                 return total + value + 5;
             }).then(function(total){
                 assert.strictEqual(total, undefined);
-            }).nodeify(done);
+            });
         });
 
-        it("works when the iterator returns a Promise", function(done) {
+        it("works when the iterator returns a Promise", function() {
             return Promise.reduce([], function(total, value) {
                 return promised(5).then(function(bonus) {
                     return total + value + bonus;
                 });
             }).then(function(total){
                 assert.strictEqual(total, undefined);
-            }).nodeify(done);
+            });
         });
 
-        it("works when the iterator returns a thenable", function(done) {
+        it("works when the iterator returns a thenable", function() {
             return Promise.reduce([], function(total, value) {
                 return thenabled(total + value + 5);
             }).then(function(total){
                 assert.strictEqual(total, undefined);
-            }).nodeify(done);
+            });
         });
     });
 
@@ -231,37 +227,37 @@ describe("Promise.reduce", function() {
                     var valueTotal = criteria.total;
 
                     describe(criteria.desc, function() {
-                        it("works when the iterator returns a value", function(done) {
+                        it("works when the iterator returns a value", function() {
                             return Promise.reduce(evaluate(values), function(total, value) {
                                 return total + value + 5;
                             }, evaluate(initial)).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
 
-                        it("works when the iterator returns a Promise", function(done) {
+                        it("works when the iterator returns a Promise", function() {
                             return Promise.reduce(evaluate(values), function(total, value) {
                                 return promised(5).then(function(bonus) {
                                     return total + value + bonus;
                                 });
                             }, evaluate(initial)).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
 
-                        it("works when the iterator returns a thenable", function(done) {
+                        it("works when the iterator returns a thenable", function() {
                             return Promise.reduce(evaluate(values), function(total, value) {
                                 return thenabled(total + value + 5);
                             }, evaluate(initial)).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
                     });
                 });
             });
         });
 
-        it("propagates an initial Error", function(done) {
+        it("propagates an initial Error", function() {
             var initial = Promise.reject(ERROR);
             var values = [
                 thenabling(1),
@@ -270,15 +266,14 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 return value;
             }, initial).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
 
-        it("propagates a value's Error", function(done) {
+        it("propagates a value's Error", function() {
             var initial = 0;
             var values = [
                 thenabling(1),
@@ -288,15 +283,14 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 return value;
             }, initial).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
 
-        it("propagates an Error from the iterator", function(done) {
+        it("propagates an Error from the iterator", function() {
             var initial = 0;
             var values = [
                 thenabling(1),
@@ -305,33 +299,32 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 if (value === 2) {
                     throw ERROR;
                 }
                 return value;
             }, initial).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
     });
 
     describe("with a 0th value acting as an accumulator", function() {
-        it("acts this way when an accumulator value is provided yet `undefined`", function(done) {
+        it("acts this way when an accumulator value is provided yet `undefined`", function() {
             return Promise.reduce([ 1, 2, 3 ], function(total, value) {
                 return ((total === void 0) ? 0 : total) + value + 5;
             }, undefined).then(function(total){
                 assert.strictEqual(total, (1 + 2+5 + 3+5));
-            }).nodeify(done);
+            });
         });
 
-        it("survives an `undefined` 0th value", function(done) {
+        it("survives an `undefined` 0th value", function() {
             return Promise.reduce([ undefined, 1, 2, 3 ], function(total, value) {
                 return ((total === void 0) ? 0 : total) + value + 5;
             }).then(function(total){
                 assert.strictEqual(total, (1+5 + 2+5 + 3+5));
-            }).nodeify(done);
+            });
         });
 
         ACCUM_CRITERIA.forEach(function(criteria) {
@@ -343,38 +336,38 @@ describe("Promise.reduce", function() {
                     var zerothAndValues = [ zeroth ].concat(values);
                     var valueTotal = criteria.total;
 
-                    describe(criteria.desc, function(done) {
-                        it("works when the iterator returns a value", function(done) {
+                    describe(criteria.desc, function() {
+                        it("works when the iterator returns a value", function() {
                             return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
                                 return total + value + 5;
                             }).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
 
-                        it("works when the iterator returns a Promise", function(done) {
+                        it("works when the iterator returns a Promise", function() {
                             return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
                                 return promised(5).then(function(bonus) {
                                     return total + value + bonus;
                                 });
                             }).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
 
-                        it("works when the iterator returns a thenable", function(done) {
+                        it("works when the iterator returns a thenable", function() {
                             return Promise.reduce(evaluate(zerothAndValues), function(total, value) {
                                 return thenabled(total + value + 5);
                             }).then(function(total){
                                 assert.strictEqual(total, valueTotal + (values.length * 5));
-                            }).nodeify(done);
+                            });
                         });
                     });
                 });
             });
         });
 
-        it("propagates an initial Error", function(done) {
+        it("propagates an initial Error", function() {
             var values = [
                 Promise.reject(ERROR),
                 thenabling(1),
@@ -383,15 +376,14 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 return value;
             }).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
 
-        it("propagates a value's Error", function(done) {
+        it("propagates a value's Error", function() {
             var values = [
                 0,
                 thenabling(1),
@@ -401,15 +393,14 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 return value;
             }).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
 
-        it("propagates an Error from the iterator", function(done) {
+        it("propagates an Error from the iterator", function() {
             var values = [
                 0,
                 thenabling(1),
@@ -418,14 +409,13 @@ describe("Promise.reduce", function() {
                 4
             ];
 
-            Promise.reduce(values, function(total, value) {
+            return Promise.reduce(values, function(total, value) {
                 if (value === 2) {
                     throw ERROR;
                 }
                 return value;
             }).then(assert.fail, function(err) {
                 assert.equal(err, ERROR);
-                done();
             });
         });
     });
@@ -469,165 +459,149 @@ describe("Promise.reduce-test", function () {
     }
 
     function later(val) {
-        return Promise.delay(val, Math.random() * 10);
+        return Promise.delay(val, 1);
     }
 
 
-    specify("should reduce values without initial value", function(done) {
-        Promise.reduce([1,2,3], plus).then(
+    specify("should reduce values without initial value", function() {
+        return Promise.reduce([1,2,3], plus).then(
             function(result) {
                 assert.deepEqual(result, 6);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce values with initial value", function(done) {
-        Promise.reduce([1,2,3], plus, 1).then(
+    specify("should reduce values with initial value", function() {
+        return Promise.reduce([1,2,3], plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 7);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce values with initial promise", function(done) {
-        Promise.reduce([1,2,3], plus, Promise.resolve(1)).then(
+    specify("should reduce values with initial promise", function() {
+        return Promise.reduce([1,2,3], plus, Promise.resolve(1)).then(
             function(result) {
                 assert.deepEqual(result, 7);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce promised values without initial value", function(done) {
+    specify("should reduce promised values without initial value", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.reduce(input, plus).then(
+        return Promise.reduce(input, plus).then(
             function(result) {
                 assert.deepEqual(result, 6);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce promised values with initial value", function(done) {
+    specify("should reduce promised values with initial value", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.reduce(input, plus, 1).then(
+        return Promise.reduce(input, plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 7);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce promised values with initial promise", function(done) {
+    specify("should reduce promised values with initial promise", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.reduce(input, plus, Promise.resolve(1)).then(
+        return Promise.reduce(input, plus, Promise.resolve(1)).then(
             function(result) {
                 assert.deepEqual(result, 7);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce empty input with initial value", function(done) {
+    specify("should reduce empty input with initial value", function() {
         var input = [];
-        Promise.reduce(input, plus, 1).then(
+        return Promise.reduce(input, plus, 1).then(
             function(result) {
                 assert.deepEqual(result, 1);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce empty input with eventual promise", function(done) {
-        Promise.reduce([], plus, Promise.delay(1, 50)).then(
+    specify("should reduce empty input with eventual promise", function() {
+        return Promise.reduce([], plus, Promise.delay(1, 1)).then(
             function(result) {
                 assert.deepEqual(result, 1);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reduce empty input with initial promise", function(done) {
-        Promise.reduce([], plus, Promise.resolve(1)).then(
+    specify("should reduce empty input with initial promise", function() {
+        return Promise.reduce([], plus, Promise.resolve(1)).then(
             function(result) {
                 assert.deepEqual(result, 1);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reject Promise input contains rejection", function(done) {
+    specify("should reject Promise input contains rejection", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        Promise.reduce(input, plus, Promise.resolve(1)).then(
+        return Promise.reduce(input, plus, Promise.resolve(1)).then(
             assert.fail,
             function(result) {
                 assert.deepEqual(result, 2);
-                done();
             }
         );
     });
 
-    specify("should reduce to undefined with empty array", function(done) {
-        Promise.reduce([], plus).then(function(r){
+    specify("should reduce to undefined with empty array", function() {
+        return Promise.reduce([], plus).then(function(r){
             assert(r === void 0);
-            done();
         });
     });
 
-    specify("should reduce to initial value with empty array", function(done) {
-        Promise.reduce([], plus, sentinel).then(function(r){
+    specify("should reduce to initial value with empty array", function() {
+        return Promise.reduce([], plus, sentinel).then(function(r){
             assert(r === sentinel);
-            done();
         });
     });
 
-    specify("should reduce in input order", function(done) {
-        Promise.reduce([later(1), later(2), later(3)], plus, '').then(
+    specify("should reduce in input order", function() {
+        return Promise.reduce([later(1), later(2), later(3)], plus, '').then(
             function(result) {
                 assert.deepEqual(result, '123');
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should accept a promise for an array", function(done) {
-        Promise.reduce(Promise.resolve([1, 2, 3]), plus, '').then(
+    specify("should accept a promise for an array", function() {
+        return Promise.reduce(Promise.resolve([1, 2, 3]), plus, '').then(
             function(result) {
                 assert.deepEqual(result, '123');
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should resolve to initialValue Promise input promise does not resolve to an array", function(done) {
-        Promise.reduce(Promise.resolve(123), plus, 1).caught(TypeError, function(e){
-            done();
+    specify("should resolve to initialValue Promise input promise does not resolve to an array", function() {
+        return Promise.reduce(Promise.resolve(123), plus, 1).caught(TypeError, function(e){
         });
     });
 
-    specify("should provide correct basis value", function(done) {
+    specify("should provide correct basis value", function() {
         function insertIntoArray(arr, val, i) {
             arr[i] = val;
             return arr;
         }
 
-        Promise.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
+        return Promise.reduce([later(1), later(2), later(3)], insertIntoArray, []).then(
             function(result) {
                 assert.deepEqual(result, [1,2,3]);
-                done();
             },
             assert.fail
         );
@@ -668,99 +642,63 @@ describe("Promise.reduce-test", function () {
           })
         }
 
-        specify("16, 16, 16", function(done) {
-            check(16, 16, 16).then(function() {
-                done();
-            });
+        specify("16, 16, 16", function() {
+            return check(16, 16, 16);
         });
 
-        specify("16, 16, 4", function (done) {
-            check(16, 16, 4).then(function () {
-                done();
-            });
+        specify("16, 16, 4", function() {
+            return check(16, 16, 4);
         });
-        specify("4, 16, 16", function (done) {
-            check(4, 16, 16).then(function () {
-                done();
-            });
+        specify("4, 16, 16", function() {
+            return check(4, 16, 16);
         });
-        specify("16, 4, 16", function (done) {
-            check(16, 4, 16).then(function () {
-                done();
-            });
+        specify("16, 4, 16", function() {
+            return check(16, 4, 16);
         });
-        specify("16, 16, 4", function (done) {
-            check(16, 16, 4).then(function () {
-                done();
-            });
+        specify("16, 16, 4", function() {
+            return check(16, 16, 4);
         });
-        specify("4, 4, 16", function (done) {
-            check(4, 4, 16).then(function () {
-                done();
-            });
+        specify("4, 4, 16", function() {
+            return check(4, 4, 16);
         });
-        specify("16, 4, 4", function (done) {
-            check(16, 4, 4).then(function () {
-                done();
-            });
+        specify("16, 4, 4", function() {
+            return check(16, 4, 4);
         });
-        specify("4, 16, 4", function (done) {
-            check(4, 16, 4).then(function () {
-                done();
-            });
+        specify("4, 16, 4", function() {
+            return check(4, 16, 4);
         });
-        specify("4, 4, 4", function (done) {
-            check(4, 4, 4).then(function () {
-                done();
-            });
+        specify("4, 4, 4", function() {
+            return check(4, 4, 4);
         });
 
 
-        specify("16, 16, 16", function(done) {
-            checkDelayed(16, 16, 16).then(function() {
-                done();
-            });
+        specify("16, 16, 16", function() {
+            return checkDelayed(16, 16, 16);
         });
 
-        specify("16, 16, 4", function (done) {
-            checkDelayed(16, 16, 4).then(function () {
-                done();
-            });
+        specify("16, 16, 4", function() {
+            return checkDelayed(16, 16, 4);
         });
-        specify("4, 16, 16", function (done) {
-            checkDelayed(4, 16, 16).then(function () {
-                done();
-            });
+        specify("4, 16, 16", function() {
+            return checkDelayed(4, 16, 16);
         });
-        specify("16, 4, 16", function (done) {
-            checkDelayed(16, 4, 16).then(function () {
-                done();
-            });
+        specify("16, 4, 16", function() {
+            return checkDelayed(16, 4, 16);
         });
-        specify("16, 16, 4", function (done) {
-            checkDelayed(16, 16, 4).then(function () {
-                done();
-            });
+        specify("16, 16, 4", function() {
+            return checkDelayed(16, 16, 4);
         });
-        specify("4, 4, 16", function (done) {
-            checkDelayed(4, 4, 16).then(function () {
-                done();
-            });
+        specify("4, 4, 16", function() {
+            return checkDelayed(4, 4, 16);
         });
-        specify("16, 4, 4", function (done) {
-            checkDelayed(16, 4, 4).then(function () {
-                done();
-            });
+        specify("16, 4, 4", function() {
+            return checkDelayed(16, 4, 4);
         });
-        specify("4, 16, 4", function (done) {
-            checkDelayed(4, 16, 4).then(function () {
-                done();
-            });
+        specify("4, 16, 4", function() {
+            return checkDelayed(4, 16, 4);
         });
-        specify("4, 4, 4", function (done) {
-            checkDelayed(4, 4, 4).then(function () {
-                done();
-            });
+        specify("4, 4, 4", function() {
+            return checkDelayed(4, 4, 4);
         });
 
     })

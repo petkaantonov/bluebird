@@ -25,7 +25,7 @@ Resource.prototype.commit = function () {
 };
 
 Resource.prototype.commitAsync = function () {
-    return Promise.delay(10).bind(this).then(this.commit)
+    return Promise.delay(1).bind(this).then(this.commit)
 }
 
 Resource.prototype.rollback = function () {
@@ -36,11 +36,11 @@ Resource.prototype.rollback = function () {
 };
 
 Resource.prototype.rollbackAsync = function () {
-    return Promise.delay(10).bind(this).then(this.rollback)
+    return Promise.delay(1).bind(this).then(this.rollback)
 }
 
 Resource.prototype.closeAsync = function() {
-    return Promise.delay(10).bind(this).then(this.close);
+    return Promise.delay(1).bind(this).then(this.close);
 };
 
 Resource.prototype.close = function() {
@@ -56,14 +56,14 @@ Resource.prototype.closeError = function() {
 };
 
 Resource.prototype.query = function(value) {
-    return Promise.delay(value, 50);
+    return Promise.delay(value, 1);
 };
 
 function _connect() {
     return new Promise(function(resolve) {
         setTimeout(function(){
             resolve(new Resource())
-        }, 13);
+        }, 1);
     });
 }
 
@@ -71,7 +71,7 @@ function _connect2() {
     return new Promise2(function(resolve) {
         setTimeout(function(){
             resolve(new Resource())
-        }, 13);
+        }, 1);
     });
 }
 
@@ -84,7 +84,7 @@ function connectCloseAsync(arr, value) {
 }
 
 function promiseForConnectCloseAsync(arr, value) {
-    return Promise.delay(10).then(function() {
+    return Promise.delay(1).then(function() {
         return connectCloseAsync(arr, value);
     });
 }
@@ -106,7 +106,7 @@ function connectError() {
     return new Promise(function(resolve, reject) {
         setTimeout(function(){
             reject(error);
-        }, 13);
+        }, 1);
     });
 }
 
@@ -130,7 +130,7 @@ function transactionWithImmediatePromiseAfterConnect() {
 
 function transactionWithEventualPromiseAfterConnect() {
     return _connect().then(function (connection) {
-      return Promise.delay(100).thenReturn(connection);
+      return Promise.delay(1).thenReturn(connection);
     }).disposer(transactionDisposer);
 }
 
@@ -139,54 +139,51 @@ function transactionAsync() {
 }
 
 describe("Promise.using", function() {
-    specify("simple happy case", function(done) {
+    specify("simple happy case", function() {
         var res;
 
-        using(connect(), function(connection){
+        return using(connect(), function(connection){
             res = connection;
         }).then(function() {
             assert(res.isClosed);
             assert.equal(res.closesCalled, 1);
-            done();
         });
     });
 
-    specify("simple async happy case", function(done) {
+    specify("simple async happy case", function() {
         var res;
         var async = false;
 
-        using(connect(), function(connection) {
+        return using(connect(), function(connection) {
             res = connection;
-            return Promise.delay(50).then(function() {
+            return Promise.delay(1).then(function() {
                 async = true;
             });
         }).then(function() {
             assert(async);
             assert(res.isClosed);
             assert.equal(res.closesCalled, 1);
-            done();
         });
     });
 
-    specify("simple unhappy case", function(done) {
+    specify("simple unhappy case", function() {
         var a = connect();
         var promise = a._promise;
         var b = connectError();
-        using(b, a, function(a, b) {
+        return using(b, a, function(a, b) {
             assert(false);
-        }).caught(function() {
+        }).then(assert.fail, function() {
             assert(promise.value().isClosed);
             assert.equal(promise.value().closesCalled, 1);
-            done();
         })
     });
 
-    specify("calls async disposers sequentially", function(done) {
+    specify("calls async disposers sequentially", function() {
          var a = [];
          var _res3 = connectCloseAsync(a, 3);
          var _res2 = connectCloseAsync(a, 2);
          var _res1 = connectCloseAsync(a, 1);
-         using(_res1, _res2, _res3, function(res1, res2, res3) {
+         return using(_res1, _res2, _res3, function(res1, res2, res3) {
             _res1 = res1;
             _res2 = res2;
             _res3 = res3;
@@ -198,11 +195,10 @@ describe("Promise.using", function() {
             assert(_res1.closesCalled == 1);
             assert(_res2.closesCalled == 1);
             assert(_res3.closesCalled == 1);
-            done();
          });
     });
 
-    specify("calls async disposers sequentially when assert.failing", function(done) {
+    specify("calls async disposers sequentially when assert.failing", function() {
          var a = [];
          var _res3 = connectCloseAsync(a, 3);
          var _res2 = connectCloseAsync(a, 2);
@@ -211,10 +207,10 @@ describe("Promise.using", function() {
          var p2 = _res2.promise();
          var p3 = _res3.promise();
          var e = new Error();
-         var promise = Promise.delay(50).thenThrow(e);
-         using(_res1, _res2, _res3, promise, function() {
+         var promise = Promise.delay(1).thenThrow(e);
+         return using(_res1, _res2, _res3, promise, function() {
 
-         }).caught(function(err) {
+         }).then(assert.fail, function(err) {
             assert.deepEqual(a, [1,2,3]);
             assert(p1.value().isClosed);
             assert(p2.value().isClosed);
@@ -223,16 +219,15 @@ describe("Promise.using", function() {
             assert(p2.value().closesCalled == 1);
             assert(p3.value().closesCalled == 1);
             assert(e === err)
-            done();
          });
     });
 
-    specify("calls promised async disposers sequentially", function(done) {
+    specify("calls promised async disposers sequentially", function() {
          var a = [];
          var _res3 = promiseForConnectCloseAsync(a, 3);
          var _res2 = promiseForConnectCloseAsync(a, 2);
          var _res1 = promiseForConnectCloseAsync(a, 1);
-         using(_res1, _res2, _res3, function(res1, res2, res3) {
+         return using(_res1, _res2, _res3, function(res1, res2, res3) {
             assert(res1 instanceof Resource)
             assert(res2 instanceof Resource)
             assert(res3 instanceof Resource)
@@ -247,20 +242,19 @@ describe("Promise.using", function() {
             assert(_res1.closesCalled == 1);
             assert(_res2.closesCalled == 1);
             assert(_res3.closesCalled == 1);
-            done();
          });
     });
 
-    specify("calls promised async disposers sequentially when assert.failing", function(done) {
+    specify("calls promised async disposers sequentially when assert.failing", function() {
          var a = [];
          var _res3 = promiseForConnectCloseAsync(a, 3);
          var _res2 = promiseForConnectCloseAsync(a, 2);
          var _res1 = promiseForConnectCloseAsync(a, 1);
          var e = new Error();
-         var promise = Promise.delay(50).thenThrow(e);
-         using(_res1, _res2, _res3, promise, function() {
+         var promise = Promise.delay(1).thenThrow(e);
+         return using(_res1, _res2, _res3, promise, function() {
 
-         }).caught(function(err) {
+         }).then(assert.fail, function(err) {
             assert.deepEqual(a, [1,2,3]);
             assert(_res1.value().promise().value().isClosed);
             assert(_res2.value().promise().value().isClosed);
@@ -269,16 +263,15 @@ describe("Promise.using", function() {
             assert(_res2.value().promise().value().closesCalled == 1);
             assert(_res3.value().promise().value().closesCalled == 1);
             assert(e === err)
-            done();
          });
     });
 
-    specify("mixed promise, promise-for-disposer and disposer", function(done) {
+    specify("mixed promise, promise-for-disposer and disposer", function() {
          var a = [];
          var _res3 = promiseForConnectCloseAsync(a, 3);
          var _res2 = connectCloseAsync(a, 2);
-         var _res1 = Promise.delay(10, 10);
-         using(_res1, _res2, _res3, function(res1, res2, res3) {
+         var _res1 = Promise.delay(10, 1);
+         return using(_res1, _res2, _res3, function(res1, res2, res3) {
             assert(res1 === 10);
             assert(res2 instanceof Resource);
             assert(res3 instanceof Resource);
@@ -291,13 +284,12 @@ describe("Promise.using", function() {
             assert(_res3.isClosed);
             assert(_res2.closesCalled == 1);
             assert(_res3.closesCalled == 1);
-            done();
          });
     });
 
-    specify("successful transaction", function(done) {
+    specify("successful transaction", function() {
         var _tx;
-        using(transaction(), function(tx) {
+        return using(transaction(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 return tx.query(2);
@@ -305,13 +297,12 @@ describe("Promise.using", function() {
         }).then(function(){
             assert(_tx.commited);
             assert(!_tx.rollbacked);
-            done();
         });
     });
 
-    specify("successful async transaction", function(done) {
+    specify("successful async transaction", function() {
         var _tx;
-        using(transactionAsync(), function(tx) {
+        return using(transactionAsync(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 return tx.query(3);
@@ -319,37 +310,34 @@ describe("Promise.using", function() {
         }).then(function(){
             assert(_tx.commited);
             assert(!_tx.rollbacked);
-            done();
         })
     })
 
-    specify("successful transaction with an immediate promise before disposer creation", function(done) {
+    specify("successful transaction with an immediate promise before disposer creation", function() {
         var _tx;
-        using(transactionWithImmediatePromiseAfterConnect(), function(tx) {
+        return using(transactionWithImmediatePromiseAfterConnect(), function(tx) {
             _tx = tx;
             return tx.query(1);
         }).then(function(){
             assert(_tx.commited);
             assert(!_tx.rollbacked);
-            done();
         });
     });
 
-    specify("successful transaction with an eventual promise before disposer creation", function(done) {
+    specify("successful transaction with an eventual promise before disposer creation", function() {
         var _tx;
-        using(transactionWithEventualPromiseAfterConnect(), function(tx) {
+        return using(transactionWithEventualPromiseAfterConnect(), function(tx) {
             _tx = tx;
             return tx.query(1);
         }).then(function(){
             assert(_tx.commited);
             assert(!_tx.rollbacked);
-            done();
         });
     });
 
-    specify("assert.fail transaction", function(done) {
+    specify("assert.fail transaction", function() {
         var _tx;
-        using(transaction(), function(tx) {
+        return using(transaction(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 throw new Error();
@@ -357,13 +345,12 @@ describe("Promise.using", function() {
         }).then(assert.fail, function(){
             assert(!_tx.commited);
             assert(_tx.rollbacked);
-            done();
         });
     });
 
-    specify("assert.fail async transaction", function(done) {
+    specify("assert.fail async transaction", function() {
         var _tx;
-        using(transactionAsync(), function(tx) {
+        return using(transactionAsync(), function(tx) {
             _tx = tx;
             return tx.query(1).then(function() {
                 throw new Error();
@@ -371,81 +358,70 @@ describe("Promise.using", function() {
         }).then(assert.fail, function(){
             assert(!_tx.commited);
             assert(_tx.rollbacked);
-            done();
         });
     });
 
-    specify("with using coming from another Promise instance", function(done) {
+    specify("with using coming from another Promise instance", function() {
         var res;
-        Promise2.using(connect(), function(connection){
+        return Promise2.using(connect(), function(connection){
             res = connection;
         }).then(function() {
             assert(res.isClosed);
             assert.equal(res.closesCalled, 1);
-            done();
         });
     });
 
-    specify("with using coming from another Promise instance other way around", function(done) {
+    specify("with using coming from another Promise instance other way around", function() {
         var res;
-        Promise.using(connect2(), function(connection){
+        return Promise.using(connect2(), function(connection){
             res = connection;
         }).then(function() {
             assert(res.isClosed);
             assert.equal(res.closesCalled, 1);
-            done();
         });
     });
 
     if (testUtils.isNodeJS) {
-        specify("disposer throwing should throw in progress", function(done) {
+        specify("disposer throwing should throw in node process", function() {
             var err = new Error();
             var disposer = Promise.resolve().disposer(function() {
                 throw err;
             });
-            Promise.using(disposer, function() {
-
-            }).then(done, done);
-
-            testUtils.processError(function(e) {
+            using(disposer, function(){});
+            return testUtils.awaitGlobalException(function(e) {
                 assert.strictEqual(e, err);
-            }, done);
+            });
         });
     }
 
-    specify("Return rejected promise with less than 2 arguments", function(done) {
-        Promise.using(1).caught(Promise.TypeError, function(e) {
-            done();
-        });
+    specify("Return rejected promise with less than 2 arguments", function() {
+        return Promise.using(1).caught(Promise.TypeError, function(e) {});
     });
 
-    specify("Throw if disposer is not passed a function", function(done) {
+    specify("Throw if disposer is not passed a function", function() {
         try {
             Promise.resolve().disposer({});
         } catch (e) {
-            return done();
+            return Promise.resolve();
         }
         assert.fail();
     });
 
-    specify("Mixed rejected disposers are not called", function(done) {
+    specify("Mixed rejected disposers are not called", function() {
         var err = new Error("rejected should not be called");
-        var a = Promise.delay(100).thenThrow(err).disposer(function() {
+        var a = Promise.delay(1).thenThrow(err).disposer(function() {
             done(err);
         });
-        var b = Promise.delay(50).thenReturn(connect());
-        Promise.using(a, b, function() {
+        var b = Promise.delay(1).thenReturn(connect());
+        return Promise.using(a, b, function() {
             done(new Error("should not be here"));
-        }).caught(function(e) {
+        }).then(assert.fail, function(e) {
             assert.strictEqual(b.value()._promise.value().isClosed, true);
             assert.strictEqual(b.value()._promise.value().closesCalled, 1);
-            done();
         });
     });
 
-    specify("Return rejected promise when last argument is not function", function(done) {
-        Promise.using({}, {}, {}, {}).caught(Promise.TypeError, function(e) {
-            done();
-        });
+    specify("Return rejected promise when last argument is not function", function() {
+        return Promise.using({}, {}, {}, {}).caught(Promise.TypeError, function(e) {});
     });
 })

@@ -4,105 +4,98 @@ var testUtils = require("./helpers/util.js");
 
 describe("Promise.prototype.error", function(){
     describe("catches stuff originating from explicit rejections", function() {
-        specify("using constructor", function(done) {
+        specify("using constructor", function() {
             var e = new Error("sup");
-            new Promise(function(resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 reject(e);
             }).error(function(err){
                 assert(err === e);
-                done();
             });
         });
-        specify("using Promise.reject", function(done) {
+        specify("using Promise.reject", function() {
             var e = new Error("sup");
-            Promise.reject(e).error(function(err) {
+            return Promise.reject(e).error(function(err) {
                 assert(err === e);
-                done();
             });
         });
-        specify("using deferred", function(done) {
+        specify("using deferred", function() {
             var e = new Error("sup");
             var d = Promise.defer();
             d.promise.error(function(err) {
                 assert(err === e);
-                done();
             });
             d.reject(e);
         });
 
-        specify("using callback", function(done) {
+        specify("using callback", function() {
             var e = new Promise.TypeError("sup");
             function callsback(a, b, c, fn) {
                 fn(e);
             }
             callsback = Promise.promisify(callsback);
 
-            callsback(1, 2, 3).error(function(err) {
+            return callsback(1, 2, 3).error(function(err) {
                 assert(err === e);
-                done();
             });
         });
     });
 
     describe("does not catch stuff originating from thrown errors", function() {
-        specify("using constructor", function(done) {
+        specify("using constructor", function() {
             var e = new Error("sup");
-            new Promise(function(resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 throw e;
             }).error(function(err) {
                 assert.fail();
-            }).caught(function(err){
+            }).then(assert.fail, function(err){
                 assert(err === e);
-                done();
             });
         });
-        specify("using thenable", function(done) {
+        specify("using thenable", function() {
             var e = new Error("sup");
             var thenable = {
                 then: function(resolve, reject){
                     reject(e);
                 }
             };
-            Promise.cast(thenable).error(function(err) {
+            return Promise.cast(thenable).error(function(err) {
                 console.error(err);
                 assert.fail();
-            }).caught(function(err) {
+            }).then(assert.fail, function(err) {
                 assert(err === e);
-                done();
             });
         });
-        specify("using callback", function(done) {
+        specify("using callback", function() {
             var e = new Error("sup");
             function callsback(a, b, c, fn) {
                 throw e;
             }
             callsback = Promise.promisify(callsback);
 
-            callsback(1, 2, 3).error(function(err) {
+            return callsback(1, 2, 3).error(function(err) {
                 assert.fail();
-            }).caught(function(err){
+            }).then(assert.fail, function(err){
                 assert(err === e);
-                done();
             });
         });
     });
 
-    specify("gh-54-1", function(done) {
+    specify("gh-54-1", function() {
         function doThing(arg) {
           return new Promise(function (resolve, rej) {
             if (typeof arg !== "string") return rej(new Error("invalid thing"));
           });
         }
 
-        doThing().error(function(){
-            done();
+        return doThing().error(function() {
+
         }).caught(function(){
             assert.fail();
         });
 
     });
 
-    specify("gh-54-2", function(done) {
+    specify("gh-54-2", function() {
         function doBuggyThing(arg) {
           return new Promise(function (resolve, rej) {
             // arg2 & reject dont exist. this is buggy.
@@ -110,17 +103,15 @@ describe("Promise.prototype.error", function(){
           });
         }
         var called = false;
-        doBuggyThing().error(function(){
-            called = true;
-        }).caught(function() {
-
-        });
 
         setTimeout(function(){
             assert(!called);
-            done();
-        }, 13);
+        }, 1);
+        return doBuggyThing().error(function(){
+            called = true;
+        }).then(assert.fail, function() {
 
+        });
     });
 })
 
@@ -138,7 +129,7 @@ describe("Error constructors", function() {
             assert(a instanceof Error);
         });
 
-        it("should retain custom properties", function(done) {
+        it("should retain custom properties", function() {
             var message;
             var name;
             function f(cb) {
@@ -149,13 +140,12 @@ describe("Error constructors", function() {
                 err.path = "C:\\";
                 cb(err);
             }
-            Promise.promisify(f)().error(function(e) {
+            return Promise.promisify(f)().error(function(e) {
                 assert.strictEqual(e.message, message);
                 assert.strictEqual(e.name, name);
                 assert(e instanceof Promise.OperationalError);
                 assert.strictEqual(e.code, "ENOENT");
                 assert.strictEqual(e.path, "C:\\");
-                done();
             });
         });
     });

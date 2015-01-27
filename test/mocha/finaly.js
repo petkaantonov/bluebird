@@ -29,66 +29,62 @@ describe("finally", function () {
     var exception2 = new Promise.TypeError("evil!");
 
     describe("when nothing is passed", function() {
-        it("should do nothing", function(done) {
-            Promise.resolve("foo")
+        it("should do nothing", function() {
+            return Promise.resolve("foo")
                 .lastly()
                 .lastly()
                 .lastly()
                 .lastly()
                 .then(function(val){
                     assert(val === "foo");
-                    done();
                 })
         });
     });
 
     describe("when the promise is fulfilled", function () {
 
-        it("should call the callback", function (done) {
+        it("should call the callback", function() {
             var called = false;
 
-            Promise.resolve("foo")
+            return Promise.resolve("foo")
             .lastly(function () {
                 called = true;
             })
             .then(function () {
                 assert.equal(called,true);
-                done();
             });
         });
 
-        it("should fulfill with the original value", function (done) {
-            Promise.resolve("foo")
+        it("should fulfill with the original value", function() {
+            return Promise.resolve("foo")
             .lastly(function () {
                 return "bar";
             })
             .then(function (result) {
                 assert.equal(result,"foo");
-                done();
             });
         });
 
         describe("when the callback returns a promise", function () {
 
             describe("that is fulfilled", function () {
-                it("should fulfill with the original reason after that promise resolves", function (done) {
-                    var promise = Promise.delay(250);
+                it("should fulfill with the original reason after that promise resolves", function() {
+                    var promise = Promise.delay(1);
 
-                    Promise.resolve("foo")
+                    return Promise.resolve("foo")
                     .lastly(function () {
                         return promise;
                     })
                     .then(function (result) {
                         assert.equal(promise.isPending(),false);
                         assert.equal(result,"foo");
-                        done();
                     });
                 });
             });
 
             describe("that is rejected", function () {
-                it("should reject with this new rejection reason", function (done) {
-                    Promise.resolve("foo")
+                it("should reject with this new rejection reason", function() {
+                    return Promise.resolve("foo")
                     .lastly(function () {
                         return Promise.reject(exception1);
                     })
@@ -97,7 +93,6 @@ describe("finally", function () {
                     },
                     function (exception) {
                         assert.equal(exception,exception1);
-                        done();
                     });
                 });
             });
@@ -105,8 +100,8 @@ describe("finally", function () {
         });
 
         describe("when the callback throws an exception", function () {
-            it("should reject with this new exception", function (done) {
-                Promise.resolve("foo")
+            it("should reject with this new exception", function() {
+                return Promise.resolve("foo")
                 .lastly(function () {
                     throw exception1;
                 })
@@ -115,7 +110,6 @@ describe("finally", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception1);
-                    done();
                 });
             });
         });
@@ -124,10 +118,10 @@ describe("finally", function () {
 
     describe("when the promise is rejected", function () {
 
-        it("should call the callback", function (done) {
+        it("should call the callback", function() {
             var called = false;
 
-            Promise.reject(exception1)
+            return Promise.reject(exception1)
             .lastly(function () {
                 called = true;
             })
@@ -135,12 +129,11 @@ describe("finally", function () {
                 assert.fail();
             }, function () {
                 assert.equal(called,true);
-                done();
             });
         });
 
-        it("should reject with the original reason", function (done) {
-            Promise.reject(exception1)
+        it("should reject with the original reason", function() {
+            return Promise.reject(exception1)
             .lastly(function () {
                 return "bar";
             })
@@ -149,17 +142,16 @@ describe("finally", function () {
             },
             function (exception) {
                 assert.equal(exception,exception1);
-                done();
             });
         });
 
         describe("when the callback returns a promise", function () {
 
             describe("that is fulfilled", function () {
-                it("should reject with the original reason after that promise resolves", function (done) {
-                    var promise = Promise.delay(250);
+                it("should reject with the original reason after that promise resolves", function() {
+                    var promise = Promise.delay(1);
 
-                    Promise.reject(exception1)
+                    return Promise.reject(exception1)
                     .lastly(function () {
                         return promise;
                     })
@@ -169,14 +161,13 @@ describe("finally", function () {
                     function (exception) {
                         assert.equal(exception,exception1);
                         assert.equal(promise.isPending(),false);
-                        done();
                     });
                 });
             });
 
             describe("that is rejected", function () {
-                it("should reject with the new reason", function (done) {
-                    Promise.reject(exception1)
+                it("should reject with the new reason", function() {
+                    return Promise.reject(exception1)
                     .lastly(function () {
                         return Promise.reject(exception2);
                     })
@@ -185,7 +176,6 @@ describe("finally", function () {
                     },
                     function (exception) {
                         assert.equal(exception,exception2);
-                        done();
                     });
                 });
             });
@@ -193,8 +183,8 @@ describe("finally", function () {
         });
 
         describe("when the callback throws an exception", function () {
-            it("should reject with this new exception", function (done) {
-                Promise.reject(exception1)
+            it("should reject with this new exception", function() {
+                return Promise.reject(exception1)
                 .lastly(function () {
                     throw exception2;
                 })
@@ -203,7 +193,6 @@ describe("finally", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception2);
-                    done();
                 });
             });
         });
@@ -213,12 +202,12 @@ describe("finally", function () {
     describe("when the callback returns a thenable", function () {
 
         describe("that will fulfill", function () {
-            it("should reject with the original reason after that", function (done) {
+            it("should reject with the original reason after that", function() {
                 var promise = {
                     then: function(fn) {
                         setTimeout(function(){
                             fn(15);
-                        }, 13);
+                        }, 1);
                     }
                 };
 
@@ -231,18 +220,17 @@ describe("finally", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception1);
-                    done();
                 });
             });
         });
 
         describe("that is rejected", function () {
-            it("should reject with the new reason", function (done) {
+            it("should reject with the new reason", function() {
                 var promise = {
                     then: function(f, fn) {
                         setTimeout(function(){
                             fn(exception2);
-                        }, 13);
+                        }, 1);
                     }
                 };
 
@@ -255,16 +243,15 @@ describe("finally", function () {
                 },
                 function (exception) {
                     assert.equal(exception,exception2);
-                    done();
                 });
             });
-            it("should reject with the new primitive reason", function (done) {
+            it("should reject with the new primitive reason", function() {
                 var primitive = 3;
                 var promise = {
                     then: function(f, fn) {
                         setTimeout(function(){
                             fn(primitive);
-                        }, 13);
+                        }, 1);
                     }
                 };
 
@@ -277,7 +264,6 @@ describe("finally", function () {
                 },
                 function (exception) {
                     assert.strictEqual(exception, primitive);
-                    done();
                 });
             });
         });

@@ -8,7 +8,7 @@ function promised(val) {
     return new Promise(function(f) {
         setTimeout(function() {
             f(val);
-        }, 4);
+        }, 1);
     });
 }
 
@@ -18,7 +18,7 @@ function thenabled(val, arr) {
             setTimeout(function() {
                 if (arr) arr.push(val);
                 f(val);
-            }, 4);
+            }, 1);
         }
     };
 }
@@ -53,7 +53,7 @@ describe("Promise.each", function() {
         var b = [];
         return Promise.resolve(a).each(function(value) {
             b.push(value);
-            return Promise.delay(10).then(function(){
+            return Promise.delay(1).then(function(){
                 b.push(value*2);
             });
         }).then(function(ret) {
@@ -121,7 +121,7 @@ describe("Promise.prototype.each", function() {
         var b = [];
         return Promise.resolve(a).each(function(value) {
             b.push(value);
-            return Promise.delay(10).then(function(){
+            return Promise.delay(1).then(function(){
                 b.push(value*2);
             });
         }).then(function(ret) {

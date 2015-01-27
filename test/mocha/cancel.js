@@ -1,7 +1,4 @@
 "use strict";
-/*global describe specify require global*/
-//TODO include the copyright
-    "use strict";
 
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
@@ -26,24 +23,22 @@ function assertCancelled(promise) {
 }
 
 describe("If the promise is not cancellable the 'cancel' call has no effect.", function() {
-    specify("single-parent", function(done) {
+    specify("single-parent", function() {
         var parent = Promise.defer().promise.cancellable();
         var promise = parent.uncancellable();
 
         parent.then(assert.fail, assert.fail, assert.fail);
         var result = promise.then(assert.fail, assert.fail, assert.fail);
         promise.cancel();
-        setTimeout(function(){
+        return Promise.delay(1).then(function() {
             assert.ok(parent.isCancellable());
             assert.ok(!promise.isCancellable());
             assert.ok(parent.isPending());
             assert.ok(promise.isPending());
-            done();
-        }, 50)
-        return result;
+        });
     });
 
-    specify("2 parents", function(done) {
+    specify("2 parents", function() {
         var grandParent = Promise.defer().promise.cancellable();
         var parent = grandParent.then(assert.fail, assert.fail, assert.fail);
         var promise = parent.uncancellable();
@@ -51,35 +46,31 @@ describe("If the promise is not cancellable the 'cancel' call has no effect.", f
         grandParent.then(assert.fail, assert.fail, assert.fail);
         var result = promise.then(assert.fail, assert.fail, assert.fail);
         promise.cancel();
-        setTimeout(function(){
+        return Promise.delay(1).then(function() {
             assert.ok(grandParent.isCancellable());
             assert.ok(parent.isCancellable());
             assert.ok(!promise.isCancellable());
             assert.ok(grandParent.isPending());
             assert.ok(parent.isPending());
             assert.ok(promise.isPending());
-            done();
-        }, 50)
-        return result;
+        });
     });
 });
 
 describe("Cancel.1: If the promise is not pending the 'cancel' call has no effect.", function() {
-    specify("already-fulfilled", function(done) {
+    specify("already-fulfilled", function() {
         var promise = Promise.resolve(sentinel).cancellable();
         var result = promise.then(function(value) {
             assert.strictEqual(value, sentinel);
-            done();
         }, assert.fail);
         promise.cancel();
         return result;
     });
 
-    specify("already-rejected", function(done) {
+    specify("already-rejected", function() {
         var promise = Promise.reject(sentinel).cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.strictEqual(reason, sentinel);
-            done();
         });
         promise.cancel();
         return result;
@@ -90,7 +81,7 @@ describe("Cancel.1: If the promise is not pending the 'cancel' call has no effec
 
 
 describe("Cancel.3: If the promise is pending and waiting on another promise the 'cancel' call should instead propagate to this parent promise but MUST be done asynchronously after this call returns.", function() {
-    specify("parent pending", function(done) {
+    specify("parent pending", function() {
         var parentCancelled = false;
         var tuple = Promise.defer();
         var parent = tuple.promise.cancellable();
@@ -102,15 +93,14 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
         var promise = parent.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             assert.ok(parentCancelled);
-            done();
-            unhandled.caught(function(){});
+            unhandled.then(assert.fail, function(){});
         })
 
         promise.cancel();
         return promise;
     });
 
-    specify("grand parent pending", function(done) {
+    specify("grand parent pending", function() {
         var grandparentCancelled = false;
         var parentCancelled = false;
         var uncleCancelled = false;
@@ -132,8 +122,7 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
             assertCancelled(parent);
             assertCancelled(uncle);
             assertCancelled(grandparent);
-            done();
-            uncle.caught(function(){});
+            uncle.then(assert.fail, function(){});
         });
         assert(promise.isCancellable());
         assert(parent.isCancellable());
@@ -141,33 +130,34 @@ describe("Cancel.3: If the promise is pending and waiting on another promise the
         assert(promise._cancellationParent === parent);
         assert(parent._cancellationParent === grandparent);
         promise.cancel();
+        return promise;
     });
 });
 
 describe("Cancel.4: Otherwise the promise is rejected with a CancellationError.", function() {
-    specify("simple", function(done) {
+    specify("simple", function() {
         var promise = Promise.defer().promise.cancellable();
         var result = promise.then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
-            done();
         });
         promise.cancel();
+        return result;
     });
 
-    specify("then fulfilled assumption", function(done) {
+    specify("then fulfilled assumption", function() {
         var assumed = Promise.defer().promise.cancellable();
         var promise = Promise.resolve().cancellable().then(function() {
             return assumed;
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             assertCancelled(assumed);
-            done();
         });
 
         promise.cancel();
+        return promise;
     });
 
-    specify("then rejected assumption", function(done) {
+    specify("then rejected assumption", function() {
         var assumed = Promise.defer().promise.cancellable();
 
         var promise = Promise.reject().cancellable().then(null, function() {
@@ -175,14 +165,14 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             assertCancelled(assumed);
-            done();
         });
 
         promise.cancel();
+        return promise;
     });
 
 
-    specify("then chain-fulfilled assumption", function(done) {
+    specify("then chain-fulfilled assumption", function() {
         var assumed = Promise.defer().promise.cancellable();
 
         var promise = Promise.resolve().cancellable().then(function() {
@@ -192,14 +182,14 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             assertCancelled(assumed);
-            done();
         });
 
         promise.cancel();
+        return promise;
     });
 
 
-    specify("then chain-rejected assumption", function(done) {
+    specify("then chain-rejected assumption", function() {
         var assumed = Promise.defer().promise.cancellable();
         var promise = Promise.reject().cancellable().then(null, function() {
             return Promise.reject();
@@ -208,30 +198,34 @@ describe("Cancel.4: Otherwise the promise is rejected with a CancellationError."
         }).then(assert.fail, function(reason) {
             assert.ok(isCancellationError(reason));
             assertCancelled(assumed);
-            done();
         });
         promise.cancel();
+        return promise;
     });
 });
 
 describe("issues", function(){
-    specify("gh-166", function(done) {
+    specify("gh-166", function() {
         var f1 = false, f2 = false, f3 = false, f4 = false;
         var a = Promise.resolve().cancellable();
         a = a.then(function() {
             f1 = true;
-            return Promise.delay(5);
+            return Promise.delay(1);
         });
 
         a = a.then(function() {
             f2 = true;
-            return Promise.delay(5);
+            return Promise.delay(1);
         });
 
         a = a.then(function() {
             f3 = true;
-            return Promise.delay(2000);
-        });
+            return Promise.delay(1);
+        }).then(function() {
+            assert(a.isCancellable());
+            a.cancel();
+        }).delay(1);
+
 
         a = a.then(function() {
             f4 = true;
@@ -243,25 +237,20 @@ describe("issues", function(){
             assert(f1); assert(f2); assert(f3);
             assertCancelled(waitingForLongDelay);
             assert(!f4);
-            done();
         });
 
         assert(a.isCancellable());
-        setTimeout(function() {
-            assert(a.isCancellable());
-            a.cancel();
-        }, 250);
+        return a;
     });
 });
 
 describe("simple", function() {
-    specify("should reject with custom error", function(done) {
+    specify("should reject with custom error", function() {
         var a = new Promise(function(){}).cancellable();
         var err = new Error();
         a.cancel(err);
-        a.caught(function(e) {
+        return a.then(assert.fail, function(e) {
             assert(e === err);
-            done();
         });
     });
     specify("cancellable called on cancellable promise", function() {
@@ -271,17 +260,36 @@ describe("simple", function() {
     });
 });
 
+var token = {};
 describe("Cancelling a promise twice should have no additional effect", function() {
-    specify("With delay", function(done) {
-        var promise = Promise.defer().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
+    specify("With delay", function() {
+        var count = 0;
+        var promise = Promise.defer().promise
+            .cancellable()
+            .then(assert.fail, function(){
+                return ++count;
+            })
+            .then(function(val) {
+                assert.strictEqual(1, val);
+            });
         promise.cancel();
-        setTimeout(function() {
+        return Promise.delay(1).then(function() {
             promise.cancel();
-        }, 50);
+            return Promise.delay(1).thenReturn(promise);
+        });
     });
-    specify("Without delay", function(done) {
-        var promise = Promise.defer().promise.cancellable().caught(function(){}).then(done).caught(function() { done(new Error('Should not be called')) });
+    specify("Without delay", function() {
+        var count = 0;
+        var promise = Promise.defer().promise
+            .cancellable()
+            .then(assert.fail, function(){
+                return ++count;
+            })
+            .then(function(val) {
+                assert.strictEqual(1, val);
+            });
         promise.cancel()
         promise.cancel();
+        return Promise.delay(1).thenReturn(promise);
     });
 });

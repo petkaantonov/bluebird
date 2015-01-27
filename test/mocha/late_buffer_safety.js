@@ -10,7 +10,7 @@ function async(cb){
 
 if (isNodeJS) {
     describe("Late buffer", function() {
-        specify("shouldn't stop at first error but continue consumption until everything is consumed", function(done){
+        specify("shouldn't stop at first error but continue consumption until everything is consumed", function(){
             var length = 10;
             var l = length;
             var a = 0;
@@ -20,7 +20,7 @@ if (isNodeJS) {
                 });
             }
             var errs = [];
-            testUtils.processError(function(e) {
+            return testUtils.awaitGlobalException(function(e) {
                 errs.push(e);
                 if (errs.length === length) {
                     var a = [];
@@ -31,7 +31,7 @@ if (isNodeJS) {
                 } else {
                     return false;
                 }
-            }, done);
+            });
         });
     });
 }

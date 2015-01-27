@@ -62,8 +62,17 @@ function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
     assert.strictEqual(
         previousEventPattern.test(stack[stack.length - 1]), false,
         "The last line cannot be 'From previous event:'");
-    assert.strictEqual(expectedJumpCount, jumpCount, "Expected " +
-        expectedJumpCount + " jumps but saw " + jumpCount + " jumps");
+    if (typeof expectedJumpCount === "number") {
+        assert.strictEqual(expectedJumpCount, jumpCount, "Expected " +
+            expectedJumpCount + " jumps but saw " + jumpCount + " jumps");
+    } else {
+        assert(expectedJumpCount[0] <= jumpCount &&
+            jumpCount <= expectedJumpCount[1],
+            "Expected " +
+            expectedJumpCount[0] + "-" + expectedJumpCount[1] +
+            " jumps but saw " + jumpCount + " jumps"
+        );
+    }
 
     if (jumpCount > (expectedFramesForJumpsMap.length + 1)) {
         throw new Error("All jumps except the last one require an "+

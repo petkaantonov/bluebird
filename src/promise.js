@@ -192,7 +192,9 @@ Promise.reject = Promise.rejected = function (reason) {
 
 Promise.setScheduler = function(fn) {
     if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    var prev = async._schedule;
     async._schedule = fn;
+    return prev;
 };
 
 Promise.prototype._then = function (

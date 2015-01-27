@@ -36,11 +36,11 @@ describe("all", function () {
 
         toReject.reject(new Error("Rejected"));
 
-        promise.caught(function(e){
+        promise.then(assert.fail, function(e){
             //Unhandled rejection
         });
 
-        return Promise.delay(250)
+        return Promise.delay(1)
             .then(function () {
                 assert.equal(promise.isRejected(), true);
             })
@@ -80,14 +80,12 @@ describe("all", function () {
 
         var progressValues = [];
 
-        Promise.delay(50).then(function () {
+        Promise.delay(1).then(function () {
             deferred1.progress("a");
-        });
-        Promise.delay(100).then(function () {
+        }).delay(1).then(function () {
             deferred2.progress("b");
             deferred2.resolve();
-        });
-        Promise.delay(150).then(function () {
+        }).delay(1).then(function () {
             deferred1.progress("c");
             deferred1.resolve();
         });
@@ -138,73 +136,66 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 describe("Promise.all-test", function () {
 
-    specify("should resolve empty input", function(done) {
+    specify("should resolve empty input", function() {
         return Promise.all([]).then(
             function(result) {
                 assert.deepEqual(result, []);
-                done()
             }, assert.fail
         );
     });
 
-    specify("should resolve values array", function(done) {
+    specify("should resolve values array", function() {
         var input = [1, 2, 3];
-        Promise.all(input).then(
+        return Promise.all(input).then(
             function(results) {
                 assert.deepEqual(results, input);
-                done()
             }, assert.fail
         );
     });
 
-    specify("should resolve promises array", function(done) {
+    specify("should resolve promises array", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.all(input).then(
+        return Promise.all(input).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
-                done()
             }, assert.fail
         );
     });
 
-    specify("should not resolve sparse array input", function(done) {
+    specify("should not resolve sparse array input", function() {
         var input = [, 1, , 1, 1 ];
-        Promise.all(input).then(
+        return Promise.all(input).then(
             function(results) {
                 assert.deepEqual(results, [void 0, 1, void 0, 1, 1]);
-                done()
             }, assert.fail
         );
     });
 
-    specify("should reject if any input promise rejects", function(done) {
+    specify("should reject if any input promise rejects", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        Promise.all(input).then(
+        return Promise.all(input).then(
             assert.fail,
             function(err) {
                 assert.deepEqual(err, 2);
-                done();
             }
         );
     });
 
-    specify("should accept a promise for an array", function(done) {
+    specify("should accept a promise for an array", function() {
         var expected, input;
 
         expected = [1, 2, 3];
         input = Promise.resolve(expected);
 
-        Promise.all(input).then(
+        return Promise.all(input).then(
             function(results) {
                 assert.deepEqual(results, expected);
-                done()
             }, assert.fail
         );
     });
 
-    specify("should reject when input promise does not resolve to array", function(done) {
-        Promise.all(Promise.resolve(1)).caught(TypeError, function(e){
-            done();
+    specify("should reject when input promise does not resolve to array", function() {
+        return Promise.all(Promise.resolve(1)).caught(TypeError, function(e){
         });
     });
 

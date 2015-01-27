@@ -4,42 +4,37 @@ var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 
 describe("Promise.some", function(){
-    it("should reject on negative number", function(done){
-        Promise.some([1,2,3], -1)
+    it("should reject on negative number", function(){
+        return Promise.some([1,2,3], -1)
             .then(assert.fail)
             .caught(Promise.TypeError, function(){
-                done();
             });
     });
 
-    it("should reject on NaN", function(done){
-        Promise.some([1,2,3], -0/0)
+    it("should reject on NaN", function(){
+        return Promise.some([1,2,3], -0/0)
             .then(assert.fail)
             .caught(Promise.TypeError, function(){
-                done();
             });
     });
 
-    it("should reject on non-array", function(done){
-        Promise.some({}, 2)
+    it("should reject on non-array", function(){
+        return Promise.some({}, 2)
             .then(assert.fail)
             .caught(Promise.TypeError, function(){
-                done();
             });
     });
 
-    it("should reject with rangeerror when impossible to fulfill", function(done){
-        Promise.some([1,2,3], 4)
+    it("should reject with rangeerror when impossible to fulfill", function(){
+        return Promise.some([1,2,3], 4)
             .then(assert.fail)
             .caught(Promise.RangeError, function(e){
-                done();
             });
     });
 
-    it("should fulfill with empty array with 0", function(done){
-        Promise.some([1,2,3], 0).then(function(result){
+    it("should fulfill with empty array with 0", function(){
+        return Promise.some([1,2,3], 0).then(function(result){
             assert.deepEqual(result, []);
-            done();
         });
     });
 });
@@ -76,40 +71,36 @@ var RangeError = Promise.RangeError;
 
 describe("Promise.some-test", function () {
 
-    specify("should reject empty input", function(done) {
-        Promise.some([], 1).caught(RangeError, function() {
-            done();
+    specify("should reject empty input", function() {
+        return Promise.some([], 1).caught(RangeError, function() {
         });
     });
 
-    specify("should resolve values array", function(done) {
+    specify("should resolve values array", function() {
         var input = [1, 2, 3];
-        Promise.some(input, 2).then(
+        return Promise.some(input, 2).then(
             function(results) {
                 assert(testUtils.isSubset(results, input));
-                done();
             },
             assert.fail
         )
     });
 
-    specify("should resolve promises array", function(done) {
+    specify("should resolve promises array", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.some(input, 2).then(
+        return Promise.some(input, 2).then(
             function(results) {
                 assert(testUtils.isSubset(results, [1, 2, 3]));
-                done();
             },
             assert.fail
         )
     });
 
-    specify("should not resolve sparse array input", function(done) {
+    specify("should not resolve sparse array input", function() {
         var input = [, 1, , 2, 3 ];
-        Promise.some(input, 2).then(
+        return Promise.some(input, 2).then(
             function(results) {
                 assert.deepEqual(results, [void 0, 1]);
-                done();
             },
             function() {
                 console.error(arguments);
@@ -118,72 +109,66 @@ describe("Promise.some-test", function () {
         )
     });
 
-    specify("should reject with all rejected input values if resolving howMany becomes impossible", function(done) {
+    specify("should reject with all rejected input values if resolving howMany becomes impossible", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.reject(3)];
-        Promise.some(input, 2).then(
+        return Promise.some(input, 2).then(
             assert.fail,
             function(err) {
                 //Cannot use deep equality in IE8 because non-enumerable properties are not
                 //supported
                 assert(err[0] === 2);
                 assert(err[1] === 3);
-                done();
             }
         )
     });
 
-    specify("should reject with aggregateError", function(done) {
+    specify("should reject with aggregateError", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.reject(3)];
         var AggregateError = Promise.AggregateError;
-        Promise.some(input, 2)
+        return Promise.some(input, 2)
             .then(assert.fail)
             .caught(AggregateError, function(e) {
                 assert(e[0] === 2);
                 assert(e[1] === 3);
                 assert(e.length === 2);
-                done();
             });
     });
 
-    specify("aggregate error should be caught in .error", function(done) {
+    specify("aggregate error should be caught in .error", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.reject(3)];
         var AggregateError = Promise.AggregateError;
-        Promise.some(input, 2)
+        return Promise.some(input, 2)
             .then(assert.fail)
             .error(function(e) {
                 assert(e[0] === 2);
                 assert(e[1] === 3);
                 assert(e.length === 2);
-                done();
             });
     });
 
-    specify("should accept a promise for an array", function(done) {
+    specify("should accept a promise for an array", function() {
         var expected, input;
 
         expected = [1, 2, 3];
         input = Promise.resolve(expected);
 
-        Promise.some(input, 2).then(
+        return Promise.some(input, 2).then(
             function(results) {
                 assert.deepEqual(results.length, 2);
-                done();
             },
             assert.fail
         )
     });
 
-    specify("should reject when input promise does not resolve to array", function(done) {
-        Promise.some(Promise.resolve(1), 1).caught(TypeError, function(e){
-            done();
+    specify("should reject when input promise does not resolve to array", function() {
+        return Promise.some(Promise.resolve(1), 1).caught(TypeError, function(e){
         });
     });
 
-    specify("should reject when given immediately rejected promise", function(done) {
+    specify("should reject when given immediately rejected promise", function() {
         var err = new Error();
-        Promise.some(Promise.reject(err), 1).caught(function(e) {
+        return Promise.some(Promise.reject(err), 1).then(assert.fail, function(e) {
             assert.strictEqual(err, e);
-            done();
         });
     });
 });

@@ -26,20 +26,21 @@ describe("Async requirement", function() {
         arr.length = 0;
     }
 
+    beforeEach(function() {
+        arr = [];
+    });
 
-    specify("Basic", function(done) {
+    specify("Basic", function() {
         var p = new Promise(function(resolve) {
             resolve();
         });
         a();
         p.then(c);
         b();
-        p.then(assertArr).then(function(){
-            done();
-        }).done();
+        return p.then(assertArr);
     });
 
-    specify("Resolve-Before-Then", function(done) {
+    specify("Resolve-Before-Then", function() {
         var resolveP;
         var p = new Promise(function(resolve) {
             resolveP = resolve;
@@ -49,12 +50,10 @@ describe("Async requirement", function() {
         resolveP();
         p.then(c);
         b();
-        p.then(assertArr).then(function(){
-            done();
-        }).done();
+        return p.then(assertArr);
     });
 
-    specify("Resolve-After-Then", function(done) {
+    specify("Resolve-After-Then", function() {
         var resolveP;
         var p = new Promise(function(resolve) {
             resolveP = resolve;
@@ -64,32 +63,37 @@ describe("Async requirement", function() {
         p.then(c);
         resolveP();
         b();
-        p.then(assertArr).then(function(){
-            done();
-        }).done();
+        return p.then(assertArr);
     });
 
-    specify("Then-Inside-Then", function(done) {
+    specify("Then-Inside-Then", function() {
         var fulfilledP = Promise.resolve();
-        fulfilledP.then(function() {
+        return fulfilledP.then(function() {
             a();
-            fulfilledP.then(c).then(assertArr).then(function(){
-                done();
-            }).done();
+            var ret = fulfilledP.then(c).then(assertArr);
             b();
+            return ret;
         });
     });
 
     if (typeof Error.captureStackTrace === "function") {
         describe("Should not grow the stack and cause eventually stack overflow.", function(){
-            Error.stackTraceLimit = 10000;
+            var lim;
+            beforeEach(function() {
+                lim = Error.stackTraceLimit;
+                Error.stackTraceLimit = 10000;
+            });
+
+            afterEach(function() {
+                Error.stackTraceLimit = lim;
+            });
 
             function assertStackIsNotGrowing(stack) {
                 assert(stack.split("\n").length > 5);
                 assert(stack.split("\n").length < 15);
             }
 
-            specify("Already fulfilled.", function(done) {
+            specify("Already fulfilled.", function() {
                 function test(i){
                     if (i <= 0){
                        return Promise.resolve(new Error().stack);
@@ -97,13 +101,12 @@ describe("Async requirement", function() {
                        return Promise.resolve(i-1).then(test)
                    }
                 }
-                test(100).then(function(stack) {
+                return test(100).then(function(stack) {
                     assertStackIsNotGrowing(stack);
-                    done();
                 });
             });
 
-            specify("Already rejected", function(done) {
+            specify("Already rejected", function() {
                 function test(i){
                     if (i <= 0){
                        return Promise.reject(new Error().stack);
@@ -111,13 +114,12 @@ describe("Async requirement", function() {
                        return Promise.reject(i-1).then(assert.fail, test)
                    }
                 }
-                test(100).then(assert.fail, function(stack) {
+                return test(100).then(assert.fail, function(stack) {
                     assertStackIsNotGrowing(stack);
-                    done();
                 });
             });
 
-            specify("Immediately fulfilled", function(done) {
+            specify("Immediately fulfilled", function() {
                 function test(i){
                     var deferred = Promise.defer();
                     if (i <= 0){
@@ -128,13 +130,12 @@ describe("Async requirement", function() {
                        return deferred.promise.then(test)
                    }
                 }
-                test(100).then(function(stack) {
+                return test(100).then(function(stack) {
                     assertStackIsNotGrowing(stack);
-                    done();
                 });
             });
 
-            specify("Immediately rejected", function(done) {
+            specify("Immediately rejected", function() {
                 function test(i){
                     var deferred = Promise.defer();
                     if (i <= 0){
@@ -145,9 +146,8 @@ describe("Async requirement", function() {
                        return deferred.promise.then(assert.fail, test)
                    }
                 }
-                test(10).then(assert.fail, function(stack) {
+                return test(10).then(assert.fail, function(stack) {
                     assertStackIsNotGrowing(stack);
-                    done();
                 });
             });
         });

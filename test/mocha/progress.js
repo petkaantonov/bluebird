@@ -164,7 +164,7 @@ describe("progress", function () {
         deferred.resolve();
         deferred.progress();
 
-        return Promise.delay(10).then(function () {
+        return Promise.delay(1).then(function () {
             assert.equal(called,false);
         });
     });
@@ -175,16 +175,16 @@ describe("progress", function () {
 
         Promise.resolve(deferred.promise).then(null, null, function () {
             called = true;
-        }).caught(function(){});
+        }).then(assert.fail, function(){});
 
         deferred.reject();
         deferred.progress();
 
-        return Promise.delay(10).then(function () {
+        return Promise.delay(1).then(function () {
             assert.equal(called,false);
         });
 
-        deferred.promise.caught(function(){});
+        deferred.promise.then(assert.fail, function(){});
     });
 
     it("should not save and re-emit progress notifications", function () {
@@ -192,8 +192,8 @@ describe("progress", function () {
         var progressValues = [];
 
         deferred.progress(1);
-        //Add Promise.delay(30), cannot pass original when giving async guarantee
-        return Promise.delay(30).then(function(){
+        //Add Promise.delay(1), cannot pass original when giving async guarantee
+        return Promise.delay(1).then(function(){
 
             var promise = Promise.resolve(deferred.promise).then(function () {
                     assert.deepEqual(progressValues, [2]);
@@ -309,7 +309,7 @@ describe("progress", function () {
         return promise;
     });
 
-    specify("from fulfilled thenable should not do anything", function(done) {
+    specify("from fulfilled thenable should not do anything", function() {
         var thenable = {
             then: function(r, _, p) {
                 r(1);
@@ -323,13 +323,12 @@ describe("progress", function () {
             progressions++;
         });
 
-        Promise.delay(result, 100).then(function(result) {
+        return Promise.delay(result, 1).then(function(result) {
             assert.strictEqual(1, result);
-            done();
         });
     });
 
-    specify("from fulfilled thenable should not do anything if progress is not a function", function(done) {
+    specify("from fulfilled thenable should not do anything if progress is not a function", function() {
         var thenable = {
             then: function(r, _, p) {
                 setTimeout(function() {
@@ -347,21 +346,19 @@ describe("progress", function () {
             progressions++;
         });
 
-        Promise.delay(result, 100).then(function(result) {
+        return Promise.delay(result, 1).then(function(result) {
             assert.strictEqual(1, result);
-            done();
         });
     });
 
-    specify("should not choke when internal functions are registered on the promise", function(done) {
+    specify("should not choke when internal functions are registered on the promise", function() {
         var d = Promise.defer();
         var progress = 0;
 
         //calls ._then on the d.promise with smuggled data and void 0 progress handler
-        Promise.race([d.promise]).then(function(v){
+        var ret = Promise.race([d.promise]).then(function(v){
             assert(v === 3);
             assert(progress === 1);
-            done();
         });
 
         d.promise.progressed(function(v){
@@ -373,10 +370,11 @@ describe("progress", function () {
 
         setTimeout(function(){
             d.fulfill(3);
-        }, 13);
+        }, 1);
+        return ret;
     });
 
-    specify("GH-36", function(done) {
+    specify("GH-36", function() {
         var order = [];
         var p = Promise.resolve();
 
@@ -400,13 +398,12 @@ describe("progress", function () {
             });
         });
 
-        setTimeout(function(){
+        return Promise.delay(1).then(function() {
             assert.deepEqual(order, [1,2,3,4]);
-            done();
-        }, 13);
+        });
     });
 
-    specify("GH-88", function(done) {
+    specify("GH-88", function() {
         var thenable = {
             then: function(f, r, p) {
                 setTimeout(function(){
@@ -416,8 +413,8 @@ describe("progress", function () {
                     }
                     setTimeout(function(){
                         f(3);
-                    }, 13);
-                }, 13);
+                    }, 1);
+                }, 1);
             }
         };
 
@@ -425,12 +422,10 @@ describe("progress", function () {
         var count = 0;
         promise.progressed(function(v){
             count++;
-            assert.equal(v, 4);
         });
-        promise.then(function(v) {
+        return promise.then(function(v) {
             assert.equal(count, 10);
             assert.equal(v, 3);
-            done();
         });
 
     });

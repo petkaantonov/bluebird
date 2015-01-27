@@ -47,10 +47,10 @@ describe("spread", function () {
             assert.equal(b,20);
         });
 
-        Promise.delay(5).then(function () {
+        Promise.delay(1).then(function () {
             deferredA.resolve(10);
         });
-        Promise.delay(10).then(function () {
+        Promise.delay(1).then(function () {
             deferredB.resolve(20);
         });
 
@@ -76,89 +76,76 @@ describe("spread", function () {
         return promise;
     });
 
-    it("calls the errback when given a rejected promise", function (done) {
+    it("calls the errback when given a rejected promise", function() {
         var err = new Error();
-        Promise.all([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
+        return Promise.all([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
             function(actual){
             assert(actual === err);
-            done();
         });
     });
 
-    it("calls the errback when given a rejected promise without all", function (done) {
+    it("calls the errback when given a rejected promise without all", function() {
         var err = new Error();
-        Promise.resolve([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
+        return Promise.resolve([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
             function(actual){
             assert(actual === err);
-            done();
         });
     });
 
-    it("should wait for promises in the returned array even when not calling .all", function(done) {
+    it("should wait for promises in the returned array even when not calling .all", function() {
         var d1 = Promise.defer();
         var d2 = Promise.defer();
         var d3 = Promise.defer();
-        Promise.resolve().then(function(){
+        setTimeout(function(){
+            d1.resolve(1);
+            d2.resolve(2);
+            d3.resolve(3);
+        }, 1);
+        return Promise.resolve().then(function(){
             return [d1.promise, d2.promise, d3.promise];
         }).spread(function(a, b, c){
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
-            done();
         });
-
-        setTimeout(function(){
-            d1.resolve(1);
-            d2.resolve(2);
-            d3.resolve(3);
-        }, 13);
     });
 
-    it("should wait for thenables in the returned array even when not calling .all", function(done) {
+    it("should wait for thenables in the returned array even when not calling .all", function() {
         var t1 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(1);
-                }, 13);
+                }, 1);
             }
         };
         var t2 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(2);
-                }, 13);
+                }, 1);
             }
         };
         var t3 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(3);
-                }, 13);
+                }, 1);
             }
         };
-        Promise.resolve().then(function(){
+        return Promise.resolve().then(function(){
             return [t1, t2, t3];
         }).spread(function(a, b, c){
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
-            done();
         });
     });
 
-    it("should wait for promises in an array that a returned promise resolves to even when not calling .all", function(done) {
+    it("should wait for promises in an array that a returned promise resolves to even when not calling .all", function() {
         var d1 = Promise.defer();
         var d2 = Promise.defer();
         var d3 = Promise.defer();
         var defer = Promise.defer();
-        Promise.resolve().then(function(){
-            return defer.promise;
-        }).spread(function(a, b, c){
-            assert(a === 1);
-            assert(b === 2);
-            assert(c === 3);
-            done();
-        });
 
         setTimeout(function(){
             defer.resolve([d1.promise, d2.promise, d3.promise]);
@@ -166,31 +153,38 @@ describe("spread", function () {
                 d1.resolve(1);
                 d2.resolve(2);
                 d3.resolve(3);
-            }, 13);
-        }, 13);
+            }, 1);
+        }, 1);
 
+        return Promise.resolve().then(function(){
+            return defer.promise;
+        }).spread(function(a, b, c){
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+        });
     });
 
-    it("should wait for thenables in an array that a returned thenable resolves to even when not calling .all", function(done) {
+    it("should wait for thenables in an array that a returned thenable resolves to even when not calling .all", function() {
         var t1 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(1);
-                }, 13);
+                }, 1);
             }
         };
         var t2 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(2);
-                }, 13);
+                }, 1);
             }
         };
         var t3 = {
             then: function(fn) {
                 setTimeout(function(){
                     fn(3);
-                }, 13);
+                }, 1);
             }
         };
 
@@ -198,39 +192,36 @@ describe("spread", function () {
             then: function(fn) {
                 setTimeout(function(){
                     fn([t1, t2, t3])
-                }, 13);
+                }, 1);
             }
         };
 
-        Promise.resolve().then(function(){
+        return Promise.resolve().then(function(){
             return thenable;
         }).spread(function(a, b, c){
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
-            done();
         });
     });
 
-    it("should reject with error when non array is the ultimate value to be spread", function(done){
-        Promise.resolve().then(function(){
+    it("should reject with error when non array is the ultimate value to be spread", function(){
+        return Promise.resolve().then(function(){
             return 3
         }).spread(function(a, b, c){
             assert.fail();
-        }).caught(function(e){
-            done();
+        }).then(assert.fail, function(e){
         })
     });
 
-    specify("gh-235", function(done) {
+    specify("gh-235", function() {
         var P = Promise;
-        P.resolve(1).then(function(x) {
+        return P.resolve(1).then(function(x) {
           return [x, P.resolve(2)]
         }).spread(function(x, y) {
           return P.all([P.resolve(3), P.resolve(4)]);
         }).then(function(a) {
           assert.deepEqual([3, 4], a);
-          done();
         });
     })
 });
@@ -266,54 +257,49 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 describe("Promise.spread-test", function () {
     var slice = [].slice;
 
-    specify("should return a promise", function(done) {
+    specify("should return a promise", function() {
         assert(typeof (Promise.defer().promise.spread().then) === "function");
-        done();
     });
 
-    specify("should apply onFulfilled with array as argument list", function(done) {
+    specify("should apply onFulfilled with array as argument list", function() {
         var expected = [1, 2, 3];
         return Promise.resolve(expected).spread(function() {
             assert.deepEqual(slice.call(arguments), expected);
-            done();
         });
     });
 
-    specify("should resolve array contents", function(done) {
+    specify("should resolve array contents", function() {
         var expected = [Promise.resolve(1), 2, Promise.resolve(3)];
         return Promise.resolve(expected).spread(function() {
             assert.deepEqual(slice.call(arguments), [1, 2, 3]);
-            done();
         });
     });
 
-    specify("should reject if any item in array rejects", function(done) {
+    specify("should reject if any item in array rejects", function() {
         var expected = [Promise.resolve(1), 2, Promise.reject(3)];
         return Promise.resolve(expected)
             .spread(assert.fail)
-            .then(assert.fail, function() { done();});
+            .then(assert.fail, function() {});
     });
 
-    specify("should apply onFulfilled with array as argument list", function(done) {
+    specify("should apply onFulfilled with array as argument list", function() {
         var expected = [1, 2, 3];
         return Promise.resolve(Promise.resolve(expected)).spread(function() {
             assert.deepEqual(slice.call(arguments), expected);
-            done();
         });
     });
 
-    specify("should resolve array contents", function(done) {
+    specify("should resolve array contents", function() {
         var expected = [Promise.resolve(1), 2, Promise.resolve(3)];
         return Promise.resolve(Promise.resolve(expected)).spread(function() {
             assert.deepEqual(slice.call(arguments), [1, 2, 3]);
-            done();
         });
     });
 
-    specify("should reject if input is a rejected promise", function(done) {
+    specify("should reject if input is a rejected promise", function() {
         var expected = Promise.reject([1, 2, 3]);
         return Promise.resolve(expected)
             .spread(assert.fail)
-            .then(assert.fail, function() { done();});
+            .then(assert.fail, function() {});
     });
 });

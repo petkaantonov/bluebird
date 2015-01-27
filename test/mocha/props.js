@@ -3,60 +3,55 @@ var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 describe("Promise.props", function () {
 
-    specify("should reject undefined", function(done) {
-        Promise.props().caught(TypeError, function(){
-            done();
+    specify("should reject undefined", function() {
+        return Promise.props().caught(TypeError, function(){
         })
     });
 
-    specify("should reject primitive", function(done) {
-        Promise.props("str").caught(TypeError, function(){
-            done();
+    specify("should reject primitive", function() {
+        return Promise.props("str").caught(TypeError, function(){
         })
     });
 
-    specify("should resolve to new object", function(done) {
+    specify("should resolve to new object", function() {
         var o = {};
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert(v !== o);
             assert.deepEqual(o, v);
-            done();
         });
     });
 
-    specify("should resolve value properties", function(done) {
+    specify("should resolve value properties", function() {
         var o = {
             one: 1,
             two: 2,
             three: 3
         };
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert.deepEqual({
                 one: 1,
                 two: 2,
                 three: 3
             }, v);
-            done();
         });
     });
 
-    specify("should resolve immediate properties", function(done) {
+    specify("should resolve immediate properties", function() {
         var o = {
             one: Promise.resolve(1),
             two: Promise.resolve(2),
             three: Promise.resolve(3)
         };
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert.deepEqual({
                 one: 1,
                 two: 2,
                 three: 3
             }, v);
-            done();
         });
     });
 
-    specify("should resolve eventual properties", function(done) {
+    specify("should resolve eventual properties", function() {
         var d1 = Promise.defer(),
             d2 = Promise.defer(),
             d3 = Promise.defer();
@@ -65,65 +60,66 @@ describe("Promise.props", function () {
             two: d2.promise,
             three: d3.promise
         };
-        Promise.props(o).then(function(v){
-            assert.deepEqual({
-                one: 1,
-                two: 2,
-                three: 3
-            }, v);
-            done();
-        });
 
         setTimeout(function(){
             d1.fulfill(1);
             d2.fulfill(2);
             d3.fulfill(3);
-        }, 13);
+        }, 1);
+
+        return Promise.props(o).then(function(v){
+            assert.deepEqual({
+                one: 1,
+                two: 2,
+                three: 3
+            }, v);
+        });
+
+
     });
 
-    specify("should reject if any input promise rejects", function(done) {
+    specify("should reject if any input promise rejects", function() {
         var o = {
             one: Promise.resolve(1),
             two: Promise.reject(2),
             three: Promise.resolve(3)
         };
-        Promise.props(o).then(assert.fail, function(v){
+        return Promise.props(o).then(assert.fail, function(v){
             assert(v === 2);
-            done();
         });
     });
 
-    specify("should accept a promise for an object", function(done) {
+    specify("should accept a promise for an object", function() {
          var o = {
             one: Promise.resolve(1),
             two: Promise.resolve(2),
             three: Promise.resolve(3)
         };
         var d1 = Promise.defer();
-        Promise.props(d1.promise).then(function(v){
+        setTimeout(function(){
+            d1.fulfill(o);
+        }, 1);
+        return Promise.props(d1.promise).then(function(v){
             assert.deepEqual({
                 one: 1,
                 two: 2,
                 three: 3
             }, v);
-            done();
         });
-        setTimeout(function(){
-            d1.fulfill(o);
-        }, 13);
+
     });
 
-    specify("should reject a promise for a primitive", function(done) {
+    specify("should reject a promise for a primitive", function() {
         var d1 = Promise.defer();
-        Promise.props(d1.promise).caught(TypeError, function(){
-            done();
-        });
         setTimeout(function(){
             d1.fulfill("text");
-        }, 13);
+        }, 1);
+        return Promise.props(d1.promise).caught(TypeError, function(){
+        });
+
     });
 
-    specify("should accept thenables in properties", function(done) {
+    specify("should accept thenables in properties", function() {
         var t1 = {then: function(cb){cb(1);}};
         var t2 = {then: function(cb){cb(2);}};
         var t3 = {then: function(cb){cb(3);}};
@@ -132,17 +128,16 @@ describe("Promise.props", function () {
             two: t2,
             three: t3
         };
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert.deepEqual({
                 one: 1,
                 two: 2,
                 three: 3
             }, v);
-            done();
         });
     });
 
-    specify("should accept a thenable for thenables in properties", function(done) {
+    specify("should accept a thenable for thenables in properties", function() {
         var o = {
           then: function (f) {
             f({
@@ -164,35 +159,32 @@ describe("Promise.props", function () {
             });
           }
         };
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert.deepEqual({
                 one: 1,
                 two: 2,
                 three: 3
             }, v);
-            done();
         });
     });
 
-    specify("sends { key, value } progress updates", function(done) {
+    specify("sends { key, value } progress updates", function() {
         var deferred1 = Promise.defer();
         var deferred2 = Promise.defer();
 
         var progressValues = [];
 
-        Promise.delay(50).then(function () {
+        Promise.delay(1).then(function () {
             deferred1.progress("a");
-        });
-        Promise.delay(100).then(function () {
+        }).delay(1).then(function () {
             deferred2.progress("b");
             deferred2.resolve();
-        });
-        Promise.delay(150).then(function () {
+        }).delay(1).then(function () {
             deferred1.progress("c");
             deferred1.resolve();
         });
 
-        Promise.props({
+        return Promise.props({
             one: deferred1.promise,
             two: deferred2.promise
         }).then(function () {
@@ -201,7 +193,6 @@ describe("Promise.props", function () {
                 { key: "two", value: "b" },
                 { key: "one", value: "c" }
             ]);
-            done();
         },
         undefined,
         function (progressValue) {
@@ -209,16 +200,15 @@ describe("Promise.props", function () {
         });
     });
 
-    specify("treats arrays for their properties", function(done) {
+    specify("treats arrays for their properties", function() {
         var o = [1,2,3];
 
-        Promise.props(o).then(function(v){
+        return Promise.props(o).then(function(v){
             assert.deepEqual({
                 0: 1,
                 1: 2,
                 2: 3
             }, v);
-            done();
         });
     });
 

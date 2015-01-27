@@ -51,7 +51,7 @@ describe("allSettled", function () {
             toReject.reject();
             rejected = true;
         })
-        .delay(15)
+        .delay(1)
         .then(function () {
             toFulfill.resolve();
             fulfilled = true;
@@ -119,44 +119,40 @@ describe("Promise.settle-test", function () {
     };
 
 
-    specify("should settle empty array", function(done) {
+    specify("should settle empty array", function() {
         return Promise.settle([]).then(function(settled) {
             assert.deepEqual(settled.length, 0);
-            done();
         });
     });
 
-    specify("should reject if promise for input array rejects", function(done) {
+    specify("should reject if promise for input array rejects", function() {
         return Promise.settle(Promise.reject(sentinel)).then(
             assert.fail,
             function(reason) {
                 assert.equal(reason, sentinel);
-                done();
             }
         );
     });
 
-    specify("should settle values", function(done) {
+    specify("should settle values", function() {
         var array = [0, 1, sentinel];
         return Promise.settle(array).then(function(settled) {
             testUtils.assertFulfilled(settled[0], 0);
             testUtils.assertFulfilled(settled[1], 1);
             testUtils.assertFulfilled(settled[2], sentinel);
-            done();
         });
     });
 
-    specify("should settle promises", function(done) {
+    specify("should settle promises", function() {
         var array = [0, Promise.resolve(sentinel), Promise.reject(sentinel)];
         return Promise.settle(array).then(function(settled) {
             testUtils.assertFulfilled(settled[0], 0);
             testUtils.assertFulfilled(settled[1], sentinel);
             testUtils.assertRejected(settled[2], sentinel);
-            done();
         });
     });
 
-    specify("returned promise should fulfill once all inputs settle", function(done) {
+    specify("returned promise should fulfill once all inputs settle", function() {
         var array, p1, p2, resolve, reject;
 
         p1 = Promise.promise(function(r) { resolve = function(a){r.fulfill(a);}; });
@@ -171,7 +167,6 @@ describe("Promise.settle-test", function () {
             testUtils.assertFulfilled(settled[0], 0);
             testUtils.assertFulfilled(settled[1], sentinel);
             testUtils.assertRejected(settled[2], sentinel);
-            done();
         });
     });
 });

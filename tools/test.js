@@ -99,7 +99,7 @@ function writeCoverageFile(coverage, groupNumber) {
 }
 
 function needsFreshProcess(testName) {
-    return /domain|schedule|api_exceptions/.test(testName);
+    return false;
 }
 
 function runTestGroup(testGroup, options, progress) {

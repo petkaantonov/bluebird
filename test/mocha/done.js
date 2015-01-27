@@ -38,7 +38,7 @@ describe("done", function () {
                     called = true;
                 });
 
-                return promise.caught(function () { }).lastly(function () {
+                return promise.lastly(function () {
                     assert.equal(called,true);
                     assert.equal(returnValue,undefined);
                 });
@@ -47,7 +47,7 @@ describe("done", function () {
 
         if (isNodeJS) {
             describe("and the callback throws", function () {
-                it("should rethrow that error in the next turn and return nothing", function (done) {
+                it("should rethrow that error in the next turn and return nothing", function() {
                     var turn = 0;
                     process.nextTick(function () {
                         ++turn;
@@ -59,11 +59,11 @@ describe("done", function () {
                         }
                     );
 
-                    testUtils.processError(function(e) {
+                    return testUtils.awaitGlobalException(function(e) {
                         assert.equal(turn,1);
                         assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
-                    }, done);
+                    });
                 });
             });
         }
@@ -84,7 +84,7 @@ describe("done", function () {
                     }
                 );
 
-                return promise.caught(function () { }).lastly(function () {
+                return promise.caught(function(){}).lastly(function () {
                     assert.equal(called,true);
                     assert.equal(returnValue,undefined);
                 });
@@ -93,12 +93,7 @@ describe("done", function () {
 
         if (isNodeJS) {
             describe("and the errback throws", function () {
-                it("should rethrow that error in the next turn and return nothing", function (done) {
-                    testUtils.processError(function(e) {
-                        assert.equal(turn,1);
-                        assert.equal(e, safeError);
-                        assert.equal(returnValue,undefined);
-                    }, done);
+                it("should rethrow that error in the next turn and return nothing", function() {
                     var turn = 0;
                     process.nextTick(function () {
                         ++turn;
@@ -110,23 +105,28 @@ describe("done", function () {
                             throw safeError;
                         }
                     );
+                    return testUtils.awaitGlobalException(function(e) {
+                        assert.equal(turn,1);
+                        assert.equal(e, safeError);
+                        assert.equal(returnValue,undefined);
+                    });
                 });
             });
 
 
             describe("and there is no errback", function () {
-                it("should throw the original error in the next turn", function (done) {
-                    testUtils.processError(function(e) {
-                        assert.equal(turn,1);
-                        assert.equal(e, safeError);
-                        assert.equal(returnValue,undefined);
-                    }, done);
+                it("should throw the original error in the next turn", function() {
                     var turn = 0;
                     process.nextTick(function () {
                         ++turn;
                     });
 
                     var returnValue = Promise.reject(safeError).done();
+                    return testUtils.awaitGlobalException(function(e) {
+                        assert.equal(turn,1);
+                        assert.equal(e, safeError);
+                        assert.equal(returnValue,undefined);
+                    });
                 });
             });
         }

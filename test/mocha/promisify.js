@@ -8,7 +8,7 @@ var OperationalError = Promise.OperationalError;
 var erroneusNode = function(a, b, c, cb) {
     setTimeout(function(){
         cb(sentinelError);
-    }, 10);
+    }, 1);
 };
 
 var sentinel = {};
@@ -17,13 +17,13 @@ var sentinelError = new OperationalError();
 var successNode = function(a, b, c, cb) {
     setTimeout(function(){
         cb(null, sentinel);
-    }, 10);
+    }, 1);
 };
 
 var successNodeMultipleValues = function(a, b, c, cb) {
     setTimeout(function(){
         cb(null, sentinel, sentinel, sentinel);
-    }, 10);
+    }, 1);
 };
 
 var syncErroneusNode = function(a, b, c, cb) {
@@ -56,7 +56,7 @@ var errbacksStrings = Promise.promisify(function(cb){
 var errbacksStringsAsync = Promise.promisify(function(cb){
     setTimeout(function(){
         cb(tprimitive);
-    }, 13);
+    }, 1);
 });
 
 var error = Promise.promisify(erroneusNode);
@@ -69,25 +69,20 @@ var syncSuccessMulti = Promise.promisify(syncSuccessNodeMultipleValues);
 describe("when calling promisified function it should ", function(){
 
 
-    specify("return a promise that is pending", function(done) {
+    specify("return a promise that is pending", function() {
         var a = error(1,2,3);
         var b = success(1,2,3);
         var c = successMulti(1,2,3);
 
         var calls = 0;
-        function donecall() {
-            if ((++calls) === 1) {
-                done();
-            }
-        }
 
         assert.equal(a.isPending(), true);
         assert.equal(b.isPending(), true);
         assert.equal(c.isPending(), true);
-        a.caught(donecall);
+        return a.caught(testUtils.noop);
     });
 
-    specify("should use this if no receiver was given", function(done){
+    specify("should use this if no receiver was given", function(){
         var o = {};
         var fn = Promise.promisify(function(cb){
 
@@ -96,13 +91,12 @@ describe("when calling promisified function it should ", function(){
 
         o.fn = fn;
 
-        o.fn().then(function(val){
+        return o.fn().then(function(val){
             assert(val);
-            done();
         });
     });
 
-    specify("do nothing when called more than 1 times", function(done) {
+    specify("do nothing when called more than 1 times", function() {
         var err = new Error();
         var stack = err.stack;
 
@@ -111,21 +105,19 @@ describe("when calling promisified function it should ", function(){
             cb(err);
         });
 
-        fn().then(function() {
-            return Promise.delay(100).then(function() {
+        return fn().then(function() {
+            return Promise.delay(1).then(function() {
                 assert.strictEqual(stack, err.stack);
-                done();
             })
         });
     });
 
-    specify("undefined as receiver", function(done) {
-        Promise.promisify(function(cb) {
+    specify("undefined as receiver", function() {
+        return Promise.promisify(function(cb) {
             assert.strictEqual(this, (function(){return this;})());
             cb(null, 1);
         }, undefined)().then(function(result) {
             assert.strictEqual(1, result);
-            done();
         });
     });
 
@@ -137,91 +129,62 @@ describe("when calling promisified function it should ", function(){
         assert.strictEqual(a, b);
     });
 
-    specify("call future attached handlers later", function(done) {
-        var a = error(1,2,3);
+    specify("call future attached handlers later", function() {
+        var a = error(1,2,3).then(0, testUtils.noop);
         var b = success(1,2,3);
         var c = successMulti(1,2,3);
-        var d = syncError(1,2,3);
-        var e = syncSuccess(1,2,3);
-        var f = syncSuccessMulti(1,2,3);
+        var d = syncError(1,2,3).then(0, testUtils.noop);
+        var e = syncSuccess(1,2,3).then(0, testUtils.noop);
+        var f = syncSuccessMulti(1,2,3).then(0, testUtils.noop);
         var calls = 0;
-        function donecall() {
-            if ((++calls) === 6) {
-                done();
-            }
-        }
-
-        a.caught(function(){})
-        d.caught(function(){});
-
-        setTimeout(function(){
-            a.then(assert.fail, donecall);
-            b.then(donecall, assert.fail);
-            c.then(donecall, assert.fail);
-            d.then(assert.fail, donecall);
-            e.then(donecall, assert.fail);
-            f.then(donecall, assert.fail);
-        }, 100);
+        return Promise.all([a, b, c, d, e, f]);
     });
 
-    specify("Reject with the synchronously caught reason", function(done){
-        thrower(1, 2, 3).then(assert.fail).caught(function(e){
+    specify("Reject with the synchronously caught reason", function(){
+        thrower(1, 2, 3).then(assert.fail).then(assert.fail, function(e){
             assert(e === errToThrow);
-            done();
         });
     });
 
-    specify("reject with the proper reason", function(done) {
+    specify("reject with the proper reason", function() {
         var a = error(1,2,3);
         var b = syncError(1,2,3);
-        var calls = 0;
-        function donecall() {
-            if ((++calls) === 2) {
-                done();
-            }
-        }
 
-        a.caught(function(e){
-            assert.equal(sentinelError, e);
-            donecall();
-        });
-        b.caught(function(e){
-            assert.equal(sentinelError, e);
-            donecall();
-        });
+        return Promise.all([
+            a.then(assert.fail, function(e){
+                assert.equal(sentinelError, e);
+            }),
+            b.then(assert.fail, function(e){
+                assert.equal(sentinelError, e);
+            })
+        ]);
     });
 
-    specify("fulfill with proper value(s)", function(done) {
+    specify("fulfill with proper value(s)", function() {
         var a = success(1,2,3);
         var b = successMulti(1,2,3);
         var c = syncSuccess(1,2,3);
         var d = syncSuccessMulti(1,2,3);
-        var calls = 0;
-        function donecall() {
-            if ((++calls) === 4) {
-                done();
-            }
-        }
 
-        a.then(function(val){
-            assert.equal(val, sentinel);
-            donecall()
-        });
+        return Promise.all([
 
-        b.then(function(val){
-            assert.deepEqual(val, [sentinel, sentinel, sentinel]);
-            donecall()
-        });
+            a.then(function(val){
+                assert.equal(val, sentinel);
+            }),
 
-        c.then(function(val){
-            assert.equal(val, sentinel);
-            donecall()
-        });
+            b.then(function(val){
+                assert.deepEqual(val, [sentinel, sentinel, sentinel]);
+            }),
 
-        d.then(function(val){
-            assert.deepEqual(val, [sentinel, sentinel, sentinel]);
-            donecall()
-        });
+            c.then(function(val){
+                assert.equal(val, sentinel);
+            }),
+
+            d.then(function(val){
+                assert.deepEqual(val, [sentinel, sentinel, sentinel]);
+            })
+
+        ]);
     });
 
 
@@ -241,13 +204,12 @@ describe("with more than 5 arguments", function(){
 
     var prom = Promise.promisify(o.f, o);
 
-    specify("receiver should still work", function(done) {
-        prom(1,2,3,4,5,6,7).then(function(val){
+    specify("receiver should still work", function() {
+        return prom(1,2,3,4,5,6,7).then(function(val){
             assert.deepEqual(
                 val,
                 [1,2,3,4,5,6,7, 15]
             );
-            done();
         });
 
     });
@@ -310,72 +272,53 @@ describe("promisify on objects", function(){
         assert.equal(ret, objf);
     });
 
-    specify("should work on function objects too", function(done) {
+    specify("should work on function objects too", function() {
         objf.fAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
             assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 15]);
-            done();
         });
     });
 
-    specify("should work on prototypes and not mix-up the instances", function(done) {
+    specify("should work on prototypes and not mix-up the instances", function() {
         var a = new Test(15);
         var b = new Test(30);
         var c = new Test(45);
 
-        var calls = 0;
+        return Promise.all([
+            a.getAsync(1, 2, 3).then(function(result){
+                assert.deepEqual(result, [1, 2, 3, 15]);
+            }),
 
-        function calldone() {
-            calls++;
-            if (calls === 3) {
-                done();
-            }
-        }
-        a.getAsync(1, 2, 3).then(function(result){
-            assert.deepEqual(result, [1, 2, 3, 15]);
-            calldone();
-        });
+            b.getAsync(4, 5, 6).then(function(result){
+                assert.deepEqual(result, [4, 5, 6, 30]);
+            }),
 
-        b.getAsync(4, 5, 6).then(function(result){
-            assert.deepEqual(result, [4, 5, 6, 30]);
-            calldone();
-        });
-
-        c.getAsync(7, 8, 9).then(function(result){
-            assert.deepEqual(result, [7, 8, 9, 45]);
-            calldone();
-        });
+            c.getAsync(7, 8, 9).then(function(result){
+                assert.deepEqual(result, [7, 8, 9, 45]);
+            })
+        ]);
     });
 
-    specify("should work on prototypes and not mix-up the instances with more than 5 arguments", function(done) {
+    specify("should work on prototypes and not mix-up the instances with more than 5 arguments", function() {
         var a = new Test(15);
         var b = new Test(30);
         var c = new Test(45);
 
-        var calls = 0;
+        return Promise.all([
+            a.getManyAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
+                assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 15]);
+            }),
 
-        function calldone() {
-            calls++;
-            if (calls === 3) {
-                done();
-            }
-        }
-        a.getManyAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
-            assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 15]);
-            calldone();
-        });
+            b.getManyAsync(4, 5, 6, 7, 8, 9, 10).then(function(result){
+                assert.deepEqual(result, [4, 5, 6, 7, 8, 9, 10, 30]);
+            }),
 
-        b.getManyAsync(4, 5, 6, 7, 8, 9, 10).then(function(result){
-            assert.deepEqual(result, [4, 5, 6, 7, 8, 9, 10, 30]);
-            calldone();
-        });
-
-        c.getManyAsync(7, 8, 9, 10, 11, 12, 13).then(function(result){
-            assert.deepEqual(result, [7, 8, 9, 10, 11, 12, 13, 45]);
-            calldone();
-        });
+            c.getManyAsync(7, 8, 9, 10, 11, 12, 13).then(function(result){
+                assert.deepEqual(result, [7, 8, 9, 10, 11, 12, 13, 45]);
+            })
+        ]);
     });
 
-    specify("Fails to promisify Async suffixed methods", function(done) {
+    specify("Fails to promisify Async suffixed methods", function() {
         var o = {
             x: function(cb){
                 cb(null, 13);
@@ -393,15 +336,12 @@ describe("promisify on objects", function(){
         }
         catch (e) {
             assert(e instanceof Promise.TypeError);
-            done();
         }
     });
 
-    specify("Calls overridden methods", function(done) {
+    specify("Calls overridden methods", function() {
         function Model() {
-            this.save = function() {
-                done();
-            };
+            this.save = function() {};
         }
         Model.prototype.save = function() {
             throw new Error("");
@@ -412,7 +352,7 @@ describe("promisify on objects", function(){
         model.saveAsync();
     });
 
-    specify("gh-232", function(done) {
+    specify("gh-232", function() {
         function f() {
             var args = [].slice.call(arguments, 0, -1);
             assert.deepEqual(args, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -420,14 +360,13 @@ describe("promisify on objects", function(){
             cb(null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         }
         var fAsync = Promise.promisify(f);
-        fAsync(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(result) {
+        return fAsync(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(result) {
             assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-            done();
         });
     });
 
 
-    specify("gh335", function(done) {
+    specify("gh335", function() {
         function HasArgs() { }
         HasArgs.prototype.args = function(cb) {
             return cb(null, "ok");
@@ -435,16 +374,15 @@ describe("promisify on objects", function(){
 
         Promise.promisifyAll(HasArgs.prototype);
         var a = new HasArgs();
-        a.argsAsync().then(function(res) {
+        return a.argsAsync().then(function(res) {
             assert.equal(res, "ok");
-            done();
         });
     });
 
 });
 
 describe("Promisify with custom suffix", function() {
-    it("should define methods with the custom suffix", function(done) {
+    it("should define methods with the custom suffix", function() {
         function Test() {
 
         }
@@ -453,21 +391,21 @@ describe("Promisify with custom suffix", function() {
 
         Promise.promisifyAll(Test.prototype, {suffix: "$P"});
         assert(typeof Test.prototype.method$P == "function");
-        done();
     });
 
-    it("should throw on invalid suffix", function(done) {
+    it("should throw on invalid suffix", function() {
         try {
             Promise.promisifyAll({}, {suffix: ""});
         }
         catch (e) {
-            done();
+            return;
         }
+        assert.fail();
     });
 })
 
 describe("Module promisification", function() {
-    it("should promisify module with direct property classes", function(done) {
+    it("should promisify module with direct property classes", function() {
         function RedisClient() {}
         RedisClient.prototype.query = function() {};
         function Multi() {}
@@ -488,10 +426,9 @@ describe("Module promisification", function() {
         assert(typeof redis.Multi.prototype.execAsync === "function");
         assert(typeof redis.RedisClient.prototype.queryAsync === "function");
         assert(typeof redis.Multi.staticMethod.tooDeepAsync === "undefined");
-        done();
     })
 
-    it("should promisify module with inherited property classes", function(done) {
+    it("should promisify module with inherited property classes", function() {
         function Mongoose() {}
         var Model = Mongoose.prototype.Model = function() {};
         Model.prototype.find = function() {};
@@ -505,7 +442,6 @@ describe("Module promisification", function() {
         assert(typeof mongoose.Model.prototype.findAsync === "function");
         assert(typeof mongoose.Document.prototype.createAsync === "function");
         assert(typeof mongoose.Document.staticMethodAsync === "function")
-        done();
     })
 })
 
@@ -554,7 +490,7 @@ describe("Promisify from prototype to object", function() {
         return Test;
     }
 
-    specify("Shouldn't touch the prototype when promisifying instance", function(done) {
+    specify("Shouldn't touch the prototype when promisifying instance", function() {
         var Test = makeClass();
 
         var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
@@ -565,10 +501,9 @@ describe("Promisify from prototype to object", function() {
         assert(a.hasOwnProperty("testAsync"));
         assert.deepEqual(Object.getOwnPropertyNames(Test.prototype).sort(), origKeys);
         assert(getterCalled === 0);
-        done();
     });
 
-    specify("Shouldn't touch the method", function(done) {
+    specify("Shouldn't touch the method", function() {
         var Test = makeClass();
 
         var origKeys = Object.getOwnPropertyNames(Test.prototype.test).sort();
@@ -580,10 +515,9 @@ describe("Promisify from prototype to object", function() {
         assert.deepEqual(Object.getOwnPropertyNames(Test.prototype.test).sort(), origKeys);
         assert(Promise.promisify(a.test) !== a.testAsync);
         assert(getterCalled === 0);
-        done();
     });
 
-    specify("Should promisify own method even if a promisified method of same name already exists somewhere in proto chain", function(done){
+    specify("Should promisify own method even if a promisified method of same name already exists somewhere in proto chain", function(){
         var Test = makeClass();
         var instance = new Test();
         Promise.promisifyAll(instance);
@@ -594,23 +528,19 @@ describe("Promisify from prototype to object", function() {
         assert.deepEqual(origKeys, Object.getOwnPropertyNames(Test.prototype).sort());
         assert.notDeepEqual(origInstanceKeys,  Object.getOwnPropertyNames(instance).sort());
         assert(getterCalled === 0);
-        done();
     });
 
-    specify("Shouldn promisify the method closest to the object if method of same name already exists somewhere in proto chain", function(done){
+    specify("Shouldn promisify the method closest to the object if method of same name already exists somewhere in proto chain", function(){
         //IF the implementation is for-in, this pretty much tests spec compliance
         var Test = makeClass();
         var origKeys = Object.getOwnPropertyNames(Test.prototype).sort();
         var instance = new Test();
-        instance.test = function() {
-
-        };
+        instance.test = function() {};
         Promise.promisifyAll(instance);
 
         assert.deepEqual(Object.getOwnPropertyNames(Test.prototype).sort(), origKeys);
         assert(instance.test === instance.test);
         assert(getterCalled === 0);
-        done();
     });
 
 });
@@ -621,61 +551,55 @@ function assertLongStackTraces(e) {
 }
 if (Promise.hasLongStackTraces()) {
     describe("Primitive errors wrapping", function() {
-        specify("when the node function throws it", function(done){
-            throwsStrings().caught(function(e){
+        specify("when the node function throws it", function(){
+            return throwsStrings().then(assert.fail, function(e){
                 assert(e instanceof Error);
                 assert(e.message == tprimitive);
-                done();
             });
         });
 
-        specify("when the node function throws it inside then", function(done){
-            Promise.resolve().then(function() {
-                throwsStrings().caught(function(e) {
+        specify("when the node function throws it inside then", function(){
+            return Promise.resolve().then(function() {
+                throwsStrings().then(assert.fail, function(e) {
                     assert(e instanceof Error);
                     assert(e.message == tprimitive);
                     assertLongStackTraces(e);
-                    done();
                 });
             });
         });
 
 
-        specify("when the node function errbacks it synchronously", function(done){
-            errbacksStrings().caught(function(e){
+        specify("when the node function errbacks it synchronously", function(){
+            return errbacksStrings().then(assert.fail, function(e){
                 assert(e instanceof Error);
                 assert(e.message == tprimitive);
-                done();
             });
         });
 
-        specify("when the node function errbacks it synchronously inside then", function(done){
-            Promise.resolve().then(function(){
-                errbacksStrings().caught(function(e){
+        specify("when the node function errbacks it synchronously inside then", function(){
+            return Promise.resolve().then(function(){
+                errbacksStrings().then(assert.fail, function(e){
                     assert(e instanceof Error);
                     assert(e.message == tprimitive);
                     assertLongStackTraces(e);
-                    done();
                 });
             });
         });
 
-        specify("when the node function errbacks it asynchronously", function(done){
-            errbacksStringsAsync().caught(function(e){
+        specify("when the node function errbacks it asynchronously", function(){
+            return errbacksStringsAsync().then(assert.fail, function(e){
                 assert(e instanceof Error);
                 assert(e.message == tprimitive);
                 assertLongStackTraces(e);
-                done();
             });
         });
 
-        specify("when the node function errbacks it asynchronously inside then", function(done){
-            Promise.resolve().then(function(){
-                errbacksStringsAsync().caught(function(e){
+        specify("when the node function errbacks it asynchronously inside then", function(){
+            return Promise.resolve().then(function(){
+                errbacksStringsAsync().then(assert.fail, function(e){
                     assert(e instanceof Error);
                     assert(e.message == tprimitive);
                     assertLongStackTraces(e);
-                    done();
                 });
             });
         });
@@ -711,32 +635,30 @@ describe("Custom promisifier", function() {
         }
     });
 
-    specify("getTab", function(done) {
-        chrome.getTabAsync(1).then(function(result) {
+    specify("getTab", function() {
+        return chrome.getTabAsync(1).then(function(result) {
             assert.equal(dummy, result);
-            done();
         });
     });
 
-    specify("getTabErroneous", function(done) {
-        chrome.getTabErroneousAsync(2).caught(function(e) {
+    specify("getTabErroneous", function() {
+        return chrome.getTabErroneousAsync(2).then(assert.fail, function(e) {
             assert.equal(e, err);
-            done();
         });
     });
 
-    specify("custom promisifier enhancing default promisification", function(done) {
+    specify("custom promisifier enhancing default promisification", function() {
         var obj = {
             a: function(cb) {
                 setTimeout(function() {
                     cb(null, 1);
-                }, 10);
+                }, 1);
             },
 
             b: function(val, cb) {
                 setTimeout(function() {
                     cb(null, val);
-                }, 10);
+                }, 1);
             }
         };
         obj = Promise.promisifyAll(obj, {
@@ -753,9 +675,8 @@ describe("Custom promisifier", function() {
             }
         });
 
-        obj.bAsync(obj.aAsync()).then(function(val) {
+        return obj.bAsync(obj.aAsync()).then(function(val) {
             assert.strictEqual(val, 1);
-            done();
         });
 
     });
@@ -816,44 +737,38 @@ describe("OperationalError wrapping", function() {
     errthrow = Promise.promisify(errthrow);
     typethrow = Promise.promisify(typethrow);
 
-    specify("should wrap stringback", function(done) {
-        stringback().error(function(e) {
+    specify("should wrap stringback", function() {
+        return stringback().error(function(e) {
             assert(e instanceof OperationalError);
-            done();
         });
     });
 
-    specify("should wrap errback", function(done) {
-        errback().error(function(e) {
+    specify("should wrap errback", function() {
+        return errback().error(function(e) {
             assert(e instanceof OperationalError);
-            done();
         });
     });
 
-    specify("should not wrap typeback", function(done) {
-        typeback().caught(CustomError, function(e){
-                done();
+    specify("should not wrap typeback", function() {
+        return typeback().caught(CustomError, function(e){
             });
     });
 
-    specify("should not wrap stringthrow", function(done) {
-        stringthrow().error(assert.fail).caught(function(e){
+    specify("should not wrap stringthrow", function() {
+        return stringthrow().error(assert.fail).then(assert.fail, function(e){
             assert(e instanceof Error);
-            done();
         });
     });
 
-    specify("should not wrap errthrow", function(done) {
-        errthrow().error(assert.fail).caught(function(e) {
+    specify("should not wrap errthrow", function() {
+        return errthrow().error(assert.fail).then(assert.fail, function(e) {
             assert(e instanceof Error);
-            done();
         });
     });
 
-    specify("should not wrap typethrow", function(done) {
-        typethrow().error(assert.fail)
+    specify("should not wrap typethrow", function() {
+        return typethrow().error(assert.fail)
             .caught(CustomError, function(e){
-                done();
             });
     });
 });
@@ -873,7 +788,7 @@ var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
 
 if (canTestArity) {
     describe("arity", function() {
-        specify("should be original - 1", function(done) {
+        specify("should be original - 1", function() {
             var fn = function(a, b, c, callback) {};
 
             assert.equal(Promise.promisify(fn).length, 3);
@@ -884,27 +799,24 @@ if (canTestArity) {
                 }
             };
             assert.equal(Promise.promisifyAll(o).fnAsync.length, 3);
-
-            done();
         })
     })
 }
 
 describe("nodeback with multiple arguments", function() {
-    specify("spreaded with immediate values", function(done) {
+    specify("spreaded with immediate values", function() {
         var promise = Promise.promisify(function(cb) {
             cb(null, 1, 2, 3);
         })();
 
-        promise.spread(function(a, b, c) {
+        return promise.spread(function(a, b, c) {
             assert.equal(a, 1);
             assert.equal(b, 2);
             assert.equal(c, 3);
-            done();
         });
     });
 
-    specify("spreaded with thenable values should not be unwrapped", function(done) {
+    specify("spreaded with thenable values should not be unwrapped", function() {
         var a = {then: function(){}};
         var b = a;
         var c = a;
@@ -912,15 +824,14 @@ describe("nodeback with multiple arguments", function() {
             cb(null, a, b, c);
         })();
 
-        promise.spread(function(a_, b_, c_) {
+        return promise.spread(function(a_, b_, c_) {
             assert.equal(a_, a);
             assert.equal(b_, b);
             assert.equal(c_, c);
-            done();
         });
     });
 
-    specify("spreaded with promise values should not be unwrapped", function(done) {
+    specify("spreaded with promise values should not be unwrapped", function() {
         var a = Promise.resolve(1);
         var b = Promise.resolve(2);
         var c = Promise.resolve(3);
@@ -928,28 +839,26 @@ describe("nodeback with multiple arguments", function() {
             cb(null, a, b, c);
         })();
 
-        promise.spread(function(a_, b_, c_) {
+        return promise.spread(function(a_, b_, c_) {
             assert.strictEqual(a_, a);
             assert.strictEqual(b_, b);
             assert.strictEqual(c_, c);
-            done();
         });
     });
 });
 
 describe("filter", function() {
-    specify("gets an argument whether default filter was passed", function(done) {
+    specify("gets an argument whether default filter was passed", function() {
         Promise.promisifyAll({
             abc: function() {}
         }, {
             filter: function(_, __, ___, passesDefaultFilter) {
                 assert.strictEqual(passesDefaultFilter, true);
-                done();
             }
         })
     });
 
-    specify("doesn't fail when allowing non-identifier methods", function(done) {
+    specify("doesn't fail when allowing non-identifier methods", function() {
         var a = Promise.promisifyAll({
             " a s d ": function(cb) {
                 cb(null, 1);
@@ -962,7 +871,6 @@ describe("filter", function() {
 
         a[" a s d Async"]().then(function(val) {
             assert.strictEqual(1, val);
-            done();
         });
     });
 });

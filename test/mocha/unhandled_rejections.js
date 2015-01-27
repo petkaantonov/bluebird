@@ -1,74 +1,10 @@
 "use strict";
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
-
-//Used in expressions like: onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-//If strict mode is supported NFEs work, if it is not, NFEs don't work but arguments.callee does
-var isStrictModeSupported = (function() {
-    try {
-        new Function("'use strict'; with({});");
-        return false;
-    }
-    catch (e) {
-        return true;
-    }
-})();
-
-Promise.onPossiblyUnhandledRejection(null);
-
-//Since there is only a single handler possible at a time, older
-//tests that are run just before this file could affect the results
-//that's why there is 500ms limit in grunt file between each test
-//beacuse the unhandled rejection handler will run within 100ms right now
-function onUnhandledFail(testFunction) {
-    Promise.onPossiblyUnhandledRejection(function(e) {
-        //For IE7 debugging
-        console.log(testFunction + "");
-        Promise.onPossiblyUnhandledRejection(null);
-        assert.fail("Reporting handled rejection as unhandled");
-    });
-}
-
-function onUnhandledSucceed(done, testAgainst) {
-    Promise.onPossiblyUnhandledRejection(function(e){
-         if (testAgainst !== void 0) {
-            try {
-                if (typeof testAgainst === "function") {
-                    assert(testAgainst(e));
-                }
-                else {
-                    assert.equal(testAgainst, e);
-                }
-            }
-            catch (e) {
-                Promise.onPossiblyUnhandledRejection(null);
-                if (typeof testAgainst === "function") {
-                    console.log("assertion failDeferred: " + testAgainst);
-                }
-                else {
-                    console.log("assertion failDeferred: " + testAgainst +  "!== " + e);
-                }
-                return;
-            }
-         }
-        setTimeout(function() {
-            clearUnhandledHandler(done)();
-        }, 50);
-    });
-}
-
-function async(fn) {
-    return function() {
-        setTimeout(function(){fn()}, 13);
-    };
-}
-
-function clearUnhandledHandler(done) {
-    return function() {
-        Promise.onPossiblyUnhandledRejection(null);
-        done();
-    };
-};
+var noop = testUtils.noop;
+var isStrictModeSupported = testUtils.isStrictModeSupported;
+var onUnhandledFail = testUtils.onUnhandledFail;
+var onUnhandledSucceed = testUtils.onUnhandledSucceed;
 
 function e() {
     var ret = new Error();
@@ -81,228 +17,219 @@ function notE() {
     return rets[Math.random()*rets.length|0];
 }
 
-
-if (Promise.hasLongStackTraces()) {
-    describe("Will report rejections that are not handled in time", function() {
-
-
-        specify("Immediately rejected not handled at all", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var promise = Promise.defer();
-            promise.reject(e());
-        });
-        specify("Eventually rejected not handled at all", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var promise = Promise.defer();
-            setTimeout(function(){
-                promise.reject(e());
-            }, 50);
-        });
-
-
-
-        specify("Immediately rejected handled too late", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var promise = Promise.defer();
-            promise.reject(e());
-            setTimeout(function() {
-                promise.promise.caught(function(){});
-            }, 120);
-        });
-        specify("Eventually rejected handled too late", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var promise = Promise.defer();
-            setTimeout(function(){
-                promise.reject(e());
-            }, 20);
-            setTimeout(function() {
-                promise.promise.caught(function(){});
-            }, 160);
-        });
-    });
-
-    describe("Will report rejections that are code errors", function() {
-
-        specify("Immediately fulfilled handled with erroneous code", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var deferred = Promise.defer();
-            var promise = deferred.promise;
-            deferred.fulfill(null);
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            });
-        });
-        specify("Eventually fulfilled handled with erroneous code", function testFunction(done) {
-            onUnhandledSucceed(done);
-            var deferred = Promise.defer();
-            var promise = deferred.promise;
-            setTimeout(function(){
-                deferred.fulfill(null);
-            }, 40);
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            });
-        });
-
-        specify("Already fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction(done) {
-            var err = e();
-            onUnhandledSucceed(done, err);
-            var promise = Promise.resolve(null);
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            }).caught(function(e){
-                    assert.ok(e instanceof Promise.TypeError)
-            }).then(function(){
-                //then assert.failing again
-                //this error should be reported
-                throw err;
-            });
-        });
-
-        specify("Immediately fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction(done) {
-            var err = e();
-            onUnhandledSucceed(done, err);
-            var deferred = Promise.defer();
-            var promise = deferred.promise;
-            deferred.fulfill(null);
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            }).caught(function(e){
-                    assert.ok(e instanceof Promise.TypeError)
-                //Handling the type error here
-            }).then(function(){
-                //then assert.failing again
-                //this error should be reported
-                throw err;
-            });
-        });
-
-        specify("Eventually fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction(done) {
-            var err = e();
-            onUnhandledSucceed(done, err);
-            var deferred = Promise.defer();
-            var promise = deferred.promise;
-
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            }).caught(function(e){
-                    assert.ok(e instanceof Promise.TypeError)
-                //Handling the type error here
-            }).then(function(){
-                //then assert.failing again
-                //this error should be reported
-                throw err;
-            });
-
-            setTimeout(function(){
-                deferred.fulfill(null);
-            }, 40);
-        });
-
-        specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failDeferred again", function testFunction(done) {
-            var err = e();
-            onUnhandledSucceed(done, err);
-            var promise = Promise.resolve(null);
-            promise.then(function(itsNull){
-                itsNull.will.fail.four.sure();
-            }).caught(function(e){
-                    assert.ok(e instanceof Promise.TypeError)
-            });
-
-            promise.caught(function(e) {
-                    assert.ok(e instanceof Promise.TypeError)
-                //Handling the type error here
-            }).then(function(){
-                //then assert.failing again
-                //this error should be reported
-                throw err;
-            });
-        });
-    });
-
+function cleanUp() {
+    Promise.onPossiblyUnhandledRejection(null);
+    Promise.onUnhandledRejectionHandled(null);
 }
 
-describe("Will report rejections that are not instanceof Error", function() {
+function setupCleanUps() {
+    beforeEach(cleanUp);
+    afterEach(cleanUp);
+}
 
-    specify("Immediately rejected with non instanceof Error", function testFunction(done) {
-        onUnhandledSucceed(done);
+describe("Will report rejections that are not handled in time", function() {
+    setupCleanUps();
 
-        var failDeferred = Promise.defer();
-        failDeferred.reject(notE());
+    specify("Immediately rejected not handled at all", function testFunction() {
+        var promise = Promise.defer();
+        promise.reject(e());
+        return onUnhandledSucceed();
     });
 
+    specify("Eventually rejected not handled at all", function testFunction() {
+        var promise = Promise.defer();
+        setTimeout(function(){
+            promise.reject(e());
+        }, 1);
+        return onUnhandledSucceed();
+    });
 
-    specify("Eventually rejected with non instanceof Error", function testFunction(done) {
-        onUnhandledSucceed(done);
+    specify("Immediately rejected handled too late", function testFunction() {
+        var promise = Promise.defer();
+        promise.reject(e());
+        setTimeout(function() {
+            promise.promise.then(assert.fail, function(){});
+        }, 1);
+        return onUnhandledSucceed();
+    });
+    specify("Eventually rejected handled too late", function testFunction() {
+        var promise = Promise.defer();
+        setTimeout(function(){
+            promise.reject(e());
+            setTimeout(function() {
+                promise.promise.then(assert.fail, function(){});
+            }, 1);
+        }, 1);
 
-        var failDeferred = Promise.defer();
+        return onUnhandledSucceed();
+    });
+});
+
+describe("Will report rejections that are code errors", function() {
+    setupCleanUps();
+
+    specify("Immediately fulfilled handled with erroneous code", function testFunction() {
+        var deferred = Promise.defer();
+        var promise = deferred.promise;
+        deferred.fulfill(null);
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        });
+        return onUnhandledSucceed();
+    });
+    specify("Eventually fulfilled handled with erroneous code", function testFunction() {
+        var deferred = Promise.defer();
+        var promise = deferred.promise;
+        setTimeout(function(){
+            deferred.fulfill(null);
+        }, 1);
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        });
+        return onUnhandledSucceed();
+    });
+
+    specify("Already fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
+        var err = e();
+        var promise = Promise.resolve(null);
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        }).then(assert.fail, function(e){
+            assert.ok(e instanceof Promise.TypeError);
+        }).then(function(){
+            //then assert.failing again
+            //this error should be reported
+            throw err;
+        });
+        return onUnhandledSucceed(err);
+    });
+
+    specify("Immediately fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
+        var err = e();
+        var deferred = Promise.defer();
+        var promise = deferred.promise;
+        deferred.fulfill(null);
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        }).then(assert.fail, function(e){
+                assert.ok(e instanceof Promise.TypeError)
+            //Handling the type error here
+        }).then(function(){
+            //then assert.failing again
+            //this error should be reported
+            throw err;
+        });
+        return onUnhandledSucceed(err);
+    });
+
+    specify("Eventually fulfilled handled with erroneous code but then recovered and failDeferred again", function testFunction() {
+        var err = e();
+        var deferred = Promise.defer();
+        var promise = deferred.promise;
+
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        }).then(assert.fail, function(e){
+                assert.ok(e instanceof Promise.TypeError)
+            //Handling the type error here
+        }).then(function(){
+            //then assert.failing again
+            //this error should be reported
+            throw err;
+        });
 
         setTimeout(function(){
+            deferred.fulfill(null);
+        }, 1);
+        return onUnhandledSucceed(err);
+    });
+
+    specify("Already fulfilled handled with erroneous code but then recovered in a parallel handler and failDeferred again", function testFunction() {
+        var err = e();
+        var promise = Promise.resolve(null);
+        promise.then(function(itsNull){
+            itsNull.will.fail.four.sure();
+        }).then(assert.fail, function(e){
+            assert.ok(e instanceof Promise.TypeError)
+        });
+
+        promise.then(function(){
+            //then assert.failing again
+            //this error should be reported
+            throw err;
+        });
+        return onUnhandledSucceed(err);
+    });
+});
+
+describe("Will report rejections that are not instanceof Error", function() {
+    setupCleanUps();
+
+    specify("Immediately rejected with non instanceof Error", function testFunction() {
+        var failDeferred = Promise.defer();
+        failDeferred.reject(notE());
+        return onUnhandledSucceed();
+    });
+
+    specify("Eventually rejected with non instanceof Error", function testFunction() {
+        var failDeferred = Promise.defer();
+        setTimeout(function(){
             failDeferred.reject(notE());
-        }, 80);
+        }, 1);
+        return onUnhandledSucceed();
     });
 });
 
 describe("Will handle hostile rejection reasons like frozen objects", function() {
+    setupCleanUps();
 
-    specify("Immediately rejected with non instanceof Error", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
-            return true;
-        });
-
-
+    specify("Immediately rejected with non instanceof Error", function testFunction() {
         var failDeferred = Promise.defer();
         failDeferred.reject(Object.freeze({}));
+        return onUnhandledSucceed(function(e) {
+            return true;
+        });
     });
 
 
-    specify("Eventually rejected with non instanceof Error", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
-            return e instanceof Error;
-        });
-
-
+    specify("Eventually rejected with non instanceof Error", function testFunction() {
         var failDeferred = Promise.defer();
-
         setTimeout(function(){
             failDeferred.reject(Object.freeze({}));
-        }, 80);
+        }, 1);
+        return onUnhandledSucceed(function(e) {
+            return e instanceof Error;
+        });
     });
 });
 
 
 describe("Will not report rejections that are handled in time", function() {
+    setupCleanUps();
 
-
-    specify("Already rejected handled", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-        var failDeferred = Promise.reject(e()).caught(async(clearUnhandledHandler(done)));
+    specify("Already rejected handled", function testFunction() {
+        var failDeferred = Promise.reject(e()).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Immediately rejected handled", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Immediately rejected handled", function testFunction() {
         var failDeferred = Promise.defer();
-
-        failDeferred.promise.caught(async(clearUnhandledHandler(done)));
-
+        failDeferred.promise.caught(noop);
         failDeferred.reject(e());
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
 
-    specify("Eventually rejected handled", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Eventually rejected handled", function testFunction() {
         var failDeferred = Promise.defer();
-        async(function() {
+        setTimeout(function() {
             failDeferred.reject(e());
-        })();
-        failDeferred.promise.caught(async(clearUnhandledHandler(done)));
+        }, 1);
+        failDeferred.promise.caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Already rejected handled in a deep sequence", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Already rejected handled in a deep sequence", function testFunction() {
         var failDeferred = Promise.reject(e());
 
         failDeferred
@@ -310,53 +237,40 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .caught(async(clearUnhandledHandler(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Immediately rejected handled in a deep sequence", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Immediately rejected handled in a deep sequence", function testFunction() {
         var failDeferred = Promise.defer();
 
         failDeferred.promise.then(function(){})
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .caught(async(clearUnhandledHandler(done)));
+            .caught(noop);
 
 
         failDeferred.reject(e());
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
 
-    specify("Eventually handled in a deep sequence", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Eventually handled in a deep sequence", function testFunction() {
         var failDeferred = Promise.defer();
-        async(function(){
+        setTimeout(function() {
             failDeferred.reject(e());
-        })();
+        }, 1);
         failDeferred.promise.then(function(){})
             .then(function(){}, null, function(){})
             .then()
             .then(function(){})
-            .caught(async(clearUnhandledHandler(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
 
-    specify("Already rejected handled in a middle parallel deep sequence", function testFunction(done) {
-        var totalReported = 0;
-        Promise.onPossiblyUnhandledRejection(function () {
-            totalReported++;
-            if (totalReported === 2) {
-                setTimeout(function(){
-                    assert.equal(totalReported, 2);
-                    Promise.onPossiblyUnhandledRejection(null);
-                    done();
-                }, 13);
-            }
-        });
-
+    specify("Already rejected handled in a middle parallel deep sequence", function testFunction() {
         var failDeferred = Promise.reject(e());
 
         failDeferred
@@ -369,7 +283,7 @@ describe("Will not report rejections that are handled in time", function() {
         failDeferred
             .then(function(){})
             .then(function(){}, null, function(){})
-            .caught(function(){
+            .then(assert.fail, function(){
             });
 
         failDeferred
@@ -377,22 +291,12 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){}, null, function(){})
             .then()
             .then(function(){});
+
+        return onUnhandledSucceed(undefined, 2);
     });
 
 
-    specify("Immediately rejected handled in a middle parallel deep  sequence", function testFunction(done) {
-        var totalReported = 0;
-        Promise.onPossiblyUnhandledRejection(function () {
-            totalReported++;
-            if (totalReported === 2) {
-                setTimeout(function(){
-                    assert.equal(totalReported, 2);
-                    Promise.onPossiblyUnhandledRejection(null);
-                    done();
-                }, 13);
-            }
-        });
-
+    specify("Immediately rejected handled in a middle parallel deep  sequence", function testFunction() {
         var failDeferred = Promise.defer();
 
         failDeferred.promise
@@ -404,7 +308,7 @@ describe("Will not report rejections that are handled in time", function() {
         failDeferred.promise
             .then(function(){})
             .then(function(){}, null, function(){})
-            .caught(function(){
+            .then(assert.fail, function(){
             });
 
         failDeferred.promise
@@ -414,22 +318,11 @@ describe("Will not report rejections that are handled in time", function() {
             .then(function(){});
 
         failDeferred.reject(e());
+        return onUnhandledSucceed(undefined, 2);
     });
 
 
-    specify("Eventually handled in a middle parallel deep sequence", function testFunction(done) {
-        var totalReported = 0;
-        Promise.onPossiblyUnhandledRejection(function () {
-            totalReported++;
-            if (totalReported === 2) {
-                setTimeout(function(){
-                    assert.equal(totalReported, 2);
-                    Promise.onPossiblyUnhandledRejection(null);
-                    done();
-                }, 13);
-            }
-        });
-
+    specify("Eventually handled in a middle parallel deep sequence", function testFunction() {
         var failDeferred = Promise.defer();
 
         failDeferred.promise
@@ -441,7 +334,7 @@ describe("Will not report rejections that are handled in time", function() {
         failDeferred.promise
             .then(function(){})
             .then(function(){}, null, function(){})
-            .caught(function(){
+            .then(assert.fail, function(){
             });
 
         failDeferred.promise
@@ -453,304 +346,266 @@ describe("Will not report rejections that are handled in time", function() {
 
         setTimeout(function(){
             failDeferred.reject(e());
-        }, 13);
-
+        }, 1);
+        return onUnhandledSucceed(undefined, 2);
     });
 });
 
-describe("immediate assert.failures without .then", function testFunction(done) {
+describe("immediate assert.failures without .then", function testFunction() {
+    setupCleanUps();
     var err = new Error('');
-    specify("Promise.reject", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
+    specify("Promise.reject", function testFunction() {
+        Promise.reject(err);
+        return onUnhandledSucceed(function(e) {
             return e === err;
         });
-
-        Promise.reject(err);
     });
 
-    specify("new Promise throw", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
-            return e === err;
-        });
-
+    specify("new Promise throw", function testFunction() {
         new Promise(function() {
             throw err;
         });
-    });
-
-    specify("new Promise reject", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
+        return onUnhandledSucceed(function(e) {
             return e === err;
         });
+    });
 
+    specify("new Promise reject", function testFunction() {
         new Promise(function(_, r) {
             r(err);
         });
-    });
-
-    specify("Promise.method", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
+        return onUnhandledSucceed(function(e) {
             return e === err;
         });
+    });
 
+    specify("Promise.method", function testFunction() {
         Promise.method(function() {
             throw err;
         })();
-    });
-
-    specify("Promise.all", function testFunction(done) {
-        onUnhandledSucceed(done, function(e) {
+        return onUnhandledSucceed(function(e) {
             return e === err;
         });
+    });
 
+    specify("Promise.all", function testFunction() {
         Promise.all([Promise.reject(err)]);
+        return onUnhandledSucceed(function(e) {
+            return e === err;
+        });
     });
 });
 
 
-describe("immediate assert.failures with .then", function testFunction(done) {
+describe("immediate assert.failures with .then", function testFunction() {
+    setupCleanUps();
     var err = new Error('');
-    specify("Promise.reject", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-        Promise.reject(err).caught(async(clearUnhandledHandler(done)));
+    specify("Promise.reject", function testFunction() {
+        Promise.reject(err).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("new Promise throw", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("new Promise throw", function testFunction() {
         new Promise(function() {
             throw err;
-        }).caught(async(clearUnhandledHandler(done)));
+        }).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("new Promise reject", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("new Promise reject", function testFunction() {
         new Promise(function(_, r) {
             r(err);
-        }).caught(async(clearUnhandledHandler(done)));
+        }).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Promise.method", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Promise.method", function testFunction() {
         Promise.method(function() {
             throw err;
-        })().caught(clearUnhandledHandler(async(done)));
+        })().caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Promise.all", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Promise.all", function testFunction() {
         Promise.all([Promise.reject("err")])
-            .caught(clearUnhandledHandler(async(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
 
-    specify("Promise.all many", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Promise.all many", function testFunction() {
         Promise.all([Promise.reject("err"), Promise.reject("err2")])
-            .caught(clearUnhandledHandler(async(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Promise.all many pending", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("Promise.all many pending", function testFunction() {
         var a = new Promise(function(v, w){
-            setTimeout(function(){w("err");}, 4);
+            setTimeout(function(){w("err");}, 1);
         });
         var b = new Promise(function(v, w){
-            setTimeout(function(){w("err2");}, 4);
+            setTimeout(function(){w("err2");}, 1);
         });
 
         Promise.all([a, b])
-            .caught(clearUnhandledHandler(async(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("Already rejected promise for a collection", function testFunction(done){
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+    specify("Already rejected promise for a collection", function testFunction(){
         Promise.settle(Promise.reject(err))
-            .caught(clearUnhandledHandler(async(done)));
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 });
 
 describe("gh-118", function() {
-    specify("eventually rejected promise", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    setupCleanUps();
+    specify("eventually rejected promise", function testFunction() {
         Promise.resolve().then(function() {
             return new Promise(function(_, reject) {
                 setTimeout(function() {
                     reject(13);
-                }, 13);
+                }, 1);
             });
-        }).caught(async(clearUnhandledHandler(done)));
+        }).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("already rejected promise", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("already rejected promise", function testFunction() {
         Promise.resolve().then(function() {
             return Promise.reject(13);
-        }).caught(async(clearUnhandledHandler(done)));
+        }).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-    specify("immediately rejected promise", function testFunction(done) {
-        onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
-
+    specify("immediately rejected promise", function testFunction() {
         Promise.resolve().then(function() {
             return new Promise(function(_, reject) {
                 reject(13);
             });
-        }).caught(async(clearUnhandledHandler(done)));
+        }).caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 });
 
 describe("Promise.onUnhandledRejectionHandled", function() {
-    specify("should be called when unhandled promise is later handled", function(done) {
+    specify("should be called when unhandled promise is later handled", function() {
         var unhandledPromises = [];
-        Promise.onPossiblyUnhandledRejection(function(reason, promise) {
+        var spy1 = testUtils.getSpy();
+        var spy2 = testUtils.getSpy();
+
+        Promise.onPossiblyUnhandledRejection(spy1(function(reason, promise) {
             unhandledPromises.push({
                 reason: reason,
                 promise: promise
             });
-        });
+        }));
 
-        Promise.onUnhandledRejectionHandled(function(promise) {
+        Promise.onUnhandledRejectionHandled(spy2(function(promise) {
             assert.equal(unhandledPromises.length, 1);
             assert(unhandledPromises[0].promise === promise);
             assert(promise === a);
             assert(unhandledPromises[0].reason === reason);
-            Promise.onUnhandledRejectionHandled(null);
-            Promise.onPossiblyUnhandledRejection(null);
-            done();
-        });
+        }));
 
         var reason = new Error("error");
         var a = new Promise(function(){
             throw reason;
         });
         setTimeout(function(){
-            a.caught(function(){
+            a.then(assert.fail, function(){});
+        }, 1);
 
-            });
-        }, 25);
+        return Promise.all([spy1.promise, spy2.promise]);
     });
 });
 
 if (Promise.hasLongStackTraces()) {
     describe("Gives long stack traces for non-errors", function() {
+        setupCleanUps();
 
-        specify("string", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
-                return (e.stack.length > 100);
-            });
-
-
+        specify("string", function testFunction() {
             new Promise(function(){
                 throw "hello";
             });
-
-        });
-
-        specify("null", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
             });
+        });
 
+        specify("null", function testFunction() {
             new Promise(function(resolve, reject){
                 Promise.reject(null);
             });
-
-        });
-
-        specify("boolean", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
             });
+        });
 
+        specify("boolean", function testFunction() {
             var d = Promise.defer();
             d.reject(true);
-        });
-
-        specify("undefined", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
-            });
-
-            Promise.cast().then(function() {
-                throw void 0;
             });
         });
 
-        specify("number", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
-                return (e.stack.length > 100);
-            });
-
+        specify("undefined", function testFunction() {
             Promise.cast().then(function() {
                 throw void 0;
-            }).caught(function(e){return e === void 0}, function() {
+            });
+            return onUnhandledSucceed(function(e) {
+                return (e.stack.length > 100);
+            });
+        });
+
+        specify("number", function testFunction() {
+            Promise.cast().then(function() {
+                throw void 0;
+            }).then(function(e){return e === void 0}, function() {
                 throw 3;
             });
-        });
-
-        specify("function", function testFunction(done) {
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
             });
+        });
 
+        specify("function", function testFunction() {
             Promise.cast().then(function() {
                 return Promise.reject(function(){});
             });
-        });
-
-        specify("pojo", function testFunction(done) {
-            var OldPromise = require("./helpers/bluebird0_7_0.js");
-
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
             });
+        });
+
+        specify("pojo", function testFunction() {
+            var OldPromise = require("./helpers/bluebird0_7_0.js");
 
             Promise.cast().then(function() {
                 return OldPromise.rejected({});
             });
-        });
-
-        specify("Date", function testFunction(done) {
-            var OldPromise = require("./helpers/bluebird0_7_0.js");
-
-            onUnhandledSucceed(done, function(e) {
+            return onUnhandledSucceed(function(e) {
                 return (e.stack.length > 100);
             });
+        });
 
+        specify("Date", function testFunction() {
+            var OldPromise = require("./helpers/bluebird0_7_0.js");
             Promise.cast().then(function() {
                 return OldPromise.cast().then(function(){
                     throw new Date();
                 });
             });
+            return onUnhandledSucceed(function(e) {
+                return (e.stack.length > 100);
+            });
         });
     });
 }
 
-describe("clear unhandled handler", function() {
-    Promise.onPossiblyUnhandledRejection(null);
-});
-
 describe("global events", function() {
-
-    beforeEach(function() {
-        Promise.onPossiblyUnhandledRejection(null);
-        Promise.onUnhandledRejectionHandled(null);
-        detachGlobalHandlers();
-    });
-    afterEach(function() {
-        Promise.onPossiblyUnhandledRejection(null);
-        Promise.onUnhandledRejectionHandled(null);
-        detachGlobalHandlers();
-    });
-
     var attachGlobalHandler, detachGlobalHandlers;
     if (typeof process !== "undefined" &&
         typeof process.version === "string" &&
@@ -771,60 +626,67 @@ describe("global events", function() {
             window.onrejectionhandled = null;
         };
     }
+    setupCleanUps();
+    beforeEach(detachGlobalHandlers);
+    afterEach(detachGlobalHandlers);
+    specify("are fired", function() {
+        return new Promise(function(resolve, reject) {
+            var err = new Error();
+            var receivedPromise;
+            attachGlobalHandler("unhandledRejection", function(reason, promise) {
+                assert.strictEqual(reason, err);
+                receivedPromise = promise;
+            });
+            attachGlobalHandler("rejectionHandled", function(promise) {
+                assert.strictEqual(receivedPromise, promise);
+                resolve();
+            });
 
-    specify("are fired", function(done) {
-        var err = new Error();
-        var receivedPromise;
-        attachGlobalHandler("unhandledRejection", function(reason, promise) {
-            assert.strictEqual(reason, err);
-            receivedPromise = promise;
-        });
-        attachGlobalHandler("rejectionHandled", function(promise) {
-            assert.strictEqual(receivedPromise, promise);
-            done();
-        });
-
-        var promise = new Promise(function() {throw err;});
-        setTimeout(function() {
-            promise.caught(function(){});
-        }, 100);
+            var promise = new Promise(function() {throw err;});
+            setTimeout(function() {
+                promise.then(assert.fail, function(){});
+            }, 1);
+        }).timeout(500);
     });
 
-    specify("are fired with local events", function(done) {
-        var expectedOrder = [1, 2, 3, 4];
-        var order = [];
-        var err = new Error();
-        var receivedPromises = [];
+    specify("are fired with local events", function() {
+        return new Promise(function(resolve, reject) {
+            var expectedOrder = [1, 2, 3, 4];
+            var order = [];
+            var err = new Error();
+            var receivedPromises = [];
 
-        Promise.onPossiblyUnhandledRejection(function(reason, promise) {
-            assert.strictEqual(reason, err);
-            receivedPromises.push(promise);
-            order.push(1);
-        });
+            Promise.onPossiblyUnhandledRejection(function(reason, promise) {
+                assert.strictEqual(reason, err);
+                receivedPromises.push(promise);
+                order.push(1);
+            });
 
-        Promise.onUnhandledRejectionHandled(function(promise) {
-            assert.strictEqual(receivedPromises[0], promise);
-            order.push(3);
-        });
+            Promise.onUnhandledRejectionHandled(function(promise) {
+                assert.strictEqual(receivedPromises[0], promise);
+                order.push(3);
+            });
 
-        attachGlobalHandler("unhandledRejection", function(reason, promise) {
-            assert.strictEqual(reason, err);
-            receivedPromises.push(promise);
-            order.push(2);
-        });
+            attachGlobalHandler("unhandledRejection", function(reason, promise) {
+                assert.strictEqual(reason, err);
+                receivedPromises.push(promise);
+                order.push(2);
+            });
 
-        attachGlobalHandler("rejectionHandled", function(promise) {
-            assert.strictEqual(receivedPromises[1], promise);
-            order.push(4);
-            assert.deepEqual(expectedOrder, order);
-            assert.strictEqual(receivedPromises.length, 2);
-            done();
-        });
+            attachGlobalHandler("rejectionHandled", function(promise) {
+                assert.strictEqual(receivedPromises[1], promise);
+                order.push(4);
+                assert.deepEqual(expectedOrder, order);
+                assert.strictEqual(receivedPromises.length, 2);
+                resolve();
+            });
 
-        var promise = new Promise(function() {throw err;});
-        setTimeout(function() {
-            promise.caught(function(){});
-        }, 100);
+            var promise = new Promise(function() {throw err;});
+            setTimeout(function() {
+                promise.then(assert.fail, function(){});
+            }, 1);
+        }).timeout(500);
+
     });
 });
 
@@ -846,43 +708,46 @@ if (typeof document !== "undefined" && document.dispatchEvent) {
             self.addEventListener(type, fn, false);
         }
 
-        specify("are fired", function(done) {
-            var order = [];
-            var err = new Error();
-            var promise = Promise.reject(err);
-            attachEvent("unhandledrejection", function(e) {
-                e.preventDefault();
-                assert.strictEqual(e.detail.promise, promise);
-                assert.strictEqual(e.detail.reason, err);
-                order.push(1);
-            });
-            attachEvent("unhandledrejection", function(e) {
-                assert.strictEqual(e.detail.promise, promise);
-                assert.strictEqual(e.detail.reason, err);
-                assert.strictEqual(e.defaultPrevented, true);
-                order.push(2);
-            });
-            attachEvent("rejectionhandled", function(e) {
-                e.preventDefault();
-                assert.strictEqual(e.detail.promise, promise);
-                assert.strictEqual(e.detail.reason, undefined);
-                order.push(3);
-            });
-            attachEvent("rejectionhandled", function(e) {
-                assert.strictEqual(e.detail.promise, promise);
-                assert.strictEqual(e.detail.reason, undefined);
-                assert.strictEqual(e.defaultPrevented, true);
-                order.push(4);
-            });
-
-            setTimeout(function() {
-                promise.caught(function(r) {
-                    order.push(5);
-                    assert.strictEqual(r, err);
-                    assert.deepEqual(order, [1,2,3,4,5]);
-                    done();
+        specify("are fired", function() {
+            return new Promise(function(resolve, reject) {
+                var order = [];
+                var err = new Error();
+                var promise = Promise.reject(err);
+                attachEvent("unhandledrejection", function(e) {
+                    e.preventDefault();
+                    assert.strictEqual(e.detail.promise, promise);
+                    assert.strictEqual(e.detail.reason, err);
+                    order.push(1);
                 });
-            }, 100);
+                attachEvent("unhandledrejection", function(e) {
+                    assert.strictEqual(e.detail.promise, promise);
+                    assert.strictEqual(e.detail.reason, err);
+                    assert.strictEqual(e.defaultPrevented, true);
+                    order.push(2);
+                });
+                attachEvent("rejectionhandled", function(e) {
+                    e.preventDefault();
+                    assert.strictEqual(e.detail.promise, promise);
+                    assert.strictEqual(e.detail.reason, undefined);
+                    order.push(3);
+                });
+                attachEvent("rejectionhandled", function(e) {
+                    assert.strictEqual(e.detail.promise, promise);
+                    assert.strictEqual(e.detail.reason, undefined);
+                    assert.strictEqual(e.defaultPrevented, true);
+                    order.push(4);
+                    resolve();
+                });
+
+                setTimeout(function() {
+                    promise.then(assert.fail, function(r) {
+                        order.push(5);
+                        assert.strictEqual(r, err);
+                        assert.deepEqual(order, [1,2,3,4,5]);
+                    });
+                }, 100);
+            }).timeout(500);
+
         })
     });
 }

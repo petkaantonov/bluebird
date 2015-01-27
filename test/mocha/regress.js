@@ -2,67 +2,70 @@ var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 
 describe("regressions", function() {
-    specify("should be able to call .then more than once inside that promise's handler", function(done) {
+    specify("should be able to call .then more than once inside that promise's handler", function() {
         var called = 0;
         var resolve;
         var promise = new Promise(function() {
             resolve = arguments[0];
         });
+        return new Promise(function(resolve) {
+            promise.then(function() {
+                called++;
+                promise.then(function(){
+                    called++;
+                });
+                promise.then(function(){
+                    called++;
+                    assert.equal(4, called);
+                    resolve();
+                });
+            });
 
-        promise.then(function() {
-            called++;
-            promise.then(function(){
+            promise.then(function() {
                 called++;
             });
-            promise.then(function(){
-                called++;
-                assert.equal(4, called);
-                done();
-            });
+
+            setTimeout(resolve, 1);
         });
 
-        promise.then(function() {
-            called++;
-        });
-
-        setTimeout(resolve, 10);
     });
 
-    specify("should be able to nest arbitrary amount of then handlers on already resolved promises", function(done) {
+    specify("should be able to nest arbitrary amount of then handlers on already resolved promises", function() {
         var called = 0;
         var resolve;
         var promise = Promise.resolve();
-
-        promise.then(function() {
-            called++;
-            promise.then(function(){
+        return new Promise(function(resolve) {
+            promise.then(function() {
                 called++;
                 promise.then(function(){
                     called++;
+                    promise.then(function(){
+                        called++;
+                    });
+                    promise.then(function(){
+                        called++;
+                    });
                 });
                 promise.then(function(){
+                    promise.then(function(){
+                        called++;
+                    });
+                    promise.then(function(){
+                        called++;
+                        assert.equal(8, called);
+                        resolve();
+                    });
                     called++;
                 });
             });
-            promise.then(function(){
-                promise.then(function(){
-                    called++;
-                });
-                promise.then(function(){
-                    called++;
-                    assert.equal(8, called);
-                    done();
-                });
+
+            promise.then(function() {
                 called++;
             });
-        });
-
-        promise.then(function() {
-            called++;
         });
     });
 
-    specify("should have same order as if 2.3.2 was implemented as adoption", function(done) {
+    specify("should have same order as if 2.3.2 was implemented as adoption", function() {
         var order = [];
         var resolveFollower;
         var follower = new Promise(function() {
@@ -90,10 +93,9 @@ describe("regressions", function() {
 
         resolveFollowee();
 
-        follower.then(function() {
+        return follower.then(function() {
             order.push(4);
             assert.equal(order.join(","), "2,3,1,4");
-            done();
         });
     })
 });

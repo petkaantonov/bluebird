@@ -28,9 +28,9 @@ var error = new Error("asd");
 
 describe("yielding", function() {
 
-    specify("non-promise should throw", function(done) {
+    specify("non-promise should throw", function() {
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
 
             var a = yield {};
             assert.fail();
@@ -38,18 +38,24 @@ describe("yielding", function() {
 
         })().then(assert.fail).catch (function(e){
             assert(e instanceof TypeError);
-            done();
         });
     });
 
-    specify("an array should implicitly Promise.all them", function(done) {
+    specify("an array should implicitly Promise.all them", function() {
         var a = Promise.defer();
         var ap = a.promise;
         var b = Promise.defer();
         var bp = b.promise;
         var c = Promise.defer();
         var cp = c.promise;
-        Promise.coroutine(function*(){
+
+
+        setTimeout(function(){
+            a.fulfill(1);
+            b.fulfill(2);
+            c.fulfill(3);
+        }, 1);
+        return Promise.coroutine(function*(){
             return yield [ap, bp, cp];
         })().then(function(r) {
             //.spread will also implicitly use .all() so that cannot be used here
@@ -57,19 +63,12 @@ describe("yielding", function() {
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
-            done();
         });
-
-        setTimeout(function(){
-            a.fulfill(1);
-            b.fulfill(2);
-            c.fulfill(3);
-        }, 13);
     });
 
-    specify("non-promise should throw but be catchable", function(done) {
+    specify("non-promise should throw but be catchable", function() {
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
             try {
                 var a = yield {};
                 assert.fail();
@@ -81,16 +80,15 @@ describe("yielding", function() {
 
         })().then(function(val){
             assert.equal(val, 4);
-            done();
-        }).catch (assert.fail)
+        });
     });
 });
 
 describe("thenables", function(){
 
-    specify("when they fulfill, the yielded value should be that fulfilled value", function(done){
+    specify("when they fulfill, the yielded value should be that fulfilled value", function(){
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
 
             var a = yield get(3);
             assert.equal(a, 3);
@@ -98,28 +96,26 @@ describe("thenables", function(){
 
         })().then(function(arg){
             assert.equal(arg, 4);
-            done();
         });
 
     });
 
 
-    specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(done){
+    specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(){
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
             var a = yield fail(error);
             assert.fail();
 
-        })().then(assert.fail).caught(function(e){
+        })().then(assert.fail).then(assert.fail, function(e){
             assert.equal(e, error);
-            done();
         });
 
     });
 
-    specify("when they reject, and the generator has try.caught, it should continue working normally", function(done){
+    specify("when they reject, and the generator has try.caught, it should continue working normally", function(){
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
             try {
                 var a = yield fail(error);
             }
@@ -130,28 +126,26 @@ describe("thenables", function(){
 
         })().then(function(v){
             assert.equal(v, error);
-            done();
         });
 
     });
 
-    specify("when they fulfill but then throw, it should become rejection", function(done){
+    specify("when they fulfill but then throw, it should become rejection", function(){
 
-        Promise.coroutine(function*(){
+        return Promise.coroutine(function*(){
             var a = yield get(3);
             assert.equal(a, 3);
             throw error;
-        })().then(assert.fail).caught(function(e){
+        })().then(assert.fail, function(e){
             assert.equal(e, error);
-            done();
         });
     });
 });
 
 describe("yield loop", function(){
 
-    specify("should work", function(done){
-        Promise.coroutine(function* () {
+    specify("should work", function(){
+        return Promise.coroutine(function* () {
             var a = [1,2,3,4,5];
 
             for (var i = 0, len = a.length; i < len; ++i) {
@@ -161,12 +155,11 @@ describe("yield loop", function(){
             return a;
         })().then(function(arr){
             assert.deepEqual([2,4,6,8,10], arr);
-            done();
         });
     });
 
-    specify("inside yield should work", function(done){
-        Promise.coroutine(function *() {
+    specify("inside yield should work", function(){
+        return Promise.coroutine(function *() {
             var a = [1,2,3,4,5];
 
             return yield Promise.all(a.map(function(v){
@@ -176,12 +169,11 @@ describe("yield loop", function(){
             }));
         })().then(function(arr){
             assert.deepEqual([2,4,6,8,10], arr);
-            done();
         });
     });
 
-    specify("with simple map should work", function(done){
-        Promise.coroutine(function *() {
+    specify("with simple map should work", function(){
+        return Promise.coroutine(function *() {
             var a = [1,2,3,4,5];
 
             return yield Promise.map(a, function(v){
@@ -189,7 +181,6 @@ describe("yield loop", function(){
             });
         })().then(function(arr){
             assert.deepEqual([2,4,6,8,10], arr);
-            done();
         });
     });
 
@@ -198,9 +189,9 @@ describe("yield loop", function(){
 
 describe("Promise.coroutine", function() {
     describe("thenables", function() {
-        specify("when they fulfill, the yielded value should be that fulfilled value", function(done){
+        specify("when they fulfill, the yielded value should be that fulfilled value", function(){
 
-            Promise.coroutine(function*(){
+            return Promise.coroutine(function*(){
 
                 var a = yield get(3);
                 assert.equal(a, 3);
@@ -208,28 +199,26 @@ describe("Promise.coroutine", function() {
 
             })().then(function(arg){
                 assert.equal(arg, 4);
-                done();
             });
 
         });
 
 
-        specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(done){
+        specify("when they reject, and the generator doesn't have try.caught, it should immediately reject the promise", function(){
 
-            Promise.coroutine(function*(){
+            return Promise.coroutine(function*(){
                 var a = yield fail(error);
                 assert.fail();
 
-            })().then(assert.fail).caught(function(e){
+            })().then(assert.fail).then(assert.fail, function(e){
                 assert.equal(e, error);
-                done();
             });
 
         });
 
-        specify("when they reject, and the generator has try.caught, it should continue working normally", function(done){
+        specify("when they reject, and the generator has try.caught, it should continue working normally", function(){
 
-            Promise.coroutine(function*(){
+            return Promise.coroutine(function*(){
                 try {
                     var a = yield fail(error);
                 }
@@ -240,28 +229,26 @@ describe("Promise.coroutine", function() {
 
             })().then(function(v){
                 assert.equal(v, error);
-                done();
             });
 
         });
 
-        specify("when they fulfill but then throw, it should become rejection", function(done){
+        specify("when they fulfill but then throw, it should become rejection", function(){
 
-            Promise.coroutine(function*(){
+            return Promise.coroutine(function*(){
                 var a = yield get(3);
                 assert.equal(a, 3);
                 throw error;
-            })().then(assert.fail).caught(function(e){
+            })().then(assert.fail).then(assert.fail, function(e){
                 assert.equal(e, error);
-                done();
             });
         });
     });
 
     describe("yield loop", function(){
 
-        specify("should work", function(done){
-            Promise.coroutine(function* () {
+        specify("should work", function(){
+            return Promise.coroutine(function* () {
                 var a = [1,2,3,4,5];
 
                 for (var i = 0, len = a.length; i < len; ++i) {
@@ -271,12 +258,11 @@ describe("Promise.coroutine", function() {
                 return a;
             })().then(function(arr){
                 assert.deepEqual([2,4,6,8,10], arr);
-                done();
             });
         });
 
-        specify("inside yield should work", function(done){
-            Promise.coroutine(function *() {
+        specify("inside yield should work", function(){
+            return Promise.coroutine(function *() {
                 var a = [1,2,3,4,5];
 
                 return yield Promise.all(a.map(function(v){
@@ -286,12 +272,11 @@ describe("Promise.coroutine", function() {
                 }));
             })().then(function(arr){
                 assert.deepEqual([2,4,6,8,10], arr);
-                done();
             });
         });
 
-        specify("with simple map should work", function(done){
-            Promise.coroutine(function *() {
+        specify("with simple map should work", function(){
+            return Promise.coroutine(function *() {
                 var a = [1,2,3,4,5];
 
                 return yield Promise.map(a, function(v){
@@ -299,7 +284,6 @@ describe("Promise.coroutine", function() {
                 });
             })().then(function(arr){
                 assert.deepEqual([2,4,6,8,10], arr);
-                done();
             });
         });
 
@@ -316,16 +300,15 @@ describe("Promise.coroutine", function() {
         });
 
 
-        specify("generator function's receiver should be the instance too", function(done) {
+        specify("generator function's receiver should be the instance too", function() {
             var a = new MyClass();
             var b = new MyClass();
 
-            Promise.join(a.spawnGoblins().then(function(){
+            return Promise.join(a.spawnGoblins().then(function(){
                 return a.spawnGoblins()
             }), b.spawnGoblins()).then(function(){
                 assert.equal(a.goblins, 5);
                 assert.equal(b.goblins, 4);
-                done();
             });
 
         });
@@ -334,23 +317,23 @@ describe("Promise.coroutine", function() {
 
 describe("Spawn", function() {
     it("should work", function() {
-        Promise.spawn(function*() {
+        return Promise.spawn(function*() {
             return yield Promise.resolve(1);
         }).then(function(value) {
             assert.strictEqual(value, 1);
         });
     });
     it("should return rejected promise when passed non function", function() {
-        Promise.spawn({}).caught(function(err) {
+        return Promise.spawn({}).then(assert.fail, function(err) {
             assert(err instanceof Promise.TypeError);
         });
     });
 });
 
 describe("custom yield handlers", function() {
-    specify("should work with timers", function(done) {
+    specify("should work with timers", function() {
         var n = 0;
-        Promise.coroutine.addYieldHandler(function(v) {
+        return Promise.coroutine.addYieldHandler(function(v) {
             if (typeof v === "number") {
                 n = 1;
                 return Promise.resolve(n);
@@ -358,12 +341,11 @@ describe("custom yield handlers", function() {
         });
 
 
-        Promise.coroutine(function*() {
+        return Promise.coroutine(function*() {
             return yield 50;
         })().then(function(value) {
             assert.equal(value, 1);
             assert.equal(n, 1);
-            done();
         });
     });
 
@@ -382,21 +364,20 @@ describe("custom yield handlers", function() {
         };
     })();
 
-    specify("Should work with callbacks", function(done){
+    specify("Should work with callbacks", function(){
         var callbackApiFunction = function(a, b, c, cb) {
             setTimeout(function(){
                 cb(null, [a, b, c]);
-            }, 13);
+            }, 1);
         };
 
-        Promise.coroutine(function*() {
+        return Promise.coroutine(function*() {
             return yield callbackApiFunction(1, 2, 3, _());
         })().then(function(result) {
             assert(result.length === 3);
             assert(result[0] === 1);
             assert(result[1] === 2);
             assert(result[2] === 3);
-            done();
         });
     });
 
@@ -408,24 +389,23 @@ describe("custom yield handlers", function() {
         }
     });
 
-    specify("should work with thunks", function(done){
+    specify("should work with thunks", function(){
         var thunk = function(a) {
             return function(callback) {
                 setTimeout(function(){
                     callback(null, a*a);
-                }, 13);
+                }, 1);
             };
         };
 
-        Promise.coroutine(function*() {
+        return Promise.coroutine(function*() {
             return yield thunk(4);
         })().then(function(result) {
             assert(result === 16);
-            done();
         });
     });
 
-    specify("individual yield handler", function(done) {
+    specify("individual yield handler", function() {
         var dummy = {};
         var yieldHandler = function(value) {
             if (value === dummy) return Promise.resolve(3);
@@ -434,13 +414,12 @@ describe("custom yield handlers", function() {
             return yield dummy;
         }, {yieldHandler: yieldHandler});
 
-        coro().then(function(result) {
+        return coro().then(function(result) {
             assert(result === 3);
-            done();
         });
     });
 
-    specify("yield handler that throws", function(done) {
+    specify("yield handler that throws", function() {
         var dummy = {};
         var unreached = false;
         var err = new Error();
@@ -453,10 +432,9 @@ describe("custom yield handlers", function() {
             unreached = true;
         }, {yieldHandler: yieldHandler});
 
-        coro().caught(function(e) {
+        return coro().then(assert.fail, function(e) {
             assert.strictEqual(e, err);
             assert(!unreached);
-            done();
         });
     });
 
@@ -465,22 +443,23 @@ describe("custom yield handlers", function() {
             Promise.coroutine.addYieldHandler({});
         } catch (e) {
             assert(e instanceof Promise.TypeError);
+            return;
         }
+        assert.fail();
     });
 });
 
 if (Promise.hasLongStackTraces()) {
     describe("Long stack traces with coroutines as context", function() {
-        it("1 level", function(done) {
-            Promise.coroutine(function* () {
+        it("1 level", function() {
+            return Promise.coroutine(function* () {
                 yield Promise.delay(10);
                 throw new Error();
-            })().caught(function(e) {
+            })().then(assert.fail, function(e) {
                 assertLongTrace(e, 1+1, [2]);
-                done();
             });
         });
-        it("4 levels", function(done) {
+        it("4 levels", function() {
             var secondLevel = Promise.coroutine(function* () {
                 yield thirdLevel();
             });
@@ -491,11 +470,10 @@ if (Promise.hasLongStackTraces()) {
                 throw new Error();
             });
 
-            Promise.coroutine(function* () {
+            return Promise.coroutine(function* () {
                 yield secondLevel();
-            })().caught(function(e) {
+            })().then(assert.fail, function(e) {
                 assertLongTrace(e, 4+1, [2, 2, 2, 2]);
-                done();
             });
         });
     });

@@ -6,7 +6,7 @@ var testUtils = require("./helpers/util.js");
 
 describe("Using deferreds", function() {
     describe("a promise A that is following a promise B", function() {
-        specify("Must not react to fulfill/reject/progress that don't come from promise B", function(done) {
+        specify("Must not react to fulfill/reject/progress that don't come from promise B", function() {
             var deferred = Promise.defer();
             var promiseA = deferred.promise;
             var promiseB = Promise.defer().promise;
@@ -25,15 +25,14 @@ describe("Using deferreds", function() {
             deferred.progress(1);
             deferred.fulfill(1);
             deferred.reject(1);
-            setTimeout(function() {
+            return Promise.delay(1).then(function() {
                 assert.equal(0, called);
                 assert.equal(promiseA.isPending(), true);
                 assert.equal(promiseB.isPending(), true);
-                done();
-            }, 30);
+            });
         });
 
-        specify("Must not start following another promise C", function(done) {
+        specify("Must not start following another promise C", function() {
             var deferred = Promise.defer();
             var promiseA = deferred.promise;
             var promiseB = Promise.defer().promise;
@@ -57,16 +56,15 @@ describe("Using deferreds", function() {
             deferredC.fulfill(1);
             deferredC.reject(1);
 
-            promiseC.then(function() {
+            return promiseC.then(function() {
                 assert.equal(called, 0);
                 assert.equal(promiseA.isPending(), true);
                 assert.equal(promiseB.isPending(), true);
                 assert.equal(promiseC.isPending(), false);
-                done();
             });
         });
 
-        specify("Must react to fulfill/reject/progress that come from promise B", function(done) {
+        specify("Must react to fulfill/reject/progress that come from promise B", function() {
             var deferred = Promise.defer();
             var promiseA = deferred.promise;
             var deferredFollowee = Promise.defer();
@@ -77,12 +75,11 @@ describe("Using deferreds", function() {
             }
             var c = 0;
 
-            promiseA.then(function(v){
+            var ret = promiseA.then(function(v){
                 c++;
                 assert.equal(c, 2);
                 assert.equal(v, 1);
                 assert.equal(called, 0);
-                done();
             }, incrementCalled, function(v){
                 c++;
                 assert.equal(v, 1);
@@ -94,23 +91,22 @@ describe("Using deferreds", function() {
             deferredFollowee.progress(1);
             deferredFollowee.fulfill(1);
             deferredFollowee.reject(1);
-
+            return ret;
         });
     });
 });
 
 describe("Using static immediate methods", function() {
     describe("a promise A that is following a promise B", function() {
-        specify("Should be instantly fulfilled with Bs fulfillment value if B was fulfilled", function(done) {
+        specify("Should be instantly fulfilled with Bs fulfillment value if B was fulfilled", function() {
             var val = {};
             var B = Promise.resolve(val);
             var A = Promise.resolve(B);
             assert.equal(A.value(), val);
             assert.equal(A.value(), B.value());
-            done();
         });
 
-        specify("Should be instantly fulfilled with Bs parent fulfillment value if B was fulfilled with a parent", function(done) {
+        specify("Should be instantly fulfilled with Bs parent fulfillment value if B was fulfilled with a parent", function() {
             var val = {};
             var parent = Promise.resolve(val);
             var B = Promise.resolve(parent);
@@ -118,25 +114,23 @@ describe("Using static immediate methods", function() {
             assert.equal(A.value(), val);
             assert.equal(A.value(), B.value());
             assert.equal(A.value(), parent.value());
-            done();
         });
     });
 
     describe("Rejecting a promise A with promise B", function(){
-        specify("Should reject promise A with B as reason ", function(done) {
+        specify("Should reject promise A with B as reason ", function() {
             var val = {};
             var B = Promise.resolve(val);
             var A = Promise.reject(B);
             assert.equal(A.reason(), B);
-            A.caught(function(){});
-            done();
+            A.then(assert.fail, function(){});
         });
     });
 });
 
 describe("Using constructor", function() {
     describe("a promise A that is following a promise B", function() {
-        specify("Must not react to fulfill/reject/progress that don't come from promise B", function(done) {
+        specify("Must not react to fulfill/reject/progress that don't come from promise B", function() {
             var resolveA;
             var rejectA;
             var promiseA = new Promise(function() {
@@ -158,15 +152,14 @@ describe("Using constructor", function() {
             resolveA(promiseB);
             resolveA(1);
             rejectA(1);
-            setTimeout(function(){
+            return Promise.delay(1).then(function() {
                 assert.equal(0, called);
                 assert.equal(promiseA.isPending(), true);
                 assert.equal(promiseB.isPending(), true);
-                done();
-            }, 30);
+            });
         });
 
-        specify("Must not start following another promise C", function(done) {
+        specify("Must not start following another promise C", function() {
             var resolveA;
             var promiseA = new Promise(function(){
                 resolveA = arguments[0];
@@ -191,16 +184,15 @@ describe("Using constructor", function() {
             resolveA(promiseC);
             resolveC(1);
             rejectC(1);
-            promiseC.then(function() {
+            return promiseC.then(function() {
                 assert.equal(called, 0);
                 assert.equal(promiseA.isPending(), true);
                 assert.equal(promiseB.isPending(), true);
                 assert.equal(promiseC.isPending(), false);
-                done();
             });
         });
 
-        specify("Must react to fulfill/reject/progress that come from promise B", function(done) {
+        specify("Must react to fulfill/reject/progress that come from promise B", function() {
             var resolveA;
             var rejectA;
             var promiseA = new Promise(function() {
@@ -218,17 +210,17 @@ describe("Using constructor", function() {
             }
             var c = 0;
 
-            promiseA.then(function(v){
+            var ret = promiseA.then(function(v){
                 c++;
                 assert.equal(c, 1);
                 assert.equal(v, 1);
                 assert.equal(called, 0);
-                done();
             }, incrementCalled);
 
             resolveA(promiseB);
             resolveB(1);
             rejectB(1);
+            return ret;
         });
     });
 });

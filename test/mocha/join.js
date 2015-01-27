@@ -33,89 +33,79 @@ describe("Promise.join-test", function () {
 
 
 
-    specify("should resolve empty input", function(done) {
+    specify("should resolve empty input", function() {
         return Promise.join().then(
             function(result) {
                 assert.deepEqual(result, []);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should join values", function(done) {
-        Promise.join(1, 2, 3).then(
+    specify("should join values", function() {
+        return Promise.join(1, 2, 3).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should join promises array", function(done) {
-        Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)).then(
+    specify("should join promises array", function() {
+        return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should join mixed array", function(done) {
-        Promise.join(Promise.resolve(1), 2, Promise.resolve(3), 4).then(
+    specify("should join mixed array", function() {
+        return Promise.join(Promise.resolve(1), 2, Promise.resolve(3), 4).then(
             function(results) {
                 assert.deepEqual(results, [1, 2, 3, 4]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reject if any input promise rejects", function(done) {
-        Promise.join(Promise.resolve(1), Promise.reject(2), Promise.resolve(3)).then(
+    specify("should reject if any input promise rejects", function() {
+        return Promise.join(Promise.resolve(1), Promise.reject(2), Promise.resolve(3)).then(
             assert.fail,
             function(err) {
                 assert.deepEqual(err, 2);
-                done();
             }
         );
     });
 
-    specify("should call last argument as a spread function", function(done) {
-        Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), function(a, b, c) {
+    specify("should call last argument as a spread function", function() {
+        return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), function(a, b, c) {
             assert(a === 1);
             assert(b === 2);
             assert(c === 3);
-            done();
         });
     });
 
 
-    specify("gh-227", function(done) {
+    specify("gh-227", function() {
         function a() {
             return Promise.join(Promise.resolve(1), function () {
                 throw new Error();
             });
         }
 
-        a().caught(function(e) {
-            done();
-        });
+        return a().then(assert.fail, function(e) {});
     });
 
-    specify("should not pass the callback as argument, <5 arguments", function(done) {
-        Promise.join(1, 2, 3, function() {
+    specify("should not pass the callback as argument, <5 arguments", function() {
+        return Promise.join(1, 2, 3, function() {
             assert.strictEqual(arguments.length, 3);
-            done();
         });
     });
 
-    specify("should not pass the callback as argument >5 arguments", function(done) {
-        Promise.join(1, 2, 3, 4, 5, 6, 7, function() {
+    specify("should not pass the callback as argument >5 arguments", function() {
+        return Promise.join(1, 2, 3, 4, 5, 6, 7, function() {
             assert.strictEqual(arguments.length, 7);
-            done();
         });
     });
 

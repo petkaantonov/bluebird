@@ -3,22 +3,21 @@ var assert = require("assert");
 
 describe("Github #417", function() {
 
-    specify("minimal repro", function(done) {
+    specify("minimal repro", function() {
         var promise = new Promise(function(resolve) {
             resolve(Promise.resolve().then(function() {
                 return new Promise(function(resolve) {
-                    setTimeout(resolve, 0);
+                    setTimeout(resolve, 1);
                 });
             }));
         });
 
-        promise.then(function() {
+        return promise.then(function() {
             assert(promise.isResolved());
-            done();
         });
     });
 
-    specify("original repro", function(done) {
+    specify("original repro", function() {
         var called = 0;
         var bar = Promise.method(function() {
             return Promise.bind(this)
@@ -38,10 +37,9 @@ describe("Github #417", function() {
                 }));
         });
 
-        foo().then(function() {
+        return foo().then(function() {
             called++;
             assert.equal(3, called);
-            done();
         });
     });
 });

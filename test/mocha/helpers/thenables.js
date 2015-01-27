@@ -21,7 +21,7 @@ exports.fulfilled = {
             then: function (onFulfilled) {
                 setTimeout(function () {
                     onFulfilled(value);
-                }, 0);
+                }, 1);
             }
         };
     },
@@ -71,7 +71,7 @@ exports.fulfilled = {
         var tuple = pending();
         setTimeout(function () {
             tuple.fulfill(value);
-        }, 50);
+        }, 1);
         return tuple.promise;
     }
 };
@@ -90,7 +90,7 @@ exports.rejected = {
             then: function (onFulfilled, onRejected) {
                 setTimeout(function () {
                     onRejected(reason);
-                }, 0);
+                }, 1);
             }
         };
     },
@@ -140,7 +140,7 @@ exports.rejected = {
         var tuple = pending();
         setTimeout(function () {
             tuple.reject(reason);
-        }, 50);
+        }, 1);
         return tuple.promise;
     }
 };

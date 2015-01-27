@@ -35,92 +35,84 @@ describe("Promise.map-test", function () {
     }
 
     function deferredMapper(val) {
-        return Promise.delay(mapper(val), Math.random()*10);
+        return Promise.delay(mapper(val), 1);
     }
 
-    specify("should map input values array", function(done) {
+    specify("should map input values array", function() {
         var input = [1, 2, 3];
-        Promise.map(input, mapper).then(
+        return Promise.map(input, mapper).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map input promises array", function(done) {
+    specify("should map input promises array", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.map(input, mapper).then(
+        return Promise.map(input, mapper).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map mixed input array", function(done) {
+    specify("should map mixed input array", function() {
         var input = [1, Promise.resolve(2), 3];
-        Promise.map(input, mapper).then(
+        return Promise.map(input, mapper).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map input when mapper returns a promise", function(done) {
+    specify("should map input when mapper returns a promise", function() {
         var input = [1,2,3];
-        Promise.map(input, deferredMapper).then(
+        return Promise.map(input, deferredMapper).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should accept a promise for an array", function(done) {
-        Promise.map(Promise.resolve([1, Promise.resolve(2), 3]), mapper).then(
+    specify("should accept a promise for an array", function() {
+        return Promise.map(Promise.resolve([1, Promise.resolve(2), 3]), mapper).then(
             function(result) {
                 assert.deepEqual(result, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should resolve to empty array when input promise does not resolve to an array", function(done) {
-        Promise.map(Promise.resolve(123), mapper).caught(TypeError, function(e){
-            done();
+    specify("should resolve to empty array when input promise does not resolve to an array", function() {
+        return Promise.map(Promise.resolve(123), mapper).caught(TypeError, function(e){
         });
     });
 
-    specify("should map input promises when mapper returns a promise", function(done) {
+    specify("should map input promises when mapper returns a promise", function() {
         var input = [Promise.resolve(1),Promise.resolve(2),Promise.resolve(3)];
-        Promise.map(input, mapper).then(
+        return Promise.map(input, mapper).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reject when input contains rejection", function(done) {
+    specify("should reject when input contains rejection", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        Promise.map(input, mapper).then(
+        return Promise.map(input, mapper).then(
             assert.fail,
             function(result) {
                 assert(result === 2);
-                done();
             }
         );
     });
 
-    specify("should propagate progress 2", function(done) {
+    specify("should propagate progress 2", function() {
          // Thanks @depeele for this test
         var input, ncall;
 
@@ -130,12 +122,9 @@ describe("Promise.map-test", function () {
         function identity(x) {
             return x;
         }
-        //This test didn't contain the mapper argument so I assume
-        //Promise.js uses identity mapper in such cases.
-        //In bluebird it's illegal to call Promise.map without mapper function
+
         return Promise.map(input, identity).then(function () {
             assert(ncall === 6);
-            done();
         }, assert.fail, function () {
             ncall++;
         });
@@ -155,7 +144,7 @@ describe("Promise.map-test", function () {
                 p.resolve(id);
               }
             }, 1);
-          }, 0);
+          }, 1);
 
           return p.promise;
         }
@@ -172,92 +161,84 @@ describe("Promise.map-test with concurrency", function () {
     }
 
     function deferredMapper(val) {
-        return Promise.delay(mapper(val), Math.random()*10);
+        return Promise.delay(mapper(val), 1);
     }
 
-    specify("should map input values array with concurrency", function(done) {
+    specify("should map input values array with concurrency", function() {
         var input = [1, 2, 3];
-        Promise.map(input, mapper, concurrency).then(
+        return Promise.map(input, mapper, concurrency).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map input promises array with concurrency", function(done) {
+    specify("should map input promises array with concurrency", function() {
         var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
-        Promise.map(input, mapper, concurrency).then(
+        return Promise.map(input, mapper, concurrency).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map mixed input array with concurrency", function(done) {
+    specify("should map mixed input array with concurrency", function() {
         var input = [1, Promise.resolve(2), 3];
-        Promise.map(input, mapper, concurrency).then(
+        return Promise.map(input, mapper, concurrency).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should map input when mapper returns a promise with concurrency", function(done) {
+    specify("should map input when mapper returns a promise with concurrency", function() {
         var input = [1,2,3];
-        Promise.map(input, deferredMapper, concurrency).then(
+        return Promise.map(input, deferredMapper, concurrency).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should accept a promise for an array with concurrency", function(done) {
-        Promise.map(Promise.resolve([1, Promise.resolve(2), 3]), mapper, concurrency).then(
+    specify("should accept a promise for an array with concurrency", function() {
+        return Promise.map(Promise.resolve([1, Promise.resolve(2), 3]), mapper, concurrency).then(
             function(result) {
                 assert.deepEqual(result, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should resolve to empty array when input promise does not resolve to an array with concurrency", function(done) {
-        Promise.map(Promise.resolve(123), mapper, concurrency).caught(TypeError, function(e){
-            done();
+    specify("should resolve to empty array when input promise does not resolve to an array with concurrency", function() {
+        return Promise.map(Promise.resolve(123), mapper, concurrency).caught(TypeError, function(e){
         });
     });
 
-    specify("should map input promises when mapper returns a promise with concurrency", function(done) {
+    specify("should map input promises when mapper returns a promise with concurrency", function() {
         var input = [Promise.resolve(1),Promise.resolve(2),Promise.resolve(3)];
-        Promise.map(input, mapper, concurrency).then(
+        return Promise.map(input, mapper, concurrency).then(
             function(results) {
                 assert.deepEqual(results, [2,4,6]);
-                done();
             },
             assert.fail
         );
     });
 
-    specify("should reject when input contains rejection with concurrency", function(done) {
+    specify("should reject when input contains rejection with concurrency", function() {
         var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        Promise.map(input, mapper, concurrency).then(
+        return Promise.map(input, mapper, concurrency).then(
             assert.fail,
             function(result) {
                 assert(result === 2);
-                done();
             }
         );
     });
 
-    specify("should propagate progress 2 with concurrency", function(done) {
+    specify("should propagate progress 2 with concurrency", function() {
          // Thanks @depeele for this test
         var input, ncall;
 
@@ -267,12 +248,8 @@ describe("Promise.map-test with concurrency", function () {
         function identity(x) {
             return x;
         }
-        //This test didn't contain the mapper argument so I assume
-        //Promise.js uses identity mapper in such cases.
-        //In bluebird it's illegal to call Promise.map without mapper function
         return Promise.map(input, identity, concurrency).then(function () {
             assert(ncall === 6);
-            done();
         }, assert.fail, function () {
             ncall++;
         });
@@ -292,7 +269,7 @@ describe("Promise.map-test with concurrency", function () {
                 p.resolve(id);
               }
             }, 1);
-          }, 0);
+          }, 1);
 
           return p.promise;
         }
@@ -300,25 +277,55 @@ describe("Promise.map-test with concurrency", function () {
     });
 
 
-    specify("should not have more than 5 promises in flight", function(done) {
+    specify("should not have more than {concurrency} promises in flight", function() {
         var array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         var b = [];
-        var delay = Promise.delay;
-        var wasEmpty = false;
         var now = Date.now();
-        Promise.map(array, function(value, index) {
-            var d = index > 4 ? 0 : 100;
-            return Promise.delay(d).then(function() {
+
+        var immediates = [];
+        function immediate(index) {
+            var resolve;
+            var ret = new Promise(function(){resolve = arguments[0]});
+            immediates.push([ret, resolve, index]);
+            return ret;
+        }
+
+        var lates = [];
+        function late(index) {
+            var resolve;
+            var ret = new Promise(function(){resolve = arguments[0]});
+            lates.push([ret, resolve, index]);
+            return ret;
+        }
+
+
+        function promiseByIndex(index) {
+            return index < 5 ? immediate(index) : late(index);
+        }
+
+        function resolve(item) {
+            item[1](item[2]);
+        }
+
+        var ret1 = Promise.map(array, function(value, index) {
+            return promiseByIndex(index).then(function() {
                 b.push(value);
             });
-        }, {concurrency: 5}).then(function() {
-            assert(wasEmpty);
-            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6, 5]);
-            done();
-        });
+        }, {concurrency: 5});
 
-        Promise.delay(33).then(function() {
-            wasEmpty = b.length === 0;
+        var ret2 = Promise.delay(1).then(function() {
+            assert.strictEqual(0, b.length);
+            immediates.forEach(resolve);
+            return immediates.map(function(item){return item[0]});
+        }).delay(1).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4]);
+            lates.forEach(resolve);
+        }).delay(1).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6 ]);
+            lates.forEach(resolve);
+        }).thenReturn(ret1).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6, 5]);
         });
+        return Promise.all([ret1, ret2]);
     });
 });
