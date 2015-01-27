@@ -1,3 +1,10 @@
+## 2.9.3 (2015-01-27)
+
+Bugfixes:
+
+ - Fix node-webkit compatibility issue ([#467](https://github.com/petkaantonov/bluebird/pull/467))
+ - Fix long stack trace support in recent firefox versions
+
 ## 2.9.2 (2015-01-26)
 
 Bugfixes:
