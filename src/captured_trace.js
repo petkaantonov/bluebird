@@ -78,14 +78,6 @@ CapturedTrace.prototype.uncycle = function() {
     }
 };
 
-CapturedTrace.prototype.parent = function() {
-    return this._parent;
-};
-
-CapturedTrace.prototype.hasParent = function() {
-    return this._parent !== undefined;
-};
-
 CapturedTrace.prototype.attachExtraTrace = function(error) {
     if (error.__stackCleaned__) return;
     this.uncycle();
