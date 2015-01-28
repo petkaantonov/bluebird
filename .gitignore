@@ -1,6 +1,7 @@
 docs/Gemfile.lock
 gh-pages
 node_modules
+gh-pages
 test/browser/bundle.js
 js/*
 zalgo.js
