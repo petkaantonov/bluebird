@@ -120,7 +120,7 @@ function getConnection(urlString) {
     return new Promise(function(resolve) {
         //Without new Promise, this throwing will throw an actual exception
         var params = parse(urlString);
-        resolve(getAdapater(params).getConnection());
+        resolve(getAdapter(params).getConnection());
     });
 }
 ```
