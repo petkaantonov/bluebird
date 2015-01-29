@@ -23,7 +23,6 @@
     - [`.isPending()`](#ispending---boolean)
     - [`.value()`](#value---dynamic)
     - [`.reason()`](#reason---dynamic)
-    - [`.reflect()`](#reflect---promisepromiseinspection)
 - [Collections](#collections)
     - [`.all()`](#all---promise)
     - [`.props()`](#props---promise)
@@ -69,6 +68,7 @@
     - [`.throw(dynamic reason)`](#throwdynamic-reason---promise)
     - [`Promise.noConflict()`](#promisenoconflict---object)
     - [`Promise.setScheduler(Function scheduler)`](#promisesetschedulerfunction-scheduler---void)
+    - [`.reflect()`](#reflect---promisepromiseinspection)
 - [Built-in error types](#built-in-error-types)
     - [`OperationalError()`](#operationalerror)
     - [`TimeoutError()`](#timeouterror)
@@ -808,11 +808,6 @@ Get the rejection reason of this promise. Throws an error if the promise isn't r
 
 You should check if this promise is `.isRejected()` before calling `.reason()` - or only call `.reason()` in code paths where it's guaranteed that this promise is rejected.
 
-<hr>
-
-#####`.reflect()` -> `Promise<PromiseInspection>`
-
-The `.reflect()` method returns a promise that is always successful when this promise is settled. Its fulfillment value is a `PromiseInspection` instance that reflects the resolution this promise. See [this issue](https://github.com/petkaantonov/bluebird/issues/346) for example usage.
 
 ##Collections
 
@@ -2442,6 +2437,12 @@ Promise.setScheduler(function(fn) {
     $rootScope.$evalAsync(fn);
 });
 ```
+
+<hr>
+
+#####`.reflect()` -> `Promise<PromiseInspection>`
+
+The `.reflect()` method returns a promise that is always successful when this promise is settled. Its fulfillment value is a `PromiseInspection` instance that reflects the resolution this promise. See [this issue](https://github.com/petkaantonov/bluebird/issues/346) for example usage.
 
 ##Built-in error types
 
