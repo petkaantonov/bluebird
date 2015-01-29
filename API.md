@@ -81,7 +81,7 @@
 - [Progression migration](#progression-migration)
 - [Deferred migration](#deferred-migration)
 
-Note that every instance promise method in the API has a static counterpart. For example `Promise.map(arr, fn)` is the same as calling `Promise.resolve(arr).map(fn)`. 
+Note that every instance promise method in the API has a static counterpart. For example `Promise.map(arr, fn)` is the same as calling `Promise.resolve(arr).map(fn)`.
 
 ##Core
 
@@ -118,7 +118,7 @@ function getConnection(urlString) {
     return new Promise(function(resolve) {
         //Without new Promise, this throwing will throw an actual exception
         var params = parse(urlString);
-        resolve(getAdapater(params).getConnection());
+        resolve(getAdapter(params).getConnection());
     });
 }
 ```
@@ -724,7 +724,7 @@ Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddyna
 Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use `.then()` to get at the promise's value as the callback is always called asynchronously.
 
 
-**Note**: In recent versions of Bluebird a design choice was made to expose `.reason()` and `.value` as well as other inspection methods on promises directly in order to make the below use case easier to work with. The `Promise.settle` method still returns a `PromiseInspection` array as its result. Every promise is now also a `PromiseInspection` and inspection methods can be used on promises freely. 
+**Note**: In recent versions of Bluebird a design choice was made to expose `.reason()` and `.value` as well as other inspection methods on promises directly in order to make the below use case easier to work with. The `Promise.settle` method still returns a `PromiseInspection` array as its result. Every promise is now also a `PromiseInspection` and inspection methods can be used on promises freely.
 
 For example, if you need to use values of earlier promises in the chain, you could nest:
 
@@ -770,7 +770,7 @@ In the latter the indentation stays flat no matter how many previous variables y
 
 #### The `PromiseInspection` Interface
 
-This interface is implemented by `Promise` instances as well as `PromiseInspection` results returned by calling `Promise.settle`. 
+This interface is implemented by `Promise` instances as well as `PromiseInspection` results returned by calling `Promise.settle`.
 
 <hr>
 
@@ -930,7 +930,7 @@ var files = ['a.txt', 'b.txt'].map(function(fileName) {
 Promise.settle(files).then(function(results) {
     // results is a PromiseInspection array
     // this is reached once the operations are all done, regardless if
-    // they're successful or not. 
+    // they're successful or not.
     var r = results[0];
     if (r.isFulfilled()) {  // check if was successful
         console.log(r.value()); // the promise's return value
