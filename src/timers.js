@@ -33,12 +33,16 @@ Promise.prototype.delay = function (ms) {
 };
 
 function successClear(value) {
-    clearTimeout(+this);
+    var handle = this;
+    if (handle instanceof Number) handle = +handle;
+    clearTimeout(handle);
     return value;
 }
 
 function failureClear(reason) {
-    clearTimeout(+this);
+    var handle = this;
+    if (handle instanceof Number) handle = +handle;
+    clearTimeout(handle);
     throw reason;
 }
 

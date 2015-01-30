@@ -51,7 +51,8 @@
     function clearTimeout(id) {
         delete timers[id];
     }
-
+    window.oldSetTimeout = window.setTimeout;
+    window.oldClearTimeout = window.clearTimeout;
     var clearInterval = clearTimeout;
     window.setInterval(function timerLoop() {
         currentTime += 10;

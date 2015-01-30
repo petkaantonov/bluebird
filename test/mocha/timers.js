@@ -99,31 +99,50 @@ describe("timeout", function () {
     })(globalObject);
 
     if (globalsAreReflectedInGlobalObject) {
-        it("should clear timeouts when success", function() {
-            var old = globalObject.clearTimeout;
-            var handleSet = false;
-            globalObject.clearTimeout = function(handle) {
-                handleSet = true;
-                globalObject.clearTimeout = old;
-            };
+        describe("timer handle clearouts", function() {
+            var fakeSetTimeout, fakeClearTimeout;
+            var expectedHandleType;
 
-            return Promise.delay(1).timeout(100).then(function() {
-                assert(handleSet);
+            before(function() {
+                fakeSetTimeout = globalObject.setTimeout;
+                fakeClearTimeout = globalObject.clearTimeout;
+                globalObject.setTimeout = globalObject.oldSetTimeout;
+                globalObject.clearTimeout = globalObject.oldClearTimeout;
+                expectedHandleType = typeof (globalObject.setTimeout(function(){}, 1));
             });
-        });
 
-        it("should clear timeouts when assert.fail", function() {
-            var old = globalObject.clearTimeout;
-            var handleSet = false;
-            globalObject.clearTimeout = function(handle) {
-                handleSet = true;
-                globalObject.clearTimeout = old;
-            };
-
-            return Promise.delay(1).timeout(10).then(null, function() {
-                assert(handleSet);
+            after(function() {
+                globalObject.setTimeout = fakeSetTimeout;
+                globalObject.clearTimeout = fakeClearTimeout;
             });
-        });
+
+            it("should clear timeouts with proper handle type when fulfilled", function() {
+                var old = globalObject.clearTimeout;
+                var handleType = "empty";
+                globalObject.clearTimeout = function(handle) {
+                    handleType = typeof handle;
+                    globalObject.clearTimeout = old;
+                };
+
+                return Promise.delay(1).timeout(10000).then(function() {
+                    assert.strictEqual(expectedHandleType, handleType);
+                });
+            });
+
+            it("should clear timeouts with proper handle type when rejected", function() {
+                var old = globalObject.clearTimeout;
+                var handleType = "empty";
+                globalObject.clearTimeout = function(handle) {
+                    handleType = typeof handle;
+                    globalObject.clearTimeout = old;
+                };
+
+                return new Promise(function(){}).timeout(1).then(null, function() {
+                    assert.strictEqual(expectedHandleType, handleType);
+                });
+            });
+        })
+
     }
 });
 

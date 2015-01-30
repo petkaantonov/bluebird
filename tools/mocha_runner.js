@@ -62,6 +62,8 @@ module.exports = function mochaRun(progress) {
             }
         })();
 
+        global.oldSetTimeout = global.setTimeout;
+        global.oldClearTimeout = global.clearTimeout;
         global.setTimeout = setTimeout;
         global.clearTimeout = clearTimeout;
         global.setInterval = setInterval;
