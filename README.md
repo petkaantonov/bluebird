@@ -8,6 +8,8 @@
 
 #Introduction
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/petkaantonov/bluebird?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
 
 
