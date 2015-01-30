@@ -22,7 +22,6 @@ Promise.RejectionError = errors.OperationalError;
 Promise.AggregateError = errors.AggregateError;
 var INTERNAL = function(){};
 var APPLY = {};
-var NEXT_FILTER = {e: null};
 var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
@@ -32,7 +31,7 @@ var isDebugging = require("./debuggability.js")(Promise, CapturedTrace);
  /*jshint unused:false*/
 var createContext =
     require("./context.js")(Promise, CapturedTrace, isDebugging);
-var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
+var catchFilter = require("./catch_filter.js")();
 var PromiseResolver = require("./promise_resolver.js");
 var nodebackForPromise = PromiseResolver._nodebackForPromise;
 var errorObj = util.errorObj;
@@ -81,11 +80,9 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
         }
         catchInstances.length = j;
         fn = arguments[i];
-        var catchFilter = new CatchFilter(catchInstances, fn, this);
-        return this._then(undefined, catchFilter.doFilter, undefined,
-            catchFilter, undefined);
+        return this.then(undefined, catchFilter(catchInstances, fn, this));
     }
-    return this._then(undefined, fn, undefined, undefined, undefined);
+    return this.then(undefined, fn);
 };
 
 Promise.prototype.reflect = function () {
@@ -496,7 +493,7 @@ Promise.prototype._settlePromiseFromHandler = function (
     }
     promise._popContext();
 
-    if (x === errorObj || x === promise || x === NEXT_FILTER) {
+    if (x === errorObj || x === promise) {
         var err = x === promise ? makeSelfResolutionError() : x.e;
         promise._rejectCallback(err, false, true);
     } else {
@@ -713,7 +710,7 @@ Promise.prototype._settlePromises = function () {
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
 require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
-require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
+require("./finally.js")(Promise, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);

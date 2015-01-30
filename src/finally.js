@@ -1,103 +1,54 @@
 "use strict";
-module.exports = function(Promise, NEXT_FILTER, tryConvertToPromise) {
+module.exports = function(Promise, tryConvertToPromise) {
 var util = require("./util.js");
-var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
-var isPrimitive = util.isPrimitive;
-var thrower = util.thrower;
+var errorObj = util.errorObj;
 
-function returnThis() {
-    return this;
+function succeed() {
+    return finallyHandler.call(this, this.promise._settledValue);
 }
-function throwThis() {
-    throw this;
+function fail(reason) {
+    errorObj.e = reason;
+    return errorObj;
 }
-function return$(r) {
-    return function() {
-        return r;
-    };
-}
-function throw$(r) {
-    return function() {
-        throw r;
-    };
-}
-function promisedFinally(ret, reasonOrValue, isFulfilled) {
-    var then;
-    if (wrapsPrimitiveReceiver && isPrimitive(reasonOrValue)) {
-        then = isFulfilled ? return$(reasonOrValue) : throw$(reasonOrValue);
-    } else {
-        then = isFulfilled ? returnThis : throwThis;
-    }
-    return ret._then(then, thrower, undefined, reasonOrValue, undefined);
-}
-
 function finallyHandler(reasonOrValue) {
     var promise = this.promise;
     var handler = this.handler;
 
-    var ret = promise._isBound()
-                    ? handler.call(promise._boundTo)
-                    : handler();
-
-    //Nobody ever returns anything from a .finally handler so speed this up
-    if (ret !== undefined) {
-        var maybePromise = tryConvertToPromise(ret, promise);
-        if (maybePromise instanceof Promise) {
-            maybePromise = maybePromise._target();
-            return promisedFinally(maybePromise, reasonOrValue,
-                                    promise.isFulfilled());
+    if (!this.called) {
+        this.called = true;
+        var ret = handler.call(promise._boundTo);
+        if (ret !== undefined) {
+            var maybePromise = tryConvertToPromise(ret, promise);
+            if (maybePromise instanceof Promise) {
+                return maybePromise._then(
+                    succeed, fail, undefined, this, undefined);
+            }
         }
     }
 
-    //Check if finallyHandler was called as a reject handler...
     if (promise.isRejected()) {
-        NEXT_FILTER.e = reasonOrValue;
-        return NEXT_FILTER;
-    //or success handler
+        errorObj.e = reasonOrValue;
+        return errorObj;
     } else {
         return reasonOrValue;
     }
 }
 
-function tapHandler(value) {
-    var promise = this.promise;
-    var handler = this.handler;
-
-    var ret = promise._isBound()
-                    ? handler.call(promise._boundTo, value)
-                    : handler(value);
-
-    //Nobody ever returns anything from a .finally handler so speed this up
-    if (ret !== undefined) {
-        var maybePromise = tryConvertToPromise(ret, promise);
-        if (maybePromise instanceof Promise) {
-            maybePromise = maybePromise._target();
-            return promisedFinally(maybePromise, value, true);
-        }
-    }
-    return value;
-}
-
-Promise.prototype._passThroughHandler = function (handler, isFinally) {
+Promise.prototype._passThrough = function(handler, success, fail) {
     if (typeof handler !== "function") return this.then();
-
-    var promiseAndHandler = {
+    return this._then(success, fail, undefined, {
         promise: this,
-        handler: handler
-    };
-
-    return this._then(
-            isFinally ? finallyHandler : tapHandler,
-            isFinally ? finallyHandler : undefined, undefined,
-            promiseAndHandler, undefined);
+        handler: handler,
+        called: false
+    }, undefined);
 };
 
 Promise.prototype.lastly =
 Promise.prototype["finally"] = function (handler) {
-    return this._passThroughHandler(handler, true);
+    return this._passThrough(handler, finallyHandler, finallyHandler);
 };
 
 Promise.prototype.tap = function (handler) {
-    return this._passThroughHandler(handler, false);
+    return this._passThrough(handler, finallyHandler);
 };
 };
