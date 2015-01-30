@@ -1,3 +1,9 @@
+## 2.9.4 (2015-01-30)
+
+Bugfixes:
+
+ - Fix [.timeout()](.) not calling `clearTimeout` with the proper handle in node causing the process to wait for unneeded timeout. This was a regression introduced in 2.9.1.
+
 ## 2.9.3 (2015-01-27)
 
 Bugfixes:
