@@ -1,56 +1,23 @@
 "use strict";
-var util = require("./util.js");
-var ASSERT = require("./assert.js");
-var isPrimitive = util.isPrimitive;
-var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
-
 module.exports = function(Promise) {
-var returner = function () {
-    return this;
-};
-var thrower = function () {
-    throw this;
-};
-
-var wrapper = function (value, action) {
-    if (action === THROW) {
-        return function () {
-            throw value;
-        };
-    } else if (action === RETURN) {
-        return function () {
-            return value;
-        };
-    }
-    ASSERT(false);
-};
-
+var es5 = require("./es5.js").isES5;
+function returner() {
+    return es5 ? this : this.value;
+}
+function thrower() {
+    throw es5 ? this : this.reason;
+}
 
 Promise.prototype["return"] =
 Promise.prototype.thenReturn = function (value) {
-    if (wrapsPrimitiveReceiver && isPrimitive(value)) {
-        return this._then(
-            wrapper(value, RETURN),
-            undefined,
-            undefined,
-            undefined,
-            undefined
-       );
-    }
-    return this._then(returner, undefined, undefined, value, undefined);
+    if (!es5) value = {value: value};
+    return this._then(
+        returner, undefined, undefined, value, undefined);
 };
 
 Promise.prototype["throw"] =
 Promise.prototype.thenThrow = function (reason) {
-    if (wrapsPrimitiveReceiver && isPrimitive(reason)) {
-        return this._then(
-            wrapper(reason, THROW),
-            undefined,
-            undefined,
-            undefined,
-            undefined
-       );
-    }
+    if (!es5) reason = {reason: reason};
     return this._then(thrower, undefined, undefined, reason, undefined);
 };
 };
