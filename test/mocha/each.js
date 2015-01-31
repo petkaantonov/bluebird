@@ -25,14 +25,14 @@ function thenabled(val, arr) {
 
 describe("Promise.each", function() {
 
-    it("should return the array's values", function() {
+    it("should return the array's values mapped", function() {
         var a = [promised(1), promised(2), promised(3)];
         var b = [];
         return Promise.resolve(a).each(function(val) {
             b.push(3-val);
-            return val;
+            return val + 2;
         }).then(function(ret) {
-            assert.deepEqual(ret, [1,2,3]);
+            assert.deepEqual(ret, [3,4,5]);
             assert.deepEqual(b, [2, 1, 0]);
         });
     });

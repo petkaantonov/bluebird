@@ -85,6 +85,10 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         }
         return;
     }
+    this._iterate(values);
+};
+
+PromiseArray.prototype._iterate = function(values) {
     var len = this.getActualLength(values.length);
     this._length = len;
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
