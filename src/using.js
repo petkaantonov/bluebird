@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function (Promise, apiRejection, tryConvertToPromise,
-    createContext) {
+    createContext, INTERNAL) {
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
@@ -32,12 +32,12 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         }
         return maybePromise;
     }
-    function dispose(resources, inspection) {
+    function dispose(resources, inspection, value) {
         var i = 0;
         var len = resources.length;
-        var ret = Promise.defer();
+        var ret = new Promise(INTERNAL);
         function iterator() {
-            if (i >= len) return ret.resolve();
+            if (i >= len) return ret._fulfill(value);
             var maybePromise = castPreservingDisposable(resources[i++]);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
@@ -56,14 +56,14 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             iterator();
         }
         iterator();
-        return ret.promise;
+        return ret;
     }
 
     function disposerSuccess(value) {
         var inspection = new PromiseInspection();
         inspection._settledValue = value;
         inspection._bitField = IS_FULFILLED;
-        return dispose(this, inspection).thenReturn(value);
+        return dispose(this, inspection, value);
     }
 
     function disposerFail(reason) {

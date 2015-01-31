@@ -75,6 +75,18 @@ module.exports = function mochaRun(progress) {
         ? require("./js/instrumented/bluebird.js")
         : require("./js/debug/bluebird.js");
     global.Promise = adapter;
+    Promise = adapter;
+    adapter.defer = adapter.pending = function() {
+        var ret = {};
+        ret.promise = new Promise(function(resolve, reject) {
+            ret.resolve = ret.fulfill = resolve;
+            ret.reject = reject;
+        });
+        ret.progress = function(value) {
+            ret.promise._progress(value);
+        };
+        return ret;
+    };
     return Promise.each(testGroup, function(test, index, length) {
         var mocha = new Mocha({
             reporter: "spec",

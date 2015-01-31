@@ -5,8 +5,8 @@ var isNodeJS = testUtils.isNodeJS;
 var OldPromise = require("./helpers/bluebird0_7_0.js");
 
 if (isNodeJS) {
-    var Promise1 = require("../../js/debug/promise.js")();
-    var Promise2 = require("../../js/debug/promise.js")();
+    var Promise1 = testUtils.addDeferred(require("../../js/debug/promise.js")());
+    var Promise2 = testUtils.addDeferred(require("../../js/debug/promise.js")());
 
     var err1 = new Error();
     var err2 = new Error();

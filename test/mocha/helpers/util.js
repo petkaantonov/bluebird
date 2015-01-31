@@ -31,6 +31,21 @@ module.exports = {
         }
     },
 
+    addDeferred: function(Promise) {
+        Promise.defer = Promise.pending = function() {
+            var ret = {};
+            ret.promise = new Promise(function(resolve, reject) {
+                ret.resolve = ret.fulfill = resolve;
+                ret.reject = reject;
+            });
+            ret.progress = function(value) {
+                ret.promise._progress(value);
+            };
+            return ret;
+        };
+        return Promise;
+    },
+
     returnToken: function() {
         return token;
     },
