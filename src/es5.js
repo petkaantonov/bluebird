@@ -8,6 +8,7 @@ if (isES5) {
         freeze: Object.freeze,
         defineProperty: Object.defineProperty,
         keys: Object.keys,
+        names: Object.getOwnPropertyNames,
         getPrototypeOf: Object.getPrototypeOf,
         isArray: Array.isArray,
         isES5: isES5,
@@ -61,6 +62,7 @@ if (isES5) {
     module.exports = {
         isArray: ArrayIsArray,
         keys: ObjectKeys,
+        names: ObjectKeys,
         defineProperty: ObjectDefineProperty,
         freeze: ObjectFreeze,
         getPrototypeOf: ObjectGetPrototypeOf,
