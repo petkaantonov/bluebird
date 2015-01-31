@@ -203,6 +203,9 @@ module.exports = {
         assert.strictEqual(p.error(), v);
     },
 
+    ecmaScript5: (function() {"use strict"
+      return this === undefined;
+    })(),
     isNodeJS: typeof process !== "undefined" && typeof process.execPath === "string"
 };
 

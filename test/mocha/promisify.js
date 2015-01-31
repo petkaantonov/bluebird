@@ -378,7 +378,31 @@ describe("promisify on objects", function(){
             assert.equal(res, "ok");
         });
     });
+    specify("Should not promisify Object.prototype methods", function() {
+        var o = {};
+        var keys = Object.keys(o);
+        Promise.promisifyAll(o);
+        assert.deepEqual(keys.sort(), Object.keys(o).sort());
+    });
 
+    specify("Should not promisify Object.prototype methods", function() {
+        var o = {method: function(){}};
+        Promise.promisifyAll(o);
+        assert.deepEqual(["method", "methodAsync"].sort(), Object.keys(o).sort());
+    });
+
+    if (testUtils.ecmaScript5) {
+        specify("Should promisify non-enumerable methods", function() {
+            var o = {};
+            Object.defineProperty(o, "method", {
+                value: function() {},
+                enumerable: false
+            });
+            Promise.promisifyAll(o);
+            assert.deepEqual(["method", "methodAsync"].sort(),
+                    Object.getOwnPropertyNames(o).sort());
+        });
+    }
 });
 
 describe("Promisify with custom suffix", function() {
@@ -462,7 +486,7 @@ describe("Promisify from prototype to object", function() {
 
         method["---invalid---"] = function(){};
 
-        if ((function(){"use strict"; return this === void 0})()) {
+        if (testUtils.ecmaScript5) {
             Object.defineProperty(method, "thrower", {
                 enumerable: true,
                 configurable: true,

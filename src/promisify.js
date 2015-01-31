@@ -305,7 +305,7 @@ Promise.promisifyAll = function (target, options) {
         throw new RangeError(SUFFIX_NOT_IDENTIFIER);
     }
 
-    var keys = util.inheritedDataKeys(target, {includeHidden: true});
+    var keys = util.inheritedDataKeys(target);
     for (var i = 0; i < keys.length; ++i) {
         var value = target[keys[i]];
         if (keys[i] !== "constructor" &&
