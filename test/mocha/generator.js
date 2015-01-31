@@ -358,9 +358,11 @@ describe("custom yield handlers", function() {
             promise = null;
         });
         return function() {
-          var def = Promise.defer();
-          promise = def.promise;
-          return def.callback;
+          var cb;
+          promise = Promise.fromNode(function(callback) {
+            cb = callback;
+          });
+          return cb;
         };
     })();
 
@@ -383,9 +385,12 @@ describe("custom yield handlers", function() {
 
     Promise.coroutine.addYieldHandler(function(v) {
         if (typeof v === "function") {
-            var def = Promise.defer();
-            try { v(def.callback); } catch (e) { def.reject(e); }
-            return def.promise;
+            var cb;
+            var promise = Promise.fromNode(function(callback) {
+                cb = callback;
+            });
+            try { v(cb); } catch (e) { cb(e); }
+            return promise;
         }
     });
 
