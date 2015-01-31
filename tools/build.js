@@ -223,7 +223,7 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                 var code = source.source;
                 var sourceFileName = source.sourceFileName;
                 code = astPasses.removeAsserts(code, sourceFileName);
-                code = astPasses.inlineExpansion(code, sourceFileName);
+                code = astPasses.inlineExpansion(code, sourceFileName, true);
                 code = astPasses.expandConstants(code, sourceFileName);
                 code = code.replace( /__DEBUG__/g, "false" );
                 code = code.replace( /__BROWSER__/g, "true" );

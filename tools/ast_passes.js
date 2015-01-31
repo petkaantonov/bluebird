@@ -172,13 +172,14 @@ Assertion.prototype.toString = function() {
     return 'ASSERT('+nodeToString(this.expr)+',\n    '+this.exprStr+')';
 };
 
-function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end) {
+function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end, isBrowser) {
     this.varExpr = varExpr;
     this.collectionExpression = collectionExpression;
     this.startExpression = startExpression;
     this.endExpression = endExpression;
     this.start = start;
     this.end = end;
+    this.isBrowser = isBrowser;
 }
 
 InlineSlice.prototype.hasSimpleStartExpression =
@@ -213,10 +214,15 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
 
     //No offset arguments at all
     if( this.startExpression === firstElement ) {
+        if (this.isBrowser) {
+            return "var " + varExpr + " = [].slice.call("+collectionExpression+");";
+        } else {
             return init + "var " + varExpr + " = new Array($_len); " +
             "for(var $_i = 0; $_i < $_len; ++$_i) {" +
                     varExpr + "[$_i] = " + collectionExpression + "[$_i];" +
             "}";
+        }
+
     }
     else {
         if( !this.hasSimpleStartExpression() ) {
@@ -228,11 +234,15 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
 
             //Start offset argument given
         if( this.endExpression === lastElement ) {
-            return init + "var " + varExpr + " = new Array($_len - " +
-             startExpression + "); " +
-            "for(var $_i = " + startExpression + "; $_i < $_len; ++$_i) {" +
-                    varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
-            "}";
+            if (this.isBrowser) {
+                return "var " + varExpr + " = [].slice.call("+collectionExpression+", "+startExpression+");";
+            } else {
+                return init + "var " + varExpr + " = new Array($_len - " +
+                 startExpression + "); " +
+                "for(var $_i = " + startExpression + "; $_i < $_len; ++$_i) {" +
+                        varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
+                "}";
+            }
         }
             //Start and end offset argument given
         else {
@@ -244,11 +254,16 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
                 ? nodeToString(this.endExpression)
                 : "$_end";
 
-            return init + "var " + varExpr + " = new Array(" + endExpression + " - " +
-             startExpression + "); " +
-            "for(var $_i = " + startExpression + "; $_i < " + endExpression + "; ++$_i) {" +
-                    varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
-            "}";
+            if (this.isBrowser) {
+                return "var " + varExpr + " = [].slice.call("+collectionExpression+", "+startExpression+", "+endExpression+");";
+            } else {
+                return init + "var " + varExpr + " = new Array(" + endExpression + " - " +
+                 startExpression + "); " +
+                "for(var $_i = " + startExpression + "; $_i < " + endExpression + "; ++$_i) {" +
+                        varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
+                "}";
+            }
+
         }
 
     }
@@ -329,7 +344,7 @@ var inlinedFunctions = Object.create(null);
 
 var lastElement = jsp.parse("___input.length").body[0].expression;
 var firstElement = jsp.parse("0").body[0].expression;
-inlinedFunctions.INLINE_SLICE = function( node ) {
+inlinedFunctions.INLINE_SLICE = function( node, isBrowser ) {
     var statement = node;
     node = node.expression;
     var args = node.arguments;
@@ -347,7 +362,7 @@ inlinedFunctions.INLINE_SLICE = function( node ) {
         ? lastElement
         : args[3];
     return new InlineSlice(varExpression, collectionExpression,
-        startExpression, endExpression, statement.start, statement.end);
+        startExpression, endExpression, statement.start, statement.end, isBrowser);
 };
 
 var constants = {};
@@ -355,7 +370,7 @@ var ignore = [];
 
 var astPasses = module.exports = {
 
-    inlineExpansion: function( src, fileName ) {
+    inlineExpansion: function( src, fileName, isBrowser ) {
         var ast = parse(src, fileName);
         var results = [];
         walk.simple(ast, {
@@ -368,7 +383,7 @@ var astPasses = module.exports = {
 
                 if( typeof inlinedFunctions[ name ] === "function" ) {
                     try {
-                        results.push( inlinedFunctions[ name ]( node ) );
+                        results.push( inlinedFunctions[ name ]( node, isBrowser ) );
                     }
                     catch(e) {
                         e.fileName = fileName;
