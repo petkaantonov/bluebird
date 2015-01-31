@@ -34,7 +34,6 @@ var optionalModuleRequireMap = {
     "reduce.js": true,
     "settle.js": true,
     "some.js": true,
-    "progress.js": true,
     "cancel.js": true,
     "using.js": true,
     "filter.js": ["map.js"],

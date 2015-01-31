@@ -39,9 +39,9 @@ Promise.prototype.uncancellable = function () {
     return ret;
 };
 
-Promise.prototype.fork = function (didFulfill, didReject, didProgress) {
-    var ret = this._then(didFulfill, didReject, didProgress,
-                         undefined, undefined);
+Promise.prototype.fork = function (didFulfill, didReject) {
+    var ret =
+        this._then(didFulfill, didReject, undefined, undefined, undefined);
 
     ret._setCancellable();
     ret._cancellationParent = undefined;

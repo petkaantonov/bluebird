@@ -111,45 +111,6 @@ describe("Promise.map-test", function () {
             }
         );
     });
-
-    specify("should propagate progress 2", function() {
-         // Thanks @depeele for this test
-        var input, ncall;
-
-        input = [_resolver(1), _resolver(2), _resolver(3)];
-        ncall = 0;
-
-        function identity(x) {
-            return x;
-        }
-
-        return Promise.map(input, identity).then(function () {
-            assert(ncall === 6);
-        }, assert.fail, function () {
-            ncall++;
-        });
-
-        function _resolver(id) {
-          var p = Promise.defer();
-
-          setTimeout(function () {
-            var loop, timer;
-
-            loop = 0;
-            timer = setInterval(function () {
-              p.progress(id);
-              loop++;
-              if (loop === 2) {
-                clearInterval(timer);
-                p.resolve(id);
-              }
-            }, 1);
-          }, 1);
-
-          return p.promise;
-        }
-
-    });
 });
 
 describe("Promise.map-test with concurrency", function () {
@@ -237,45 +198,6 @@ describe("Promise.map-test with concurrency", function () {
             }
         );
     });
-
-    specify("should propagate progress 2 with concurrency", function() {
-         // Thanks @depeele for this test
-        var input, ncall;
-
-        input = [_resolver(1), _resolver(2), _resolver(3)];
-        ncall = 0;
-
-        function identity(x) {
-            return x;
-        }
-        return Promise.map(input, identity, concurrency).then(function () {
-            assert(ncall === 6);
-        }, assert.fail, function () {
-            ncall++;
-        });
-
-        function _resolver(id) {
-          var p = Promise.defer();
-
-          setTimeout(function () {
-            var loop, timer;
-
-            loop = 0;
-            timer = setInterval(function () {
-              p.progress(id);
-              loop++;
-              if (loop === 2) {
-                clearInterval(timer);
-                p.resolve(id);
-              }
-            }, 1);
-          }, 1);
-
-          return p.promise;
-        }
-
-    });
-
 
     specify("should not have more than {concurrency} promises in flight", function() {
         var array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

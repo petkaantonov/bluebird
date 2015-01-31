@@ -49,25 +49,6 @@ describe("timeout", function () {
         })
     });
 
-    it("should pass through progress notifications", function() {
-        var deferred = Promise.defer();
-
-        var progressValsSeen = [];
-        var promise = Promise.resolve(deferred.promise).timeout(300).then(function () {
-            assert.deepEqual(progressValsSeen, [1, 2, 3]);
-        }, undefined, function (progressVal) {
-            progressValsSeen.push(progressVal);
-        });
-
-        Promise.resolve().then(function(){
-            deferred.progress(1);
-            deferred.progress(2);
-            deferred.progress(3);
-            deferred.resolve();
-        });
-        return promise;
-    });
-
     it("should reject with a custom timeout error if the promise is too slow and msg was provided", function() {
         return Promise.delay(1)
         .timeout(10, "custom")
@@ -164,27 +145,6 @@ describe("delay", function () {
         return promise2.then(function (value) {
             assert(value === "what");
         });
-    });
-
-    it("should pass through progress notifications from passed promises", function() {
-        var deferred = Promise.defer();
-
-        var progressValsSeen = [];
-        var promise = Promise.delay(deferred.promise, 1).then(function () {
-            assert.deepEqual(progressValsSeen, [1, 2, 3]);
-        }, undefined, function (progressVal) {
-            progressValsSeen.push(progressVal);
-        });
-
-        Promise.delay(1)
-            .then(function () { deferred.progress(1); })
-            .delay(1)
-            .then(function () { deferred.progress(2); })
-            .delay(1)
-            .then(function () { deferred.progress(3); })
-            .delay(1)
-            .then(function () { deferred.resolve(); });
-        return promise;
     });
 
     it("should resolve follower promise's value", function() {

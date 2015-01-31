@@ -73,38 +73,6 @@ describe("all", function () {
             assert.deepEqual(result, [0, void 0, 2]);
         });
     });
-
-    it("sends { index, value } progress updates", function () {
-        var deferred1 = Promise.defer();
-        var deferred2 = Promise.defer();
-
-        var progressValues = [];
-
-        Promise.delay(1).then(function () {
-            deferred1.progress("a");
-        }).delay(1).then(function () {
-            deferred2.progress("b");
-            deferred2.resolve();
-        }).delay(1).then(function () {
-            deferred1.progress("c");
-            deferred1.resolve();
-        });
-
-        return Promise.all([deferred1.promise, deferred2.promise]).then(
-            function () {
-                assert.deepEqual(progressValues, [
-                    { index: 0, value: "a" },
-                    { index: 1, value: "b" },
-                    { index: 0, value: "c" }
-                ]);
-            },
-            undefined,
-            function (progressValue) {
-                progressValues.push(progressValue);
-            }
-        )
-    });
-
 });
 
 /*

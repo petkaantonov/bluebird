@@ -132,16 +132,6 @@ PromiseArray.prototype._reject = function (reason) {
     this._promise._rejectCallback(reason, false, true);
 };
 
-PromiseArray.prototype._promiseProgressed = function (progressValue, index) {
-    ASSERT(!this._isResolved());
-    ASSERT(isArray(this._values));
-    this._promise._progress({
-        index: index,
-        value: progressValue
-    });
-};
-
-
 PromiseArray.prototype._promiseFulfilled = function (value, index) {
     ASSERT(!this._isResolved());
     ASSERT(isArray(this._values));

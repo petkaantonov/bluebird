@@ -131,20 +131,4 @@ describe("done", function () {
             });
         }
     });
-
-    it("should attach a progress listener", function () {
-        var sinon = require("sinon");
-        var deferred = Promise.defer();
-
-        var spy = sinon.spy();
-        deferred.promise.done(null, null, spy);
-
-        deferred.progress(10);
-        deferred.resolve();
-
-        return deferred.promise.then(function () {
-            sinon.assert.calledWith(spy, sinon.match.same(10));
-        });
-    });
-
 });

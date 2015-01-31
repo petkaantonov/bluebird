@@ -16,7 +16,7 @@ function tryConvertToPromise(obj, context) {
             obj._then(
                 ret._fulfillUnchecked,
                 ret._rejectUncheckedCheckError,
-                ret._progressUnchecked,
+                undefined,
                 ret,
                 null
             );
@@ -52,17 +52,15 @@ function doThenable(x, then, context) {
     promise._captureStackTrace();
     if (context) context._popContext();
     var synchronous = true;
-    var result = util.tryCatch(then).call(x,
-                                        resolveFromThenable,
-                                        rejectFromThenable,
-                                        progressFromThenable);
+    var result = util.tryCatch(then).call(x, resolve, reject);
     synchronous = false;
+
     if (promise && result === errorObj) {
         promise._rejectCallback(result.e, true, true);
         promise = null;
     }
 
-    function resolveFromThenable(value) {
+    function resolve(value) {
         if (!promise) return;
         if (x === value) {
             promise._rejectCallback(
@@ -73,17 +71,10 @@ function doThenable(x, then, context) {
         promise = null;
     }
 
-    function rejectFromThenable(reason) {
+    function reject(reason) {
         if (!promise) return;
         promise._rejectCallback(reason, synchronous, true);
         promise = null;
-    }
-
-    function progressFromThenable(value) {
-        if (!promise) return;
-        if (typeof promise._progress === "function") {
-            promise._progress(value);
-        }
     }
     return ret;
 }

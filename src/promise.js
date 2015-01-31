@@ -51,7 +51,6 @@ function Promise(resolver) {
     //which has less indirection than when using external array
     this._fulfillmentHandler0 = undefined;
     this._rejectionHandler0 = undefined;
-    this._progressHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
     //reason for rejection or fulfilled value
@@ -88,7 +87,7 @@ Promise.prototype.reflect = function () {
     return this._then(reflect, reflect, undefined, this, undefined);
 };
 
-Promise.prototype.then = function (didFulfill, didReject, didProgress) {
+Promise.prototype.then = function (didFulfill, didReject) {
     if (isDebugging() && arguments.length > 0 &&
         typeof didFulfill !== "function" &&
         typeof didReject !== "function") {
@@ -99,13 +98,12 @@ Promise.prototype.then = function (didFulfill, didReject, didProgress) {
         }
         this._warn(msg);
     }
-    return this._then(didFulfill, didReject, didProgress,
-        undefined, undefined);
+    return this._then(didFulfill, didReject, undefined, undefined, undefined);
 };
 
-Promise.prototype.done = function (didFulfill, didReject, didProgress) {
-    var promise = this._then(didFulfill, didReject, didProgress,
-        undefined, undefined);
+Promise.prototype.done = function (didFulfill, didReject) {
+    var promise =
+        this._then(didFulfill, didReject, undefined, undefined, undefined);
     promise._setIsFinal();
 };
 
@@ -189,7 +187,7 @@ Promise.setScheduler = function(fn) {
 Promise.prototype._then = function (
     didFulfill,
     didReject,
-    didProgress,
+    _, // For fast-cast compatibility between bluebird versions
     receiver,
     internalData
 ) {
@@ -209,7 +207,7 @@ Promise.prototype._then = function (
     }
 
     var callbackIndex =
-        target._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
+        target._addCallbacks(didFulfill, didReject, ret, receiver);
 
     if (target._isResolved() && !target._isSettlePromisesQueued()) {
         async.invoke(
@@ -328,17 +326,15 @@ Promise.prototype._rejectionHandlerAt = function (index) {
 Promise.prototype._migrateCallbacks = function (follower, index) {
     var fulfill = follower._fulfillmentHandlerAt(index);
     var reject = follower._rejectionHandlerAt(index);
-    var progress = follower._progressHandlerAt(index);
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
     if (promise instanceof Promise) promise._setIsMigrated();
-    this._addCallbacks(fulfill, reject, progress, promise, receiver);
+    this._addCallbacks(fulfill, reject, promise, receiver);
 };
 
 Promise.prototype._addCallbacks = function (
     fulfill,
     reject,
-    progress,
     promise,
     receiver
 ) {
@@ -356,20 +352,17 @@ Promise.prototype._addCallbacks = function (
         ASSERT(this._fulfillmentHandler0 === undefined ||
             this._isCarryingStackTrace());
         ASSERT(this._rejectionHandler0 === undefined);
-        ASSERT(this._progressHandler0 === undefined);
 
         this._promise0 = promise;
         if (receiver !== undefined) this._receiver0 = receiver;
         if (typeof fulfill === "function" && !this._isCarryingStackTrace())
             this._fulfillmentHandler0 = fulfill;
         if (typeof reject === "function") this._rejectionHandler0 = reject;
-        if (typeof progress === "function") this._progressHandler0 = progress;
     } else {
         ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
         ASSERT(this[base + CALLBACK_RECEIVER_OFFSET] === undefined);
         ASSERT(this[base + CALLBACK_FULFILL_OFFSET] === undefined);
         ASSERT(this[base + CALLBACK_REJECT_OFFSET] === undefined);
-        ASSERT(this[base + CALLBACK_PROGRESS_OFFSET] === undefined);
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
@@ -377,8 +370,6 @@ Promise.prototype._addCallbacks = function (
             this[base + CALLBACK_FULFILL_OFFSET] = fulfill;
         if (typeof reject === "function")
             this[base + CALLBACK_REJECT_OFFSET] = reject;
-        if (typeof progress === "function")
-            this[base + CALLBACK_PROGRESS_OFFSET] = progress;
     }
     this._setLength(index + 1);
     return index;
@@ -605,7 +596,6 @@ Promise.prototype._clearCallbackDataAtIndex = function(index) {
             this._fulfillmentHandler0 = undefined;
         }
         this._rejectionHandler0 =
-        this._progressHandler0 =
         this._receiver0 =
         this._promise0 = undefined;
     } else {
@@ -613,8 +603,7 @@ Promise.prototype._clearCallbackDataAtIndex = function(index) {
         this[base + CALLBACK_PROMISE_OFFSET] =
         this[base + CALLBACK_RECEIVER_OFFSET] =
         this[base + CALLBACK_FULFILL_OFFSET] =
-        this[base + CALLBACK_REJECT_OFFSET] =
-        this[base + CALLBACK_PROGRESS_OFFSET] = undefined;
+        this[base + CALLBACK_REJECT_OFFSET] = undefined;
     }
 };
 

@@ -10,15 +10,13 @@ describe("If promise is reused to get at the value many times over the course of
     specify("Promise will clear handler data immediately", function() {
         var three = Promise.resolve(3);
         var fn = function(){};
-        three.then(fn, fn, fn);
+        three.then(fn, fn);
         assert(three._fulfillmentHandler0 === fn);
         assert(three._rejectionHandler0 === fn);
-        assert(three._progressHandler0 === fn);
 
         return Promise.delay(1).then(function() {
             assert(three._fulfillmentHandler0 === void 0);
             assert(three._rejectionHandler0 === void 0);
-            assert(three._progressHandler0 === void 0);
             assert(three._receiver0 === void 0);
             assert(three._promise0 === void 0);
         });
@@ -28,11 +26,11 @@ describe("If promise is reused to get at the value many times over the course of
         var three = Promise.resolve(3);
         var fn = function(){};
         var len;
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
-        three.then(fn, fn, fn);
+        three.then(fn, fn);
+        three.then(fn, fn);
+        three.then(fn, fn);
+        three.then(fn, fn);
+        three.then(fn, fn);
 
         len = three._length();
         assert(len > 0);

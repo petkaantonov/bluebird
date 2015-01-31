@@ -40,16 +40,6 @@ PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
     }
 };
 
-//Override
-PropertiesPromiseArray.prototype._promiseProgressed = function (value, index) {
-    ASSERT(!this._isResolved());
-
-    this._promise._progress({
-        key: this._values[index + this.length()],
-        value: value
-    });
-};
-
 // Override
 PropertiesPromiseArray.prototype.shouldCopyValues = function () {
     return false;

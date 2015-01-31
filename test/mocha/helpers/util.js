@@ -38,9 +38,6 @@ module.exports = {
                 ret.resolve = ret.fulfill = resolve;
                 ret.reject = reject;
             });
-            ret.progress = function(value) {
-                ret.promise._progress(value);
-            };
             return ret;
         };
         return Promise;

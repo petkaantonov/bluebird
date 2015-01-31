@@ -197,20 +197,6 @@ describe("Using as a rejection reason", function() {
             return ret;
         });
 
-        specify("through progress", function() {
-            var o = nullObject();
-            var d = Promise.defer();
-
-            var ret = d.promise.then(assert.fail, assert.fail, function() {
-                throw o;
-            }).then(assert.fail, assert.fail, function(e) {
-                assert.strictEqual(e, o);
-                ret._resolveCallback();
-            })
-            d.progress();
-            return ret;
-        });
-
         specify("through immediate PromiseArray promise", function() {
             var o = nullObject();
             return Promise.all([Promise.reject(o)]).then(assert.fail, function(e) {
