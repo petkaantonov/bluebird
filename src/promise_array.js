@@ -64,7 +64,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         }
     }
     if (!isArray(values)) {
-        var err = new Promise.TypeError(COLLECTION_ERROR);
+        var err = apiRejection(COLLECTION_ERROR).reason();
         this._promise._rejectCallback(err, false, true);
         return;
     }
