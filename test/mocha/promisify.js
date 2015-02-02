@@ -16,13 +16,13 @@ var sentinelError = new OperationalError();
 
 var successNode = function(a, b, c, cb) {
     setTimeout(function(){
-        cb(null, sentinel);
+        cb(null, a);
     }, 1);
 };
 
 var successNodeMultipleValues = function(a, b, c, cb) {
     setTimeout(function(){
-        cb(null, sentinel, sentinel, sentinel);
+        cb(null, a, b, c);
     }, 1);
 };
 
@@ -31,11 +31,11 @@ var syncErroneusNode = function(a, b, c, cb) {
 };
 
 var syncSuccessNode = function(a, b, c, cb) {
-    cb(null, sentinel);
+    cb(null, a);
 };
 
 var syncSuccessNodeMultipleValues = function(a, b, c, cb) {
-    cb(null, sentinel, sentinel, sentinel);
+    cb(null, a, b, c);
 };
 
 var errToThrow;
@@ -58,17 +58,24 @@ var errbacksStringsAsync = Promise.promisify(function(cb){
         cb(tprimitive);
     }, 1);
 });
+var THIS = {};
 
 var error = Promise.promisify(erroneusNode);
-var success = Promise.promisify(successNode);
-var successMulti = Promise.promisify(successNodeMultipleValues);
 var syncError = Promise.promisify(syncErroneusNode);
+var success = Promise.promisify(successNode);
 var syncSuccess = Promise.promisify(syncSuccessNode);
-var syncSuccessMulti = Promise.promisify(syncSuccessNodeMultipleValues);
-
+var successMultiArgsSingleValue = Promise.promisify(successNode, true);
+var successMultiOptDisabledNoReceiver = Promise.promisify(successNodeMultipleValues);
+var syncSuccessMultiOptDisabledNoReceiver = Promise.promisify(syncSuccessNodeMultipleValues);
+var successMultiOptEnabledNoReceiver = Promise.promisify(successNodeMultipleValues, true);
+var syncSuccessMultiOptEnabledNoReceiver = Promise.promisify(syncSuccessNodeMultipleValues, true);
+var successMultiOptEnabledWithReceiver = Promise.promisify(successNodeMultipleValues, true, THIS);
+var syncSccessMultiOptEnabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, true, THIS);
+var successMultiOptDisabledWithReceiver = Promise.promisify(successNodeMultipleValues, false, THIS);
+var syncSccessMultiOptDisabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, false, THIS);
+var successMulti = successMultiOptDisabledNoReceiver;
+var syncSuccessMulti = syncSuccessMultiOptDisabledNoReceiver;
 describe("when calling promisified function it should ", function(){
-
-
     specify("return a promise that is pending", function() {
         var a = error(1,2,3);
         var b = success(1,2,3);
@@ -159,36 +166,63 @@ describe("when calling promisified function it should ", function(){
         ]);
     });
 
-    specify("fulfill with proper value(s)", function() {
-        var a = success(1,2,3);
-        var b = successMulti(1,2,3);
-        var c = syncSuccess(1,2,3);
-        var d = syncSuccessMulti(1,2,3);
-
-        return Promise.all([
-
-            a.then(function(val){
-                assert.equal(val, sentinel);
-            }),
-
-            b.then(function(val){
-                assert.deepEqual(val, [sentinel, sentinel, sentinel]);
-            }),
-
-            c.then(function(val){
-                assert.equal(val, sentinel);
-            }),
-
-            d.then(function(val){
-                assert.deepEqual(val, [sentinel, sentinel, sentinel]);
+    describe("multi-args behaviors", function() {
+        specify("successMultiArgsSingleValue", function() {
+            var a = successMultiArgsSingleValue(1, 2, 3);
+            return a.then(function(value) {
+                assert.deepEqual([1], value);
             })
-
-        ]);
+        });
+        specify("successMultiOptDisabledNoReceiver", function() {
+            var a = successMultiOptDisabledNoReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.strictEqual(value, 1);
+            })
+        });
+        specify("syncSuccessMultiOptDisabledNoReceiver", function() {
+            var a = syncSuccessMultiOptDisabledNoReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.strictEqual(value, 1);
+            })
+        });
+        specify("successMultiOptEnabledNoReceiver", function() {
+            var a = successMultiOptEnabledNoReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.deepEqual([1,2,3], value);
+            })
+        });
+        specify("syncSuccessMultiOptEnabledNoReceiver", function() {
+            var a = syncSuccessMultiOptEnabledNoReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.deepEqual([1,2,3], value);
+            })
+        });
+        specify("successMultiOptEnabledWithReceiver", function() {
+            var a = successMultiOptEnabledWithReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.deepEqual([1,2,3], value);
+            })
+        });
+        specify("syncSccessMultiOptEnabledWithReceiver", function() {
+            var a = syncSccessMultiOptEnabledWithReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.deepEqual([1,2,3], value);
+            })
+        });
+        specify("successMultiOptDisabledWithReceiver", function() {
+            var a = successMultiOptDisabledWithReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.strictEqual(value, 1);
+            })
+        });
+        specify("syncSccessMultiOptDisabledWithReceiver", function() {
+            var a = syncSccessMultiOptDisabledWithReceiver(1, 2, 3);
+            return a.then(function(value) {
+                assert.strictEqual(value, 1);
+            })
+        });
     });
-
-
 });
-
 
 describe("with more than 5 arguments", function(){
 
@@ -201,7 +235,9 @@ describe("with more than 5 arguments", function(){
 
     }
 
-    var prom = Promise.promisify(o.f, o);
+
+    var prom = Promise.promisify(o.f, false, o);
+
     specify("receiver should still work", function() {
         return prom(1,2,3,4,5,6,7).then(function(val){
             assert.deepEqual(
@@ -282,15 +318,15 @@ describe("promisify on objects", function(){
         var c = new Test(45);
         return Promise.all([
             a.getAsync(1, 2, 3).then(function(result){
-                assert.deepEqual(result, [1, 2, 3, 15]);
+                assert.strictEqual(result, 1);
             }),
 
             b.getAsync(4, 5, 6).then(function(result){
-                assert.deepEqual(result, [4, 5, 6, 30]);
+                assert.strictEqual(result, 4);
             }),
 
             c.getAsync(7, 8, 9).then(function(result){
-                assert.deepEqual(result, [7, 8, 9, 45]);
+                assert.strictEqual(result, 7);
             })
         ]);
     });
@@ -302,15 +338,15 @@ describe("promisify on objects", function(){
 
         return Promise.all([
             a.getManyAsync(1, 2, 3, 4, 5, 6, 7).then(function(result){
-                assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 15]);
+                assert.strictEqual(result, 1);
             }),
 
             b.getManyAsync(4, 5, 6, 7, 8, 9, 10).then(function(result){
-                assert.deepEqual(result, [4, 5, 6, 7, 8, 9, 10, 30]);
+                assert.strictEqual(result, 4);
             }),
 
             c.getManyAsync(7, 8, 9, 10, 11, 12, 13).then(function(result){
-                assert.deepEqual(result, [7, 8, 9, 10, 11, 12, 13, 45]);
+                assert.strictEqual(result, 7);
             })
         ]);
     });
@@ -358,7 +394,7 @@ describe("promisify on objects", function(){
         }
         var fAsync = Promise.promisify(f);
         return fAsync(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).then(function(result) {
-            assert.deepEqual(result, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+            assert.strictEqual(result, 1);
         });
     });
 
@@ -784,7 +820,50 @@ describe("Custom promisifier", function() {
 
     });
 
-
+    specify("multiArgs option enabled single value", function() {
+        var o = {
+            get: function(cb) {
+                cb(null, 1)
+            }
+        };
+        Promise.promisifyAll(o, {multiArgs: true});
+        return o.getAsync().then(function(value) {
+            assert.deepEqual([1], value);
+        });
+    });
+    specify("multiArgs option enabled multi value", function() {
+        var o = {
+            get: function(cb) {
+                cb(null, 1, 2, 3)
+            }
+        };
+        Promise.promisifyAll(o, {multiArgs: true});
+        return o.getAsync().then(function(value) {
+            assert.deepEqual([1,2,3], value);
+        });
+    });
+    specify("multiArgs option disabled single value", function() {
+        var o = {
+            get: function(cb) {
+                cb(null, 1)
+            }
+        };
+        Promise.promisifyAll(o);
+        return o.getAsync().then(function(value) {
+            assert.strictEqual(value, 1);
+        });
+    });
+    specify("multiArgs option disabled multi value", function() {
+        var o = {
+            get: function(cb) {
+                cb(null, 1)
+            }
+        };
+        Promise.promisifyAll(o);
+        return o.getAsync().then(function(value) {
+            assert.strictEqual(value, 1);
+        });
+    });
 });
 
 describe("OperationalError wrapping", function() {
@@ -874,42 +953,11 @@ describe("OperationalError wrapping", function() {
             });
     });
 });
-
-var global = new Function("return this")();
-var canEvaluate = (function() {
-    if (typeof window !== "undefined" && window !== null &&
-        typeof window.document !== "undefined" &&
-        typeof navigator !== "undefined" && navigator !== null &&
-        typeof navigator.appName === "string" &&
-        window === global) {
-        return false;
-    }
-    return true;
-})();
-var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
-
-if (canTestArity) {
-    describe("arity", function() {
-        specify("should be original - 1", function() {
-            var fn = function(a, b, c, callback) {};
-
-            assert.equal(Promise.promisify(fn).length, 3);
-
-            var o = {
-                fn: function(a, b, c, callback) {
-
-                }
-            };
-            assert.equal(Promise.promisifyAll(o).fnAsync.length, 3);
-        })
-    })
-}
-
 describe("nodeback with multiple arguments", function() {
     specify("spreaded with immediate values", function() {
         var promise = Promise.promisify(function(cb) {
             cb(null, 1, 2, 3);
-        })();
+        }, true)();
 
         return promise.spread(function(a, b, c) {
             assert.equal(a, 1);
@@ -917,8 +965,37 @@ describe("nodeback with multiple arguments", function() {
             assert.equal(c, 3);
         });
     });
-});
 
+    specify("spreaded with thenable values should not be unwrapped", function() {
+        var a = {then: function(){}};
+        var b = a;
+        var c = a;
+        var promise = Promise.promisify(function(cb) {
+            cb(null, a, b, c);
+        }, true)();
+
+        return promise.spread(function(a_, b_, c_) {
+            assert.equal(a_, a);
+            assert.equal(b_, b);
+            assert.equal(c_, c);
+        });
+    });
+
+    specify("spreaded with promise values should not be unwrapped", function() {
+        var a = Promise.resolve(1);
+        var b = Promise.resolve(2);
+        var c = Promise.resolve(3);
+        var promise = Promise.promisify(function(cb) {
+            cb(null, a, b, c);
+        }, true)();
+
+        return promise.spread(function(a_, b_, c_) {
+            assert.strictEqual(a_, a);
+            assert.strictEqual(b_, b);
+            assert.strictEqual(c_, c);
+        });
+    });
+});
 describe("filter", function() {
     specify("gets an argument whether default filter was passed", function() {
         Promise.promisifyAll({
@@ -946,3 +1023,32 @@ describe("filter", function() {
         });
     });
 });
+
+var global = new Function("return this")();
+var canEvaluate = (function() {
+    if (typeof window !== "undefined" && window !== null &&
+        typeof window.document !== "undefined" &&
+        typeof navigator !== "undefined" && navigator !== null &&
+        typeof navigator.appName === "string" &&
+        window === global) {
+        return false;
+    }
+    return true;
+})();
+var canTestArity = (function(a, b, c) {}).length === 3 && canEvaluate;
+
+if (canTestArity) {
+    describe("arity", function() {
+        specify("should be original - 1", function() {
+            var fn = function(a, b, c, callback) {};
+            assert.equal(Promise.promisify(fn).length, 3);
+
+            var o = {
+                fn: function(a, b, c, callback) {
+
+                }
+            };
+            assert.equal(Promise.promisifyAll(o).fnAsync.length, 3);
+        })
+    })
+}

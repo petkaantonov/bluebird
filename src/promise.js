@@ -145,9 +145,9 @@ Promise.is = function (val) {
     return val instanceof Promise;
 };
 
-Promise.fromNode = function(fn) {
+Promise.fromNode = function(fn, multiArgs) {
     var ret = new Promise(INTERNAL);
-    var result = tryCatch(fn)(nodebackForPromise(ret));
+    var result = tryCatch(fn)(nodebackForPromise(ret, !!multiArgs));
     if (result === errorObj) {
         ret._rejectCallback(result.e, true, true);
     }
@@ -472,7 +472,13 @@ Promise.prototype._settlePromiseFromHandler = function (
     promise._pushContext();
     var x;
     if (receiver === APPLY && !this._isRejected()) {
-        x = tryCatch(handler).apply(this._boundTo, value);
+        if (!value || typeof value.length !== "number") {
+            x = errorObj;
+            x.e = new TypeError("Cannot .spread() a non-array: " +
+                                    util.classString(value));
+        } else {
+            x = tryCatch(handler).apply(this._boundTo, value);
+        }
     } else {
         x = tryCatch(handler).call(receiver, value);
     }

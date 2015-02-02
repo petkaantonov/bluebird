@@ -31,18 +31,18 @@ function wrapAsOperationalError(obj) {
     return obj;
 }
 
-function nodebackForPromise(promise) {
+function nodebackForPromise(promise, multiArgs) {
     return function(err, value) {
         if (promise === null) return;
         if (err) {
             var wrapped = wrapAsOperationalError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
             promise._reject(wrapped);
-        } else if (arguments.length > 2) {
+        } else if (!multiArgs) {
+            promise._fulfill(value);
+        } else {
             INLINE_SLICE(args, arguments, 1);
             promise._fulfill(args);
-        } else {
-            promise._fulfill(value);
         }
         promise = null;
     };

@@ -415,4 +415,48 @@ describe("Promise.fromNode", function() {
             assert.strictEqual(1, res);
         });
     });
+    specify("multiArgs option enabled single value", function() {
+        var nodeFn = function(cb) {
+            cb(null, 1);
+        };
+        return Promise.fromNode(function(callback) {
+            nodeFn(callback);
+        }, true).then(function(value) {
+            assert.deepEqual([1], value);
+        });
+
+    });
+    specify("multiArgs option enabled multi value", function() {
+        var nodeFn = function(cb) {
+            cb(null, 1, 2, 3);
+        };
+        return Promise.fromNode(function(callback) {
+            nodeFn(callback);
+        }, true).then(function(value) {
+            assert.deepEqual([1,2,3], value);
+        });
+
+    });
+    specify("multiArgs option disabled single value", function() {
+        var nodeFn = function(cb) {
+            cb(null, 1);
+        };
+        return Promise.fromNode(function(callback) {
+            nodeFn(callback);
+        }).then(function(value) {
+            assert.strictEqual(1, value);
+        });
+
+    });
+    specify("multiArgs option disabled multi value", function() {
+        var nodeFn = function(cb) {
+            cb(null, 1, 2, 3);
+        };
+        return Promise.fromNode(function(callback) {
+            nodeFn(callback);
+        }).then(function(value) {
+            assert.strictEqual(1, value);
+        });
+
+    });
 });

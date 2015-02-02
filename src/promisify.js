@@ -111,7 +111,7 @@ var parameterCount = function(fn) {
 };
 
 makeNodePromisifiedEval =
-function(callback, receiver, originalName, fn) {
+function(callback, receiver, originalName, fn, _, multiArgs) {
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
@@ -172,14 +172,14 @@ function(callback, receiver, originalName, fn) {
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
             promise._captureStackTrace();                                    \n\
-            var nodeback = nodebackForPromise(promise);                      \n\
+            var fn = nodebackForPromise(promise, " + multiArgs + ");         \n\
             var ret;                                                         \n\
             var callback = tryCatch([GetFunctionCode]);                      \n\
             switch(len) {                                                    \n\
                 [CodeForSwitchCase]                                          \n\
             }                                                                \n\
             if (ret === errorObj) {                                          \n\
-                promise._rejectCallback(maybeWrapAsError(ret.e), true, true);\n\
+                promise._rejectCallback(maybeWrapAsError(ret.e), true);      \n\
             }                                                                \n\
             return promise;                                                  \n\
         };                                                                   \n\
@@ -202,7 +202,7 @@ function(callback, receiver, originalName, fn) {
 };
 }
 
-function makeNodePromisifiedClosure(callback, receiver, _, fn) {
+function makeNodePromisifiedClosure(callback, receiver, _, fn, ___, multiArgs) {
     var defaultThis = (function() {return this;})();
     var method = callback;
     if (typeof method === "string") {
@@ -216,7 +216,7 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn) {
         promise._captureStackTrace();
         var cb = typeof method === "string" && this !== defaultThis
             ? this[method] : callback;
-        var fn = nodebackForPromise(promise);
+        var fn = nodebackForPromise(promise, multiArgs);
         try {
             cb.apply(_receiver, withAppended(arguments, fn));
         } catch(e) {
@@ -232,7 +232,7 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function promisifyAll(obj, suffix, filter, promisifier) {
+function promisifyAll(obj, suffix, filter, promisifier, multiArgs) {
     ASSERT(typeof suffix === "string");
     ASSERT(typeof filter === "function");
     var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
@@ -244,27 +244,31 @@ function promisifyAll(obj, suffix, filter, promisifier) {
         var fn = methods[i+1];
         var promisifiedKey = key + suffix;
         obj[promisifiedKey] = promisifier === makeNodePromisified
-                ? makeNodePromisified(key, THIS, key, fn, suffix)
+                ? makeNodePromisified(key, THIS, key, fn, suffix, multiArgs)
                 : promisifier(fn, function() {
-                    return makeNodePromisified(key, THIS, key, fn, suffix);
+                    return makeNodePromisified(key, THIS,
+                                            key, fn, suffix, multiArgs);
                 });
     }
     util.toFastProperties(obj);
     return obj;
 }
 
-function promisify(callback, receiver) {
-    return makeNodePromisified(callback, receiver, undefined, callback);
+function promisify(callback, receiver, multiArgs) {
+    return makeNodePromisified(callback, receiver, undefined,
+                                callback, null, multiArgs);
 }
 
-Promise.promisify = function (fn, receiver) {
+Promise.promisify = function (fn, multiArgs, receiver) {
     if (typeof fn !== "function") {
         throw new TypeError(NOT_FUNCTION_ERROR);
     }
     if (isPromisified(fn)) {
         return fn;
     }
-    var ret = promisify(fn, arguments.length < 2 ? THIS : receiver);
+    var ret = promisify(fn,
+                arguments.length < 3 ? THIS : receiver,
+                !!multiArgs);
     util.copyDescriptors(fn, ret, propsFilter);
     return ret;
 };
@@ -274,6 +278,7 @@ Promise.promisifyAll = function (target, options) {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }
     options = Object(options);
+    var multiArgs = !!options.multiArgs;
     var suffix = options.suffix;
     if (typeof suffix !== "string") suffix = defaultSuffix;
     var filter = options.filter;
@@ -290,12 +295,13 @@ Promise.promisifyAll = function (target, options) {
         var value = target[keys[i]];
         if (keys[i] !== "constructor" &&
             util.isClass(value)) {
-            promisifyAll(value.prototype, suffix, filter, promisifier);
-            promisifyAll(value, suffix, filter, promisifier);
+            promisifyAll(value.prototype, suffix, filter, promisifier,
+                multiArgs);
+            promisifyAll(value, suffix, filter, promisifier, multiArgs);
         }
     }
 
-    return promisifyAll(target, suffix, filter, promisifier);
+    return promisifyAll(target, suffix, filter, promisifier, multiArgs);
 };
 };
 
