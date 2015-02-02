@@ -1,3 +1,9 @@
+## 2.9.5 (2015-02-02)
+
+Misc:
+
+ - Warn when [`.then()`](.) is passed non-functions
+
 ## 2.9.4 (2015-01-30)
 
 Bugfixes:
