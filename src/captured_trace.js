@@ -2,7 +2,7 @@
 module.exports = function() {
 var async = require("./async.js");
 var ASSERT = require("./assert.js");
-var inherits = require("./util.js").inherits;
+var util = require("./util.js");
 var bluebirdFramePattern =
     /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo|instrumented)/;
 var stackFramePattern = null;
@@ -18,7 +18,7 @@ function CapturedTrace(parent) {
     // there must be cycles
     if (length > 32) this.uncycle();
 }
-inherits(CapturedTrace, Error);
+util.inherits(CapturedTrace, Error);
 
 CapturedTrace.prototype.uncycle = function() {
     var length = this._length;
@@ -435,9 +435,7 @@ var captureStackTrace = (function stackDetection() {
 
 var fireDomEvent;
 var fireGlobalEvent = (function() {
-    if (typeof process !== "undefined" &&
-        typeof process.version === "string" &&
-        typeof window === "undefined") {
+    if (util.isNode) {
         return function(name, reason, promise) {
             if (name === REJECTION_HANDLED_EVENT) {
                 return process.emit(name, promise);
