@@ -107,8 +107,8 @@ Promise.prototype.done = function (didFulfill, didReject) {
     promise._setIsFinal();
 };
 
-Promise.prototype.spread = function (didFulfill, didReject) {
-    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
+Promise.prototype.spread = function (didFulfill, undefined) {
+    return this.all()._then(didFulfill, undefined, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {
@@ -477,7 +477,7 @@ Promise.prototype._settlePromiseFromHandler = function (
     ASSERT(!promise._isFollowingOrFulfilledOrRejected());
     promise._pushContext();
     var x;
-    if (receiver === APPLY && !this._isRejected()) {
+    if (receiver === APPLY) {
         if (!value || typeof value.length !== "number") {
             x = errorObj;
             x.e = new TypeError("Cannot .spread() a non-array: " +

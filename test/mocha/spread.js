@@ -76,22 +76,6 @@ describe("spread", function () {
         return promise;
     });
 
-    it("calls the errback when given a rejected promise", function() {
-        var err = new Error();
-        return Promise.all([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
-            function(actual){
-            assert(actual === err);
-        });
-    });
-
-    it("calls the errback when given a rejected promise without all", function() {
-        var err = new Error();
-        return Promise.resolve([Promise.resolve(10), Promise.reject(err)]).spread(assert.fail,
-            function(actual){
-            assert(actual === err);
-        });
-    });
-
     it("should wait for promises in the returned array even when not calling .all", function() {
         var d1 = Promise.defer();
         var d2 = Promise.defer();
