@@ -10,6 +10,10 @@ var possiblyUnhandledRejection;
 var debugging = __DEBUG__ || (util.isNode &&
                     (!!process.env["BLUEBIRD_DEBUG"] ||
                      process.env["NODE_ENV"] === "development"));
+var config = {
+    warnings: debugging,
+    longStackTraces: debugging && CapturedTrace.isSupported()
+};
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     this._setRejectionIsUnhandled();
@@ -85,14 +89,14 @@ Promise.prototype._getCarriedStackTrace = function () {
 Promise.prototype._captureStackTrace = function () {
     ASSERT(arguments.length === 0);
     ASSERT(this._trace == null);
-    if (debugging) {
+    if (config.longStackTraces) {
         this._trace = new CapturedTrace(this._peekContext());
     }
     return this;
 };
 
 Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
-    if (debugging && canAttachTrace(error)) {
+    if (config.longStackTraces && canAttachTrace(error)) {
         var trace = this._trace;
         if (trace !== undefined) {
             if (ignoreSelf) trace = trace._parent;
@@ -108,10 +112,10 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
 };
 
 Promise.prototype._warn = function(message) {
-    if (!debugging) return;
+    if (!config.warnings) return;
     var warning = new Warning(message);
-    var ctx = this._peekContext();
-    if (ctx) {
+    var ctx;
+    if (config.longStackTraces && (ctx = this._peekContext())) {
         ctx.attachExtraTrace(warning);
     } else {
         var parsed = CapturedTrace.parseStackAndMessage(warning);
@@ -130,23 +134,33 @@ Promise.onUnhandledRejectionHandled = function (fn) {
 
 Promise.longStackTraces = function () {
     if (async.haveItemsQueued() &&
-        debugging === false
+        config.longStackTraces === false
    ) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
-    debugging = CapturedTrace.isSupported();
+    config.longStackTraces = CapturedTrace.isSupported();
 };
 
 Promise.hasLongStackTraces = function () {
-    return debugging && CapturedTrace.isSupported();
+    return config.longStackTraces && CapturedTrace.isSupported();
 };
 
-if (!CapturedTrace.isSupported()) {
-    Promise.longStackTraces = function(){};
-    debugging = false;
-}
+Promise.config = function(opts) {
+    opts = Object(opts);
+    if ("longStackTraces" in opts && opts.longStackTraces) {
+        Promise.longStackTraces();
+    }
+    if ("warnings" in opts) {
+        config.warnings = !!opts.warnings;
+    }
+};
 
-return function() {
-    return debugging;
+return {
+    longStackTraces: function() {
+        return config.longStackTraces;
+    },
+    warnings: function() {
+        return config.warnings;
+    }
 };
 };

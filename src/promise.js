@@ -27,10 +27,10 @@ var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
 var CapturedTrace = require("./captured_trace.js")();
-var isDebugging = require("./debuggability.js")(Promise, CapturedTrace);
+var config = require("./debuggability.js")(Promise, CapturedTrace);
  /*jshint unused:false*/
 var createContext =
-    require("./context.js")(Promise, CapturedTrace, isDebugging);
+    require("./context.js")(Promise, CapturedTrace, config.longStackTraces);
 var catchFilter = require("./catch_filter.js")();
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
@@ -87,7 +87,7 @@ Promise.prototype.reflect = function () {
 };
 
 Promise.prototype.then = function (didFulfill, didReject) {
-    if (isDebugging() && arguments.length > 0 &&
+    if (config.warnings() && arguments.length > 0 &&
         typeof didFulfill !== "function" &&
         typeof didReject !== "function") {
         var msg = ".then() only accepts functions but was passed: " +
@@ -467,7 +467,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         if (r === errorObj && promise !== null) {
             promise._rejectCallback(r.e, true, true);
             promise = null;
-        } else if (isDebugging()) {
+        } else if (config.warnings()) {
             this._warn("the Promise constructor ignores return values but " +
                             util.classString(r) +
                             " was returned to it");

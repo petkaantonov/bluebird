@@ -1,25 +1,25 @@
 "use strict";
-module.exports = function(Promise, CapturedTrace, isDebugging) {
+module.exports = function(Promise, CapturedTrace, longStackTraces) {
 var contextStack = [];
 function Context() {
     this._trace = new CapturedTrace(peekContext());
 }
 Context.prototype._pushContext = function () {
-    if (!isDebugging()) return;
+    if (!longStackTraces()) return;
     if (this._trace !== undefined) {
         contextStack.push(this._trace);
     }
 };
 
 Context.prototype._popContext = function () {
-    if (!isDebugging()) return;
+    if (!longStackTraces()) return;
     if (this._trace !== undefined) {
         contextStack.pop();
     }
 };
 
 function createContext() {
-    if (isDebugging()) return new Context();
+    if (longStackTraces()) return new Context();
 }
 
 function peekContext() {
