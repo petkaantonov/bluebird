@@ -101,7 +101,7 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
             trace.attachExtraTrace(error);
         } else if (!error.__stackCleaned__) {
             var parsed = CapturedTrace.parseStackAndMessage(error);
-            error.stack = parsed.stack.join("\n");
+            error.stack = parsed.message + "\n" + parsed.stack.join("\n");
             error.__stackCleaned__ = true;
         }
     }
