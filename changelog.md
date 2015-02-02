@@ -1,3 +1,9 @@
+## 2.9.6 (2015-02-02)
+
+Bugfixes:
+
+ - Node environment detection can no longer be fooled
+
 ## 2.9.5 (2015-02-02)
 
 Misc:
