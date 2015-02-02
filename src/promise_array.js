@@ -45,17 +45,8 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     if (values instanceof Promise) {
         values = values._target();
         this._values = values;
-        //Expect the promise to be a promise
-        //for an array
         if (values._isFulfilled()) {
-            //Fulfilled promise with hopefully
-            //an array as a resolution value
             values = values._value();
-            if (!isArray(values)) {
-                var err = new Promise.TypeError(COLLECTION_ERROR);
-                this.__hardReject__(err);
-                return;
-            }
         } else if (values._isPending()) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
@@ -71,8 +62,10 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             this._reject(values._reason());
             return;
         }
-    } else if (!isArray(values)) {
-        this._promise._reject(apiRejection(COLLECTION_ERROR)._reason());
+    }
+    if (!isArray(values)) {
+        var err = new Promise.TypeError(COLLECTION_ERROR);
+        this._promise._rejectCallback(err, false, true);
         return;
     }
 
@@ -125,7 +118,6 @@ PromiseArray.prototype._resolve = function (value) {
     this._promise._fulfill(value);
 };
 
-PromiseArray.prototype.__hardReject__ =
 PromiseArray.prototype._reject = function (reason) {
     ASSERT(!this._isResolved());
     this._values = null;
