@@ -104,14 +104,11 @@ CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine i
 //errors
 CONSTANT(TIMEOUT_ERROR, "operation timed out");
 CONSTANT(COLLECTION_ERROR,  "expecting an array but got ");
-CONSTANT(CONSTRUCT_ERROR_ARG, "the promise constructor requires a resolver function\n\n\
-    See http://goo.gl/EC22Yn\n");
+CONSTANT(FUNCTION_ERROR,  "expecting a function but got ");
 CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly\n\n\
     See http://goo.gl/KsIlge\n");
 CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function\n\n\
     See http://goo.gl/6Vqhm0\n");
-CONSTANT(NOT_FUNCTION_ERROR, "fn must be a function\n\n\
-    See http://goo.gl/916lJJ\n");
 CONSTANT(LONG_STACK_TRACES_ERROR, "cannot enable long stack traces after promises have been created\n\n\
     See http://goo.gl/DT1qyG\n");
 CONSTANT(INSPECTION_VALUE_ERROR, "cannot get fulfillment value of a non-fulfilled promise\n\n\
@@ -129,8 +126,6 @@ CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer\n\n\
 CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value %s was yielded that could not be treated as a promise\n\n\
     See http://goo.gl/4Y4pDk\n\n");
 CONSTANT(FROM_COROUTINE_CREATED_AT, "From coroutine:\n");
-CONSTANT(NOT_ERROR_TYPE_OR_PREDICATE, "Catch filter must inherit from Error or be a simple predicate function\n\n\
-    See http://goo.gl/o84o68\n");
 CONSTANT(UNBOUND_RESOLVER_INVOCATION, "Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.\n\n\
     See http://goo.gl/sdkXL9\n");
 CONSTANT(PROMISIFICATION_NORMAL_METHODS_ERROR, "Cannot promisify an API that has normal methods with '%s'-suffix\n\n\

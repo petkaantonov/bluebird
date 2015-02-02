@@ -1,6 +1,7 @@
 "use strict";
 module.exports = function (Promise, apiRejection, tryConvertToPromise,
     createContext, INTERNAL) {
+    var util = require("./util.js");
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
     var PromiseInspection = Promise.PromiseInspection;
@@ -135,7 +136,9 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         if (len < 2) return apiRejection(
                         "you must pass at least 2 arguments to Promise.using");
         var fn = arguments[len - 1];
-        if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+        if (typeof fn !== "function") {
+            return apiRejection(FUNCTION_ERROR + util.classString(fn));
+        }
         len--;
         var resources = new Array(len);
         for (var i = 0; i < len; ++i) {

@@ -121,23 +121,23 @@ MappingPromiseArray.prototype.preservedValues = function () {
 };
 
 function map(promises, fn, options, _filter) {
+    if (typeof fn !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+    }
     var limit = typeof options === "object" && options !== null
         ? options.concurrency
         : 0;
     limit = typeof limit === "number" &&
         isFinite(limit) && limit >= 1 ? limit : 0;
-    return new MappingPromiseArray(promises, fn, limit, _filter);
+    return new MappingPromiseArray(promises, fn, limit, _filter).promise();
 }
 
 Promise.prototype.map = function (fn, options) {
-    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-
-    return map(this, fn, options, null).promise();
+    return map(this, fn, options, null);
 };
 
 Promise.map = function (promises, fn, options, _filter) {
-    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
-    return map(promises, fn, options, _filter).promise();
+    return map(promises, fn, options, _filter);
 };
 
 

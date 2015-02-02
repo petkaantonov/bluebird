@@ -126,7 +126,9 @@ Promise.coroutine = function (generatorFunction, options) {
 };
 
 Promise.coroutine.addYieldHandler = function(fn) {
-    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    if (typeof fn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(fn));
+    }
     yieldHandlers.push(fn);
 };
 

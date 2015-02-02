@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(
     Promise, INTERNAL, tryConvertToPromise, apiRejection) {
-var isArray = require("./util.js").isArray;
+var util = require("./util.js");
 
 var raceLater = function (promise) {
     return promise.then(function(array) {
@@ -14,8 +14,8 @@ function race(promises, parent) {
 
     if (maybePromise instanceof Promise) {
         return raceLater(maybePromise);
-    } else if (!isArray(promises)) {
-        return apiRejection(COLLECTION_ERROR);
+    } else if (!util.isArray(promises)) {
+        return apiRejection(COLLECTION_ERROR + util.classString(promises));
     }
 
     var ret = new Promise(INTERNAL);

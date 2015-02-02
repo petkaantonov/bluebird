@@ -7,7 +7,7 @@ var tryCatch = util.tryCatch;
 
 Promise.method = function (fn) {
     if (typeof fn !== "function") {
-        throw new Promise.TypeError(NOT_FUNCTION_ERROR);
+        throw new Promise.TypeError(FUNCTION_ERROR + util.classString(fn));
     }
     return function () {
         var ret = new Promise(INTERNAL);
@@ -22,7 +22,7 @@ Promise.method = function (fn) {
 
 Promise.attempt = Promise["try"] = function (fn) {
     if (typeof fn !== "function") {
-        return apiRejection(NOT_FUNCTION_ERROR);
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
     }
     var ret = new Promise(INTERNAL);
     ret._captureStackTrace();

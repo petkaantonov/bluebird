@@ -261,7 +261,7 @@ function promisify(callback, receiver, multiArgs) {
 
 Promise.promisify = function (fn, multiArgs, receiver) {
     if (typeof fn !== "function") {
-        throw new TypeError(NOT_FUNCTION_ERROR);
+        throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
     if (isPromisified(fn)) {
         return fn;

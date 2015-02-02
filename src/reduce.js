@@ -89,7 +89,9 @@ Promise.reduce = function (promises, fn, initialValue, _each) {
 };
 
 function reduce(promises, fn, initialValue, _each) {
-    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+    if (typeof fn !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+    }
     var array = new ReductionPromiseArray(promises, fn, initialValue, _each);
     return array.promise();
 }

@@ -37,7 +37,7 @@ var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 function Promise(resolver) {
     if (typeof resolver !== "function") {
-        throw new TypeError(CONSTRUCT_ERROR_ARG);
+        throw new TypeError(FUNCTION_ERROR + util.classString(resolver));
     }
     if (this.constructor !== Promise) {
         throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
@@ -72,8 +72,7 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             if (typeof item === "function") {
                 catchInstances[j++] = item;
             } else {
-                return Promise.reject(
-                    new TypeError(NOT_ERROR_TYPE_OR_PREDICATE));
+                return apiRejection(FUNCTION_ERROR + util.classString(item));
             }
         }
         catchInstances.length = j;
@@ -108,7 +107,9 @@ Promise.prototype.done = function (didFulfill, didReject) {
 };
 
 Promise.prototype.spread = function (fn) {
-    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+    if (typeof fn !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+    }
     var target = this._isFollowing() ? this.then() : this;
     return target._then(fn, undefined, undefined, APPLY, undefined);
 };
@@ -180,7 +181,9 @@ Promise.reject = Promise.rejected = function (reason) {
 };
 
 Promise.setScheduler = function(fn) {
-    if (typeof fn !== "function") throw new TypeError(NOT_FUNCTION_ERROR);
+    if (typeof fn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(fn));
+    }
     var prev = async._schedule;
     async._schedule = fn;
     return prev;
