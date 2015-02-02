@@ -16,20 +16,18 @@ var afterTimeout = function (promise, message) {
 };
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
-var delay = Promise.delay = function (value, ms) {
-    if (ms === undefined) {
-        ms = value;
-        value = undefined;
-        var ret = new Promise(INTERNAL);
-        setTimeout(function() { ret._fulfill(); }, ms);
-        return ret;
+var delay = Promise.delay = function (ms, value) {
+    if (value !== undefined) {
+        return Promise.resolve(value)
+                ._then(afterValue, null, null, ms, undefined);
     }
-    ms = +ms;
-    return Promise.resolve(value)._then(afterValue, null, null, ms, undefined);
+    var ret = new Promise(INTERNAL);
+    setTimeout(function() { ret._fulfill(); }, +ms);
+    return ret;
 };
 
 Promise.prototype.delay = function (ms) {
-    return delay(this, ms);
+    return delay(ms, this);
 };
 
 function successClear(value) {

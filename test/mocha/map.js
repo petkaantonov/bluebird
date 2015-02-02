@@ -35,7 +35,7 @@ describe("Promise.map-test", function () {
     }
 
     function deferredMapper(val) {
-        return Promise.delay(mapper(val), 1);
+        return Promise.delay(1, mapper(val));
     }
 
     specify("should map input values array", function() {
@@ -122,7 +122,7 @@ describe("Promise.map-test with concurrency", function () {
     }
 
     function deferredMapper(val) {
-        return Promise.delay(mapper(val), 1);
+        return Promise.delay(1, mapper(val));
     }
 
     specify("should map input values array with concurrency", function() {

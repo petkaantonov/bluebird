@@ -459,7 +459,7 @@ describe("Promise.reduce-test", function () {
     }
 
     function later(val) {
-        return Promise.delay(val, 1);
+        return Promise.delay(1, val);
     }
 
 
@@ -609,7 +609,7 @@ describe("Promise.reduce-test", function () {
 
     describe("checks", function() {
         function later(val, ms) {
-            return Promise.delay(val, ms);
+            return Promise.delay(ms, val);
         }
 
         function plus(sum, val) {

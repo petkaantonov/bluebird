@@ -56,7 +56,7 @@ Resource.prototype.closeError = function() {
 };
 
 Resource.prototype.query = function(value) {
-    return Promise.delay(value, 1);
+    return Promise.delay(1, value);
 };
 
 function _connect() {
@@ -270,7 +270,7 @@ describe("Promise.using", function() {
          var a = [];
          var _res3 = promiseForConnectCloseAsync(a, 3);
          var _res2 = connectCloseAsync(a, 2);
-         var _res1 = Promise.delay(10, 1);
+         var _res1 = Promise.delay(1, 10);
          return using(_res1, _res2, _res3, function(res1, res2, res3) {
             assert(res1 === 10);
             assert(res2 instanceof Resource);

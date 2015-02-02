@@ -139,7 +139,7 @@ describe("delay", function () {
     });
 
     it("should delay after resolution", function () {
-        var promise1 = Promise.delay("what", 1);
+        var promise1 = Promise.delay(1, "what");
         var promise2 = promise1.delay(1);
 
         return promise2.then(function (value) {
@@ -158,7 +158,7 @@ describe("delay", function () {
             }, 1);
         });
         resolveF(v);
-        return Promise.delay(f, 1).then(function(value) {
+        return Promise.delay(1, f).then(function(value) {
             assert.equal(value, 3);
         });
     });
