@@ -66,12 +66,11 @@ getGetter = function(name) {
 };
 }
 
-var classString= {}.toString;
 function ensureMethod(obj, methodName) {
     var fn;
     if (obj != null) fn = obj[methodName];
     if (typeof fn !== "function") {
-        var message = "Object " + classString.call(obj) + " has no method '" +
+        var message = "Object " + util.classString(obj) + " has no method '" +
             util.toString(methodName) + "'";
         throw new Promise.TypeError(message);
     }

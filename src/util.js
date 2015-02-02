@@ -239,6 +239,10 @@ var ensureErrorObject = (function() {
     }
 })();
 
+function classString(obj) {
+    return {}.toString.call(obj);
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -264,7 +268,8 @@ var ret = {
     canAttachTrace: canAttachTrace,
     ensureErrorObject: ensureErrorObject,
     originatesFromRejection: originatesFromRejection,
-    markAsOriginatingFromRejection: markAsOriginatingFromRejection
+    markAsOriginatingFromRejection: markAsOriginatingFromRejection,
+    classString: classString
 };
 try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;

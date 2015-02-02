@@ -1,6 +1,7 @@
 "use strict";
 module.exports = function(Promise, CapturedTrace) {
 var async = require("./async.js");
+var Warning = require("./errors.js").Warning;
 var util = require("./util.js");
 var ASSERT = require("./assert.js");
 var canAttachTrace = util.canAttachTrace;
@@ -108,6 +109,18 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
             error.__stackCleaned__ = true;
         }
     }
+};
+
+Promise.prototype._warn = function(message) {
+    var warning = new Warning(message);
+    var ctx = this._peekContext();
+    if (ctx) {
+        ctx.attachExtraTrace(warning);
+    } else {
+        var parsed = CapturedTrace.parseStackAndMessage(warning);
+        warning.stack = parsed.message + "\n" + parsed.stack.join("\n");
+    }
+    CapturedTrace.formatAndLogError(warning, "");
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {

@@ -12,6 +12,8 @@ function subError(nameProperty, defaultMessage) {
         notEnumerableProp(this, "name", nameProperty);
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, this.constructor);
+        } else {
+            Error.call(this);
         }
     }
     inherits(SubError, Error);
@@ -19,6 +21,7 @@ function subError(nameProperty, defaultMessage) {
 }
 
 var _TypeError, _RangeError;
+var Warning = subError("Warning", "warning");
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
 var AggregateError = subError("AggregateError", "aggregate error");
@@ -98,5 +101,6 @@ module.exports = {
     CancellationError: errorTypes.CancellationError,
     OperationalError: errorTypes.OperationalError,
     TimeoutError: errorTypes.TimeoutError,
-    AggregateError: errorTypes.AggregateError
+    AggregateError: errorTypes.AggregateError,
+    Warning: Warning
 };
