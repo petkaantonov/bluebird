@@ -465,7 +465,7 @@ Promise.prototype._resolveFromResolver = function (resolver) {
             promise._rejectCallback(r.e, true, true);
             promise = null;
         } else if (isDebugging()) {
-            this._warn("The Promise constructor ignores return values but " +
+            this._warn("the Promise constructor ignores return values but " +
                             util.classString(r) +
                             " was returned to it");
         }
@@ -482,7 +482,7 @@ Promise.prototype._settlePromiseFromHandler = function (
     if (receiver === APPLY) {
         if (!value || typeof value.length !== "number") {
             x = errorObj;
-            x.e = new TypeError("Cannot .spread() a non-array: " +
+            x.e = new TypeError("cannot .spread() a non-array: " +
                                     util.classString(value));
         } else {
             x = tryCatch(handler).apply(this._boundTo, value);

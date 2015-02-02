@@ -103,12 +103,11 @@ CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine i
 
 //errors
 CONSTANT(TIMEOUT_ERROR, "operation timed out");
+CONSTANT(COLLECTION_ERROR,  "expecting an array but got ");
 CONSTANT(CONSTRUCT_ERROR_ARG, "the promise constructor requires a resolver function\n\n\
     See http://goo.gl/EC22Yn\n");
 CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly\n\n\
     See http://goo.gl/KsIlge\n");
-CONSTANT(COLLECTION_ERROR,  "expecting an array, a promise or a thenable\n\n\
-    See http://goo.gl/s8MMhc\n");
 CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function\n\n\
     See http://goo.gl/6Vqhm0\n");
 CONSTANT(NOT_FUNCTION_ERROR, "fn must be a function\n\n\
