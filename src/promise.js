@@ -458,9 +458,15 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     synchronous = false;
     this._popContext();
 
-    if (r !== undefined && r === errorObj && promise !== null) {
-        promise._rejectCallback(r.e, true, true);
-        promise = null;
+    if (r !== undefined) {
+        if (r === errorObj && promise !== null) {
+            promise._rejectCallback(r.e, true, true);
+            promise = null;
+        } else if (isDebugging()) {
+            this._warn("The Promise constructor ignores return values but " +
+                            util.classString(r) +
+                            " was returned to it");
+        }
     }
 };
 
