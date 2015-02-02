@@ -108,6 +108,7 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
 };
 
 Promise.prototype._warn = function(message) {
+    if (!debugging) return;
     var warning = new Warning(message);
     var ctx = this._peekContext();
     if (ctx) {
