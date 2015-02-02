@@ -4,7 +4,6 @@ try {throw new Error(); } catch (e) {firstLineError = e;}
 var ASSERT = require("./assert.js");
 var schedule = require("./schedule.js");
 var Queue = require("./queue.js");
-var _process = typeof process !== "undefined" ? process : undefined;
 
 function Async() {
     this._isTickUsed = false;
@@ -22,23 +21,12 @@ Async.prototype.haveItemsQueued = function () {
     return this._normalQueue.length() > 0;
 };
 
-Async.prototype._withDomain = function(fn) {
-    ASSERT(typeof fn === "function");
-    if (_process !== undefined &&
-        _process.domain != null &&
-        !fn.domain) {
-        fn = _process.domain.bind(fn);
-    }
-    return fn;
-};
-
 // Must be used if fn can throw
 Async.prototype.throwLater = function(fn, arg) {
     if (arguments.length === 1) {
         arg = fn;
         fn = function () { throw arg; };
     }
-    fn = this._withDomain(fn);
     if (typeof setTimeout !== "undefined") {
         setTimeout(function() {
             fn(arg);
@@ -56,21 +44,18 @@ Async.prototype.throwLater = function(fn, arg) {
 //the queue has been completely flushed
 Async.prototype.invokeLater = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    fn = this._withDomain(fn);
     this._lateQueue.push(fn, receiver, arg);
     this._queueTick();
 };
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    fn = this._withDomain(fn);
     this._normalQueue.unshift(fn, receiver, arg);
     this._queueTick();
 };
 
 Async.prototype.invoke = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    fn = this._withDomain(fn);
     this._normalQueue.push(fn, receiver, arg);
     this._queueTick();
 };
