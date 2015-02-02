@@ -225,7 +225,6 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                 code = astPasses.removeAsserts(code, sourceFileName);
                 code = astPasses.inlineExpansion(code, sourceFileName, true);
                 code = astPasses.expandConstants(code, sourceFileName);
-                code = code.replace( /__DEBUG__/g, "false" );
                 code = code.replace( /__BROWSER__/g, "true" );
                 if (sourceFileName === "promise.js") {
                     code = applyOptionalRequires(code, depsRequireCode);
@@ -261,7 +260,8 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                     src = src.replace(/\brequire\b/g, "_dereq_");
                     var minWrite, write;
                     if (minify) {
-                        var minSrc = UglifyJS.minify(src, {
+                        var minSrc = src.replace( /__DEBUG__/g, "false" );
+                        minSrc = UglifyJS.minify(minSrc, {
                             comments: false,
                             compress: true,
                             fromString: true
@@ -269,6 +269,7 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                         minSrc  = license + header + minSrc;
                         minWrite = fs.writeFileAsync(minDest, minSrc);
                     }
+                    src = src.replace( /__DEBUG__/g, "true" );
                     src = license + header + src;
                     write = fs.writeFileAsync(dest, src);
 
