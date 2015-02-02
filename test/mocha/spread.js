@@ -209,6 +209,20 @@ describe("spread", function () {
           assert.deepEqual([3, 4], a);
         });
     })
+
+    specify("error when passed non-function", function() {
+        return Promise.resolve(3)
+                .spread()
+                .then(assert.fail)
+                .caught(Promise.TypeError, function() {});
+    });
+
+    specify("error when resolution is non-spredable", function() {
+        return Promise.resolve(3)
+                .spread(function(){})
+                .then(assert.fail)
+                .caught(Promise.TypeError, function() {});
+    });
 });
 
 /*
@@ -243,7 +257,7 @@ describe("Promise.spread-test", function () {
     var slice = [].slice;
 
     specify("should return a promise", function() {
-        assert(typeof (Promise.defer().promise.spread().then) === "function");
+        assert(typeof (Promise.defer().promise.spread(function(){}).then) === "function");
     });
 
     specify("should apply onFulfilled with array as argument list", function() {
