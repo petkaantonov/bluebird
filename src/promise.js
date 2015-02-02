@@ -107,8 +107,9 @@ Promise.prototype.done = function (didFulfill, didReject) {
     promise._setIsFinal();
 };
 
-Promise.prototype.spread = function (didFulfill, undefined) {
-    return this.all()._then(didFulfill, undefined, undefined, APPLY, undefined);
+Promise.prototype.spread = function (didFulfill) {
+    var target = this._isFollowing() ? this.then() : this;
+    return target._then(didFulfill, undefined, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {

@@ -36,10 +36,6 @@ PromiseArray.prototype.promise = function () {
     return this._promise;
 };
 
-// _ must be intentionally empty because smuggled
-// data is always the second argument
-// all of this is due to when vs some having different semantics on
-// empty arrays
 PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     var values = tryConvertToPromise(this._values, this._promise);
     if (values instanceof Promise) {

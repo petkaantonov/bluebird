@@ -270,7 +270,7 @@ describe("when using .bind", function() {
                         d3.fulfill(3);
                     }, 3);
                 }, 1);
-                return promise.bind(THIS).spread(function(a, b, c){
+                return promise.bind(THIS).all().spread(function(a, b, c){
                     assert(c === 3);
                     assert(this === THIS);
                 });
