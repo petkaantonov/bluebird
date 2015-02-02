@@ -20,16 +20,14 @@ Promise.method = function (fn) {
     };
 };
 
-Promise.attempt = Promise["try"] = function (fn, args, ctx) {
+Promise.attempt = Promise["try"] = function (fn) {
     if (typeof fn !== "function") {
         return apiRejection(NOT_FUNCTION_ERROR);
     }
     var ret = new Promise(INTERNAL);
     ret._captureStackTrace();
     ret._pushContext();
-    var value = util.isArray(args)
-        ? tryCatch(fn).apply(ctx, args)
-        : tryCatch(fn).call(ctx, args);
+    var value = tryCatch(fn)();
     ret._popContext();
     ret._resolveFromSyncValue(value);
     return ret;

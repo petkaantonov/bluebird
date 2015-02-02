@@ -33,39 +33,13 @@ describe("Promise.attempt", function(){
         async = true;
         return ret;
     });
+
     specify("should reject when the function is not a function", function() {
         var async = false;
         var ret = tryy(null).then(assert.fail, function(e) {
             assert(async);
             assert(e instanceof Promise.TypeError);
         });
-        async = true;
-        return ret;
-    });
-    specify("should call the function with the given receiver", function(){
-        var async = false;
-        var ret = tryy(receiver, void 0, obj).then(function(val) {
-            assert(async);
-            assert(val === obj);
-        }, assert.fail);
-        async = true;
-        return ret;
-    });
-    specify("should call the function with the given value", function(){
-        var async = false;
-        var ret = tryy(identity, obj).then(function(val) {
-            assert(async);
-            assert(val === obj);
-        }, assert.fail);
-        async = true;
-        return ret;
-    });
-    specify("should apply the function if given value is array", function(){
-        var async = false;
-        var ret = tryy(array, [1,2,3]).then(function(val) {
-            assert(async);
-            assert.deepEqual(val, [1,2,3]);
-        }, assert.fail);
         async = true;
         return ret;
     });
