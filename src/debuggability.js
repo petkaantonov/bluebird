@@ -111,11 +111,13 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
     }
 };
 
-Promise.prototype._warn = function(message) {
+Promise.prototype._warn = function(message, shouldUseOwnTrace) {
     if (!config.warnings) return;
     var warning = new Warning(message);
     var ctx;
-    if (config.longStackTraces && (ctx = this._peekContext())) {
+    if (shouldUseOwnTrace) {
+        this._attachExtraTrace(warning);
+    } else if (config.longStackTraces && (ctx = this._peekContext())) {
         ctx.attachExtraTrace(warning);
     } else {
         var parsed = CapturedTrace.parseStackAndMessage(warning);

@@ -56,6 +56,8 @@ function Promise(resolver) {
     //reason for rejection or fulfilled value
     this._settledValue = undefined;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+    var ctx;
+    if ((ctx = this._peekContext()) !== undefined) ctx._promisesCreated++;
 }
 
 Promise.prototype.toString = function () {
@@ -493,12 +495,19 @@ Promise.prototype._settlePromiseFromHandler = function (
     } else {
         x = tryCatch(handler).call(receiver, value);
     }
-    promise._popContext();
+    var promisesCreatedDuringHandlerInvocation = promise._popContext();
 
     if (x === errorObj || x === promise) {
         var err = x === promise ? makeSelfResolutionError() : x.e;
         promise._rejectCallback(err, false, true);
     } else {
+        if (x === undefined &&
+            promisesCreatedDuringHandlerInvocation > 0 &&
+            config.longStackTraces() &&
+            config.warnings()) {
+            promise._warn("A promise was created in a handler but " +
+                "none were returned from it", true);
+        }
         promise._resolveCallback(x);
     }
 };

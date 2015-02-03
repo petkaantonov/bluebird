@@ -7,15 +7,20 @@ function Context() {
 Context.prototype._pushContext = function () {
     if (!longStackTraces()) return;
     if (this._trace !== undefined) {
+        this._trace._promisesCreated = 0;
         contextStack.push(this._trace);
     }
 };
 
 Context.prototype._popContext = function () {
-    if (!longStackTraces()) return;
+    if (!longStackTraces()) return 0;
     if (this._trace !== undefined) {
-        contextStack.pop();
+        var trace = contextStack.pop();
+        var ret = trace._promisesCreated;
+        trace._promisesCreated = 0;
+        return ret;
     }
+    return 0;
 };
 
 function createContext() {

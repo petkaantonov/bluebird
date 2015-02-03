@@ -13,6 +13,7 @@ var warn;
 function CapturedTrace(parent) {
     ASSERT(parent === undefined || parent instanceof CapturedTrace);
     this._parent = parent;
+    this._promisesCreated = 0;
     var length = this._length = 1 + (parent === undefined ? 0 : parent._length);
     captureStackTrace(this, CapturedTrace);
     // Unless the user manually nested > 32 indentation levels,
