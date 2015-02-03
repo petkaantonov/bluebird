@@ -62,7 +62,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     if (!isArray(values)) {
         var err = apiRejection(
             COLLECTION_ERROR + util.classString(values)).reason();
-        this._promise._rejectCallback(err, false, true);
+        this._promise._rejectCallback(err, false);
         return;
     }
 
@@ -118,7 +118,7 @@ PromiseArray.prototype._resolve = function (value) {
 PromiseArray.prototype._reject = function (reason) {
     ASSERT(!this._isResolved());
     this._values = null;
-    this._promise._rejectCallback(reason, false, true);
+    this._promise._rejectCallback(reason, false);
 };
 
 PromiseArray.prototype._promiseFulfilled = function (value, index) {

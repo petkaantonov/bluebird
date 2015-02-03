@@ -16,7 +16,7 @@ Promise.prototype._cancel = function (reason) {
     }
     ASSERT(promiseToReject.isCancellable());
     this._unsetCancellable();
-    promiseToReject._target()._rejectCallback(reason, false, true);
+    promiseToReject._target()._rejectCallback(reason, false);
 };
 
 Promise.prototype.cancel = function (reason) {

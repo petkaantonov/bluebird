@@ -51,7 +51,7 @@ if (canEvaluate) {
             var ret = tryCatch(handler)(this);
             promise._popContext();
             if (ret === errorObj) {
-                promise._rejectCallback(ret.e, false, true);
+                promise._rejectCallback(ret.e, false);
             } else {
                 promise._resolveCallback(ret);
             }

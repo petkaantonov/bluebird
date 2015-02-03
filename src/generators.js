@@ -53,7 +53,7 @@ PromiseSpawn.prototype._run = function () {
 
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
-        return this._promise._rejectCallback(result.e, false, true);
+        return this._promise._rejectCallback(result.e, false);
     }
 
     var value = result.value;
