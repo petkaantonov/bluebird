@@ -157,22 +157,13 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
     var getFunctionCode = typeof callback === "string"
                                 ? ("this != null ? this['"+callback+"'] : fn")
                                 : "fn";
-
-    return new Function("Promise",
-                        "fn",
-                        "receiver",
-                        "withAppended",
-                        "maybeWrapAsError",
-                        "nodebackForPromise",
-                        "tryCatch",
-                        "errorObj",
-                        "INTERNAL","'use strict';                            \n\
+    var body = "'use strict';                                                \n\
         var ret = function (Parameters) {                                    \n\
             'use strict';                                                    \n\
             var len = arguments.length;                                      \n\
             var promise = new Promise(INTERNAL);                             \n\
             promise._captureStackTrace();                                    \n\
-            var fn = nodebackForPromise(promise, " + multiArgs + ");         \n\
+            var nodeback = nodebackForPromise(promise, " + multiArgs + ");   \n\
             var ret;                                                         \n\
             var callback = tryCatch([GetFunctionCode]);                      \n\
             switch(len) {                                                    \n\
@@ -185,24 +176,32 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
         };                                                                   \n\
         ret.__isPromisified__ = true;                                        \n\
         return ret;                                                          \n\
-        "
-        .replace("Parameters", parameterDeclaration(newParameterCount))
-        .replace("[CodeForSwitchCase]", generateArgumentSwitchCase())
-        .replace("[GetFunctionCode]", getFunctionCode))(
-            Promise,
-            fn,
-            receiver,
-            withAppended,
-            maybeWrapAsError,
-            nodebackForPromise,
-            util.tryCatch,
-            util.errorObj,
-            INTERNAL
-        );
+    ".replace("[CodeForSwitchCase]", generateArgumentSwitchCase())
+        .replace("[GetFunctionCode]", getFunctionCode);
+    body = body.replace("Parameters", parameterDeclaration(newParameterCount));
+    return new Function("Promise",
+                        "fn",
+                        "receiver",
+                        "withAppended",
+                        "maybeWrapAsError",
+                        "nodebackForPromise",
+                        "tryCatch",
+                        "errorObj",
+                        "INTERNAL",
+                        body)(
+                    Promise,
+                    fn,
+                    receiver,
+                    withAppended,
+                    maybeWrapAsError,
+                    nodebackForPromise,
+                    util.tryCatch,
+                    util.errorObj,
+                    INTERNAL);
 };
 }
 
-function makeNodePromisifiedClosure(callback, receiver, _, fn, ___, multiArgs) {
+function makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {
     var defaultThis = (function() {return this;})();
     var method = callback;
     if (typeof method === "string") {
@@ -220,7 +219,7 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn, ___, multiArgs) {
         try {
             cb.apply(_receiver, withAppended(arguments, fn));
         } catch(e) {
-            promise._rejectCallback(maybeWrapAsError(e), true, true);
+            promise._rejectCallback(maybeWrapAsError(e), true);
         }
         return promise;
     }
