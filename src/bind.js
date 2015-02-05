@@ -60,6 +60,18 @@ Promise.prototype._pendingCancellationParent = function() {
     }
 };
 
+Promise.prototype._setIsBound = function () {
+    this._bitField = this._bitField | IS_BOUND;
+};
+
+Promise.prototype._unsetIsBound = function () {
+    this._bitField = this._bitField & (~IS_BOUND);
+};
+
+Promise.prototype._isBound = function () {
+    return (this._bitField & IS_BOUND) === IS_BOUND;
+};
+
 Promise.prototype._setIsMigratingBinding = function () {
     this._bitField = this._bitField | IS_MIGRATING_BINDING;
 };
@@ -73,10 +85,14 @@ Promise.prototype._isMigratingBinding = function () {
 };
 
 Promise.prototype._setBoundTo = function (obj) {
-    this._boundTo = obj;
-};
-
-Promise.prototype._isBound = function () {
-    return this._boundTo !== undefined;
+    if (obj === undefined) {
+        if (this._isBound()) {
+            this._boundTo = undefined;
+        }
+        this._unsetIsBound();
+    } else {
+        this._setIsBound();
+        this._boundTo = obj;
+    }
 };
 };

@@ -43,7 +43,6 @@ PromiseArray.prototype.promise = function () {
 PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     var values = tryConvertToPromise(this._values, this._promise);
     if (values instanceof Promise) {
-        values._setBoundTo(this._promise._boundTo);
         values = values._target();
         this._values = values;
         //Expect the promise to be a promise

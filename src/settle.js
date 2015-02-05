@@ -7,7 +7,6 @@ var util = require("./util.js");
 
 function SettledPromiseArray(values) {
     this.constructor$(values);
-    this._promise._setIsSpreadable();
 }
 util.inherits(SettledPromiseArray, PromiseArray);
 

@@ -815,36 +815,6 @@ describe("nodeback with multiple arguments", function() {
             assert.equal(c, 3);
         });
     });
-
-    specify("spreaded with thenable values should not be unwrapped", function() {
-        var a = {then: function(){}};
-        var b = a;
-        var c = a;
-        var promise = Promise.promisify(function(cb) {
-            cb(null, a, b, c);
-        })();
-
-        return promise.spread(function(a_, b_, c_) {
-            assert.equal(a_, a);
-            assert.equal(b_, b);
-            assert.equal(c_, c);
-        });
-    });
-
-    specify("spreaded with promise values should not be unwrapped", function() {
-        var a = Promise.resolve(1);
-        var b = Promise.resolve(2);
-        var c = Promise.resolve(3);
-        var promise = Promise.promisify(function(cb) {
-            cb(null, a, b, c);
-        })();
-
-        return promise.spread(function(a_, b_, c_) {
-            assert.strictEqual(a_, a);
-            assert.strictEqual(b_, b);
-            assert.strictEqual(c_, c);
-        });
-    });
 });
 
 describe("filter", function() {

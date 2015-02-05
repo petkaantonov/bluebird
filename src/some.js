@@ -20,7 +20,6 @@ SomePromiseArray.prototype._init = function () {
     if (!this._initialized) {
         return;
     }
-    this._promise._setIsSpreadable();
     if (this._howMany === 0) {
         this._resolve([]);
         return;

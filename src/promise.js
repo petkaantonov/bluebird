@@ -58,8 +58,6 @@ function Promise(resolver) {
     this._receiver0 = undefined;
     //reason for rejection or fulfilled value
     this._settledValue = undefined;
-    //for .bind
-    this._boundTo = undefined;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
 }
 
@@ -116,11 +114,7 @@ Promise.prototype.done = function (didFulfill, didReject, didProgress) {
 };
 
 Promise.prototype.spread = function (didFulfill, didReject) {
-    var followee = this._target();
-    var target = followee._isSpreadable()
-        ? (followee === this ? this : this.then())
-        : this.all();
-    return target._then(didFulfill, didReject, undefined, APPLY, undefined);
+    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {
@@ -146,9 +140,7 @@ Promise.prototype.toJSON = function () {
 };
 
 Promise.prototype.all = function () {
-    var ret = new PromiseArray(this).promise();
-    ret._setIsSpreadable();
-    return ret;
+    return new PromiseArray(this).promise();
 };
 
 Promise.prototype.error = function (fn) {
@@ -169,9 +161,7 @@ Promise.fromNode = function(fn) {
 };
 
 Promise.all = function (promises) {
-    var ret = new PromiseArray(promises).promise();
-    ret._setIsSpreadable();
-    return ret;
+    return new PromiseArray(promises).promise();
 };
 
 Promise.defer = Promise.pending = function () {
@@ -302,14 +292,6 @@ Promise.prototype._unsetCancellable = function () {
     this._bitField = this._bitField & (~IS_CANCELLABLE);
 };
 
-Promise.prototype._isSpreadable = function () {
-    return (this._bitField & IS_SPREADABLE) > 0;
-};
-
-Promise.prototype._setIsSpreadable = function () {
-    this._bitField = this._bitField | IS_SPREADABLE;
-};
-
 Promise.prototype._setIsMigrated = function () {
     this._bitField = this._bitField | IS_MIGRATED;
 };
@@ -329,7 +311,7 @@ Promise.prototype._receiverAt = function (index) {
         : this[
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
-    if (this._isBound() && ret === undefined) {
+    if (ret === undefined && this._isBound()) {
         return this._boundTo;
     }
     return ret;
@@ -564,7 +546,7 @@ Promise.prototype._propagateFrom = function (parent, flags) {
         this._setCancellable();
         this._cancellationParent = parent;
     }
-    if ((flags & PROPAGATE_BIND) > 0) {
+    if ((flags & PROPAGATE_BIND) > 0 && parent._isBound()) {
         this._setBoundTo(parent._boundTo);
     }
     ASSERT((flags & PROPAGATE_TRACE) === 0);
@@ -750,6 +732,5 @@ require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
-
 Promise.Promise = Promise;
 };
