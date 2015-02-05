@@ -671,6 +671,48 @@ describe("Custom promisifier", function() {
         });
     });
 
+    specify("Copies custom props promisifyFirst", function() {
+        var request = function(cb){
+            cb(null, 1);
+        };
+        request.get = function(cb) {
+            cb(null, 2);
+        };
+        request.post = function(cb) {
+            cb(null, 3);
+        };
+
+        request = Promise.promisifyAll(Promise.promisify(request));
+        return Promise.all([
+            request(),
+            request.getAsync(),
+            request.postAsync()
+        ]).then(function(a) {
+            assert.deepEqual([1,2,3], a);
+        });
+    });
+
+    specify("Copies custom props promisifyAll first", function() {
+        var request = function(cb){
+            cb(null, 1);
+        };
+        request.get = function(cb) {
+            cb(null, 2);
+        };
+        request.post = function(cb) {
+            cb(null, 3);
+        };
+
+        request = Promise.promisify(Promise.promisifyAll(request));
+        return Promise.all([
+            request(),
+            request.getAsync(),
+            request.postAsync()
+        ]).then(function(a) {
+            assert.deepEqual([1,2,3], a);
+        });
+    });
+
     specify("custom promisifier enhancing default promisification", function() {
         var obj = {
             a: function(cb) {

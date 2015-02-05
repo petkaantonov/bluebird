@@ -10,12 +10,18 @@ var canEvaluate = util.canEvaluate;
 var ASSERT = require("./assert.js");
 var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
+var defaultPromisified = {__isPromisified__: true};
+var noCopyPropsPattern =
+    /^(?:length|name|arguments|caller|prototype|__isPromisified__)$/;
 var defaultFilter = function(name, func) {
     return util.isIdentifier(name) &&
         name.charAt(0) !== "_" &&
         !util.isClass(func);
 };
-var defaultPromisified = {__isPromisified__: true};
+
+function propsFilter(key) {
+    return !noCopyPropsPattern.test(key);
+}
 
 function isPromisified(fn) {
     try {
@@ -286,7 +292,9 @@ Promise.promisify = function (fn, receiver) {
     if (isPromisified(fn)) {
         return fn;
     }
-    return promisify(fn, arguments.length < 2 ? THIS : receiver);
+    var ret = promisify(fn, arguments.length < 2 ? THIS : receiver);
+    util.copyDescriptors(fn, ret, propsFilter);
+    return ret;
 };
 
 Promise.promisifyAll = function (target, options) {

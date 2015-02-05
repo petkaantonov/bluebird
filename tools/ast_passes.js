@@ -319,7 +319,7 @@ function parse( src, opts, fileName) {
         return jsp.parse(src, opts);
     }
     catch(e) {
-        e.fileName = fileName;
+        e.message = e.message + " " + fileName;
         e.scriptSrc = src;
         throw e;
     }

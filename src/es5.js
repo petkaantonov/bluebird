@@ -7,6 +7,7 @@ if (isES5) {
     module.exports = {
         freeze: Object.freeze,
         defineProperty: Object.defineProperty,
+        getDescriptor: Object.getOwnPropertyDescriptor,
         keys: Object.keys,
         names: Object.getOwnPropertyNames,
         getPrototypeOf: Object.getPrototypeOf,
@@ -30,6 +31,10 @@ if (isES5) {
             }
         }
         return ret;
+    };
+
+    var ObjectGetDescriptor = function(o, key) {
+        return {value: o[key]};
     };
 
     var ObjectDefineProperty = function (o, key, desc) {
@@ -64,6 +69,7 @@ if (isES5) {
         keys: ObjectKeys,
         names: ObjectKeys,
         defineProperty: ObjectDefineProperty,
+        getDescriptor: ObjectGetDescriptor,
         freeze: ObjectFreeze,
         getPrototypeOf: ObjectGetPrototypeOf,
         isES5: isES5,
