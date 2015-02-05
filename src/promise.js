@@ -751,8 +751,5 @@ require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
 
-util.toFastProperties(Promise);
-util.toFastProperties(Promise.prototype);
 Promise.Promise = Promise;
-CapturedTrace.setBounds(async.firstLineError, util.lastLineError);
 };

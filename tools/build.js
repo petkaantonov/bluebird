@@ -43,6 +43,12 @@ var optionalModuleRequireMap = {
     "timers.js": ["cancel.js"]
 };
 
+var lastLineCode = "                                                         \n\
+    util.toFastProperties(Promise);                                          \n\
+    util.toFastProperties(Promise.prototype);                                \n\
+    CapturedTrace.setBounds(async.firstLineError, util.lastLineError);       \n\
+    return Promise;                                                          \n\
+";
 
 function getOptionalRequireCode(srcs) {
     return srcs.sort(function(a, b) {
@@ -60,7 +66,7 @@ function getOptionalRequireCode(srcs) {
             ret += "require('./"+cur.sourceFileName+"')("+ cur.deps.join(", ") +");\n";
         }
         return ret;
-    }, "") + "\nPromise.prototype = Promise.prototype;\nreturn Promise;\n";
+    }, "") +  lastLineCode;
 }
 
 function getBrowserBuildHeader(sources, npmPackage) {
