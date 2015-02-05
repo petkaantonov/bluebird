@@ -75,7 +75,6 @@ describe("when calling promisified function it should ", function(){
         var c = successMulti(1,2,3);
 
         var calls = 0;
-
         assert.equal(a.isPending(), true);
         assert.equal(b.isPending(), true);
         assert.equal(c.isPending(), true);
@@ -203,7 +202,6 @@ describe("with more than 5 arguments", function(){
     }
 
     var prom = Promise.promisify(o.f, o);
-
     specify("receiver should still work", function() {
         return prom(1,2,3,4,5,6,7).then(function(val){
             assert.deepEqual(
@@ -282,7 +280,6 @@ describe("promisify on objects", function(){
         var a = new Test(15);
         var b = new Test(30);
         var c = new Test(45);
-
         return Promise.all([
             a.getAsync(1, 2, 3).then(function(result){
                 assert.deepEqual(result, [1, 2, 3, 15]);
@@ -675,8 +672,9 @@ describe("Custom promisifier", function() {
         var request = function(cb){
             cb(null, 1);
         };
+        request.zero = 0;
         request.get = function(cb) {
-            cb(null, 2);
+            cb(null, 2 + this.zero);
         };
         request.post = function(cb) {
             cb(null, 3);
@@ -696,8 +694,9 @@ describe("Custom promisifier", function() {
         var request = function(cb){
             cb(null, 1);
         };
+        request.zero = 0;
         request.get = function(cb) {
-            cb(null, 2);
+            cb(null, 2 + this.zero);
         };
         request.post = function(cb) {
             cb(null, 3);
@@ -708,6 +707,30 @@ describe("Custom promisifier", function() {
             request(),
             request.getAsync(),
             request.postAsync()
+        ]).then(function(a) {
+            assert.deepEqual([1,2,3], a);
+        });
+    });
+
+    specify("Copies custom props no this", function() {
+        var request = function(cb){
+            cb(null, 1);
+        };
+        request.zero = 0;
+        request.get = function(cb) {
+            cb(null, 2);
+        };
+        request.post = function(cb) {
+            cb(null, 3);
+        };
+
+        request = Promise.promisify(Promise.promisifyAll(request));
+        var getAsync = request.getAsync;
+        var postAsync = request.postAsync;
+        return Promise.all([
+            request(),
+            getAsync(),
+            postAsync()
         ]).then(function(a) {
             assert.deepEqual([1,2,3], a);
         });
@@ -753,7 +776,6 @@ describe("Custom promisifier", function() {
 describe("OperationalError wrapping", function() {
 
     var CustomError = function(){
-
     }
     CustomError.prototype = new Error();
     CustomError.prototype.constructor = CustomError;
