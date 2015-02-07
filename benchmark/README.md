@@ -11,31 +11,39 @@
     ├── rsvp@3.0.16
     ├── vow@0.4.7
     └── when@3.6.4
+    ├── rx@2.3.25
+    ├── co@4.2.0
+    ├── baconjs@0.7.43
+    ├── highland@2.3.0
 
 bench doxbee-sequential
 
     results for 10000 parallel executions, 1 ms per I/O op
 
-    file                                 time(ms)  memory(MB)
-    callbacks-baseline.js                     191       19.63
-    promises-bluebird-generator.js            201       19.45
-    promises-bluebird.js                      339       29.64
-    promises-tildeio-rsvp.js                  402       43.38
-    promises-cujojs-when.js                   404       33.25
-    promises-dfilatov-vow.js                  507       60.30
-    promises-lvivski-davy.js                  596       57.84
-    callbacks-caolan-async-waterfall.js       679       45.46
-    promises-calvinmetcalf-lie.js             685       65.23
-    promises-ecmascript6-native.js           1426      103.78
-    promises-obvious-kew.js                  1563      104.78
-    promises-then-promise.js                 1565      107.13
-    promises-medikoo-deferred.js             2271      137.44
-    promises-kriskowal-q.js                 20496      439.68
+    file                                     time(ms)  memory(MB)
+    callbacks-baseline.js                         232       35.86
+    promises-bluebird-generator.js                235       38.04
+    promises-bluebird.js                          335       52.08
+    promises-cujojs-when.js                       405       75.77
+    promises-tildeio-rsvp.js                      468       87.56
+    promises-dfilatov-vow.js                      578      125.98
+    callbacks-caolan-async-waterfall.js           634       88.64
+    promises-lvivski-davy.js                      653      109.64
+    promises-calvinmetcalf-lie.js                 732      165.41
+    promises-obvious-kew.js                      1346      261.69
+    promises-ecmascript6-native.js               1348      189.29
+    generators-tj-co.js                          1419      164.03
+    promises-then-promise.js                     1571      294.45
+    promises-medikoo-deferred.js                 2091      262.18
+    observables-Reactive-Extensions-RxJS.js      3201      356.76
+    observables-caolan-highland.js               7429      616.78
+    promises-kriskowal-q.js                      9952      694.23
+    observables-baconjs-bacon.js.js             25805      885.55
 
     Platform info:
-    Windows_NT 6.1.7601 ia32
-    Node.JS 0.11.14
-    V8 3.26.33
+    Windows_NT 6.1.7601 x64
+    Node.JS 1.1.0
+    V8 4.1.0.14
     Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
 
 bench parallel (`--p 25`)
