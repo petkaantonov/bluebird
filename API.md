@@ -2017,7 +2017,7 @@ Using ECMAScript6 generators feature to implement C# 5.0 `async/await` like synt
 
 #####`Promise.coroutine(GeneratorFunction generatorFunction)` -> `Function`
 
-Returns a function that can use `yield` to yield promises. Control is returned back to the generator when the yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch.
+Returns a function that can use `yield` to yield promises. Control is returned back to the generator when the yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Node version greater than `0.11.2` is required and needs to be executed with the `--harmony-generators` (or `--harmony`) command-line switch. All io.js versions are directly supported.
 
 ```js
 var Promise = require("bluebird");
