@@ -1,3 +1,11 @@
+## 2.9.7 (2015-02-08)
+
+Bugfixes:
+
+ - Fix `promisify` not retaining custom properties of the function. This enables promisifying the `"request"` module's export function and its methods at the same time.
+ - Fix `promisifyAll` methods being dependent on `this` when they are not originally dependent on `this`. This enables e.g. passing promisified `fs` functions directly as callbacks without having to bind them to `fs`.
+ - Fix `process.nextTick` being used over `setImmediate` in node.
+
 ## 2.9.6 (2015-02-02)
 
 Bugfixes:
