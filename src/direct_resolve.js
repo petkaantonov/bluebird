@@ -20,4 +20,26 @@ Promise.prototype.thenThrow = function (reason) {
     if (!es5) reason = {reason: reason};
     return this._then(thrower, undefined, undefined, reason, undefined);
 };
+
+Promise.prototype.catchThrow = function (reason) {
+    if (arguments.length === 1) {
+        if (!es5) reason = {reason: reason};
+        return this._then(undefined, thrower, undefined, reason, undefined);
+    } else {
+        var _reason = arguments[1];
+        var handler = function() {throw _reason;};
+        return this.caught(reason, handler);
+    }
+};
+
+Promise.prototype.catchReturn = function (value) {
+    if (arguments.length === 1) {
+        if (!es5) value = {value: value};
+        return this._then(undefined, returner, undefined, value, undefined);
+    } else {
+        var _value = arguments[1];
+        var handler = function() {return _value;};
+        return this.caught(value, handler);
+    }
+};
 };
