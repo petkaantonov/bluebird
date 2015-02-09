@@ -59,9 +59,8 @@ describe("done", function () {
                         }
                     );
 
-                    return testUtils.awaitGlobalException(function(e) {
+                    return testUtils.awaitProcessExit(function(e) {
                         assert.equal(turn,1);
-                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                     });
                 });
@@ -105,9 +104,8 @@ describe("done", function () {
                             throw safeError;
                         }
                     );
-                    return testUtils.awaitGlobalException(function(e) {
+                    return testUtils.awaitProcessExit(function(e) {
                         assert.equal(turn,1);
-                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                     });
                 });
@@ -122,9 +120,8 @@ describe("done", function () {
                     });
 
                     var returnValue = Promise.reject(safeError).done();
-                    return testUtils.awaitGlobalException(function(e) {
+                    return testUtils.awaitProcessExit(function(e) {
                         assert.equal(turn,1);
-                        assert.equal(e, safeError);
                         assert.equal(returnValue,undefined);
                     });
                 });

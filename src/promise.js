@@ -683,14 +683,7 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
 
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
-        async.throwLater(function(e) {
-            if ("stack" in e) {
-                async.invokeFirst(
-                    CapturedTrace.unhandledRejection, undefined, e);
-            }
-            throw e;
-        }, trace === undefined ? reason : trace);
-        return;
+        return async.fatalError(reason, trace, util.isNode);
     }
 
     if (trace !== undefined && trace !== reason) {

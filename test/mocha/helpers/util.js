@@ -31,6 +31,28 @@ module.exports = {
         }
     },
 
+    awaitProcessExit: function(fn) {
+        if (typeof process !== "undefined" && typeof process.execPath === "string") {
+            var exit;
+            return new Promise(function(resolve, reject) {
+                exit = process.exit;
+                process.exit = function(code) {
+                    try {
+                        assert(code != 0);
+                        fn();
+                        resolve();
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+            }).lastly(function() {
+                process.exit = exit;
+            });
+        } else {
+            return Promise.delay(1);
+        }
+    },
+
     addDeferred: function(Promise) {
         Promise.defer = Promise.pending = function() {
             var ret = {};

@@ -21,6 +21,16 @@ Async.prototype.haveItemsQueued = function () {
     return this._normalQueue.length() > 0;
 };
 
+Async.prototype.fatalError = function(e, trace, isNode) {
+    var stack = trace !== undefined && trace !== e ? trace.stack : e.stack;
+    if (isNode) {
+        process.stderr.write("Fatal " + stack);
+        process.exit(2);
+    } else {
+        this.throwLater(e);
+    }
+};
+
 // Must be used if fn can throw
 Async.prototype.throwLater = function(fn, arg) {
     if (arguments.length === 1) {
