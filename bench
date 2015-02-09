@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-./build --main --no-debug
+./build --release --no-debug
 benchmark=$1
 nodepath=${2:-node}
 shift 2;

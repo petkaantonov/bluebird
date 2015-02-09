@@ -21,7 +21,7 @@
     "lint": "node scripts/jshint.js",
     "test": "node tools/test.js",
     "istanbul": "istanbul",
-    "prepublish": "node tools/build.js --no-debug --main --browser --minify"
+    "prepublish": "node tools/build.js --no-debug --release --browser --minify"
   },
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
@@ -63,11 +63,11 @@
     "uglify-js": "~2.4.16"
   },
   "readmeFilename": "README.md",
-  "main": "./js/main/bluebird.js",
+  "main": "./js/release/bluebird.js",
   "browser": "./js/browser/bluebird.js",
   "files": [
     "js/browser",
-    "js/main",
+    "js/release",
     "LICENSE"
   ]
 }

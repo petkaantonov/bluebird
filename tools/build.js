@@ -137,7 +137,7 @@ function ensureDirectory(dir, isUsed) {
     });
 }
 
-function buildMain(sources, depsRequireCode, dir) {
+function buildRelease(sources, depsRequireCode, dir) {
     return dir.then(function(dir) {
         return Promise.map(sources, function(source) {
             return jobRunner.run(function() {
@@ -268,7 +268,7 @@ if (path.basename(root).toLowerCase() !== "bluebird") {
         "         " + process.cwd() + "\n");
 }
 var dirs = {
-    main: path.join(root, "js", "main"),
+    release: path.join(root, "js", "release"),
     debug: path.join(root, "js", "debug"),
     browser: path.join(root, "js", "browser"),
     browserTmp: path.join(root, "js", "tmp"),
@@ -280,7 +280,7 @@ function build(options) {
     var npmPackage = fs.readFileAsync("./package.json").then(JSON.parse);
     var sourceFileNames = getSourcePaths(options.features);
     var license = utils.getLicense();
-    var mainDir = ensureDirectory(dirs.main, options.main);
+    var releaseDir = ensureDirectory(dirs.release, options.release);
     var debugDir = ensureDirectory(dirs.debug, options.debug);
     var browserDir = ensureDirectory(dirs.browser, options.browser);
     var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser);
@@ -312,15 +312,15 @@ function build(options) {
         });
     }).then(function(results) {
         var depsRequireCode = getOptionalRequireCode(results);
-        var main, debug, browser;
-        if (options.main)
-            main = buildMain(results, depsRequireCode, mainDir);
+        var release, debug, browser;
+        if (options.release)
+            release = buildRelease(results, depsRequireCode, releaseDir);
         if (options.debug)
             debug = buildDebug(results, depsRequireCode, debugDir);
         if (options.browser)
             browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, npmPackage, license);
 
-        return Promise.all([main, debug, browser]);
+        return Promise.all([release, debug, browser]);
     });
 }
 
@@ -336,7 +336,7 @@ if (require.main === module) {
         minify: browser && (typeof argv.minify !== "boolean" ? true : argv.minify),
         browser: browser,
         debug: !!argv.debug,
-        main: !!argv.main,
+        release: !!argv.release,
         features: argv.features || null
     });
 }

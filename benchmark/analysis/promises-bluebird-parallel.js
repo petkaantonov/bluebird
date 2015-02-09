@@ -1,7 +1,7 @@
 global.useBluebird = true;
 global.useQ = false;
 global.parallelQueries = 25;
-var Promise = require('../../js/main/bluebird.js');
+var Promise = require('../../js/release/bluebird.js');
 require('../lib/fakesP');
 
 module.exports = function upload(stream, idOrPath, tag, done) {
