@@ -21,7 +21,7 @@
     "lint": "node scripts/jshint.js",
     "test": "node tools/test.js",
     "istanbul": "istanbul",
-    "prepublish": "node tools/build.js --no-debug --main --zalgo --browser --minify"
+    "prepublish": "node tools/build.js --no-debug --main --browser --minify"
   },
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
@@ -68,8 +68,6 @@
   "files": [
     "js/browser",
     "js/main",
-    "js/zalgo",
-    "LICENSE",
-    "zalgo.js"
+    "LICENSE"
   ]
 }

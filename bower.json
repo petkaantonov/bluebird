@@ -13,7 +13,6 @@
     "benchmark",
     "bower_components",
     "./browser",
-    "js/zalgo",
     "node_modules",
     "test"
   ],

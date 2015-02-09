@@ -189,33 +189,6 @@ function buildDebug(sources, depsRequireCode, dir) {
     });
 }
 
-function buildZalgo(sources, depsRequireCode, dir) {
-    return dir.then(function(dir) {
-        return Promise.map(sources, function(source) {
-            return jobRunner.run(function() {
-                var code = source.source;
-                var sourceFileName = source.sourceFileName;
-                code = astPasses.removeAsserts(code, sourceFileName);
-                code = astPasses.inlineExpansion(code, sourceFileName);
-                code = astPasses.expandConstants(code, sourceFileName);
-                code = astPasses.asyncConvert(code, "async", "invoke", sourceFileName);
-                code = code.replace( /__DEBUG__/g, "false" );
-                code = code.replace( /__BROWSER__/g, "false" );
-                if (sourceFileName === "promise.js") {
-                    code = applyOptionalRequires(code, depsRequireCode);
-                }
-                return fs.writeFileAsync(path.join(root, sourceFileName), code);
-            }, {
-                context: {
-                    depsRequireCode: depsRequireCode,
-                    source: source,
-                    root: dir
-                }
-            });
-        });
-    });
-}
-
 function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage, license) {
     return Promise.join(dir, tmpDir, npmPackage, license, function(dir, tmpDir, npmPackage, license) {
         return Promise.map(sources, function(source) {
@@ -297,7 +270,6 @@ if (path.basename(root).toLowerCase() !== "bluebird") {
 var dirs = {
     main: path.join(root, "js", "main"),
     debug: path.join(root, "js", "debug"),
-    zalgo: path.join(root, "js", "zalgoDir"),
     browser: path.join(root, "js", "browser"),
     browserTmp: path.join(root, "js", "tmp"),
     instrumented: path.join(root, "js", "instrumented"),
@@ -310,7 +282,6 @@ function build(options) {
     var license = utils.getLicense();
     var mainDir = ensureDirectory(dirs.main, options.main);
     var debugDir = ensureDirectory(dirs.debug, options.debug);
-    var zalgoDir = ensureDirectory(dirs.zalgo, options.zalgo);
     var browserDir = ensureDirectory(dirs.browser, options.browser);
     var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser);
     return license.then(function(license) {
@@ -341,17 +312,15 @@ function build(options) {
         });
     }).then(function(results) {
         var depsRequireCode = getOptionalRequireCode(results);
-        var main, debug, zalgo, browser;
+        var main, debug, browser;
         if (options.main)
             main = buildMain(results, depsRequireCode, mainDir);
         if (options.debug)
             debug = buildDebug(results, depsRequireCode, debugDir);
-        if (options.zalgo)
-            zalgo = buildZalgo(results, depsRequireCode, zalgoDir);
         if (options.browser)
             browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, npmPackage, license);
 
-        return Promise.all([main, debug, zalgo, browser]);
+        return Promise.all([main, debug, browser]);
     });
 }
 
@@ -368,7 +337,6 @@ if (require.main === module) {
         browser: browser,
         debug: !!argv.debug,
         main: !!argv.main,
-        zalgo: !!argv.zalgo,
         features: argv.features || null
     });
 }

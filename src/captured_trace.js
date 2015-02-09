@@ -4,7 +4,7 @@ var async = require("./async.js");
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var bluebirdFramePattern =
-    /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo|instrumented)/;
+    /[\\\/]bluebird[\\\/]js[\\\/](main|debug|instrumented)/;
 var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
