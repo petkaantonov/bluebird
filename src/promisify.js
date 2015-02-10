@@ -204,7 +204,9 @@ function(callback, receiver, originalName, fn) {
 }
 
 function makeNodePromisifiedClosure(callback, receiver, _, fn) {
-    if (typeof callback === "string") {
+    var defaultThis = (function() {return this;})();
+    var method = callback;
+    if (typeof method === "string") {
         callback = fn;
     }
     function promisified() {
@@ -213,9 +215,11 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn) {
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
         promise._captureStackTrace();
+        var cb = typeof method === "string" && this !== defaultThis
+            ? this[method] : callback;
         var fn = nodebackForPromise(promise);
         try {
-            callback.apply(_receiver, withAppended(arguments, fn));
+            cb.apply(_receiver, withAppended(arguments, fn));
         } catch(e) {
             promise._rejectCallback(maybeWrapAsError(e), true, true);
         }
