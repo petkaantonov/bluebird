@@ -91,7 +91,7 @@ CONSTANT(QUEUE_MIN_CAPACITY, 16);
 CONSTANT(FROM_PREVIOUS_EVENT, "From previous event:");
 CONSTANT(NO_STACK_TRACE, "    (No stack trace)");
 CONSTANT(ADDITIONAL_STACK_TRACE, "^--- With additional stack trace: ");
-CONSTANT(UNHANDLED_REJECTION_HEADER, "Possibly unhandled ");
+CONSTANT(UNHANDLED_REJECTION_HEADER, "Unhandled rejection ");
 
 //direct_resolve.js
 CONSTANT(THROW, 1);

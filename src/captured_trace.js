@@ -8,6 +8,7 @@ var bluebirdFramePattern =
 var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
+var warn;
 
 function CapturedTrace(parent) {
     ASSERT(parent === undefined || parent instanceof CapturedTrace);
@@ -199,7 +200,7 @@ CapturedTrace.parseStackAndMessage = function(error) {
 };
 
 CapturedTrace.formatAndLogError = function(error, title) {
-    if (typeof console === "object") {
+    if (typeof console !== "undefined") {
         var message;
         if (typeof error === "object" || typeof error === "function") {
             var stack = error.stack;
@@ -207,9 +208,8 @@ CapturedTrace.formatAndLogError = function(error, title) {
         } else {
             message = title + String(error);
         }
-        if (typeof console.warn === "function" ||
-            typeof console.warn === "object") {
-            console.warn(message);
+        if (typeof warn === "function") {
+            warn(message);
         } else if (typeof console.log === "function" ||
             typeof console.log === "object") {
             console.log(message);
@@ -498,6 +498,21 @@ var fireGlobalEvent = (function() {
         };
     }
 })();
+
+if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
+    warn = function (message) {
+        console.warn(message);
+    };
+    if (util.isNode && process.stdout.isTTY) {
+        warn = function(message) {
+            console.warn("\u001b[31m" + message + "\u001b[39m");
+        };
+    } else if (!util.isNode && typeof (new Error().stack) === "string") {
+        warn = function(message) {
+            console.warn("%c" + message, "color: red");
+        };
+    }
+}
 
 return CapturedTrace;
 };
