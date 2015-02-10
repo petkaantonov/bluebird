@@ -111,14 +111,12 @@ var parameterCount = function(fn) {
     return 0;
 };
 
-var decompile = parameterCount.toString;
 makeNodePromisifiedEval =
 function(callback, receiver, originalName, fn) {
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
-    var shouldProxyThis = /\bthis\b/.test(decompile.call(fn)) &&
-        (typeof callback === "string" || receiver === THIS);
+    var shouldProxyThis = typeof callback === "string" || receiver === THIS;
 
     function generateCallForArgumentCount(count) {
         var args = argumentSequence(count).join(", ");
@@ -157,6 +155,10 @@ function(callback, receiver, originalName, fn) {
         return ret;
     }
 
+    var getFunctionCode = typeof callback === "string"
+                                ? ("this != null ? this['"+callback+"'] : fn")
+                                : "fn";
+
     return new Function("Promise",
                         "fn",
                         "receiver",
@@ -173,7 +175,7 @@ function(callback, receiver, originalName, fn) {
             promise._captureStackTrace();                                    \n\
             var nodeback = nodebackForPromise(promise);                      \n\
             var ret;                                                         \n\
-            var callback = tryCatch(fn);                                     \n\
+            var callback = tryCatch([GetFunctionCode]);                      \n\
             switch(len) {                                                    \n\
                 [CodeForSwitchCase]                                          \n\
             }                                                                \n\
@@ -186,7 +188,8 @@ function(callback, receiver, originalName, fn) {
         return ret;                                                          \n\
         "
         .replace("Parameters", parameterDeclaration(newParameterCount))
-        .replace("[CodeForSwitchCase]", generateArgumentSwitchCase()))(
+        .replace("[CodeForSwitchCase]", generateArgumentSwitchCase())
+        .replace("[GetFunctionCode]", getFunctionCode))(
             Promise,
             fn,
             receiver,

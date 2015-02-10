@@ -362,6 +362,20 @@ describe("promisify on objects", function(){
         });
     });
 
+    specify("Should lookup method dynamically if 'this' is given", function() {
+        var obj = {
+            fn: function(cb) {
+                cb(null, 1);
+            }
+        };
+        Promise.promisifyAll(obj);
+        obj.fn = function(cb) {
+            cb(null, 2);
+        };
+        return obj.fnAsync().then(function(val) {
+            assert.strictEqual(2, val);
+        });
+    });
 
     specify("gh335", function() {
         function HasArgs() { }
