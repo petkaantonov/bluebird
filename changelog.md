@@ -1,3 +1,9 @@
+## 2.9.8 (2015-02-10)
+
+Bugfixes:
+
+ - Fix regression introduced in 2.9.7 where promisify didn't properly dynamically look up methods on `this`
+
 ## 2.9.7 (2015-02-08)
 
 Bugfixes:
