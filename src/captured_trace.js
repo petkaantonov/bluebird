@@ -503,9 +503,9 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
     warn = function (message) {
         console.warn(message);
     };
-    if (util.isNode && process.stdout.isTTY) {
+    if (util.isNode && process.stderr.isTTY) {
         warn = function(message) {
-            console.warn("\u001b[31m" + message + "\u001b[39m");
+            process.stderr.write("\u001b[31m" + message + "\u001b[39m\n");
         };
     } else if (!util.isNode && typeof (new Error().stack) === "string") {
         warn = function(message) {
