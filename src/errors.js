@@ -1,5 +1,6 @@
 "use strict";
-var Objectfreeze = require("./es5.js").freeze;
+var es5 = require("./es5.js");
+var Objectfreeze = es5.freeze;
 var util = require("./util.js");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
@@ -42,7 +43,12 @@ for (var i = 0; i < methods.length; ++i) {
     }
 }
 
-AggregateError.prototype.length = 0;
+es5.defineProperty(AggregateError.prototype, "length", {
+    value: 0,
+    configurable: false,
+    writable: true,
+    enumerable: true
+});
 AggregateError.prototype[OPERATIONAL_ERROR_KEY] = true;
 var level = 0;
 AggregateError.prototype.toString = function() {
