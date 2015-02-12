@@ -439,6 +439,11 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
 Promise.prototype._rejectCallback = function(reason, synchronous) {
     var trace = util.ensureErrorObject(reason);
     var hasStack = trace === reason;
+    if (!hasStack && config.warnings()) {
+        var message = "A promise was rejected with a non-error: " +
+            util.classString(reason);
+        this._warn(message, true);
+    }
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
     this._reject(reason, hasStack ? undefined : trace);
 };
