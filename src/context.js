@@ -35,7 +35,7 @@ function peekContext() {
     return undefined;
 }
 
-Promise.prototype._peekContext = peekContext;
+Promise._peekContext = Promise.prototype._peekContext = peekContext;
 Promise.prototype._pushContext = Context.prototype._pushContext;
 Promise.prototype._popContext = Context.prototype._popContext;
 

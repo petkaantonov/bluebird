@@ -112,12 +112,21 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
 };
 
 Promise.prototype._warn = function(message, shouldUseOwnTrace) {
+    return Promise._warn(message, shouldUseOwnTrace, this);
+};
+
+Promise._deprecated = function(name) {
+    return Promise._warn(name +
+        " is deprecated and will be removed in a future version");
+};
+
+Promise._warn = function(message, shouldUseOwnTrace, promise) {
     if (!config.warnings) return;
     var warning = new Warning(message);
     var ctx;
     if (shouldUseOwnTrace) {
-        this._attachExtraTrace(warning);
-    } else if (config.longStackTraces && (ctx = this._peekContext())) {
+        promise._attachExtraTrace(warning);
+    } else if (config.longStackTraces && (ctx = Promise._peekContext())) {
         ctx.attachExtraTrace(warning);
     } else {
         var parsed = CapturedTrace.parseStackAndMessage(warning);
