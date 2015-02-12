@@ -1,3 +1,9 @@
+## 2.9.9 (2015-02-12)
+
+Bugfixes:
+
+ - Fix `TypeError: Cannot assign to read only property 'length'` when jsdom has declared a read-only length for all objects to inherit.
+
 ## 2.9.8 (2015-02-10)
 
 Bugfixes:
