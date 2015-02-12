@@ -132,7 +132,7 @@ Promise._warn = function(message, shouldUseOwnTrace, promise) {
         var parsed = CapturedTrace.parseStackAndMessage(warning);
         warning.stack = parsed.message + "\n" + parsed.stack.join("\n");
     }
-    CapturedTrace.formatAndLogError(warning, "");
+    CapturedTrace.formatAndLogError(warning, "", true);
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {

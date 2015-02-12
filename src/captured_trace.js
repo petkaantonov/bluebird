@@ -192,7 +192,7 @@ CapturedTrace.parseStackAndMessage = function(error) {
     };
 };
 
-CapturedTrace.formatAndLogError = function(error, title) {
+CapturedTrace.formatAndLogError = function(error, title, isSoft) {
     if (typeof console !== "undefined") {
         var message;
         if (typeof error === "object" || typeof error === "function") {
@@ -202,7 +202,7 @@ CapturedTrace.formatAndLogError = function(error, title) {
             message = title + String(error);
         }
         if (typeof warn === "function") {
-            warn(message);
+            warn(message, isSoft);
         } else if (typeof console.log === "function" ||
             typeof console.log === "object") {
             console.log(message);
@@ -497,12 +497,14 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
         console.warn(message);
     };
     if (util.isNode && process.stderr.isTTY) {
-        warn = function(message) {
-            process.stderr.write("\u001b[31m" + message + "\u001b[39m\n");
+        warn = function(message, isSoft) {
+            var color = isSoft ? "\u001b[38;5;209m" : "\u001b[31m";
+            process.stderr.write(color + message + "\u001b[0m\n");
         };
     } else if (!util.isNode && typeof (new Error().stack) === "string") {
-        warn = function(message) {
-            console.warn("%c" + message, "color: red");
+        warn = function(message, isSoft) {
+            console.warn("%c" + message,
+                        isSoft ? "color: darkorange" : "color: red");
         };
     }
 }
