@@ -470,10 +470,6 @@ Promise.prototype._resolveFromResolver = function (resolver) {
         if (r === errorObj && promise !== null) {
             promise._rejectCallback(r.e, true);
             promise = null;
-        } else if (config.warnings()) {
-            this._warn("the Promise constructor ignores return values but " +
-                            util.classString(r) +
-                            " was returned to it");
         }
     }
 };
