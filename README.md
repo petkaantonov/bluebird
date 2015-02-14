@@ -223,7 +223,7 @@ Also promises don't just give you correspondences for synchronous features but c
 
 More reading:
 
- - [Promise nuggets](http://spion.github.io/promise-nuggets/)
+ - [Promise nuggets](https://promise-nuggets.github.io/)
  - [Why I am switching to promises](http://spion.github.io/posts/why-i-am-switching-to-promises.html)
  - [What is the the point of promises](http://domenic.me/2012/10/14/youre-missing-the-point-of-promises/#toc_1)
  - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
