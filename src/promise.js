@@ -27,10 +27,10 @@ var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
 var CapturedTrace = require("./captured_trace.js")();
-var config = require("./debuggability.js")(Promise, CapturedTrace);
+var debug = require("./debuggability.js")(Promise, CapturedTrace);
  /*jshint unused:false*/
 var createContext =
-    require("./context.js")(Promise, CapturedTrace, config.longStackTraces);
+    require("./context.js")(Promise, CapturedTrace, debug.longStackTraces);
 var catchFilter = require("./catch_filter.js")();
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
@@ -89,7 +89,7 @@ Promise.prototype.reflect = function () {
 };
 
 Promise.prototype.then = function (didFulfill, didReject) {
-    if (config.warnings() && arguments.length > 0 &&
+    if (debug.warnings() && arguments.length > 0 &&
         typeof didFulfill !== "function" &&
         typeof didReject !== "function") {
         var msg = ".then() only accepts functions but was passed: " +
@@ -500,8 +500,8 @@ Promise.prototype._settlePromiseFromHandler = function (
     } else {
         if (x === undefined &&
             promisesCreatedDuringHandlerInvocation > 0 &&
-            config.longStackTraces() &&
-            config.warnings()) {
+            debug.longStackTraces() &&
+            debug.warnings()) {
             promise._warn("A promise was created in a handler but " +
                 "none were returned from it", true);
         }
@@ -704,6 +704,16 @@ Promise.prototype._settlePromises = function () {
     for (var i = 0; i < len; i++) {
         this._settlePromiseAt(i);
     }
+};
+
+Promise.defer = function() {
+    debug.deprecated("Promise.defer");
+    var promise = new Promise(INTERNAL)
+    return {
+        promise: promise,
+        resolve: promise._resolveCallback,
+        reject: promise._rejectCallback
+    };
 };
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;

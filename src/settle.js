@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-    function(Promise, PromiseArray) {
+    function(Promise, PromiseArray, debug) {
 var ASSERT = require("./assert.js");
 var PromiseInspection = Promise.PromiseInspection;
 var util = require("./util.js");
@@ -39,7 +39,7 @@ SettledPromiseArray.prototype._promiseRejected = function (reason, index) {
 };
 
 Promise.settle = function (promises) {
-    Promise._deprecated("settle");
+    debug.deprecated(".settle()");
     return new SettledPromiseArray(promises).promise();
 };
 
