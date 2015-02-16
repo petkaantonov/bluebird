@@ -440,7 +440,7 @@ Promise.prototype._rejectCallback = function(reason, synchronous) {
     var trace = util.ensureErrorObject(reason);
     var hasStack = trace === reason;
     if (!hasStack && config.warnings()) {
-        var message = "A promise was rejected with a non-error: " +
+        var message = "a promise was rejected with a non-error: " +
             util.classString(reason);
         this._warn(message, true);
     }

@@ -4,7 +4,7 @@ var util = require("./util.js");
 var errorObj = util.errorObj;
 
 function succeed() {
-    return finallyHandler.call(this, this.promise._settledValue);
+    return finallyHandler.call(this, this.promise._target()._settledValue);
 }
 function fail(reason) {
     errorObj.e = reason;

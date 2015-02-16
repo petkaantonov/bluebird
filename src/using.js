@@ -4,20 +4,8 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
     var util = require("./util.js");
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
-    var PromiseInspection = Promise.PromiseInspection;
-
-    function inspectionMapper(inspections) {
-        var len = inspections.length;
-        for (var i = 0; i < len; ++i) {
-            var inspection = inspections[i];
-            if (inspection.isRejected()) {
-                // Cheaper than throwing
-                return Promise.reject(inspection.error());
-            }
-            inspections[i] = inspection._settledValue;
-        }
-        return inspections;
-    }
+    var errorObj = util.errorObj;
+    var tryCatch = util.tryCatch;
 
     function thrower(e) {
         setTimeout(function(){throw e;}, 0);
@@ -33,12 +21,12 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         }
         return maybePromise;
     }
-    function dispose(resources, inspection, value) {
+    function dispose(resources, inspection) {
         var i = 0;
         var len = resources.length;
         var ret = new Promise(INTERNAL);
         function iterator() {
-            if (i >= len) return ret._fulfill(value);
+            if (i >= len) return ret._fulfill();
             var maybePromise = castPreservingDisposable(resources[i++]);
             if (maybePromise instanceof Promise &&
                 maybePromise._isDisposable()) {
@@ -58,20 +46,6 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         }
         iterator();
         return ret;
-    }
-
-    function disposerSuccess(value) {
-        var inspection = new PromiseInspection();
-        inspection._settledValue = value;
-        inspection._bitField = IS_FULFILLED;
-        return dispose(this, inspection, value);
-    }
-
-    function disposerFail(reason) {
-        var inspection = new PromiseInspection();
-        inspection._settledValue = reason;
-        inspection._bitField = IS_REJECTED;
-        return dispose(this, inspection).thenThrow(reason);
     }
 
     function Disposer(data, promise, context) {
@@ -160,20 +134,31 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             resources[i] = resource;
         }
 
-        var promise = Promise.settle(resources)
-            .then(inspectionMapper)
-            .then(function(vals) {
-                promise._pushContext();
-                var ret;
-                try {
-                    ret = fn.apply(undefined, vals);
-                } finally {
-                    promise._popContext();
+        var reflectedResources = new Array(resources.length);
+        for (var i = 0; i < reflectedResources.length; ++i) {
+            reflectedResources[i] = Promise.resolve(resources[i]).reflect();
+        }
+
+        var resultPromise = Promise.all(reflectedResources)
+            .then(function(inspections) {
+                for (var i = 0; i < inspections.length; ++i) {
+                    var inspection = inspections[i];
+                    if (inspection.isRejected()) {
+                        errorObj.e = inspection.error();
+                        return errorObj;
+                    }
+                    inspections[i] = inspection._settledValue;
                 }
+                promise._pushContext();
+                var ret = tryCatch(fn).apply(undefined, inspections);
+                promise._popContext();
                 return ret;
-            })
-            ._then(
-                disposerSuccess, disposerFail, undefined, resources, undefined);
+            });
+
+        var promise = resultPromise.lastly(function() {
+            var inspection = new Promise.PromiseInspection(resultPromise);
+            return dispose(resources, inspection);
+        });
         resources.promise = promise;
         return promise;
     };
