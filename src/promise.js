@@ -26,8 +26,8 @@ var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
-var CapturedTrace = require("./captured_trace.js")();
-var debug = require("./debuggability.js")(Promise, CapturedTrace);
+var debug = require("./debuggability.js")(Promise);
+var CapturedTrace = debug.CapturedTrace;
  /*jshint unused:false*/
 var createContext =
     require("./context.js")(Promise, CapturedTrace, debug.longStackTraces);
@@ -708,7 +708,7 @@ Promise.prototype._settlePromises = function () {
 
 Promise.defer = function() {
     debug.deprecated("Promise.defer");
-    var promise = new Promise(INTERNAL)
+    var promise = new Promise(INTERNAL);
     return {
         promise: promise,
         resolve: promise._resolveCallback,
