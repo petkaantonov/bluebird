@@ -464,10 +464,9 @@ function(reason, synchronous, shouldNotMarkOriginatingFromRejection) {
         util.markAsOriginatingFromRejection(reason);
     }
     var trace = util.ensureErrorObject(reason);
-    var hasStack = util.canAttachTrace(reason) &&
-        typeof trace.stack === "string" && trace.stack.length > 0;
+    var hasStack = trace === reason;
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
-    this._reject(reason, trace === reason ? undefined : trace);
+    this._reject(reason, hasStack ? undefined : trace);
 };
 
 Promise.prototype._resolveFromResolver = function (resolver) {
