@@ -37,7 +37,7 @@ describe(".then as context", function() {
             delete e.stack;
             return Promise.reject(e);
         }).then(assert.fail, function(e) {
-            assertLongTrace(e, 2 + 1, [1, 1]);
+            assertLongTrace(e, 1 + 1, [1, 1]);
         });
     });
     it("4 levels using promise reject", function() {
@@ -222,7 +222,7 @@ describe("constructor as context", function() {
             delete e.stack;
             rej(e);
         }).then(assert.fail, function(e) {
-            assertLongTrace(e, 2, [1]);
+            assertLongTrace(e, 1, [1]);
         });
     });
     it("1 level, no stack property", function() {
@@ -234,7 +234,7 @@ describe("constructor as context", function() {
                 rej(e);
             }))
         }).then(assert.fail, function(e) {
-            assertLongTrace(e, 2 + 1, [1, 1]);
+            assertLongTrace(e, 1 + 1, [1, 1]);
         });
     });
 
