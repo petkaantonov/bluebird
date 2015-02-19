@@ -12,7 +12,7 @@ var bluebirdFramePattern =
 var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
-var warn;
+var printWarning;
 var debugging = __DEBUG__ || (util.isNode &&
                     (!!process.env["BLUEBIRD_DEBUG"] ||
                      process.env["NODE_ENV"] === "development"));
@@ -276,8 +276,8 @@ function formatAndLogError(error, title, isSoft) {
         } else {
             message = title + String(error);
         }
-        if (typeof warn === "function") {
-            warn(message, isSoft);
+        if (typeof printWarning === "function") {
+            printWarning(message, isSoft);
         } else if (typeof console.log === "function" ||
             typeof console.log === "object") {
             console.log(message);
@@ -651,16 +651,16 @@ var fireGlobalEvent = (function() {
 })();
 
 if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
-    warn = function (message) {
+    printWarning = function (message) {
         console.warn(message);
     };
     if (util.isNode && process.stderr.isTTY) {
-        warn = function(message, isSoft) {
+        printWarning = function(message, isSoft) {
             var color = isSoft ? "\u001b[38;5;209m" : "\u001b[31m";
             process.stderr.write(color + message + "\u001b[0m\n");
         };
     } else if (!util.isNode && typeof (new Error().stack) === "string") {
-        warn = function(message, isSoft) {
+        printWarning = function(message, isSoft) {
             console.warn("%c" + message,
                         isSoft ? "color: darkorange" : "color: red");
         };
