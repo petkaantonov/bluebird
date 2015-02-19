@@ -51,7 +51,8 @@ function isPrimitive(val) {
 }
 
 function isObject(value) {
-    return !isPrimitive(value);
+    return typeof value === "function" ||
+           typeof value === "object" && value !== null;
 }
 
 function maybeWrapAsError(maybeError) {

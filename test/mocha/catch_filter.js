@@ -356,7 +356,62 @@ describe("A promise handler with a predicate filter", function() {
             assert.fail();
         }).caught(TypeError, returnToken)
         .then(assertToken);
+    });
+});
 
+describe("object property predicates", function() {
+    specify("matches 1 property loosely", function() {
+        var e = new Error();
+        e.code = "3";
+        return Promise.resolve()
+            .then(function() {
+                throw e;
+            })
+            .caught({code: 3}, function(err) {
+                assert.equal(e, err);
+            });
+    });
+
+    specify("matches 2 properties loosely", function() {
+        var e = new Error();
+        e.code = "3";
+        e.code2 = "3";
+        return Promise.resolve()
+            .then(function() {
+                throw e;
+            })
+            .caught({code: 3, code2: 3}, function(err) {
+                assert.equal(e, err);
+            });
+    });
+
+    specify("doesn't match inequal properties", function() {
+        var e = new Error();
+        e.code = "3";
+        e.code2 = "4";
+        return Promise.resolve()
+            .then(function() {
+                throw e;
+            })
+            .caught({code: 3, code2: 3}, function(err) {
+                assert.fail();
+            })
+            .caught(function(v) {return v === e}, function() {});
+    });
+
+    specify("doesn't match primitives even if the property matches", function() {
+        var e = "string";
+        var length = e.length;
+        return Promise.resolve()
+            .then(function() {
+                throw e;
+            })
+            .caught({length: length}, function(err) {
+                assert.fail();
+            })
+            .caught(function(v) {return typeof v === "string"}, function(err) {
+                assert.equal(e, err);
+            });
     });
 });
 

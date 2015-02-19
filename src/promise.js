@@ -71,10 +71,10 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             j = 0, i;
         for (i = 0; i < len - 1; ++i) {
             var item = arguments[i];
-            if (typeof item === "function") {
+            if (util.isObject(item)) {
                 catchInstances[j++] = item;
             } else {
-                return apiRejection(FUNCTION_ERROR + util.classString(item));
+                return apiRejection(OBJECT_ERROR + util.classString(item));
             }
         }
         catchInstances.length = j;

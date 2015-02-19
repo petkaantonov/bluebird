@@ -104,6 +104,7 @@ CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine i
 //errors
 CONSTANT(TIMEOUT_ERROR, "operation timed out");
 CONSTANT(COLLECTION_ERROR,  "expecting an array but got ");
+CONSTANT(OBJECT_ERROR,  "expecting an object but got ");
 CONSTANT(FUNCTION_ERROR,  "expecting a function but got ");
 CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly\n\n\
     See http://goo.gl/KsIlge\n");
