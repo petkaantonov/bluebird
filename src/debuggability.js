@@ -102,7 +102,7 @@ Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
         } else if (!error.__stackCleaned__) {
             var parsed = CapturedTrace.parseStackAndMessage(error);
             error.stack = parsed.message + "\n" + parsed.stack.join("\n");
-            error.__stackCleaned__ = true;
+            util.notEnumerableProp(error, "__stackCleaned__", true);
         }
     }
 };

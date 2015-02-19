@@ -101,7 +101,7 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     removeCommonRoots(stacks);
     removeDuplicateOrEmptyJumps(stacks);
     error.stack = reconstructStack(message, stacks);
-    error.__stackCleaned__ = true;
+    util.notEnumerableProp(error, "__stackCleaned__", true);
 };
 
 function reconstructStack(message, stacks) {
