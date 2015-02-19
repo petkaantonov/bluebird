@@ -150,6 +150,17 @@ Promise.config = function(opts) {
     }
 };
 
+function checkForgottenReturns(returnValue, promisesCreated, name, promise) {
+    if (returnValue === undefined &&
+        promisesCreated > 0 &&
+        config.longStackTraces &&
+        config.warnings) {
+        var msg = "a promise was created in a " + name +
+            " handler but was not returned from it";
+        promise._warn(msg);
+    }
+}
+
 function deprecated(name, replacement) {
     var message = name +
         " is deprecated and will be removed in a future version.";
@@ -679,6 +690,7 @@ return {
     warnings: function() {
         return config.warnings;
     },
+    checkForgottenReturns: checkForgottenReturns,
     setBounds: setBounds,
     warn: warn,
     deprecated: deprecated,

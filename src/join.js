@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
+function(Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
@@ -49,7 +49,9 @@ if (canEvaluate) {
             var handler = this.callers[total];
             promise._pushContext();
             var ret = tryCatch(handler)(this);
-            promise._popContext();
+            var promisesCreated = promise._popContext();
+            debug.checkForgottenReturns(
+                ret, promisesCreated, "Promise.join", promise);
             if (ret === errorObj) {
                 promise._rejectCallback(ret.e, false);
             } else {

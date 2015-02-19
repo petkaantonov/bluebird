@@ -3,7 +3,8 @@ module.exports = function(Promise,
                           PromiseArray,
                           apiRejection,
                           tryConvertToPromise,
-                          INTERNAL) {
+                          INTERNAL,
+                          debug) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
@@ -57,11 +58,18 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         }
         if (preservedValues !== null) preservedValues[index] = value;
 
+        var promise = this._promise;
         var callback = this._callback;
-        var receiver = this._promise._boundTo;
-        this._promise._pushContext();
+        var receiver = promise._boundTo;
+        promise._pushContext();
         var ret = tryCatch(callback).call(receiver, value, index, length);
-        this._promise._popContext();
+        var promisesCreated = promise._popContext();
+        debug.checkForgottenReturns(
+            ret,
+            promisesCreated,
+            preservedValues !== null ? "Promise.filter" : "Promise.map",
+            promise
+        );
         if (ret === errorObj) return this._reject(ret.e);
 
         // If the mapper function returned a promise we simply reuse

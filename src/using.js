@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function (Promise, apiRejection, tryConvertToPromise,
-    createContext, INTERNAL) {
+    createContext, INTERNAL, debug) {
     var util = require("./util.js");
     var TypeError = require("./errors.js").TypeError;
     var inherits = require("./util.js").inherits;
@@ -151,7 +151,9 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                 }
                 promise._pushContext();
                 var ret = tryCatch(fn).apply(undefined, inspections);
-                promise._popContext();
+                var promisesCreated = promise._popContext();
+                debug.checkForgottenReturns(
+                    ret, promisesCreated, "Promise.using", promise);
                 return ret;
             });
 

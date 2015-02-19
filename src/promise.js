@@ -721,6 +721,7 @@ require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
 require("./finally.js")(Promise, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
-require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
+require("./join.js")(
+    Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
 Promise.Promise = Promise;
 };

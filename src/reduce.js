@@ -3,7 +3,8 @@ module.exports = function(Promise,
                           PromiseArray,
                           apiRejection,
                           tryConvertToPromise,
-                          INTERNAL) {
+                          INTERNAL,
+                          debug) {
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
 
@@ -119,7 +120,13 @@ function gotValue(value) {
         ret = fn.call(promise._boundTo,
                               this.accum, value, this.index, this.length);
     }
-    promise._popContext();
+    var promisesCreated = promise._popContext();
+    debug.checkForgottenReturns(
+        ret,
+        promisesCreated,
+        array._eachValues !== undefined ? "Promise.each" : "Promise.reduce",
+        promise
+    );
     return ret;
 }
 };
