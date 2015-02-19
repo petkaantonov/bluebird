@@ -1,3 +1,9 @@
+## 2.9.12 (2015-02-19)
+
+Bugfixes:
+
+ - Fix memory leak introduced in 2.9.0 ([#502](.))
+
 ## 2.9.11 (2015-02-19)
 
 Bugfixes:
