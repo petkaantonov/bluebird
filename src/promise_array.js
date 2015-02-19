@@ -18,11 +18,10 @@ function toResolutionValue(val) {
 function PromiseArray(values) {
     ASSERT(arguments.length === 1);
     var promise = this._promise = new Promise(INTERNAL);
-    var parent;
     if (values instanceof Promise) {
-        parent = values;
-        promise._propagateFrom(parent, PROPAGATE_CANCEL | PROPAGATE_BIND);
+        promise._propagateFrom(values, PROPAGATE_CANCEL | PROPAGATE_BIND);
     }
+    promise._onCancel = this;
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
@@ -43,20 +42,20 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         this._values = values;
         if (values._isFulfilled()) {
             values = values._value();
-        } else if (values._isPending()) {
+        } else if (values._isPendingAndWaiting()) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
-            values._then(
+            return values._then(
                 init,
                 this._reject,
                 undefined,
                 this,
                 resolveValueIfEmpty
            );
-            return;
+        } else if (values._isRejected()) {
+            return this._reject(values._reason());
         } else {
-            this._reject(values._reason());
-            return;
+            return this._cancel();
         }
     }
     if (!isArray(values)) {
@@ -90,13 +89,16 @@ PromiseArray.prototype._iterate = function(values) {
             maybePromise = maybePromise._target();
             if (isResolved) {
                 maybePromise._unsetRejectionIsUnhandled();
-            } else if (maybePromise._isPending()) {
+            } else if (maybePromise._isPendingAndWaiting()) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
+                this._values[i] = maybePromise;
             } else if (maybePromise._isFulfilled()) {
                 this._promiseFulfilled(maybePromise._value(), i);
-            } else {
+            } else if (maybePromise._isRejected()) {
                 this._promiseRejected(maybePromise._reason(), i);
+            } else {
+                this._promiseCancelled(i);
             }
         } else if (!isResolved) {
             this._promiseFulfilled(maybePromise, i);
@@ -113,6 +115,12 @@ PromiseArray.prototype._resolve = function (value) {
     ASSERT(!(value instanceof Promise));
     this._values = null;
     this._promise._fulfill(value);
+};
+
+PromiseArray.prototype._cancel = function() {
+    if (this._isResolved() || !this._promise.isCancellable()) return;
+    this._values = null;
+    this._promise._cancel();
 };
 
 PromiseArray.prototype._reject = function (reason) {
@@ -132,12 +140,30 @@ PromiseArray.prototype._promiseFulfilled = function (value, index) {
     }
 };
 
-PromiseArray.prototype._promiseRejected = function (reason, index) {
-    ASSERT(index >= 0);
+PromiseArray.prototype._promiseCancelled = function() {
+    this._cancel();
+};
+
+PromiseArray.prototype._promiseRejected = function (reason) {
     ASSERT(!this._isResolved());
     ASSERT(isArray(this._values));
     this._totalResolved++;
     this._reject(reason);
+};
+
+PromiseArray.prototype._resultCancelled = function() {
+    if (this._isResolved()) return;
+    var values = this._values;
+    this._cancel();
+    if (values instanceof Promise) {
+        values.cancel();
+    } else {
+        for (var i = 0; i < values.length; ++i) {
+            if (values[i] instanceof Promise) {
+                values[i].cancel();
+            }
+        }
+    }
 };
 
 PromiseArray.prototype.shouldCopyValues = function () {

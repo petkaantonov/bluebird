@@ -3,7 +3,7 @@ module.exports = function() {
 var makeSelfResolutionError = function () {
     return new TypeError(CIRCULAR_RESOLUTION_ERROR);
 };
-var reflect = function() {
+var reflectHandler = function() {
     return new Promise.PromiseInspection(this._target());
 };
 var apiRejection = function(msg) {
@@ -29,6 +29,7 @@ var PromiseArray =
                                     tryConvertToPromise, apiRejection);
 var debug = require("./debuggability.js")(Promise);
 var CapturedTrace = debug.CapturedTrace;
+var finallyHandler = require("./finally.js")(Promise, tryConvertToPromise);
  /*jshint unused:false*/
 var createContext =
     require("./context.js")(Promise, CapturedTrace, debug.longStackTraces);
@@ -54,6 +55,8 @@ function Promise(resolver) {
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
+    this._onCancel = undefined;
+    this._cancellationParent = undefined;
     //reason for rejection or fulfilled value
     this._settledValue = undefined;
     if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
@@ -86,7 +89,8 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
 };
 
 Promise.prototype.reflect = function () {
-    return this._then(reflect, reflect, undefined, this, undefined);
+    return this._then(reflectHandler,
+        reflectHandler, undefined, this, undefined);
 };
 
 Promise.prototype.then = function (didFulfill, didReject) {
@@ -114,11 +118,6 @@ Promise.prototype.spread = function (fn) {
         return apiRejection(FUNCTION_ERROR + util.classString(fn));
     }
     return this.all()._then(fn, undefined, undefined, APPLY, undefined);
-};
-
-Promise.prototype.isCancellable = function () {
-    return !this.isResolved() &&
-        this._cancellable();
 };
 
 Promise.prototype.toJSON = function () {
@@ -219,7 +218,7 @@ Promise.prototype._then = function (
     var callbackIndex =
         target._addCallbacks(didFulfill, didReject, ret, receiver);
 
-    if (target._isResolved() && !target._isSettlePromisesQueued()) {
+    if (!target._isPendingAndWaiting() && !target._isSettlePromisesQueued()) {
         async.invoke(
             target._settlePromiseAtPostResolution, target, callbackIndex);
     }
@@ -230,7 +229,7 @@ Promise.prototype._then = function (
 Promise.prototype._settlePromiseAtPostResolution = function (index) {
     ASSERT(typeof index === "number");
     ASSERT(index >= 0);
-    ASSERT(this._isFulfilled() || this._isRejected());
+    ASSERT(this._isFulfilled() || this._isRejected() || this._isCancelled());
     ASSERT(this._promiseAt(index) !== undefined);
     if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
     this._settlePromiseAt(index);
@@ -241,8 +240,8 @@ Promise.prototype._length = function () {
     return this._bitField & LENGTH_MASK;
 };
 
-Promise.prototype._isFollowingOrFulfilledOrRejected = function () {
-    return (this._bitField & IS_FOLLOWING_OR_REJECTED_OR_FULFILLED) > 0;
+Promise.prototype._isFateSealed = function () {
+    return (this._bitField & IS_FATE_SEALED) !== 0;
 };
 
 Promise.prototype._isFollowing = function () {
@@ -274,16 +273,16 @@ Promise.prototype._isFinal = function () {
     return (this._bitField & IS_FINAL) > 0;
 };
 
-Promise.prototype._cancellable = function () {
-    return (this._bitField & IS_CANCELLABLE) > 0;
+Promise.prototype._isRejectedOrCancelled = function() {
+    return (this._bitField & IS_REJECTED_OR_CANCELLED) !== 0;
 };
 
-Promise.prototype._setCancellable = function () {
-    this._bitField = this._bitField | IS_CANCELLABLE;
+Promise.prototype._unsetCancelled = function() {
+    this._bitField = this._bitField & (~IS_CANCELLED);
 };
 
-Promise.prototype._unsetCancellable = function () {
-    this._bitField = this._bitField & (~IS_CANCELLABLE);
+Promise.prototype._setCancelled = function() {
+    this._bitField = this._bitField | IS_CANCELLED;
 };
 
 Promise.prototype._setIsMigrated = function () {
@@ -414,14 +413,13 @@ Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
 };
 
 Promise.prototype._resolveCallback = function(value, shouldBind) {
-    if (this._isFollowingOrFulfilledOrRejected()) return;
+    if (this._isFateSealed()) return;
     if (value === this)
         return this._rejectCallback(makeSelfResolutionError(), false);
     var maybePromise = tryConvertToPromise(value, this);
     if (!(maybePromise instanceof Promise)) return this._fulfill(value);
 
-    var propagationFlags = PROPAGATE_CANCEL | (shouldBind ? PROPAGATE_BIND : 0);
-    this._propagateFrom(maybePromise, propagationFlags);
+    this._propagateFrom(maybePromise, shouldBind ? PROPAGATE_BIND : 0);
     var promise = maybePromise._target();
     if (promise._isPending()) {
         var len = this._length();
@@ -431,11 +429,17 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
         this._setFollowing();
         this._setLength(0);
         this._setFollowee(promise);
+        if (this._onCancel !== undefined) {
+            promise._attachCancellationCallback(this._onCancel, this);
+            this._onCancel = undefined;
+        }
     } else if (promise._isFulfilled()) {
         this._fulfillUnchecked(promise._value());
-    } else {
+    } else if (promise._isRejected()) {
         this._rejectUnchecked(promise._reason(),
             promise._getCarriedStackTrace());
+    } else {
+        this._cancel();
     }
 };
 
@@ -480,8 +484,11 @@ Promise.prototype._resolveFromResolver = function (resolver) {
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
-    if (promise._isRejected()) return;
-    ASSERT(!promise._isFollowingOrFulfilledOrRejected());
+    if (promise._isRejectedOrCancelled()) {
+        if (promise._isRejected()) return;
+        promise._unsetCancelled();
+    }
+    ASSERT(!promise._isFateSealed());
     promise._pushContext();
     var x;
     if (receiver === APPLY) {
@@ -534,14 +541,11 @@ Promise.prototype._setFollowee = function(promise) {
 
 Promise.prototype._cleanValues = function () {
     ASSERT(!this._isFollowing());
-    if (this._cancellable()) {
-        this._cancellationParent = undefined;
-    }
+    this._cancellationParent = undefined;
 };
 
 Promise.prototype._propagateFrom = function (parent, flags) {
-    if ((flags & PROPAGATE_CANCEL) > 0 && parent._cancellable()) {
-        this._setCancellable();
+    if ((flags & PROPAGATE_CANCEL) > 0) {
         this._cancellationParent = parent;
     }
     if ((flags & PROPAGATE_BIND) > 0 && parent._isBound()) {
@@ -551,12 +555,12 @@ Promise.prototype._propagateFrom = function (parent, flags) {
 };
 
 Promise.prototype._fulfill = function (value) {
-    if (this._isFollowingOrFulfilledOrRejected()) return;
+    if (this._isFateSealed()) return;
     this._fulfillUnchecked(value);
 };
 
 Promise.prototype._reject = function (reason, carriedStackTrace) {
-    if (this._isFollowingOrFulfilledOrRejected()) return;
+    if (this._isFateSealed()) return;
     this._rejectUnchecked(reason, carriedStackTrace);
 };
 
@@ -570,11 +574,12 @@ Promise.prototype._settlePromiseAt = function (index) {
         return async.invoke(this._settlePromiseAt, this, index);
     }
     ASSERT(!this._isFollowing());
-    var handler = this._isFulfilled()
-        ? this._fulfillmentHandlerAt(index)
-        : this._rejectionHandlerAt(index);
 
-    ASSERT(this._isFulfilled() || this._isRejected());
+    var handler = this._isRejectedOrCancelled()
+        ? this._rejectionHandlerAt(index)
+        : this._fulfillmentHandlerAt(index);
+
+    ASSERT(this._isFulfilled() || this._isRejected() || this._isCancelled());
 
     var carriedStackTrace =
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
@@ -583,8 +588,23 @@ Promise.prototype._settlePromiseAt = function (index) {
 
 
     this._clearCallbackDataAtIndex(index);
-
-    if (typeof handler === "function") {
+    if (this._isCancelled()) {
+        if (isPromise && promise._onCancel !== undefined) {
+            promise._invokeOnCancel(promise._onCancel);
+        }
+        if (handler === finallyHandler) {
+            receiver.cancelPromise = promise;
+            if (tryCatch(handler).call(receiver, value) === errorObj) {
+                promise._reject(errorObj.e);
+            }
+        } else if (receiver instanceof PromiseArray) {
+            receiver._promiseCancelled(promise);
+        } else if (isPromise || promise instanceof PromiseArray) {
+            promise._cancel();
+        } else {
+            receiver.cancel();
+        }
+    } else if (typeof handler === "function") {
         //if promise is not instanceof Promise
         //it is internally smuggled data
         if (!isPromise) {
@@ -656,7 +676,7 @@ Promise.prototype._queueSettlePromises = function() {
 };
 
 Promise.prototype._fulfillUnchecked = function (value) {
-    ASSERT(!this._isFollowingOrFulfilledOrRejected());
+    ASSERT(!this._isFateSealed());
     if (value === this) {
         var err = makeSelfResolutionError();
         this._attachExtraTrace(err);
@@ -677,7 +697,7 @@ Promise.prototype._rejectUncheckedCheckError = function (reason) {
 };
 
 Promise.prototype._rejectUnchecked = function (reason, trace) {
-    ASSERT(!this._isFollowingOrFulfilledOrRejected());
+    ASSERT(!this._isFateSealed());
     if (reason === this) {
         var err = makeSelfResolutionError();
         this._attachExtraTrace(err);
@@ -720,11 +740,11 @@ Promise.defer = function() {
         reject: promise._rejectCallback
     };
 };
-
+Promise._async = async;
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
 require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
-require("./finally.js")(Promise, tryConvertToPromise);
+
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 require("./join.js")(

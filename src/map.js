@@ -9,7 +9,6 @@ var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
-var PENDING = {};
 var EMPTY_ARRAY = [];
 
 function MappingPromiseArray(promises, fn, limit, _filter) {
@@ -43,7 +42,11 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var length = this.length();
     var preservedValues = this._preservedValues;
     var limit = this._limit;
-    if (values[index] === PENDING) {
+
+    // Callback has been called for this index if it's negative
+    if (index < 0) {
+        // Restore the actual index value
+        index = (index * -1) - 1;
         values[index] = value;
         if (limit >= 1) {
             this._inFlight--;
@@ -74,19 +77,21 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         // If the mapper function returned a promise we simply reuse
         // The MappingPromiseArray as a PromiseArray for round 2.
-        // To mark an index as "round 2" (where the callback must not be called
-        // anymore), the marker PENDING is put at that index
+        // To mark an index as "round 2" its inverted by adding +1 and
+        // multiplying by -1
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
-            if (maybePromise._isPending()) {
+            if (maybePromise._isPendingAndWaiting()) {
                 if (limit >= 1) this._inFlight++;
-                values[index] = PENDING;
-                return maybePromise._proxyPromiseArray(this, index);
+                values[index] = maybePromise;
+                return maybePromise._proxyPromiseArray(this, (index + 1) * -1);
             } else if (maybePromise._isFulfilled()) {
                 ret = maybePromise._value();
-            } else {
+            } else if (maybePromise._isRejected()) {
                 return this._reject(maybePromise._reason());
+            } else {
+                return this._cancel();
             }
         }
         values[index] = ret;

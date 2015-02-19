@@ -48,6 +48,19 @@ Promise.prototype._isResolved = function () {
     return (this._bitField & IS_REJECTED_OR_FULFILLED) > 0;
 };
 
+PromiseInspection.prototype.isCancelled =
+Promise.prototype._isCancelled = function() {
+    return (this._bitField & IS_CANCELLED) === IS_CANCELLED;
+};
+
+Promise.prototype._isPendingAndWaiting = function() {
+    return (this._bitField & IS_REJECTED_OR_FULFILLED_OR_CANCELLED) === 0;
+};
+
+Promise.prototype.isCancelled = function() {
+    return this._target()._isCancelled();
+};
+
 Promise.prototype.isPending = function() {
     return this._target()._isPending();
 };

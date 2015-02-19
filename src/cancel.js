@@ -1,50 +1,100 @@
 "use strict";
-module.exports = function(Promise) {
-var errors = require("./errors.js");
-var async = require("./async.js");
+module.exports = function(Promise, apiRejection) {
 var ASSERT = require("./assert.js");
-var CancellationError = errors.CancellationError;
+var util = require("./util.js");
+var tryCatch = util.tryCatch;
+var errorObj = util.errorObj;
+var async = require("./async.js");
 
-Promise.prototype._cancel = function (reason) {
-    if (!this.isCancellable()) return this;
-    var parent;
-    var promiseToReject = this;
-    //Propagate to the last cancellable parent
-    while ((parent = promiseToReject._cancellationParent) !== undefined &&
-        parent.isCancellable()) {
-        promiseToReject = parent;
+Promise.prototype._cancel = function() {
+    if (!this.isCancellable()) return;
+    ASSERT(!this._isFollowing());
+    this._setCancelled();
+    this._cleanValues();
+    if (this._length() > 0) {
+        this._queueSettlePromises();
     }
-    ASSERT(promiseToReject.isCancellable());
-    this._unsetCancellable();
-    promiseToReject._target()._rejectCallback(reason, false);
 };
 
-Promise.prototype.cancel = function (reason) {
-    if (!this.isCancellable()) return this;
-    if (reason === undefined) reason = new CancellationError();
-    async.invokeLater(this._cancel, this, reason);
+Promise.prototype.isCancellable = function() {
+    return this.isPending() && !this.isCancelled();
+};
+
+Promise.prototype._attachCancellationCallback = function(onCancel, ctx) {
+    if (!this.isCancellable()) {
+        if (this.isCancelled()) {
+            async.invoke(this._invokeOnCancel, this, onCancel);
+        }
+        return this;
+    }
+    var target = this._target();
+    if (target._onCancel !== undefined) {
+        var newOnCancel = onCancel;
+        var oldOnCancel = target._onCancel;
+        if (ctx === undefined) ctx = this;
+        onCancel = function() {
+            ctx._invokeOnCancel(oldOnCancel);
+            ctx._invokeOnCancel(newOnCancel);
+            target._onCancel = undefined;
+        };
+    }
+    target._onCancel = onCancel;
+};
+
+Promise.prototype.onCancel = function(onCancel) {
+    if (typeof onCancel !== "function") {
+        return apiRejection("onCancel must be a function, got: "
+            + util.toString(onCancel));
+    }
+    this._attachCancellationCallback(onCancel);
     return this;
 };
 
-Promise.prototype.cancellable = function () {
-    if (this._cancellable()) return this;
-    this._setCancellable();
-    this._cancellationParent = undefined;
-    return this;
+Promise.prototype._doInvokeOnCancel = function(callback) {
+    if (callback !== undefined) {
+        if (typeof callback === "function") {
+            var e = tryCatch(callback).call(this._boundTo);
+            if (e === errorObj) {
+                this._attachExtraTrace(e.e);
+                async.throwLater(e.e);
+            }
+        } else if (callback instanceof Promise) {
+            callback.cancel();
+        } else {
+            callback._resultCancelled(this);
+        }
+        this._onCancel = undefined;
+    }
 };
 
-Promise.prototype.uncancellable = function () {
-    var ret = this.then();
-    ret._unsetCancellable();
-    return ret;
+Promise.prototype._invokeOnCancel = function(callback) {
+    async.invoke(this._doInvokeOnCancel, this, callback);
 };
 
-Promise.prototype.fork = function (didFulfill, didReject) {
-    var ret =
-        this._then(didFulfill, didReject, undefined, undefined, undefined);
-
-    ret._setCancellable();
-    ret._cancellationParent = undefined;
-    return ret;
+Promise.prototype.cancelAfter = function(ms) {
+    var self = this;
+    setTimeout(function() {
+        self.cancel();
+    }, ms);
 };
+
+Promise.prototype["break"] = Promise.prototype.cancel = function() {
+    var promise = this;
+    while (promise.isCancellable()) {
+        promise._invokeOnCancel(promise._onCancel);
+        var parent = promise._cancellationParent;
+        if (parent == null || !parent.isCancellable()) {
+            if (promise._isFollowing()) {
+                promise._followee().cancel();
+            } else {
+                promise._cancel();
+            }
+            break;
+        } else {
+            if (promise._isFollowing()) promise._followee().cancel();
+            promise = parent;
+        }
+    }
+};
+
 };

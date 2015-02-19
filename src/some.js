@@ -6,6 +6,7 @@ var util = require("./util.js");
 var RangeError = require("./errors.js").RangeError;
 var AggregateError = require("./errors.js").AggregateError;
 var isArray = util.isArray;
+var CANCELLATION = {};
 
 
 function SomePromiseArray(values) {
@@ -69,12 +70,32 @@ SomePromiseArray.prototype._promiseFulfilled = function (value) {
 SomePromiseArray.prototype._promiseRejected = function (reason) {
     ASSERT(!this._isResolved());
     this._addRejected(reason);
+    this._checkOutcome();
+};
+
+//override
+SomePromiseArray.prototype._promiseCancelled = function () {
+    if (this._values instanceof Promise || this._values == null) {
+        return this._cancel();
+    }
+    ASSERT(!this._isResolved());
+    this._addRejected(CANCELLATION);
+    this._checkOutcome();
+};
+
+SomePromiseArray.prototype._checkOutcome = function() {
     if (this.howMany() > this._canPossiblyFulfill()) {
         var e = new AggregateError();
         for (var i = this.length(); i < this._values.length; ++i) {
-            e.push(this._values[i]);
+            if (this._values[i] !== CANCELLATION) {
+                e.push(this._values[i]);
+            }
         }
-        this._reject(e);
+        if (e.length > 0) {
+            this._reject(e);
+        } else {
+            this._cancel();
+        }
     }
 };
 

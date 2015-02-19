@@ -147,7 +147,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                         errorObj.e = inspection.error();
                         return errorObj;
                     }
-                    inspections[i] = inspection._settledValue;
+                    inspections[i] = inspection.value();
                 }
                 promise._pushContext();
                 var ret = tryCatch(fn).apply(undefined, inspections);

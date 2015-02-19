@@ -57,19 +57,6 @@ describe("timeout", function () {
         });
     });
 
-    it("should propagate the timeout error to cancellable parents", function() {
-        function doExpensiveOp() {
-            return new Promise(function() {
-
-            })
-            .cancellable()
-            .caught(Promise.TimeoutError, function(e) {
-            })
-        }
-
-        return doExpensiveOp().timeout(100);
-    });
-
     var globalsAreReflectedInGlobalObject = (function(window) {
         var fn = function(id){return clearTimeout(id);};
         var old = window.clearTimeout;

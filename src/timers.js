@@ -12,7 +12,7 @@ var afterTimeout = function (promise, message) {
     var err = new TimeoutError(message);
     util.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
-    promise._cancel(err);
+    promise._reject(err);
 };
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
@@ -46,8 +46,7 @@ function failureClear(reason) {
 
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
-    var ret = this.then().cancellable();
-    ret._cancellationParent = this;
+    var ret = this.then();
     var handle = setTimeout(function timeoutTimeout() {
         afterTimeout(ret, message);
     }, ms);

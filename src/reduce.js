@@ -11,7 +11,12 @@ var tryCatch = util.tryCatch;
 function ReductionPromiseArray(promises, fn, initialValue, _each) {
     this.constructor$(promises);
     this._fn = fn;
+    if (initialValue !== undefined) {
+        initialValue = Promise.resolve(initialValue);
+        initialValue._attachCancellationCallback(this);
+    }
     this._initialValue = initialValue;
+    this._currentCancellable = null;
     this._eachValues = _each === INTERNAL ? [] : undefined;
     this._promise._captureStackTrace();
     this._init$(undefined, RESOLVE_CALL_METHOD);
@@ -49,17 +54,33 @@ ReductionPromiseArray.prototype._resolve = function(value) {
 };
 
 // Override
+ReductionPromiseArray.prototype._resultCancelled = function(sender) {
+    if (sender === this._initialValue) return this._cancel();
+    if (this._isResolved()) return;
+    this._resultCancelled$();
+    if (this._currentCancellable instanceof Promise) {
+        this._currentCancellable.cancel();
+    }
+    if (this._initialValue instanceof Promise) {
+        this._initialValue.cancel();
+    }
+};
+
+// Override
 ReductionPromiseArray.prototype._iterate = function (values) {
+    this._values = values;
     var value;
     var i;
     var length = values.length;
     if (this._initialValue !== undefined) {
-        value = Promise.resolve(this._initialValue);
+        value = this._initialValue;
         i = 0;
     } else {
         value = Promise.resolve(values[0]);
         i = 1;
     }
+
+    this._currentCancellable = value;
 
     if (!value.isRejected()) {
         for (; i < length; ++i) {
@@ -78,7 +99,7 @@ ReductionPromiseArray.prototype._iterate = function (values) {
         value = value
             ._then(this._eachComplete, undefined, undefined, this, undefined);
     }
-    this._resolve(value);
+    value._then(completed, completed, undefined, value, this);
 };
 
 Promise.prototype.reduce = function (fn, initialValue) {
@@ -88,6 +109,14 @@ Promise.prototype.reduce = function (fn, initialValue) {
 Promise.reduce = function (promises, fn, initialValue, _each) {
     return reduce(promises, fn, initialValue, _each);
 };
+
+function completed(valueOrReason, array) {
+    if (this.isFulfilled()) {
+        array._resolve(valueOrReason);
+    } else {
+        array._reject(valueOrReason);
+    }
+}
 
 function reduce(promises, fn, initialValue, _each) {
     if (typeof fn !== "function") {
@@ -102,6 +131,7 @@ function gotAccum(accum) {
     this.array._gotAccum(accum);
     var value = tryConvertToPromise(this.value, this.array._promise);
     if (value instanceof Promise) {
+        this.array._currentCancellable = value;
         return value._then(gotValue, undefined, undefined, this, undefined);
     } else {
         return gotValue.call(this, value);
@@ -119,6 +149,9 @@ function gotValue(value) {
     } else {
         ret = fn.call(promise._boundTo,
                               this.accum, value, this.index, this.length);
+    }
+    if (ret instanceof Promise) {
+        array._currentCancellable = ret;
     }
     var promisesCreated = promise._popContext();
     debug.checkForgottenReturns(

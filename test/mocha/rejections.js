@@ -187,16 +187,6 @@ describe("Using as a rejection reason", function() {
             });
         });
 
-        specify("through cancel", function() {
-            var o = nullObject();
-            var a = new Promise(function(){}).cancellable();
-            var ret = a.then(assert.fail, function(e) {
-                assert.strictEqual(e, o);
-            });
-            a.cancel(o);
-            return ret;
-        });
-
         specify("through immediate PromiseArray promise", function() {
             var o = nullObject();
             return Promise.all([Promise.reject(o)]).then(assert.fail, function(e) {

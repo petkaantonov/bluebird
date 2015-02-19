@@ -176,22 +176,6 @@ describe("when using .bind", function() {
         });
     });
 
-    describe("With uncancellable promises", function(){
-        specify("this should refer to the bound object", function() {
-            return Promise.resolve().bind(THIS).uncancellable().then(function(){
-                assert(this === THIS);
-            });
-        });
-    });
-
-    describe("With forked promises", function(){
-        specify("this should refer to the bound object", function() {
-            return Promise.resolve().bind(THIS).fork().then(function(){
-                assert(this === THIS);
-            });
-        });
-    });
-
     describe("With .get promises", function(){
         specify("this should refer to the bound object", function() {
             return Promise.resolve({key: "value"}).bind(THIS).get("key").then(function(val){
@@ -1106,21 +1090,6 @@ describe("Promised thisArg", function() {
         return Promise.reject(err).bind(t).then(assert.fail, function(e) {
             assert.strictEqual(this, THIS);
             assert.strictEqual(err, e);
-        });
-    });
-
-    specify("main promise is cancelled before binding rejects", function(done) {
-        var tErr = new Error();
-        var t = Promise.delay(THIS, 100).thenThrow(tErr);
-        var ret = new Promise(function() {}).cancellable().bind(t);
-        var err = new Error();
-        Promise.delay(1).then(function() {
-            ret.cancel(err);
-        });
-
-        ret.caught(function(e) {
-            assert.strictEqual(e, err);
-            done();
         });
     });
 

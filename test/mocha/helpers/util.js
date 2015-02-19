@@ -1,7 +1,7 @@
 var assert = require("assert");
 var token = {};
 module.exports = {
-    awaitGlobalException: function(fn, done) {
+    awaitGlobalException: function(fn) {
         if (typeof process !== "undefined" && typeof process.version === "string") {
             return new Promise(function(resolve, reject) {
                 var listeners = process.listeners("uncaughtException");
@@ -29,6 +29,19 @@ module.exports = {
         } else {
             return Promise.delay(1);
         }
+    },
+
+    awaitLateQueue: function(fn) {
+        return new Promise(function(res, rej) {
+            Promise._async.invokeLater(function() {
+                try {
+                    var result = fn();
+                    res(result);
+                } catch(e) {
+                    rej(e);
+                }
+            }, null, null);
+        });
     },
 
     awaitProcessExit: function(fn) {
