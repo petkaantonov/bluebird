@@ -112,8 +112,7 @@ Promise.prototype.spread = function (fn) {
     if (typeof fn !== "function") {
         return apiRejection(FUNCTION_ERROR + util.classString(fn));
     }
-    var target = this._isFollowing() ? this.then() : this;
-    return target._then(fn, undefined, undefined, APPLY, undefined);
+    return this.all()._then(fn, undefined, undefined, APPLY, undefined);
 };
 
 Promise.prototype.isCancellable = function () {

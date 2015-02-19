@@ -966,8 +966,8 @@ describe("nodeback with multiple arguments", function() {
         });
     });
 
-    specify("spreaded with thenable values should not be unwrapped", function() {
-        var a = {then: function(){}};
+    specify("spreaded with thenable values should be unwrapped", function() {
+        var a = {then: function(a){a(1)}};
         var b = a;
         var c = a;
         var promise = Promise.promisify(function(cb) {
@@ -975,13 +975,13 @@ describe("nodeback with multiple arguments", function() {
         }, true)();
 
         return promise.spread(function(a_, b_, c_) {
-            assert.equal(a_, a);
-            assert.equal(b_, b);
-            assert.equal(c_, c);
+            assert.equal(a_, 1);
+            assert.equal(b_, 1);
+            assert.equal(c_, 1);
         });
     });
 
-    specify("spreaded with promise values should not be unwrapped", function() {
+    specify("spreaded with promise values should be unwrapped", function() {
         var a = Promise.resolve(1);
         var b = Promise.resolve(2);
         var c = Promise.resolve(3);
@@ -990,9 +990,9 @@ describe("nodeback with multiple arguments", function() {
         }, true)();
 
         return promise.spread(function(a_, b_, c_) {
-            assert.strictEqual(a_, a);
-            assert.strictEqual(b_, b);
-            assert.strictEqual(c_, c);
+            assert.strictEqual(a_, 1);
+            assert.strictEqual(b_, 2);
+            assert.strictEqual(c_, 3);
         });
     });
 });
