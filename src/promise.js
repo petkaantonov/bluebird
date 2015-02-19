@@ -501,7 +501,7 @@ Promise.prototype._settlePromiseFromHandler = function (
             promisesCreatedDuringHandlerInvocation > 0 &&
             debug.longStackTraces() &&
             debug.warnings()) {
-            promise._warn("A promise was created in a handler but " +
+            promise._warn("a promise was created in a handler but " +
                 "none were returned from it", true);
         }
         promise._resolveCallback(x);
