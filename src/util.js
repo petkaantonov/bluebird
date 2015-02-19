@@ -235,6 +235,13 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
+var isNode = typeof process !== "undefined" &&
+        classString(process).toLowerCase() === "[object process]";
+
+function env(key, def) {
+    return isNode ? process.env[key] : def;
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -261,8 +268,8 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
-    isNode: typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]"
+    isNode: isNode,
+    env: env
 };
 try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;

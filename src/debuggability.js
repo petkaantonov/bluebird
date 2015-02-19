@@ -13,9 +13,10 @@ var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
 var printWarning;
-var debugging = __DEBUG__ || (util.isNode &&
-                    (!!process.env["BLUEBIRD_DEBUG"] ||
-                     process.env["NODE_ENV"] === "development"));
+var debugging =!!(__DEBUG__ || util.env("BLUEBIRD_DEBUG") ||
+                               util.env("NODE_ENV") === "development");
+var warnings = !!(debugging || util.env("BLUEBIRD_WARNINGS"));
+var longStackTraces = !!(debugging || util.env("BLUEBIRD_LONG_STACK_TRACES"));
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     this._setRejectionIsUnhandled();
@@ -679,8 +680,8 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 }
 
 var config = {
-    warnings: debugging,
-    longStackTraces: debugging && longStackTracesIsSupported()
+    warnings: warnings,
+    longStackTraces: longStackTraces && longStackTracesIsSupported()
 };
 
 return {
