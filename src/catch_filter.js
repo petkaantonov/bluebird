@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function() {
+module.exports = function(NEXT_FILTER) {
 var util = require("./util.js");
 var getKeys = require("./es5.js").keys;
 var tryCatch = util.tryCatch;
@@ -34,8 +34,7 @@ function catchFilter(instances, cb, promise) {
                 return tryCatch(cb).call(boundTo, e);
             }
         }
-        errorObj.e = e;
-        return errorObj;
+        return NEXT_FILTER;
     };
 }
 

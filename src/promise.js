@@ -22,6 +22,7 @@ Promise.RejectionError = errors.OperationalError;
 Promise.AggregateError = errors.AggregateError;
 var INTERNAL = function(){};
 var APPLY = {};
+var NEXT_FILTER = {};
 var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
@@ -31,7 +32,7 @@ var CapturedTrace = debug.CapturedTrace;
  /*jshint unused:false*/
 var createContext =
     require("./context.js")(Promise, CapturedTrace, debug.longStackTraces);
-var catchFilter = require("./catch_filter.js")();
+var catchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
@@ -496,7 +497,9 @@ Promise.prototype._settlePromiseFromHandler = function (
     }
     var promisesCreatedDuringHandlerInvocation = promise._popContext();
 
-    if (x === errorObj || x === promise) {
+    if (x === NEXT_FILTER) {
+        promise._reject(value);
+    } else if (x === errorObj || x === promise) {
         var err = x === promise ? makeSelfResolutionError() : x.e;
         promise._rejectCallback(err, false);
     } else {

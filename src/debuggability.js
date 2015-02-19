@@ -282,7 +282,7 @@ function parseStackAndMessage(error) {
 function formatAndLogError(error, title, isSoft) {
     if (typeof console !== "undefined") {
         var message;
-        if (typeof error === "object" || typeof error === "function") {
+        if (util.isObject(error)) {
             var stack = error.stack;
             message = title + formatStack(stack, error);
         } else {
