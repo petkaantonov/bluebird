@@ -656,7 +656,7 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
     };
     if (util.isNode && process.stderr.isTTY) {
         printWarning = function(message, isSoft) {
-            var color = isSoft ? "\u001b[38;5;209m" : "\u001b[31m";
+            var color = isSoft ? "\u001b[33m" : "\u001b[31m";
             process.stderr.write(color + message + "\u001b[0m\n");
         };
     } else if (!util.isNode && typeof (new Error().stack) === "string") {
