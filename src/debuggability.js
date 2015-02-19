@@ -150,9 +150,11 @@ Promise.config = function(opts) {
     }
 };
 
-function deprecated(name) {
-    return warn(
-        name + " is deprecated and will be removed in a future version");
+function deprecated(name, replacement) {
+    var message = name +
+        " is deprecated and will be removed in a future version.";
+    if (replacement) message += " Use " + replacement + " instead.";
+    return warn(message);
 }
 
 function warn(message, shouldUseOwnTrace, promise) {

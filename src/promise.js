@@ -707,7 +707,7 @@ Promise.prototype._settlePromises = function () {
 };
 
 Promise.defer = function() {
-    debug.deprecated("Promise.defer");
+    debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
     return {
         promise: promise,

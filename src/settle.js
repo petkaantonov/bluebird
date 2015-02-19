@@ -39,7 +39,7 @@ SettledPromiseArray.prototype._promiseRejected = function (reason, index) {
 };
 
 Promise.settle = function (promises) {
-    debug.deprecated(".settle()");
+    debug.deprecated(".settle()", ".reflect()");
     return new SettledPromiseArray(promises).promise();
 };
 
