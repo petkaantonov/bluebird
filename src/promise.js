@@ -138,6 +138,9 @@ Promise.prototype.toJSON = function () {
 };
 
 Promise.prototype.all = function () {
+    if (arguments.length > 0) {
+        this._warn(".all() was passed arguments but it does not take any");
+    }
     return new PromiseArray(this).promise();
 };
 
