@@ -88,7 +88,7 @@
         "IS_REJECTED": false,
         "IS_CANCELLABLE": false,
         "IS_FINAL": false,
-        "IS_MIGRATING_BINDING": false,
+        "IS_BOUND": false,
         "IS_MIGRATED": false,
         "IS_REJECTION_UNHANDLED": false,
         "IS_CARRYING_STACK_TRACE": false,

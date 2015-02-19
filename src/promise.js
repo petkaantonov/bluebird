@@ -213,13 +213,8 @@ Promise.prototype._then = function (
 
     var target = this._target();
     if (target !== this) {
-        if (!haveInternalData) {
-            ret._setIsMigrated();
-            if (receiver === undefined) {
-                ret._setIsMigratingBinding();
-                receiver = this;
-            }
-        }
+        if (receiver === undefined) receiver = this._boundTo;
+        if (!haveInternalData) ret._setIsMigrated();
     }
 
     var callbackIndex =
@@ -345,13 +340,7 @@ Promise.prototype._migrateCallbacks = function (follower, index) {
     var progress = follower._progressHandlerAt(index);
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
-    if (promise instanceof Promise) {
-        promise._setIsMigrated();
-        if (receiver === undefined) {
-            receiver = follower;
-            promise._setIsMigratingBinding();
-        }
-    }
+    if (promise instanceof Promise) promise._setIsMigrated();
     this._addCallbacks(fulfill, reject, progress, promise, receiver);
 };
 
@@ -581,10 +570,7 @@ Promise.prototype._settlePromiseAt = function (index) {
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
-    if (isPromise && promise._isMigratingBinding()) {
-        promise._unsetIsMigratingBinding();
-        receiver = receiver._boundTo;
-    }
+
 
     this._clearCallbackDataAtIndex(index);
 

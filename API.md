@@ -16,7 +16,7 @@
     - [`Promise.method(Function fn)`](#promisemethodfunction-fn---function)
     - [`Promise.resolve(dynamic value)`](#promiseresolvedynamic-value---promise)
     - [`Promise.reject(dynamic reason)`](#promiserejectdynamic-reason---promise)
-    - [`Promise.bind(dynamic thisArg [, dynamic value])`](#promisebinddynamic-thisarg--dynamic-value---promise)
+    - [`Promise.bind(dynamic thisArg)`](#promisebinddynamic-thisarg---promise)
 - [Synchronous inspection](#synchronous-inspection)
     - [`.isFulfilled()`](#isfulfilled---boolean)
     - [`.isRejected()`](#isrejected---boolean)
@@ -715,9 +715,9 @@ Create a promise that is rejected with the given `reason`.
 
 <hr>
 
-#####`Promise.bind(dynamic thisArg [, dynamic value])` -> `Promise`
+#####`Promise.bind(dynamic thisArg)` -> `Promise`
 
-Sugar for `Promise.resolve(value).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
+Sugar for `Promise.resolve(undefined).bind(thisArg);`. See [`.bind()`](#binddynamic-thisarg---promise).
 
 <hr>
 

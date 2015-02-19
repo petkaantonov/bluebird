@@ -29,7 +29,7 @@ Promise.prototype.cancel = function (reason) {
 Promise.prototype.cancellable = function () {
     if (this._cancellable()) return this;
     this._setCancellable();
-    this._cancellationParent = this._pendingCancellationParent();
+    this._cancellationParent = undefined;
     return this;
 };
 

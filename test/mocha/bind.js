@@ -960,21 +960,21 @@ describe("When using .bind to gratuitously rebind", function() {
     var c = {value: 3};
 
     function makeTest(a, b, c) {
-        return function() {
-
-            var a1 = Promise.bind(a).then(function() {
+        return function(done) {
+            var dones = 0;
+            function donecalls() {
+                if( ++dones === 3 ) done();
+            }
+            Promise.bind(a).then(function(){
                 assert(this.value === 1);
-            });
-
-            var a2 = a1.bind(b).then(function(){
+                donecalls();
+            }).bind(b).then(function(){
                 assert(this.value === 2);
-            });
-
-            var a3 = a2.bind(c).then(function(){
+                donecalls();
+            }).bind(c).then(function(){
                 assert(this.value === 3);
+                donecalls();
             });
-
-            return Promise.all([a1, a2, a3]);
         }
     }
 
@@ -989,123 +989,82 @@ describe("When using .bind to gratuitously rebind", function() {
         makeTest(timedPromiseOf(a), timedPromiseOf(b), timedPromiseOf(c)));
 });
 
-
 describe("Promised thisArg", function() {
 
     var defaultThis = function() {return this}();
     var e = {value: 1};
 
-    specify("basic case, this first", function() {
-        var thisPromise = Promise.delay(1, 1);
-        var promise = thisPromise.thenReturn(2);
-        return promise.bind(thisPromise).then(function(val) {
+    specify("basic case, this first", function(done) {
+        var thisPromise = Promise.delay(1, 0);
+        var promise = Promise.delay(2, 56);
+        promise.bind(thisPromise).then(function(val) {
             assert(+this === 1);
             assert(+val === 2);
+            done();
         });
     });
 
-    specify("basic case, main promise first", function() {
-        var promise = Promise.delay(2, 1);
-        var thisPromise = promise.thenReturn(1);
-        return promise.bind(thisPromise).then(function(val) {
-            assert.strictEqual(+this, 1);
-            assert.strictEqual(+val, 2);
+    specify("basic case, main promise first", function(done) {
+        var thisPromise = Promise.delay(1, 56);
+        var promise = Promise.delay(2, 0);
+        promise.bind(thisPromise).then(function(val) {
+            assert(+this === 1);
+            assert(+val === 2);
+            done();
         });
     });
 
-    specify("both reject, this rejects first", function() {
-        var e1 = new Error("e1");
-        var e2 = new Error("e2");
-        var thisPromise = Promise.delay(1, 1).thenThrow(e1);
-        var promise = thisPromise.caught(function() {
-            throw e2;
-        });
-        return promise.bind(thisPromise).then(null, function(reason) {
+    specify("both reject, this rejects first", function(done) {
+        var e1 = new Error();
+        var e2 = new Error();
+        var thisPromise = Promise.delay(1, 0).thenThrow(e1);
+        var promise = Promise.delay(2, 56).thenThrow(e2);
+        promise.bind(thisPromise).then(null, function(reason) {
             assert(this === defaultThis);
-            assert.strictEqual(reason, e1);
+            assert(reason === e1);
+            done();
         });
     });
 
-    specify("both reject, main promise rejects first", function() {
+    specify("both reject, main promise rejects first", function(done) {
         var e1 = new Error("first");
         var e2 = new Error("second");
         var thisPromise = Promise.delay(1, 56).thenThrow(e1);
         var promise = Promise.delay(2, 0).thenThrow(e2);
-        return promise.bind(thisPromise).then(null, function(reason) {
+        promise.bind(thisPromise).then(null, function(reason) {
             assert(this === defaultThis);
-            assert.strictEqual(reason, e2);
+            assert(reason === e2);
+            done();
         });
     });
 
-    specify("root promise is cancelled before binding resolves", function() {
-        var t = Promise.delay(1).then(function() {
-            ret.cancel(err);
-        }).delay(1).thenReturn(THIS);
+    specify("main promise is cancelled before binding resolves", function(done) {
+        var t = Promise.delay(THIS, 100);
         var ret = new Promise(function() {}).cancellable().bind(t);
         var err = new Error();
-        return ret.then(assert.fail, function(e) {
-            assert.strictEqual(t.value(), THIS);
-            assert.strictEqual(e, err);
-            assert.strictEqual(this, THIS);
-        });
-    });
-
-    specify("returned promise is cancelled before binding resolves", function() {
-        var t = Promise.delay(1).then(function() {
+        Promise.delay(1).then(function() {
             ret.cancel(err);
-        }).delay(1).thenReturn(THIS);
-        var ret = new Promise(function() {}).bind(t).cancellable();
-        var err = new Error();
-
-        return ret.then(assert.fail, function(e) {
+        });
+        ret.caught(function(e) {
             assert.strictEqual(t.value(), THIS);
             assert.strictEqual(e, err);
             assert.strictEqual(this, THIS);
+            done();
         });
     });
 
-    specify("Immediate value waits for deferred this", function() {
-        var t = Promise.delay(THIS, 1);
-        var t2 = {};
-        Promise.resolve(t2).bind(t).then(function(value) {
-            assert.strictEqual(this, THIS);
-            assert.strictEqual(t2, value);
-        });
-    });
-
-
-    specify("Immediate error waits for deferred this", function() {
-        var t = Promise.delay(THIS, 1);
-        var err = new Error();
-        return Promise.reject(err).bind(t).then(assert.fail, function(e) {
-            assert.strictEqual(this, THIS);
-            assert.strictEqual(err, e);
-        });
-    });
-
-
-    specify("static promise is cancelled before binding resolves", function() {
-        var t = Promise.delay(1).then(function() {
-            promise.cancel(err);
-        }).delay(1).thenReturn(THIS);
-        var promise = Promise.bind(t, new Promise(function(){})).cancellable();
-        var err = new Error();
-
-        return promise.then(assert.fail, function(e) {
-            assert.strictEqual(t.value(), THIS);
-            assert.strictEqual(e, err);
-            assert.strictEqual(this, THIS);
-        });
-    });
-
-    specify("main promise is cancelled before binding rejects", function() {
-        var t = Promise.delay(1).then(function() {
-            ret.cancel(err);
-        }).delay(1).thenThrow(new Error());
+    specify("main promise is cancelled before binding rejects", function(done) {
+        var tErr = new Error();
+        var t = Promise.delay(THIS, 100).thenThrow(tErr);
         var ret = new Promise(function() {}).cancellable().bind(t);
         var err = new Error();
-        return ret.then(assert.fail, function(e) {
+        Promise.delay(1).then(function() {
+            ret.cancel(err);
+        });
+
+        ret.caught(function(e) {
             assert.strictEqual(e, err);
+            done();
         });
     });
 
