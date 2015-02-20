@@ -46,19 +46,12 @@ function check(self, resolver) {
     }
 }
 function Promise(resolver) {
-    //see constants.js for layout
     this._bitField = NO_STATE;
-    //Since most promises have exactly 1 parallel handler
-    //store the first ones directly on the object
-    //The rest (if needed) are stored on the object's
-    //elements array (this[0], this[1]...etc)
-    //which has less indirection than when using external array
     this._fulfillmentHandler0 = undefined;
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
     this._cancellationParent = undefined;
-    //reason for rejection or fulfilled value
     this._settledValue = undefined;
     if (resolver !== INTERNAL) {
         check(this, resolver);
