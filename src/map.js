@@ -82,13 +82,15 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
-            if (maybePromise._isPendingAndWaiting()) {
+            var bitField = maybePromise._bitField;
+            USE(bitField);
+            if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = maybePromise;
                 return maybePromise._proxyPromiseArray(this, (index + 1) * -1);
-            } else if (maybePromise._isFulfilled()) {
+            } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                 ret = maybePromise._value();
-            } else if (maybePromise._isRejected()) {
+            } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
                 return this._reject(maybePromise._reason());
             } else {
                 return this._cancel();

@@ -11,7 +11,7 @@ var targetRejected = function(e, context) {
 
 var bindingResolved = function(thisArg, context) {
     this._setBoundTo(thisArg);
-    if (this._isPending()) {
+    if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG, this._bitField)) {
         this._resolveCallback(context.target);
     }
 };

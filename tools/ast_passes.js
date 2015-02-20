@@ -172,6 +172,20 @@ Assertion.prototype.toString = function() {
     return 'ASSERT('+nodeToString(this.expr)+',\n    '+this.exprStr+')';
 };
 
+function BitFieldFlagCheck(value, inverted, start, end, fieldExpr) {
+    this.value = value;
+    this.inverted = inverted;
+    this.start = start;
+    this.end = end;
+    this.fieldExpr = fieldExpr;
+}
+
+BitFieldFlagCheck.prototype.toString = function() {
+    var fieldExpr = this.fieldExpr ? nodeToString(this.fieldExpr) : "bitField";
+    var equality = this.inverted ? "===" : "!==";
+    return "((" + fieldExpr + " & " + this.value + ") " + equality + " 0)";
+};
+
 function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end, isBrowser) {
     this.varExpr = varExpr;
     this.collectionExpression = collectionExpression;
@@ -364,36 +378,70 @@ inlinedFunctions.INLINE_SLICE = function( node, isBrowser ) {
     return new InlineSlice(varExpression, collectionExpression,
         startExpression, endExpression, statement.start, statement.end, isBrowser);
 };
+inlinedFunctions.BIT_FIELD_CHECK = function(node) {
+    var statement = node;
+    var args = node.expression.arguments;
+    if (args.length !== 1 && args.length !== 2) {
+        throw new Error("BIT_FIELD must have 1 or 2 arguments");
+    }
+    var arg = args[0];
+    if (arg.type !== "Identifier") {
+        throw new Error("BIT_FIELD argument must be an identifier");
+    }
+    var name = arg.name;
+    var constant = constants[name];
+    if (constant === undefined) {
+        throw new Error(name + " is not a constant");
+    }
+    var value = constant.value;
+    var inverted = false;
+    if (name.slice(-4) === "_NEG") {
+        inverted = true;
+    }
+    return new BitFieldFlagCheck(value, inverted, statement.start, statement.end, args[1]);
+};
+inlinedFunctions.USE = function(node) {
+    return new Empty(node.start, node.end);
+};
 
 var constants = {};
 var ignore = [];
-
+Error.stackTraceLimit = 10000;
 var astPasses = module.exports = {
 
     inlineExpansion: function( src, fileName, isBrowser ) {
         var ast = parse(src, fileName);
         var results = [];
+        var expr = [];
+        function doInline(node) {
+            if( node.expression.type !== 'CallExpression' ) {
+                return;
+            }
+
+            var name = node.expression.callee.name;
+
+            if(typeof inlinedFunctions[ name ] === "function" &&
+                expr.indexOf(node.expression) === -1) {
+                expr.push(node.expression);
+                try {
+                    results.push( inlinedFunctions[ name ]( node, isBrowser ) );
+                }
+                catch(e) {
+                    e.fileName = fileName;
+                    throw e;
+                }
+
+            }
+        }
         walk.simple(ast, {
-            ExpressionStatement: function( node ) {
-                if( node.expression.type !== 'CallExpression' ) {
-                    return;
-                }
-
-                var name = node.expression.callee.name;
-
-                if( typeof inlinedFunctions[ name ] === "function" ) {
-                    try {
-                        results.push( inlinedFunctions[ name ]( node, isBrowser ) );
-                    }
-                    catch(e) {
-                        e.fileName = fileName;
-                        throw e;
-                    }
-
-                }
+            ExpressionStatement: doInline,
+            CallExpression: function(node) {
+                node.expression = node;
+                doInline(node);
             }
         });
-        return convertSrc( src, results );
+        var ret = convertSrc( src, results );
+        return ret;
     },
 
     //Parse constants in from constants.js

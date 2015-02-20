@@ -83,14 +83,18 @@ Promise.join = function () {
                     var maybePromise = tryConvertToPromise(arguments[i], ret);
                     if (maybePromise instanceof Promise) {
                         maybePromise = maybePromise._target();
-                        if (maybePromise._isPending()) {
+                        var bitField = maybePromise._bitField;
+                        USE(bitField);
+                        if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                             maybePromise._then(callbacks[i], reject,
                                                undefined, ret, holder);
-                        } else if (maybePromise._isFulfilled()) {
+                        } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                             callbacks[i].call(ret,
                                               maybePromise._value(), holder);
-                        } else {
+                        } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
                             ret._reject(maybePromise._reason());
+                        } else {
+                            ret._cancel();
                         }
                     } else {
                         callbacks[i].call(ret, maybePromise, holder);

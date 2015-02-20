@@ -53,7 +53,6 @@ Promise.prototype._isUnhandledRejectionNotified = function () {
 
 Promise.prototype._setRejectionIsUnhandled = function () {
     ASSERT(!this._isFollowing());
-    ASSERT(this._isRejected());
     this._bitField = this._bitField | IS_REJECTION_UNHANDLED;
 };
 
@@ -73,7 +72,6 @@ Promise.prototype._isRejectionUnhandled = function () {
 
 Promise.prototype._setCarriedStackTrace = function (capturedTrace) {
     ASSERT(!this._isFollowing());
-    ASSERT(this._isRejected());
     this._bitField = this._bitField | IS_CARRYING_STACK_TRACE;
     //Since this field is not used in rejected promises, smuggle the trace there
     this._fulfillmentHandler0 = capturedTrace;
@@ -85,7 +83,6 @@ Promise.prototype._isCarryingStackTrace = function () {
 };
 
 Promise.prototype._getCarriedStackTrace = function () {
-    ASSERT(this._isRejected());
     return this._isCarryingStackTrace()
         ? this._fulfillmentHandler0
         : undefined;

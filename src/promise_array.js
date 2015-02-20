@@ -39,10 +39,11 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
     var values = tryConvertToPromise(this._values, this._promise);
     if (values instanceof Promise) {
         values = values._target();
+        var bitField = values._bitField;
+        USE(bitField);
         this._values = values;
-        if (values._isFulfilled()) {
-            values = values._value();
-        } else if (values._isPendingAndWaiting()) {
+
+        if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
             return values._then(
@@ -52,7 +53,9 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
                 this,
                 resolveValueIfEmpty
            );
-        } else if (values._isRejected()) {
+        } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+            values = values._value();
+        } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
             return this._reject(values._reason());
         } else {
             return this._cancel();
@@ -87,15 +90,17 @@ PromiseArray.prototype._iterate = function(values) {
         var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
-            if (isResolved) {
-                maybePromise._unsetRejectionIsUnhandled();
-            } else if (maybePromise._isPendingAndWaiting()) {
+            var bitField = maybePromise._bitField;
+            USE(bitField);
+            if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);
                 this._values[i] = maybePromise;
-            } else if (maybePromise._isFulfilled()) {
+            } else if (isResolved) {
+                maybePromise._unsetRejectionIsUnhandled();
+            } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                 this._promiseFulfilled(maybePromise._value(), i);
-            } else if (maybePromise._isRejected()) {
+            } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
                 this._promiseRejected(maybePromise._reason(), i);
             } else {
                 this._promiseCancelled(i);
