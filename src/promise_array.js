@@ -19,7 +19,7 @@ function PromiseArray(values) {
     ASSERT(arguments.length === 1);
     var promise = this._promise = new Promise(INTERNAL);
     if (values instanceof Promise) {
-        promise._propagateFrom(values, PROPAGATE_CANCEL | PROPAGATE_BIND);
+        promise._propagateFrom(values, PROPAGATE_ALL);
     }
     promise._setOnCancel(this);
     this._values = values;

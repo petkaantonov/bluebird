@@ -202,7 +202,7 @@ Promise.prototype._then = function (
     var ret = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if (!haveInternalData) {
-        ret._propagateFrom(this, PROPAGATE_BIND | PROPAGATE_CANCEL);
+        ret._propagateFrom(this, PROPAGATE_ALL);
         ret._captureStackTrace();
     }
 
@@ -548,7 +548,6 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
         this._setBoundTo(parent._boundTo);
     }
-    ASSERT((flags & PROPAGATE_TRACE) === 0);
 };
 
 Promise.prototype._fulfill = function (value) {
