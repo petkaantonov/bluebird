@@ -37,13 +37,15 @@ var catchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
-function Promise(resolver) {
+function check(self, resolver) {
     if (typeof resolver !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(resolver));
     }
-    if (this.constructor !== Promise) {
+    if (self.constructor !== Promise) {
         throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
     }
+}
+function Promise(resolver) {
     //see constants.js for layout
     this._bitField = NO_STATE;
     //Since most promises have exactly 1 parallel handler
@@ -59,7 +61,10 @@ function Promise(resolver) {
     this._cancellationParent = undefined;
     //reason for rejection or fulfilled value
     this._settledValue = undefined;
-    if (resolver !== INTERNAL) this._resolveFromResolver(resolver);
+    if (resolver !== INTERNAL) {
+        check(this, resolver);
+        this._resolveFromResolver(resolver);
+    }
     var ctx;
     if ((ctx = this._peekContext()) !== undefined) ctx._promisesCreated++;
 }
