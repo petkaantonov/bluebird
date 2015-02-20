@@ -57,7 +57,6 @@ function Promise(resolver) {
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
-    this._onCancel = undefined;
     this._cancellationParent = undefined;
     //reason for rejection or fulfilled value
     this._settledValue = undefined;
@@ -431,9 +430,9 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
         this._setFollowing();
         this._setLength(0);
         this._setFollowee(promise);
-        if (this._onCancel !== undefined) {
-            promise._attachCancellationCallback(this._onCancel, this);
-            this._onCancel = undefined;
+        if (this._onCancel() !== undefined) {
+            promise._attachCancellationCallback(this._onCancel(), this);
+            this._unsetOnCancel();
         }
     } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
         this._fulfillUnchecked(promise._value());
@@ -586,9 +585,10 @@ Promise.prototype._settlePromiseAt = function (index) {
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
     this._clearCallbackDataAtIndex(index);
-    if (this._isCancelled()) {
-        if (isPromise && promise._onCancel !== undefined) {
-            promise._invokeOnCancel(promise._onCancel);
+    if (BIT_FIELD_CHECK(IS_CANCELLED)) {
+        if (isPromise && promise.isCancellable()
+            && promise._onCancel() !== undefined) {
+            promise._invokeOnCancel(promise._onCancel());
         }
         if (handler === finallyHandler) {
             receiver.cancelPromise = promise;

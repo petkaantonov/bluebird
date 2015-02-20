@@ -16,6 +16,21 @@ Promise.prototype._cancel = function() {
     }
 };
 
+Promise.prototype._unsetOnCancel = function() {
+    ASSERT(this.isCancellable() || this.isCancelled());
+    this._settledValue = undefined;
+};
+
+Promise.prototype._setOnCancel = function(onCancel) {
+    ASSERT(this.isCancellable());
+    this._settledValue = onCancel;
+};
+
+Promise.prototype._onCancel = function() {
+    ASSERT(this.isCancellable());
+    return this._settledValue;
+};
+
 Promise.prototype.isCancellable = function() {
     return this.isPending() && !this.isCancelled();
 };
@@ -28,17 +43,17 @@ Promise.prototype._attachCancellationCallback = function(onCancel, ctx) {
         return this;
     }
     var target = this._target();
-    if (target._onCancel !== undefined) {
+    if (target._onCancel() !== undefined) {
         var newOnCancel = onCancel;
-        var oldOnCancel = target._onCancel;
+        var oldOnCancel = target._onCancel();
         if (ctx === undefined) ctx = this;
         onCancel = function() {
             ctx._invokeOnCancel(oldOnCancel);
             ctx._invokeOnCancel(newOnCancel);
-            target._onCancel = undefined;
+            target._unsetOnCancel();
         };
     }
-    target._onCancel = onCancel;
+    target._setOnCancel(onCancel);
 };
 
 Promise.prototype.onCancel = function(onCancel) {
@@ -63,7 +78,7 @@ Promise.prototype._doInvokeOnCancel = function(callback) {
         } else {
             callback._resultCancelled(this);
         }
-        this._onCancel = undefined;
+        this._unsetOnCancel();
     }
 };
 
@@ -81,7 +96,7 @@ Promise.prototype.cancelAfter = function(ms) {
 Promise.prototype["break"] = Promise.prototype.cancel = function() {
     var promise = this;
     while (promise.isCancellable()) {
-        promise._invokeOnCancel(promise._onCancel);
+        promise._invokeOnCancel(promise._onCancel());
         var parent = promise._cancellationParent;
         if (parent == null || !parent.isCancellable()) {
             if (promise._isFollowing()) {

@@ -39,11 +39,11 @@ function finallyHandler(reasonOrValue) {
                         checkCancel(this);
                     } else if (maybePromise.isPending()) {
                         var ctx = this;
-                        var oldOnCancel = maybePromise._onCancel;
-                        maybePromise._onCancel = function() {
+                        var oldOnCancel = maybePromise._onCancel();
+                        maybePromise._setOnCancel(function() {
                             checkCancel(ctx);
                             maybePromise._invokeOnCancel(oldOnCancel);
-                        };
+                        });
                     }
                 }
                 return maybePromise._then(

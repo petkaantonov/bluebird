@@ -21,7 +21,7 @@ function PromiseArray(values) {
     if (values instanceof Promise) {
         promise._propagateFrom(values, PROPAGATE_CANCEL | PROPAGATE_BIND);
     }
-    promise._onCancel = this;
+    promise._setOnCancel(this);
     this._values = values;
     this._length = 0;
     this._totalResolved = 0;
