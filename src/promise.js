@@ -565,6 +565,7 @@ Promise.prototype._reject = function (reason, carriedStackTrace) {
 Promise.prototype._settlePromiseAt = function (index) {
     var promise = this._promiseAt(index);
     var isPromise = promise instanceof Promise;
+    var isFulfilled = this._isFulfilled();
 
     ASSERT(async._isTickUsed);
     if (isPromise && promise._isMigrated()) {
@@ -572,11 +573,11 @@ Promise.prototype._settlePromiseAt = function (index) {
         return async.invoke(this._settlePromiseAt, this, index);
     }
     ASSERT(!this._isFollowing());
-    var handler = this._isFulfilled()
+    var handler = isFulfilled
         ? this._fulfillmentHandlerAt(index)
         : this._rejectionHandlerAt(index);
 
-    ASSERT(this._isFulfilled() || this._isRejected());
+    ASSERT(isFulfilled || this._isRejected());
 
     var carriedStackTrace =
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
@@ -599,7 +600,7 @@ Promise.prototype._settlePromiseAt = function (index) {
         }
     } else if (receiver instanceof PromiseArray) {
         if (!receiver._isResolved()) {
-            if (this._isFulfilled()) {
+            if (isFulfilled) {
                 receiver._promiseFulfilled(value, promise);
             }
             else {
@@ -607,7 +608,7 @@ Promise.prototype._settlePromiseAt = function (index) {
             }
         }
     } else if (isPromise) {
-        if (this._isFulfilled()) {
+        if (isFulfilled) {
             promise._fulfill(value);
         } else {
             promise._reject(value, carriedStackTrace);
