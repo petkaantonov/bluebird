@@ -406,13 +406,14 @@ Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
 };
 
 Promise.prototype._resolveCallback = function(value, shouldBind) {
-    if (this._isFateSealed()) return;
+    if (BIT_FIELD_CHECK(IS_FATE_SEALED, this._bitField)) return;
     if (value === this)
         return this._rejectCallback(makeSelfResolutionError(), false);
     var maybePromise = tryConvertToPromise(value, this);
     if (!(maybePromise instanceof Promise)) return this._fulfill(value);
 
-    this._propagateFrom(maybePromise, shouldBind ? PROPAGATE_BIND : 0);
+    if (shouldBind) this._propagateFrom(maybePromise, PROPAGATE_BIND);
+
     var promise = maybePromise._target();
     var bitField = promise._bitField;
     if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
@@ -540,10 +541,11 @@ Promise.prototype._cleanValues = function () {
 };
 
 Promise.prototype._propagateFrom = function (parent, flags) {
-    if ((flags & PROPAGATE_CANCEL) > 0) {
+    ASSERT(flags !== 0);
+    if ((flags & PROPAGATE_CANCEL) !== 0) {
         this._cancellationParent = parent;
     }
-    if ((flags & PROPAGATE_BIND) > 0 && parent._isBound()) {
+    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
         this._setBoundTo(parent._boundTo);
     }
     ASSERT((flags & PROPAGATE_TRACE) === 0);
