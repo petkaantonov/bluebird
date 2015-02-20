@@ -9,6 +9,7 @@ function Async() {
     this._isTickUsed = false;
     this._lateQueue = new Queue(LATE_QUEUE_CAPACITY);
     this._normalQueue = new Queue(NORMAL_QUEUE_CAPACITY);
+    this._haveDrainedQueues = false;
     var self = this;
     this.drainQueues = function () {
         self._drainQueues();
@@ -18,7 +19,7 @@ function Async() {
 }
 
 Async.prototype.haveItemsQueued = function () {
-    return this._normalQueue.length() > 0;
+    return this._isTickUsed || this._haveDrainedQueues;
 };
 
 Async.prototype.fatalError = function(e, trace, isNode) {
@@ -92,6 +93,7 @@ Async.prototype._drainQueues = function () {
     ASSERT(this._isTickUsed);
     this._drainQueue(this._normalQueue);
     this._reset();
+    this._haveDrainedQueues = true;
     this._drainQueue(this._lateQueue);
 };
 

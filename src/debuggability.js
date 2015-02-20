@@ -117,8 +117,6 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace) {
     return warn(message, shouldUseOwnTrace, this);
 };
 
-
-
 Promise.onPossiblyUnhandledRejection = function (fn) {
     possiblyUnhandledRejection = typeof fn === "function" ? fn : undefined;
 };

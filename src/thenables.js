@@ -7,36 +7,43 @@ var isObject = util.isObject;
 
 function tryConvertToPromise(obj, context) {
     if (isObject(obj)) {
-        if (obj instanceof Promise) {
-            return obj;
-        }
-        //Make casting from another bluebird fast
-        else if (isAnyBluebirdPromise(obj)) {
-            var ret = new Promise(INTERNAL);
-            obj._then(
-                ret._fulfillUnchecked,
-                ret._rejectUncheckedCheckError,
-                undefined,
-                ret,
-                null
-            );
-            return ret;
-        }
-        var then = util.tryCatch(getThen)(obj);
+        if (obj instanceof Promise) return obj;
+        var then = getThen(obj);
         if (then === errorObj) {
             if (context) context._pushContext();
             var ret = Promise.reject(then.e);
             if (context) context._popContext();
             return ret;
         } else if (typeof then === "function") {
+            //Make casting from another bluebird fast
+            if (isAnyBluebirdPromise(obj)) {
+                var ret = new Promise(INTERNAL);
+                obj._then(
+                    ret._fulfillUnchecked,
+                    ret._rejectUncheckedCheckError,
+                    undefined,
+                    ret,
+                    null
+                );
+                return ret;
+            }
             return doThenable(obj, then, context);
         }
     }
     return obj;
 }
 
-function getThen(obj) {
+function doGetThen(obj) {
     return obj.then;
+}
+
+function getThen(obj) {
+    try {
+        return doGetThen(obj);
+    } catch (e) {
+        errorObj.e = e;
+        return errorObj;
+    }
 }
 
 var hasProp = {}.hasOwnProperty;
