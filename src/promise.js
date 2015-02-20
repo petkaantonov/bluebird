@@ -579,8 +579,6 @@ Promise.prototype._settlePromiseAt = function (index) {
 
     ASSERT(isFulfilled || this._isRejected());
 
-    var carriedStackTrace =
-        this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
     if (isPromise && promise._isMigratingBinding()) {
@@ -611,7 +609,9 @@ Promise.prototype._settlePromiseAt = function (index) {
         if (isFulfilled) {
             promise._fulfill(value);
         } else {
-            promise._reject(value, carriedStackTrace);
+            promise._reject(value, (this._isCarryingStackTrace() 
+                                    ? this._getCarriedStackTrace() 
+                                    : undefined));
         }
     }
 
