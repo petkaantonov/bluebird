@@ -64,38 +64,4 @@ describe("regressions", function() {
             });
         });
     });
-
-    specify("should have same order as if 2.3.2 was implemented as adoption", function() {
-        var order = [];
-        var resolveFollower;
-        var follower = new Promise(function() {
-            resolveFollower = arguments[0];
-        });
-
-        follower.then(function() {
-            order.push(1);
-        });
-
-        var resolveFollowee;
-        var followee = new Promise(function() {
-            resolveFollowee = arguments[0];
-        });
-
-        followee.then(function() {
-            order.push(2);
-        });
-
-        resolveFollower(followee);
-
-        followee.then(function() {
-            order.push(3);
-        });
-
-        resolveFollowee();
-
-        return follower.then(function() {
-            order.push(4);
-            assert.equal(order.join(","), "2,3,1,4");
-        });
-    })
 });

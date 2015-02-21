@@ -310,10 +310,11 @@ function getFunctionSource(fn) {
 Worker.prototype.init = function() {
     assert(Array.isArray(ARGS));
     assert(!this._c);
-    var env = {
-        requirePath: this._requirePath
-    };
-
+    var env = {};
+    Object.getOwnPropertyNames(process.env).forEach(function(key) {
+        env[key] = process.env[key];
+    });
+    env.requirePath = this._requirePath;
     if (typeof this._initTaskFn === "function") {
         env.initialCode = getFunctionSource(this._initTaskFn);
     }

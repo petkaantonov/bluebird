@@ -209,7 +209,6 @@ Promise.prototype._then = function (
     var target = this._target();
     if (target !== this) {
         if (receiver === undefined) receiver = this._boundTo;
-        if (!haveInternalData) ret._setIsMigrated();
     }
 
     var callbackIndex =
@@ -279,18 +278,6 @@ Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
 };
 
-Promise.prototype._setIsMigrated = function () {
-    this._bitField = this._bitField | IS_MIGRATED;
-};
-
-Promise.prototype._unsetIsMigrated = function () {
-    this._bitField = this._bitField & (~IS_MIGRATED);
-};
-
-Promise.prototype._isMigrated = function () {
-    return (this._bitField & IS_MIGRATED) > 0;
-};
-
 Promise.prototype._receiverAt = function (index) {
     ASSERT(!this._isFollowing());
     var ret = index === 0
@@ -331,7 +318,6 @@ Promise.prototype._migrateCallbacks = function (follower, index) {
     var reject = follower._rejectionHandlerAt(index);
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
-    if (promise instanceof Promise) promise._setIsMigrated();
     this._addCallbacks(fulfill, reject, promise, receiver);
 };
 
@@ -565,10 +551,6 @@ Promise.prototype._settlePromiseAt = function (index) {
     var isPromise = promise instanceof Promise;
 
     ASSERT(async._isTickUsed);
-    if (isPromise && BIT_FIELD_CHECK(IS_MIGRATED, promise._bitField)) {
-        promise._unsetIsMigrated();
-        return async.invoke(this._settlePromiseAt, this, index);
-    }
     ASSERT(!this._isFollowing());
 
     var bitField = this._bitField;
