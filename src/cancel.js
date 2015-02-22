@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, apiRejection) {
+module.exports = function(Promise, apiRejection, debug) {
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
@@ -98,6 +98,8 @@ Promise.prototype.cancelAfter = function(ms) {
 };
 
 Promise.prototype["break"] = Promise.prototype.cancel = function() {
+    if (!debug.cancellation()) return this._warn("cancellation is disabled");
+
     var promise = this;
     while (promise.isCancellable()) {
         promise._invokeOnCancel(promise._onCancel());

@@ -126,9 +126,7 @@ Promise.onUnhandledRejectionHandled = function (fn) {
 };
 
 Promise.longStackTraces = function () {
-    if (async.haveItemsQueued() &&
-        config.longStackTraces === false
-   ) {
+    if (async.haveItemsQueued() && !config.longStackTraces) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
     config.longStackTraces = longStackTracesIsSupported();
@@ -146,7 +144,38 @@ Promise.config = function(opts) {
     if ("warnings" in opts) {
         config.warnings = !!opts.warnings;
     }
+    if ("cancellation" in opts && opts.cancellation && !config.cancellation) {
+        if (async.haveItemsQueued()) {
+            throw new Error(
+                "cannot enable cancellation after promises are in use");
+        }
+        Promise.prototype._cleanValues = cancellationCleanValues;
+        Promise.prototype._propagateFrom = cancellationPropagateFrom;
+        config.cancellation = true;
+    }
 };
+
+Promise.prototype._cleanValues = function() {};
+Promise.prototype._propagateFrom = function (parent, flags) {
+    ASSERT(flags !== 0);
+    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
+        this._setBoundTo(parent._boundTo);
+    }
+};
+
+function cancellationCleanValues() {
+    this._cancellationParent = undefined;
+}
+
+function cancellationPropagateFrom(parent, flags) {
+    ASSERT(flags !== 0);
+    if ((flags & PROPAGATE_CANCEL) !== 0) {
+        this._cancellationParent = parent;
+    }
+    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
+        this._setBoundTo(parent._boundTo);
+    }
+}
 
 function checkForgottenReturns(returnValue, promisesCreated, name, promise) {
     if (returnValue === undefined &&
@@ -679,7 +708,8 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 
 var config = {
     warnings: warnings,
-    longStackTraces: longStackTraces && longStackTracesIsSupported()
+    longStackTraces: longStackTraces && longStackTracesIsSupported(),
+    cancellation: false
 };
 
 return {
@@ -688,6 +718,9 @@ return {
     },
     warnings: function() {
         return config.warnings;
+    },
+    cancellation: function() {
+        return config.cancellation;
     },
     checkForgottenReturns: checkForgottenReturns,
     setBounds: setBounds,

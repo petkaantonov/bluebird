@@ -51,7 +51,6 @@ function Promise(resolver) {
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
-    this._cancellationParent = undefined;
     this._settledValue = undefined;
     if (resolver !== INTERNAL) {
         check(this, resolver);
@@ -507,21 +506,6 @@ Promise.prototype._setFollowee = function(promise) {
     ASSERT(this._isFollowing());
     ASSERT(!(this._rejectionHandler0 instanceof Promise));
     this._rejectionHandler0 = promise;
-};
-
-Promise.prototype._cleanValues = function () {
-    ASSERT(!this._isFollowing());
-    this._cancellationParent = undefined;
-};
-
-Promise.prototype._propagateFrom = function (parent, flags) {
-    ASSERT(flags !== 0);
-    if ((flags & PROPAGATE_CANCEL) !== 0) {
-        this._cancellationParent = parent;
-    }
-    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
-        this._setBoundTo(parent._boundTo);
-    }
 };
 
 Promise.prototype._fulfill = function (value) {

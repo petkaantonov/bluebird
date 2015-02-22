@@ -84,6 +84,7 @@ module.exports = function mochaRun(progress) {
         });
         return ret;
     };
+    Promise.config({cancellation: true});
     return Promise.each(testGroup, function(test, index, length) {
         var mocha = new Mocha({
             reporter: "spec",
