@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise) {
-var async = require("./async.js");
+var async = Promise._async;
 var Warning = require("./errors.js").Warning;
 var util = require("./util.js");
 var ASSERT = require("./assert.js");
@@ -88,31 +88,6 @@ Promise.prototype._getCarriedStackTrace = function () {
         : undefined;
 };
 
-Promise.prototype._captureStackTrace = function () {
-    ASSERT(arguments.length === 0);
-    ASSERT(this._trace == null);
-    if (config.longStackTraces) {
-        this._trace = new CapturedTrace(this._peekContext());
-    }
-    return this;
-};
-
-Promise.prototype._attachExtraTrace = function (error, ignoreSelf) {
-    if (config.longStackTraces && canAttachTrace(error)) {
-        var trace = this._trace;
-        if (trace !== undefined) {
-            if (ignoreSelf) trace = trace._parent;
-        }
-        if (trace !== undefined) {
-            trace.attachExtraTrace(error);
-        } else if (!error.__stackCleaned__) {
-            var parsed = parseStackAndMessage(error);
-            error.stack = parsed.message + "\n" + parsed.stack.join("\n");
-            util.notEnumerableProp(error, "__stackCleaned__", true);
-        }
-    }
-};
-
 Promise.prototype._warn = function(message, shouldUseOwnTrace) {
     return warn(message, shouldUseOwnTrace, this);
 };
@@ -129,7 +104,11 @@ Promise.longStackTraces = function () {
     if (async.haveItemsQueued() && !config.longStackTraces) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
-    config.longStackTraces = longStackTracesIsSupported();
+    if (!config.longStackTraces && longStackTracesIsSupported()) {
+        config.longStackTraces = true;
+        Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
+        Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
+    }
 };
 
 Promise.hasLongStackTraces = function () {
@@ -156,6 +135,8 @@ Promise.config = function(opts) {
     }
 };
 
+Promise.prototype._captureStackTrace = function () {};
+Promise.prototype._attachExtraTrace = function () {};
 Promise.prototype._cleanValues = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
@@ -183,6 +164,27 @@ function bindingPropagateFrom(parent, flags) {
     }
 }
 var propagateFromFunction = bindingPropagateFrom;
+
+function longStackTracesCaptureStackTrace() {
+    ASSERT(this._trace == null);
+    this._trace = new CapturedTrace(this._peekContext());
+}
+
+function longStackTracesAttachExtraTrace(error, ignoreSelf) {
+    if (canAttachTrace(error)) {
+        var trace = this._trace;
+        if (trace !== undefined) {
+            if (ignoreSelf) trace = trace._parent;
+        }
+        if (trace !== undefined) {
+            trace.attachExtraTrace(error);
+        } else if (!error.__stackCleaned__) {
+            var parsed = parseStackAndMessage(error);
+            error.stack = parsed.message + "\n" + parsed.stack.join("\n");
+            util.notEnumerableProp(error, "__stackCleaned__", true);
+        }
+    }
+}
 
 function checkForgottenReturns(returnValue, promisesCreated, name, promise) {
     if (returnValue === undefined &&
@@ -715,9 +717,11 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 
 var config = {
     warnings: warnings,
-    longStackTraces: longStackTraces && longStackTracesIsSupported(),
+    longStackTraces: false,
     cancellation: false
 };
+
+if (longStackTraces) Promise.longStackTraces();
 
 return {
     longStackTraces: function() {

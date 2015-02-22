@@ -11,7 +11,10 @@ var apiRejection = function(msg) {
 };
 var ASSERT = require("./assert.js");
 var util = require("./util.js");
-var async = require("./async.js");
+var es5 = require("./es5.js");
+var Async = require("./async.js");
+var async = new Async();
+es5.defineProperty(Promise, "_async", {value: async});
 var errors = require("./errors.js");
 var TypeError = Promise.TypeError = errors.TypeError;
 Promise.RangeError = errors.RangeError;
@@ -699,7 +702,7 @@ Promise.defer = function() {
         reject: deferReject
     };
 };
-Promise._async = async;
+
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
 require("./bind.js")(Promise, INTERNAL, tryConvertToPromise, debug);

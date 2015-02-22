@@ -108,5 +108,5 @@ Async.prototype._reset = function () {
     this._isTickUsed = false;
 };
 
-module.exports = new Async();
+module.exports = Async;
 module.exports.firstLineError = firstLineError;

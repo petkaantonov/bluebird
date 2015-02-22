@@ -4,7 +4,7 @@ var ASSERT = require("./assert.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
-var async = require("./async.js");
+var async = Promise._async;
 
 Promise.prototype._cancel = function() {
     if (!this.isCancellable()) return;
