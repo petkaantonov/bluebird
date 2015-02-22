@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function(Promise, INTERNAL, tryConvertToPromise) {
+module.exports = function(Promise, INTERNAL, tryConvertToPromise, debug) {
+var calledBind = false;
 var rejectThis = function(_, e) {
     this._reject(e);
 };
@@ -21,6 +22,10 @@ var bindingRejected = function(e, context) {
 };
 
 Promise.prototype.bind = function (thisArg) {
+    if (!calledBind) {
+        calledBind = true;
+        Promise.prototype._propagateFrom = debug.propagateFromFunction();
+    }
     var maybePromise = tryConvertToPromise(thisArg);
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_CANCEL);
@@ -56,18 +61,6 @@ Promise.prototype._isBound = function () {
 };
 
 Promise.bind = function (thisArg, value) {
-    var maybePromise = tryConvertToPromise(thisArg);
-    var ret = new Promise(INTERNAL);
-
-    if (maybePromise instanceof Promise) {
-        maybePromise._then(function(thisArg) {
-            ret._setBoundTo(thisArg);
-            ret._resolveCallback(value);
-        }, ret._reject, ret._progress, ret, null);
-    } else {
-        ret._setBoundTo(thisArg);
-        ret._resolveCallback(value);
-    }
-    return ret;
+    return Promise.resolve(value).bind(thisArg);
 };
 };

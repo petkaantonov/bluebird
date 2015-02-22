@@ -161,7 +161,7 @@ function isClass(fn) {
 }
 
 function toFastProperties(obj) {
-    /*jshint -W027*/
+    /*jshint -W027,-W031*/
     function FakeConstructor() {}
     FakeConstructor.prototype = obj;
     new FakeConstructor();

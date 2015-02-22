@@ -151,16 +151,15 @@ Promise.config = function(opts) {
         }
         Promise.prototype._cleanValues = cancellationCleanValues;
         Promise.prototype._propagateFrom = cancellationPropagateFrom;
+        propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
     }
 };
 
 Promise.prototype._cleanValues = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
-    ASSERT(flags !== 0);
-    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
-        this._setBoundTo(parent._boundTo);
-    }
+    USE(parent);
+    USE(flags);
 };
 
 function cancellationCleanValues() {
@@ -176,6 +175,14 @@ function cancellationPropagateFrom(parent, flags) {
         this._setBoundTo(parent._boundTo);
     }
 }
+
+function bindingPropagateFrom(parent, flags) {
+    ASSERT(flags !== 0);
+    if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
+        this._setBoundTo(parent._boundTo);
+    }
+}
+var propagateFromFunction = bindingPropagateFrom;
 
 function checkForgottenReturns(returnValue, promisesCreated, name, promise) {
     if (returnValue === undefined &&
@@ -721,6 +728,9 @@ return {
     },
     cancellation: function() {
         return config.cancellation;
+    },
+    propagateFromFunction: function() {
+        return propagateFromFunction;
     },
     checkForgottenReturns: checkForgottenReturns,
     setBounds: setBounds,

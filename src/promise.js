@@ -203,7 +203,10 @@ Promise.prototype._then = function (
     if (!haveInternalData) {
         promise._propagateFrom(this, PROPAGATE_ALL);
         promise._captureStackTrace();
-        if (receiver === undefined) receiver = this._boundTo;
+        if (receiver === undefined &&
+            BIT_FIELD_CHECK(IS_BOUND, this._bitField)) {
+            receiver = this._boundTo;
+        }
     }
 
     var target = this._target();
@@ -308,11 +311,15 @@ Promise.prototype._rejectionHandlerAt = function (index) {
 };
 
 Promise.prototype._migrateCallback0 = function (follower) {
+    var bitField = follower._bitField;
     var fulfill = follower._fulfillmentHandler0;
     var reject = follower._rejectionHandler0;
     var promise = follower._promise0;
     var receiver = follower._receiver0;
-    if (receiver === undefined) receiver = follower._boundTo;
+    if (BIT_FIELD_CHECK(IS_BOUND) &&
+        receiver === undefined) {
+        receiver = follower._boundTo;
+    }
     this._addCallbacks(fulfill, reject, promise, receiver);
 };
 
@@ -695,7 +702,7 @@ Promise.defer = function() {
 Promise._async = async;
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
-require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
+require("./bind.js")(Promise, INTERNAL, tryConvertToPromise, debug);
 
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
