@@ -1,11 +1,17 @@
 "use strict";
-module.exports = function(Promise, CapturedTrace, longStackTraces) {
+module.exports = function(Promise) {
+var longStackTraces = false;
 var contextStack = [];
+
+Promise.prototype._promiseCreated = function() {};
+Promise.prototype._pushContext = function() {};
+Promise.prototype._popContext = function() {return 0;};
+Promise._peekContext = Promise.prototype._peekContext = function() {};
+
 function Context() {
-    this._trace = new CapturedTrace(peekContext());
+    this._trace = new Context.CapturedTrace(peekContext());
 }
 Context.prototype._pushContext = function () {
-    if (!longStackTraces()) return;
     if (this._trace !== undefined) {
         this._trace._promisesCreated = 0;
         contextStack.push(this._trace);
@@ -13,7 +19,6 @@ Context.prototype._pushContext = function () {
 };
 
 Context.prototype._popContext = function () {
-    if (!longStackTraces()) return 0;
     if (this._trace !== undefined) {
         var trace = contextStack.pop();
         var ret = trace._promisesCreated;
@@ -24,7 +29,7 @@ Context.prototype._popContext = function () {
 };
 
 function createContext() {
-    if (longStackTraces()) return new Context();
+    if (longStackTraces) return new Context();
 }
 
 function peekContext() {
@@ -34,10 +39,17 @@ function peekContext() {
     }
     return undefined;
 }
-
-Promise._peekContext = Promise.prototype._peekContext = peekContext;
-Promise.prototype._pushContext = Context.prototype._pushContext;
-Promise.prototype._popContext = Context.prototype._popContext;
-
-return createContext;
+Context.CapturedTrace = null;
+Context.create = createContext;
+Context.activateLongStackTraces = function() {
+    longStackTraces = true;
+    Promise.prototype._pushContext = Context.prototype._pushContext;
+    Promise.prototype._popContext = Context.prototype._popContext;
+    Promise._peekContext = Promise.prototype._peekContext = peekContext;
+    Promise.prototype._promiseCreated = function() {
+        var ctx = this._peekContext();
+        if (ctx) ctx._promisesCreated++;
+    };
+};
+return Context;
 };

@@ -30,12 +30,12 @@ var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array.js")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
-var debug = require("./debuggability.js")(Promise);
+var Context = require("./context.js")(Promise);
+ /*jshint unused:false*/
+var createContext = Context.create;
+var debug = require("./debuggability.js")(Promise, Context);
 var CapturedTrace = debug.CapturedTrace;
 var finallyHandler = require("./finally.js")(Promise, tryConvertToPromise);
- /*jshint unused:false*/
-var createContext =
-    require("./context.js")(Promise, CapturedTrace, debug.longStackTraces);
 var catchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
@@ -59,8 +59,7 @@ function Promise(executor) {
         check(this, executor);
         this._resolveFromExecutor(executor);
     }
-    var ctx;
-    if ((ctx = this._peekContext()) !== undefined) ctx._promisesCreated++;
+    this._promiseCreated();
 }
 
 Promise.prototype.toString = function () {

@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise) {
+module.exports = function(Promise, Context) {
 var async = Promise._async;
 var Warning = require("./errors.js").Warning;
 var util = require("./util.js");
@@ -108,6 +108,7 @@ Promise.longStackTraces = function () {
         config.longStackTraces = true;
         Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
         Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
+        Context.activateLongStackTraces();
     }
 };
 
@@ -478,6 +479,7 @@ function CapturedTrace(parent) {
     if (length > 32) this.uncycle();
 }
 util.inherits(CapturedTrace, Error);
+Context.CapturedTrace = CapturedTrace;
 
 CapturedTrace.prototype.uncycle = function() {
     var length = this._length;
