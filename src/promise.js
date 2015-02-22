@@ -370,31 +370,12 @@ Promise.prototype._addCallbacks = function (
     return index;
 };
 
-Promise.prototype._setProxyHandlers = function (receiver, promiseSlotValue) {
-    ASSERT(!this._isFollowing());
-    var index = this._length();
-
-    if (index >= MAX_LENGTH - CALLBACK_SIZE) {
-        index = 0;
-        this._setLength(0);
-    }
-    if (index === 0) {
-        this._promise0 = promiseSlotValue;
-        this._receiver0 = receiver;
-    } else {
-        var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
-        this[base + CALLBACK_PROMISE_OFFSET] = promiseSlotValue;
-        this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
-    }
-    this._setLength(index + 1);
-};
-
 Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
     ASSERT(!this._isFollowing());
     ASSERT(arguments.length === 2);
     ASSERT(typeof index === "number");
     ASSERT((index | 0) === index);
-    this._setProxyHandlers(promiseArray, index);
+    this._addCallbacks(undefined, undefined, index, promiseArray);
 };
 
 Promise.prototype._resolveCallback = function(value, shouldBind) {
