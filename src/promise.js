@@ -680,13 +680,16 @@ Promise.prototype._settlePromises = function () {
     this._setLength(0);
 };
 
+function deferResolve(v) {this.promise._resolveCallback(v);}
+function deferReject(v) {this.promise._rejectCallback(v, false);}
+
 Promise.defer = function() {
     debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
     return {
         promise: promise,
-        resolve: promise._resolveCallback,
-        reject: promise._rejectCallback
+        resolve: deferResolve,
+        reject: deferReject
     };
 };
 Promise._async = async;
