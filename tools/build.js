@@ -49,7 +49,6 @@ var lastLineCode = "                                                         \n\
         var p = new Promise(INTERNAL);                                       \n\
         p._fulfillmentHandler0 = value;                                      \n\
         p._rejectionHandler0 = value;                                        \n\
-        p._progressHandler0 = value;                                         \n\
         p._promise0 = value;                                                 \n\
         p._receiver0 = value;                                                \n\
         p._settledValue = value;                                             \n\
