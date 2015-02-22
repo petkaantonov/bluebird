@@ -40,24 +40,24 @@ var catchFilter = require("./catch_filter.js")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback.js");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
-function check(self, resolver) {
-    if (typeof resolver !== "function") {
-        throw new TypeError(FUNCTION_ERROR + util.classString(resolver));
+function check(self, executor) {
+    if (typeof executor !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(executor));
     }
     if (self.constructor !== Promise) {
         throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
     }
 }
-function Promise(resolver) {
+function Promise(executor) {
     this._bitField = NO_STATE;
     this._fulfillmentHandler0 = undefined;
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
     this._settledValue = undefined;
-    if (resolver !== INTERNAL) {
-        check(this, resolver);
-        this._resolveFromResolver(resolver);
+    if (executor !== INTERNAL) {
+        check(this, executor);
+        this._resolveFromExecutor(executor);
     }
     var ctx;
     if ((ctx = this._peekContext()) !== undefined) ctx._promisesCreated++;
@@ -433,29 +433,30 @@ Promise.prototype._rejectCallback = function(reason, synchronous) {
     this._reject(reason, hasStack ? undefined : trace);
 };
 
-Promise.prototype._resolveFromResolver = function (resolver) {
-    ASSERT(typeof resolver === "function");
+Promise.prototype._execute = function(executor, resolve, reject) {
+    try {
+        executor(resolve, reject);
+    } catch (e) {
+        return e;
+    }
+};
+
+Promise.prototype._resolveFromExecutor = function (executor) {
+    ASSERT(typeof executor === "function");
     var promise = this;
     this._captureStackTrace();
     this._pushContext();
     var synchronous = true;
-    var r = tryCatch(resolver)(function(value) {
-        if (promise === null) return;
+    var r = this._execute(executor, function(value) {
         promise._resolveCallback(value);
-        promise = null;
     }, function (reason) {
-        if (promise === null) return;
         promise._rejectCallback(reason, synchronous);
-        promise = null;
     });
     synchronous = false;
     this._popContext();
 
     if (r !== undefined) {
-        if (r === errorObj && promise !== null) {
-            promise._rejectCallback(r.e, true);
-            promise = null;
-        }
+        promise._rejectCallback(r, true);
     }
 };
 
