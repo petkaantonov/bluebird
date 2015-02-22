@@ -12,8 +12,12 @@ Promise.prototype._cancel = function() {
     this._setCancelled();
     this._cleanValues();
     if (this._length() > 0) {
-        this._queueSettlePromises();
+        async.invoke(this._cancelPromises, this, undefined);
     }
+};
+
+Promise.prototype._cancelPromises = function() {
+    if (this._length() > 0) this._settlePromises();
 };
 
 Promise.prototype._unsetOnCancel = function() {

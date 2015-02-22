@@ -15,6 +15,7 @@ var globals = fs.readFileAsync(constantsFile, "utf8").then(function(contents) {
         args: true,
         INLINE_SLICE: false,
         BIT_FIELD_CHECK: false,
+        BIT_FIELD_READ: false,
         USE: false,
         global: true,
         setImmediate: true,

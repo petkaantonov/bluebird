@@ -172,7 +172,34 @@ Assertion.prototype.toString = function() {
     return 'ASSERT('+nodeToString(this.expr)+',\n    '+this.exprStr+')';
 };
 
-function BitFieldFlagCheck(value, inverted, start, end, fieldExpr) {
+function BitFieldRead(mask, start, end, fieldExpr) {
+    if (mask === 0) throw new Error("mask cannot be zero");
+    this.mask = mask;
+    this.start = start;
+    this.end = end;
+    this.fieldExpr = fieldExpr;
+}
+
+BitFieldRead.prototype.getShiftCount = function() {
+    var b = 1;
+    var shiftCount = 0;
+    while ((this.mask & b) === 0) {
+        b <<= 1;
+        shiftCount++;
+    }
+    return shiftCount;
+};
+
+BitFieldRead.prototype.toString = function() {
+    var fieldExpr = this.fieldExpr ? nodeToString(this.fieldExpr) : "bitField";
+    var mask = this.mask;
+    var shiftCount = this.getShiftCount();
+    return shiftCount === 0
+        ? "(" + fieldExpr + " & " + mask + ")"
+        : "((" + fieldExpr + " & " + mask + ") >>> " + shiftCount + ")";
+};
+
+function BitFieldCheck(value, inverted, start, end, fieldExpr) {
     this.value = value;
     this.inverted = inverted;
     this.start = start;
@@ -180,7 +207,7 @@ function BitFieldFlagCheck(value, inverted, start, end, fieldExpr) {
     this.fieldExpr = fieldExpr;
 }
 
-BitFieldFlagCheck.prototype.toString = function() {
+BitFieldCheck.prototype.toString = function() {
     var fieldExpr = this.fieldExpr ? nodeToString(this.fieldExpr) : "bitField";
     var equality = this.inverted ? "===" : "!==";
     return "((" + fieldExpr + " & " + this.value + ") " + equality + " 0)";
@@ -378,6 +405,24 @@ inlinedFunctions.INLINE_SLICE = function( node, isBrowser ) {
     return new InlineSlice(varExpression, collectionExpression,
         startExpression, endExpression, statement.start, statement.end, isBrowser);
 };
+inlinedFunctions.BIT_FIELD_READ = function(node) {
+    var statement = node;
+    var args = node.expression.arguments;
+    if (args.length !== 1 && args.length !== 2) {
+        throw new Error("BIT_FIELD must have 1 or 2 arguments");
+    }
+    var arg = args[0];
+    if (arg.type !== "Identifier") {
+        throw new Error("BIT_FIELD argument must be an identifier");
+    }
+    var name = arg.name;
+    var constant = constants[name];
+    if (constant === undefined) {
+        throw new Error(name + " is not a constant");
+    }
+    var value = constant.value;
+    return new BitFieldRead(value, statement.start, statement.end, args[1]);
+};
 inlinedFunctions.BIT_FIELD_CHECK = function(node) {
     var statement = node;
     var args = node.expression.arguments;
@@ -398,7 +443,7 @@ inlinedFunctions.BIT_FIELD_CHECK = function(node) {
     if (name.slice(-4) === "_NEG") {
         inverted = true;
     }
-    return new BitFieldFlagCheck(value, inverted, statement.start, statement.end, args[1]);
+    return new BitFieldCheck(value, inverted, statement.start, statement.end, args[1]);
 };
 inlinedFunctions.USE = function(node) {
     return new Empty(node.start, node.end);

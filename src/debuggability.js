@@ -343,7 +343,8 @@ function formatNonError(obj) {
             (obj.name || "anonymous") +
             "]";
     } else {
-        str = obj.toString();
+        str = obj && typeof obj.toString === "function"
+            ? obj.toString() : util.toString(obj);
         var ruselessToString = /\[object [a-zA-Z0-9$_]+\]/;
         if (ruselessToString.test(str)) {
             try {

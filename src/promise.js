@@ -199,37 +199,34 @@ Promise.prototype._then = function (
 ) {
     ASSERT(arguments.length === 5);
     var haveInternalData = internalData !== undefined;
-    var ret = haveInternalData ? internalData : new Promise(INTERNAL);
+    var promise = haveInternalData ? internalData : new Promise(INTERNAL);
 
     if (!haveInternalData) {
-        ret._propagateFrom(this, PROPAGATE_ALL);
-        ret._captureStackTrace();
-    }
-
-    var target = this._target();
-    if (target !== this) {
+        promise._propagateFrom(this, PROPAGATE_ALL);
+        promise._captureStackTrace();
         if (receiver === undefined) receiver = this._boundTo;
     }
 
-    var callbackIndex =
-        target._addCallbacks(didFulfill, didReject, ret, receiver);
-
+    var target = this._target();
     var bitField = target._bitField;
-    if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG) &&
-        !BIT_FIELD_CHECK(IS_SETTLE_PROMISES_QUEUED)) {
-        async.invoke(
-            target._settlePromiseAtPostResolution, target, callbackIndex);
+    if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+        var handler;
+        if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
+            handler = didReject;
+            target._unsetRejectionIsUnhandled();
+        } else {
+            handler = didFulfill;
+        }
+        async.invoke(target._settlePromiseCtx, target, {
+            handler: handler,
+            promise: promise,
+            receiver: receiver
+        });
+    } else {
+        target._addCallbacks(didFulfill, didReject, promise, receiver);
     }
 
-    return ret;
-};
-
-Promise.prototype._settlePromiseAtPostResolution = function (index) {
-    ASSERT(typeof index === "number");
-    ASSERT(index >= 0);
-    ASSERT(this._promiseAt(index) !== undefined);
-    if (this._isRejectionUnhandled()) this._unsetRejectionIsUnhandled();
-    this._settlePromiseAt(index);
+    return promise;
 };
 
 Promise.prototype._length = function () {
@@ -279,10 +276,9 @@ Promise.prototype._setCancelled = function() {
 };
 
 Promise.prototype._receiverAt = function (index) {
+    ASSERT(index > 0);
     ASSERT(!this._isFollowing());
-    var ret = index === 0
-        ? this._receiver0
-        : this[
+    var ret = this[
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
     if (ret === undefined && this._isBound()) {
@@ -292,28 +288,37 @@ Promise.prototype._receiverAt = function (index) {
 };
 
 Promise.prototype._promiseAt = function (index) {
+    ASSERT(index > 0);
     ASSERT(!this._isFollowing());
-    return index === 0
-        ? this._promise0
-        : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET];
+    return this[
+            index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_PROMISE_OFFSET];
 };
 
 Promise.prototype._fulfillmentHandlerAt = function (index) {
     ASSERT(!this._isFollowing());
-    ASSERT(!this._isCarryingStackTrace());
-    return index === 0
-        ? this._fulfillmentHandler0
-        : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET];
+    ASSERT(index > 0);
+    return this[
+            index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_FULFILL_OFFSET];
 };
 
 Promise.prototype._rejectionHandlerAt = function (index) {
     ASSERT(!this._isFollowing());
-    return index === 0
-        ? this._rejectionHandler0
-        : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
+    ASSERT(index > 0);
+    return this[
+            index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
-Promise.prototype._migrateCallbacks = function (follower, index) {
+Promise.prototype._migrateCallback0 = function (follower) {
+    var fulfill = follower._fulfillmentHandler0;
+    var reject = follower._rejectionHandler0;
+    var promise = follower._promise0;
+    var receiver = follower._receiver0;
+    if (receiver === undefined) receiver = follower._boundTo;
+    this._addCallbacks(fulfill, reject, promise, receiver);
+};
+
+Promise.prototype._migrateCallbackAt = function (follower, index) {
+    ASSERT(index > 0);
     var fulfill = follower._fulfillmentHandlerAt(index);
     var reject = follower._rejectionHandlerAt(index);
     var promise = follower._promiseAt(index);
@@ -327,6 +332,7 @@ Promise.prototype._addCallbacks = function (
     promise,
     receiver
 ) {
+    ASSERT(!this._isFateSealed());
     ASSERT(!this._isFollowing());
     var index = this._length();
 
@@ -404,8 +410,9 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
     var bitField = promise._bitField;
     if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var len = this._length();
-        for (var i = 0; i < len; ++i) {
-            promise._migrateCallbacks(this, i);
+        if (len > 0) promise._migrateCallback0(this);
+        for (var i = 1; i < len; ++i) {
+            promise._migrateCallbackAt(this, i);
         }
         this._setFollowing();
         this._setLength(0);
@@ -546,21 +553,11 @@ Promise.prototype._reject = function (reason, carriedStackTrace) {
     this._rejectUnchecked(reason, carriedStackTrace);
 };
 
-Promise.prototype._settlePromiseAt = function (index) {
-    var promise = this._promiseAt(index);
-    var isPromise = promise instanceof Promise;
-
-    ASSERT(async._isTickUsed);
+Promise.prototype._settlePromise = function(promise, handler, receiver) {
     ASSERT(!this._isFollowing());
-
+    var isPromise = promise instanceof Promise;
     var bitField = this._bitField;
-    var handler = BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)
-        ? this._rejectionHandlerAt(index)
-        : this._fulfillmentHandlerAt(index);
-
     var value = this._settledValue;
-    var receiver = this._receiverAt(index);
-    this._clearCallbackDataAtIndex(index);
     if (BIT_FIELD_CHECK(IS_CANCELLED)) {
         if (isPromise && promise.isCancellable()
             && promise._onCancel() !== undefined) {
@@ -603,45 +600,34 @@ Promise.prototype._settlePromiseAt = function (index) {
                                 : undefined);
         }
     }
+};
 
-    // Heuristic for promises that are stashed away somewhere
-    // and might accumulate large index over time
-    // The modulus is so that invokeLater is not called every time index
-    // is over 4, but every 32nd time
-    if (index >= 4 && (index & 31) === 4)
-        async.invokeLater(this._setLength, this, 0);
+Promise.prototype._settlePromiseCtx = function(ctx) {
+    this._settlePromise(ctx.promise, ctx.handler, ctx.receiver);
+};
+
+Promise.prototype._settlePromise0 = function(handler, bitField) {
+    var promise = this._promise0;
+    var receiver = this._receiver0;
+    if (receiver === undefined) {
+        if (BIT_FIELD_CHECK(IS_BOUND)) receiver = this._boundTo;
+    } else {
+        // Only clear if necessary
+        this._receiver0 = undefined;
+    }
+    // fulfillmentHandler0 is cleared in settlePromises
+    this._rejectionHandler0 = this._promise0 = undefined;
+    this._settlePromise(promise, handler, receiver);
 };
 
 Promise.prototype._clearCallbackDataAtIndex = function(index) {
     ASSERT(!this._isFollowing());
-    if (index === 0) {
-        if (!this._isCarryingStackTrace()) {
-            this._fulfillmentHandler0 = undefined;
-        }
-        this._rejectionHandler0 =
-        this._receiver0 =
-        this._promise0 = undefined;
-    } else {
-        var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
-        this[base + CALLBACK_PROMISE_OFFSET] =
-        this[base + CALLBACK_RECEIVER_OFFSET] =
-        this[base + CALLBACK_FULFILL_OFFSET] =
-        this[base + CALLBACK_REJECT_OFFSET] = undefined;
-    }
-};
-
-Promise.prototype._setSettlePromisesQueued = function () {
-    this._bitField = this._bitField | IS_SETTLE_PROMISES_QUEUED;
-};
-
-Promise.prototype._unsetSettlePromisesQueued = function () {
-    this._bitField = this._bitField & (~IS_SETTLE_PROMISES_QUEUED);
-};
-
-Promise.prototype._queueSettlePromises = function() {
-    ASSERT(!this._isFollowing());
-    async.settlePromises(this);
-    this._setSettlePromisesQueued();
+    ASSERT(index > 0);
+    var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
+    this[base + CALLBACK_PROMISE_OFFSET] =
+    this[base + CALLBACK_RECEIVER_OFFSET] =
+    this[base + CALLBACK_FULFILL_OFFSET] =
+    this[base + CALLBACK_REJECT_OFFSET] = undefined;
 };
 
 Promise.prototype._fulfillUnchecked = function (value) {
@@ -656,7 +642,7 @@ Promise.prototype._fulfillUnchecked = function (value) {
     this._cleanValues();
 
     if (this._length() > 0) {
-        this._queueSettlePromises();
+        async.settlePromises(this);
     }
 };
 
@@ -686,18 +672,47 @@ Promise.prototype._rejectUnchecked = function (reason, trace) {
     }
 
     if (this._length() > 0) {
-        this._queueSettlePromises();
+        async.settlePromises(this);
     } else {
         this._ensurePossibleRejectionHandled();
     }
 };
 
-Promise.prototype._settlePromises = function () {
-    this._unsetSettlePromisesQueued();
-    var len = this._length();
-    for (var i = 0; i < len; i++) {
-        this._settlePromiseAt(i);
+Promise.prototype._fulfillPromises = function (len) {
+    for (var i = 1; i < len; i++) {
+        var handler = this._fulfillmentHandlerAt(i);
+        var promise = this._promiseAt(i);
+        var receiver = this._receiverAt(i);
+        this._clearCallbackDataAtIndex(i);
+        this._settlePromise(promise, handler, receiver);
     }
+};
+
+Promise.prototype._rejectPromises = function (len) {
+    for (var i = 1; i < len; i++) {
+        var handler = this._rejectionHandlerAt(i);
+        var promise = this._promiseAt(i);
+        var receiver = this._receiverAt(i);
+        this._clearCallbackDataAtIndex(i);
+        this._settlePromise(promise, handler, receiver);
+    }
+};
+
+Promise.prototype._settlePromises = function () {
+    var bitField = this._bitField;
+    var len = BIT_FIELD_READ(LENGTH_MASK);
+    ASSERT(len >= 1);
+    if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
+        this._settlePromise0(this._rejectionHandler0, bitField);
+        if (!BIT_FIELD_CHECK(IS_CARRYING_STACK_TRACE)) {
+            this._fulfillmentHandler0 = undefined;
+        }
+        this._rejectPromises(len);
+    } else {
+        this._settlePromise0(this._fulfillmentHandler0, bitField);
+        this._fulfillPromises(len);
+    }
+    this._setLength(0);
 };
 
 Promise.defer = function() {
