@@ -162,10 +162,11 @@ function isClass(fn) {
 
 function toFastProperties(obj) {
     /*jshint -W027*/
-    function f() {}
-    f.prototype = obj;
+    function FakeConstructor() {}
+    FakeConstructor.prototype = obj;
+    new FakeConstructor();
     ASSERT("%HasFastProperties", true, obj);
-    return f;
+    return obj;
     eval(obj);
 }
 
