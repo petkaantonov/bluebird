@@ -6,13 +6,13 @@
 [![coverage-98%](http://img.shields.io/badge/coverage-98%-brightgreen.svg?style=flat)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)
 
 
-#Introduction
+# Introduction
 
 Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
 
 
 
-#Topics
+# Topics
 
 - [Features](#features)
 - [Quick start](#quick-start)
@@ -33,7 +33,7 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 - [Changelog](changelog.md)
 - [Optimization guide](#optimization-guide)
 
-#Features
+# Features
 <img src="http://petkaantonov.github.io/bluebird/logo.png" alt="bluebird logo" align="right" />
 
 - [Promises A+](http://promisesaplus.com)
@@ -53,9 +53,9 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
 
 <hr>
 
-#Quick start
+# Quick start
 
-##Node.js
+## Node.js
 
     npm install bluebird
 
@@ -65,7 +65,7 @@ Then:
 var Promise = require("bluebird");
 ```
 
-##Browsers
+## Browsers
 
 There are many ways to use bluebird in browsers:
 
@@ -81,7 +81,7 @@ A [minimal bluebird browser build](#custom-builds) is &asymp;38.92KB minified*, 
 
 *Google Closure Compiler using Simple.
 
-####Browser support
+#### Browser support
 
 Browsers that [implement ECMA-262, edition 3](http://en.wikipedia.org/wiki/Ecmascript#Implementations) and later are supported.
 
@@ -95,7 +95,7 @@ After quick start, see [API Reference and examples](API.md)
 
 <hr>
 
-#Support
+# Support
 
 - Mailing list: [bluebird-js@googlegroups.com](https://groups.google.com/forum/#!forum/bluebird-js)
 - IRC: #promises @freenode
@@ -104,7 +104,7 @@ After quick start, see [API Reference and examples](API.md)
 
 <hr>
 
-#What are promises and why should I use them?
+# What are promises and why should I use them?
 
 You should use promises to turn this:
 
@@ -229,11 +229,11 @@ More reading:
  - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
  - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
 
-#Questions and issues
+# Questions and issues
 
 If you find a bug in bluebird or have a feature request, file an issue in the [github issue tracker](https://github.com/petkaantonov/bluebird/issues). Anything else, such as questions for help in using the library, should be posted in [StackOverflow](http://stackoverflow.com/questions/tagged/bluebird) under tags `promise` and `bluebird`.
 
-#Error handling
+# Error handling
 
 This is a problem every promise library needs to handle in some way. Unhandled rejections/exceptions don't really have a good agreed-on asynchronous correspondence. The problem is that it is impossible to predict the future and know if a rejected promise will eventually be handled.
 
@@ -279,7 +279,7 @@ Long stack traces cannot be disabled after being enabled, and cannot be enabled 
 
 Long stack traces are enabled by default in the debug build.
 
-####Expected and unexpected errors
+#### Expected and unexpected errors
 
 A practical problem with Promises/A+ is that it models Javascript `try-catch` too closely for its own good. Therefore by default promises inherit `try-catch` warts such as the inability to specify the error types that the catch block is eligible for. It is an anti-pattern in every other language to use catch-all handlers because they swallow exceptions that you might not know about.
 
@@ -378,7 +378,7 @@ request("http://www.google.com").then(function(contents){
 
 <hr>
 
-####How do long stack traces differ from e.g. Q?
+#### How do long stack traces differ from e.g. Q?
 
 Bluebird attempts to have more elaborate traces. Consider:
 
@@ -436,7 +436,7 @@ A better and more practical example of the differences can be seen in gorgikosev
 
 <hr>
 
-#Development
+# Development
 
 For development tasks such as running benchmarks or testing, you need to clone the repository and install dev-dependencies.
 
@@ -446,7 +446,7 @@ Install [node](http://nodejs.org/) and [npm](https://npmjs.org/)
     cd bluebird
     npm install
 
-##Testing
+## Testing
 
 To run all tests, run
 
@@ -463,7 +463,7 @@ You may specify an individual test file to run with the `--run` script flag:
 
 This enables output from the test and may give a better idea where the test is failing. The paramter to `--run` can be any file name located in `test/mocha` folder.
 
-####Testing in browsers
+#### Testing in browsers
 
 To run the test in a browser instead of node, pass the flag `--browser` to the test tool
 
@@ -473,7 +473,7 @@ This will automatically create a server (default port 9999) and open it in your 
 
 Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.
 
-####Supported options by the test tool
+#### Supported options by the test tool
 
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-browser`.
 
@@ -487,25 +487,25 @@ The value of boolean flags is determined by presence, if you want to pass false 
  - `--js-hint` - Whether to run JSHint on source files. Default `true`.
  - `--saucelabs` Wheter to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser.Default `false`.
 
-##Benchmarks
+## Benchmarks
 
 To run a benchmark, run the given command for a benchmark while on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).
 
 Node 0.11.2+ is required to run the generator examples.
 
-###1\. DoxBee sequential
+### 1\. DoxBee sequential
 
 Currently the most relevant benchmark is @gorkikosev's benchmark in the article [Analysis of generators and other async patterns in node](http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html). The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action. The benchmark has been modified to include a warm-up phase to minimize any JITing during timed sections.
 
 Command: `bench doxbee`
 
-###2\. Made-up parallel
+### 2\. Made-up parallel
 
 This made-up scenario runs 15 shimmed queries in parallel.
 
 Command: `bench parallel`
 
-##Custom builds
+## Custom builds
 
 Custom builds for browsers are supported through a command-line utility.
 
@@ -559,7 +559,7 @@ a full version afterwards (after having taken a copy of the bluebird.js somewher
 
     node tools/build --debug --main --zalgo --browser --minify
 
-####Supported options by the build tool
+#### Supported options by the build tool
 
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-debug`.
 
@@ -572,7 +572,7 @@ The value of boolean flags is determined by presence, if you want to pass false 
 
 <hr>
 
-##For library authors
+## For library authors
 
 Building a library that depends on bluebird? You should know about a few features.
 
@@ -590,7 +590,7 @@ You should also know about [`.nodeify()`](API.md#nodeifyfunction-callback---prom
 
 <hr>
 
-##What is the sync build?
+## What is the sync build?
 
 You may now use sync build by:
 
@@ -645,13 +645,13 @@ function guessWhatItPrints( url ) {
 }
 ```
 
-#Optimization guide
+# Optimization guide
 
 Articles about optimization will be periodically posted in [the wiki section](https://github.com/petkaantonov/bluebird/wiki), polishing edits are welcome.
 
 A single cohesive guide compiled from the articles will probably be done eventually.
 
-#License
+# License
 
 The MIT License (MIT)
 
