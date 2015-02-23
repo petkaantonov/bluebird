@@ -32,7 +32,7 @@ Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
 
 Promise.prototype._notifyUnhandledRejection = function () {
     if (this._isRejectionUnhandled()) {
-        var reason = this._getCarriedStackTrace() || this._settledValue;
+        var reason = this._settledValue();
         this._setUnhandledRejectionIsNotified();
         fireRejectionEvent(UNHANDLED_REJECTION_EVENT,
                                       possiblyUnhandledRejection, reason, this);
@@ -68,24 +68,6 @@ Promise.prototype._unsetRejectionIsUnhandled = function () {
 Promise.prototype._isRejectionUnhandled = function () {
     ASSERT(!this._isFollowing());
     return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
-};
-
-Promise.prototype._setCarriedStackTrace = function (capturedTrace) {
-    ASSERT(!this._isFollowing());
-    this._bitField = this._bitField | IS_CARRYING_STACK_TRACE;
-    //Since this field is not used in rejected promises, smuggle the trace there
-    this._fulfillmentHandler0 = capturedTrace;
-};
-
-Promise.prototype._isCarryingStackTrace = function () {
-    ASSERT(!this._isFollowing());
-    return (this._bitField & IS_CARRYING_STACK_TRACE) > 0;
-};
-
-Promise.prototype._getCarriedStackTrace = function () {
-    return this._isCarryingStackTrace()
-        ? this._fulfillmentHandler0
-        : undefined;
 };
 
 Promise.prototype._warn = function(message, shouldUseOwnTrace) {

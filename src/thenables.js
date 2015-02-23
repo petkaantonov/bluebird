@@ -20,7 +20,7 @@ function tryConvertToPromise(obj, context) {
                 var ret = new Promise(INTERNAL);
                 obj._then(
                     ret._fulfillUnchecked,
-                    ret._rejectUncheckedCheckError,
+                    ret._rejectUnchecked,
                     undefined,
                     ret,
                     null

@@ -25,7 +25,7 @@ SettledPromiseArray.prototype._promiseFulfilled = function (value, index) {
     ASSERT(typeof index === "number");
     var ret = new PromiseInspection();
     ret._bitField = IS_FULFILLED;
-    ret._settledValue = value;
+    ret._settledValueField = value;
     this._promiseResolved(index, ret);
 };
 //override
@@ -34,7 +34,7 @@ SettledPromiseArray.prototype._promiseRejected = function (reason, index) {
     ASSERT(typeof index === "number");
     var ret = new PromiseInspection();
     ret._bitField = IS_REJECTED;
-    ret._settledValue = reason;
+    ret._settledValueField = reason;
     this._promiseResolved(index, ret);
 };
 

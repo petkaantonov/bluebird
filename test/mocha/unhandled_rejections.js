@@ -192,11 +192,12 @@ describe("Will handle hostile rejection reasons like frozen objects", function()
 
     specify("Eventually rejected with non instanceof Error", function testFunction() {
         var failDeferred = Promise.defer();
+        var obj = {};
         setTimeout(function(){
-            failDeferred.reject(Object.freeze({}));
+            failDeferred.reject(Object.freeze(obj));
         }, 1);
         return onUnhandledSucceed(function(e) {
-            return e instanceof Error;
+            return e === obj;
         });
     });
 });
@@ -518,90 +519,6 @@ describe("Promise.onUnhandledRejectionHandled", function() {
         return Promise.all([spy1.promise, spy2.promise]);
     });
 });
-
-if (Promise.hasLongStackTraces()) {
-    describe("Gives long stack traces for non-errors", function() {
-        setupCleanUps();
-
-        specify("string", function testFunction() {
-            new Promise(function(){
-                throw "hello";
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("null", function testFunction() {
-            new Promise(function(resolve, reject){
-                Promise.reject(null);
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("boolean", function testFunction() {
-            var d = Promise.defer();
-            d.reject(true);
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("undefined", function testFunction() {
-            Promise.cast().then(function() {
-                throw void 0;
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("number", function testFunction() {
-            Promise.cast().then(function() {
-                throw void 0;
-            }).then(function(e){return e === void 0}, function() {
-                throw 3;
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("function", function testFunction() {
-            Promise.cast().then(function() {
-                return Promise.reject(function(){});
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("pojo", function testFunction() {
-            var OldPromise = require("./helpers/bluebird0_7_0.js");
-
-            Promise.cast().then(function() {
-                return OldPromise.rejected({});
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-
-        specify("Date", function testFunction() {
-            var OldPromise = require("./helpers/bluebird0_7_0.js");
-            Promise.cast().then(function() {
-                return OldPromise.cast().then(function(){
-                    throw new Date();
-                });
-            });
-            return onUnhandledSucceed(function(e) {
-                return (e.stack.length > 100);
-            });
-        });
-    });
-}
 
 describe("global events", function() {
     var attachGlobalHandler, detachGlobalHandlers;

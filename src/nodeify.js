@@ -29,9 +29,7 @@ function successAdapter(val, nodeback) {
 function errorAdapter(reason, nodeback) {
     var promise = this;
     if (!reason) {
-        var target = promise._target();
-        ASSERT(target._isCarryingStackTrace());
-        var newReason = target._getCarriedStackTrace();
+        var newReason = new Error(reason + "");
         newReason.cause = reason;
         reason = newReason;
         ASSERT(!!reason);

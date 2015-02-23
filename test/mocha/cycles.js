@@ -49,7 +49,9 @@ describe("Cyclical promises should throw TypeError when", function(){
         specify("deferred", function() {
             var d = Promise.defer();
             d.reject(d.promise);
-            return d.promise.then(assert.fail).caught(TypeError, testUtils.noop);
+            return d.promise.then(assert.fail).caught(function(v) {
+                assert.equal(d.promise, v);
+            });
         });
 
         specify("constructor", function() {
@@ -58,7 +60,9 @@ describe("Cyclical promises should throw TypeError when", function(){
                 reject = r;
             });
             reject(p);
-            return p.then(assert.fail).caught(TypeError, testUtils.noop);
+            return p.then(assert.fail).caught(function(v) {
+                assert.equal(p, v);
+            });
         });
     });
 });

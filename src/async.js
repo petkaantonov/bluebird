@@ -22,10 +22,9 @@ Async.prototype.haveItemsQueued = function () {
     return this._isTickUsed || this._haveDrainedQueues;
 };
 
-Async.prototype.fatalError = function(e, trace, isNode) {
-    var stack = trace !== undefined && trace !== e ? trace.stack : e.stack;
+Async.prototype.fatalError = function(e, isNode) {
     if (isNode) {
-        process.stderr.write("Fatal " + stack);
+        process.stderr.write("Fatal " + (e instanceof Error ? e.stack : e));
         process.exit(2);
     } else {
         this.throwLater(e);

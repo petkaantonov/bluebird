@@ -51,7 +51,6 @@ var lastLineCode = "                                                         \n\
         p._rejectionHandler0 = value;                                        \n\
         p._promise0 = value;                                                 \n\
         p._receiver0 = value;                                                \n\
-        p._settledValue = value;                                             \n\
     }                                                                        \n\
     // Complete slack tracking, opt out of field-type tracking and           \n\
     // stabilize map                                                         \n\

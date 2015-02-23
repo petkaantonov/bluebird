@@ -4,19 +4,24 @@ function PromiseInspection(promise) {
     if (promise !== undefined) {
         promise = promise._target();
         this._bitField = promise._bitField;
-        this._settledValue = promise._settledValue;
+        this._settledValueField = promise._isFateSealed()
+            ? promise._settledValue() : undefined;
     }
     else {
         this._bitField = 0;
-        this._settledValue = undefined;
+        this._settledValueField = undefined;
     }
 }
+
+PromiseInspection.prototype._settledValue = function() {
+    return this._settledValueField;
+};
 
 var value = PromiseInspection.prototype.value = function () {
     if (!this.isFulfilled()) {
         throw new TypeError(INSPECTION_VALUE_ERROR);
     }
-    return this._settledValue;
+    return this._settledValue();
 };
 
 var reason = PromiseInspection.prototype.error =
@@ -24,7 +29,7 @@ PromiseInspection.prototype.reason = function () {
     if (!this.isRejected()) {
         throw new TypeError(INSPECTION_REASON_ERROR);
     }
-    return this._settledValue;
+    return this._settledValue();
 };
 
 var isFulfilled = PromiseInspection.prototype.isFulfilled = function() {
@@ -79,12 +84,12 @@ Promise.prototype.reason = function() {
 };
 
 Promise.prototype._value = function() {
-    return this._settledValue;
+    return this._settledValue();
 };
 
 Promise.prototype._reason = function() {
     this._unsetRejectionIsUnhandled();
-    return this._settledValue;
+    return this._settledValue();
 };
 
 Promise.PromiseInspection = PromiseInspection;

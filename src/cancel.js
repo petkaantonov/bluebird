@@ -22,17 +22,17 @@ Promise.prototype._cancelPromises = function() {
 
 Promise.prototype._unsetOnCancel = function() {
     ASSERT(this.isCancellable() || this.isCancelled());
-    this._settledValue = undefined;
+    this._onCancelField = undefined;
 };
 
 Promise.prototype._setOnCancel = function(onCancel) {
     ASSERT(this.isCancellable());
-    this._settledValue = onCancel;
+    this._onCancelField = onCancel;
 };
 
 Promise.prototype._onCancel = function() {
     ASSERT(this.isCancellable());
-    return this._settledValue;
+    return this._onCancelField;
 };
 
 Promise.prototype.isCancellable = function() {

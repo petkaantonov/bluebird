@@ -17,7 +17,7 @@ function checkCancel(ctx, reason) {
 }
 
 function succeed() {
-    return finallyHandler.call(this, this.promise._target()._settledValue);
+    return finallyHandler.call(this, this.promise._target()._settledValue());
 }
 function fail(reason) {
     if (checkCancel(this, reason)) return;
