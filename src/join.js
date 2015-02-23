@@ -1,6 +1,6 @@
 "use strict";
 module.exports =
-function(Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug) {
+function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
 var util = require("./util.js");
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
@@ -17,56 +17,61 @@ if (canEvaluate) {
             ".replace(/Index/g, i));
     };
 
-    var caller = function(count) {
-        var values = [];
-        for (var i = 1; i <= count; ++i) values.push("holder.p" + i);
-        return new Function("holder", "                                      \n\
-            'use strict';                                                    \n\
-            var callback = holder.fn;                                        \n\
-            return callback(values);                                         \n\
-            ".replace(/values/g, values.join(", ")));
+    var generateHolderClass = function(total) {
+        var props = new Array(total);
+        for (var i = 0; i < props.length; ++i) {
+            props[i] = "this.p" + (i+1);
+        }
+        var assignment = props.join(" = ") + " = null;";
+        var passedArguments = props.join(", ");
+        var name = "Holder$" + total;
+
+
+        var code = "return function(tryCatch, errorObj) {                    \n\
+            function [TheName](fn) {                                         \n\
+                [TheProperties]                                              \n\
+                this.fn = fn;                                                \n\
+                this.now = 0;                                                \n\
+            }                                                                \n\
+            [TheName].prototype.checkFulfillment = function(promise) {       \n\
+                var now = ++this.now;                                        \n\
+                if (now === [TheTotal]) {                                    \n\
+                    promise._pushContext();                                  \n\
+                    var callback = this.fn;                                  \n\
+                    var ret = tryCatch(callback)([ThePassedArguments]);      \n\
+                    promise._popContext();                                   \n\
+                    if (ret === errorObj) {                                  \n\
+                        promise._rejectCallback(ret.e, false);               \n\
+                    } else {                                                 \n\
+                        promise._resolveCallback(ret);                       \n\
+                    }                                                        \n\
+                }                                                            \n\
+            };                                                               \n\
+                                                                             \n\
+            return [TheName];                                                \n\
+        }(tryCatch, errorObj);                                               \n\
+        ";
+
+        code = code.replace(/\[TheName\]/g, name)
+            .replace(/\[TheTotal\]/g, total)
+            .replace(/\[ThePassedArguments\]/g, passedArguments)
+            .replace(/\[TheProperties\]/g, assignment);
+
+        return new Function("tryCatch", "errorObj", code)(tryCatch, errorObj);
     };
+
+    var holderClasses = [];
     var thenCallbacks = [];
-    var callers = [undefined];
-    for (var i = 1; i <= 5; ++i) {
-        thenCallbacks.push(thenCallback(i));
-        callers.push(caller(i));
+
+    for (var i = 0; i < GENERATED_CLASS_COUNT; ++i) {
+        holderClasses.push(generateHolderClass(i + 1));
+        thenCallbacks.push(thenCallback(i + 1));
     }
 
-    var Holder = function(total, fn) {
-        this.p1 = this.p2 = this.p3 = this.p4 = this.p5 = null;
-        this.fn = fn;
-        this.total = total;
-        this.now = 0;
-    };
-
-    Holder.prototype.callers = callers;
-    Holder.prototype.checkFulfillment = function(promise) {
-        var now = this.now;
-        now++;
-        var total = this.total;
-        if (now >= total) {
-            var handler = this.callers[total];
-            promise._pushContext();
-            var ret = tryCatch(handler)(this);
-            var promisesCreated = promise._popContext();
-            debug.checkForgottenReturns(
-                ret, promisesCreated, "Promise.join", promise);
-            if (ret === errorObj) {
-                promise._rejectCallback(ret.e, false);
-            } else {
-                promise._resolveCallback(ret);
-            }
-        } else {
-            this.now = now;
-        }
-    };
-
-    var reject = function (reason) {
+    reject = function (reason) {
         this._reject(reason);
     };
-}
-}
+}}
 
 Promise.join = function () {
     var last = arguments.length - 1;
@@ -74,10 +79,11 @@ Promise.join = function () {
     if (last > 0 && typeof arguments[last] === "function") {
         fn = arguments[last];
         if (!__BROWSER__) {
-            if (last < 6 && canEvaluate) {
+            if (last <= GENERATED_CLASS_COUNT && canEvaluate) {
                 var ret = new Promise(INTERNAL);
                 ret._captureStackTrace();
-                var holder = new Holder(last, fn);
+                var HolderClass = holderClasses[last - 1];
+                var holder = new HolderClass(fn);
                 var callbacks = thenCallbacks;
                 for (var i = 0; i < last; ++i) {
                     var maybePromise = tryConvertToPromise(arguments[i], ret);

@@ -72,6 +72,7 @@
         "DEFAULT_STATE": false,
         "STACK_ATTACHED": false,
         "ERROR_HANDLED": false,
+        "GENERATED_CLASS_COUNT": false,
         "USE_BOUND": false,
         "DONT_USE_BOUND": false,
         "PROPAGATE_CANCEL": false,
