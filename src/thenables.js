@@ -19,8 +19,8 @@ function tryConvertToPromise(obj, context) {
             if (isAnyBluebirdPromise(obj)) {
                 var ret = new Promise(INTERNAL);
                 obj._then(
-                    ret._fulfillUnchecked,
-                    ret._rejectUnchecked,
+                    ret._fulfill,
+                    ret._reject,
                     undefined,
                     ret,
                     null

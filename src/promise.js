@@ -165,9 +165,9 @@ Promise.all = function (promises) {
 Promise.cast = function (obj) {
     var ret = tryConvertToPromise(obj);
     if (!(ret instanceof Promise)) {
-        var val = ret;
         ret = new Promise(INTERNAL);
-        ret._fulfillUnchecked(val);
+        ret._setFulfilled();
+        ret._rejectionHandler0 = obj;
     }
     return ret;
 };
@@ -279,6 +279,10 @@ Promise.prototype._unsetCancelled = function() {
 
 Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
+};
+
+Promise.prototype._setIsAsyncGuaranteed = function() {
+    this._bitField = this._bitField | IS_ASYNC_GUARANTEED;
 };
 
 Promise.prototype._receiverAt = function (index) {
@@ -411,9 +415,9 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
             this._unsetOnCancel();
         }
     } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
-        this._fulfillUnchecked(promise._value());
+        this._fulfill(promise._value());
     } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
-        this._rejectUnchecked(promise._reason());
+        this._reject(promise._reason());
     } else {
         this._cancel();
     }
@@ -517,20 +521,11 @@ Promise.prototype._setFollowee = function(promise) {
     this._rejectionHandler0 = promise;
 };
 
-Promise.prototype._fulfill = function (value) {
-    if (this._isFateSealed()) return;
-    this._fulfillUnchecked(value);
-};
-
-Promise.prototype._reject = function (reason) {
-    if (this._isFateSealed()) return;
-    this._rejectUnchecked(reason);
-};
-
 Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
     ASSERT(!this._isFollowing());
     var isPromise = promise instanceof Promise;
     var bitField = this._bitField;
+    var asyncGuaranteed = BIT_FIELD_CHECK(IS_ASYNC_GUARANTEED);
     if (BIT_FIELD_CHECK(IS_CANCELLED)) {
         if (isPromise && promise.isCancellable()
             && promise._onCancel() !== undefined) {
@@ -554,6 +549,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
         if (!isPromise) {
             handler.call(receiver, value, promise);
         } else {
+            if (asyncGuaranteed) promise._setIsAsyncGuaranteed();
             this._settlePromiseFromHandler(handler, receiver, value, promise);
         }
     } else if (receiver instanceof PromiseArray) {
@@ -565,6 +561,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             }
         }
     } else if (isPromise) {
+        if (asyncGuaranteed) promise._setIsAsyncGuaranteed();
         if (BIT_FIELD_CHECK(IS_FULFILLED)) {
             promise._fulfill(value);
         } else {
@@ -600,24 +597,30 @@ Promise.prototype._clearCallbackDataAtIndex = function(index) {
     this[base + CALLBACK_REJECT_OFFSET] = undefined;
 };
 
-Promise.prototype._fulfillUnchecked = function (value) {
-    ASSERT(!this._isFateSealed());
+Promise.prototype._fulfill = function (value) {
+    var bitField = this._bitField;
+    if (BIT_FIELD_READ(IS_FATE_SEALED)) return;
     if (value === this) {
         var err = makeSelfResolutionError();
         this._attachExtraTrace(err);
-        return this._rejectUnchecked(err);
+        return this._reject(err);
     }
     this._setFulfilled();
     this._rejectionHandler0 = value;
     this._cleanValues();
 
-    if (this._length() > 0) {
-        async.settlePromises(this);
+    if (BIT_FIELD_READ(LENGTH_MASK) > 0) {
+        if (BIT_FIELD_CHECK(IS_ASYNC_GUARANTEED)) {
+            this._settlePromises();
+        } else {
+            async.settlePromises(this);
+        }
     }
 };
 
-Promise.prototype._rejectUnchecked = function (reason) {
-    ASSERT(!this._isFateSealed());
+Promise.prototype._reject = function (reason) {
+    var bitField = this._bitField;
+    if (BIT_FIELD_READ(IS_FATE_SEALED)) return;
     this._setRejected();
     this._fulfillmentHandler0 = reason;
     this._cleanValues();
@@ -627,8 +630,12 @@ Promise.prototype._rejectUnchecked = function (reason) {
         return async.fatalError(reason, util.isNode);
     }
 
-    if (this._length() > 0) {
-        async.settlePromises(this);
+    if (BIT_FIELD_READ(LENGTH_MASK) > 0) {
+        if (BIT_FIELD_CHECK(IS_ASYNC_GUARANTEED)) {
+            this._settlePromises();
+        } else {
+            async.settlePromises(this);
+        }
     } else {
         this._ensurePossibleRejectionHandled();
     }

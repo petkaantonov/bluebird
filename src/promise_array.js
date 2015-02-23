@@ -46,6 +46,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
             ASSERT(typeof resolveValueIfEmpty === "number");
             ASSERT(resolveValueIfEmpty < 0);
+            this._promise._setIsAsyncGuaranteed();
             return values._then(
                 init,
                 this._reject,
@@ -85,8 +86,9 @@ PromiseArray.prototype._iterate = function(values) {
     this._length = len;
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
     var promise = this._promise;
+    var isResolved;
     for (var i = 0; i < len; ++i) {
-        var isResolved = this._isResolved();
+        isResolved = this._isResolved();
         var maybePromise = tryConvertToPromise(values[i], promise);
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
@@ -109,6 +111,7 @@ PromiseArray.prototype._iterate = function(values) {
             this._promiseFulfilled(maybePromise, i);
         }
     }
+    if (!isResolved) promise._setIsAsyncGuaranteed();
 };
 
 PromiseArray.prototype._isResolved = function () {
