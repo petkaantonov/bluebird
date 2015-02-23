@@ -17,12 +17,15 @@ var afterTimeout = function (promise, message) {
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
 var delay = Promise.delay = function (ms, value) {
+    var ret;
     if (value !== undefined) {
-        return Promise.resolve(value)
+        ret = Promise.resolve(value)
                 ._then(afterValue, null, null, ms, undefined);
+    } else {
+        ret = new Promise(INTERNAL);
+        setTimeout(function() { ret._fulfill(); }, +ms);
     }
-    var ret = new Promise(INTERNAL);
-    setTimeout(function() { ret._fulfill(); }, +ms);
+    ret._setIsAsyncGuaranteed();
     return ret;
 };
 
