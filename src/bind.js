@@ -37,9 +37,9 @@ Promise.prototype.bind = function (thisArg) {
             target: target,
             bindingPromise: maybePromise
         };
-        target._then(INTERNAL, targetRejected, ret._progress, ret, context);
+        target._then(INTERNAL, targetRejected, undefined, ret, context);
         maybePromise._then(
-            bindingResolved, bindingRejected, ret._progress, ret, context);
+            bindingResolved, bindingRejected, undefined, ret, context);
     } else {
         ret._setBoundTo(thisArg);
         ret._resolveCallback(target);
