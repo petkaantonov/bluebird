@@ -5,8 +5,8 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL,
                           debug) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
+var ASSERT = require("./assert");
+var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var EMPTY_ARRAY = [];

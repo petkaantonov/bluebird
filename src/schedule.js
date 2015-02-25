@@ -1,6 +1,6 @@
 "use strict";
 var schedule;
-if (require("./util.js").isNode) {
+if (require("./util").isNode) {
     var version = process.versions.node.split(".").map(Number);
     schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
         ? global.setImmediate : process.nextTick;

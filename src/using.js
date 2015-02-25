@@ -1,9 +1,9 @@
 "use strict";
 module.exports = function (Promise, apiRejection, tryConvertToPromise,
     createContext, INTERNAL, debug) {
-    var util = require("./util.js");
-    var TypeError = require("./errors.js").TypeError;
-    var inherits = require("./util.js").inherits;
+    var util = require("./util");
+    var TypeError = require("./errors").TypeError;
+    var inherits = require("./util").inherits;
     var errorObj = util.errorObj;
     var tryCatch = util.tryCatch;
 

@@ -1,8 +1,8 @@
 "use strict";
 module.exports =
 function(Promise, INTERNAL, tryConvertToPromise, apiRejection, debug) {
-var util = require("./util.js");
-var ASSERT = require("./assert.js");
+var util = require("./util");
+var ASSERT = require("./assert");
 var tryCatch = util.tryCatch;
 
 Promise.method = function (fn) {

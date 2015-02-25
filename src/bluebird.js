@@ -6,6 +6,6 @@ function noConflict() {
     catch (e) {}
     return bluebird;
 }
-var bluebird = require("./promise.js")();
+var bluebird = require("./promise")();
 bluebird.noConflict = noConflict;
 module.exports = bluebird;

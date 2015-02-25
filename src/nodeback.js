@@ -1,9 +1,9 @@
 "use strict";
-var util = require("./util.js");
+var util = require("./util");
 var maybeWrapAsError = util.maybeWrapAsError;
-var errors = require("./errors.js");
+var errors = require("./errors");
 var OperationalError = errors.OperationalError;
-var es5 = require("./es5.js");
+var es5 = require("./es5");
 
 function isUntypedError(obj) {
     return obj instanceof Error &&

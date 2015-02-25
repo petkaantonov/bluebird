@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise, tryConvertToPromise) {
-var util = require("./util.js");
+var util = require("./util");
 var errorObj = util.errorObj;
 
 function checkCancel(ctx, reason) {

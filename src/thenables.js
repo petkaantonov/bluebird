@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
+var ASSERT = require("./assert");
+var util = require("./util");
 var errorObj = util.errorObj;
 var isObject = util.isObject;
 

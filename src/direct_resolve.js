@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise) {
-var es5 = require("./es5.js").isES5;
+var es5 = require("./es5").isES5;
 function returner() {
     return es5 ? this : this.value;
 }

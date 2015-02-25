@@ -1,9 +1,9 @@
 "use strict";
 module.exports = function(Promise, Context) {
 var async = Promise._async;
-var Warning = require("./errors.js").Warning;
-var util = require("./util.js");
-var ASSERT = require("./assert.js");
+var Warning = require("./errors").Warning;
+var util = require("./util");
+var ASSERT = require("./assert");
 var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;

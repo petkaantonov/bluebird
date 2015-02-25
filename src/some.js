@@ -1,10 +1,10 @@
 "use strict";
 module.exports =
 function(Promise, PromiseArray, apiRejection) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
-var RangeError = require("./errors.js").RangeError;
-var AggregateError = require("./errors.js").AggregateError;
+var ASSERT = require("./assert");
+var util = require("./util");
+var RangeError = require("./errors").RangeError;
+var AggregateError = require("./errors").AggregateError;
 var isArray = util.isArray;
 var CANCELLATION = {};
 

@@ -1,10 +1,10 @@
 "use strict";
 module.exports = function(
     Promise, PromiseArray, tryConvertToPromise, apiRejection) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
+var ASSERT = require("./assert");
+var util = require("./util");
 var isObject = util.isObject;
-var es5 = require("./es5.js");
+var es5 = require("./es5");
 
 function PropertiesPromiseArray(obj) {
     var keys = es5.keys(obj);

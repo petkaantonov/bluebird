@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(NEXT_FILTER) {
-var util = require("./util.js");
-var getKeys = require("./es5.js").keys;
+var util = require("./util");
+var getKeys = require("./es5").keys;
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 

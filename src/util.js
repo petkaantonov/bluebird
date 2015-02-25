@@ -1,6 +1,6 @@
 "use strict";
-var ASSERT = require("./assert.js");
-var es5 = require("./es5.js");
+var ASSERT = require("./assert");
+var es5 = require("./es5");
 // Assume CSP if browser
 var canEvaluate = typeof navigator == "undefined";
 

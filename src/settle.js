@@ -1,9 +1,9 @@
 "use strict";
 module.exports =
     function(Promise, PromiseArray, debug) {
-var ASSERT = require("./assert.js");
+var ASSERT = require("./assert");
 var PromiseInspection = Promise.PromiseInspection;
-var util = require("./util.js");
+var util = require("./util");
 
 function SettledPromiseArray(values) {
     this.constructor$(values);

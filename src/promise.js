@@ -9,13 +9,13 @@ var reflectHandler = function() {
 var apiRejection = function(msg) {
     return Promise.reject(new TypeError(msg));
 };
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
-var es5 = require("./es5.js");
-var Async = require("./async.js");
+var ASSERT = require("./assert");
+var util = require("./util");
+var es5 = require("./es5");
+var Async = require("./async");
 var async = new Async();
 es5.defineProperty(Promise, "_async", {value: async});
-var errors = require("./errors.js");
+var errors = require("./errors");
 var TypeError = Promise.TypeError = errors.TypeError;
 Promise.RangeError = errors.RangeError;
 Promise.CancellationError = errors.CancellationError;
@@ -26,18 +26,18 @@ Promise.AggregateError = errors.AggregateError;
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {};
-var tryConvertToPromise = require("./thenables.js")(Promise, INTERNAL);
+var tryConvertToPromise = require("./thenables")(Promise, INTERNAL);
 var PromiseArray =
-    require("./promise_array.js")(Promise, INTERNAL,
+    require("./promise_array")(Promise, INTERNAL,
                                     tryConvertToPromise, apiRejection);
-var Context = require("./context.js")(Promise);
+var Context = require("./context")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
-var debug = require("./debuggability.js")(Promise, Context);
+var debug = require("./debuggability")(Promise, Context);
 var CapturedTrace = debug.CapturedTrace;
-var finallyHandler = require("./finally.js")(Promise, tryConvertToPromise);
-var catchFilter = require("./catch_filter.js")(NEXT_FILTER);
-var nodebackForPromise = require("./nodeback.js");
+var finallyHandler = require("./finally")(Promise, tryConvertToPromise);
+var catchFilter = require("./catch_filter")(NEXT_FILTER);
+var nodebackForPromise = require("./nodeback");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 function check(self, executor) {
@@ -706,12 +706,12 @@ Promise.defer = function() {
 };
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
-require("./bind.js")(Promise, INTERNAL, tryConvertToPromise, debug);
-require("./cancel.js")(Promise, apiRejection, debug);
-require("./direct_resolve.js")(Promise);
-require("./synchronous_inspection.js")(Promise);
-require("./join.js")(
+require("./method")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
+require("./bind")(Promise, INTERNAL, tryConvertToPromise, debug);
+require("./cancel")(Promise, apiRejection, debug);
+require("./direct_resolve")(Promise);
+require("./synchronous_inspection")(Promise);
+require("./join")(
     Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
 Promise.Promise = Promise;
 };

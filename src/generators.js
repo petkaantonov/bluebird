@@ -3,10 +3,10 @@ module.exports = function(Promise,
                           apiRejection,
                           INTERNAL,
                           tryConvertToPromise) {
-var errors = require("./errors.js");
+var errors = require("./errors");
 var TypeError = errors.TypeError;
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
+var ASSERT = require("./assert");
+var util = require("./util");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 var yieldHandlers = [];

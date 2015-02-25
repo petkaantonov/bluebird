@@ -1,7 +1,7 @@
 "use strict";
-var es5 = require("./es5.js");
+var es5 = require("./es5");
 var Objectfreeze = es5.freeze;
-var util = require("./util.js");
+var util = require("./util");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
 

@@ -1,12 +1,12 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var THIS = {};
-var util = require("./util.js");
-var nodebackForPromise = require("./nodeback.js");
+var util = require("./util");
+var nodebackForPromise = require("./nodeback");
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var ASSERT = require("./assert.js");
+var ASSERT = require("./assert");
 var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
 var defaultPromisified = {__isPromisified__: true};

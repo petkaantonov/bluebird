@@ -1,9 +1,9 @@
 "use strict";
 var firstLineError;
 try {throw new Error(); } catch (e) {firstLineError = e;}
-var ASSERT = require("./assert.js");
-var schedule = require("./schedule.js");
-var Queue = require("./queue.js");
+var ASSERT = require("./assert");
+var schedule = require("./schedule");
+var Queue = require("./queue");
 
 function Async() {
     this._isTickUsed = false;

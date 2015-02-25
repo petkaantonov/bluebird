@@ -7,7 +7,7 @@ if (cr) {
 }
 
 module.exports = function(Promise) {
-var util = require("./util.js");
+var util = require("./util");
 var canEvaluate = util.canEvaluate;
 var isIdentifier = util.isIdentifier;
 

@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var util = require("./util.js");
+var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
 
 var afterTimeout = function (promise, message) {

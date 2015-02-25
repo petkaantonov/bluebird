@@ -1,7 +1,7 @@
 "use strict";
 module.exports = function(
     Promise, INTERNAL, tryConvertToPromise, apiRejection) {
-var util = require("./util.js");
+var util = require("./util");
 
 var raceLater = function (promise) {
     return promise.then(function(array) {

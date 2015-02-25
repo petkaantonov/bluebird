@@ -1,8 +1,8 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, tryConvertToPromise,
     apiRejection) {
-var ASSERT = require("./assert.js");
-var util = require("./util.js");
+var ASSERT = require("./assert");
+var util = require("./util");
 var isArray = util.isArray;
 
 //To avoid eagerly allocating the objects
