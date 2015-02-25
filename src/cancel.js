@@ -24,39 +24,8 @@ Promise.prototype._unsetOnCancel = function() {
     this._onCancelField = undefined;
 };
 
-Promise.prototype._setOnCancel = function(onCancel) {
-    ASSERT(this.isCancellable());
-    this._onCancelField = onCancel;
-};
-
-Promise.prototype._onCancel = function() {
-    ASSERT(this.isCancellable());
-    return this._onCancelField;
-};
-
 Promise.prototype.isCancellable = function() {
     return this.isPending() && !this.isCancelled();
-};
-
-Promise.prototype._attachCancellationCallback = function(onCancel, ctx) {
-    if (!this.isCancellable()) {
-        if (this.isCancelled()) {
-            async.invoke(this._invokeOnCancel, this, onCancel);
-        }
-        return this;
-    }
-    var target = this._target();
-    if (target._onCancel() !== undefined) {
-        var newOnCancel = onCancel;
-        var oldOnCancel = target._onCancel();
-        if (ctx === undefined) ctx = this;
-        onCancel = function() {
-            ctx._invokeOnCancel(oldOnCancel);
-            ctx._invokeOnCancel(newOnCancel);
-            target._unsetOnCancel();
-        };
-    }
-    target._setOnCancel(onCancel);
 };
 
 Promise.prototype.onCancel = function(onCancel) {
