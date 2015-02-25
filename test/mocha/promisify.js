@@ -64,15 +64,15 @@ var error = Promise.promisify(erroneusNode);
 var syncError = Promise.promisify(syncErroneusNode);
 var success = Promise.promisify(successNode);
 var syncSuccess = Promise.promisify(syncSuccessNode);
-var successMultiArgsSingleValue = Promise.promisify(successNode, true);
+var successMultiArgsSingleValue = Promise.promisify(successNode, {multiArgs: true});
 var successMultiOptDisabledNoReceiver = Promise.promisify(successNodeMultipleValues);
 var syncSuccessMultiOptDisabledNoReceiver = Promise.promisify(syncSuccessNodeMultipleValues);
-var successMultiOptEnabledNoReceiver = Promise.promisify(successNodeMultipleValues, true);
-var syncSuccessMultiOptEnabledNoReceiver = Promise.promisify(syncSuccessNodeMultipleValues, true);
-var successMultiOptEnabledWithReceiver = Promise.promisify(successNodeMultipleValues, true, THIS);
-var syncSccessMultiOptEnabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, true, THIS);
-var successMultiOptDisabledWithReceiver = Promise.promisify(successNodeMultipleValues, false, THIS);
-var syncSccessMultiOptDisabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, false, THIS);
+var successMultiOptEnabledNoReceiver = Promise.promisify(successNodeMultipleValues, {multiArgs: true});
+var syncSuccessMultiOptEnabledNoReceiver = Promise.promisify(syncSuccessNodeMultipleValues, {multiArgs: true});
+var successMultiOptEnabledWithReceiver = Promise.promisify(successNodeMultipleValues, {multiArgs: true, context: THIS});
+var syncSccessMultiOptEnabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, {multiArgs: true, context: THIS});
+var successMultiOptDisabledWithReceiver = Promise.promisify(successNodeMultipleValues, {context: THIS});
+var syncSccessMultiOptDisabledWithReceiver = Promise.promisify(syncSuccessNodeMultipleValues, {context: THIS});
 var successMulti = successMultiOptDisabledNoReceiver;
 var syncSuccessMulti = syncSuccessMultiOptDisabledNoReceiver;
 describe("when calling promisified function it should ", function(){
@@ -122,7 +122,7 @@ describe("when calling promisified function it should ", function(){
         return Promise.promisify(function(cb) {
             assert.strictEqual(this, (function(){return this;})());
             cb(null, 1);
-        }, undefined)().then(function(result) {
+        }, {context: undefined})().then(function(result) {
             assert.strictEqual(1, result);
         });
     });
@@ -236,7 +236,7 @@ describe("with more than 5 arguments", function(){
     }
 
 
-    var prom = Promise.promisify(o.f, false, o);
+    var prom = Promise.promisify(o.f, {context: o});
 
     specify("receiver should still work", function() {
         return prom(1,2,3,4,5,6,7).then(function(val){
@@ -957,7 +957,7 @@ describe("nodeback with multiple arguments", function() {
     specify("spreaded with immediate values", function() {
         var promise = Promise.promisify(function(cb) {
             cb(null, 1, 2, 3);
-        }, true)();
+        }, {multiArgs: true})();
 
         return promise.spread(function(a, b, c) {
             assert.equal(a, 1);
@@ -972,7 +972,7 @@ describe("nodeback with multiple arguments", function() {
         var c = a;
         var promise = Promise.promisify(function(cb) {
             cb(null, a, b, c);
-        }, true)();
+        }, {multiArgs: true})();
 
         return promise.spread(function(a_, b_, c_) {
             assert.equal(a_, 1);
@@ -987,7 +987,7 @@ describe("nodeback with multiple arguments", function() {
         var c = Promise.resolve(3);
         var promise = Promise.promisify(function(cb) {
             cb(null, a, b, c);
-        }, true)();
+        }, {multiArgs: true})();
 
         return promise.spread(function(a_, b_, c_) {
             assert.strictEqual(a_, 1);

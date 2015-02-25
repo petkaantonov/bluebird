@@ -421,7 +421,7 @@ describe("Promise.fromNode", function() {
         };
         return Promise.fromNode(function(callback) {
             nodeFn(callback);
-        }, true).then(function(value) {
+        }, {multiArgs: true}).then(function(value) {
             assert.deepEqual([1], value);
         });
 
@@ -432,7 +432,7 @@ describe("Promise.fromNode", function() {
         };
         return Promise.fromNode(function(callback) {
             nodeFn(callback);
-        }, true).then(function(value) {
+        }, {multiArgs: true}).then(function(value) {
             assert.deepEqual([1,2,3], value);
         });
 

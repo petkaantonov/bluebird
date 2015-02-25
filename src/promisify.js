@@ -260,16 +260,17 @@ function promisify(callback, receiver, multiArgs) {
                                 callback, null, multiArgs);
 }
 
-Promise.promisify = function (fn, multiArgs, receiver) {
+Promise.promisify = function (fn, options) {
     if (typeof fn !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
     if (isPromisified(fn)) {
         return fn;
     }
-    var ret = promisify(fn,
-                arguments.length < 3 ? THIS : receiver,
-                !!multiArgs);
+    options = Object(options);
+    var receiver = options.context === undefined ? THIS : options.context;
+    var multiArgs = !!options.multiArgs;
+    var ret = promisify(fn, receiver, multiArgs);
     util.copyDescriptors(fn, ret, propsFilter);
     return ret;
 };

@@ -149,9 +149,11 @@ Promise.is = function (val) {
     return val instanceof Promise;
 };
 
-Promise.fromNode = function(fn, multiArgs) {
+Promise.fromNode = function(fn) {
     var ret = new Promise(INTERNAL);
-    var result = tryCatch(fn)(nodebackForPromise(ret, !!multiArgs));
+    var multiArgs = arguments.length > 1 ? !!Object(arguments[1]).multiArgs
+                                         : false;
+    var result = tryCatch(fn)(nodebackForPromise(ret, multiArgs));
     if (result === errorObj) {
         ret._rejectCallback(result.e, true);
     }
