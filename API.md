@@ -916,7 +916,7 @@ Promise.join(getPictures(), getComments(), getTweets(),
 
 Given an array, or a promise of an array, which contains promises (or a mix of promises and values) return a promise that is fulfilled when all the items in the array are either fulfilled or rejected. The fulfillment value is an array of [`PromiseInspection`](#synchronous-inspection) instances at respective positions in relation to the input array.
 
-This method is useful for when you have an array of promises and you'd like to know when all of them resolve - either by fulfilling of rejecting. For example:
+This method is useful for when you have an array of promises and you'd like to know when all of them resolve - either by fulfilling or rejecting. For example:
 
 ```js
 var fs = Promise.promisifyAll(require("fs"));
