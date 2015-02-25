@@ -155,6 +155,7 @@ Promise.fromNode = function(fn, multiArgs) {
     if (result === errorObj) {
         ret._rejectCallback(result.e, true);
     }
+    if (!ret._isFateSealed()) ret._setAsyncGuaranteed();
     return ret;
 };
 
