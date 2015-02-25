@@ -34,12 +34,11 @@ var optionalModuleRequireMap = {
     "reduce.js": true,
     "settle.js": true,
     "some.js": true,
-    "cancel.js": true,
     "using.js": true,
+    "timers.js": true,
     "filter.js": ["map.js"],
     "any.js": ["some.js"],
-    "each.js": ["reduce.js"],
-    "timers.js": ["cancel.js"]
+    "each.js": ["reduce.js"]
 };
 
 var lastLineCode = "                                                         \n\
