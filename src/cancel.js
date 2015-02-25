@@ -29,6 +29,7 @@ Promise.prototype.isCancellable = function() {
 };
 
 Promise.prototype.onCancel = function(onCancel) {
+    if (!debug.cancellation()) return this._warn("cancellation is disabled");
     if (typeof onCancel !== "function") {
         return apiRejection("onCancel must be a function, got: "
             + util.toString(onCancel));
