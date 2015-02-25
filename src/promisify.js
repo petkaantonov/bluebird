@@ -172,7 +172,7 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
             if (ret === errorObj) {                                          \n\
                 promise._rejectCallback(maybeWrapAsError(ret.e), true);      \n\
             }                                                                \n\
-            if (!promise._isFateSealed()) promise._setIsAsyncGuaranteed();   \n\
+            if (!promise._isFateSealed()) promise._setAsyncGuaranteed();     \n\
             return promise;                                                  \n\
         };                                                                   \n\
         ret.__isPromisified__ = true;                                        \n\
@@ -222,7 +222,7 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {
         } catch(e) {
             promise._rejectCallback(maybeWrapAsError(e), true);
         }
-        if (!promise._isFateSealed()) promise._setIsAsyncGuaranteed();
+        if (!promise._isFateSealed()) promise._setAsyncGuaranteed();
         return promise;
     }
     promisified.__isPromisified__ = true;

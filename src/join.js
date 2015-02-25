@@ -106,7 +106,7 @@ Promise.join = function () {
                         callbacks[i].call(ret, maybePromise, holder);
                     }
                 }
-                if (!ret._isFateSealed()) ret._setIsAsyncGuaranteed();
+                if (!ret._isFateSealed()) ret._setAsyncGuaranteed();
                 return ret;
             }
         }

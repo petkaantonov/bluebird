@@ -25,7 +25,7 @@ var delay = Promise.delay = function (ms, value) {
         ret = new Promise(INTERNAL);
         setTimeout(function() { ret._fulfill(); }, +ms);
     }
-    ret._setIsAsyncGuaranteed();
+    ret._setAsyncGuaranteed();
     return ret;
 };
 

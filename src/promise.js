@@ -281,7 +281,7 @@ Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
 };
 
-Promise.prototype._setIsAsyncGuaranteed = function() {
+Promise.prototype._setAsyncGuaranteed = function() {
     this._bitField = this._bitField | IS_ASYNC_GUARANTEED;
 };
 
@@ -549,7 +549,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
         if (!isPromise) {
             handler.call(receiver, value, promise);
         } else {
-            if (asyncGuaranteed) promise._setIsAsyncGuaranteed();
+            if (asyncGuaranteed) promise._setAsyncGuaranteed();
             this._settlePromiseFromHandler(handler, receiver, value, promise);
         }
     } else if (receiver instanceof PromiseArray) {
@@ -561,7 +561,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             }
         }
     } else if (isPromise) {
-        if (asyncGuaranteed) promise._setIsAsyncGuaranteed();
+        if (asyncGuaranteed) promise._setAsyncGuaranteed();
         if (BIT_FIELD_CHECK(IS_FULFILLED)) {
             promise._fulfill(value);
         } else {
