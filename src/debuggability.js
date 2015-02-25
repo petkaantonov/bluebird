@@ -111,7 +111,8 @@ Promise.config = function(opts) {
             throw new Error(
                 "cannot enable cancellation after promises are in use");
         }
-        Promise.prototype._cleanValues = cancellationCleanValues;
+        Promise.prototype._clearCancellationData =
+            cancellationClearCancellationData;
         Promise.prototype._propagateFrom = cancellationPropagateFrom;
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
@@ -120,14 +121,16 @@ Promise.config = function(opts) {
 
 Promise.prototype._captureStackTrace = function () {};
 Promise.prototype._attachExtraTrace = function () {};
-Promise.prototype._cleanValues = function() {};
+Promise.prototype._clearCancellationData = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
     USE(flags);
 };
 
 function cancellationCleanValues() {
+function cancellationClearCancellationData() {
     this._cancellationParent = undefined;
+    this._onCancelField = undefined;
 }
 
 function cancellationPropagateFrom(parent, flags) {

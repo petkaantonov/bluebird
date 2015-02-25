@@ -610,7 +610,6 @@ Promise.prototype._fulfill = function (value) {
     }
     this._setFulfilled();
     this._rejectionHandler0 = value;
-    this._cleanValues();
 
     if (BIT_FIELD_READ(LENGTH_MASK) > 0) {
         if (BIT_FIELD_CHECK(IS_ASYNC_GUARANTEED)) {
@@ -626,7 +625,6 @@ Promise.prototype._reject = function (reason) {
     if (BIT_FIELD_READ(IS_FATE_SEALED)) return;
     this._setRejected();
     this._fulfillmentHandler0 = reason;
-    this._cleanValues();
 
     if (this._isFinal()) {
         ASSERT(this._length() === 0);
@@ -678,6 +676,7 @@ Promise.prototype._settlePromises = function () {
         this._fulfillPromises(len, value);
     }
     this._setLength(0);
+    this._clearCancellationData();
 };
 
 Promise.prototype._settledValue = function() {

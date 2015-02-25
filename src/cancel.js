@@ -10,7 +10,6 @@ Promise.prototype._cancel = function() {
     if (!this.isCancellable()) return;
     ASSERT(!this._isFollowing());
     this._setCancelled();
-    this._cleanValues();
     if (this._length() > 0) {
         async.invoke(this._cancelPromises, this, undefined);
     }
