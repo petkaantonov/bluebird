@@ -2144,7 +2144,6 @@ describe("Cancellation with .map", function() {
         });
     });
 });
-/*
 describe("Cancellation with .bind", function() {
     specify("immediately cancelled promise passed as ctx", function() {
         var finalled = 0;
@@ -2353,4 +2352,3 @@ describe("Cancellation with .bind", function() {
         });
     });
 })
-*/

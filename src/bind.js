@@ -40,6 +40,7 @@ Promise.prototype.bind = function (thisArg) {
         target._then(INTERNAL, targetRejected, undefined, ret, context);
         maybePromise._then(
             bindingResolved, bindingRejected, undefined, ret, context);
+        ret._setOnCancel(maybePromise);
     } else {
         ret._setBoundTo(thisArg);
         ret._resolveCallback(target);
