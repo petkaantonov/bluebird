@@ -11,7 +11,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
         queries[i] = FileVersion.insert({index: i}).execWithin(tx);
     }
 
-    Promise.all(queries).then().then(function() {
+    Promise.all(queries).then(function() {
         tx.commit();
         done();
     }, function(err) {
