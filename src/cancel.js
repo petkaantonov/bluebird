@@ -66,18 +66,18 @@ Promise.prototype.onCancel = function(onCancel) {
     return this;
 };
 
-Promise.prototype._doInvokeOnCancel = function(callback) {
-    if (callback !== undefined) {
-        if (typeof callback === "function") {
-            var e = tryCatch(callback).call(this._boundTo);
+Promise.prototype._doInvokeOnCancel = function(onCancelCallback) {
+    if (onCancelCallback !== undefined) {
+        if (typeof onCancelCallback === "function") {
+            var e = tryCatch(onCancelCallback).call(this._boundTo);
             if (e === errorObj) {
                 this._attachExtraTrace(e.e);
                 async.throwLater(e.e);
             }
-        } else if (callback instanceof Promise) {
-            callback.cancel();
+        } else if (onCancelCallback instanceof Promise) {
+            onCancelCallback.cancel();
         } else {
-            callback._resultCancelled(this);
+            onCancelCallback._resultCancelled(this);
         }
     }
 };
