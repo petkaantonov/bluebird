@@ -6,6 +6,34 @@ var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var async = Promise._async;
 
+Promise.prototype.cancelAfter = function(ms) {
+    var self = this;
+    setTimeout(function() {
+        self.cancel();
+    }, ms);
+};
+
+Promise.prototype["break"] = Promise.prototype.cancel = function() {
+    if (!debug.cancellation()) return this._warn("cancellation is disabled");
+
+    var promise = this;
+    while (promise.isCancellable()) {
+        promise._invokeOnCancel(promise._onCancel());
+        var parent = promise._cancellationParent;
+        if (parent == null || !parent.isCancellable()) {
+            if (promise._isFollowing()) {
+                promise._followee().cancel();
+            } else {
+                promise._cancel();
+            }
+            break;
+        } else {
+            if (promise._isFollowing()) promise._followee().cancel();
+            promise = parent;
+        }
+    }
+};
+
 Promise.prototype._cancel = function() {
     if (!this.isCancellable()) return;
     ASSERT(!this._isFollowing());
@@ -51,40 +79,18 @@ Promise.prototype._doInvokeOnCancel = function(callback) {
         } else {
             callback._resultCancelled(this);
         }
-        this._unsetOnCancel();
     }
 };
 
-Promise.prototype._invokeOnCancel = function(callback) {
-    async.invoke(this._doInvokeOnCancel, this, callback);
-};
-
-Promise.prototype.cancelAfter = function(ms) {
-    var self = this;
-    setTimeout(function() {
-        self.cancel();
-    }, ms);
-};
-
-Promise.prototype["break"] = Promise.prototype.cancel = function() {
-    if (!debug.cancellation()) return this._warn("cancellation is disabled");
-
-    var promise = this;
-    while (promise.isCancellable()) {
-        promise._invokeOnCancel(promise._onCancel());
-        var parent = promise._cancellationParent;
-        if (parent == null || !parent.isCancellable()) {
-            if (promise._isFollowing()) {
-                promise._followee().cancel();
-            } else {
-                promise._cancel();
-            }
-            break;
-        } else {
-            if (promise._isFollowing()) promise._followee().cancel();
-            promise = parent;
-        }
-    }
+// onCancelCallback is passed in to avoid duplicating the logic of determining
+// the callback (I.E. if callback is a Promise, the callback is that promise's
+// .cancel() method, or if a callback is a PromiseArray, the callback is that
+// promiseArray's ._resultCancelled() method etc).
+Promise.prototype._invokeOnCancel = function(onCancelCallback) {
+    // The existence of onCancel handler on a promise signals that the handler
+    // has not been queued for invocation yet.
+    this._unsetOnCancel();
+    async.invoke(this._doInvokeOnCancel, this, onCancelCallback);
 };
 
 };
