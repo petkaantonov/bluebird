@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, apiRejection, debug) {
+module.exports = function(Promise, PromiseArray, apiRejection, debug) {
 var ASSERT = require("./assert");
 var util = require("./util");
 var tryCatch = util.tryCatch;
@@ -77,6 +77,7 @@ Promise.prototype._doInvokeOnCancel = function(onCancelCallback) {
         } else if (onCancelCallback instanceof Promise) {
             onCancelCallback.cancel();
         } else {
+            ASSERT(onCancelCallback instanceof PromiseArray);
             onCancelCallback._resultCancelled(this);
         }
     }
