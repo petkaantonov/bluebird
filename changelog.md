@@ -1,3 +1,9 @@
+## 2.9.13 (2015-02-27)
+
+Bugfixes:
+
+ - Fix .each, .filter, .reduce and .map callbacks being called synchornously if the input is immediate. ([#513](.))
+
 ## 2.9.12 (2015-02-19)
 
 Bugfixes:
