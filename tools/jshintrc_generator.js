@@ -11,6 +11,7 @@ var globals = fs.readFileAsync(constantsFile, "utf8").then(function(contents) {
     var rconstantname = /CONSTANT\(\s*([^,]+)/g;
     var m;
     var globals = {
+        JSON: false,
         Error: true,
         args: true,
         INLINE_SLICE: false,
