@@ -705,7 +705,7 @@ Promise.defer = function() {
 };
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./method")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
+require("./method")(Promise, INTERNAL, tryConvertToPromise, apiRejection, debug);
 require("./bind")(Promise, INTERNAL, tryConvertToPromise, debug);
 require("./cancel")(Promise, PromiseArray, apiRejection, debug);
 require("./direct_resolve")(Promise);
