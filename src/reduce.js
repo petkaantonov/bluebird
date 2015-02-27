@@ -5,6 +5,7 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL) {
 var ASSERT = require("./assert.js");
+var async = require("./async.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -39,7 +40,10 @@ function ReductionPromiseArray(promises, fn, accum, _each) {
     if (!(isPromise || this._zerothIsAccum)) this._gotAccum = true;
     this._callback = fn;
     this._accum = accum;
-    if (!rejected) this._init$(undefined, RESOLVE_CALL_METHOD);
+    if (!rejected) async.invoke(init, this, undefined);
+}
+function init() {
+    this._init$(undefined, RESOLVE_CALL_METHOD);
 }
 util.inherits(ReductionPromiseArray, PromiseArray);
 

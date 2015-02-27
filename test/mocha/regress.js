@@ -97,5 +97,21 @@ describe("regressions", function() {
             order.push(4);
             assert.equal(order.join(","), "2,3,1,4");
         });
-    })
+    });
+
+    specify("github-513", function() {
+        var order = [];
+        order.push(1);
+        var a = Promise.resolve([1]).each(function() {
+            order.push(4);
+        });
+        order.push(2);
+        var b = Promise.resolve([1]).map(function() {
+            order.push(5);
+        });
+        order.push(3);
+        return Promise.resolve().then(function() {
+            assert.deepEqual([1, 2, 3, 4, 5], order);
+        });
+    });
 });

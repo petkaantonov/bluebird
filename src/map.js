@@ -5,6 +5,7 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL) {
 var ASSERT = require("./assert.js");
+var async = require("./async.js");
 var util = require("./util.js");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -21,9 +22,10 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._limit = limit;
     this._inFlight = 0;
     this._queue = limit >= 1 ? [] : EMPTY_ARRAY;
-    this._init$(undefined, RESOLVE_ARRAY);
+    async.invoke(init, this, undefined);
 }
 util.inherits(MappingPromiseArray, PromiseArray);
+function init() {this._init$(undefined, RESOLVE_ARRAY);}
 
 // The following hack is required because the super constructor
 // might call promiseFulfilled before this.callback = fn is set
