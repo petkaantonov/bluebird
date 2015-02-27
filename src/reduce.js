@@ -39,7 +39,8 @@ ReductionPromiseArray.prototype._init = function() {};
 
 // Override
 ReductionPromiseArray.prototype._resolveEmptyArray = function() {
-    this._resolve(this._initialValue === INTERNAL ? [] : this._initialValue);
+    this._resolve(this._eachValues !== undefined ? this._eachValues
+                                                 : this._initialValue);
 };
 
 // Override
