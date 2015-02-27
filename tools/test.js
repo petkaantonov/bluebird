@@ -1,3 +1,4 @@
+process.env.BLUEBIRD_WARNINGS = 0;
 var assert = require("assert");
 assert.equal(require.main, module);
 var Promise = require("bluebird");
