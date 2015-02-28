@@ -598,7 +598,7 @@ var captureStackTrace = (function stackDetection() {
     //V8
     if (typeof Error.stackTraceLimit === "number" &&
         typeof Error.captureStackTrace === "function") {
-        Error.stackTraceLimit = Error.stackTraceLimit + 6;
+        Error.stackTraceLimit += 6;
         stackFramePattern = v8stackFramePattern;
         formatStack = v8stackFormatter;
         var captureStackTrace = Error.captureStackTrace;
@@ -608,9 +608,9 @@ var captureStackTrace = (function stackDetection() {
             return bluebirdFramePattern.test(line);
         };
         return function(receiver, ignoreUntil) {
-            Error.stackTraceLimit = Error.stackTraceLimit + 6;
+            Error.stackTraceLimit += 6;
             captureStackTrace(receiver, ignoreUntil);
-            Error.stackTraceLimit = Error.stackTraceLimit - 6;
+            Error.stackTraceLimit -= 6;
         };
     }
     var err = new Error();
@@ -636,10 +636,10 @@ var captureStackTrace = (function stackDetection() {
         stackFramePattern = v8stackFramePattern;
         formatStack = v8stackFormatter;
         return function captureStackTrace(o) {
-            Error.stackTraceLimit = Error.stackTraceLimit + 6;
+            Error.stackTraceLimit += 6;
             try { throw new Error(); }
             catch(e) { o.stack = e.stack; }
-            Error.stackTraceLimit = Error.stackTraceLimit - 6;
+            Error.stackTraceLimit -= 6;
         };
     }
 
