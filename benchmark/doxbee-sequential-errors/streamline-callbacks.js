@@ -16,7 +16,8 @@ module.exports = function upload(stream, idOrPath, tag, _) { var blob, tx, blobI
                 previousId: previousId };
 
               version.id = Version.createHash(version);
-              return Version.insert(version).execWithin(tx, __cb(_, __frame, 16, 32, function __$upload() { return (function __$upload(__then) {
+              return Version.insert(version).execWithin(tx, __cb(_, __frame, 16, 32, function __$upload() {
+                triggerIntentionalError(); return (function __$upload(__then) {
                   if (!file) {
                     splitPath = idOrPath.split("/");
                     fileName = splitPath[(splitPath.length - 1)];
@@ -26,13 +27,16 @@ module.exports = function upload(stream, idOrPath, tag, _) { var blob, tx, blobI
                       name: fileName,
                       version: version.id };
 
-                    return self.createQuery(idOrPath, file, __cb(_, __frame, 26, 29, function ___(__0, __3) { query = __3;
-                      return query.execWithin(tx, __cb(_, __frame, 27, 18, __then, true)); }, true)); } else { __then(); } ; })(function __$upload() {
+                    return self.createQuery(idOrPath, file, __cb(_, __frame, 27, 29, function ___(__0, __3) { query = __3;
+                      return query.execWithin(tx, __cb(_, __frame, 28, 18, function __$upload() {
+                        triggerIntentionalError(); __then(); }, true)); }, true)); } else { __then(); } ; })(function __$upload() {
 
 
-                  return FileVersion.insert({ fileId: file.id, versionId: version.id }).execWithin(tx, __cb(_, __frame, 30, 13, function __$upload() {
+                  return FileVersion.insert({ fileId: file.id, versionId: version.id }).execWithin(tx, __cb(_, __frame, 32, 13, function __$upload() {
+                    triggerIntentionalError();
 
-                    return File.whereUpdate({ id: file.id }, { version: version.id }).execWithin(tx, __cb(_, __frame, 32, 13, function __$upload() {
+                    return File.whereUpdate({ id: file.id }, { version: version.id }).execWithin(tx, __cb(_, __frame, 35, 13, function __$upload() {
+                      triggerIntentionalError();
                       tx.commit(); __then(); }, true)); }, true)); }); }, true)); }, true)); }, true)); }); })(function ___(err, __result) { __catch(function __$upload() { if (err) {
 
             tx.rollback();

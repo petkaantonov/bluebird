@@ -16,7 +16,8 @@
     "rsvp": "^3.0.16",
     "text-table": "~0.2.0",
     "vow": "~0.4.1",
-    "when": "^3.6.4"
+    "when": "^3.6.4",
+    "streamline": "^0.10.17"
   },
   "devDependencies": {},
   "scripts": {

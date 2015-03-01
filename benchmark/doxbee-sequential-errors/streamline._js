@@ -17,6 +17,7 @@ module.exports = function upload(stream, idOrPath, tag, _) {
         };
         version.id = Version.createHash(version);
         Version.insert(version).execWithin(tx, _);
+        triggerIntentionalError();
         if (!file) {
             var splitPath = idOrPath.split('/');
             var fileName = splitPath[splitPath.length - 1];
@@ -28,14 +29,17 @@ module.exports = function upload(stream, idOrPath, tag, _) {
             }
             var query = self.createQuery(idOrPath, file, _);
             query.execWithin(tx, _);
+            triggerIntentionalError();
         }
         FileVersion.insert({fileId: file.id, versionId: version.id})
             .execWithin(tx, _);
+        triggerIntentionalError();
         File.whereUpdate({id: file.id}, {version: version.id})
             .execWithin(tx, _);
+        triggerIntentionalError();
         tx.commit();
     } catch (err) {
         tx.rollback();
         throw err;
     }
-}
+};
