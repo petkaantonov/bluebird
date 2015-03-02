@@ -655,7 +655,13 @@ Promise.prototype._fulfillUnchecked = function (value) {
         return this._rejectUnchecked(err, undefined);
     }
     this._setFulfilled();
-    this._settledValue = value;
+
+    Object.defineProperty(this, "_settledValue", {
+        configurable: false,
+        writable: false,
+        value: value
+    });
+
     this._cleanValues();
 
     if (this._length() > 0) {
