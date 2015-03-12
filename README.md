@@ -134,7 +134,7 @@ fs.readFileAsync("file.json").then(JSON.parse).then(function(val) {
 .catch(SyntaxError, function(e) {
     console.error("invalid json in file");
 })
-.catch(function(e){
+.catch(function(e) {
     console.error("unable to read file")
 });
 ```
