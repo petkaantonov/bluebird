@@ -1,3 +1,9 @@
+## 2.9.14 (2015-03-12)
+
+Bugfixes:
+
+ - Always use process.nextTick. Fixes [#525](.)
+
 ## 2.9.13 (2015-02-27)
 
 Bugfixes:
