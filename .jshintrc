@@ -46,6 +46,7 @@
     "-W097": true,
     "globals": {
         "Error": true,
+        "JSON": false,
         "args": true,
         "INLINE_SLICE": false,
         "global": true,
@@ -94,7 +95,6 @@
         "IS_CARRYING_STACK_TRACE": false,
         "IS_UNHANDLED_REJECTION_NOTIFIED": false,
         "IS_DISPOSABLE": false,
-        "IS_BOUND": false,
         "LENGTH_MASK": false,
         "LENGTH_CLEAR_MASK": false,
         "MAX_LENGTH": false,
