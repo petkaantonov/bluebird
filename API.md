@@ -1300,8 +1300,8 @@ function getSqlConnection(connectionString) {
     return pg.connectAsync(connectionString).spread(function(client, done) {
         close = done;
         return client;
-    }).disposer(function(client) {
-        if (close) close(client);
+    }).disposer(function() {
+        if (close) close();
     });
 }
 
