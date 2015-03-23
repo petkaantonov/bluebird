@@ -3,10 +3,26 @@ var token = {};
 module.exports = {
     awaitGlobalException: function(fn) {
         if (typeof process !== "undefined" && typeof process.version === "string") {
+            function replaceListeners(by) {
+                var single = typeof by === "function";
+                if (process.title === "browser") {
+                    var original = window.onerror;
+                    window.onerror = single ? function(message, file, line, column, e) {
+                        return by(e);
+                    } : by[0];
+                    return [original];
+                } else {
+                    var original = process.listeners("uncaughtException");
+                    process.removeAllListeners("uncaughtException");
+                    if (single) by = [by];
+                    by.forEach(function(listener) {
+                        process.on("uncaughtException", listener);
+                    });
+                    return original;
+                }
+            }
             return new Promise(function(resolve, reject) {
-                var listeners = process.listeners("uncaughtException");
-                process.removeAllListeners("uncaughtException");
-                process.on("uncaughtException", function(e) {
+                var listeners = replaceListeners(function(e) {
                     var err;
                     var ret;
                     try {
@@ -15,11 +31,7 @@ module.exports = {
                         err = e;
                     }
                     if (!err && ret === false) return;
-                    process.removeAllListeners("uncaughtException");
-                    listeners.forEach(function(listener) {
-                        process.on("uncaughtException", listener);
-                    });
-
+                    replaceListeners(listeners);
                     Promise.delay(1).then(function() {
                         if (err) reject(err);
                         resolve();
