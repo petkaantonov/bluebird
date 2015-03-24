@@ -473,7 +473,7 @@ MyClass.prototype.method = function() {
 
 ```js
 somethingAsync().bind({})
-.then(function (aValue, bValue) {
+.spread(function (aValue, bValue) {
     this.aValue = aValue;
     this.bValue = bValue;
     return somethingElseAsync(aValue, bValue);
@@ -488,7 +488,7 @@ The above without `.bind()` could be achieved with:
 ```js
 var scope = {};
 somethingAsync()
-.then(function (aValue, bValue) {
+.spread(function (aValue, bValue) {
     scope.aValue = aValue;
     scope.bValue = bValue;
     return somethingElseAsync(aValue, bValue);
