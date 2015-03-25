@@ -8,9 +8,7 @@
 
 # Introduction
 
-Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance
-
-
+Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-them) library with focus on innovative features and performance.
 
 # Topics
 
@@ -26,7 +24,6 @@ Bluebird is a fully featured [promise](#what-are-promises-and-why-should-i-use-t
     - [Benchmarking](#benchmarks)
     - [Custom builds](#custom-builds)
     - [For library authors](#for-library-authors)
-- [What is the sync build?](#what-is-the-sync-build)
 - [License](#license)
 - [Snippets for common problems](https://github.com/petkaantonov/bluebird/wiki/Snippets)
 - [Promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns)
@@ -590,61 +587,6 @@ You should also know about [`.nodeify()`](API.md#nodeifyfunction-callback---prom
 
 <hr>
 
-## What is the sync build?
-
-You may now use sync build by:
-
-    var Promise = require("bluebird/zalgo");
-
-The sync build is provided to see how forced asynchronity affects benchmarks. It should not be used in real code due to the implied hazards.
-
-The normal async build gives Promises/A+ guarantees about asynchronous resolution of promises. Some people think this affects performance or just plain love their code having a possibility
-of stack overflow errors and non-deterministic behavior.
-
-The sync build skips the async call trampoline completely, e.g code like:
-
-    async.invoke( this.fn, this, val );
-
-Appears as this in the sync build:
-
-    this.fn(val);
-
-This should pressure the CPU slightly less and thus the sync build should perform better. Indeed it does, but only marginally. The biggest performance boosts are from writing efficient Javascript, not from compromising determinism.
-
-Note that while some benchmarks are waiting for the next event tick, the CPU is actually not in use during that time. So the resulting benchmark result is not completely accurate because on node.js you only care about how much the CPU is taxed. Any time spent on CPU is time the whole process (or server) is paralyzed. And it is not graceful like it would be with threads.
-
-
-```js
-var cache = new Map(); //ES6 Map or DataStructures/Map or whatever...
-function getResult(url) {
-    var resolver = Promise.pending();
-    if (cache.has(url)) {
-        resolver.resolve(cache.get(url));
-    }
-    else {
-        http.get(url, function(err, content) {
-            if (err) resolver.reject(err);
-            else {
-                cache.set(url, content);
-                resolver.resolve(content);
-            }
-        });
-    }
-    return resolver.promise;
-}
-
-
-
-//The result of console.log is truly random without async guarantees
-function guessWhatItPrints( url ) {
-    var i = 3;
-    getResult(url).then(function(){
-        i = 4;
-    });
-    console.log(i);
-}
-```
-
 # Optimization guide
 
 Articles about optimization will be periodically posted in [the wiki section](https://github.com/petkaantonov/bluebird/wiki), polishing edits are welcome.
@@ -655,7 +597,7 @@ A single cohesive guide compiled from the articles will probably be done eventua
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Petka Antonov
+Copyright (c) 2013-2015 Petka Antonov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
