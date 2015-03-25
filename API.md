@@ -1818,6 +1818,7 @@ Promise.fromNode(object.foo.bind(object, "firstArgument")).then(function(result)
 <hr>
 
 #####`.nodeify([Function callback] [, Object options])` -> `Promise`
+#####`.asCallback([Function callback] [, Object options])` -> `Promise`
 
 Register a node-style callback on this promise. When this promise is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
 
