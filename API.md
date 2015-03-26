@@ -2209,7 +2209,9 @@ doSomething()
     .then(...)
 ```
 
+*Note: in browsers it is necessary to call `.tap` with `console.log.bind(console)` because console methods can not be called as stand-alone functions.*
 
+<hr>
 
 #####`.call(String propertyName [, dynamic arg...])` -> `Promise`
 
