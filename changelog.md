@@ -1,3 +1,14 @@
+## 2.9.15 (2015-03-26)
+
+Features:
+
+ - Added `.asCallback` alias for `.nodeify`.
+
+Bugfixes:
+
+ - Don't always use nextTick, but try to pick up setImmediate or setTimeout in NW. Fixes [#534](.), [#525](.)
+ - Make progress a core feature. Fixes [#535](.) Note that progress has been removed in 3.x - this is only a fix necessary for 2.x custom builds.
+
 ## 2.9.14 (2015-03-12)
 
 Bugfixes:
