@@ -711,6 +711,7 @@ Promise.prototype._settlePromises = function () {
 };
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
+require("./progress.js")(Promise, PromiseArray);
 require("./method.js")(Promise, INTERNAL, tryConvertToPromise, apiRejection);
 require("./bind.js")(Promise, INTERNAL, tryConvertToPromise);
 require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
