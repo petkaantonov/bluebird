@@ -1,3 +1,9 @@
+## 2.9.16 (2015-03-28)
+
+Features:
+
+ - Use setImmediate if available
+
 ## 2.9.15 (2015-03-26)
 
 Features:
