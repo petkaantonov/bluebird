@@ -2,45 +2,41 @@ var assert = require("assert");
 var token = {};
 module.exports = {
     awaitGlobalException: function(fn) {
-        if (typeof process !== "undefined" && typeof process.version === "string") {
-            function replaceListeners(by) {
-                var single = typeof by === "function";
-                if (process.title === "browser") {
-                    var original = window.onerror;
-                    window.onerror = single ? function(message, file, line, column, e) {
-                        return by(e);
-                    } : by[0];
-                    return [original];
-                } else {
-                    var original = process.listeners("uncaughtException");
-                    process.removeAllListeners("uncaughtException");
-                    if (single) by = [by];
-                    by.forEach(function(listener) {
-                        process.on("uncaughtException", listener);
-                    });
-                    return original;
-                }
+        function replaceListeners(by) {
+            var single = typeof by === "function";
+            if (process.title === "browser") {
+                var original = window.onerror;
+                window.onerror = single ? function(message, file, line, column, e) {
+                    return by(e);
+                } : by[0];
+                return [original];
+            } else {
+                var original = process.listeners("uncaughtException");
+                process.removeAllListeners("uncaughtException");
+                if (single) by = [by];
+                by.forEach(function(listener) {
+                    process.on("uncaughtException", listener);
+                });
+                return original;
             }
-            return new Promise(function(resolve, reject) {
-                var listeners = replaceListeners(function(e) {
-                    var err;
-                    var ret;
-                    try {
-                        ret = fn(e);
-                    } catch (e) {
-                        err = e;
-                    }
-                    if (!err && ret === false) return;
-                    replaceListeners(listeners);
-                    Promise.delay(1).then(function() {
-                        if (err) reject(err);
-                        resolve();
-                    });
+        }
+        return new Promise(function(resolve, reject) {
+            var listeners = replaceListeners(function(e) {
+                var err;
+                var ret;
+                try {
+                    ret = fn(e);
+                } catch (e) {
+                    err = e;
+                }
+                if (!err && ret === false) return;
+                replaceListeners(listeners);
+                Promise.delay(1).then(function() {
+                    if (err) reject(err);
+                    resolve();
                 });
             });
-        } else {
-            return Promise.delay(1);
-        }
+        });
     },
 
     awaitLateQueue: function(fn) {
@@ -269,8 +265,10 @@ module.exports = {
 };
 
 if (module.exports.isNodeJS) {
-    var version = process.version.split(".").map(Number);
-    module.exports.isRecentNode = version[0] > 0 || version[1] > 10;
+    var version = process.versions.node.split(".").map(Number);
+    module.exports.isRecentNode = version[0] > 0;
+    module.exports.isOldNode = !module.exports.isRecentNode;
 } else {
+    module.exports.isOldNode = false;
     module.exports.isRecentNode = false;
 }

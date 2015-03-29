@@ -156,16 +156,18 @@ describe("Cancellation", function() {
         });
     });
 
-    specify("throws in process if callback throws", function() {
-        var e = new Error();
-        var promise = new Promise(function(resolve, reject) {}).onCancel(function onCancel() {
-            throw e;
+    if (testUtils.isNodeJS) {
+        specify("throws in process if callback throws", function() {
+            var e = new Error();
+            var promise = new Promise(function(resolve, reject) {}).onCancel(function onCancel() {
+                throw e;
+            });
+            promise.cancel();
+            return testUtils.awaitGlobalException(function(err) {
+                assert.equal(e, err);
+            });
         });
-        promise.cancel();
-        return testUtils.awaitGlobalException(function(err) {
-            assert.equal(e, err);
-        });
-    });
+    }
 
     specify("cancels the promise chain", function() {
         var called = false;
