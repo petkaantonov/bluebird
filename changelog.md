@@ -1,3 +1,9 @@
+## 2.9.20 (2015-03-29)
+
+Bugfixes:
+
+ - Fix regression where there is a long delay between calling `.cancel()` and promise actually getting cancelled in Chrome when long stack traces are enabled
+
 ## 2.9.19 (2015-03-29)
 
 Bugfixes:
