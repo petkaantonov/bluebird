@@ -235,14 +235,14 @@ describe("Promise.map-test with concurrency", function () {
             });
         }, {concurrency: 5});
 
-        var ret2 = Promise.delay(1).then(function() {
+        var ret2 = Promise.delay(100).then(function() {
             assert.strictEqual(0, b.length);
             immediates.forEach(resolve);
             return immediates.map(function(item){return item[0]});
-        }).delay(1).then(function() {
+        }).delay(100).then(function() {
             assert.deepEqual(b, [0, 1, 2, 3, 4]);
             lates.forEach(resolve);
-        }).delay(1).then(function() {
+        }).delay(100).then(function() {
             assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6 ]);
             lates.forEach(resolve);
         }).thenReturn(ret1).then(function() {

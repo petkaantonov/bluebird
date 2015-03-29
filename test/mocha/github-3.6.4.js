@@ -30,11 +30,11 @@ describe("github-364", function() {
             calls++
         }).then(function() {
             calls++
-        });
-
-        Promise.delay(1).then(function() {
-            assert.equal(calls, 3);
-            done();
+        }).then(function() {
+            Promise.delay(11).then(function() {
+                assert.equal(calls, 3);
+                done();
+            });
         });
     });
 });
