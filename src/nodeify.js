@@ -41,7 +41,8 @@ function errorAdapter(reason, nodeback) {
     }
 }
 
-Promise.prototype.nodeify = function (nodeback, options) {
+Promise.prototype.asCallback = Promise.prototype.nodeify = function (nodeback,
+                                                                     options) {
     if (typeof nodeback == "function") {
         var adapter = successAdapter;
         if (options !== undefined && Object(options).spread) {
