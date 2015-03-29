@@ -84,7 +84,7 @@ if (!util.hasDevTools) {
 } else {
     Async.prototype.invokeLater = function (fn, receiver, arg) {
         if (this._trampolineEnabled) {
-            AsyncInvokeLater(fn, receiver, arg);
+            AsyncInvokeLater.call(this, fn, receiver, arg);
         } else {
             setTimeout(function() {
                 fn.call(receiver, arg);
@@ -94,7 +94,7 @@ if (!util.hasDevTools) {
 
     Async.prototype.invoke = function (fn, receiver, arg) {
         if (this._trampolineEnabled) {
-            AsyncInvoke(fn, receiver, arg);
+            AsyncInvoke.call(this, fn, receiver, arg);
         } else {
             setTimeout(function() {
                 fn.call(receiver, arg);
@@ -104,7 +104,7 @@ if (!util.hasDevTools) {
 
     Async.prototype.settlePromises = function(promise) {
         if (this._trampolineEnabled) {
-            AsyncSettlePromises(promise);
+            AsyncSettlePromises.call(this, promise);
         } else {
             setTimeout(function() {
                 promise._settlePromises();
