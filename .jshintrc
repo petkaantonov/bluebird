@@ -48,6 +48,7 @@
         "Error": true,
         "args": true,
         "JSON": true,
+        "chrome": true,
         "INLINE_SLICE": false,
         "global": true,
         "setImmediate": true,
