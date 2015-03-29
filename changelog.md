@@ -1,3 +1,10 @@
+## 2.9.17 (2015-03-29)
+
+
+Bugfixes:
+
+ - Fix Chrome DevTools async stack traceability ([#542](.)).
+
 ## 2.9.16 (2015-03-28)
 
 Features:
