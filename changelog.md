@@ -1,3 +1,9 @@
+## 2.9.18 (2015-03-29)
+
+Bugfixes:
+
+ - Fix settlePromises using trampoline
+
 ## 2.9.17 (2015-03-29)
 
 
