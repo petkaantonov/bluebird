@@ -72,9 +72,15 @@ function AsyncInvoke(fn, receiver, arg) {
     this._queueTick();
 }
 
+function AsyncSettlePromises(promise) {
+    this._normalQueue._pushOne(promise);
+    this._queueTick();
+}
+
 if (!util.hasDevTools) {
     Async.prototype.invokeLater = AsyncInvokeLater;
     Async.prototype.invoke = AsyncInvoke;
+    Async.prototype.settlePromises = AsyncSettlePromises;
 } else {
     Async.prototype.invokeLater = function (fn, receiver, arg) {
         if (this._trampolineEnabled) {
@@ -82,7 +88,7 @@ if (!util.hasDevTools) {
         } else {
             setTimeout(function() {
                 fn.call(receiver, arg);
-            }, 1);
+            }, 100);
         }
     };
 
@@ -95,16 +101,21 @@ if (!util.hasDevTools) {
             }, 0);
         }
     };
+
+    Async.prototype.settlePromises = function(promise) {
+        if (this._trampolineEnabled) {
+            AsyncSettlePromises(promise);
+        } else {
+            setTimeout(function() {
+                promise._settlePromises();
+            }, 0);
+        }
+    };
 }
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     this._normalQueue.unshift(fn, receiver, arg);
-    this._queueTick();
-};
-
-Async.prototype.settlePromises = function(promise) {
-    this._normalQueue._pushOne(promise);
     this._queueTick();
 };
 
