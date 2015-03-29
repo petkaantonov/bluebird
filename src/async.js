@@ -26,6 +26,15 @@ Async.prototype.disableTrampolineIfNecessary = function() {
     }
 };
 
+Async.prototype.enableTrampoline = function() {
+    if (!this._trampolineEnabled) {
+        this._trampolineEnabled = true;
+        this._schedule = function(fn) {
+            setTimeout(fn, 0);
+        };
+    }
+};
+
 Async.prototype.haveItemsQueued = function () {
     return this._normalQueue.length() > 0;
 };
