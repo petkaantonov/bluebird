@@ -4,12 +4,14 @@ try {throw new Error(); } catch (e) {firstLineError = e;}
 var ASSERT = require("./assert");
 var schedule = require("./schedule");
 var Queue = require("./queue");
+var util = require("./util");
 
 function Async() {
     this._isTickUsed = false;
     this._lateQueue = new Queue(LATE_QUEUE_CAPACITY);
     this._normalQueue = new Queue(NORMAL_QUEUE_CAPACITY);
     this._haveDrainedQueues = false;
+    this._trampolineEnabled = true;
     var self = this;
     this.drainQueues = function () {
         self._drainQueues();
@@ -17,6 +19,12 @@ function Async() {
     this._schedule =
         schedule.isStatic ? schedule(this.drainQueues) : schedule;
 }
+
+Async.prototype.disableTrampolineIfNecessary = function() {
+    if (util.hasDevTools) {
+        this._trampolineEnabled = false;
+    }
+};
 
 Async.prototype.haveItemsQueued = function () {
     return this._isTickUsed || this._haveDrainedQueues;
@@ -52,21 +60,46 @@ Async.prototype.throwLater = function(fn, arg) {
 
 //When the fn absolutely needs to be called after
 //the queue has been completely flushed
-Async.prototype.invokeLater = function (fn, receiver, arg) {
+function AsyncInvokeLater(fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     this._lateQueue.push(fn, receiver, arg);
     this._queueTick();
-};
+}
+
+function AsyncInvoke(fn, receiver, arg) {
+    ASSERT(arguments.length === 3);
+    this._normalQueue.push(fn, receiver, arg);
+    this._queueTick();
+}
+
+if (!util.hasDevTools) {
+    Async.prototype.invokeLater = AsyncInvokeLater;
+    Async.prototype.invoke = AsyncInvoke;
+} else {
+    Async.prototype.invokeLater = function (fn, receiver, arg) {
+        if (this._trampolineEnabled) {
+            AsyncInvokeLater(fn, receiver, arg);
+        } else {
+            setTimeout(function() {
+                fn.call(receiver, arg);
+            }, 1);
+        }
+    };
+
+    Async.prototype.invoke = function (fn, receiver, arg) {
+        if (this._trampolineEnabled) {
+            AsyncInvoke(fn, receiver, arg);
+        } else {
+            setTimeout(function() {
+                fn.call(receiver, arg);
+            }, 0);
+        }
+    };
+}
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     this._normalQueue.unshift(fn, receiver, arg);
-    this._queueTick();
-};
-
-Async.prototype.invoke = function (fn, receiver, arg) {
-    ASSERT(arguments.length === 3);
-    this._normalQueue.push(fn, receiver, arg);
     this._queueTick();
 };
 

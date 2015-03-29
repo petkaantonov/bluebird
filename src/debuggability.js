@@ -91,6 +91,7 @@ Promise.longStackTraces = function () {
         Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
         Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
         Context.activateLongStackTraces();
+        async.disableTrampolineIfNecessary();
     }
 };
 

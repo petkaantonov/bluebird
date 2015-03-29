@@ -45,9 +45,10 @@
     "-W064": true,
     "-W097": true,
     "globals": {
-        "JSON": false,
+        "JSON": true,
         "Error": true,
         "args": true,
+        "chrome": true,
         "INLINE_SLICE": false,
         "BIT_FIELD_CHECK": false,
         "BIT_FIELD_READ": false,
