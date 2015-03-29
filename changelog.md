@@ -1,3 +1,9 @@
+## 2.9.19 (2015-03-29)
+
+Bugfixes:
+
+ - Fix crashing in Chrome when long stack traces are disabled
+
 ## 2.9.18 (2015-03-29)
 
 Bugfixes:
