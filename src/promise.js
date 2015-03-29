@@ -149,7 +149,7 @@ Promise.is = function (val) {
     return val instanceof Promise;
 };
 
-Promise.fromNode = function(fn) {
+Promise.fromNode = Promise.fromCallback = function(fn) {
     var ret = new Promise(INTERNAL);
     var multiArgs = arguments.length > 1 ? !!Object(arguments[1]).multiArgs
                                          : false;
