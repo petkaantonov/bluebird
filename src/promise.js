@@ -554,7 +554,6 @@ Promise.prototype._settlePromiseAt = function (index) {
     var promise = this._promiseAt(index);
     var isPromise = promise instanceof Promise;
 
-    ASSERT(async._isTickUsed);
     if (isPromise && promise._isMigrated()) {
         promise._unsetIsMigrated();
         return async.invoke(this._settlePromiseAt, this, index);
