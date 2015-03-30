@@ -207,7 +207,8 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
             trace.attachExtraTrace(error);
         } else if (!error.__stackCleaned__) {
             var parsed = parseStackAndMessage(error);
-            error.stack = parsed.message + "\n" + parsed.stack.join("\n");
+            util.notEnumerableProp(error, "stack",
+                parsed.message + "\n" + parsed.stack.join("\n"));
             util.notEnumerableProp(error, "__stackCleaned__", true);
         }
     }
@@ -578,7 +579,7 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
     }
     removeCommonRoots(stacks);
     removeDuplicateOrEmptyJumps(stacks);
-    error.stack = reconstructStack(message, stacks);
+    util.notEnumerableProp(error, "stack", reconstructStack(message, stacks));
     util.notEnumerableProp(error, "__stackCleaned__", true);
 };
 

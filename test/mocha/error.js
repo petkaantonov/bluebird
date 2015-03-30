@@ -58,6 +58,27 @@ describe("Promise.prototype.error", function(){
     });
 })
 
+if (testUtils.ecmaScript5) {
+    describe("Weird errors", function() {
+        specify("unwritable stack", function() {
+            var e = new Error();
+            var stack = e.stack;
+            Object.defineProperty(e, "stack", {
+                configurable: true,
+                get: function() {return stack;},
+                set: function() {throw new Error("cannot set");}
+            });
+            return new Promise(function(_, reject) {
+                setTimeout(function() {
+                    reject(e);
+                }, 1);
+            }).catch(function(err) {
+                assert.equal(e, err);
+            });
+        });
+    });
+}
+
 describe("Error constructors", function() {
     describe("OperationalError", function() {
         it("should work without new", function() {
