@@ -12,7 +12,7 @@ var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
 var defaultPromisified = {__isPromisified__: true};
 var noCopyPropsPattern =
-    /^(?:length|name|arguments|caller|prototype|__isPromisified__)$/;
+    /^(?:length|name|arguments|caller|callee|prototype|__isPromisified__)$/;
 var defaultFilter = function(name, func) {
     return util.isIdentifier(name) &&
         name.charAt(0) !== "_" &&
