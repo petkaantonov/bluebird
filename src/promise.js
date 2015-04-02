@@ -694,7 +694,7 @@ Promise.prototype._settledValue = function() {
 function deferResolve(v) {this.promise._resolveCallback(v);}
 function deferReject(v) {this.promise._rejectCallback(v, false);}
 
-Promise.defer = function() {
+Promise.defer = Promise.pending = function() {
     debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
     return {
