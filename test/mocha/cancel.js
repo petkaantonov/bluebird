@@ -2353,4 +2353,116 @@ describe("Cancellation with .bind", function() {
             });
         });
     });
-})
+});
+
+describe("Cancellation with .join", function() {
+    specify("immediately cancelled input inside array", function() {
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        var p = new Promise(function(){});
+        p.cancel();
+        Promise.join(1,2,p, assert.fail).catch(reject).lastly(resolve);
+        return result;
+    });
+
+    specify("eventually cancelled input inside array", function() {
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        var p = new Promise(function(){});
+        Promise.join(1,2,p, assert.fail).catch(reject).lastly(resolve);
+        return awaitLateQueue(function() {
+            p.cancel();
+            return result;
+        });
+    });
+
+    specify("immediately cancelled output", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++}),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++}),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+        ];
+
+        var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
+            .catch(reject)
+            .onCancel(function() {cancelled++})
+            .lastly(function() {finalled++; resolve(); });
+
+        all.cancel();
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 4);
+                assert.equal(finalled, 4);
+            });
+        });
+    });
+
+    specify("eventually cancelled output", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++}),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++}),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+        ];
+
+        var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
+            .catch(reject)
+            .onCancel(function() {cancelled++})
+            .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        Promise.delay(1).then(function() {
+            all.cancel();
+        });
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 4);
+                assert.equal(finalled, 4);
+            });
+        });
+    });
+});
+        all.cancel();
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 4);
+                assert.equal(finalled, 4);
+            });
+        });
+    });
+});

@@ -77,7 +77,6 @@ Promise.prototype._doInvokeOnCancel = function(onCancelCallback) {
         } else if (onCancelCallback instanceof Promise) {
             onCancelCallback.cancel();
         } else {
-            ASSERT(onCancelCallback instanceof PromiseArray);
             onCancelCallback._resultCancelled(this);
         }
     }
