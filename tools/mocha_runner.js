@@ -16,7 +16,9 @@ module.exports = function mochaRun(progress) {
                     delete timers[key];
                 }
                 var fn = timer.fn;
+                if (timer.domain) timer.domain.enter();
                 fn();
+                if (timer.domain) timer.domain.exit();
             }
         }
     }
@@ -29,7 +31,8 @@ module.exports = function mochaRun(progress) {
             fn: fn,
             time: time,
             started: currentTime,
-            interval: true
+            interval: true,
+            domain: process.domain
         };
         return id;
     }
@@ -42,7 +45,8 @@ module.exports = function mochaRun(progress) {
             fn: fn,
             time: time,
             started: currentTime,
-            interval: false
+            interval: false,
+            domain: process.domain
         };
         return id;
     }

@@ -122,9 +122,7 @@ module.exports = {
         var promise = new Promise(function() {
             resolve = arguments[0];
             reject = arguments[1];
-        }).timeout(500).lastly(function() {
-            if (domain) domain.dispose();
-        });
+        }).timeout(500);
         domain = require('domain').create();
         domain.on("error", function(e) {
             try {
