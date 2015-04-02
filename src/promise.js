@@ -667,17 +667,19 @@ Promise.prototype._rejectPromises = function (len, reason) {
 Promise.prototype._settlePromises = function () {
     var bitField = this._bitField;
     var len = BIT_FIELD_READ(LENGTH_MASK);
-    ASSERT(len >= 1);
-    if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
-        var reason = this._fulfillmentHandler0;
-        this._settlePromise0(this._rejectionHandler0, reason, bitField);
-        this._rejectPromises(len, reason);
-    } else {
-        var value = this._rejectionHandler0;
-        this._settlePromise0(this._fulfillmentHandler0, value, bitField);
-        this._fulfillPromises(len, value);
+
+    if (len > 0) {
+        if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
+            var reason = this._fulfillmentHandler0;
+            this._settlePromise0(this._rejectionHandler0, reason, bitField);
+            this._rejectPromises(len, reason);
+        } else {
+            var value = this._rejectionHandler0;
+            this._settlePromise0(this._fulfillmentHandler0, value, bitField);
+            this._fulfillPromises(len, value);
+        }
+        this._setLength(0);
     }
-    this._setLength(0);
     this._clearCancellationData();
 };
 

@@ -121,6 +121,8 @@ Promise.config = function(opts) {
             cancellationAttachCancellationCallback;
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
+        Promise._cancelledPromise = new Promise(function(){});
+        Promise._cancelledPromise.cancel();
     }
 };
 

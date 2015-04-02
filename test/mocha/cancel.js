@@ -2364,7 +2364,7 @@ describe("Cancellation with .join", function() {
         });
         var p = new Promise(function(){});
         p.cancel();
-        Promise.join(1,2,p, assert.fail).catch(reject).lastly(resolve);
+        Promise.join(1,2,p, assert.fail).then(reject, reject).lastly(resolve);
         return result;
     });
 
@@ -2375,7 +2375,7 @@ describe("Cancellation with .join", function() {
             reject = arguments[1];
         });
         var p = new Promise(function(){});
-        Promise.join(1,2,p, assert.fail).catch(reject).lastly(resolve);
+        Promise.join(1,2,p, assert.fail).then(reject, reject).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
             return result;
@@ -2398,7 +2398,7 @@ describe("Cancellation with .join", function() {
         ];
 
         var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
-            .catch(reject)
+            .then(reject, reject)
             .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
@@ -2432,7 +2432,7 @@ describe("Cancellation with .join", function() {
         ];
 
         var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
-            .catch(reject)
+            .then(reject, reject)
             .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
@@ -2479,6 +2479,114 @@ describe("Cancellation with .reflect", function() {
         return ret;
     });
 });
+
+describe("Cancellation with .using", function() {
+    specify("immediately cancelled input", function() {
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        var p = new Promise(function(){});
+        p.cancel();
+
+        var disposerCalled = false;
+        var disposable = new Promise(function(){
+            setTimeout(arguments[0], 1);
+        }).disposer(function() {
+            disposerCalled = true;
+        });
+
+        Promise.using(1, disposable, p, assert.fail).then(reject, reject).lastly(function() {
+            assert(disposerCalled);
+            resolve();
+        });
+
+        return result;
+    });
+
+    specify("eventually cancelled input", function() {
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        var p = new Promise(function(){});
+
+        var disposerCalled = false;
+        var disposable = new Promise(function(){
+            setTimeout(arguments[0], 1);
+        }).disposer(function() {
+            disposerCalled = true;
+        });
+
+        Promise.using(1,disposable,p, assert.fail).then(reject, reject).lastly(function() {
+            assert(disposerCalled);
+            resolve();
+        });
+
+        return awaitLateQueue(function() {
+            p.cancel();
+            return result;
+        });
+    });
+
+    specify("eventually cancelled input with 1 fulfilled disposer", function() {
+        var resolve, reject;
+        var fulfillResource;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        var p = new Promise(function(){});
+
+        var disposerCalled = false;
+        var disposable = new Promise(function(){fulfillResource = arguments[0];}).disposer(function() {
+            disposerCalled = true;
+        });
+
+        Promise.using(1,disposable,p, assert.fail).then(reject, reject).lastly(function() {
+            assert(disposerCalled);
+            resolve();
+        });
+
+        return awaitLateQueue(function() {
+            fulfillResource({});
+            p.cancel();
+            return result;
+        });
+    });
+
+    specify("immediately cancelled output", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var disposerCalled = 0;
+        var inputs = [
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                })
+        ];
+
+        var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
+            .then(reject, reject)
+            .onCancel(function() {cancelled++})
+            .lastly(function() {finalled++; resolve(); });
+
         all.cancel();
         var resolve, reject;
         var result = new Promise(function() {
@@ -2489,6 +2597,245 @@ describe("Cancellation with .reflect", function() {
             return awaitLateQueue(function() {
                 assert.equal(cancelled, 4);
                 assert.equal(finalled, 4);
+                assert.equal(disposerCalled, 0);
+            });
+        });
+    });
+
+    specify("eventually cancelled output", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var disposerCalled = 0;
+        var inputs = [
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                })
+        ];
+
+        var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
+            .then(reject, reject)
+            .onCancel(function() {cancelled++})
+            .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        Promise.delay(1).then(function() {
+            all.cancel();
+        });
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 4);
+                assert.equal(finalled, 4);
+                assert.equal(disposerCalled, 0);
+            });
+        });
+    });
+
+    specify("eventually cancelled output with 1 disposer fulfilled", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var disposerCalled = 0;
+        var fulfillResource;
+        var inputs = [
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){fulfillResource = arguments[0];})
+                .disposer(function() {
+                    disposerCalled++;
+                }),
+            new Promise(function(){})
+                .onCancel(function() {cancelled++})
+                .lastly(function() {finalled++})
+                .disposer(function() {
+                    disposerCalled++;
+                })
+        ];
+
+        var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
+            .then(reject, reject)
+            .onCancel(function() {cancelled++})
+            .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+        Promise.delay(1).then(function() {
+            fulfillResource({})
+            all.cancel();
+        });
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 3);
+                assert.equal(finalled, 3);
+                assert.equal(disposerCalled, 1);
+            });
+        });
+    });
+
+    specify("result immediately cancelled when inside handler", function() {
+        var disposerCalled = 0;
+        var cancelled = 0;
+        var finalled = 0;
+        var resource1 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var resource2 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var all = Promise.using(resource1, resource2, function(res1, res2) {
+            var ret = new Promise(function() {});
+            all.cancel();
+            return ret;
+        }).then(reject, reject)
+           .onCancel(function() {cancelled++})
+           .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 1);
+                assert.equal(finalled, 1);
+                assert.equal(disposerCalled, 2);
+            });
+        });
+    });
+
+    specify("result eventually cancelled when inside handler", function() {
+        var disposerCalled = 0;
+        var cancelled = 0;
+        var finalled = 0;
+        var resource1 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var resource2 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var all = Promise.using(resource1, resource2, function(res1, res2) {
+            var ret = new Promise(function() {});
+            Promise.delay(1).then(function() {
+                all.cancel();
+            });
+            return ret;
+        }).then(reject, reject)
+           .onCancel(function() {cancelled++})
+           .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 1);
+                assert.equal(finalled, 1);
+                assert.equal(disposerCalled, 2);
+            });
+        });
+    });
+
+    specify("promise returned from handler immediately cancelled", function() {
+        var disposerCalled = 0;
+        var cancelled = 0;
+        var finalled = 0;
+        var resource1 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var resource2 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var all = Promise.using(resource1, resource2, function(res1, res2) {
+            var ret = new Promise(function() {});
+            ret.cancel();
+            return ret;
+        }).then(reject, reject)
+           .onCancel(function() {cancelled++})
+           .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 1);
+                assert.equal(finalled, 1);
+                assert.equal(disposerCalled, 2);
+            });
+        });
+    });
+
+    specify("promise returned from handler eventually cancelled", function() {
+        var disposerCalled = 0;
+        var cancelled = 0;
+        var finalled = 0;
+        var resource1 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var resource2 = Promise.resolve().disposer(function() {
+            disposerCalled++;
+        });
+
+        var all = Promise.using(resource1, resource2, function(res1, res2) {
+            var ret = new Promise(function() {});
+            Promise.delay(1).then(function() {
+                ret.cancel();
+            });
+            return ret;
+        }).then(reject, reject)
+           .onCancel(function() {cancelled++})
+           .lastly(function() {finalled++; resolve(); });
+
+        var resolve, reject;
+        var result = new Promise(function() {
+            resolve = arguments[0];
+            reject = arguments[1];
+        });
+
+        return result.then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(cancelled, 1);
+                assert.equal(finalled, 1);
+                assert.equal(disposerCalled, 2);
             });
         });
     });

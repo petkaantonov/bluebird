@@ -105,6 +105,22 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         return value;
     }
 
+    function ResourceList(length) {
+        this.length = length;
+        this.promise = null;
+        this[length-1] = null;
+    }
+
+    ResourceList.prototype._resultCancelled = function() {
+        var len = this.length;
+        for (var i = 0; i < len; ++i) {
+            var item = this[i];
+            if (item instanceof Promise) {
+                item.cancel();
+            }
+        }
+    };
+
     Promise.using = function () {
         var len = arguments.length;
         if (len < 2) return apiRejection(
@@ -114,7 +130,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             return apiRejection(FUNCTION_ERROR + util.classString(fn));
         }
         len--;
-        var resources = new Array(len);
+        var resources = new ResourceList(len);
         for (var i = 0; i < len; ++i) {
             var resource = arguments[i];
             if (Disposer.isDisposer(resource)) {
@@ -146,6 +162,8 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                     if (inspection.isRejected()) {
                         errorObj.e = inspection.error();
                         return errorObj;
+                    } else if (!inspection.isFulfilled()) {
+                        return Promise._cancelledPromise;
                     }
                     inspections[i] = inspection.value();
                 }
@@ -162,6 +180,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
             return dispose(resources, inspection);
         });
         resources.promise = promise;
+        promise._setOnCancel(resources);
         return promise;
     };
 
