@@ -1,3 +1,9 @@
+## 2.9.24 (2015-04-02)
+
+Bugfixes:
+
+ - Fix not being able to load multiple bluebird copies introduced in 2.9.22 ([#559](.), [#561](.), [#560](.)).
+
 ## 2.9.23 (2015-04-02)
 
 Bugfixes:
