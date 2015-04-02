@@ -99,7 +99,7 @@ function writeCoverageFile(coverage, groupNumber) {
 }
 
 function needsFreshProcess(testName) {
-    return false;
+    return /domain/.test(testName);
 }
 
 function runTestGroup(testGroup, options, progress) {

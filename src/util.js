@@ -175,11 +175,13 @@ function isClass(fn) {
 }
 
 function toFastProperties(obj) {
-    /*jshint -W027*/
+    /*jshint -W027,-W055,-W031*/
     function f() {}
     f.prototype = obj;
+    var l = 8;
+    while (l--) new f();
     ASSERT("%HasFastProperties", true, obj);
-    return f;
+    return obj;
     eval(obj);
 }
 

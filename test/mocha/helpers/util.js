@@ -67,9 +67,7 @@ module.exports = {
         var promise = new Promise(function() {
             resolve = arguments[0];
             reject = arguments[1];
-        }).timeout(500).lastly(function() {
-            if (domain) domain.dispose();
-        });
+        }).timeout(500);
         domain = require('domain').create();
         domain.on("error", function(e) {
             try {
@@ -210,7 +208,7 @@ module.exports = {
 };
 
 if (module.exports.isNodeJS) {
-    var version = process.version.split(".").map(Number);
+    var version = process.versions.node.split(".").map(Number);
     module.exports.isRecentNode = version[0] > 0 || version[1] > 10;
 } else {
     module.exports.isRecentNode = false;
