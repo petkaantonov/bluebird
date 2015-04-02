@@ -2452,6 +2452,33 @@ describe("Cancellation with .join", function() {
         });
     });
 });
+
+describe("Cancellation with .reflect", function() {
+    specify("immediately cancelled", function() {
+        var promise = new Promise(function(){});
+        promise.cancel();
+        return promise.reflect().then(function(value) {
+            assert(!value.isFulfilled());
+            assert(!value.isRejected());
+            assert(value.isPending());
+        });
+    });
+
+    specify("eventually cancelled", function() {
+        var promise = new Promise(function(){});
+
+        var ret = promise.reflect().then(function(value) {
+            assert(!value.isFulfilled());
+            assert(!value.isRejected());
+            assert(value.isPending());
+        });
+
+        Promise.delay(1).then(function() {
+            promise.cancel();
+        });
+        return ret;
+    });
+});
         all.cancel();
         var resolve, reject;
         var result = new Promise(function() {

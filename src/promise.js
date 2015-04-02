@@ -539,6 +539,8 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);
             }
+        } else if (handler === reflectHandler) {
+            promise._fulfill(reflectHandler.call(receiver));
         } else if (receiver instanceof PromiseArray) {
             receiver._promiseCancelled(promise);
         } else if (isPromise || promise instanceof PromiseArray) {
