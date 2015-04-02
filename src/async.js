@@ -75,22 +75,33 @@ if (util.isNode) {
     if (EventsModule.usingDomains) {
         Async.prototype._getDomain = domainGetter;
     } else {
-        var usingDomains = false;
-        Object.defineProperty(EventsModule, "usingDomains", {
-            configurable: false,
-            enumerable: true,
-            get: function() {
-                return usingDomains;
-            },
-            set: function(value) {
-                if (usingDomains || !value) return;
-                usingDomains = true;
+        var descriptor =
+            Object.getOwnPropertyDescriptor(EventsModule, "usingDomains");
+
+        if (!descriptor.configurable) {
+            process.on("domainsActivated", function() {
                 Async.prototype._getDomain = domainGetter;
-                // Node doesn't do this themselves unfortunately.
-                util.toFastProperties(process);
-                process.emit("domainsActivated");
-            }
-        });
+            });
+        } else {
+            var usingDomains = false;
+            Object.defineProperty(EventsModule, "usingDomains", {
+                configurable: false,
+                enumerable: true,
+                get: function() {
+                    return usingDomains;
+                },
+                set: function(value) {
+                    if (usingDomains || !value) return;
+                    usingDomains = true;
+                    Async.prototype._getDomain = domainGetter;
+                    // Node doesn't do this themselves unfortunately.
+                    util.toFastProperties(process);
+                    process.emit("domainsActivated");
+                }
+            });
+        }
+
+
     }
 }
 
