@@ -1,3 +1,9 @@
+## 2.9.23 (2015-04-02)
+
+Bugfixes:
+
+ - Fix node.js domain propagation ([#521](.)).
+
 ## 2.9.22 (2015-04-02)
 
  - Fix `.promisify` crashing in phantom JS ([#556](.))
