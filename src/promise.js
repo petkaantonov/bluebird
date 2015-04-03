@@ -216,6 +216,9 @@ Promise.prototype._then = function (
     var target = this._target();
     var bitField = target._bitField;
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+        if (BIT_FIELD_CHECK(IS_REJECTED_OR_FULFILLED) && !haveInternalData) {
+            promise._bitField = promise._bitField | IS_UNCANCELLABLE;
+        }
         var handler, value;
         if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
             value = target._fulfillmentHandler0;
@@ -468,11 +471,6 @@ Promise.prototype._resolveFromExecutor = function (executor) {
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
-    var bitField = promise._bitField;
-    if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
-        if (BIT_FIELD_CHECK(IS_REJECTED)) return;
-        promise._unsetCancelled();
-    }
     ASSERT(!promise._isFateSealed());
     promise._pushContext();
     var x;
@@ -667,19 +665,17 @@ Promise.prototype._rejectPromises = function (len, reason) {
 Promise.prototype._settlePromises = function () {
     var bitField = this._bitField;
     var len = BIT_FIELD_READ(LENGTH_MASK);
-
-    if (len > 0) {
-        if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
-            var reason = this._fulfillmentHandler0;
-            this._settlePromise0(this._rejectionHandler0, reason, bitField);
-            this._rejectPromises(len, reason);
-        } else {
-            var value = this._rejectionHandler0;
-            this._settlePromise0(this._fulfillmentHandler0, value, bitField);
-            this._fulfillPromises(len, value);
-        }
-        this._setLength(0);
+    ASSERT(len > 0);
+    if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
+        var reason = this._fulfillmentHandler0;
+        this._settlePromise0(this._rejectionHandler0, reason, bitField);
+        this._rejectPromises(len, reason);
+    } else {
+        var value = this._rejectionHandler0;
+        this._settlePromise0(this._fulfillmentHandler0, value, bitField);
+        this._fulfillPromises(len, value);
     }
+    this._setLength(0);
     this._clearCancellationData();
 };
 

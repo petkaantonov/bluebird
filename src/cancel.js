@@ -13,7 +13,7 @@ Promise.prototype.cancelAfter = function(ms) {
     }, ms);
 };
 
-Promise.prototype["break"] = Promise.prototype.cancel = function() {
+Promise.prototype.cancel = function() {
     if (!debug.cancellation()) return this._warn("cancellation is disabled");
 
     var promise = this;
@@ -35,7 +35,7 @@ Promise.prototype["break"] = Promise.prototype.cancel = function() {
 };
 
 Promise.prototype._cancel = function() {
-    if (!this.isCancellable()) return;
+    if (!this.isCancellable() || this._isUncancellable()) return;
     ASSERT(!this._isFollowing());
     this._setCancelled();
     if (this._length() > 0) {
@@ -50,6 +50,10 @@ Promise.prototype._cancelPromises = function() {
 Promise.prototype._unsetOnCancel = function() {
     ASSERT(this.isCancellable() || this.isCancelled());
     this._onCancelField = undefined;
+};
+
+Promise.prototype._isUncancellable = function() {
+    return (this._bitField & IS_UNCANCELLABLE) !== 0;
 };
 
 Promise.prototype.isCancellable = function() {

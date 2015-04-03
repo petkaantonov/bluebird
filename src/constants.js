@@ -36,7 +36,7 @@ CONSTANT(CALLBACK_SIZE, 4);
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
 //N = isRejected
-//C = isCancellable
+//C = isUncancellable
 //T = isFinal (used for .done() implementation)
 //B = isBound
 //R = isMigrated
@@ -50,7 +50,7 @@ CONSTANT(IS_ASYNC_GUARANTEED, 0x8000000|0);
 CONSTANT(IS_FOLLOWING, 0x4000000|0);
 CONSTANT(IS_FULFILLED, 0x2000000|0);
 CONSTANT(IS_REJECTED, 0x1000000|0);
-CONSTANT(IS_CANCELLABLE, 0x800000|0);
+CONSTANT(IS_UNCANCELLABLE, 0x800000|0);
 CONSTANT(IS_FINAL, 0x400000|0);
 CONSTANT(IS_BOUND, 0x200000|0);
 CONSTANT(IS_REJECTION_UNHANDLED, 0x100000|0);

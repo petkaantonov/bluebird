@@ -302,20 +302,6 @@ describe("Cancellation", function() {
         });
     });
 
-    specify("Can be used for breaking chains early", function() {
-        var called = false;
-        var p = Promise.resolve(1)
-            .then(function(data) {
-                p["break"]();
-            })
-            .then(function() {
-                called = true;
-            });
-        return awaitLateQueue(function() {
-            assert(!called);
-        });
-    });
-
     specify("multiple cancel calls have no effect", function() {
         var called = 0;
         var finalled = 0;
