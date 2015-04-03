@@ -87,7 +87,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
             if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = maybePromise;
-                return maybePromise._proxyPromiseArray(this, (index + 1) * -1);
+                return maybePromise._proxy(this, (index + 1) * -1);
             } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                 ret = maybePromise._value();
             } else if (BIT_FIELD_CHECK(IS_REJECTED)) {

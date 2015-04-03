@@ -9,6 +9,7 @@ var reflectHandler = function() {
 var apiRejection = function(msg) {
     return Promise.reject(new TypeError(msg));
 };
+function Proxyable() {}
 var ASSERT = require("./assert");
 var util = require("./util");
 var es5 = require("./es5");
@@ -29,7 +30,7 @@ var NEXT_FILTER = {};
 var tryConvertToPromise = require("./thenables")(Promise, INTERNAL);
 var PromiseArray =
     require("./promise_array")(Promise, INTERNAL,
-                                    tryConvertToPromise, apiRejection);
+                               tryConvertToPromise, apiRejection, Proxyable);
 var Context = require("./context")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
@@ -48,6 +49,7 @@ function check(self, executor) {
         throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
     }
 }
+
 function Promise(executor) {
     this._bitField = NO_STATE;
     this._fulfillmentHandler0 = undefined;
@@ -388,12 +390,13 @@ Promise.prototype._addCallbacks = function (
     return index;
 };
 
-Promise.prototype._proxyPromiseArray = function (promiseArray, index) {
+Promise.prototype._proxy = function (proxyable, arg) {
+    ASSERT(proxyable instanceof Proxyable);
+    ASSERT(!(arg instanceof Promise));
     ASSERT(!this._isFollowing());
     ASSERT(arguments.length === 2);
-    ASSERT(typeof index === "number");
-    ASSERT((index | 0) === index);
-    this._addCallbacks(undefined, undefined, index, promiseArray);
+    ASSERT(!this._isFateSealed());
+    this._addCallbacks(undefined, undefined, arg, proxyable);
 };
 
 Promise.prototype._resolveCallback = function(value, shouldBind) {
@@ -539,7 +542,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             }
         } else if (handler === reflectHandler) {
             promise._fulfill(reflectHandler.call(receiver));
-        } else if (receiver instanceof PromiseArray) {
+        } else if (receiver instanceof Proxyable) {
             receiver._promiseCancelled(promise);
         } else if (isPromise || promise instanceof PromiseArray) {
             promise._cancel();
@@ -555,7 +558,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             if (asyncGuaranteed) promise._setAsyncGuaranteed();
             this._settlePromiseFromHandler(handler, receiver, value, promise);
         }
-    } else if (receiver instanceof PromiseArray) {
+    } else if (receiver instanceof Proxyable) {
         if (!receiver._isResolved()) {
             if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                 receiver._promiseFulfilled(value, promise);

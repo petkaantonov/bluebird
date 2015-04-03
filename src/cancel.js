@@ -38,9 +38,7 @@ Promise.prototype._cancel = function() {
     if (!this.isCancellable() || this._isUncancellable()) return;
     ASSERT(!this._isFollowing());
     this._setCancelled();
-    if (this._length() > 0) {
-        async.invoke(this._cancelPromises, this, undefined);
-    }
+    async.invoke(this._cancelPromises, this, undefined);
 };
 
 Promise.prototype._cancelPromises = function() {

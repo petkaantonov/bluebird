@@ -1,6 +1,6 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, tryConvertToPromise,
-    apiRejection) {
+    apiRejection, Proxyable) {
 var ASSERT = require("./assert");
 var util = require("./util");
 var isArray = util.isArray;
@@ -27,6 +27,8 @@ function PromiseArray(values) {
     this._totalResolved = 0;
     this._init(undefined, RESOLVE_ARRAY);
 }
+util.inherits(PromiseArray, Proxyable);
+
 PromiseArray.prototype.length = function () {
     return this._length;
 };
@@ -96,7 +98,7 @@ PromiseArray.prototype._iterate = function(values) {
             USE(bitField);
             if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 // Optimized for just passing the updates through
-                maybePromise._proxyPromiseArray(this, i);
+                maybePromise._proxy(this, i);
                 this._values[i] = maybePromise;
             } else if (isResolved) {
                 maybePromise._unsetRejectionIsUnhandled();

@@ -2,7 +2,8 @@
 module.exports = function(Promise,
                           apiRejection,
                           INTERNAL,
-                          tryConvertToPromise) {
+                          tryConvertToPromise,
+                          Proxyable) {
 var errors = require("./errors");
 var TypeError = errors.TypeError;
 var ASSERT = require("./assert");
@@ -31,6 +32,7 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
 function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
     var promise = this._promise = new Promise(INTERNAL);
     promise._captureStackTrace();
+    promise._setOnCancel(this);
     this._stack = stack;
     this._generatorFunction = generatorFunction;
     this._receiver = receiver;
@@ -38,7 +40,64 @@ function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
     this._yieldHandlers = typeof yieldHandler === "function"
         ? [yieldHandler].concat(yieldHandlers)
         : yieldHandlers;
+    this._yieldedPromise = null;
 }
+util.inherits(PromiseSpawn, Proxyable);
+
+PromiseSpawn.prototype._isResolved = function() {
+    return this.promise === null;
+};
+
+PromiseSpawn.prototype._finish = function() {
+    this._promise = this._generator = null;
+};
+
+PromiseSpawn.prototype._promiseCancelled = function() {
+    if (this._isResolved()) return;
+    var implementsReturn = typeof this._generator["return"] !== "undefined";
+
+    if (!implementsReturn) {
+        // This should call generator.return() but it's unimplemented
+        var reason = new Promise.CancellationError("generator cancelled");
+        this._promise._attachExtraTrace(reason);
+        this._promise._pushContext();
+        tryCatch(this._generator["throw"]).call(this._generator, reason);
+        this._promise._popContext();
+    } else {
+        this._promise._pushContext();
+        tryCatch(this._generator["return"]).call(this._generator, undefined);
+        this._promise._popContext();
+    }
+    var promise = this._promise;
+    this._finish();
+    promise.cancel();
+};
+
+PromiseSpawn.prototype._promiseFulfilled = function(value) {
+    this._yieldedPromise = null;
+    this._promise._pushContext();
+    var result = tryCatch(this._generator.next).call(this._generator, value);
+    this._promise._popContext();
+    this._continue(result);
+};
+
+PromiseSpawn.prototype._promiseRejected = function(reason) {
+    this._yieldedPromise = null;
+    this._promise._attachExtraTrace(reason);
+    this._promise._pushContext();
+    var result = tryCatch(this._generator["throw"])
+        .call(this._generator, reason);
+    this._promise._popContext();
+    this._continue(result);
+};
+
+PromiseSpawn.prototype._resultCancelled = function() {
+    if (this._yieldedPromise instanceof Promise) {
+        var promise = this._yieldedPromise;
+        this._yieldedPromise = null;
+        promise.cancel();
+    }
+};
 
 PromiseSpawn.prototype.promise = function () {
     return this._promise;
@@ -48,17 +107,21 @@ PromiseSpawn.prototype._run = function () {
     this._generator = this._generatorFunction.call(this._receiver);
     this._receiver =
         this._generatorFunction = undefined;
-    this._next(undefined);
+    this._promiseFulfilled(undefined);
 };
 
 PromiseSpawn.prototype._continue = function (result) {
+    ASSERT(this._yieldedPromise == null);
+    var promise = this._promise;
     if (result === errorObj) {
-        return this._promise._rejectCallback(result.e, false);
+        this._finish();
+        return promise._rejectCallback(result.e, false);
     }
 
     var value = result.value;
     if (result.done === true) {
-        this._promise._resolveCallback(value);
+        this._finish();
+        return promise._resolveCallback(value);
     } else {
         var maybePromise = tryConvertToPromise(value, this._promise);
         if (!(maybePromise instanceof Promise)) {
@@ -68,7 +131,7 @@ PromiseSpawn.prototype._continue = function (result) {
                                         this._promise);
             ASSERT(maybePromise === null || maybePromise instanceof Promise);
             if (maybePromise === null) {
-                this._throw(
+                this._promiseRejected(
                     new TypeError(
                         YIELDED_NON_PROMISE_ERROR.replace("%s", value) +
                         FROM_COROUTINE_CREATED_AT +
@@ -78,32 +141,20 @@ PromiseSpawn.prototype._continue = function (result) {
                 return;
             }
         }
-        maybePromise._then(
-            this._next,
-            this._throw,
-            undefined,
-            this,
-            //Don't need to smuggle null but doing so
-            //triggers many fast paths
-            null
-       );
+        maybePromise = maybePromise._target();
+        var bitField = maybePromise._bitField;
+        USE(bitField);
+        if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+            this._yieldedPromise = maybePromise;
+            maybePromise._proxy(this, null);
+        } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+            this._promiseFulfilled(maybePromise._value());
+        } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
+            this._promiseRejected(maybePromise._reason());
+        } else {
+            this._promiseCancelled();
+        }
     }
-};
-
-PromiseSpawn.prototype._throw = function (reason) {
-    this._promise._attachExtraTrace(reason);
-    this._promise._pushContext();
-    var result = tryCatch(this._generator["throw"])
-        .call(this._generator, reason);
-    this._promise._popContext();
-    this._continue(result);
-};
-
-PromiseSpawn.prototype._next = function (value) {
-    this._promise._pushContext();
-    var result = tryCatch(this._generator.next).call(this._generator, value);
-    this._promise._popContext();
-    this._continue(result);
 };
 
 Promise.coroutine = function (generatorFunction, options) {
@@ -119,9 +170,10 @@ Promise.coroutine = function (generatorFunction, options) {
         var generator = generatorFunction.apply(this, arguments);
         var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler,
                                       stack);
+        var ret = spawn.promise();
         spawn._generator = generator;
-        spawn._next(undefined);
-        return spawn.promise();
+        spawn._promiseFulfilled(undefined);
+        return ret;
     };
 };
 

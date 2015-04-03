@@ -29,7 +29,6 @@ var error = new Error("asd");
 describe("yielding", function() {
 
     specify("non-promise should throw", function() {
-
         return Promise.coroutine(function*(){
 
             var a = yield {};
