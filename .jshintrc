@@ -90,7 +90,7 @@
         "IS_FOLLOWING": false,
         "IS_FULFILLED": false,
         "IS_REJECTED": false,
-        "IS_UNCANCELLABLE": false,
+        "IS_CANCELLABLE": false,
         "IS_FINAL": false,
         "IS_BOUND": false,
         "IS_REJECTION_UNHANDLED": false,
