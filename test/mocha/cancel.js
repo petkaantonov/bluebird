@@ -24,6 +24,31 @@ describe("Cancellation", function() {
         });
     });
 
+    specify("shoud be consistent for mid-chain breaking", function () {
+        var called = 0;
+
+        function test(p) {
+            var chain;
+            return chain = p.then(function() {
+                // `p` has been fulfilled already at this point
+                chain.cancel();
+            }).then(function(){
+                called++;
+            });
+        }
+
+        var immediate = Promise.resolve();
+        var eventual = Promise.delay(0);
+
+        test(immediate);
+        test(eventual);
+
+        return awaitLateQueue (function(){
+            assert(called % 2 == 0);
+            // either both should be called or both should not be called
+        });
+    });
+
 
     specify("handlers are called downstream, registered before", function() {
         var cancelled = 0;
