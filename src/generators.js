@@ -48,7 +48,7 @@ PromiseSpawn.prototype._isResolved = function() {
     return this.promise === null;
 };
 
-PromiseSpawn.prototype._finish = function() {
+PromiseSpawn.prototype._cleanup = function() {
     this._promise = this._generator = null;
 };
 
@@ -56,21 +56,32 @@ PromiseSpawn.prototype._promiseCancelled = function() {
     if (this._isResolved()) return;
     var implementsReturn = typeof this._generator["return"] !== "undefined";
 
+    var result;
     if (!implementsReturn) {
-        // This should call generator.return() but it's unimplemented
-        var reason = new Promise.CancellationError("generator cancelled");
+        var reason = new Promise.CancellationError(
+            "generator .return() sentinel");
+        Promise.coroutine.returnSentinel = reason;
         this._promise._attachExtraTrace(reason);
         this._promise._pushContext();
-        tryCatch(this._generator["throw"]).call(this._generator, reason);
+        result = tryCatch(this._generator["throw"]).call(this._generator,
+                                                         reason);
         this._promise._popContext();
+        if (result === errorObj && result.e === reason) {
+            result = null;
+        }
     } else {
         this._promise._pushContext();
-        tryCatch(this._generator["return"]).call(this._generator, undefined);
+        result = tryCatch(this._generator["return"]).call(this._generator,
+                                                          undefined);
         this._promise._popContext();
     }
     var promise = this._promise;
-    this._finish();
-    promise.cancel();
+    this._cleanup();
+    if (result === errorObj) {
+        promise._rejectCallback(result.e, false);
+    } else {
+        promise.cancel();
+    }
 };
 
 PromiseSpawn.prototype._promiseFulfilled = function(value) {
@@ -114,13 +125,13 @@ PromiseSpawn.prototype._continue = function (result) {
     ASSERT(this._yieldedPromise == null);
     var promise = this._promise;
     if (result === errorObj) {
-        this._finish();
+        this._cleanup();
         return promise._rejectCallback(result.e, false);
     }
 
     var value = result.value;
     if (result.done === true) {
-        this._finish();
+        this._cleanup();
         return promise._resolveCallback(value);
     } else {
         var maybePromise = tryConvertToPromise(value, this._promise);
