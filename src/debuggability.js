@@ -636,7 +636,8 @@ var captureStackTrace = (function stackDetection() {
         hasStackAfterThrow = ("stack" in e);
     }
     // IE 10+
-    if (!("stack" in err) && hasStackAfterThrow) {
+    if (!("stack" in err) && hasStackAfterThrow &&
+        typeof Error.stackTraceLimit === "number") {
         stackFramePattern = v8stackFramePattern;
         formatStack = v8stackFormatter;
         return function captureStackTrace(o) {
