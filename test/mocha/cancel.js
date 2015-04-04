@@ -24,13 +24,15 @@ describe("Cancellation", function() {
         });
     });
 
-    specify("shoud be consistent for mid-chain breaking", function () {
+    specify("chain cancellation shoud be history-agnostic", function () {
         var called = 0;
 
         function test(p) {
             var chain;
             return chain = p.then(function() {
                 // `p` has been fulfilled already at this point
+                // and the nature of this fulfillment (immediate or eventual)
+                // should not affect the future of the control flow
                 chain.cancel();
             }).then(function(){
                 called++;
@@ -44,8 +46,8 @@ describe("Cancellation", function() {
         test(eventual);
 
         return awaitLateQueue (function(){
-            assert(called % 2 == 0);
-            // either both should be called or both should not be called
+            assert(called == 0);
+            // both should not be called
         });
     });
 
