@@ -54,16 +54,6 @@ Promise.prototype.isCancellable = function() {
     return this.isPending() && !this.isCancelled();
 };
 
-Promise.prototype.onCancel = function(onCancel) {
-    if (!debug.cancellation()) return this._warn("cancellation is disabled");
-    if (typeof onCancel !== "function") {
-        return apiRejection("onCancel must be a function, got: "
-            + util.toString(onCancel));
-    }
-    this._attachCancellationCallback(onCancel);
-    return this;
-};
-
 Promise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {
     if (util.isArray(onCancelCallback)) {
         for (var i = 0; i < onCancelCallback.length; ++i) {

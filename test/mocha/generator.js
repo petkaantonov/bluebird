@@ -490,7 +490,7 @@ describe("Cancellation with generators", function() {
         var finalled = 0;
         var unreached = 0;
 
-        var p = new Promise(function() {});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
 
         var asyncFunction = Promise.coroutine(function* () {
@@ -514,9 +514,6 @@ describe("Cancellation with generators", function() {
 
         asyncFunction()
             .then(reject, reject)
-            .onCancel(function() {
-                cancelled++;
-            })
             .lastly(function() {
                 finalled++;
                 resolve();
@@ -536,7 +533,7 @@ describe("Cancellation with generators", function() {
         var finalled = 0;
         var unreached = 0;
 
-        var p = new Promise(function() {});
+        var p = new Promise(function(_, __, onCancel) {});
         var asyncFunction = Promise.coroutine(function* () {
             try {
                 yield p;
@@ -558,9 +555,6 @@ describe("Cancellation with generators", function() {
 
         asyncFunction()
             .then(reject, reject)
-            .onCancel(function() {
-                cancelled++;
-            })
             .lastly(function() {
                 finalled++;
                 resolve();
@@ -584,13 +578,13 @@ describe("Cancellation with generators", function() {
         var finalled = 0;
         var unreached = 0;
 
-        var p = new Promise(function() {})
-            .onCancel(function() {
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
                 cancelled++;
-            })
-            .lastly(function() {
-                finalled++;
             });
+        }).lastly(function() {
+            finalled++;
+        });
 
         var asyncFunction = Promise.coroutine(function* () {
             try {
@@ -613,9 +607,6 @@ describe("Cancellation with generators", function() {
 
         var output = asyncFunction()
             .then(reject, reject)
-            .onCancel(function() {
-                cancelled++;
-            })
             .lastly(function() {
                 finalled++;
                 resolve();
@@ -626,7 +617,7 @@ describe("Cancellation with generators", function() {
         return result.then(function() {
             return awaitLateQueue(function() {
                 assert.equal(3, finalled);
-                assert.equal(2, cancelled);
+                assert.equal(1, cancelled);
                 assert.equal(0, unreached);
             });
         });
@@ -637,13 +628,13 @@ describe("Cancellation with generators", function() {
         var finalled = 0;
         var unreached = 0;
 
-        var p = new Promise(function() {})
-            .onCancel(function() {
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
                 cancelled++;
-            })
-            .lastly(function() {
-                finalled++;
             });
+        }).lastly(function() {
+            finalled++;
+        });
 
         var asyncFunction = Promise.coroutine(function* () {
             try {
@@ -666,9 +657,6 @@ describe("Cancellation with generators", function() {
 
         var output = asyncFunction()
             .then(reject, reject)
-            .onCancel(function() {
-                cancelled++;
-            })
             .lastly(function() {
                 finalled++;
                 resolve();
@@ -681,7 +669,7 @@ describe("Cancellation with generators", function() {
         return result.then(function() {
             return awaitLateQueue(function() {
                 assert.equal(3, finalled);
-                assert.equal(2, cancelled);
+                assert.equal(1, cancelled);
                 assert.equal(0, unreached);
             });
         });

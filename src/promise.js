@@ -437,14 +437,6 @@ Promise.prototype._rejectCallback = function(reason, synchronous) {
     this._reject(reason);
 };
 
-Promise.prototype._execute = function(executor, resolve, reject) {
-    try {
-        executor(resolve, reject);
-    } catch (e) {
-        return e;
-    }
-};
-
 Promise.prototype._resolveFromExecutor = function (executor) {
     ASSERT(typeof executor === "function");
     var promise = this;

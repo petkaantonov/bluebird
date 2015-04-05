@@ -119,6 +119,7 @@ Promise.config = function(opts) {
         Promise.prototype._setOnCancel = cancellationSetOnCancel;
         Promise.prototype._attachCancellationCallback =
             cancellationAttachCancellationCallback;
+        Promise.prototype._execute = cancellationExecute;
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
         Promise._cancelledPromise = new Promise(function(){});
@@ -126,6 +127,13 @@ Promise.config = function(opts) {
     }
 };
 
+Promise.prototype._execute = function(executor, resolve, reject) {
+    try {
+        executor(resolve, reject);
+    } catch (e) {
+        return e;
+    }
+};
 Promise.prototype._onCancel = function () {};
 Promise.prototype._setOnCancel = function (handler) { USE(handler); };
 Promise.prototype._attachCancellationCallback = function(onCancel) {
@@ -138,6 +146,21 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
     USE(flags);
 };
+
+function cancellationExecute(executor, resolve, reject) {
+    var promise = this;
+    try {
+        executor(resolve, reject, function(onCancel) {
+            if (typeof onCancel !== "function") {
+                throw new TypeError("onCancel must be a function, got: " +
+                                    util.toString(onCancel));
+            }
+            promise._attachCancellationCallback(onCancel);
+        });
+    } catch (e) {
+        return e;
+    }
+}
 
 function cancellationAttachCancellationCallback(onCancel) {
     if (!this.isCancellable()) return this;

@@ -6,58 +6,46 @@ var awaitLateQueue = testUtils.awaitLateQueue;
 
 describe("Cancellation", function() {
     specify("requires a function", function() {
-        return Promise.resolve().onCancel().then(assert.fail, function(e) {
+        return new Promise(function(_, __, onCancel) {
+            onCancel();
+        }).then(assert.fail, function(e) {
             assert(e instanceof Promise.TypeError);
         });
     });
 
     specify("can register multiple on same promise", function() {
         var cancelled = 0;
-        var p = new Promise(function() {})
-            .onCancel(function() {cancelled ++})
-            .onCancel(function() {cancelled ++})
-            .onCancel(function() {cancelled ++})
-            .onCancel(function() {cancelled ++});
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {cancelled++});
+            onCancel(function() {cancelled++});
+            onCancel(function() {cancelled++});
+            onCancel(function() {cancelled++});
+        });
+
         p.cancel();
         return awaitLateQueue(function() {
             assert.equal(4, cancelled);
         });
     });
 
-
-    specify("handlers are not called downstream, registered before", function() {
-        var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
-
-        p.then().onCancel(function() {cancelled ++});
-        p.then().onCancel(function() {cancelled ++});
-        p.then().onCancel(function() {cancelled ++});
-        p.cancel();
-        return awaitLateQueue(function() {
-            assert.equal(1, cancelled);
-        });
-    });
-
-    specify("handlers are not called downstream, registered after", function() {
-        var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
-
-        p.cancel();
-        p.then().onCancel(function() {cancelled ++});
-        p.then().onCancel(function() {cancelled ++});
-        p.then().onCancel(function() {cancelled ++});
-        return awaitLateQueue(function() {
-            assert.equal(1, cancelled);
-        });
-    });
-
     specify("follower promises' handlers are not called, registered before", function() {
         var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {cancelled++});
+        });
 
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
         p.cancel();
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
@@ -66,12 +54,23 @@ describe("Cancellation", function() {
 
     specify("follower promises' handlers are not called, registered after", function() {
         var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {cancelled++});
+        });
 
         p.cancel();
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p);
+            onCancel(function() {cancelled++});
+        });
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
         });
@@ -79,11 +78,23 @@ describe("Cancellation", function() {
 
     specify("downstream follower promises' handlers are not called, registered before", function() {
         var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {cancelled++});
+        });
 
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
+
         p.cancel();
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
@@ -92,12 +103,23 @@ describe("Cancellation", function() {
 
     specify("downstream follower promises' handlers are called, registered after", function() {
         var cancelled = 0;
-        var p = new Promise(function() {}).onCancel(function() {cancelled ++});
+        var p = new Promise(function(_, __, onCancel) {
+            onCancel(function() {cancelled++});
+        });
 
         p.cancel();
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
-        new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
+        new Promise(function(resolve, _, onCancel) {
+            resolve(p.then());
+            onCancel(function() {cancelled++});
+        });
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
         });
@@ -106,7 +128,7 @@ describe("Cancellation", function() {
     specify("immediately rejected promise immediately cancelled", function() {
         var error = new Error();
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
         var p = Promise.reject(error).lastly(resolve);
         p.cancel();
         return result;
@@ -115,7 +137,7 @@ describe("Cancellation", function() {
     specify("immediately rejected promise immediately cancelled with then in-between", function() {
         var error = new Error();
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
         var p = Promise.reject(error).then().lastly(resolve);
         p.cancel();
         p.caught(function() {});
@@ -125,10 +147,11 @@ describe("Cancellation", function() {
     specify("callback is called asynchronously but fate is sealed synchronously", function() {
         var called = false;
         var promiseResolve;
-        var promise = new Promise(function(resolve, reject) {
+        var promise = new Promise(function(resolve, reject, onCancel) {
             promiseResolve = resolve;
-        }).onCancel(function onCancel() {
-            called = true;
+            onCancel(function() {
+                called = true;
+            });
         });
         return awaitLateQueue(function() {
             promise.cancel();
@@ -143,8 +166,10 @@ describe("Cancellation", function() {
     if (testUtils.isNodeJS) {
         specify("throws in process if callback throws", function() {
             var e = new Error();
-            var promise = new Promise(function(resolve, reject) {}).onCancel(function onCancel() {
-                throw e;
+            var promise = new Promise(function(resolve, reject, onCancel) {
+                onCancel(function onCancel() {
+                    throw e;
+                });
             });
             promise.cancel();
             return testUtils.awaitGlobalException(function(err) {
@@ -157,10 +182,11 @@ describe("Cancellation", function() {
         var called = false;
         var thens = 0;
         var resolveChain;
-        var root = new Promise(function(resolve, reject) {
+        var root = new Promise(function(resolve, reject, onCancel) {
             resolveChain = resolve;
-        }).onCancel(function() {
-            called = true;
+            onCancel(function() {
+                called = true;
+            });
         }).then(function() {
             thens++;
         }).then(function() {
@@ -181,12 +207,13 @@ describe("Cancellation", function() {
         var called = false;
         var thens = 0;
         var resolveChain;
-        var root = new Promise(function(resolve, reject) {
+        var root = new Promise(function(resolve, reject, onCancel) {
             resolveChain = resolve;
+            onCancel(function() {
+                called = true;
+            });
         });
-        var chain = root.onCancel(function onCancel() {
-            called = true;
-        }).lastly(function() {
+        var chain = root.lastly(function() {
             thens++;
         }).lastly(function() {
             thens++;
@@ -202,45 +229,18 @@ describe("Cancellation", function() {
         });
     });
 
-    specify("calls multiple cancellation callbacks ", function() {
-        var called = 0;
-        var thens = 0;
-        var resolveChain;
-        var root = new Promise(function(resolve, reject) {
-            resolveChain = resolve;
-        });
-        var chain = root.onCancel(function onCancel() {
-            called++;
-        }).lastly(function() {
-            thens++;
-        }).onCancel(function onCancel() {
-            called++;
-        }).lastly(function() {
-            thens++;
-        }).onCancel(function onCancel() {
-            called++;
-        }).lastly(function() {
-            thens++;
-        });
-
-        chain.cancel();
-        resolveChain();
-        return awaitLateQueue(function() {
-            assert.equal(3, thens);
-            assert.equal(3, called);
-        });
-    });
-
     specify("cancels the followee", function() {
         var called = false;
         var finalled = false;
-        var promise = new Promise(function(){}).onCancel(function() {
-            called = true;
+        var promise = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                called = true;
+            });
         });
-        var promise2 = new Promise(function(resolve, reject) {
+        var promise2 = new Promise(function(resolve, reject, onCancel) {
             resolve(promise);
         });
-        var promise3 = new Promise(function(resolve, reject) {
+        var promise3 = new Promise(function(resolve, reject, onCancel) {
             resolve(promise2);
         }).lastly(function() {
             finalled = true;
@@ -257,24 +257,28 @@ describe("Cancellation", function() {
         var called = 0;
         var finalled = 0;
 
-        var promise = new Promise(function(){}).onCancel(function() {
-            called++;
+        var promise = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                called++;
+            });
         }).lastly(function() {
             finalled++;
         });
 
-        var promise2 = new Promise(function(resolve, reject) {
+        var promise2 = new Promise(function(resolve, reject, onCancel) {
             resolve(promise);
-        }).onCancel(function() {
-            called++;
+            onCancel(function() {
+                called++;
+            });
         }).lastly(function() {
             finalled++;
         });
 
-        var promise3 = new Promise(function(resolve, reject) {
+        var promise3 = new Promise(function(resolve, reject, onCancel) {
             resolve(promise2);
-        }).onCancel(function() {
-            called++;
+            onCancel(function() {
+                called++;
+            });
         }).lastly(function() {
             finalled++;
         });
@@ -303,17 +307,24 @@ describe("Cancellation", function() {
     specify("multiple cancel calls have no effect", function() {
         var called = 0;
         var finalled = 0;
-        var req1 = Promise.resolve().onCancel(function() {
-            called++;
+        var req1 = new Promise(function(resolve, _, onCancel) {
+            resolve();
+            onCancel(function() {
+                called++;
+            });
         });
 
         var ret = req1.then(function() {
-            return new Promise(function(){}).onCancel(function() {
-                called++;
+            return new Promise(function(_, __, onCancel) {
+                onCancel(function() {
+                    called++;
+                });
             });
         }).then(function() {
-            return new Promise(function(){}).onCancel(function() {
-                called++;
+            return new Promise(function(_, __, onCancel) {
+                onCancel(function() {
+                    called++;
+                });
             });
         }).lastly(function() {
             finalled++;
@@ -333,7 +344,7 @@ describe("Cancellation", function() {
 
     specify("throwing in finally turns into a rejection", function() {
         var e = new Error("");
-        var promise = new Promise(function() {})
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
                 throw e;
             })
@@ -346,7 +357,7 @@ describe("Cancellation", function() {
 
     specify("returning an immediately rejected promise in finally turns into a rejection", function() {
         var e = new Error("");
-        var promise = new Promise(function() {})
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
                 return Promise.reject(e);
             })
@@ -358,9 +369,9 @@ describe("Cancellation", function() {
     });
     specify("returning an eventually rejected promise in finally turns into a rejection", function() {
         var e = new Error("");
-        var promise = new Promise(function() {})
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                return new Promise(function(resolve, reject) {
+                return new Promise(function(resolve, reject, onCancel) {
                     Promise.delay(1).then(function() {
                         reject(e);
                     });
@@ -376,8 +387,8 @@ describe("Cancellation", function() {
     specify("finally handler returned promises are awaited for", function() {
         var awaited = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
                 return Promise.delay(1).then(function() {
                     awaited++;
@@ -405,26 +416,20 @@ describe("Cancellation", function() {
     specify("finally handler returned promises are skipped if they are cancelled", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 ret.cancel();
                 return ret;
             })
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 ret.cancel();
                 return ret;
             })
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 ret.cancel();
                 return ret;
             })
@@ -440,30 +445,24 @@ describe("Cancellation", function() {
     specify("finally handler returned promises are skipped if they are eventually cancelled", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 Promise.delay(1).then(function() {
                     ret.cancel();
                 });
                 return ret;
             })
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 Promise.delay(1).then(function() {
                     ret.cancel();
                 });
                 return ret;
             })
             .lastly(function() {
-                var ret = new Promise(function() {}).onCancel(function() {
-                    cancelled++;
-                });
+                var ret = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
                 Promise.delay(1).then(function() {
                     ret.cancel();
                 });
@@ -481,16 +480,15 @@ describe("Cancellation", function() {
     specify("finally handler returned promises are skipped if theiy are eventually cancelled while following", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -498,13 +496,12 @@ describe("Cancellation", function() {
                 return ret;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -512,13 +509,12 @@ describe("Cancellation", function() {
                 return ret;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -537,40 +533,37 @@ describe("Cancellation", function() {
     specify("finally handler returned promises are skipped if theiy are immediately cancelled while following", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return ret;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return ret;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return ret;
@@ -587,16 +580,15 @@ describe("Cancellation", function() {
     specify("finally handler returned promises target are skipped if their follower is eventually cancelled", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -604,13 +596,12 @@ describe("Cancellation", function() {
                 return p;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -618,13 +609,12 @@ describe("Cancellation", function() {
                 return p;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 Promise.delay(1).then(function() {
                     ret.cancel();
@@ -645,40 +635,37 @@ describe("Cancellation", function() {
     specify("finally handler returned promises target are skipped if their follower is immediately cancelled", function() {
         var cancelled = 0;
         var resolve;
-        var result = new Promise(function() {resolve = arguments[0];});
-        var promise = new Promise(function() {})
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
+        var promise = new Promise(function(_, __, onCancel) {})
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return p;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return p;
             })
             .lastly(function() {
-                var p = new Promise(function(){}).onCancel(function() {
-                    cancelled++;
-                });
-                var ret = new Promise(function(resolve) {
+                var p = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); });
+                var ret = new Promise(function(resolve, _, onCancel) {
                     resolve(p);
-                }).onCancel(function() {
-                    cancelled++;
+                    onCancel(function() {
+                        cancelled++;
+                    });
                 });
                 ret.cancel();
                 return p;
@@ -695,7 +682,7 @@ describe("Cancellation", function() {
     specify("attaching handler on already cancelled promise", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         return awaitLateQueue(function() {
             p.lastly(resolve);
@@ -714,8 +701,11 @@ describe("Cancellation", function() {
                     xhrReject(new Error(""));
                 }
             };
-            return Promise.resolve(xhr).onCancel(function() {
-                xhr.abort();
+            return new Promise(function(resolve, _, onCancel) {
+                resolve(xhr);
+                onCancel(function() {
+                    xhr.abort();
+                });
             });
         };
 
@@ -724,7 +714,7 @@ describe("Cancellation", function() {
         });
         req.cancel();
         var resolve;
-        return new Promise(function() {resolve = arguments[0]});
+        return new Promise(function(_, __, onCancel) {resolve = arguments[0]});
     })
     specify("gh-166", function() {
         var f1 = false, f2 = false, f3 = false, f4 = false;
@@ -763,7 +753,7 @@ describe("Cancellation", function() {
 
         assert(a.isCancellable());
         var resolve;
-        var p = new Promise(function(){resolve = arguments[0]});
+        var p = new Promise(function(_, __, onCancel) {resolve = arguments[0]});
         return p;
     });
 });
@@ -772,7 +762,7 @@ describe("Cancellation with .all", function() {
     specify("immediately cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.all(p).lastly(resolve);
         return result;
@@ -781,7 +771,7 @@ describe("Cancellation with .all", function() {
     specify("eventually cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.all(p).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -792,7 +782,7 @@ describe("Cancellation with .all", function() {
     specify("immediately cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.all([1,2,p]).lastly(resolve);
         return result;
@@ -801,7 +791,7 @@ describe("Cancellation with .all", function() {
     specify("eventually cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.all([1,2,p]).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -813,19 +803,15 @@ describe("Cancellation with .all", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.all(inputs)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -833,7 +819,7 @@ describe("Cancellation with .all", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -843,19 +829,15 @@ describe("Cancellation with .all", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.all(inputs)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -865,7 +847,7 @@ describe("Cancellation with .all", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -874,14 +856,11 @@ describe("Cancellation with .all", function() {
     specify("immediately cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.all(input)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -889,7 +868,7 @@ describe("Cancellation with .all", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -898,15 +877,11 @@ describe("Cancellation with .all", function() {
     specify("eventually cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
-        var all = Promise.all(input)
-            .onCancel(function() {cancelled++})
-            .lastly(function() {finalled++; resolve(); });
+        var all = Promise.all(input).lastly(function() {finalled++; resolve(); });
 
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
@@ -915,7 +890,7 @@ describe("Cancellation with .all", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -926,7 +901,7 @@ describe("Cancellation with .props", function() {
     specify("immediately cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.props(p).lastly(resolve);
         return result;
@@ -935,7 +910,7 @@ describe("Cancellation with .props", function() {
     specify("eventually cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.props(p).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -946,7 +921,7 @@ describe("Cancellation with .props", function() {
     specify("immediately cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.props([1,2,p]).lastly(resolve);
         return result;
@@ -955,7 +930,7 @@ describe("Cancellation with .props", function() {
     specify("eventually cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.props([1,2,p]).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -967,27 +942,22 @@ describe("Cancellation with .props", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
-        var all = Promise.props(inputs)
-            .onCancel(function() {cancelled++})
-            .lastly(function() {finalled++; resolve(); });
+        var all = Promise.props(inputs).lastly(function() {finalled++; resolve(); });
 
         all.cancel();
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -997,20 +967,15 @@ describe("Cancellation with .props", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
-        var all = Promise.props(inputs)
-            .onCancel(function() {cancelled++})
-            .lastly(function() {finalled++; resolve(); });
+        var all = Promise.props(inputs).lastly(function() {finalled++; resolve(); });
 
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
@@ -1019,7 +984,7 @@ describe("Cancellation with .props", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -1028,22 +993,18 @@ describe("Cancellation with .props", function() {
     specify("immediately cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
-        var all = Promise.props(input)
-            .onCancel(function() {cancelled++})
-            .lastly(function() {finalled++; resolve(); });
+        var all = Promise.props(input).lastly(function() {finalled++; resolve(); });
 
         all.cancel();
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -1052,14 +1013,11 @@ describe("Cancellation with .props", function() {
     specify("eventually cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.props(input)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -1069,7 +1027,7 @@ describe("Cancellation with .props", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -1080,7 +1038,7 @@ describe("Cancellation with .some", function() {
     specify("immediately cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.some(p, 1).lastly(resolve);
         return result;
@@ -1089,7 +1047,7 @@ describe("Cancellation with .some", function() {
     specify("eventually cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.some(p, 1).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -1101,19 +1059,15 @@ describe("Cancellation with .some", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.some(inputs, 1)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -1121,7 +1075,7 @@ describe("Cancellation with .some", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -1131,19 +1085,15 @@ describe("Cancellation with .some", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.some(inputs, 1)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -1153,7 +1103,7 @@ describe("Cancellation with .some", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -1163,14 +1113,11 @@ describe("Cancellation with .some", function() {
     specify("immediately cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.some(input, 1)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -1178,7 +1125,7 @@ describe("Cancellation with .some", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -1187,14 +1134,11 @@ describe("Cancellation with .some", function() {
     specify("eventually cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.some(input, 1)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -1204,7 +1148,7 @@ describe("Cancellation with .some", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -1212,9 +1156,9 @@ describe("Cancellation with .some", function() {
 
     specify("some promises are cancelled immediately", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         p1.cancel();
         p2.cancel();
@@ -1226,9 +1170,9 @@ describe("Cancellation with .some", function() {
 
     specify("some promises are cancelled eventually", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         Promise.delay(1).then(function() {
             p1.cancel();
@@ -1244,9 +1188,9 @@ describe("Cancellation with .some", function() {
 
     specify("promise for some promises that are cancelled immediately", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         p1.cancel();
         p2.cancel();
@@ -1259,9 +1203,9 @@ describe("Cancellation with .some", function() {
 
     specify("promise for some promises that are cancelled eventually", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         Promise.delay(1).then(function() {
             p1.cancel();
@@ -1279,10 +1223,10 @@ describe("Cancellation with .some", function() {
 
     specify("all promises cancel, not enough for fulfillment - immediately", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){});
-        var result = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {});
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         p1.cancel();
         p2.cancel();
@@ -1293,10 +1237,10 @@ describe("Cancellation with .some", function() {
 
     specify("all promises cancel, not enough for fulfillment - eventually", function() {
         var resolve;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){});
-        var result = new Promise(function(){resolve = arguments[0];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {});
+        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
 
         Promise.delay(1).then(function() {
             p1.cancel();
@@ -1312,9 +1256,9 @@ describe("Cancellation with .some", function() {
     specify("some promises cancel, some reject, not enough for fulfillment - immediately", function() {
         var error = new Error();
         var reject;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){reject = arguments[1];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {reject = arguments[1];});
 
         p1.cancel();
         p2.cancel();
@@ -1329,9 +1273,9 @@ describe("Cancellation with .some", function() {
     specify("some promises cancel, some reject, not enough for fulfillment - eventually", function() {
         var error = new Error();
         var reject;
-        var p1 = new Promise(function(){});
-        var p2 = new Promise(function(){});
-        var p3 = new Promise(function(){reject = arguments[1];});
+        var p1 = new Promise(function(_, __, onCancel) {});
+        var p2 = new Promise(function(_, __, onCancel) {});
+        var p3 = new Promise(function(_, __, onCancel) {reject = arguments[1];});
 
         Promise.delay(1).then(function() {
             p1.cancel();
@@ -1350,20 +1294,16 @@ describe("Cancellation with .some", function() {
 
 describe("Cancellation with .reduce", function() {
     specify("initialValue immediately cancelled immediate input", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         initialValue.cancel();
@@ -1371,8 +1311,6 @@ describe("Cancellation with .reduce", function() {
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
@@ -1381,28 +1319,22 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("initialValue eventually cancelled immediate input", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             initialValue.cancel();
@@ -1416,18 +1348,15 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("initialValue eventually cancelled eventual input", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){});
+        var inputs = new Promise(function(_, __, onCancel) {});
         Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             initialValue.cancel();
@@ -1441,19 +1370,16 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("initialValue immediately cancelled eventual input", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){});
+        var inputs = new Promise(function(_, __, onCancel) {});
         initialValue.cancel();
         Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
@@ -1465,27 +1391,21 @@ describe("Cancellation with .reduce", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [1, 2,
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         Promise.reduce(inputs, function(a, b) {
             finalled++;
-            var ret = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            var ret = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++});
             ret.cancel();
             return ret;
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
 
         return awaitLateQueue(function() {
@@ -1498,20 +1418,16 @@ describe("Cancellation with .reduce", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [1, 2,
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         Promise.reduce(inputs, function(a, b) {
             finalled++;
-            var ret = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            var ret = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++});
             awaitLateQueue(function() {
                 ret.cancel();
@@ -1519,8 +1435,6 @@ describe("Cancellation with .reduce", function() {
             return ret;
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
 
         return awaitLateQueue(function() {
@@ -1534,19 +1448,16 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("input immediately cancelled while waiting initialValue", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){});
+        var inputs = new Promise(function(_, __, onCancel) {});
         inputs.cancel();
         Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
@@ -1555,18 +1466,15 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("input eventually cancelled while waiting initialValue", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){});
+        var inputs = new Promise(function(_, __, onCancel) {});
         Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             inputs.cancel();
@@ -1580,57 +1488,47 @@ describe("Cancellation with .reduce", function() {
     });
 
     specify("output immediately cancelled while waiting inputs", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){})
-            .onCancel(function() {cancelled++})
+        var inputs = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
             .lastly(function() {finalled++});
 
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         all.cancel();
         return awaitLateQueue(function() {
             assert.equal(3, finalled);
-            assert.equal(3, cancelled);
+            assert.equal(2, cancelled);
         });
     });
 
     specify("output immediately cancelled while waiting initialValue", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         all.cancel();
         return awaitLateQueue(function() {
             assert.equal(5, finalled);
-            assert.equal(5, cancelled);
+            assert.equal(4, cancelled);
         });
     });
 
@@ -1639,75 +1537,17 @@ describe("Cancellation with .reduce", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
-        });
-        all.cancel();
-        return awaitLateQueue(function() {
-            assert.equal(4, finalled);
-            assert.equal(4, cancelled);
-        });
-    });
-
-    specify("output immediately cancelled while waiting firstValue and secondValue", function() {
-        var cancelled = 0;
-        var finalled = 0;
-        var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++})
-        ];
-        var all = Promise.reduce(inputs, function(){
-            finalled++;
-        }).lastly(function() {
-            finalled++;
-        }).onCancel(function() {
-            cancelled++;
-        });
-        all.cancel();
-        return awaitLateQueue(function() {
-            assert.equal(4, finalled);
-            assert.equal(4, cancelled);
-        });
-    });
-
-    specify("output immediately cancelled while waiting for a result", function() {
-        var cancelled = 0;
-        var finalled = 0;
-        var inputs = [1, 2,
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++})
-        ];
-        var all = Promise.reduce(inputs, function(a, b) {
-            finalled++;
-            return new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++});
-        }).lastly(function() {
-            finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         all.cancel();
         return awaitLateQueue(function() {
@@ -1716,64 +1556,98 @@ describe("Cancellation with .reduce", function() {
         });
     });
 
+    specify("output immediately cancelled while waiting firstValue and secondValue", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++}),
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++}),
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++})
+        ];
+        var all = Promise.reduce(inputs, function(){
+            finalled++;
+        }).lastly(function() {
+            finalled++;
+        });
+        all.cancel();
+        return awaitLateQueue(function() {
+            assert.equal(4, finalled);
+            assert.equal(3, cancelled);
+        });
+    });
+
+    specify("output immediately cancelled while waiting for a result", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [1, 2,
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++})
+        ];
+        var all = Promise.reduce(inputs, function(a, b) {
+            finalled++;
+            return new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++});
+        }).lastly(function() {
+            finalled++;
+        });
+        all.cancel();
+        return awaitLateQueue(function() {
+            assert.equal(4, finalled);
+            assert.equal(2, cancelled);
+        });
+    });
+
     specify("output eventually cancelled while waiting inputs", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
-        var inputs = new Promise(function(){})
-            .onCancel(function() {cancelled++})
+        var inputs = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
             .lastly(function() {finalled++});
 
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             all.cancel();
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(3, finalled);
-                    assert.equal(3, cancelled);
+                    assert.equal(2, cancelled);
                 });
             });
         });
     });
 
     specify("output eventually cancelled while waiting initialValue", function() {
-        var initialValue = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+        var initialValue = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             all.cancel();
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(5, finalled);
-                    assert.equal(5, cancelled);
+                    assert.equal(4, cancelled);
                 });
             });
         });
@@ -1784,85 +1658,18 @@ describe("Cancellation with .reduce", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
         var all = Promise.reduce(inputs, function(){
             finalled++;
         }, initialValue).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
-        return awaitLateQueue(function() {
-            all.cancel();
-            return Promise.resolve().then(function() {
-                return awaitLateQueue(function() {
-                    assert.equal(4, finalled);
-                    assert.equal(4, cancelled);
-                });
-            });
-        });
-    });
-
-    specify("output eventually cancelled while waiting firstValue and secondValue", function() {
-        var cancelled = 0;
-        var finalled = 0;
-        var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++})
-        ];
-        var all = Promise.reduce(inputs, function(){
-            finalled++;
-        }).lastly(function() {
-            finalled++;
-        }).onCancel(function() {
-            cancelled++;
-        });
-        return awaitLateQueue(function() {
-            all.cancel();
-            return Promise.resolve().then(function() {
-                return awaitLateQueue(function() {
-                    assert.equal(4, finalled);
-                    assert.equal(4, cancelled);
-                });
-            });
-        });
-    });
-
-    specify("output eventually cancelled while waiting for a result", function() {
-        var cancelled = 0;
-        var finalled = 0;
-        var inputs = [1, 2,
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++})
-        ];
-        var all = Promise.reduce(inputs, function(a, b) {
-            finalled++;
-            return new Promise(function(){})
-                .onCancel(function() {cancelled++})
-                .lastly(function() {finalled++});
-        }).lastly(function() {
-            finalled++;
-        }).onCancel(function() {
-            cancelled++;
-        });
-
         return awaitLateQueue(function() {
             all.cancel();
             return Promise.resolve().then(function() {
@@ -1873,13 +1680,66 @@ describe("Cancellation with .reduce", function() {
             });
         });
     });
+
+    specify("output eventually cancelled while waiting firstValue and secondValue", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++}),
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++}),
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++})
+        ];
+        var all = Promise.reduce(inputs, function(){
+            finalled++;
+        }).lastly(function() {
+            finalled++;
+        });
+        return awaitLateQueue(function() {
+            all.cancel();
+            return Promise.resolve().then(function() {
+                return awaitLateQueue(function() {
+                    assert.equal(4, finalled);
+                    assert.equal(3, cancelled);
+                });
+            });
+        });
+    });
+
+    specify("output eventually cancelled while waiting for a result", function() {
+        var cancelled = 0;
+        var finalled = 0;
+        var inputs = [1, 2,
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++})
+        ];
+        var all = Promise.reduce(inputs, function(a, b) {
+            finalled++;
+            return new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
+                .lastly(function() {finalled++});
+        }).lastly(function() {
+            finalled++;
+        });
+
+        return awaitLateQueue(function() {
+            all.cancel();
+            return Promise.resolve().then(function() {
+                return awaitLateQueue(function() {
+                    assert.equal(4, finalled);
+                    assert.equal(2, cancelled);
+                });
+            });
+        });
+    });
 });
 
 describe("Cancellation with .map", function() {
     specify("immediately cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.map(p, function(){}).lastly(resolve);
         return result;
@@ -1888,7 +1748,7 @@ describe("Cancellation with .map", function() {
     specify("eventually cancelled input", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.map(p, function(){}).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -1899,7 +1759,7 @@ describe("Cancellation with .map", function() {
     specify("immediately cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.map([1,2,p], function(){}).lastly(resolve);
         return result;
@@ -1908,7 +1768,7 @@ describe("Cancellation with .map", function() {
     specify("eventually cancelled input inside array", function() {
         var resolve;
         var result = new Promise(function() {resolve = arguments[0]});
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.map([1,2,p], function(){}).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -1920,19 +1780,15 @@ describe("Cancellation with .map", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.map(inputs, function(){})
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -1940,7 +1796,7 @@ describe("Cancellation with .map", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -1950,19 +1806,15 @@ describe("Cancellation with .map", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.map(inputs, function(){})
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -1972,7 +1824,7 @@ describe("Cancellation with .map", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -1981,14 +1833,11 @@ describe("Cancellation with .map", function() {
     specify("immediately cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.map(input, function(){})
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -1996,7 +1845,7 @@ describe("Cancellation with .map", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -2005,14 +1854,11 @@ describe("Cancellation with .map", function() {
     specify("eventually cancelled output while waiting on promise-for-input", function() {
         var cancelled = 0;
         var finalled = 0;
-        var input = new Promise(function(){}).onCancel(function() {
-            cancelled++;
-        }).lastly(function() {
+        var input = new Promise(function(_, __, onCancel) { onCancel(function(){ cancelled++; }); }).lastly(function() {
             finalled++;
         });
 
         var all = Promise.map(input, function(){})
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve;
@@ -2022,7 +1868,7 @@ describe("Cancellation with .map", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 2);
+                assert.equal(cancelled, 1);
                 assert.equal(finalled, 2);
             });
         });
@@ -2033,18 +1879,15 @@ describe("Cancellation with .map", function() {
         var finalled = 0;
 
         var all = Promise.map([1, 2, 3], function(value, index) {
-            return new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            return new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         all.cancel();
         return awaitLateQueue(function() {
             assert.equal(4, finalled);
-            assert.equal(4, cancelled);
+            assert.equal(3, cancelled);
         });
     });
 
@@ -2053,13 +1896,10 @@ describe("Cancellation with .map", function() {
         var finalled = 0;
 
         var all = Promise.map([1, 2, 3], function(value, index) {
-            return new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            return new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
 
         return awaitLateQueue(function() {
@@ -2067,7 +1907,7 @@ describe("Cancellation with .map", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(4, finalled);
-                    assert.equal(4, cancelled);
+                    assert.equal(3, cancelled);
                 });
             });
         });
@@ -2078,8 +1918,7 @@ describe("Cancellation with .map", function() {
         var finalled = 0;
 
         Promise.map([1, 2, 3], function(value, index) {
-            var ret = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            var ret = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++});
             if (index === 2) {
                 ret.cancel();
@@ -2087,8 +1926,6 @@ describe("Cancellation with .map", function() {
             return ret;
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
@@ -2101,8 +1938,7 @@ describe("Cancellation with .map", function() {
         var finalled = 0;
 
         Promise.map([1, 2, 3], function(value, index) {
-            var ret = new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            var ret = new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++});
             if (index === 2) {
                 awaitLateQueue(function() {
@@ -2112,8 +1948,6 @@ describe("Cancellation with .map", function() {
             return ret;
         }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
 
         return awaitLateQueue(function() {
@@ -2130,12 +1964,10 @@ describe("Cancellation with .bind", function() {
     specify("immediately cancelled promise passed as ctx", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){});
+        var ctx = new Promise(function(_, __, onCancel) {});
         ctx.cancel();
         Promise.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
@@ -2146,11 +1978,9 @@ describe("Cancellation with .bind", function() {
     specify("eventually cancelled promise passed as ctx", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){});
+        var ctx = new Promise(function(_, __, onCancel) {});
         Promise.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             ctx.cancel();
@@ -2166,13 +1996,11 @@ describe("Cancellation with .bind", function() {
     specify("main promise is immediately cancelled while waiting on binding", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){});
-        var main = new Promise(function(){});
+        var ctx = new Promise(function(_, __, onCancel) {});
+        var main = new Promise(function(_, __, onCancel) {});
         main.cancel();
         main.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
@@ -2183,13 +2011,11 @@ describe("Cancellation with .bind", function() {
     specify("main promise is eventually cancelled while waiting on binding", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){});
-        var main = new Promise(function(){});
+        var ctx = new Promise(function(_, __, onCancel) {});
+        var main = new Promise(function(_, __, onCancel) {});
 
         main.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             main.cancel();
@@ -2206,13 +2032,11 @@ describe("Cancellation with .bind", function() {
         var finalled = 0;
         var cancelled = 0;
         var ctx = {};
-        var main = new Promise(function(){});
+        var main = new Promise(function(_, __, onCancel) {});
         main.cancel();
         main.bind(ctx).lastly(function() {
             assert.equal(this, ctx);
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
@@ -2224,12 +2048,10 @@ describe("Cancellation with .bind", function() {
         var finalled = 0;
         var cancelled = 0;
         var ctx = {};
-        var main = new Promise(function(){});
+        var main = new Promise(function(_, __, onCancel) {});
         main.bind(ctx).lastly(function() {
             assert.equal(this, ctx);
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             main.cancel();
@@ -2245,42 +2067,43 @@ describe("Cancellation with .bind", function() {
     specify("result is immediately cancelled while waiting for binding", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){}).lastly(function() {
+        var ctx = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                cancelled++;
+            });
+        }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         var result = Promise.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         result.cancel();
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
     specify("result is eventually cancelled while waiting for binding", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(){}).lastly(function() {
+        var ctx = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                cancelled++;
+            });
+        }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
+
         var result = Promise.bind(ctx).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             result.cancel();
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(2, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -2290,21 +2113,22 @@ describe("Cancellation with .bind", function() {
         var finalled = 0;
         var cancelled = 0;
         var ctx = {};
-        var main = new Promise(function(){}).lastly(function() {
+        var main = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                cancelled++;
+            });
+        }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
+
         var result = main.bind(ctx).lastly(function() {
             assert.equal(this, ctx);
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         result.cancel();
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -2312,23 +2136,24 @@ describe("Cancellation with .bind", function() {
         var finalled = 0;
         var cancelled = 0;
         var ctx = {};
-        var main = new Promise(function(){}).lastly(function() {
+        var main = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                cancelled++;
+            });
+        }).lastly(function() {
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
+
         var result = main.bind(ctx).lastly(function() {
             assert.equal(this, ctx);
             finalled++;
-        }).onCancel(function() {
-            cancelled++;
         });
         return awaitLateQueue(function() {
             result.cancel();
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(2, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -2342,7 +2167,7 @@ describe("Cancellation with .join", function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
         Promise.join(1,2,p, assert.fail).then(reject, reject).lastly(resolve);
         return result;
@@ -2354,7 +2179,7 @@ describe("Cancellation with .join", function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         Promise.join(1,2,p, assert.fail).then(reject, reject).lastly(resolve);
         return awaitLateQueue(function() {
             p.cancel();
@@ -2366,20 +2191,16 @@ describe("Cancellation with .join", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
             .then(reject, reject)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -2390,7 +2211,7 @@ describe("Cancellation with .join", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -2400,20 +2221,16 @@ describe("Cancellation with .join", function() {
         var cancelled = 0;
         var finalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++}),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
         ];
 
         var all = Promise.join(inputs[0], inputs[1], inputs[2], assert.fail)
             .then(reject, reject)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2426,7 +2243,7 @@ describe("Cancellation with .join", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
             });
         });
@@ -2435,7 +2252,7 @@ describe("Cancellation with .join", function() {
 
 describe("Cancellation with .reflect", function() {
     specify("immediately cancelled", function() {
-        var promise = new Promise(function(){});
+        var promise = new Promise(function(_, __, onCancel) {});
         promise.cancel();
         return promise.reflect().then(function(value) {
             assert(!value.isFulfilled());
@@ -2445,7 +2262,7 @@ describe("Cancellation with .reflect", function() {
     });
 
     specify("eventually cancelled", function() {
-        var promise = new Promise(function(){});
+        var promise = new Promise(function(_, __, onCancel) {});
 
         var ret = promise.reflect().then(function(value) {
             assert(!value.isFulfilled());
@@ -2467,11 +2284,11 @@ describe("Cancellation with .using", function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
 
         var disposerCalled = false;
-        var disposable = new Promise(function(){
+        var disposable = new Promise(function(_, __, onCancel) {
             setTimeout(arguments[0], 1);
         }).disposer(function() {
             disposerCalled = true;
@@ -2491,10 +2308,10 @@ describe("Cancellation with .using", function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
 
         var disposerCalled = false;
-        var disposable = new Promise(function(){
+        var disposable = new Promise(function(_, __, onCancel) {
             setTimeout(arguments[0], 1);
         }).disposer(function() {
             disposerCalled = true;
@@ -2518,10 +2335,10 @@ describe("Cancellation with .using", function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
-        var p = new Promise(function(){});
+        var p = new Promise(function(_, __, onCancel) {});
 
         var disposerCalled = false;
-        var disposable = new Promise(function(){fulfillResource = arguments[0];}).disposer(function() {
+        var disposable = new Promise(function(_, __, onCancel) {fulfillResource = arguments[0];}).disposer(function() {
             disposerCalled = true;
         });
 
@@ -2542,20 +2359,17 @@ describe("Cancellation with .using", function() {
         var finalled = 0;
         var disposerCalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
@@ -2564,7 +2378,6 @@ describe("Cancellation with .using", function() {
 
         var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
             .then(reject, reject)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         all.cancel();
@@ -2575,7 +2388,7 @@ describe("Cancellation with .using", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
                 assert.equal(disposerCalled, 0);
             });
@@ -2587,20 +2400,17 @@ describe("Cancellation with .using", function() {
         var finalled = 0;
         var disposerCalled = 0;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
@@ -2609,7 +2419,6 @@ describe("Cancellation with .using", function() {
 
         var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
             .then(reject, reject)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2622,7 +2431,7 @@ describe("Cancellation with .using", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 4);
+                assert.equal(cancelled, 3);
                 assert.equal(finalled, 4);
                 assert.equal(disposerCalled, 0);
             });
@@ -2635,18 +2444,16 @@ describe("Cancellation with .using", function() {
         var disposerCalled = 0;
         var fulfillResource;
         var inputs = [
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){fulfillResource = arguments[0];})
+            new Promise(function(_, __, onCancel) {fulfillResource = arguments[0];})
                 .disposer(function() {
                     disposerCalled++;
                 }),
-            new Promise(function(){})
-                .onCancel(function() {cancelled++})
+            new Promise(function(_, __, onCancel) { onCancel(function() { cancelled++; }); })
                 .lastly(function() {finalled++})
                 .disposer(function() {
                     disposerCalled++;
@@ -2655,7 +2462,6 @@ describe("Cancellation with .using", function() {
 
         var all = Promise.using(inputs[0], inputs[1], inputs[2], assert.fail)
             .then(reject, reject)
-            .onCancel(function() {cancelled++})
             .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2669,7 +2475,7 @@ describe("Cancellation with .using", function() {
         });
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 3);
+                assert.equal(cancelled, 2);
                 assert.equal(finalled, 3);
                 assert.equal(disposerCalled, 1);
             });
@@ -2689,11 +2495,10 @@ describe("Cancellation with .using", function() {
         });
 
         var all = Promise.using(resource1, resource2, function(res1, res2) {
-            var ret = new Promise(function() {});
+            var ret = new Promise(function(_, __, onCancel) {});
             all.cancel();
             return ret;
         }).then(reject, reject)
-           .onCancel(function() {cancelled++})
            .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2704,7 +2509,7 @@ describe("Cancellation with .using", function() {
 
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 1);
+                assert.equal(cancelled, 0);
                 assert.equal(finalled, 1);
                 assert.equal(disposerCalled, 2);
             });
@@ -2724,13 +2529,12 @@ describe("Cancellation with .using", function() {
         });
 
         var all = Promise.using(resource1, resource2, function(res1, res2) {
-            var ret = new Promise(function() {});
+            var ret = new Promise(function(_, __, onCancel) {});
             Promise.delay(1).then(function() {
                 all.cancel();
             });
             return ret;
         }).then(reject, reject)
-           .onCancel(function() {cancelled++})
            .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2741,7 +2545,7 @@ describe("Cancellation with .using", function() {
 
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 1);
+                assert.equal(cancelled, 0);
                 assert.equal(finalled, 1);
                 assert.equal(disposerCalled, 2);
             });
@@ -2761,11 +2565,10 @@ describe("Cancellation with .using", function() {
         });
 
         var all = Promise.using(resource1, resource2, function(res1, res2) {
-            var ret = new Promise(function() {});
+            var ret = new Promise(function(_, __, onCancel) {});
             ret.cancel();
             return ret;
         }).then(reject, reject)
-           .onCancel(function() {cancelled++})
            .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
@@ -2796,13 +2599,12 @@ describe("Cancellation with .using", function() {
         });
 
         var all = Promise.using(resource1, resource2, function(res1, res2) {
-            var ret = new Promise(function() {});
+            var ret = new Promise(function(_, __, onCancel) {});
             Promise.delay(1).then(function() {
                 ret.cancel();
             });
             return ret;
         }).then(reject, reject)
-           .onCancel(function() {cancelled++})
            .lastly(function() {finalled++; resolve(); });
 
         var resolve, reject;
