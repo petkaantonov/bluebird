@@ -90,7 +90,7 @@ var areDeepEqual = function(a, b) {
         return prev.call(window.assert, a, b);
     }
 };
-window.assert.deepEqual = funtion(a, b) {
+window.assert.deepEqual = function(a, b) {
     if (!areDeepEqual(a, b)) {
         throw new Error("a not equal to b");
     }
