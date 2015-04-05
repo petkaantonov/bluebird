@@ -24,6 +24,33 @@ describe("Cancellation", function() {
         });
     });
 
+    specify("chain cancellation shoud be history-agnostic", function () {
+        var called = 0;
+
+        function test(p) {
+            var chain;
+            return chain = p.then(function() {
+                // `p` has been fulfilled already at this point
+                // and the nature of this fulfillment (immediate or eventual)
+                // should not affect the future of the control flow
+                chain.cancel();
+            }).then(function(){
+                called++;
+            });
+        }
+
+        var immediate = Promise.resolve();
+        var eventual = Promise.delay(0);
+
+        test(immediate);
+        test(eventual);
+
+        return awaitLateQueue (function(){
+            assert(called == 0);
+            // both should not be called
+        });
+    });
+
 
     specify("handlers are not called downstream, registered before", function() {
         var cancelled = 0;
