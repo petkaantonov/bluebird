@@ -467,12 +467,6 @@ Promise.prototype._resolveFromExecutor = function (executor) {
 Promise.prototype._settlePromiseFromHandler = function (
     handler, receiver, value, promise
 ) {
-    var bitField = promise._bitField;
-    if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
-        if (BIT_FIELD_CHECK(IS_REJECTED)) return;
-        promise._unsetCancelled();
-    }
-    ASSERT(!promise._isFateSealed());
     promise._pushContext();
     var x;
     if (receiver === APPLY) {
@@ -487,6 +481,10 @@ Promise.prototype._settlePromiseFromHandler = function (
         x = tryCatch(handler).call(receiver, value);
     }
     var promisesCreatedDuringHandlerInvocation = promise._popContext();
+    var bitField = promise._bitField;
+    if (BIT_FIELD_CHECK(IS_CANCELLED)) return;
+
+    ASSERT(!promise._isFateSealed());
 
     if (x === NEXT_FILTER) {
         promise._reject(value);

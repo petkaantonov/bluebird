@@ -109,7 +109,6 @@ describe("Cancellation", function() {
         var result = new Promise(function() {resolve = arguments[0];});
         var p = Promise.reject(error).lastly(resolve);
         p.cancel();
-        p.caught(function() {});
         return result;
     });
 
@@ -121,21 +120,6 @@ describe("Cancellation", function() {
         p.cancel();
         p.caught(function() {});
         return result;
-    });
-
-    specify("immediately rejected promise immediately cancelled with catch in-between that returns promise", function() {
-        var awaited = 0;
-        var error = new Error();
-        var p = Promise.reject(error).then(assert.fail, function(e) {
-            assert.equal(error, e);
-            return Promise.delay(1).then(function() {
-                awaited++;
-            });
-        }).then(function() {
-            assert.equal(awaited, 1);
-        });
-        p.cancel();
-        return p;
     });
 
     specify("callback is called asynchronously but fate is sealed synchronously", function() {
