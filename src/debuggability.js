@@ -128,9 +128,8 @@ Promise.config = function(opts) {
 
 Promise.prototype._onCancel = function () {};
 Promise.prototype._setOnCancel = function (handler) { USE(handler); };
-Promise.prototype._attachCancellationCallback = function(onCancel, ctx) {
+Promise.prototype._attachCancellationCallback = function(onCancel) {
     USE(onCancel);
-    USE(ctx);
 };
 Promise.prototype._captureStackTrace = function () {};
 Promise.prototype._attachExtraTrace = function () {};
@@ -140,25 +139,19 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     USE(flags);
 };
 
-function cancellationAttachCancellationCallback(onCancel, ctx) {
-    if (!this.isCancellable()) {
-        if (this.isCancelled()) {
-            async.invoke(this._invokeOnCancel, this, onCancel);
+function cancellationAttachCancellationCallback(onCancel) {
+    if (!this.isCancellable()) return this;
+
+    var previousOnCancel = this._onCancel();
+    if (previousOnCancel !== undefined) {
+        if (util.isArray(previousOnCancel)) {
+            previousOnCancel.push(onCancel);
+        } else {
+            this._setOnCancel([previousOnCancel, onCancel]);
         }
-        return this;
+    } else {
+        this._setOnCancel(onCancel);
     }
-    var target = this._target();
-    if (target._onCancel() !== undefined) {
-        var newOnCancel = onCancel;
-        var oldOnCancel = target._onCancel();
-        if (ctx === undefined) ctx = this;
-        onCancel = function() {
-            ctx._invokeOnCancel(oldOnCancel);
-            ctx._invokeOnCancel(newOnCancel);
-            target._unsetOnCancel();
-        };
-    }
-    target._setOnCancel(onCancel);
 }
 
 function cancellationOnCancel() {

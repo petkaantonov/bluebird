@@ -18,7 +18,7 @@ Promise.prototype["break"] = Promise.prototype.cancel = function() {
 
     var promise = this;
     while (promise.isCancellable()) {
-        promise._invokeOnCancel(promise._onCancel());
+        promise._invokeOnCancel(promise._onCancel(), false);
         var parent = promise._cancellationParent;
         if (parent == null || !parent.isCancellable()) {
             if (promise._isFollowing()) {
@@ -64,16 +64,20 @@ Promise.prototype.onCancel = function(onCancel) {
     return this;
 };
 
-Promise.prototype._doInvokeOnCancel = function(onCancelCallback) {
-    if (onCancelCallback !== undefined) {
+Promise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {
+    if (util.isArray(onCancelCallback)) {
+        for (var i = 0; i < onCancelCallback.length; ++i) {
+            this._doInvokeOnCancel(onCancelCallback[i], internalOnly);
+        }
+    } else if (onCancelCallback !== undefined) {
         if (typeof onCancelCallback === "function") {
-            var e = tryCatch(onCancelCallback).call(this._boundTo);
-            if (e === errorObj) {
-                this._attachExtraTrace(e.e);
-                async.throwLater(e.e);
+            if (!internalOnly) {
+                var e = tryCatch(onCancelCallback).call(this._boundTo);
+                if (e === errorObj) {
+                    this._attachExtraTrace(e.e);
+                    async.throwLater(e.e);
+                }
             }
-        } else if (onCancelCallback instanceof Promise) {
-            onCancelCallback.cancel();
         } else {
             onCancelCallback._resultCancelled(this);
         }
@@ -89,6 +93,17 @@ Promise.prototype._invokeOnCancel = function(onCancelCallback) {
     // has not been queued for invocation yet.
     this._unsetOnCancel();
     async.invoke(this._doInvokeOnCancel, this, onCancelCallback);
+};
+
+Promise.prototype._invokeInternalOnCancel = function() {
+    if (this.isCancellable()) {
+        this._doInvokeOnCancel(this._onCancel(), true);
+        this._unsetOnCancel();
+    }
+};
+
+Promise.prototype._resultCancelled = function() {
+    this.cancel();
 };
 
 };

@@ -74,7 +74,7 @@ adapter.defer = adapter.pending = function() {
 window.assert = require("assert");
 
 var prev = window.assert.deepEqual;
-window.assert.deepEqual = function(a, b) {
+var areDeepEqual = function(a, b) {
     if (Array.isArray(a) &&
         Array.isArray(b)) {
         if (a.length === b.length) {
@@ -88,6 +88,11 @@ window.assert.deepEqual = function(a, b) {
         return false;
     } else {
         return prev.call(window.assert, a, b);
+    }
+};
+window.assert.deepEqual = funtion(a, b) {
+    if (!areDeepEqual(a, b)) {
+        throw new Error("a not equal to b");
     }
 };
 

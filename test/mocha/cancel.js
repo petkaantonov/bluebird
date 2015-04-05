@@ -25,7 +25,7 @@ describe("Cancellation", function() {
     });
 
 
-    specify("handlers are called downstream, registered before", function() {
+    specify("handlers are not called downstream, registered before", function() {
         var cancelled = 0;
         var p = new Promise(function() {}).onCancel(function() {cancelled ++});
 
@@ -34,11 +34,11 @@ describe("Cancellation", function() {
         p.then().onCancel(function() {cancelled ++});
         p.cancel();
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
-    specify("handlers are called downstream, registered after", function() {
+    specify("handlers are not called downstream, registered after", function() {
         var cancelled = 0;
         var p = new Promise(function() {}).onCancel(function() {cancelled ++});
 
@@ -47,11 +47,11 @@ describe("Cancellation", function() {
         p.then().onCancel(function() {cancelled ++});
         p.then().onCancel(function() {cancelled ++});
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
-    specify("follower promises' handlers are called, registered before", function() {
+    specify("follower promises' handlers are not called, registered before", function() {
         var cancelled = 0;
         var p = new Promise(function() {}).onCancel(function() {cancelled ++});
 
@@ -60,11 +60,11 @@ describe("Cancellation", function() {
         new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
         p.cancel();
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
-    specify("follower promises' handlers are called, registered after", function() {
+    specify("follower promises' handlers are not called, registered after", function() {
         var cancelled = 0;
         var p = new Promise(function() {}).onCancel(function() {cancelled ++});
 
@@ -73,11 +73,11 @@ describe("Cancellation", function() {
         new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
         new Promise(function(resolve) {resolve(p);}).onCancel(function() {cancelled ++});
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
-    specify("downstream follower promises' handlers are called, registered before", function() {
+    specify("downstream follower promises' handlers are not called, registered before", function() {
         var cancelled = 0;
         var p = new Promise(function() {}).onCancel(function() {cancelled ++});
 
@@ -86,7 +86,7 @@ describe("Cancellation", function() {
         new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
         p.cancel();
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -99,7 +99,7 @@ describe("Cancellation", function() {
         new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
         new Promise(function(resolve) {resolve(p.then());}).onCancel(function() {cancelled ++});
         return awaitLateQueue(function() {
-            assert.equal(4, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -720,7 +720,6 @@ describe("Cancellation", function() {
     });
 
     specify("if onCancel callback causes synchronous rejection, it is ignored and cancellation wins", function() {
-        var cancelled = 0;
         var promisifiedXhr = function() {
             var xhrReject;
             var xhr = {
@@ -736,11 +735,8 @@ describe("Cancellation", function() {
             });
         };
 
-        var req = promisifiedXhr().onCancel(function() {
-            assert.equal(1, cancelled);
+        var req = promisifiedXhr().lastly(function() {
             resolve();
-        }).lastly(function() {
-            cancelled++;
         });
         req.cancel();
         var resolve;
@@ -1396,7 +1392,7 @@ describe("Cancellation with .reduce", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -1429,7 +1425,7 @@ describe("Cancellation with .reduce", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(2, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -1454,7 +1450,7 @@ describe("Cancellation with .reduce", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(2, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -1477,7 +1473,7 @@ describe("Cancellation with .reduce", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -1510,7 +1506,7 @@ describe("Cancellation with .reduce", function() {
 
         return awaitLateQueue(function() {
             assert.equal(3, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -1547,7 +1543,7 @@ describe("Cancellation with .reduce", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(3, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -1570,7 +1566,7 @@ describe("Cancellation with .reduce", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
-            assert.equal(1, cancelled);
+            assert.equal(0, cancelled);
         });
     });
 
@@ -1593,7 +1589,7 @@ describe("Cancellation with .reduce", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(1, finalled);
-                    assert.equal(1, cancelled);
+                    assert.equal(0, cancelled);
                 });
             });
         });
@@ -2112,7 +2108,7 @@ describe("Cancellation with .map", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(2, finalled);
-            assert.equal(2, cancelled);
+            assert.equal(1, cancelled);
         });
     });
 
@@ -2140,7 +2136,7 @@ describe("Cancellation with .map", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(2, finalled);
-                    assert.equal(2, cancelled);
+                    assert.equal(1, cancelled);
                 });
             });
         });
@@ -2159,7 +2155,7 @@ describe("Cancellation with .bind", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
-            assert.equal(1, cancelled);
+            assert.equal(0, cancelled);
         });
     });
 
@@ -2177,7 +2173,7 @@ describe("Cancellation with .bind", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(1, finalled);
-                    assert.equal(1, cancelled);
+                    assert.equal(0, cancelled);
                 });
             });
         });
@@ -2196,7 +2192,7 @@ describe("Cancellation with .bind", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
-            assert.equal(1, cancelled);
+            assert.equal(0, cancelled);
         });
     });
 
@@ -2216,7 +2212,7 @@ describe("Cancellation with .bind", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(1, finalled);
-                    assert.equal(1, cancelled);
+                    assert.equal(0, cancelled);
                 });
             });
         });
@@ -2236,7 +2232,7 @@ describe("Cancellation with .bind", function() {
         });
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
-            assert.equal(1, cancelled);
+            assert.equal(0, cancelled);
         });
     });
 
@@ -2256,7 +2252,7 @@ describe("Cancellation with .bind", function() {
             return Promise.resolve().then(function() {
                 return awaitLateQueue(function() {
                     assert.equal(1, finalled);
-                    assert.equal(1, cancelled);
+                    assert.equal(0, cancelled);
                 });
             });
         });
@@ -2796,7 +2792,7 @@ describe("Cancellation with .using", function() {
 
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 1);
+                assert.equal(cancelled, 0);
                 assert.equal(finalled, 1);
                 assert.equal(disposerCalled, 2);
             });
@@ -2833,7 +2829,7 @@ describe("Cancellation with .using", function() {
 
         return result.then(function() {
             return awaitLateQueue(function() {
-                assert.equal(cancelled, 1);
+                assert.equal(cancelled, 0);
                 assert.equal(finalled, 1);
                 assert.equal(disposerCalled, 2);
             });

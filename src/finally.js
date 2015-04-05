@@ -3,6 +3,14 @@ module.exports = function(Promise, tryConvertToPromise) {
 var util = require("./util");
 var errorObj = util.errorObj;
 
+function FinallyHandlerCancelReaction(finallyHandler) {
+    this.finallyHandler = finallyHandler;
+}
+
+FinallyHandlerCancelReaction.prototype._resultCancelled = function() {
+    checkCancel(this.finallyHandler);
+};
+
 function checkCancel(ctx, reason) {
     if (ctx.cancelPromise != null) {
         if (arguments.length > 1) {
@@ -38,12 +46,8 @@ function finallyHandler(reasonOrValue) {
                     if (maybePromise.isCancelled()) {
                         checkCancel(this);
                     } else if (maybePromise.isPending()) {
-                        var ctx = this;
-                        var oldOnCancel = maybePromise._onCancel();
-                        maybePromise._setOnCancel(function() {
-                            checkCancel(ctx);
-                            maybePromise._invokeOnCancel(oldOnCancel);
-                        });
+                        maybePromise._attachCancellationCallback(
+                            new FinallyHandlerCancelReaction(this));
                     }
                 }
                 return maybePromise._then(

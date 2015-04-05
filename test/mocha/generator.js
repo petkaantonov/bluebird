@@ -525,7 +525,7 @@ describe("Cancellation with generators", function() {
         return result.then(function() {
             return awaitLateQueue(function() {
                 assert.equal(2, finalled);
-                assert.equal(1, cancelled);
+                assert.equal(0, cancelled);
                 assert.equal(0, unreached);
             });
         });
@@ -573,7 +573,7 @@ describe("Cancellation with generators", function() {
         return result.then(function() {
             return awaitLateQueue(function() {
                 assert.equal(2, finalled);
-                assert.equal(1, cancelled);
+                assert.equal(0, cancelled);
                 assert.equal(0, unreached);
             });
         });
