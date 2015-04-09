@@ -14,8 +14,10 @@ function race(promises, parent) {
 
     if (maybePromise instanceof Promise) {
         return raceLater(maybePromise);
-    } else if (!util.isArray(promises)) {
-        return apiRejection(COLLECTION_ERROR + util.classString(promises));
+    } else {
+        promises = util.asArray(promises);
+        if (promises === null)
+            return apiRejection(COLLECTION_ERROR + util.classString(promises));
     }
 
     var ret = new Promise(INTERNAL);

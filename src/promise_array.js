@@ -64,7 +64,8 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
             return this._cancel();
         }
     }
-    if (!isArray(values)) {
+    values = util.asArray(values);
+    if (values === null) {
         var err = apiRejection(
             COLLECTION_ERROR + util.classString(values)).reason();
         this._promise._rejectCallback(err, false);

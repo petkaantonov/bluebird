@@ -256,6 +256,11 @@ module.exports = {
         assert.strictEqual(p.error(), v);
     },
 
+    ecmaScript6Collections: (typeof Set === "function" &&
+                            typeof Symbol !== "undefined" &&
+                            Symbol.iterator &&
+                            typeof ((new Set())[Symbol.iterator]().next) === "function"),
+
     ecmaScript5: (function() {"use strict"
       return this === undefined;
     })(),

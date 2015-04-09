@@ -28,6 +28,14 @@ describe("all", function () {
         return Promise.all([]);
     });
 
+    if (testUtils.ecmaScript6Collections) {
+        it("supports iterables", function () {
+            return Promise.all(new Set([1, 2, 3])).then(function(v) {
+                assert.deepEqual([1,2,3].sort(), v.sort());
+            });
+        });
+    }
+
     it("rejects after any constituent promise is rejected", function () {
         var toResolve = Promise.defer(); // never resolve
         var toReject = Promise.defer();

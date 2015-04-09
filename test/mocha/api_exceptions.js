@@ -154,7 +154,7 @@ if (Promise.hasLongStackTraces()) {
 
         specify("non-array to all", function() {
 
-            Promise.all("asd", "asd").then(assert.fail, function(e){
+            Promise.all(3, 3).then(assert.fail, function(e){
                 assert(e instanceof Promise.TypeError);
             });
         });
@@ -163,7 +163,7 @@ if (Promise.hasLongStackTraces()) {
         specify("non-array to all inside then", function() {
 
             return Promise.resolve().then(function(){
-                return Promise.all("asd", "asd");
+                return Promise.all(3, 3);
             }).then(assert.fail, function(e) {
                 assert(e instanceof Promise.TypeError);
                 assertErrorHasLongTraces(e);

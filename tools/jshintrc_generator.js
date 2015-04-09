@@ -11,10 +11,10 @@ var globals = fs.readFileAsync(constantsFile, "utf8").then(function(contents) {
     var rconstantname = /CONSTANT\(\s*([^,]+)/g;
     var m;
     var globals = {
+        Symbol: false,
         JSON: false,
         Error: true,
         args: true,
-        JSON: true,
         chrome: true,
         INLINE_SLICE: false,
         BIT_FIELD_CHECK: false,

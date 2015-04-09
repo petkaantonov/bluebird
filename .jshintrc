@@ -45,7 +45,8 @@
     "-W064": true,
     "-W097": true,
     "globals": {
-        "JSON": true,
+        "Symbol": false,
+        "JSON": false,
         "Error": true,
         "args": true,
         "chrome": true,
