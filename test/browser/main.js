@@ -87,7 +87,8 @@ var areDeepEqual = function(a, b) {
         }
         return false;
     } else {
-        return prev.call(window.assert, a, b);
+        prev.call(window.assert, a, b);
+        return true;
     }
 };
 window.assert.deepEqual = function(a, b) {
