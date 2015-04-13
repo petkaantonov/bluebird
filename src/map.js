@@ -100,9 +100,10 @@ MappingPromiseArray.prototype._drainQueue = function () {
     var queue = this._queue;
     var limit = this._limit;
     var values = this._values;
+    var index;
     while (queue.length > 0 && this._inFlight < limit) {
         if (this._isResolved()) return;
-        var index = queue.pop();
+        index = queue.pop();
         this._promiseFulfilled(values[index], index);
     }
 };
