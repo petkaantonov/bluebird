@@ -318,8 +318,8 @@ function cleanStack(stack) {
     var ret = [];
     for (var i = 0; i < stack.length; ++i) {
         var line = stack[i];
-        var isTraceLine = stackFramePattern.test(line) ||
-            NO_STACK_TRACE === line;
+        var isTraceLine = NO_STACK_TRACE === line ||
+            stackFramePattern.test(line);
         var isInternalFrame = isTraceLine && shouldIgnore(line);
         if (isTraceLine && !isInternalFrame) {
             if (indentStackFrames && line.charAt(0) !== " ") {
