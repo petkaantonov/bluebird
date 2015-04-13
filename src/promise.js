@@ -112,11 +112,11 @@ Promise.prototype.done = function (didFulfill, didReject) {
     promise._setIsFinal();
 };
 
-Promise.prototype.spread = function (fn) {
-    if (typeof fn !== "function") {
-        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+Promise.prototype.spread = function(didFulfill, didReject) {
+    if (typeof didFulfill !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(didFulfill));
     }
-    return this.all()._then(fn, undefined, undefined, APPLY, undefined);
+    return this.all()._then(didFulfill, didReject, undefined, APPLY, undefined);
 };
 
 Promise.prototype.toJSON = function () {
@@ -461,7 +461,8 @@ Promise.prototype._settlePromiseFromHandler = function (
 ) {
     promise._pushContext();
     var x;
-    if (receiver === APPLY) {
+    var bitField = promise._bitField;
+    if (receiver === APPLY && BIT_FIELD_CHECK(IS_FULFILLED)) {
         if (!value || typeof value.length !== "number") {
             x = errorObj;
             x.e = new TypeError("cannot .spread() a non-array: " +
@@ -473,7 +474,7 @@ Promise.prototype._settlePromiseFromHandler = function (
         x = tryCatch(handler).call(receiver, value);
     }
     var promisesCreatedDuringHandlerInvocation = promise._popContext();
-    var bitField = promise._bitField;
+    bitField = promise._bitField;
     if (BIT_FIELD_CHECK(IS_CANCELLED)) return;
 
     ASSERT(!promise._isFateSealed());
