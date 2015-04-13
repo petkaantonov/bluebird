@@ -1055,7 +1055,7 @@ You may optionally specify a concurrency limit:
 ...map(..., {concurrency: 1});
 ```
 
-The concurrency limit applies to promises returned by the mapper function (since the operations the promises in the input array are "watching" are already running and thus cannot be limited). For example, if `concurrency` is `3` and the mapper callback has been called enough so that there are 3 returned promises currently pending, no further callbacks are called until one of the pending promises resolves.
+The concurrency limit applies to Promises returned by the mapper function and it basically limits the number of Promises created. For example, if `concurrency` is `3` and the mapper callback has been called enough so that there are three returned Promises currently pending, no further callbacks are called until one of the pending Promises resolves. So the mapper function will be called three times and it will be called again only after at least one of the Promises resolves.
 
 Playing with the first example with and without limits, and seeing how it affects the duration when reading 20 files:
 
@@ -1143,7 +1143,7 @@ An efficient shortcut for doing:
 
 ######Option: `concurrency`
 
-See [`.map()`](#mapfunction-mapper--object-options---promise);
+See [`concurrency` limit option in `.map()`](#option-concurrency)
 
 <hr>
 
