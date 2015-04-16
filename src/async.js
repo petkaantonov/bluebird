@@ -63,6 +63,7 @@ Async.prototype.throwLater = function(fn, arg) {
 
 Async.prototype._getDomain = function() {};
 
+if (!__BROWSER__) {
 if (util.isNode) {
     var EventsModule = require("events");
 
@@ -103,6 +104,7 @@ if (util.isNode) {
 
 
     }
+}
 }
 
 //When the fn absolutely needs to be called after
