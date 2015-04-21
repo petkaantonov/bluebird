@@ -4,7 +4,7 @@ var noAsyncScheduler = function() {
     throw new Error(NO_ASYNC_SCHEDULER);
 };
 if (require("./util.js").isNode) {
-    if (typeof process.versions["node-webkit"] !== "undefined") {
+    if ("node-webkit" in process.versions) {
         var version = process.versions["node-webkit"].split(".").map(Number);
         schedule = (version[0] === 0 && version[1] > 8) || (version[0] > 0)
             ? global.setImmediate : process.nextTick;
