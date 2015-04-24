@@ -1796,7 +1796,7 @@ The resolver function is passed a callback that expects to be called back accord
 Using manual resolver:
 
 ```js
-// TODO use real library that doesn't expose prototypes for promisification
+// TODO switch to library that exposes prototypes for promisification
 var object = crummyLibrary.create();
 Promise.fromNode(function(callback) {
     object.foo("firstArgument", callback);
