@@ -1,3 +1,9 @@
+## 2.9.25 (2015-04-28)
+
+Bugfixes:
+
+ - Fix crash in node 0.8
+
 ## 2.9.24 (2015-04-02)
 
 Bugfixes:
