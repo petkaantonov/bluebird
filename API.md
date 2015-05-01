@@ -1446,6 +1446,7 @@ Promise.promisifyAll(require("mongoose"));
 var Promise = require("bluebird");
 Promise.promisifyAll(require("request"));
 // Use request.getAsync(...) not request(..), it will not return a promise
+//Is the above comment still accurate?
 ```
 
 ```js
