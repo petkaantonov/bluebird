@@ -209,7 +209,7 @@ somePromise.then(function() {
     //Generic catch-the rest, error wasn't TypeError nor
     //ReferenceError
 });
- ```
+```
 
 You may also add multiple filters for a catch handler:
 
