@@ -1450,7 +1450,8 @@ Promise.promisifyAll(require("request"));
     //This Promisifies the convenience methods (like `request.get()` and `request.post()`)
     //It appends "Async" to the method names so use, eg: 
         //`request.getAsync( {{request-options}} ).then(...)`. 
-        //Do not use request(..), it will not return a promise--for more info see PR #607 (https://github.com/petkaantonov/bluebird/pull/607)
+        //Do not use request(..), it will not return a promise
+            //--for more info see PR #607 (https://github.com/petkaantonov/bluebird/pull/607)
     
 //Option 2: Promisify the request() method
 Promise.promisify(require("request"));
