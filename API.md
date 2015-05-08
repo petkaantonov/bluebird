@@ -1444,9 +1444,18 @@ Promise.promisifyAll(require("mongoose"));
 ```js
 // Request
 var Promise = require("bluebird");
+
+//Option 1: promisify the convenience methods
 Promise.promisifyAll(require("request"));
-// Use request.getAsync(...) not request(..), it will not return a promise
-//Is the above comment still accurate?
+    //This Promisifies the convenience methods (like `request.get()` and `request.post()`)
+    //It appends "Async" to the method names so use, eg: 
+        //`request.getAsync( {{request-options}} ).then(...)`. 
+        //Do not use request(..), it will not return a promise--for more info see PR #607 (https://github.com/petkaantonov/bluebird/pull/607)
+    
+//Option 2: Promisify the request() method
+Promise.promisify(require("request"));
+    //Now you can use `request( {{request-options}} ).then(...)`
+    //But the convenience methods have not been promisified.
 ```
 
 ```js
