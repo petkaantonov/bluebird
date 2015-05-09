@@ -125,15 +125,6 @@ describe("Cancellation", function() {
         });
     });
 
-    specify("immediately rejected promise immediately cancelled", function() {
-        var error = new Error();
-        var resolve;
-        var result = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
-        var p = Promise.reject(error).lastly(resolve);
-        p.cancel();
-        return result;
-    });
-
     specify("immediately rejected promise immediately cancelled with then in-between", function() {
         var error = new Error();
         var resolve;
@@ -2618,6 +2609,277 @@ describe("Cancellation with .using", function() {
                 assert.equal(cancelled, 0);
                 assert.equal(finalled, 1);
                 assert.equal(disposerCalled, 2);
+            });
+        });
+    });
+});
+
+describe("Multi-branch cancellation", function() {
+    specify("3 branches, 1 cancels", function() {
+        var successCalls = 0;
+        var rootGotCancelled = false;
+        var resolveRoot;
+        var root = new Promise(function(resolve, __, onCancel) {
+            onCancel(function() {
+                rootGotCancelled = true;
+            });
+            resolveRoot = resolve;
+        });
+
+        var a = root.then(function() {
+            successCalls++;
+        });
+        var b = root.then(function() {
+            successCalls++;
+        });
+        var c = root.then(function() {
+            successCalls++;
+        });
+
+        return awaitLateQueue(function() {
+            b.cancel();
+        }).then(function() {
+            return awaitLateQueue(resolveRoot);
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert(!rootGotCancelled);
+                assert.equal(2, successCalls);
+            });
+        });
+    });
+
+    specify("3 branches, 3 cancels", function() {
+        var successCalls = 0;
+        var rootGotCancelled = false;
+        var resolveRoot;
+        var root = new Promise(function(resolve, __, onCancel) {
+            onCancel(function() {
+                rootGotCancelled = true;
+            });
+            resolveRoot = resolve;
+        });
+
+        var a = root.then(function() {
+            successCalls++;
+        });
+        var b = root.then(function() {
+            successCalls++;
+        });
+        var c = root.then(function() {
+            successCalls++;
+        });
+
+        return awaitLateQueue(function() {
+            a.cancel();
+            b.cancel();
+            c.cancel();
+        }).then(function() {
+            return awaitLateQueue(resolveRoot);
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert(rootGotCancelled);
+                assert.equal(0, successCalls);
+            });
+        });
+    });
+
+    specify("3 branches, root cancels", function() {
+        var successCalls = 0;
+        var rootGotCancelled = false;
+        var resolveRoot;
+        var root = new Promise(function(resolve, __, onCancel) {
+            onCancel(function() {
+                rootGotCancelled = true;
+            });
+            resolveRoot = resolve;
+        });
+
+        var a = root.then(function() {
+            successCalls++;
+        });
+        var b = root.then(function() {
+            successCalls++;
+        });
+        var c = root.then(function() {
+            successCalls++;
+        });
+
+        return awaitLateQueue(function() {
+            root.cancel();
+        }).then(function() {
+            return awaitLateQueue(resolveRoot);
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert(rootGotCancelled);
+                assert.equal(0, successCalls);
+            });
+        });
+    });
+
+    specify("3 branches, each have 3 branches, all children of b cancel", function() {
+        var successCalls = 0;
+        var rootGotCancelled = false;
+        var resolveRoot;
+        var root = new Promise(function(resolve, __, onCancel) {
+            onCancel(function() {
+                rootGotCancelled = true;
+            });
+            resolveRoot = resolve;
+        });
+
+        var a = root.then(function() {
+            successCalls++;
+        });
+
+        var a1 = a.then(function() {
+            successCalls++;
+        });
+
+        var a2 = a.then(function() {
+            successCalls++;
+        });
+
+        var a3 = a.then(function() {
+            successCalls++;
+        });
+
+        var b = root.then(function() {
+            successCalls++;
+        });
+
+        var b1 = b.then(function() {
+            successCalls++;
+        });
+
+        var b2 = b.then(function() {
+            successCalls++;
+        });
+
+        var b3 = b.then(function() {
+            successCalls++;
+        });
+
+        var c = root.then(function() {
+            successCalls++;
+        });
+
+        var c1 = c.then(function() {
+            successCalls++;
+        });
+
+        var c2 = c.then(function() {
+            successCalls++;
+        });
+
+        var c3 = c.then(function() {
+            successCalls++;
+        });
+
+        return awaitLateQueue(function() {
+            b1.cancel();
+            b2.cancel();
+            b3.cancel();
+        }).then(function() {
+            return awaitLateQueue(resolveRoot);
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert(!rootGotCancelled);
+                assert.equal(8, successCalls);
+                assert(b.isCancelled());
+                assert(b1.isCancelled());
+                assert(b2.isCancelled());
+                assert(b3.isCancelled());
+            });
+        });
+    });
+
+    specify("3 branches, each have 3 branches, all grand children cancel", function() {
+        var successCalls = 0;
+        var rootGotCancelled = false;
+        var resolveRoot;
+        var root = new Promise(function(resolve, __, onCancel) {
+            onCancel(function() {
+                rootGotCancelled = true;
+            });
+            resolveRoot = resolve;
+        });
+
+        var a = root.then(function() {
+            successCalls++;
+        });
+
+        var a1 = a.then(function() {
+            successCalls++;
+        });
+
+        var a2 = a.then(function() {
+            successCalls++;
+        });
+
+        var a3 = a.then(function() {
+            successCalls++;
+        });
+
+        var b = root.then(function() {
+            successCalls++;
+        });
+
+        var b1 = b.then(function() {
+            successCalls++;
+        });
+
+        var b2 = b.then(function() {
+            successCalls++;
+        });
+
+        var b3 = b.then(function() {
+            successCalls++;
+        });
+
+        var c = root.then(function() {
+            successCalls++;
+        });
+
+        var c1 = c.then(function() {
+            successCalls++;
+        });
+
+        var c2 = c.then(function() {
+            successCalls++;
+        });
+
+        var c3 = c.then(function() {
+            successCalls++;
+        });
+
+        return awaitLateQueue(function() {
+            a1.cancel();
+            a2.cancel();
+            a3.cancel();
+            b1.cancel();
+            b2.cancel();
+            b3.cancel();
+            c1.cancel();
+            c2.cancel();
+            c3.cancel();
+        }).then(function() {
+            return awaitLateQueue(resolveRoot);
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert(rootGotCancelled);
+                assert.equal(0, successCalls);
+                assert(a.isCancelled());
+                assert(a1.isCancelled());
+                assert(a2.isCancelled());
+                assert(a3.isCancelled());
+                assert(b.isCancelled());
+                assert(b1.isCancelled());
+                assert(b2.isCancelled());
+                assert(b3.isCancelled());
+                assert(c.isCancelled());
+                assert(c1.isCancelled());
+                assert(c2.isCancelled());
+                assert(c3.isCancelled());
             });
         });
     });

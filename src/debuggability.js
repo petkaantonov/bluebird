@@ -202,6 +202,11 @@ function cancellationPropagateFrom(parent, flags) {
     ASSERT(flags !== 0);
     if ((flags & PROPAGATE_CANCEL) !== 0) {
         this._cancellationParent = parent;
+        var branchesRemainingToCancel = parent._branchesRemainingToCancel;
+        if (branchesRemainingToCancel === undefined) {
+            branchesRemainingToCancel = 0;
+        }
+        parent._branchesRemainingToCancel = branchesRemainingToCancel + 1;
     }
     if ((flags & PROPAGATE_BIND) !== 0 && parent._isBound()) {
         this._setBoundTo(parent._boundTo);

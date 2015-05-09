@@ -17,25 +17,68 @@ Promise.prototype["break"] = Promise.prototype.cancel = function() {
     if (!debug.cancellation()) return this._warn("cancellation is disabled");
 
     var promise = this;
+    var child = promise;
     while (promise.isCancellable()) {
-        promise._invokeOnCancel(promise._onCancel(), false);
+        if (!promise._cancelBy(child)) {
+            if (child._isFollowing()) {
+                child._followee().cancel();
+            } else {
+                child._cancelBranched();
+            }
+            break;
+        }
+
         var parent = promise._cancellationParent;
         if (parent == null || !parent.isCancellable()) {
             if (promise._isFollowing()) {
                 promise._followee().cancel();
             } else {
-                promise._cancel();
+                promise._cancelBranched();
             }
             break;
         } else {
             if (promise._isFollowing()) promise._followee().cancel();
+            child = promise;
             promise = parent;
         }
     }
 };
 
+Promise.prototype._branchHasCancelled = function() {
+    ASSERT(typeof this._branchesRemainingToCancel === "number");
+    this._branchesRemainingToCancel--;
+};
+
+Promise.prototype._enoughBranchesHaveCancelled = function() {
+    return this._branchesRemainingToCancel === undefined ||
+           this._branchesRemainingToCancel <= 0;
+};
+
+Promise.prototype._cancelBy = function(canceller) {
+    if (canceller === this) {
+        this._branchesRemainingToCancel = 0;
+        this._invokeOnCancel();
+        return true;
+    } else {
+        ASSERT(canceller._cancellationParent === this);
+        this._branchHasCancelled();
+        if (this._enoughBranchesHaveCancelled()) {
+            this._invokeOnCancel();
+            return true;
+        }
+    }
+    return false;
+};
+
+Promise.prototype._cancelBranched = function() {
+    if (this._enoughBranchesHaveCancelled()) {
+        this._cancel();
+    }
+};
+
 Promise.prototype._cancel = function() {
     if (!this.isCancellable()) return;
+
     ASSERT(!this._isFollowing());
     this._setCancelled();
     async.invoke(this._cancelPromises, this, undefined);
@@ -74,11 +117,8 @@ Promise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {
     }
 };
 
-// onCancelCallback is passed in to avoid duplicating the logic of determining
-// the callback (I.E. if callback is a Promise, the callback is that promise's
-// .cancel() method, or if a callback is a PromiseArray, the callback is that
-// promiseArray's ._resultCancelled() method etc).
-Promise.prototype._invokeOnCancel = function(onCancelCallback) {
+Promise.prototype._invokeOnCancel = function() {
+    var onCancelCallback = this._onCancel();
     // The existence of onCancel handler on a promise signals that the handler
     // has not been queued for invocation yet.
     this._unsetOnCancel();
