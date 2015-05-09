@@ -180,4 +180,34 @@ describe("Promise.props", function () {
         });
     });
 
+    if (typeof Map !== "undefined") {
+        specify("works with es6 maps", function() {
+            return Promise.props(new Map([
+                ["a", Promise.resolve(1)],
+                ["b", Promise.resolve(2)],
+                ["c", Promise.resolve(3)]
+            ])).then(function(result) {
+                assert.strictEqual(result.get("a"), 1);
+                assert.strictEqual(result.get("b"), 2);
+                assert.strictEqual(result.get("c"), 3);
+            });
+        });
+
+        specify("doesn't await promise keys in es6 maps", function() {
+            var a = new Promise(function() {});
+            var b = new Promise(function() {});
+            var c = new Promise(function() {});
+
+            return Promise.props(new Map([
+                [a, Promise.resolve(1)],
+                [b, Promise.resolve(2)],
+                [c, Promise.resolve(3)]
+            ])).then(function(result) {
+                assert.strictEqual(result.get(a), 1);
+                assert.strictEqual(result.get(b), 2);
+                assert.strictEqual(result.get(c), 3);
+            });
+        });
+    }
+
 });

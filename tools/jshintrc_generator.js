@@ -12,6 +12,7 @@ var globals = fs.readFileAsync(constantsFile, "utf8").then(function(contents) {
     var m;
     var globals = {
         Symbol: false,
+        Map: false,
         JSON: false,
         Error: true,
         args: true,

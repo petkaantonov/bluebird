@@ -46,6 +46,7 @@
     "-W097": true,
     "globals": {
         "Symbol": false,
+        "Map": false,
         "JSON": false,
         "Error": true,
         "args": true,
