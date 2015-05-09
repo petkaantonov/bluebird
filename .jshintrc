@@ -96,6 +96,7 @@
         "IS_FINAL": false,
         "IS_BOUND": false,
         "IS_REJECTION_UNHANDLED": false,
+        "IS_REJECTION_IGNORED": false,
         "IS_UNHANDLED_REJECTION_NOTIFIED": false,
         "IS_DISPOSABLE": false,
         "IS_CANCELLED": false,

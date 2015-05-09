@@ -431,9 +431,14 @@ describe("immediate assert.failures with .then", function testFunction() {
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });
 
-
     specify("Promise.all many", function testFunction() {
         Promise.all([Promise.reject("err"), Promise.reject("err2")])
+            .caught(noop);
+        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+    });
+
+    specify("Promise.all many, latter async", function testFunction() {
+        Promise.all([Promise.reject("err"), Promise.delay(1).thenThrow(new Error())])
             .caught(noop);
         return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
     });

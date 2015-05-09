@@ -89,30 +89,38 @@ PromiseArray.prototype._iterate = function(values) {
     this._length = len;
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
     var promise = this._promise;
-    var isResolved;
+    var isResolved = false;
+    var bitField = null;
     for (var i = 0; i < len; ++i) {
-        isResolved = this._isResolved();
         var maybePromise = tryConvertToPromise(values[i], promise);
+
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
-            var bitField = maybePromise._bitField;
-            USE(bitField);
+            bitField = maybePromise._bitField;
+        } else {
+            bitField = null;
+        }
+
+        if (isResolved) {
+            if (bitField !== null) {
+                maybePromise._ignoreRejections();
+            }
+        } else if (bitField !== null) {
             if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 // Optimized for just passing the updates through
                 maybePromise._proxy(this, i);
                 this._values[i] = maybePromise;
-            } else if (isResolved) {
-                maybePromise._unsetRejectionIsUnhandled();
             } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
-                this._promiseFulfilled(maybePromise._value(), i);
+                isResolved = this._promiseFulfilled(maybePromise._value(), i);
             } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
-                this._promiseRejected(maybePromise._reason(), i);
+                isResolved = this._promiseRejected(maybePromise._reason(), i);
             } else {
-                this._promiseCancelled(i);
+                isResolved = this._promiseCancelled(i);
             }
-        } else if (!isResolved) {
-            this._promiseFulfilled(maybePromise, i);
+        } else {
+            isResolved = this._promiseFulfilled(maybePromise, i);
         }
+        ASSERT(typeof isResolved === "boolean");
     }
     if (!isResolved) promise._setAsyncGuaranteed();
 };
@@ -148,11 +156,14 @@ PromiseArray.prototype._promiseFulfilled = function (value, index) {
     var totalResolved = ++this._totalResolved;
     if (totalResolved >= this._length) {
         this._resolve(this._values);
+        return true;
     }
+    return false;
 };
 
 PromiseArray.prototype._promiseCancelled = function() {
     this._cancel();
+    return true;
 };
 
 PromiseArray.prototype._promiseRejected = function (reason) {
@@ -160,6 +171,7 @@ PromiseArray.prototype._promiseRejected = function (reason) {
     ASSERT(isArray(this._values));
     this._totalResolved++;
     this._reject(reason);
+    return true;
 };
 
 PromiseArray.prototype._resultCancelled = function() {

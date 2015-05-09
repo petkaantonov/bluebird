@@ -51,13 +51,13 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         if (limit >= 1) {
             this._inFlight--;
             this._drainQueue();
-            if (this._isResolved()) return;
+            if (this._isResolved()) return true;
         }
     } else {
         if (limit >= 1 && this._inFlight >= limit) {
             values[index] = value;
             this._queue.push(index);
-            return;
+            return false;
         }
         if (preservedValues !== null) preservedValues[index] = value;
 
@@ -73,7 +73,10 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
             preservedValues !== null ? "Promise.filter" : "Promise.map",
             promise
         );
-        if (ret === errorObj) return this._reject(ret.e);
+        if (ret === errorObj) {
+            this._reject(ret.e);
+            return true;
+        }
 
         // If the mapper function returned a promise we simply reuse
         // The MappingPromiseArray as a PromiseArray for round 2.
@@ -87,13 +90,16 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
             if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
                 if (limit >= 1) this._inFlight++;
                 values[index] = maybePromise;
-                return maybePromise._proxy(this, (index + 1) * -1);
+                maybePromise._proxy(this, (index + 1) * -1);
+                return false;
             } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
                 ret = maybePromise._value();
             } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
-                return this._reject(maybePromise._reason());
+                this._reject(maybePromise._reason());
+                return true;
             } else {
-                return this._cancel();
+                this._cancel();
+                return true;
             }
         }
         values[index] = ret;
@@ -105,8 +111,9 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         } else {
             this._resolve(values);
         }
-
+        return true;
     }
+    return false;
 };
 
 MappingPromiseArray.prototype._drainQueue = function () {

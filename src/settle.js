@@ -16,7 +16,9 @@ SettledPromiseArray.prototype._promiseResolved = function (index, inspection) {
     var totalResolved = ++this._totalResolved;
     if (totalResolved >= this._length) {
         this._resolve(this._values);
+        return true;
     }
+    return false;
 };
 
 //override
@@ -26,7 +28,7 @@ SettledPromiseArray.prototype._promiseFulfilled = function (value, index) {
     var ret = new PromiseInspection();
     ret._bitField = IS_FULFILLED;
     ret._settledValueField = value;
-    this._promiseResolved(index, ret);
+    return this._promiseResolved(index, ret);
 };
 //override
 SettledPromiseArray.prototype._promiseRejected = function (reason, index) {
@@ -35,7 +37,7 @@ SettledPromiseArray.prototype._promiseRejected = function (reason, index) {
     var ret = new PromiseInspection();
     ret._bitField = IS_REJECTED;
     ret._settledValueField = reason;
-    this._promiseResolved(index, ret);
+    return this._promiseResolved(index, ret);
 };
 
 Promise.settle = function (promises) {

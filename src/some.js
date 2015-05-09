@@ -63,14 +63,16 @@ SomePromiseArray.prototype._promiseFulfilled = function (value) {
         } else {
             this._resolve(this._values);
         }
+        return true;
     }
+    return false;
 
 };
 //override
 SomePromiseArray.prototype._promiseRejected = function (reason) {
     ASSERT(!this._isResolved());
     this._addRejected(reason);
-    this._checkOutcome();
+    return this._checkOutcome();
 };
 
 //override
@@ -80,7 +82,7 @@ SomePromiseArray.prototype._promiseCancelled = function () {
     }
     ASSERT(!this._isResolved());
     this._addRejected(CANCELLATION);
-    this._checkOutcome();
+    return this._checkOutcome();
 };
 
 SomePromiseArray.prototype._checkOutcome = function() {
@@ -96,7 +98,9 @@ SomePromiseArray.prototype._checkOutcome = function() {
         } else {
             this._cancel();
         }
+        return true;
     }
+    return false;
 };
 
 SomePromiseArray.prototype._fulfilled = function () {

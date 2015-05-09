@@ -81,7 +81,9 @@ PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
             }
         }
         this._resolve(val);
+        return true;
     }
+    return false;
 };
 
 // Override
