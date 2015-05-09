@@ -1,4 +1,7 @@
-#Deprecated APIs
+---
+id: deprecated_apis
+title: Deprecated APIs
+---
 
 This file contains documentation for APIs that are no longer supported by Bluebird.
 These APIs still work in Bluebird but will be removed at a future version of the library.
@@ -6,16 +9,16 @@ These APIs still work in Bluebird but will be removed at a future version of the
 For every use case that the methods below solve there exists a better alternative in [the API reference](./API.md).
 
 - [Progression](#progression)
-    - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
-    - [`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
+    - [`.progressed(Function handler)`](#.progressed)
+    - [`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#.then)
+    - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#.done)
+    - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#.fork)
 
 - [Promise resolution](#promise-resolution)
-    - [`.resolve(dynamic value)`](#resolvedynamic-value---undefined)
-    - [`.reject(dynamic reason)`](#rejectdynamic-reason---undefined)
-    - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
-    - [`.callback`](#callback---function)
+    - [`.resolve(dynamic value)`](#.resolve)
+    - [`.reject(dynamic reason)`](#.reject)
+    - [`.progress(dynamic value)`](#.progress)
+    - [`.callback`](#.callback)
 
 
 
@@ -28,7 +31,7 @@ See [Progression Migration](./API.md#progression-migration) for migration assist
 #####`.progressed(Function handler)` -> `Promise`
 
 
-Shorthand for `.then(null, null, handler);`. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
+Shorthand for [`.then(null, null, handler);`](.). Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.
 
 <hr>
 
@@ -41,14 +44,14 @@ The standard [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-sp
 
 #####`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `void`
 
-Like `.then()`, but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. `.done` is still fully supported.
+Like [`.then()`](.), but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. `.done` is still fully supported.
 
 <hr>
 
 
 #####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
-Like `.then()`, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
+Like [`.then()`](.), but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
 
 <hr>
 
@@ -82,8 +85,7 @@ Progress the underlying promise with `value` as the progression value.
 Example
 
 ```js
-function delay(ms) {
-    var resolver = Promise.defer();
+function delay(ms) {    var resolver = Promise.defer();
     var now = Date.now();
     setTimeout(function(){
         resolver.resolve(Date.now() - now);
