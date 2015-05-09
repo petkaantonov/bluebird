@@ -5,17 +5,17 @@ title: Coming From Other Languages
 
 This page describes parallels of using promises in other languages. Promises as a pattern are very common in other languages and knowing what they map to in other languages might help you with grasping them conceptually
 
- - C#
- - Scala
- - Python
- - C++
- - Haskell
- - Java 8
- - Android Java
- - Objective-C
+ - [C#](#c)
+ - [Scala](#scala)
+ - [Python](#python)
+ - [C++](#c-plus-plus)
+ - [Haskell](#haskell)
+ - [Java](#java)
+ - [Android Java](#android-java)
+ - [Objective-C](#objective-c)
 
 
-##C#
+## C&#35;
 
 A promise is similar to a C# `Task`. They both represent the result of an operation.
 
@@ -51,7 +51,7 @@ A promise is _not_ similar to a Python `concurrent.Future` which does not chain 
 
 Asyncio coroutines are similar to bluebird coroutines in what they let you do, however bluebird coroutines also enable functional-style chaining.
 
-##C++
+##C Plus Plus
 
 A bluebird promise is similar to a `std::future` and the promise constructor is similar to an `std::promise` although it should rarely be used in practice (see the promisification section).
 
