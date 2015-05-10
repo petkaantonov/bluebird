@@ -1,83 +1,194 @@
 ---
 id: coming-from-other-libraries
-title: Coming From Other Libraries
+title: Coming from Other Libraries
 ---
 
-This page is a reference for migrating to bluebird from other flow control or promise libraries.
+This page is a reference for migrating to bluebird from other flow control or promise libraries. See [installation](install.html) on how to use bluebird in your environment.
 
- - Coming from native promises
- - Coming from jQuery deferreds
- - Coming from `async`
- - Coming from Q/Vow/RSVP
- - Coming from co/koa
- - Coming from highland, RxJS or BaconJS
+ - [Coming from native promises](#coming-from-native-promises)
+ - [Coming from jQuery deferreds](#coming-from-jquery-deferreds)
+ - [Coming from `async` module](#coming-from-async-module)
+ - [Coming from Q](#coming-from-q)
+ - [Coming from co/koa](#coming-from-co)
+ - [Coming from highland, RxJS or BaconJS](#coming-from-highland)
 
 ##Coming from native promises
 
-This is probably the easiest transition since bluebird promises are typically a drop-in replacement for native promises. You should notice more informative error messages, lower memory consumption and a performance boost in addition to the richer API right away.
+Bluebird promises are a drop-in replacement for native promises except for subclassing. Additionally you might want to replace usages of the often incorrectly used [Promise.race](.) with bluebird's [Promise.any](.) which does what is usually mistakenly expected from [Promise.race](.). For maximum compatibility, bluebird does provide [Promise.race](.) with ES6 semantics.
 
-In some modes in some browsers, the native `Promise` object can't be overridden - if you're using bluebird in a browser without a module loading system - a global `P` will be exported in addition.
-
-Typically, all you have to do is:
-
-```js
-import Promise from "bluebird" // ES6
-var Promise = require("bluebird"); // nodejs
-define(["./bluebird"], function(Promise){..}) // amd
-```
-
-Things will work right away, you can keep consuming native promises in bluebird and transition gradually.
-
-One difference is automatic promisification - see the [working with callbacks section]("/working-with-callbacks.html") on how you can greatly improve the performance of APIs you're consuming in node.
-
-Bluebird also provides cancellation which native promises currently do not support.
+You can also refactor some looping patterns to a more natural form that would [leak memory when using native promises](https://github.com/promises-aplus/promises-spec/issues/179).
 
 ##Coming from jQuery deferreds
 
-Bluebird promises solve many issues [inherent to jQuery deferreds](http://stackoverflow.com/questions/23744612/problems-inherent-to-jquery-deferred).
+Bluebird treats jQuery deferreds and promises interchangeably. Wherever you can take a promise or return a promise, you can take or return a jQuery deferred instead and it works the same.
 
-Bluebird promises are throw safe and generally chain better. They comply to the Promises/A+ specification and generally behave well giving asynchronous guarantees jQuery deferreds do not offer.
+For instance, there is no need to write something like this:
 
-Creation of a deferred is handled by the promise constructor. Please see the [working with callbacks section]("/working-with-callbacks.html") on how to work with it.
+```js
+var firstRequest = new Promise(function(resolve, reject) {
+    $.ajax({...}).done(resolve).fail(reject);
+});
+var secondRequest = new Promise(function(resolve, reject) {
+    $.ajax({...}).done(resolve).fail(reject);
+});
 
-Also see [You're missing the point of promises!](https://blog.domenic.me/youre-missing-the-point-of-promises/).
+Promise.all([firstRequest, secondRequest]).then(function() {
+    // ...
+});
+```
 
-It is worth mentioning that bluebird promises can assimilate jQuery promises/deferreds just fine, you can `Promise.resolve` a jQuery deferred or return it from a `then`.
+Since [Promise.all](.) takes promises, it must also take jQuery deferreds, so the above can be shortened to:
 
-##Coming from `async`
+```js
+var firstRequest = $.ajax({...});
+var secondRequest = $.ajax({...});
 
-Bluebird typically makes usage of libraries like `async` redundant. Not only does it perform better - since promises are a primitive they allow for easy chaining and composition.
+Promise.all([firstRequest, secondRequest]).then(function() {
+    // ...
+});
+```
 
- - `async.map/filter` is handled by `Promise.map/filter`.
- - `async.parallel` and `async.each` is handled by running the actions and `Promise.all`ing the promises
- - `async.eachSeries` and `async.series` are handled by `Promise.each` or `Promise.map` with the concurrency parameter.
- - `async.reduce` is handled by `Promise.reduce`.
+That said, if you have code written using jQuery deferred methods, such as `.then`, `.done` and so on, you cannot drop-in replace the jQuery deferred with a bluebird promise in that code. Despite having the same names, jQuery deferred methods have different semantics than bluebird promise methods. These differences are due to the completely different goals of the implementations. Bluebird is [an internal DSL](http://en.wikipedia.org/wiki/Domain-specific_language) for the domain of asynchronous control flow while jQuery deferreds are a callback aggregator utility ("glorified event emitters").
 
-If you have any specific migration questions or APIs you can't find please let us know.
+If you do have some code using jQuery deferred methods extensively try to see if some of these jQuery deferred patterns and their replacements can be applied:
 
-##Coming from Q/Vow/RSVP/When
+```js
+// jQuery
+$.when.apply($, someArray).then(...)
+// bluebird
+Promise.all(someArray).then(...)
+```
 
-Generally, bluebird offers a superset of the features of these libraries, providing more pragmatic and modern APIs whenever possible.
+```js
+// jQuery
+var data = [1,2,3,4];
+var processItemsDeferred = [];
 
-In general bluebird passes the tests of these libraries. [See this issue in particular for migration help](https://github.com/petkaantonov/bluebird/issues/63)
+for(var i = 0; i < data.length; i++) {
+  processItemsDeferred.push(processItem(data[i]));
+}
+
+$.when.apply($, processItemsDeferred).then(everythingDone);
+
+// bluebird
+var data = [1,2,3,4];
+Promise.map(data, function(item) {
+    return processItem(item);
+}).then(everythingDone);
+```
+
+```js
+// jQuery
+var d = $.Deferred();
+d.resolve("value");
+// bluebird
+var d = Promise.resolve("value");
+```
+
+```js
+// jQuery
+var d = $.Deferred();
+d.reject(new Error("error"));
+// bluebird
+var d = Promise.reject(new Error("error"));
+```
+
+```js
+// jQuery
+var clicked = $.Deferred();
+$("body").one("click", function(e) {
+    clicked.resolve(e);
+});
+// bluebird
+var clicked = new Promise(function(resolve) {
+    $("body").one("click", resolve);
+});
+```
+
+```js
+// jQuery
+.always(removeSpinner);
+// bluebird
+.finally(removeSpinner);
+```
+
+##Coming from `async` module
+
+Due to how promises compose and work naturally with the language, you can get the utility otherwise provided by a thousand narrow inflexible helper functions by just combining and composing a few existing functions and concepts.
+
+This section lists the most common async module replacements.
+
+###`async.waterfall`
+
+If the waterfall elements are static, you can just replace it with a normal promise chain. For waterfalls with dynamic steps, use [Promise.each](.).
+
+###`async.series`
+
+If the series elements are static, you can just replace it with a normal promise chain. For series with dynamic steps, use [Promise.each](.).
+
+###`async.parallel`
+
+[Promise.all](.)
+
+###`async.mapSeries`
+
+[Promise.each](.)
+
+###`async.map`
+
+[Promise.map](.)
+
+###`async.whilst`
+
+Recursion. E.g.
+
+```js
+var count = 0;
+async.whilst(
+    function () { return count < 5; },
+    function (callback) {
+        count++;
+        setTimeout(callback, 1000);
+    },
+    function (err) {
+        // 5 seconds have passed
+    }
+);
+```
+```js
+(function loop() {
+    if (count < 5) {
+        count++;
+        return Promise.delay(1000).then(loop);
+    }
+    return Promise.resolve();
+})().then(function() {
+    // 5 seconds have passed
+});
+```
+
+Basically almost the whole `async` library can be expressed with some combination of [Promise.each](.), [Promise.map](.) or just plain promise usage combined with standard language features such as recursion.
+
+
+##Coming from Q
+
+Q and bluebird share a lot of common methods that nevertheless have different names:
+
+- `Q(...)` -> [Promise.resolve()](.)
+- `.fail()` -> [.catch()](.) or `.caught()`
+- `.fin()` -> [.finally()](.) or `.lastly()`
+- `Q.fcall()` -> [Promise.try](.) or `Promise.attempt()`
+- `.thenResolve()` -> [.return()](.) or `.thenReturn()`
+- `.thenReject()` -> [.throw()](.) or `thenThrow()`
 
 ##Coming from co/koa
 
 In recent versions generator libraries started abandoning old ideas of special tokens passed to callbacks and started using promises for what's being yielded.
 
-Bluebird's `Promise.coroutine` is a generally faster version of these libraries and since you need to be yielding promises anyway - you might as well use it. It's also more extensible and supports cancellation.
-
+Bluebird's [Promise.coroutine](.) is a superset of the `co` library, being more extensible as well as supporting cancellation (in environments where [`Generator#return`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) is implemented).
 
 ##Coming from highland, RxJS or BaconJS
 
 Stream libraries tend to serve a different purpose than promise libraries. Unlike promise libraries streams can represent multiple values.
-
-That said, there are some people who think using streams for a single result is a good idea. These are the same people who think `Math.sin` should return an array of a single element, maybe.
-
-Unlike streams promises are always multicast, always cold and always cached greatly simplifying the API surface.
-
-If you're used to observables - promises should be a fun breeze to use. Not only are they much faster and create less overhead, they provide more debugging information and a simpler mental model to explain to the next guy.
-
-Where you'd create a single observable, run it with a microtask scheduler, took one value, and broadcasted it - simply create a promise. Promises are immutable values + time.
 
 Check out the benchmarks section for examples of transitioning an API from Bacon/Rx to promises.

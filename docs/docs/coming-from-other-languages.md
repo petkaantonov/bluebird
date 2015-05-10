@@ -1,6 +1,6 @@
 ---
 id: coming-from-other-languages
-title: Coming From Other Languages
+title: Coming from Other Languages
 ---
 
 This page describes parallels of using promises in other languages. Promises as a pattern are very common in other languages and knowing what they map to in other languages might help you with grasping them conceptually
@@ -8,7 +8,7 @@ This page describes parallels of using promises in other languages. Promises as 
  - [C#](#c)
  - [Scala](#scala)
  - [Python](#python)
- - [C++](#c-plus-plus)
+ - [C++](#c)
  - [Haskell](#haskell)
  - [Java](#java)
  - [Android Java](#android-java)
@@ -19,11 +19,11 @@ This page describes parallels of using promises in other languages. Promises as 
 
 A promise is similar to a C# `Task`. They both represent the result of an operation.
 
-A promise's `then` method is similar to a Task's `ContinueWith` method in that both allow attaching a continuation to the promise. Bluebird's `Promise.coroutine` is analogous to C#'s `async/await` syntax.
+A promise's `then` method is similar to a Task's `ContinueWith` method in that both allow attaching a continuation to the promise. Bluebird's [Promise.coroutine](.) is analogous to C#'s `async/await` syntax.
 
 A `TaskCompletionSource` is analogous to the promise constructor. Although usually promisification is preferred (see the API reference or working with callbacks section).
 
-`Task.FromResult` is analogous to `Promise.resolve`.
+`Task.FromResult` is analogous to [Promise.resolve](.).
 
 The difference between a `Task` and a promise are that a task might not be started and might require a `.Start` call where a promise always represents an already started operation.
 
@@ -51,7 +51,7 @@ A promise is _not_ similar to a Python `concurrent.Future` which does not chain 
 
 Asyncio coroutines are similar to bluebird coroutines in what they let you do, however bluebird coroutines also enable functional-style chaining.
 
-##C Plus Plus
+##C++
 
 A bluebird promise is similar to a `std::future` and the promise constructor is similar to an `std::promise` although it should rarely be used in practice (see the promisification section).
 

@@ -1,6 +1,6 @@
 ---
 id: working-with-callbacks
-title: Working With Callbacks
+title: Working with Callbacks
 ---
 
 This page explains how to interface your code with existing callback APIs and libraries you're using. We'll see that making bluebird work with callback APIs is not only easy - it's also fast.
@@ -14,7 +14,7 @@ Promises have state, they start as pending and can settle to:
  - __fulfilled__ meaning that the computation completed successfully.
  - __rejected__ meaning that the computation failed.
 
-Promise returning functions _should never throw_, they should return rejections instead. Throwing from a promise returning function will force you to use both a `} catch { ` _and_ a `.catch`. People using promisified APIs do not expect promises to throw. If you're not sure how async APIs work in JS - please [see this answer](http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-asynchronous-call/16825593#16825593) first.
+Promise returning functions _should never throw_, they should always successfully return a promise which is rejected in the case of an error. Throwing from a promise returning function will force you to use both a `} catch { ` _and_ a `.catch`. People using promisified APIs do not expect promises to throw. If you're not sure how async APIs work in JS - please [see this answer](http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-asynchronous-call/16825593#16825593) first.
 
  * [Automatic vs. Manual conversion](#automatic-vs.-manual-conversion)
  * [Working with callback APIs using the Node convention](#working-with-callback-apis-using-the-node-convention)
@@ -35,20 +35,24 @@ Promises provide a lot of really cool and powerful guarantees like throw safety 
 
 ###Working with callback APIs using the Node convention
 
-In Node/io.js most APIs follow a convention of 'error-first, single-parameter' as such:
+In Node/io.js most APIs follow a convention of ['error-first, single-parameter'](https://gist.github.com/CrabDude/10907185) as such:
 
 ```js
-function getStuff(dat,callback){
-...
-getStuff("dataParam",function(err,data){
-
+function getStuff(data, callback) {
+    ...
 }
+
+getStuff("dataParam", function(err, data) {
+    if (!err) {
+
+    }
+});
 ```
 
 This APIs are what most core modules in Node/io use and bluebird comes with a fast and efficient way to convert them to promise based APIs through the `Promise.promisify` and `Promise.promisifyAll` function calls.
 
- - [`Promise.promisify`](/api-reference.html#promise.promisify) - converts a _single_ callback taking function into a promise returning function. It does not alter the original function and returns the modified version.
- - [`Promise.promisifyAll`](/api-reference.html#promise.promisifyall) - takes an _object_ full of functions and _converts each function_ into the new one with the `Async` suffix (by default). It does not change the original functions but instead adds new ones.
+ - [Promise.promisify](.) - converts a _single_ callback taking function into a promise returning function. It does not alter the original function and returns the modified version.
+ - [Promise.promisifyAll](.) - takes an _object_ full of functions and _converts each function_ into the new one with the `Async` suffix (by default). It does not change the original functions but instead adds new ones.
 
 > **Note** - please check the linked docs for more parameters and usage examples.
 
@@ -57,7 +61,7 @@ Here's an example of `fs.readFile` with or without promises:
 ```js
 // callbacks
 var fs = require("fs");
-fs.readFile("name", "utf8", function(err, data){
+fs.readFile("name", "utf8", function(err, data) {
 
 });
 ```
@@ -66,60 +70,58 @@ Promises:
 
 ```js
 var fs = Promise.promisifyAll(require("fs"));
-fs.readFileAsync("name", "utf8").then(function(data){
+fs.readFileAsync("name", "utf8").then(function(data) {
 
 });
 ```
 
-Note the async suffix was added. Single functions can also be promisified for example:
+Note the new method is suffixed with `Async`, as in `fs.readFileAsync`. It did not replace the `fs.readFile` function. Single functions can also be promisified for example:
 
 ```js
 var request = Promise.promisify(require("request"));
-request("foo.bar").then(function(result){
+request("foo.bar").then(function(result) {
 
 });
 ```
 
-> **Note** `Promise.promisify` and `Promise.promisifyAll` use dynamic recompilation for really fast wrappers and thus calling them should be done only once. [`Promise.fromCallback`](/api-reference.html#promise.fromcallback) exists for cases this is not possible.
+> **Note** `Promise.promisify` and `Promise.promisifyAll` use dynamic recompilation for really fast wrappers and thus calling them should be done only once. [Promise.fromCallback](.) exists for cases where this is not possible.
 
 ###Working with one time events
 
-Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use the [promise constructor](http://localhost:4000/bluebird/web/docs/api-reference.html#new-promise). Note that this option should be considered only if [automatic conversion](#working-with-callback-apis-using-the-node-convention) isn't possible.
+Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use [new Promise](.). Note that this option should be considered only if [automatic conversion](#working-with-callback-apis-using-the-node-convention) isn't possible.
 
 Note that promises model a _single value through time_, they only resolve _once_ - so while they're a good fit for a single event, they are not recommended for multiple event APIs.
 
 For example, let's say you have a window `onload` event you want to bind to. We can use the promise construction and resolve when the window has loaded as such:
 
 ```js
+// onload example, the promise constructor takes a
+// 'resolver' function that tells the promise when
+// to resolve and fire off its `then` handlers.
+var loaded = new Promise(function(resolve, reject) {
+    window.addEventListener("load", resolve);
+});
 
-    // onload example, the promise constructor takes a
-    // 'resolver' function that tells the promise when
-    // to resolve and fire off its `then` handlers.
-    var loaded = new Promise(function(resolve, reject){
-        window.addEventListener("load", resolve);
-    });
-
-    loaded.then(function(){
-        // window is loaded here
-    })
-
+loaded.then(function() {
+    // window is loaded here
+});
 ```
 
 Here is another example with an API that lets us know when when a connection is ready. The attempt here is imperfect and we'll describe why soon:
 
 ```js
-function connect(){
-   var connection = myConnector.getConnection(); //sync
-   return new Promise(function(resolve, reject){
-        connection.on("ready", function(){
-            // when a connection has been established
-            // mark the promise as fulfilled
+function connect() {
+   var connection = myConnector.getConnection();  // Synchronous.
+   return new Promise(function(resolve, reject) {
+        connection.on("ready", function() {
+            // When a connection has been established
+            // mark the promise as fulfilled.
             resolve(connection);
         });
-        connection.on("error", function(e){
-            // if it failed connecting, mark it
+        connection.on("error", function(e) {
+            // If it failed connecting, mark it
             // as rejected.
-            reject(e); // e is preferably an `Error`
+            reject(e);  // e is preferably an `Error`.
         });
    });
 }
@@ -128,39 +130,40 @@ function connect(){
 The problem with the above is that `getConnection` itself might throw for some reason and if it does we'll get a synchronous rejection. An asynchronous operation should always be asynchronous to prevent double guarding and race conditions so it's best to always put the sync parts inside the promise constructor as such:
 
 ```js
-function connect(){
-   return new Promise(function(resolve, reject){
-        // if getConnection throws here instead of getting
+function connect() {
+   return new Promise(function(resolve, reject) {
+        // If getConnection throws here instead of getting
         // an exception we're getting a rejection thus
         // producing a much more consistent API.
-        var connection = myConnector.getConnection()connection.on("ready", function(){
-            // when a connection has been established
-            // mark the promise as fulfilled
+        var connection = myConnector.getConnection();
+        connection.on("ready", function() {
+            // When a connection has been established
+            // mark the promise as fulfilled.
             resolve(connection);
         });
-        connection.on("error", function(e){
-            // if it failed connecting, mark it
+        connection.on("error", function(e) {
+            // If it failed connecting, mark it
             // as rejected.
-            reject(e); // e is preferably an `Error`
+            reject(e); //  e is preferably an `Error`
         });
    });
 }
 ```
 ###Working with delays/setTimeout
 
-There is no need to convert timeouts/delays to a bluebird API, bluebird already ships with the [`Promise.delay`](/api-reference.html#.delay) function for this use case. Please consult the [Timers section](/api-reference.html#timers) of the docs on usage and examples.
+There is no need to convert timeouts/delays to a bluebird API, bluebird already ships with the [Promise.delay](.) function for this use case. Please consult the [timers](.) section of the docs on usage and examples.
 
 ###Working with browser APIs
 
-Often browser APIs are nonstandard and automatic promisification will fail for them. If you're running into an API that you can't promisify with `promisify` and `promisifyAll` - please consult the [working with other APIs section](#working-with-any-other-apis)
+Often browser APIs are nonstandard and automatic promisification will fail for them. If you're running into an API that you can't promisify with [promisify](.) and [promisifyAll](.) - please consult the [working with other APIs section](#working-with-any-other-apis)
 
 ###Working with databases
 
-For resource management in general and databases in particular, bluebird includes the powerful  [`Promise.using`](/api-reference.html#promise.using) and disposers system. This is similar to `with` in Python, `using` in C# or try/resource in Java in that it lets you handle resource management in an automatic way.
+For resource management in general and databases in particular, bluebird includes the powerful  [Promise.using](.) and disposers system. This is similar to `with` in Python, `using` in C#, try/resource in Java or RAII in C++ in that it lets you handle resource management in an automatic way.
 
 Several examples of databases follow.
 
-> **Note** for more examples please see the [`Promise.using`](/api-reference.html#promise.using) section.
+> **Note** for more examples please see the [Promise.using](.) section.
 
 ####Mongoose/MongoDB
 
@@ -191,7 +194,7 @@ Here is how to create a disposer for the PostgreSQL driver:
 
 ```js
 var pg = require("pg");
-// Uncomment if pg has not been properly promisified yet
+// Uncomment if pg has not been properly promisified yet.
 //var Promise = require("bluebird");
 //Promise.promisifyAll(pg, {
 //    filter: function(methodName) {
@@ -199,7 +202,7 @@ var pg = require("pg");
 //    },
 //    multiArgs: true
 //});
-// Promisify rest of pg normally
+// Promisify rest of pg normally.
 //Promise.promisifyAll(pg);
 
 function getSqlConnection(connectionString) {
@@ -220,10 +223,10 @@ Which would allow you to use:
 ```js
 var using = Promise.using;
 
-using(getSqlConnection(), function(conn){
+using(getSqlConnection(), function(conn) {
     // use connection here and _return the promise_
 
-}).then(function(result){
+}).then(function(result) {
     // connection already disposed here
 
 });
@@ -438,22 +441,22 @@ Promise.promisifyAll(Object.getPrototypeOf(throwAwayInstance));
 
 ###Working with any other APIs
 
-Sometimes you have to work with APIs that are inconsistent and do not follow any convention.
+Sometimes you have to work with APIs that are inconsistent and do not follow a common convention.
 
 > **Note** Promise returning function should never throw
 
 For example, something like:
 
 ```js
-function getUserData(userId, onLoad, onFail){ ...
+function getUserData(userId, onLoad, onFail) { ...
 ```
 
 We can use the promise constructor to convert it to a promise returning function:
 
 ```js
-function getUserDataAsync(userId){
-    return new Promise(function(resolve, reject){
-        // put all your code here, this section is throw-safe
+function getUserDataAsync(userId) {
+    return new Promise(function(resolve, reject) {
+        // Put all your code here, this section is throw-safe.
         getUserData(userId, resolve, reject);
     });
 }
