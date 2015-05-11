@@ -6,13 +6,6 @@ var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var async = Promise._async;
 
-Promise.prototype.cancelAfter = function(ms) {
-    var self = this;
-    setTimeout(function() {
-        self.cancel();
-    }, ms);
-};
-
 Promise.prototype["break"] = Promise.prototype.cancel = function() {
     if (!debug.cancellation()) return this._warn("cancellation is disabled");
 
