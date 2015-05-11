@@ -25,6 +25,7 @@ title: API Reference
     - [.isFulfilled](#.isfulfilled)
     - [.isRejected](#.isrejected)
     - [.isPending](#.ispending)
+    - [.isCancelled](#.iscancelled)
     - [.value](#.value)
     - [.reason](#.reason)
 - [Collections](#collections)
@@ -49,10 +50,7 @@ title: API Reference
     - [.delay](#.delay)
     - [.timeout](#.timeout)
 - [Cancellation](#cancellation)
-    - [.cancellable](#.cancellable)
-    - [.uncancellable](#.uncancellable)
     - [.cancel](#.cancel)
-    - [.isCancellable](#.iscancellable)
 - [Generators](#generators)
     - [Promise.coroutine](#promise.coroutine)
     - [Promise.coroutine.addYieldHandler](#promise.coroutine.addyieldhandler)
@@ -894,6 +892,7 @@ interface PromiseInspection {
     boolean pending()
     boolean isRejected()
     boolean isFulfilled()
+    boolean isCancelled()
 }
 ```
 
@@ -917,8 +916,17 @@ See if this `promise` has been fulfilled.
 .isRejected() -> boolean
 ```
 
-
 See if this `promise` has been rejected.
+
+<hr>
+
+##.isCancelled
+
+```js
+.isCancelled() -> boolean
+```
+
+See if this `promise` has been cancelled.
 
 <hr>
 
@@ -929,7 +937,7 @@ See if this `promise` has been rejected.
 ```
 
 
-See if this `promise` is pending (not fulfilled or rejected).
+See if this `promise` is pending (not fulfilled or rejected or cancelled).
 
 <hr>
 
@@ -2291,45 +2299,23 @@ Methods to delay and time promises out.
 .timeout(
     int ms,
     [String message="operation timed out"]
-) -> CancellablePromise
+) -> Promise
 ```
 
 
-Returns a undefined promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is cancelled with a [`TimeoutError`](.) as the cancellation reason.
+Returns a promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is rejected with a [`TimeoutError`](.) as the reason.
 
 You may specify a custom error message with the `message` parameter.
 
-The example function `fetchContent` doesn't leave the ongoing http request in the background in case the request cancelled from outside, either manually or through a timeout.
 
 ```js
-// Assumes TimeoutError and CancellationError are both globally available
-function fetchContent() {
-    var jqXHR = $.get("http://www.slowpage.com");
-    // Resolve the jQuery promise into a bluebird promise
-    return Promise.resolve(jqXHR)
-        .cancellable()
-        .catch(TimeoutError, CancellationError, function(e) {
-            jqXHR.abort();
-            // Don't swallow it
-            throw e;
-        })
-}
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require('fs'));
+fs.readFileAsync("huge-file.txt").timeout(100).then(function(fileContents) {
 
-function fetchContentWith5Retries(retries) {
-    retries = retries || 0;
-    return fetchContent()
-        .then(function(result) {
-            //..
-        })
-        .timeout(100)
-        .catch(TimeoutError, function(e) {
-            if (retries < 5) {
-                return fetchContentWith5Retries(retries + 1);
-            }
-            else {
-                throw new Error("couldn't fetch content after 5 timeouts");
-            }
-        })
+}).catch(Promise.TimeoutError, function(e) {
+    console.log("could not read file within 100ms");
+});
 ```
 
 <hr>
@@ -2370,80 +2356,102 @@ Promise.delay(500).then(function() {
 
 ##Cancellation
 
-By default, a promise is not cancellable. A promise can be marked as cancellable with [`.cancellable`](.). A cancellable promise can be cancelled if it's not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with the given reason, or [`CancellationError`](.) by default. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described [here](https://github.com/promises-aplus/cancellation-spec/issues/7).
+Cancellation has been redesigned for bluebird 3.x, any code that relies on 2.x cancellation semantics won't work in 3.x.
 
-Promises marked with [`.cancellable`](.) return cancellable promises automatically.
+The cancellation feature is **by default turned off**, you can enable it using [Promise.config](.).
 
-If you are the resolver for a promise, you can react to a cancel in your promise by catching the [`CancellationError`](.):
+The new cancellation has "don't care" semantics while the old cancellation had abort semantics. Cancelling a promise simply means that its handler callbacks will not be called.
+
+The advantages of the new cancellation compared to the old cancellation are:
+
+- [.cancel()](.) is synchronous.
+- no setup code required to make cancellation work
+- composes with other bluebird features, like [Promise.all](.).
+- [reasonable semantics for multiple consumer cancellation](#what-about-promises-that-have-multiple-consumers)
+
+As an optimization, the cancellation signal propagates upwards the promise chain so that an ongoing operation e.g. network request can be aborted. However, *not* aborting the network request still doesn't make any operational difference as the callbacks are still not called either way.
+
+You may register an optional cancellation hook at a root promise by using the `onCancel` argument that is passed to the executor function when cancellation is enabled:
 
 ```js
-function ajaxGetAsync(url) {
-    var xhr = new XMLHttpRequest;
-    return new Promise(function (resolve, reject) {
-        xhr.addEventListener("error", reject);
-        xhr.addEventListener("load", resolve);
-        xhr.open("GET", url);
+function makeCancellableRequest(url) {
+    return new Promise(function(resolve, reject, onCancel) {
+        var xhr = new XMLHttpRequest();
+        xhr.on("load", resolve);
+        xhr.on("error", reject);
+        xhr.open("GET", url, true);
         xhr.send(null);
-    }).cancellable().catch(Promise.CancellationError, function(e) {
-        xhr.abort();
-        throw e; //Don't swallow it
+        // Note the onCancel argument only exists if cancellation has been enabled!
+        onCancel(function() {
+            xhr.abort();
+        });
     });
 }
 ```
+
+Note that the `onCancel` hook is really an optional disconnected optimization, there is no real requirement to register any cancellation hooks for cancellation to work. As such, any errors that may occur while inside the `onCancel` callback are not caught and turned into rejections.
+
+Example:
+
+```js
+var searchPromise = Promise.resolve();  // Dummy promise to avoid null check.
+document.querySelector("#search-input").addEventListener("input", function() {
+    // The handlers of the previous request must not be called
+    searchPromise.cancel();
+    var url = "/search?term=" + encodeURIComponent(this.value.trim());
+    showSpinner();
+    searchPromise = makeCancellableRequest(url)
+        .then(function(results) {
+            return transformData(results);
+        })
+        .then(function(transformedData) {
+            document.querySelector("#search-results").innerHTML = transformedData;
+        })
+        .catch(function(e) {
+            document.querySelector("#search-results").innerHTML = renderErrorBox(e);
+        })
+        .finally(function() {
+            // This check is necessary because `.finally` handlers are always called.
+            if (!searchPromise.isCancelled()) {
+                hideSpinner();
+            }
+        });
+});
+
+```
+
+As shown in the example the handlers registered with `.finally` are called even if the promise is cancelled. Another such exception is [.reflect()](.). No other types of handlers will be called in case of cancellation. This means that in `.then(onSuccess, onFailure)` neither `onSuccess` or `onFailure` handler is called. This is similar to how [`Generator#return`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return) works - only active `finally` blocks are executed and then the generator exits.
+
+###What about promises that have multiple consumers?
+
+It is often said that promises cannot be cancellable beacuse they can have multiple consumers.
+
+For instance:
+
+```js
+var result = makeCancellableRequest(...);
+
+var firstConsumer = result.then(...);
+var secondConsumer = result.then(...);
+```
+
+Even though in practice most users of promises will never have any need to take advantage of the fact that you can attach multiple consumers to a promise, it is nevertheless possible. The problem: "what should happen if [.cancel()](.) is called on `firstConsumer`?" Propagating the cancellation signal (and therefore making it abort the request) would be very bad as the second consumer might still be interested in the result despite the first consumer's disinterest.
+
+What actually happens is that `result` keeps track of how many consumers it has, in this case 2, and only if all the consumers signal cancel will the request be aborted. However, as far as `firstConsumer` can tell, the promise was successfully cancelled and its handlers will not be called.
+
+Note that it is an error to consume an already cancelled promise, doing such a thing will give you a promise that is rejected with `new CancellationError("late cancellation observer")` as the rejection reason.
 
 <hr>
 
 <div class="api-code-section"><markdown>
 
-##.cancellable
-
-```js
-.cancellable() -> CancellablePromise
-```
-
-
-Marks this promise as cancellable. Promises by default are not cancellable after v0.11 and must be marked as such for [`.cancel`](.) to have any effect. Marking a promise as cancellable is infectious and you don't need to remark any descendant promise.
-
-If you have code written prior v0.11 using cancellation, add calls to [`.cancellable`](.) at the starts of promise chains that need to support
-cancellation in themselves or somewhere in their descendants.
-
-<hr>
-
-##.uncancellable
-
-```js
-.uncancellable() -> Promise
-```
-
-
-Create an uncancellable promise based on this promise.
-
-<hr>
-
 ##.cancel
 
 ```js
-.cancel([Error reason=new CancellationError()]) -> undefined
+.cancel() -> undefined
 ```
 
-
-Cancel this promise with the given reason. The cancellation will propagate
-to farthest cancellable ancestor promise which is still pending.
-
-That ancestor will then be rejected with the given `reason`, or a [`CancellationError`](.) if it is not given. (get a reference from `Promise.CancellationError`) object as the rejection reason.
-
-Promises are by default not cancellable. Use [`.cancellable`](.) to mark a promise as cancellable.
-
-<hr>
-
-##.isCancellable
-
-```js
-.isCancellable() -> boolean
-```
-
-
-See if this promise can be cancelled.
+Cancel this promise. Will not do anything if this promise is already settled or if the [Cancellation](.) feature has not been enabled. See [Cancellation](.) for how to use cancellation.
 
 <hr>
 
@@ -3283,16 +3291,21 @@ On client side, long stack traces currently only work in recent Firefoxes, Chrom
 ```js
 Promise.config(Object {
     warnings: boolean=false,
-    longStackTraces: boolean=false
+    longStackTraces: boolean=false,
+    cancellation: boolean=false
 } options) -> undefined;
 ```
 
-Configure long stack traces and warnings.
+Configure long stack traces, warnings and cancellation.
 
 ```js
 Promise.config({
+    // Enable warnings.
     warnings: true,
-    longStackTraces: true
+    // Enable long stack traces.
+    longStackTraces: true,
+    // Enable cancellation.
+    cancellation: true
 });
 ```
 
