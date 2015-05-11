@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Error Explanations | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/error-explanations.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/error-explanations.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Error Explanations</h1>
+  </header>
+
+  <article class="post-content">
+    <ul>
+<li>                <a href="#error-promise.promisify-called-on-an-object" title="">Error: Promise.promisify called on an object</a></li>
+<li>                <a href="#error-the-promise-constructor-requires-a-resolver-function" title="">Error: the promise constructor requires a resolver function</a></li>
+<li>                <a href="#error-the-promise-constructor-cannot-be-invoked-directly" title="">Error: the promise constructor cannot be invoked directly</a></li>
+<li>                <a href="#error-expecting-an-array-a-promise-or-a-thenable" title="">Error: expecting an array, a promise or a thenable</a></li>
+<li>                <a href="#error-generatorfunction-must-be-a-function" title="">Error: generatorFunction must be a function</a></li>
+<li>                <a href="#error-fn-must-be-a-function" title="">Error: fn must be a function</a></li>
+<li>                <a href="#error-cannot-enable-long-stack-traces-after-promises-have-been-created" title="">Error: cannot enable long stack traces after promises have been created</a></li>
+<li>                <a href="#error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise" title="">Error: cannot get fulfillment value of a non-fulfilled promise</a></li>
+<li>                <a href="#error-cannot-get-rejection-reason-of-a-non-rejected-promise" title="">Error: cannot get rejection reason of a non-rejected promise</a></li>
+<li>                <a href="#error-the-target-of-promisifyall-must-be-an-object-or-a-function" title="">Error: the target of promisifyAll must be an object or a function</a></li>
+<li>                <a href="#error-circular-promise-resolution-chain" title="">Error: circular promise resolution chain</a></li>
+<li>                <a href="#error-cannot-await-properties-of-a-non-object" title="">Error: cannot await properties of a non-object</a></li>
+<li>                <a href="#error-expecting-a-positive-integer" title="">Error: expecting a positive integer</a></li>
+<li>                <a href="#error-a-value-was-yielded-that-could-not-be-treated-as-a-promise" title="">Error: A value was yielded that could not be treated as a promise</a></li>
+<li>                <a href="#error-cannot-await-properties-of-a-non-object" title="">Error: cannot await properties of a non object</a></li>
+<li>                <a href="#error-cannot-enable-long-stack-traces-after-promises-have-been-created" title="">Error: cannot enable long stack traces after promises have been created</a></li>
+<li>                <a href="#error-cannot-promisify-an-api-that-has-normal-methods" title="">Error: Cannot promisify an API that has normal methods</a></li>
+<li>                <a href="#error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function" title="">Error: Catch filter must inherit from Error or be a simple predicate function</a></li>
+<li>                <a href="#error-no-async-scheduler-available" title="">Error: No async scheduler available</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="error-promise.promisify-called-on-an-object"
+                    aria-hidden="true"
+                    href="#error-promise.promisify-called-on-an-object"><i class="fa fa-link"></i></a>
+                Error: Promise.promisify called on an object
+            </h2>
+
+<p>You got this this error because you&#39;ve used <code>Promise.promisify</code> on an object, for example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+</code></pre></div>
+<p>Instead, use                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code><code>Promise.promisifyAll</code></code></a>
+ :</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+</code></pre></div>            <h2>
+                <a class="header-anchor"
+                    name="error-the-promise-constructor-requires-a-resolver-function"
+                    aria-hidden="true"
+                    href="#error-the-promise-constructor-requires-a-resolver-function"><i class="fa fa-link"></i></a>
+                Error: the promise constructor requires a resolver function
+            </h2>
+
+<p>You got this error because you used <code>new Promise()</code> or <code>new Promise(something)</code> without passing a function as the parameter.</p>
+
+<p>If you want to wrap an API with a promise manually, the correct syntax is:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">wrapWithPromise</span><span class="p">(</span><span class="nx">parameter</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">doSomethingAsync</span><span class="p">({</span>
+              <span class="nx">error</span><span class="o">:</span><span class="nx">reject</span><span class="p">,</span>
+              <span class="nx">success</span><span class="o">:</span><span class="nx">resolve</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Please consider reading about                 <a href="/bluebird/web/docs/api-reference.html#new-promise"><code>new Promise</code></a>
+ and also consider checking out automatic                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
+ as well as                 <a href="/bluebird/web/docs/api-reference.html#promise.method"><code>Promise.method</code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-the-promise-constructor-cannot-be-invoked-directly"
+                    aria-hidden="true"
+                    href="#error-the-promise-constructor-cannot-be-invoked-directly"><i class="fa fa-link"></i></a>
+                Error: the promise constructor cannot be invoked directly
+            </h2>
+
+<p>You can get this error for several reasons:</p>
+            <h4>
+                <a class="header-anchor"
+                    name="1.-you-forgot-to-use-new-when-creating-a-new-promise-using-new-promise"
+                    aria-hidden="true"
+                    href="#1.-you-forgot-to-use-new-when-creating-a-new-promise-using-new-promise"><i class="fa fa-link"></i></a>
+                1. You forgot to use <code>new</code> when creating a new promise using <code>new Promise(resolver)</code> syntax.
+            </h4>
+
+<p>This can happen when you tried to do something like:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">return Promise(function(resolve,reject){
+       //...
+})
+</code></pre></div>
+<p>You can correct this by doing:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">return new Promise(function(resolve,reject){
+       //...
+})
+</code></pre></div>
+<p>Please consider reading about                 <a href="/bluebird/web/docs/api-reference.html#new-promise"><code>new Promise</code></a>
+ and also consider checking out automatic                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
+ as well as                 <a href="/bluebird/web/docs/api-reference.html#promise.method"><code>Promise.method</code></a>
+</p>
+            <h4>
+                <a class="header-anchor"
+                    name="2.-you-are-trying-to-subclass-promise"
+                    aria-hidden="true"
+                    href="#2.-you-are-trying-to-subclass-promise"><i class="fa fa-link"></i></a>
+                2. You are trying to subclass <code>Promise</code>
+            </h4>
+
+<p>Bluebird does not support extending promises this way. Instead, see                 <a href="features.html#scoped-prototypes" title="">scoped prototypes</a>
+.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-expecting-an-array"
+                    aria-hidden="true"
+                    href="#error-expecting-an-array"><i class="fa fa-link"></i></a>
+                Error: expecting an array, a promise or a thenable
+            </h2>
+
+<p>This error message usually happens when trying to work with collections but passing a single element instead.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mi">3</span><span class="p">;}</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The <code>map</code> operation is expecting an array here (or a promise on one) and instead gets the number <code>5</code>.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-generatorfunction-must-be-a-function"
+                    aria-hidden="true"
+                    href="#error-generatorfunction-must-be-a-function"><i class="fa fa-link"></i></a>
+                Error: generatorFunction must be a function
+            </h2>
+
+<p>You are getting this error when trying to use                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+ and not passing it a generator function as a parameter.  For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// Note the *</span>
+    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.example.com&quot;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">moreUrls</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;\n&quot;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span><span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">moreUrls</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="nx">contents</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">moreUrls</span><span class="p">[</span><span class="nx">i</span><span class="p">]));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">contents</span><span class="p">;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Please refer to the relevant section in the documentation about                 <a href="/bluebird/web/docs/api-reference.html#generators"><code>Generators</code></a>
+ in order to get usage instructions:</p>
+
+<p><strong>Note</strong>: Bluebird used to eagerly check for generators which caused problems with transpilers. Because of this, you might get an error similar to <code>TypeError: Cannot read property &#39;next&#39; of undefined</code> if you pass a function instead of a generator function to Bluebird.</p>
+
+<p><a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+ is built to work with generators to form C# like <code>async/await</code></p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-fn-must-be-a-function"
+                    aria-hidden="true"
+                    href="#error-fn-must-be-a-function"><i class="fa fa-link"></i></a>
+                Error: fn must be a function
+            </h2>
+
+<p>You passed a non-function where a function was expected.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-enable-long-stack-traces-after-promises-have-been-created"
+                    aria-hidden="true"
+                    href="#error-cannot-enable-long-stack-traces-after-promises-have-been-created"><i class="fa fa-link"></i></a>
+                Error: cannot enable long stack traces after promises have been created
+            </h2>
+
+<p>You are getting this error because you are enabling long stack traces after a promise has already been created.</p>
+
+<p>When using <code>longStackTraces</code> the first line in your code after requiring Bluebird should be:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>See the API page about                 <a href="/bluebird/web/docs/api-reference.html#promise.longstacktraces"><code>Promise.longStackTraces</code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise"
+                    aria-hidden="true"
+                    href="#error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise"><i class="fa fa-link"></i></a>
+                Error: cannot get fulfillment value of a non-fulfilled promise
+            </h2>
+
+<p>You can get this error when you&#39;re trying to call <code>.value</code> or <code>.error</code> when inspecting a promise where the promise has not been fulfilled or rejected yet.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
+</code></pre></div>
+<p>Consider using                 <a href="/bluebird/web/docs/api-reference.html#.ispending"><code>.isPending()</code></a>
+                 <a href="/bluebird/web/docs/api-reference.html#.isfulfilled"><code>.isFulfilled()</code></a>
+ and                 <a href="/bluebird/web/docs/api-reference.html#.isrejected"><code>.isRejected()</code></a>
+ in order to inspect the promise for status.</p>
+
+<p>Please consider reading more about                 <a href="/bluebird/web/docs/api-reference.html#synchronous-inspection"><code>synchronous inspection</code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-get-rejection-reason-of-a-non-rejected-promise"
+                    aria-hidden="true"
+                    href="#error-cannot-get-rejection-reason-of-a-non-rejected-promise"><i class="fa fa-link"></i></a>
+                Error: cannot get rejection reason of a non-rejected promise
+            </h2>
+
+<p>You can get this error when you&#39;re trying to call <code>.value</code> or <code>.error</code> when inspecting a promise where the promise has not been fulfilled or rejected yet.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
+</code></pre></div>
+<p>Consider using                 <a href="/bluebird/web/docs/api-reference.html#.ispending"><code>.isPending()</code></a>
+                 <a href="/bluebird/web/docs/api-reference.html#.isfulfilled"><code>.isFulfilled()</code></a>
+ and                 <a href="/bluebird/web/docs/api-reference.html#.isrejected"><code>.isRejected()</code></a>
+ in order to inspect the promise for status.</p>
+
+<p>Please consider reading more about                 <a href="/bluebird/web/docs/api-reference.html#synchronous-inspection"><code>synchronous inspection</code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-the-target-of-promisifyall-must-be-an-object-or-a-function"
+                    aria-hidden="true"
+                    href="#error-the-target-of-promisifyall-must-be-an-object-or-a-function"><i class="fa fa-link"></i></a>
+                Error: the target of promisifyAll must be an object or a function
+            </h2>
+
+<p>This can happen when you are calling                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+ on a function and invoking it instead of passing it.</p>
+
+<p>In general, the usage of                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+ is along the lines of <code>var fs = Promise.promisifyAll(require(&quot;fs&quot;))</code>.</p>
+
+<p>Consider reading the section about                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-circular-promise-resolution-chain"
+                    aria-hidden="true"
+                    href="#error-circular-promise-resolution-chain"><i class="fa fa-link"></i></a>
+                Error: circular promise resolution chain
+            </h2>
+
+<p>This usually happens when you have a promise that resolves or rejects with itself.</p>
+
+<p>For example: <code>var p = Promise.delay(100).then(function(){ return p});</code> .</p>
+
+<p>In this case, the promise resolves with itself which was is not intended.</p>
+
+<p>This also happens when implementing live-updating models with a <code>.then</code> method that indicates when the model is &quot;ready&quot;. A promise is a process, it starts and it ends.</p>
+
+<p>Promises do not aim to solve such live updating problems directly. One option would be to use an intermediate promise - for example a <code>.loaded</code> property on the model that fulfills with nothing.</p>
+
+<p>resolving it with itself tells it &quot;it is done when it is done&quot;</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-await-properties-of-a-non-object"
+                    aria-hidden="true"
+                    href="#error-cannot-await-properties-of-a-non-object"><i class="fa fa-link"></i></a>
+                Error: cannot await properties of a non-object
+            </h2>
+
+<p>The <code>.props</code> method expects to receive an object.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
+    <span class="nx">pictures</span><span class="o">:</span> <span class="nx">getPictures</span><span class="p">(),</span>
+    <span class="nx">comments</span><span class="o">:</span> <span class="nx">getComments</span><span class="p">(),</span>
+    <span class="nx">tweets</span><span class="o">:</span> <span class="nx">getTweets</span><span class="p">()</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">){</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">tweets</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">pictures</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">comments</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This happens when a non object value or a promise that resolves with something that is not an object is being passed instead.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-expecting-a-positive-integer"
+                    aria-hidden="true"
+                    href="#error-expecting-a-positive-integer"><i class="fa fa-link"></i></a>
+                Error: expecting a positive integer
+            </h2>
+
+<p>This happens when you call <code>.some</code> passing it a negative value or a non-integer.</p>
+
+<p>One possible cause is using <code>.indexOf</code> which returns <code>-1</code> when it doesn&#39;t find the value being searched for.</p>
+
+<p>Please consider reading the API docs for                 <a href="/bluebird/web/docs/api-reference.html#.some"><code><code>.some</code></code></a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-a-value-was-yielded-that-could-not-be-treated-as-a-promise"
+                    aria-hidden="true"
+                    href="#error-a-value-was-yielded-that-could-not-be-treated-as-a-promise"><i class="fa fa-link"></i></a>
+                Error: A value was yielded that could not be treated as a promise
+            </h2>
+
+<p>You are getting this error because you have tried to <code>yield</code> something in a coroutine without a yield handler, for example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="k">yield</span> <span class="s2">&quot;Foo&quot;</span><span class="p">;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The solution is to either convert it to a promise by calling <code>Promise.resolve</code> on it or <code>Promise.promisify</code> if it&#39;s a callback:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;Foo&quot;</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Or to use                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine.addyieldhandler"><code>Promise.coroutine.addYieldHandler`</code></a>
+ to teach                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+ to accept these sort of values.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-await-properties-of-a-non-object"
+                    aria-hidden="true"
+                    href="#error-cannot-await-properties-of-a-non-object"><i class="fa fa-link"></i></a>
+                Error: cannot await properties of a non object
+            </h2>
+
+<p>The <code>.props</code> method expects to receive an object.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
+    <span class="nx">pictures</span><span class="o">:</span> <span class="nx">getPictures</span><span class="p">(),</span>
+    <span class="nx">comments</span><span class="o">:</span> <span class="nx">getComments</span><span class="p">(),</span>
+    <span class="nx">tweets</span><span class="o">:</span> <span class="nx">getTweets</span><span class="p">()</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">){</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">tweets</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">pictures</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">comments</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This happens when a non object value or a promise that resolves with something that is not an object is being passed instead.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-cannot-promisify-an-api-that-has-normal-methods"
+                    aria-hidden="true"
+                    href="#error-cannot-promisify-an-api-that-has-normal-methods"><i class="fa fa-link"></i></a>
+                Error: Cannot promisify an API that has normal methods
+            </h2>
+
+<p>This error indicates you have tried to call                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+ on an object that already has a property with the <code>Async</code> suffix:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">myApi</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">foo</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">fooAsync</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+<p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call                 <a href="/bluebird/web/docs/api-reference.html#promise.promisify"><code>Promise.promisify</code></a>
+ manually on select properties.</p>
+
+<p>You may also use the custom suffix option to choose another suffix that doesn&#39;t result in conflicts.</p>
+
+<p>If you find this issue in a common library please                 <a href="https://github.com/petkaantonov/bluebird/issues/new" title="">open an issue</a>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function"
+                    aria-hidden="true"
+                    href="#error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function"><i class="fa fa-link"></i></a>
+                Error: Catch filter must inherit from Error or be a simple predicate function
+            </h2>
+
+<p>Bluebird supports typed and predicate                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+ calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.</p>
+
+<p>Pass it a constructor that inherits from <code>Error</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(ReferenceError, function(e) { // this is fine
+}).catch(Array, function(e) { // arrays don&#39;t capture stack traces
+</code></pre></div>
+<p>This is to enable better stack trace support and to have more consistent and logical code.</p>
+
+<p>Alternatively, if you provide it a predicate be sure it&#39;s a simple function:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(function(e){ return false; }, function(e) { // this catches nothing
+}).catch(function(e){ return e.someProp = 5; }, function(e) { // this is fine
+</code></pre></div>
+<p>Please see the API docs of                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+ on how to use predicate catches.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="error-no-async-scheduler-available"
+                    aria-hidden="true"
+                    href="#error-no-async-scheduler-available"><i class="fa fa-link"></i></a>
+                Error: No async scheduler available
+            </h2>
+
+<p>Async scheduler is a function that takes a callback function and calls the callback function as soon as possible, but asynchronously. For example <code>setTimeout</code>.</p>
+
+<p>By default bluebird only tries a few common async schedulers, such as <code>setTimeout</code>, <code>process.nextTick</code> and <code>MutationObserver</code>. However if your JavaScript runtime environment doesn&#39;t expose any of these, you will see this error.</p>
+
+<p>You may use                 <a href="/bluebird/web/docs/api-reference.html#promise.setscheduler"><code>Promise.setScheduler</code></a>
+ to pass a custom scheduler that your environment supports. For example in DukTape:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">){</span> <span class="c1">// fn is what to execute</span>
+    <span class="kd">var</span> <span class="nx">timer</span> <span class="o">=</span> <span class="nx">uv</span><span class="p">.</span><span class="nx">new_timer</span><span class="p">.</span><span class="nx">call</span><span class="p">({});</span>
+    <span class="nx">uv</span><span class="p">.</span><span class="nx">timer_start</span><span class="p">(</span><span class="nx">timer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">fn</span><span class="p">);</span> <span class="c1">// add the function as a callback to the timer</span>
+<span class="p">});</span>
+</code></pre></div>
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

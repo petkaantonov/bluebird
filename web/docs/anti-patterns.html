@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Anti-patterns | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/anti-patterns.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/anti-patterns.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Anti-patterns</h1>
+  </header>
+
+  <article class="post-content">
+    <p>This page will contain common promise anti-patterns that are exercised in the wild.</p>
+
+<ul>
+<li>                <a href="#the-deferred-anti-pattern" title="">The deferred anti-pattern</a></li>
+<li>                <a href="#the-thensuccess-fail-anti-pattern" title="">The <code>.then(success, fail)</code> anti-pattern</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="the-deferred-anti-pattern"
+                    aria-hidden="true"
+                    href="#the-deferred-anti-pattern"><i class="fa fa-link"></i></a>
+                The Deferred anti-pattern
+            </h2>
+
+<p>This is the most common anti-pattern. It is easy to fall into this when you don&#39;t really understand promises and think of them as glorified event emitters or callback utility. It&#39;s also sometimes called the promise constructor anti-pattern. Let&#39;s recap: promises are about making asynchronous code retain most of the lost properties of synchronous code such as flat indentation and one exception channel.</p>
+
+<p>In Deferred anti-pattern, &quot;deferred&quot; objects are created for no reason, complicating code.</p>
+
+<p>First example is creating deferred object when you already have a promise or thenable:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//Code copyright by Twisternha http://stackoverflow.com/a/19486699/995876 CC BY-SA 2.5</span>
+<span class="nx">myApp</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;Configurations&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Restangular</span><span class="p">,</span> <span class="nx">MotorRestangular</span><span class="p">,</span> <span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">getConfigurations</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">$q</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+
+        <span class="nx">MotorRestangular</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="s1">&#39;Motors&#39;</span><span class="p">).</span><span class="nx">getList</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">Motors</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Group by Config</span>
+            <span class="kd">var</span> <span class="nx">g</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">groupBy</span><span class="p">(</span><span class="nx">Motors</span><span class="p">,</span> <span class="s1">&#39;configuration&#39;</span><span class="p">);</span>
+            <span class="c1">//Map values</span>
+            <span class="kd">var</span> <span class="nx">mapped</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">sizes</span><span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">sizeMm</span>
+                    <span class="p">})</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">mapped</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">config</span><span class="o">:</span> <span class="nx">getConfigurations</span><span class="p">()</span>
+    <span class="p">}</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>This superfluous wrapping is also dangerous, any kind of errors and rejections are swallowed and not propagated to the caller of this function.</p>
+
+<p>Instead of using the Deferred anti-pattern, the code should simply return the promise it already has and propagate values using <code>return</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">myApp</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;Configurations&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Restangular</span><span class="p">,</span> <span class="nx">MotorRestangular</span><span class="p">,</span> <span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">getConfigurations</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="c1">//Just return the promise we already have!</span>
+        <span class="k">return</span> <span class="nx">MotorRestangular</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="s1">&#39;Motors&#39;</span><span class="p">).</span><span class="nx">getList</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">Motors</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Group by Cofig</span>
+            <span class="kd">var</span> <span class="nx">g</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">groupBy</span><span class="p">(</span><span class="nx">Motors</span><span class="p">,</span> <span class="s1">&#39;configuration&#39;</span><span class="p">);</span>
+            <span class="c1">//Return the mapped array as the value of this promise</span>
+            <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">sizes</span><span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">sizeMm</span>
+                    <span class="p">})</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">config</span><span class="o">:</span> <span class="nx">getConfigurations</span><span class="p">()</span>
+    <span class="p">}</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>Not only is the code shorter but more importantly, if there is any error it will propagate properly to the final consumer.</p>
+
+<p>Second example is creating a function that does nothing but manually wrap a callback API and doing a poor job at that:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">applicationFunction</span><span class="p">(</span><span class="nx">arg1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">pending</span><span class="p">();</span> <span class="c1">//Or Q.defer() in Q</span>
+    <span class="nx">libraryFunction</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">fulfill</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This is reinventing the square wheel because any callback API wrapping can and should be done immediately using the promise library&#39;s promisification methods:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">applicationFunction</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">libraryFunction</span><span class="p">);</span>
+</code></pre></div>
+<p>The generic promisification is likely to be faster because it can use internals directly but also handles edge cases like <code>libraryFunction</code> throwing synchronously or using multiple success values.</p>
+
+<p><strong>So when should deferred be used?</strong></p>
+
+<p>Well simply, when you have to.</p>
+
+<p>You might have to use a deferred object when wrapping a callback API that doesn&#39;t follow the standard convention. Like <code>setTimeout</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//setTimeout that returns a promise</span>
+<span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">pending</span><span class="p">();</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">deferred</span><span class="p">.</span><span class="nx">fulfill</span><span class="p">();</span>
+    <span class="p">},</span> <span class="nx">ms</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Such wrappers should be rare, if they&#39;re common for the reason that the promise library cannot generically promisify them, you should file an issue.</p>
+
+<p>Also see                 <a href="http://stackoverflow.com/questions/23803743/what-is-the-deferred-antipattern-and-how-do-i-avoid-it" title="">this StackOverflow question</a>
+ for more examples and a debate around it.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="the-.then"
+                    aria-hidden="true"
+                    href="#the-.then"><i class="fa fa-link"></i></a>
+                The <code>.then(success, fail)</code> anti-pattern
+            </h2>
+
+<p><em>Almost</em> a sure sign of using promises as glorified callbacks. Instead of <code>doThat(function(err, success))</code> you do <code>doThat().then(success, err)</code> and rationalize to yourself that at least the code is &quot;less coupled&quot; or something.</p>
+
+<p>The <code>.then</code> signature is mostly about interop, there is <em>almost</em> never a reason to use <code>.then(success, fail)</code> in application code. It is even awkward to express it in the sync parallel:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">t0</span><span class="p">;</span>
+<span class="k">try</span> <span class="p">{</span>
+    <span class="nx">t0</span> <span class="o">=</span> <span class="nx">doThat</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">}</span>
+<span class="c1">//deal with t0 here and waste the try-catch</span>
+<span class="kd">var</span> <span class="nx">stuff</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">t0</span><span class="p">);</span>
+</code></pre></div>
+<p>It is more likely that you would write this instead in the sync world:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">try</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">stuff</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">doThat</span><span class="p">());</span>
+<span class="p">}</span>
+<span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</code></pre></div>
+<p>So please write the same when using promises too:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">doThat</span><span class="p">()</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p><code>.catch</code> is specified for built-in Javascript promises and is &quot;sugar&quot; for <code>.then(null, function(){})</code>. Since the way errors work in promises is almost the entire point (and the only thing jQuery never got right, even if it used <code>.pipe</code> as a <code>.then</code>), I really hope the implementation you are using provides this method for readability.</p>
+
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

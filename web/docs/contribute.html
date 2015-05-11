@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Contribute | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/contribute.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/contribute.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Contribute</h1>
+  </header>
+
+  <article class="post-content">
+    <p>For development tasks such as contributing, running benchmarks or testing, you need to clone the repository and install dev-dependencies.</p>
+
+<p>Install                 <a href="http://nodejs.org/" title="">node</a>
+ or                 <a href="https://iojs.org/" title="">io.js</a>
+</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">git clone git@github.com:petkaantonov/bluebird.git
+cd bluebird
+npm install
+</code></pre></div>
+<ul>
+<li>                <a href="#directory-structure" title="">Directory structure</a></li>
+<li>                <a href="#style-guide" title="">Style guide</a></li>
+<li>                <a href="#building" title="">Building</a>
+
+
+<ul>
+<li>                <a href="#supported-options-by-the-build-tool" title="">Supported options by the build tool</a></li>
+</ul></li>
+<li>                <a href="#testing" title="">Testing</a>
+
+
+<ul>
+<li>                <a href="#testing-in-browsers" title="">Testing in browsers</a></li>
+<li>                <a href="#supported-options-by-the-test-tool" title="">Supported options by the test tool</a></li>
+</ul></li>
+<li>                <a href="#benchmarking" title="">Benchmarking</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="directory-structure"
+                    aria-hidden="true"
+                    href="#directory-structure"><i class="fa fa-link"></i></a>
+                Directory structure
+            </h2>
+
+<ul>
+<li><p><code>/benchmark</code> contains benchmark scripts and stats of benchmarks</p></li>
+<li><p><code>/tools</code> contains building and testing tools and scripts</p></li>
+<li><p><code>/src</code> contains the source code</p></li>
+<li><p><code>/test</code> contains test code</p>
+
+<ul>
+<li><code>/test/mocha</code> contains tests using the mocha testing framework</li>
+<li><code>/test/browser</code> a directory that can be statically served using a webserver to run tests in browsers. See                 <a href="README.md#testing-in-browsers" title="">testing in browsers</a>
+.</li>
+</ul></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="style-guide"
+                    aria-hidden="true"
+                    href="#style-guide"><i class="fa fa-link"></i></a>
+                Style guide
+            </h2>
+
+<p>Use the same style as is used in the surrounding code.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="whitespace"
+                    aria-hidden="true"
+                    href="#whitespace"><i class="fa fa-link"></i></a>
+                Whitespace
+            </h3>
+
+<ul>
+<li>No more than 80 columns per line</li>
+<li>4 space indentation</li>
+<li>No trailing whitespace</li>
+<li>LF at end of files</li>
+<li>Curly braces can be left out of single statement <code>if/else/else if</code>s when it is obvious there will never be multiple statements such as null check at the top of a function for an early return.</li>
+<li>Add an additional new line between logical sections of code.</li>
+</ul>
+            <h3>
+                <a class="header-anchor"
+                    name="variables"
+                    aria-hidden="true"
+                    href="#variables"><i class="fa fa-link"></i></a>
+                Variables
+            </h3>
+
+<ul>
+<li>Use multiple <code>var</code> statements instead of a single one with comma separator. Do not declare variables until you need them.</li>
+</ul>
+            <h3>
+                <a class="header-anchor"
+                    name="equality-and-type-checks"
+                    aria-hidden="true"
+                    href="#equality-and-type-checks"><i class="fa fa-link"></i></a>
+                Equality and type checks
+            </h3>
+
+<ul>
+<li>Always use <code>===</code> except when checking for null or undefined. To check for null or undefined, use <code>x == null</code>.</li>
+<li>For checks that can be done with <code>typeof</code>: do not make helper functions, save results of <code>typeof</code> to a variable or make the type string a non-constant. Always write the check in the form <code>typeof expression === &quot;constant string&quot;</code> even if it feels like repeating yourself.</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="building"
+                    aria-hidden="true"
+                    href="#building"><i class="fa fa-link"></i></a>
+                Building
+            </h2>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/build --debug --release --zalgo --browser --minify
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="supported-options-by-the-build-tool"
+                    aria-hidden="true"
+                    href="#supported-options-by-the-build-tool"><i class="fa fa-link"></i></a>
+                Supported options by the build tool
+            </h3>
+
+<p>The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the <code>no-</code>-prefix e.g. <code>--no-debug</code>.</p>
+
+<ul>
+<li><code>--release</code> - Whether to build the release build. The release build is placed at <code>js/release</code> directory. Default <code>false</code>.</li>
+<li><code>--debug</code> - Whether to build the debug build. The debug build is placed at <code>js/debug</code> directory. Default <code>false</code>.</li>
+<li><code>--zalgo</code> - Whether to build the zalgo build. The zalgo build is placed at <code>js/zalgo</code> directory. Default <code>false</code>.</li>
+<li><code>--browser</code> - Whether to compile the browser build. The browser build file is placed at <code>js/browser/bluebird.js</code> Default <code>false</code>.</li>
+<li><code>--minify</code> - Whether to minify the compiled browser build. The minified browser build file is placed at <code>js/browser/bluebird.min.js</code> Default <code>true</code>.</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="testing"
+                    aria-hidden="true"
+                    href="#testing"><i class="fa fa-link"></i></a>
+                Testing
+            </h2>
+
+<p>To run all tests, run</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test
+</code></pre></div>
+<p>If you need to run generator tests run the <code>tool/test.js</code> script with <code>--harmony</code> argument and node 0.11+:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node-dev --harmony tools/test
+</code></pre></div>
+<p>Or use io.js where generators are enabled by default:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">iojs tools/test
+</code></pre></div>
+<p>You may specify an individual test file to run with the <code>--run</code> script flag:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test --run=cancel.js
+</code></pre></div>
+<p>This enables output from the test and may give a better idea where the test is failing. The paramter to <code>--run</code> can be any file name located in <code>test/mocha</code> folder.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="testing-in-browsers"
+                    aria-hidden="true"
+                    href="#testing-in-browsers"><i class="fa fa-link"></i></a>
+                Testing in browsers
+            </h3>
+
+<p>To run the test in a browser instead of node, pass the flag <code>--browser</code> to the test tool</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test --run=cancel.js --browser
+</code></pre></div>
+<p>This will automatically create a server (default port 9999) and open it in your default browser once the tests have been compiled.</p>
+
+<p>Keep the test tab active because some tests are timing-sensitive and will fail if the browser is throttling timeouts. Chrome will do this for example when the tab is not active.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="supported-options-by-the-test-tool"
+                    aria-hidden="true"
+                    href="#supported-options-by-the-test-tool"><i class="fa fa-link"></i></a>
+                Supported options by the test tool
+            </h3>
+
+<p>The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the <code>no-</code>-prefix e.g. <code>--no-browser</code>.</p>
+
+<ul>
+<li><code>--run=String</code>. Which tests to run (or compile when testing in browser). Default <code>&quot;all&quot;</code>. Can also be a glob string (relative to ./test/mocha folder)</li>
+<li><code>--cover=String</code>. Create code coverage using the String as istanbul reporter. Coverage is created in the ./coverage folder. No coverage is created by default, default reporter is <code>&quot;html&quot;</code> (use <code>--cover</code> to use default reporter).</li>
+<li><code>--browser</code> - Whether to compile tests for browsers. Default <code>false</code>.</li>
+<li><code>--port=Number</code> - Whe port where local server is hosted when testing in browser. Default <code>9999</code></li>
+<li><code>--execute-browser-tests</code> - Whether to execute the compiled tests for browser when using <code>--browser</code>. Default <code>true</code>.</li>
+<li><code>--open-browser</code> - Whether to open the default browser when executing browser tests. Default <code>true</code>.</li>
+<li><code>--fake-timers</code> - Whether to use fake timers (<code>setTimeout</code> etc) when running tests in node. Default <code>true</code>.</li>
+<li><code>--js-hint</code> - Whether to run JSHint on source files. Default <code>true</code>.</li>
+<li><code>--saucelabs</code> Wheter to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser.Default <code>false</code>.</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="benchmarking"
+                    aria-hidden="true"
+                    href="#benchmarking"><i class="fa fa-link"></i></a>
+                Benchmarking
+            </h2>
+
+<p>To run a benchmark, run the given command for a benchmark while on the project root. Requires bash (on windows the mingw32 that comes with git works fine too).</p>
+
+<p>Each benchmark must</p>
+
+<ul>
+<li>Have implementations that do the same thing</li>
+<li>Run each implementation of a benchmark in a separate freshly created process</li>
+<li>Warmup each implementation before timing</li>
+</ul>
+            <h3>
+                <a class="header-anchor"
+                    name="1.-doxbee-sequential"
+                    aria-hidden="true"
+                    href="#1.-doxbee-sequential"><i class="fa fa-link"></i></a>
+                1. DoxBee sequential
+            </h3>
+
+<p>Currently the most relevant benchmark is @gorkikosev&#39;s benchmark in the article                 <a href="http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html" title="">Analysis of generators and other async patterns in node</a>
+. The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action.</p>
+
+<p>Command: <code>bench doxbee</code></p>
+
+<p>The implementations for this benchmark are found in <code>benchmark/doxbee-sequential</code> directory.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="2.-parallel"
+                    aria-hidden="true"
+                    href="#2.-parallel"><i class="fa fa-link"></i></a>
+                2. Parallel
+            </h3>
+
+<p>This made-up scenario runs 25 shimmed queries in parallel.</p>
+
+<p>Command: <code>bench parallel</code></p>
+
+<p>The implementations for this benchmark are found in <code>benchmark/madeup-parallel</code> directory.</p>
+
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

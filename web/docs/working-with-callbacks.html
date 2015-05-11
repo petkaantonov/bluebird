@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Working with Callbacks | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/working-with-callbacks.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/working-with-callbacks.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Working with Callbacks</h1>
+  </header>
+
+  <article class="post-content">
+    <p>This page explains how to interface your code with existing callback APIs and libraries you&#39;re using. We&#39;ll see that making bluebird work with callback APIs is not only easy - it&#39;s also fast.</p>
+
+<p>We&#39;ll cover several subjects. If you want to get the tl;dr what you need is likely the                 <a href="#working-with-callback-apis-using-the-node-convention" title="">Working with callback APIs using the Node convention</a>
+ section.</p>
+
+<p>First to make sure we&#39;re on the same page:</p>
+
+<p>Promises have state, they start as pending and can settle to:</p>
+
+<ul>
+<li><strong>fulfilled</strong> meaning that the computation completed successfully.</li>
+<li><strong>rejected</strong> meaning that the computation failed.</li>
+</ul>
+
+<p>Promise returning functions <em>should never throw</em>, they should always successfully return a promise which is rejected in the case of an error. Throwing from a promise returning function will force you to use both a <code>} catch {</code> <em>and</em> a <code>.catch</code>. People using promisified APIs do not expect promises to throw. If you&#39;re not sure how async APIs work in JS - please                 <a href="http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-asynchronous-call/16825593#16825593" title="">see this answer</a>
+ first.</p>
+
+<ul>
+<li>                <a href="#automatic-vs.-manual-conversion" title="">Automatic vs. Manual conversion</a></li>
+<li>                <a href="#working-with-callback-apis-using-the-node-convention" title="">Working with callback APIs using the Node convention</a></li>
+<li>                <a href="#working-with-one-time-events" title="">Working with one time events.</a></li>
+<li>                <a href="#working-with-delays/setTimeout" title="">Working with delays</a></li>
+<li>                <a href="#working-with-browser-apis" title="">Working with browser APIs</a></li>
+<li>                <a href="#working-with-databases" title="">Working with databases</a></li>
+<li>                <a href="#more-common-examples" title="">More Common Examples</a></li>
+<li>                <a href="#working-with-any-other-apis" title="">Working with any other APIs</a></li>
+</ul>
+
+<p>There is also                 <a href="http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises" title="">this more general StackOverflow question</a>
+ about conversion of callback APIs to promises. If you find anything missing in this guide however, please do open an issue or pull request.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="automatic-vs.-manual-conversion"
+                    aria-hidden="true"
+                    href="#automatic-vs.-manual-conversion"><i class="fa fa-link"></i></a>
+                Automatic vs. Manual conversion
+            </h3>
+
+<p>There are two primary methods of converting callback based APIs into promise based ones. You can either manually map the API calls to promise returning functions or you can let the bluebird do it for you. We <strong>strongly</strong> recommend the latter.</p>
+
+<p>Promises provide a lot of really cool and powerful guarantees like throw safety which are hard to provide when manually converting APIs to use promises. Thus, whenever it is possible to use the <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> methods - we recommend you use them. Not only are they the safest form of conversion - they also use techniques of dynamic recompilation to introduce very little overhead.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="working-with-callback-apis-using-the-node-convention"
+                    aria-hidden="true"
+                    href="#working-with-callback-apis-using-the-node-convention"><i class="fa fa-link"></i></a>
+                Working with callback APIs using the Node convention
+            </h3>
+
+<p>In Node/io.js most APIs follow a convention of                 <a href="https://gist.github.com/CrabDude/10907185" title="">&#39;error-first, single-parameter&#39;</a>
+ as such:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getStuff</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="nx">getStuff</span><span class="p">(</span><span class="s2">&quot;dataParam&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This APIs are what most core modules in Node/io use and bluebird comes with a fast and efficient way to convert them to promise based APIs through the <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> function calls.</p>
+
+<ul>
+<li>                <a href="/bluebird/web/docs/api-reference.html#promise.promisify"><code>Promise.promisify</code></a>
+ - converts a <em>single</em> callback taking function into a promise returning function. It does not alter the original function and returns the modified version.</li>
+<li>                <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+ - takes an <em>object</em> full of functions and <em>converts each function</em> into the new one with the <code>Async</code> suffix (by default). It does not change the original functions but instead adds new ones.</li>
+</ul>
+
+<blockquote>
+<p><strong>Note</strong> - please check the linked docs for more parameters and usage examples.</p>
+</blockquote>
+
+<p>Here&#39;s an example of <code>fs.readFile</code> with or without promises:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// callbacks</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>Promises:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>Note the new method is suffixed with <code>Async</code>, as in <code>fs.readFileAsync</code>. It did not replace the <code>fs.readFile</code> function. Single functions can also be promisified for example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+<span class="nx">request</span><span class="p">(</span><span class="s2">&quot;foo.bar&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note</strong> <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> use dynamic recompilation for really fast wrappers and thus calling them should be done only once.                 <a href="/bluebird/web/docs/api-reference.html#promise.fromcallback"><code>Promise.fromCallback</code></a>
+ exists for cases where this is not possible.</p>
+</blockquote>
+            <h3>
+                <a class="header-anchor"
+                    name="working-with-one-time-events"
+                    aria-hidden="true"
+                    href="#working-with-one-time-events"><i class="fa fa-link"></i></a>
+                Working with one time events
+            </h3>
+
+<p>Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use                 <a href="/bluebird/web/docs/api-reference.html#new-promise"><code>new Promise</code></a>
+. Note that this option should be considered only if                 <a href="#working-with-callback-apis-using-the-node-convention" title="">automatic conversion</a>
+ isn&#39;t possible.</p>
+
+<p>Note that promises model a <em>single value through time</em>, they only resolve <em>once</em> - so while they&#39;re a good fit for a single event, they are not recommended for multiple event APIs.</p>
+
+<p>For example, let&#39;s say you have a window <code>onload</code> event you want to bind to. We can use the promise construction and resolve when the window has loaded as such:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// onload example, the promise constructor takes a</span>
+<span class="c1">// &#39;resolver&#39; function that tells the promise when</span>
+<span class="c1">// to resolve and fire off its `then` handlers.</span>
+<span class="kd">var</span> <span class="nx">loaded</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">loaded</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// window is loaded here</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here is another example with an API that lets us know when when a connection is ready. The attempt here is imperfect and we&#39;ll describe why soon:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">connect</span><span class="p">()</span> <span class="p">{</span>
+   <span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">myConnector</span><span class="p">.</span><span class="nx">getConnection</span><span class="p">();</span>  <span class="c1">// Synchronous.</span>
+   <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">connection</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">// When a connection has been established</span>
+            <span class="c1">// mark the promise as fulfilled.</span>
+            <span class="nx">resolve</span><span class="p">(</span><span class="nx">connection</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">connection</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// If it failed connecting, mark it</span>
+            <span class="c1">// as rejected.</span>
+            <span class="nx">reject</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>  <span class="c1">// e is preferably an `Error`.</span>
+        <span class="p">});</span>
+   <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The problem with the above is that <code>getConnection</code> itself might throw for some reason and if it does we&#39;ll get a synchronous rejection. An asynchronous operation should always be asynchronous to prevent double guarding and race conditions so it&#39;s best to always put the sync parts inside the promise constructor as such:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">connect</span><span class="p">()</span> <span class="p">{</span>
+   <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// If getConnection throws here instead of getting</span>
+        <span class="c1">// an exception we&#39;re getting a rejection thus</span>
+        <span class="c1">// producing a much more consistent API.</span>
+        <span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">myConnector</span><span class="p">.</span><span class="nx">getConnection</span><span class="p">();</span>
+        <span class="nx">connection</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">// When a connection has been established</span>
+            <span class="c1">// mark the promise as fulfilled.</span>
+            <span class="nx">resolve</span><span class="p">(</span><span class="nx">connection</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">connection</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// If it failed connecting, mark it</span>
+            <span class="c1">// as rejected.</span>
+            <span class="nx">reject</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span> <span class="c1">//  e is preferably an `Error`</span>
+        <span class="p">});</span>
+   <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="working-with-delays"
+                    aria-hidden="true"
+                    href="#working-with-delays"><i class="fa fa-link"></i></a>
+                Working with delays/setTimeout
+            </h3>
+
+<p>There is no need to convert timeouts/delays to a bluebird API, bluebird already ships with the                 <a href="/bluebird/web/docs/api-reference.html#promise.delay"><code>Promise.delay</code></a>
+ function for this use case. Please consult the                 <a href="/bluebird/web/docs/api-reference.html#timers"><code>timers</code></a>
+ section of the docs on usage and examples.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="working-with-browser-apis"
+                    aria-hidden="true"
+                    href="#working-with-browser-apis"><i class="fa fa-link"></i></a>
+                Working with browser APIs
+            </h3>
+
+<p>Often browser APIs are nonstandard and automatic promisification will fail for them. If you&#39;re running into an API that you can&#39;t promisify with                 <a href="/bluebird/web/docs/api-reference.html#promisify"><code>promisify</code></a>
+ and                 <a href="/bluebird/web/docs/api-reference.html#promisifyall"><code>promisifyAll</code></a>
+ - please consult the                 <a href="#working-with-any-other-apis" title="">working with other APIs section</a>
+</p>
+            <h3>
+                <a class="header-anchor"
+                    name="working-with-databases"
+                    aria-hidden="true"
+                    href="#working-with-databases"><i class="fa fa-link"></i></a>
+                Working with databases
+            </h3>
+
+<p>For resource management in general and databases in particular, bluebird includes the powerful                  <a href="/bluebird/web/docs/api-reference.html#promise.using"><code>Promise.using</code></a>
+ and disposers system. This is similar to <code>with</code> in Python, <code>using</code> in C#, try/resource in Java or RAII in C++ in that it lets you handle resource management in an automatic way.</p>
+
+<p>Several examples of databases follow.</p>
+
+<blockquote>
+<p><strong>Note</strong> for more examples please see the                 <a href="/bluebird/web/docs/api-reference.html#promise.using"><code>Promise.using</code></a>
+ section.</p>
+</blockquote>
+            <h4>
+                <a class="header-anchor"
+                    name="mongoose"
+                    aria-hidden="true"
+                    href="#mongoose"><i class="fa fa-link"></i></a>
+                Mongoose/MongoDB
+            </h4>
+
+<p>Mongoose works with persistent connections and the driver takes care of reconnections/disposals. For this reason using <code>using</code> with it isn&#39;t required - instead connect on server startup and use promisification to expose promises.</p>
+
+<p>Note that Mongoose already ships with promise support but the promises it offers are significantly slower and don&#39;t report unhandled rejections so it is recommended to use automatic promisification with it anyway:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Mongoose</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongoose&quot;</span><span class="p">));</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="sequelize"
+                    aria-hidden="true"
+                    href="#sequelize"><i class="fa fa-link"></i></a>
+                Sequelize
+            </h4>
+
+<p>Sequelize already uses Bluebird promises internally and has promise returning APIs. Use those.</p>
+            <h4>
+                <a class="header-anchor"
+                    name="rethinkdb"
+                    aria-hidden="true"
+                    href="#rethinkdb"><i class="fa fa-link"></i></a>
+                RethinkDB
+            </h4>
+
+<p>Rethink already uses Bluebird promises internally and has promise returning APIs. Use those.</p>
+            <h4>
+                <a class="header-anchor"
+                    name="bookshelf"
+                    aria-hidden="true"
+                    href="#bookshelf"><i class="fa fa-link"></i></a>
+                Bookshelf
+            </h4>
+
+<p>Bookshelf already uses Bluebird promises internally and has promise returning APIs. Use those.</p>
+            <h4>
+                <a class="header-anchor"
+                    name="postgresql"
+                    aria-hidden="true"
+                    href="#postgresql"><i class="fa fa-link"></i></a>
+                PostgreSQL
+            </h4>
+
+<p>Here is how to create a disposer for the PostgreSQL driver:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
+<span class="c1">// Uncomment if pg has not been properly promisified yet.</span>
+<span class="c1">//var Promise = require(&quot;bluebird&quot;);</span>
+<span class="c1">//Promise.promisifyAll(pg, {</span>
+<span class="c1">//    filter: function(methodName) {</span>
+<span class="c1">//        return methodName === &quot;connect&quot;</span>
+<span class="c1">//    },</span>
+<span class="c1">//    multiArgs: true</span>
+<span class="c1">//});</span>
+<span class="c1">// Promisify rest of pg normally.</span>
+<span class="c1">//Promise.promisifyAll(pg);</span>
+
+<span class="kd">function</span> <span class="nx">getSqlConnection</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">close</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">pg</span><span class="p">.</span><span class="nx">connectAsync</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">close</span> <span class="o">=</span> <span class="nx">done</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">client</span><span class="p">;</span>
+    <span class="p">}).</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">close</span><span class="p">)</span> <span class="nx">close</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">getSqlConnection</span><span class="p">;</span>
+</code></pre></div>
+<p>Which would allow you to use:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">using</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">;</span>
+
+<span class="nx">using</span><span class="p">(</span><span class="nx">getSqlConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// use connection here and _return the promise_</span>
+
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// connection already disposed here</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>It&#39;s also possible to use disposers for transaction management:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;pg&#39;</span><span class="p">);</span>
+<span class="c1">// uncomment if necessary</span>
+<span class="c1">//var Promise = require(&quot;bluebird&quot;);</span>
+<span class="c1">//Promise.promisifyAll(pg, {</span>
+<span class="c1">//    filter: function(methodName) {</span>
+<span class="c1">//        return methodName === &quot;connect&quot;</span>
+<span class="c1">//    },</span>
+<span class="c1">//    multiArgs: true</span>
+<span class="c1">//});</span>
+<span class="c1">// Promisify rest of pg normally</span>
+<span class="c1">//Promise.promisifyAll(pg);</span>
+
+<span class="kd">function</span> <span class="nx">getTransaction</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">close</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">pg</span><span class="p">.</span><span class="nx">connectAsync</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">close</span> <span class="o">=</span> <span class="nx">done</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;BEGIN&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">client</span><span class="p">;</span>
+        <span class="p">});</span>
+    <span class="p">}).</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">promise</span><span class="p">.</span><span class="nx">isFulfilled</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;COMMIT&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">closeClient</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;ROLLBACK&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">closeClient</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="kd">function</span> <span class="nx">closeClient</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">close</span><span class="p">)</span> <span class="nx">close</span><span class="p">(</span><span class="nx">client</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">getTransaction</span> <span class="o">=</span> <span class="nx">getTransaction</span><span class="p">;</span>
+</code></pre></div>
+<p>Which would let you do:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getTransaction</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="mysql"
+                    aria-hidden="true"
+                    href="#mysql"><i class="fa fa-link"></i></a>
+                MySQL
+            </h4>
+
+<p>Here is how to create a disposer for the MySQL driver:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">mysql</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql&quot;</span><span class="p">);</span>
+<span class="c1">// Uncomment if mysql has not been properly promisified yet</span>
+<span class="c1">// var Promise = require(&quot;bluebird&quot;);</span>
+<span class="c1">// Promise.promisifyAll(mysql);</span>
+<span class="c1">// Promise.promisifyAll(require(&quot;mysql/lib/Connection&quot;).prototype);</span>
+<span class="c1">// Promise.promisifyAll(require(&quot;mysql/lib/Pool&quot;).prototype);</span>
+<span class="kd">var</span> <span class="nx">pool</span>  <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createPool</span><span class="p">({</span>
+    <span class="nx">connectionLimit</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;example.org&#39;</span><span class="p">,</span>
+    <span class="nx">user</span><span class="o">:</span> <span class="s1">&#39;bob&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;secret&#39;</span>
+<span class="p">});</span>
+
+<span class="kd">function</span> <span class="nx">getSqlConnection</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">pool</span><span class="p">.</span><span class="nx">getConnectionAsync</span><span class="p">().</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">connection</span><span class="p">.</span><span class="nx">release</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">getSqlConnection</span><span class="p">;</span>
+</code></pre></div>
+<p>The usage pattern is similar to the PostgreSQL example above. You can also create a disposer for transactions and use it safely:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getTransaction</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">db</span><span class="p">.</span><span class="nx">getTransactionAsync</span><span class="p">().</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">isFulfilled</span><span class="p">()</span> <span class="o">?</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">commitAsync</span><span class="p">()</span> <span class="o">:</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">rollbackAsync</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+
+<span class="c1">// If the using block completes successfully, the transaction is automatically committed</span>
+<span class="c1">// Any error or rejection will automatically roll it back</span>
+<span class="nx">using</span><span class="p">(</span><span class="nx">getTransaction</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="more-common-examples"
+                    aria-hidden="true"
+                    href="#more-common-examples"><i class="fa fa-link"></i></a>
+                More common examples
+            </h3>
+
+<p>Some examples of the above practice applied to some popular libraries:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular redis module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;redis&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mongodb module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mysql module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// Note that the library&#39;s classes are not properties of the main export</span>
+<span class="c1">// so we require and promisifyAll them manually</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Connection&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Pool&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Mongoose</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongoose&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Request</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+<span class="c1">// Use request.getAsync(...) not request(..), it will not return a promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// mkdir</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mkdirp&quot;</span><span class="p">));</span>
+<span class="c1">// Use mkdirp.mkdirpAsync not mkdirp(..), it will not return a promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// winston</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;winston&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// rimraf</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// The module isn&#39;t promisified but the function returned is</span>
+<span class="kd">var</span> <span class="nx">rimrafAsync</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;rimraf&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// xml2js</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;xml2js&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jsdom</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// fs-extra</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs-extra&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// prompt</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Nodemailer</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;nodemailer&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// ncp</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ncp&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// pg</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">));</span>
+</code></pre></div>
+<p>In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">ParanoidLib</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">throwAwayInstance</span> <span class="o">=</span> <span class="nx">ParanoidLib</span><span class="p">.</span><span class="nx">createInstance</span><span class="p">();</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
+<span class="c1">// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises</span>
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="working-with-any-other-apis"
+                    aria-hidden="true"
+                    href="#working-with-any-other-apis"><i class="fa fa-link"></i></a>
+                Working with any other APIs
+            </h3>
+
+<p>Sometimes you have to work with APIs that are inconsistent and do not follow a common convention.</p>
+
+<blockquote>
+<p><strong>Note</strong> Promise returning function should never throw</p>
+</blockquote>
+
+<p>For example, something like:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getUserData</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span> <span class="nx">onLoad</span><span class="p">,</span> <span class="nx">onFail</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+<p>We can use the promise constructor to convert it to a promise returning function:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getUserDataAsync</span><span class="p">(</span><span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Put all your code here, this section is throw-safe.</span>
+        <span class="nx">getUserData</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Installation | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/install.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class=""><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class="active"><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/install.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Installation</h1>
+  </header>
+
+  <article class="post-content">
+    <ul>
+<li>                <a href="#browser-installation" title="">Browser installation</a></li>
+<li>                <a href="#node-installation" title="">Node installation</a></li>
+<li>                <a href="#supported-platforms" title="">Supported platforms</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="browser-installation"
+                    aria-hidden="true"
+                    href="#browser-installation"><i class="fa fa-link"></i></a>
+                Browser installation
+            </h2>
+
+<p>Download <a href="https://cdn.jsdelivr.net/bluebird/2.9.3/bluebird.js">bluebird 2.9.3 (development)</a></p>
+
+<p>Unminified source file meant to be used in development. Warnings and long stack traces are enabled which are taxing on performance.</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/bluebird/2.9.3/bluebird.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+<p>Download <a href="https://cdn.jsdelivr.net/bluebird/2.9.3/bluebird.min.js">bluebird 2.9.3 (production)</a></p>
+
+<p>Minified source file meant to be used in production. Warnings and long straces are disabled. The gzipped size is 17.76KB.</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/bluebird/2.9.3/bluebird.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+<p>Unless an AMD loader is installed, the script tag installation exposes the library in the <code>Promise</code> and <code>P</code> namespaces. If you want to restore the <code>Promise</code> namespace, use <code>var Bluebird = Promise.noConflict()</code>.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="bower"
+                    aria-hidden="true"
+                    href="#bower"><i class="fa fa-link"></i></a>
+                Bower
+            </h3>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ bower install --save bluebird
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="browserify-and-webpack"
+                    aria-hidden="true"
+                    href="#browserify-and-webpack"><i class="fa fa-link"></i></a>
+                Browserify and Webpack
+            </h3>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ npm install --save bluebird
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// Configure</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">})</span>
+</code></pre></div>            <h2>
+                <a class="header-anchor"
+                    name="node-installation"
+                    aria-hidden="true"
+                    href="#node-installation"><i class="fa fa-link"></i></a>
+                Node installation
+            </h2>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ npm install --save bluebird
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>To enable long stack traces and warnings in node development:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ NODE_ENV=development node server.js
+</code></pre></div>
+<p>To enable long stack traces and warnings in node production:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ BLUEBIRD_DEBUG=1 node server.js
+</code></pre></div>
+<p>See                 <a href="/bluebird/web/docs/api-reference.html#environment-variables"><code>Environment Variables</code></a>
+.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="supported-platforms"
+                    aria-hidden="true"
+                    href="#supported-platforms"><i class="fa fa-link"></i></a>
+                Supported platforms
+            </h2>
+
+<p>Bluebird officially supports and is tested on node.js, iojs and browsers starting from IE7. Unofficial platforms are supported with best effort only.</p>
+
+<p>IE7 and IE8 do not support using keywords as property names, so if supporting these browsers is required you need to use the compatibility aliases:</p>
+
+<ul>
+<li>                <a href="/bluebird/web/docs/api-reference.html#promise.try"><code><code>Promise.try()</code></code></a>
+ -&gt; <code>Promise.attempt()</code></li>
+<li>                <a href="/bluebird/web/docs/api-reference.html#.catch"><code><code>.catch()</code></code></a>
+ -&gt; <code>.caught()</code></li>
+<li>                <a href="/bluebird/web/docs/api-reference.html#.finally"><code><code>.finally()</code></code></a>
+ -&gt; <code>.lastly()</code></li>
+<li>                <a href="/bluebird/web/docs/api-reference.html#.return"><code><code>.return()</code></code></a>
+ -&gt; <code>.thenReturn()</code></li>
+<li>                <a href="/bluebird/web/docs/api-reference.html#.throw"><code><code>.throw()</code></code></a>
+ -&gt; <code>.thenThrow()</code></li>
+</ul>
+
+<p>Long stack traces are only supported in Chrome, recent Firefoxes and Internet Explorer 10+</p>
+
+<p><a href="https://saucelabs.com/u/petka_antonov" title=""><img src="https://saucelabs.com/browser-matrix/petka_antonov.svg" alt="Selenium Test Status"></a>
+</p>
+
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

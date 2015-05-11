@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Warning Explanations | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/warning-explanations.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/warning-explanations.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Warning Explanations</h1>
+  </header>
+
+  <article class="post-content">
+    <ul>
+<li>                <a href="#warning-.then" title="">Warning: .then() only accepts functions</a></li>
+<li>                <a href="#warning-a-promise-was-rejected-with-a-non-error" title="">Warning: a promise was rejected with a non-error</a></li>
+<li>                <a href="#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it" title="">Warning: a promise was created in a handler but none were returned from it</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="warning-.then"
+                    aria-hidden="true"
+                    href="#warning-.then"><i class="fa fa-link"></i></a>
+                Warning: .then() only accepts functions
+            </h2>
+
+<p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+ instead of the function <em>itself</em>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">processImage</span><span class="p">(</span><span class="nx">image</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Code that processes image</span>
+<span class="p">}</span>
+
+<span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">());</span>
+</code></pre></div>
+<p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+ (which is most likely <code>undefined</code> - the default return value when a function doesn&#39;t return anything).</p>
+
+<p>To fix it, simply pass the function reference to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+ as is:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">)</span>
+</code></pre></div>
+<p><em>If you are wondering why this is a warning and not a simple TypeError it is because the due to historic reasons Promises/A+ specification requires that incorrect usage is silently ignored.</em></p>
+            <h2>
+                <a class="header-anchor"
+                    name="warning-a-promise-was-rejected-with-a-non-error"
+                    aria-hidden="true"
+                    href="#warning-a-promise-was-rejected-with-a-non-error"><i class="fa fa-link"></i></a>
+                Warning: a promise was rejected with a non-error
+            </h2>
+
+<p>Due to a historic mistake in JavaScript, the <code>throw</code> statement is allowed to be used with any value, not just errors, and Promises/A+ choosing to inherit this mistake, it is possible to reject a promise with a value that is not an error.</p>
+
+<p>An error is an object that is a <code>instanceof Error</code>. It will at minimum have the properties <code>.stack</code> and <code>.message</code>, which are an absolute must to have for any value that is being used in an automatic propagation mechanism such as exceptions and rejections. This is because errors are usually handled many levels above from where they actually originated from - the error object must have sufficient metadata about it so that its ultimate handler many levels above will have all the information needed for creating a useful high level error report.</p>
+
+<p>Since all objects support having properties you might still wonder why exactly does it have to be an error object and not just any object. In addition to supporting properties, an equally important feature necessary for values that are automatically propagated is the stack trace property (<code>.stack</code>). A stack trace allows you easily find where an error originated from.</p>
+
+<p>You should heed this warning because rejecting a promise with a non-error makes debugging extremely hard and costly. Additionally, if you reject with simple primitives such as <code>undefined</code> (commonly caused by simple calling <code>reject()</code>) you cannot handle errors at all because it&#39;s impossible to tell from <code>undefined</code> what exactly went wrong. All you can tell the user is that &quot;something went wrong&quot; and lose them forever.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it"
+                    aria-hidden="true"
+                    href="#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it"><i class="fa fa-link"></i></a>
+                Warning: a promise was created in a handler but none were returned from it
+            </h2>
+
+<p>This usually means that you simply forgot a <code>return</code> statement somewhere which will cause a runaway promise that is not connected to any promise chain.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">getUserData</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">userData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// userData is undefined</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Because the result of <code>getUserDàta()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+ simply gets immediately called with <code>undefined</code> (because <code>undefined</code> is the default return value when you don&#39;t return anything).</p>
+
+<p>To fix it, you need to <code>return</code> the promise:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getUserData</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">userData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// userData is the user&#39;s data</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><hr></p>
+
+<p>If you know what you&#39;re doing and don&#39;t want to silence all warnings, you can create runaway promises without causing this warning by returning e.g. <code>null</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Perform this in the &quot;background&quot; and don&#39;t care about it&#39;s result at all</span>
+    <span class="nx">saveAnalytics</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+    <span class="c1">// return a non-undefined value to signal that we didn&#39;t forget to return</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+<span class="p">});</span>
+</code></pre></div>
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

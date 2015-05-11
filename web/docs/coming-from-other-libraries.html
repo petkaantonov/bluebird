@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Coming from Other Libraries | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bluebird/web/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/bluebird/web/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/bluebird/web/css/main.css">
+    <link rel="canonical" href="http://petkaantonov.github.io/bluebird/web/docs/coming-from-other-libraries.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/bluebird/web/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/bluebird/web/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/bluebird/web/docs/support.html">Support</a></li>
+                    <li class=""><a href="/bluebird/web/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/bluebird/web/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/bluebird/web/docs/features.html">Features</a></li>
+                <li><a href="/bluebird/web/docs/changelog.html">Changelog</a></li>
+                <li><a href="/bluebird/web/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/bluebird/web/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/bluebird/web/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/bluebird/web/docs/contribute.html">Contribute</a></li>
+                <li><a href="/bluebird/web/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/bluebird/web/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/bluebird/web/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/bluebird/web/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/bluebird/web/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/bluebird/web/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/bluebird/web/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/bluebird/web/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/coming-from-other-libraries.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 11 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Coming from Other Libraries</h1>
+  </header>
+
+  <article class="post-content">
+    <p>This page is a reference for migrating to bluebird from other flow control or promise libraries. See                 <a href="install.html" title="">installation</a>
+ on how to use bluebird in your environment.</p>
+
+<ul>
+<li>                <a href="#coming-from-native-promises" title="">Coming from native promises</a></li>
+<li>                <a href="#coming-from-jquery-deferreds" title="">Coming from jQuery deferreds</a></li>
+<li>                <a href="#coming-from-async-module" title="">Coming from <code>async</code> module</a></li>
+<li>                <a href="#coming-from-q" title="">Coming from Q</a></li>
+<li>                <a href="#coming-from-co" title="">Coming from co/koa</a></li>
+<li>                <a href="#coming-from-highland" title="">Coming from highland, RxJS or BaconJS</a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="coming-from-native-promises"
+                    aria-hidden="true"
+                    href="#coming-from-native-promises"><i class="fa fa-link"></i></a>
+                Coming from native promises
+            </h2>
+
+<p>Bluebird promises are a drop-in replacement for native promises except for subclassing. Additionally you might want to replace usages of the often incorrectly used                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
+ with bluebird&#39;s                 <a href="/bluebird/web/docs/api-reference.html#promise.any"><code>Promise.any</code></a>
+ which does what is usually mistakenly expected from                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
+. For maximum compatibility, bluebird does provide                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
+ with ES6 semantics.</p>
+
+<p>You can also refactor some looping patterns to a more natural form that would                 <a href="https://github.com/promises-aplus/promises-spec/issues/179" title="">leak memory when using native promises</a>
+.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="coming-from-jquery-deferreds"
+                    aria-hidden="true"
+                    href="#coming-from-jquery-deferreds"><i class="fa fa-link"></i></a>
+                Coming from jQuery deferreds
+            </h2>
+
+<p>Bluebird treats jQuery deferreds and promises interchangeably. Wherever you can take a promise or return a promise, you can take or return a jQuery deferred instead and it works the same.</p>
+
+<p>For instance, there is no need to write something like this:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">firstRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...}).</span><span class="nx">done</span><span class="p">(</span><span class="nx">resolve</span><span class="p">).</span><span class="nx">fail</span><span class="p">(</span><span class="nx">reject</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="kd">var</span> <span class="nx">secondRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...}).</span><span class="nx">done</span><span class="p">(</span><span class="nx">resolve</span><span class="p">).</span><span class="nx">fail</span><span class="p">(</span><span class="nx">reject</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span><span class="nx">firstRequest</span><span class="p">,</span> <span class="nx">secondRequest</span><span class="p">]).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Since                 <a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+ takes promises, it must also take jQuery deferreds, so the above can be shortened to:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">firstRequest</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...});</span>
+<span class="kd">var</span> <span class="nx">secondRequest</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...});</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span><span class="nx">firstRequest</span><span class="p">,</span> <span class="nx">secondRequest</span><span class="p">]).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>That said, if you have code written using jQuery deferred methods, such as <code>.then</code>, <code>.done</code> and so on, you cannot drop-in replace the jQuery deferred with a bluebird promise in that code. Despite having the same names, jQuery deferred methods have different semantics than bluebird promise methods. These differences are due to the completely different goals of the implementations. Bluebird is                 <a href="http://en.wikipedia.org/wiki/Domain-specific_language" title="">an internal DSL</a>
+ for the domain of asynchronous control flow while jQuery deferreds are a callback aggregator utility (&quot;glorified event emitters&quot;).</p>
+
+<p>If you do have some code using jQuery deferred methods extensively try to see if some of these jQuery deferred patterns and their replacements can be applied:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">$</span><span class="p">,</span> <span class="nx">someArray</span><span class="p">).</span><span class="nx">then</span><span class="p">(...)</span>
+<span class="c1">// bluebird</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">someArray</span><span class="p">).</span><span class="nx">then</span><span class="p">(...)</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span>
+<span class="kd">var</span> <span class="nx">processItemsDeferred</span> <span class="o">=</span> <span class="p">[];</span>
+
+<span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">processItemsDeferred</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">processItem</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">]));</span>
+<span class="p">}</span>
+
+<span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">$</span><span class="p">,</span> <span class="nx">processItemsDeferred</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">everythingDone</span><span class="p">);</span>
+
+<span class="c1">// bluebird</span>
+<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">processItem</span><span class="p">(</span><span class="nx">item</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">everythingDone</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="nx">d</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">);</span>
+<span class="c1">// bluebird</span>
+<span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="nx">d</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">));</span>
+<span class="c1">// bluebird</span>
+<span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="kd">var</span> <span class="nx">clicked</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">).</span><span class="nx">one</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">clicked</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="c1">// bluebird</span>
+<span class="kd">var</span> <span class="nx">clicked</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">).</span><span class="nx">one</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jQuery</span>
+<span class="p">.</span><span class="nx">always</span><span class="p">(</span><span class="nx">removeSpinner</span><span class="p">);</span>
+<span class="c1">// bluebird</span>
+<span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="nx">removeSpinner</span><span class="p">);</span>
+</code></pre></div>            <h2>
+                <a class="header-anchor"
+                    name="coming-from-async-module"
+                    aria-hidden="true"
+                    href="#coming-from-async-module"><i class="fa fa-link"></i></a>
+                Coming from <code>async</code> module
+            </h2>
+
+<p>Due to how promises compose and work naturally with the language, you can get the utility otherwise provided by a thousand narrow inflexible helper functions by just combining and composing a few existing functions and concepts.</p>
+
+<p>This section lists the most common async module replacements.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.waterfall"
+                    aria-hidden="true"
+                    href="#async.waterfall"><i class="fa fa-link"></i></a>
+                <code>async.waterfall</code>
+            </h3>
+
+<p>If the waterfall elements are static, you can just replace it with a normal promise chain. For waterfalls with dynamic steps, use                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.series"
+                    aria-hidden="true"
+                    href="#async.series"><i class="fa fa-link"></i></a>
+                <code>async.series</code>
+            </h3>
+
+<p>If the series elements are static, you can just replace it with a normal promise chain. For series with dynamic steps, use                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.parallel"
+                    aria-hidden="true"
+                    href="#async.parallel"><i class="fa fa-link"></i></a>
+                <code>async.parallel</code>
+            </h3>
+
+<p><a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.mapseries"
+                    aria-hidden="true"
+                    href="#async.mapseries"><i class="fa fa-link"></i></a>
+                <code>async.mapSeries</code>
+            </h3>
+
+<p><a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.map"
+                    aria-hidden="true"
+                    href="#async.map"><i class="fa fa-link"></i></a>
+                <code>async.map</code>
+            </h3>
+
+<p><a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
+</p>
+            <h3>
+                <a class="header-anchor"
+                    name="async.whilst"
+                    aria-hidden="true"
+                    href="#async.whilst"><i class="fa fa-link"></i></a>
+                <code>async.whilst</code>
+            </h3>
+
+<p>Recursion. E.g.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nx">async</span><span class="p">.</span><span class="nx">whilst</span><span class="p">(</span>
+    <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">count</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="p">},</span>
+    <span class="kd">function</span> <span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">count</span><span class="o">++</span><span class="p">;</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="mi">1000</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 5 seconds have passed</span>
+    <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">(</span><span class="kd">function</span> <span class="nx">loop</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">count</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">count</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">loop</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+<span class="p">})().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 5 seconds have passed</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Basically almost the whole <code>async</code> library can be expressed with some combination of                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+,                 <a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
+ or just plain promise usage combined with standard language features such as recursion.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="coming-from-q"
+                    aria-hidden="true"
+                    href="#coming-from-q"><i class="fa fa-link"></i></a>
+                Coming from Q
+            </h2>
+
+<p>Q and bluebird share a lot of common methods that nevertheless have different names:</p>
+
+<ul>
+<li><code>Q(...)</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#promise.resolve"><code>Promise.resolve()</code></a></li>
+<li><code>.fail()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+ or <code>.caught()</code></li>
+<li><code>.fin()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.finally"><code>.finally()</code></a>
+ or <code>.lastly()</code></li>
+<li><code>Q.fcall()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#promise.try"><code>Promise.try</code></a>
+ or <code>Promise.attempt()</code></li>
+<li><code>.thenResolve()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.return"><code>.return()</code></a>
+ or <code>.thenReturn()</code></li>
+<li><code>.thenReject()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.throw"><code>.throw()</code></a>
+ or <code>thenThrow()</code></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="coming-from-co"
+                    aria-hidden="true"
+                    href="#coming-from-co"><i class="fa fa-link"></i></a>
+                Coming from co/koa
+            </h2>
+
+<p>In recent versions generator libraries started abandoning old ideas of special tokens passed to callbacks and started using promises for what&#39;s being yielded.</p>
+
+<p>Bluebird&#39;s                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+ is a superset of the <code>co</code> library, being more extensible as well as supporting cancellation (in environments where                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return" title=""><code>Generator#return</code></a>
+ is implemented).</p>
+            <h2>
+                <a class="header-anchor"
+                    name="coming-from-highland"
+                    aria-hidden="true"
+                    href="#coming-from-highland"><i class="fa fa-link"></i></a>
+                Coming from highland, RxJS or BaconJS
+            </h2>
+
+<p>Stream libraries tend to serve a different purpose than promise libraries. Unlike promise libraries streams can represent multiple values.</p>
+
+<p>Check out the benchmarks section for examples of transitioning an API from Bacon/Rx to promises.</p>
+
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
