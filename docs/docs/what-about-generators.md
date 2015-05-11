@@ -10,43 +10,42 @@ A lot of people tend to think that generators/coroutines and promises are two di
 They're not!
 
 With the use of `Promise.coroutine()` we can turn any `GeneratorFunction` constructor (any generator) into a coroutine
-that yields resolves promises! (Those of you who are familiar with the `await/async` syntax from C# might get a slight
+that yields resolved promises! (Those of you who are familiar with the `await/async` syntax from C# might get a slight
 deja-vu)
 
 ```javascript
 let myAsyncFn = Promise.coroutine(function*() {
-	try {
-		let [urlResponse, urlBody] = yield request.getAsync("http://some.api.com/url");
-		if (urlResponse.code !== 200) { throw new Error('Getting URL failed! Got ' + urlResponse.code); }
-		urlObj = JSON.parse(urlBody);
-		let [apiResponse, apiBody] = yield request.getAsync(urlObj.url);
-		if (apiResponse.code !== 200) { throw new Error('API call failed! Got ' + apiResponse.code); }
-		return JSON.parse(apiBody); 
-	}
-	catch (err) {
-		console.log("Had an error!", err);
-	}
+    try {
+        let [urlResponse, urlBody] = yield request.getAsync("http://some.api.com/url");
+        if (urlResponse.code !== 200) { throw new Error('Getting URL failed! Got ' + urlResponse.code); }
+        urlObj = JSON.parse(urlBody);
+        let [apiResponse, apiBody] = yield request.getAsync(urlObj.url);
+        if (apiResponse.code !== 200) { throw new Error('API call failed! Got ' + apiResponse.code); }
+        return JSON.parse(apiBody); 
+    } catch (err) {
+        console.log("Had an error!", err);
+    }
 });
 ```
 
 `myAsyncFn` is now a normal function, that returns a promise, in this case, the promise will resolve with the response
 from the API call of the URL gotten from http://some.api.com/url
 
-The above is equivalent to
+The above is equivalent to:
 
 ```javascript
 function myAsyncFn() {
-	return request.getAsync("http://some.api.com/url")
-		.then(([urlResponse, urlBody]) => {
-			if (urlResponse.code !== 200) { return Promise.reject(new Error('Getting URL failed! Got ' + urlResponse.code)); }
-			return JSON.parse(urlBody);
-		})
-		.then(urlObj => request.getAsync(urlObj.url))
-		.then(([apiResponse, apiBody]) => {
-			if (apiResponse.code !== 200) { return Promise.reject(new Error('API call failed! Got ' + apiResponse.code)); }
-			return JSON.parse(apiBody);
-		})
-		.catch(err => console.log("Had an error!", err));
+    return request.getAsync("http://some.api.com/url")
+        .then(([urlResponse, urlBody]) => {
+            if (urlResponse.code !== 200) { return Promise.reject(new Error('Getting URL failed! Got ' + urlResponse.code)); }
+            return JSON.parse(urlBody);
+        })
+        .then(urlObj => request.getAsync(urlObj.url))
+        .then(([apiResponse, apiBody]) => {
+            if (apiResponse.code !== 200) { return Promise.reject(new Error('API call failed! Got ' + apiResponse.code)); }
+            return JSON.parse(apiBody);
+        })
+        .catch(err => console.log("Had an error!", err));
 }
 ```
 
