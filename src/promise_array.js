@@ -88,11 +88,11 @@ PromiseArray.prototype._iterate = function(values) {
     var len = this.getActualLength(values.length);
     this._length = len;
     this._values = this.shouldCopyValues() ? new Array(len) : this._values;
-    var promise = this._promise;
+    var result = this._promise;
     var isResolved = false;
     var bitField = null;
     for (var i = 0; i < len; ++i) {
-        var maybePromise = tryConvertToPromise(values[i], promise);
+        var maybePromise = tryConvertToPromise(values[i], result);
 
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
@@ -122,7 +122,7 @@ PromiseArray.prototype._iterate = function(values) {
         }
         ASSERT(typeof isResolved === "boolean");
     }
-    if (!isResolved) promise._setAsyncGuaranteed();
+    if (!isResolved) result._setAsyncGuaranteed();
 };
 
 PromiseArray.prototype._isResolved = function () {
