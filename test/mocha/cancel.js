@@ -62,15 +62,15 @@ describe("Cancellation", function() {
         new Promise(function(resolve, _, onCancel) {
             resolve(p);
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         new Promise(function(resolve, _, onCancel) {
             resolve(p);
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         new Promise(function(resolve, _, onCancel) {
             resolve(p);
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
         });
@@ -111,15 +111,15 @@ describe("Cancellation", function() {
         new Promise(function(resolve, _, onCancel) {
             resolve(p.then());
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         new Promise(function(resolve, _, onCancel) {
             resolve(p.then());
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         new Promise(function(resolve, _, onCancel) {
             resolve(p.then());
             onCancel(function() {cancelled++});
-        });
+        }).suppressUnhandledRejections();
         return awaitLateQueue(function() {
             assert.equal(1, cancelled);
         });
@@ -427,6 +427,7 @@ describe("Cancellation", function() {
             .lastly(function() {
                 resolve();
             })
+        promise.suppressUnhandledRejections();
         promise.cancel();
         return result.then(function() {
             assert.equal(3, cancelled);
@@ -561,7 +562,8 @@ describe("Cancellation", function() {
             })
             .lastly(function() {
                 resolve();
-            })
+            });
+        promise.suppressUnhandledRejections();
         promise.cancel();
         return result.then(function() {
             assert.equal(6, cancelled);
@@ -665,6 +667,7 @@ describe("Cancellation", function() {
                 resolve();
             })
         promise.cancel();
+        promise.suppressUnhandledRejections();
         return result.then(function() {
             assert.equal(6, cancelled);
         });
@@ -894,7 +897,7 @@ describe("Cancellation with .props", function() {
         var result = new Promise(function() {resolve = arguments[0]});
         var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
-        Promise.props(p).lastly(resolve);
+        Promise.props(p).lastly(resolve).suppressUnhandledRejections();
         return result;
     });
 
@@ -1222,7 +1225,10 @@ describe("Cancellation with .some", function() {
         p1.cancel();
         p2.cancel();
         p3.cancel();
-        Promise.some([p1, p2, p3], 1).then(assert.fail, assert.fail).lastly(resolve);
+        Promise.some([p1, p2, p3], 1).then(assert.fail, function(e) {
+            assert(e instanceof Promise.CancellationError);
+            resolve();
+        });
         return result;
     });
 
@@ -1959,7 +1965,7 @@ describe("Cancellation with .bind", function() {
         ctx.cancel();
         Promise.bind(ctx).lastly(function() {
             finalled++;
-        });
+        }).suppressUnhandledRejections();
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
             assert.equal(0, cancelled);
@@ -1987,15 +1993,21 @@ describe("Cancellation with .bind", function() {
     specify("main promise is immediately cancelled while waiting on binding", function() {
         var finalled = 0;
         var cancelled = 0;
-        var ctx = new Promise(function(_, __, onCancel) {});
+        var resolve;
+        var ctx = new Promise(function(_, __, onCancel) {resolve = arguments[0];});
         var main = new Promise(function(_, __, onCancel) {});
         main.cancel();
         main.bind(ctx).lastly(function() {
             finalled++;
-        });
+        }).suppressUnhandledRejections();
         return awaitLateQueue(function() {
-            assert.equal(1, finalled);
-            assert.equal(0, cancelled);
+            resolve();
+            return ctx;
+        }).then(function() {
+            return awaitLateQueue(function() {
+                assert.equal(1, finalled);
+                assert.equal(0, cancelled);
+            });
         });
     });
 
@@ -2160,7 +2172,10 @@ describe("Cancellation with .join", function() {
         });
         var p = new Promise(function(_, __, onCancel) {});
         p.cancel();
-        Promise.join(1,2,p, assert.fail).then(reject, reject).lastly(resolve);
+        Promise.join(1,2,p, assert.fail).then(reject, function(e) {
+            assert(e instanceof Promise.CancellationError);
+            resolve();
+        });
         return result;
     });
 
@@ -2285,7 +2300,8 @@ describe("Cancellation with .using", function() {
             disposerCalled = true;
         });
 
-        Promise.using(1, disposable, p, assert.fail).then(reject, reject).lastly(function() {
+        Promise.using(1, disposable, p, assert.fail).then(reject, function(e) {
+            assert(e instanceof Promise.CancellationError);
             assert(disposerCalled);
             resolve();
         });
@@ -2308,7 +2324,7 @@ describe("Cancellation with .using", function() {
             disposerCalled = true;
         });
 
-        Promise.using(1,disposable,p, assert.fail).then(reject, reject).lastly(function() {
+        Promise.using(1, disposable, p, assert.fail).then(reject, reject).lastly(function() {
             assert(disposerCalled);
             resolve();
         });
@@ -2555,18 +2571,19 @@ describe("Cancellation with .using", function() {
             disposerCalled++;
         });
 
-        var all = Promise.using(resource1, resource2, function(res1, res2) {
-            var ret = new Promise(function(_, __, onCancel) {});
-            ret.cancel();
-            return ret;
-        }).then(reject, reject)
-           .lastly(function() {finalled++; resolve(); });
-
         var resolve, reject;
         var result = new Promise(function() {
             resolve = arguments[0];
             reject = arguments[1];
         });
+
+        var all = Promise.using(resource1, resource2, function(res1, res2) {
+            var ret = new Promise(function(_, __, onCancel) {});
+            ret.cancel();
+            return ret;
+        }).then(reject, function(e) {
+            if(!(e instanceof Promise.CancellationError)) reject(new Error());
+        }).lastly(function() {finalled++; resolve(); });
 
         return result.then(function() {
             return awaitLateQueue(function() {

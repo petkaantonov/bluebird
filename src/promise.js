@@ -19,7 +19,7 @@ es5.defineProperty(Promise, "_async", {value: async});
 var errors = require("./errors");
 var TypeError = Promise.TypeError = errors.TypeError;
 Promise.RangeError = errors.RangeError;
-Promise.CancellationError = errors.CancellationError;
+var CancellationError = Promise.CancellationError = errors.CancellationError;
 Promise.TimeoutError = errors.TimeoutError;
 Promise.OperationalError = errors.OperationalError;
 Promise.RejectionError = errors.OperationalError;
@@ -218,16 +218,21 @@ Promise.prototype._then = function (
     var target = this._target();
     var bitField = target._bitField;
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
-        var handler, value;
-        if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {
+        var handler, value, settler = target._settlePromiseCtx;
+        if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+            value = target._rejectionHandler0;
+            handler = didFulfill;
+        } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
             value = target._fulfillmentHandler0;
             handler = didReject;
             target._unsetRejectionIsUnhandled();
         } else {
-            value = target._rejectionHandler0;
-            handler = didFulfill;
+            settler = target._settlePromiseLateCancellationObserver;
+            value = new CancellationError(LATE_CANCELLATION_OBSERVER);
+            target._attachExtraTrace(value);
+            handler = didReject;
         }
-        async.invoke(target._settlePromiseCtx, target, {
+        async.invoke(settler, target, {
             handler: handler,
             promise: promise,
             receiver: receiver,
@@ -421,7 +426,9 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
     } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
         this._reject(promise._reason());
     } else {
-        this._cancel();
+        var reason = new CancellationError(LATE_CANCELLATION_OBSERVER);
+        promise._attachExtraTrace(reason);
+        this._reject(reason);
     }
 };
 
@@ -561,6 +568,22 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
         } else {
             promise._reject(value);
         }
+    }
+};
+
+Promise.prototype._settlePromiseLateCancellationObserver = function(ctx) {
+    var handler = ctx.handler;
+    var promise = ctx.promise;
+    var receiver = ctx.receiver;
+    var value = ctx.value;
+    if (typeof handler === "function") {
+        if (!(promise instanceof Promise)) {
+            handler.call(receiver, value, promise);
+        } else {
+            this._settlePromiseFromHandler(handler, receiver, value, promise);
+        }
+    } else if (promise instanceof Promise) {
+        promise._reject(value);
     }
 };
 

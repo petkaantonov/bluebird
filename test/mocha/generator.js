@@ -513,7 +513,9 @@ describe("Cancellation with generators", function() {
         });
 
         asyncFunction()
-            .then(reject, reject)
+            .then(reject, function(e) {
+                if(!(e instanceof Promise.CancellationError)) reject(new Error());
+            })
             .lastly(function() {
                 finalled++;
                 resolve();

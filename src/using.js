@@ -163,7 +163,8 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                         errorObj.e = inspection.error();
                         return errorObj;
                     } else if (!inspection.isFulfilled()) {
-                        return Promise._cancelledPromise;
+                        resultPromise.cancel();
+                        return;
                     }
                     inspections[i] = inspection.value();
                 }

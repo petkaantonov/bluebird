@@ -1,6 +1,7 @@
 "use strict";
 module.exports = function(Promise, tryConvertToPromise) {
 var util = require("./util");
+var CancellationError = Promise.CancellationError;
 var errorObj = util.errorObj;
 
 function FinallyHandlerCancelReaction(finallyHandler) {
@@ -44,7 +45,11 @@ function finallyHandler(reasonOrValue) {
             if (maybePromise instanceof Promise) {
                 if (this.cancelPromise != null) {
                     if (maybePromise.isCancelled()) {
-                        checkCancel(this);
+                        var reason =
+                            new CancellationError(LATE_CANCELLATION_OBSERVER);
+                        promise._attachExtraTrace(reason);
+                        errorObj.e = reason;
+                        return errorObj;
                     } else if (maybePromise.isPending()) {
                         maybePromise._attachCancellationCallback(
                             new FinallyHandlerCancelReaction(this));

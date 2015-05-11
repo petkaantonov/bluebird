@@ -129,6 +129,7 @@
         "BLUEBIRD_ERRORS": false,
         "OBJECT_PROMISIFY_DEPRECATED": false,
         "SPAWN_DEPRECATED": false,
+        "LATE_CANCELLATION_OBSERVER": false,
         "TIMEOUT_ERROR": false,
         "COLLECTION_ERROR": false,
         "OBJECT_ERROR": false,

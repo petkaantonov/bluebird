@@ -107,6 +107,7 @@ CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire
 CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine instead.");
 
 //errors
+CONSTANT(LATE_CANCELLATION_OBSERVER, "late cancellation observer");
 CONSTANT(TIMEOUT_ERROR, "operation timed out");
 CONSTANT(COLLECTION_ERROR,  "expecting an array or an iterable object but got ");
 CONSTANT(OBJECT_ERROR,  "expecting an object but got ");
