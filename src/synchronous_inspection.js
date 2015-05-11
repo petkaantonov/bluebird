@@ -41,7 +41,7 @@ var isRejected = PromiseInspection.prototype.isRejected = function () {
 };
 
 var isPending = PromiseInspection.prototype.isPending = function () {
-    return (this._bitField & IS_REJECTED_OR_FULFILLED) === 0;
+    return (this._bitField & IS_REJECTED_OR_FULFILLED_OR_CANCELLED) === 0;
 };
 
 var isResolved = PromiseInspection.prototype.isResolved = function () {

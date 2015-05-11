@@ -2263,7 +2263,8 @@ describe("Cancellation with .reflect", function() {
         return promise.reflect().then(function(value) {
             assert(!value.isFulfilled());
             assert(!value.isRejected());
-            assert(value.isPending());
+            assert(!value.isPending());
+            assert(value.isCancelled());
         });
     });
 
@@ -2273,7 +2274,8 @@ describe("Cancellation with .reflect", function() {
         var ret = promise.reflect().then(function(value) {
             assert(!value.isFulfilled());
             assert(!value.isRejected());
-            assert(value.isPending());
+            assert(!value.isPending());
+            assert(value.isCancelled());
         });
 
         Promise.delay(1).then(function() {
