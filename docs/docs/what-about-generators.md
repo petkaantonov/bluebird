@@ -5,7 +5,7 @@ title: What About Generators?
 
 ## Promises compliment generators and coroutines!
 
-A lot of people tend to think that generators/coroutines are two different ways of modelling asynchronous behavior.
+A lot of people tend to think that generators/coroutines and promises are two different ways of modelling asynchronous behavior.
 
 They're not!
 
@@ -38,7 +38,7 @@ The above is equivalent to
 function myAsyncFn() {
 	return request.getAsync("http://some.api.com/url")
 		.then(([urlResponse, urlBody]) => {
-			if (urlResponse.code !== 200) { return Promise.reject( new Error('Getting URL failed! Got ' + urlResponse.code)); }
+			if (urlResponse.code !== 200) { return Promise.reject(new Error('Getting URL failed! Got ' + urlResponse.code)); }
 			return JSON.parse(urlBody);
 		})
 		.then(urlObj => request.getAsync(urlObj.url))
