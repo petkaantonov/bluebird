@@ -139,6 +139,7 @@
 <li>                <a href="#.isfulfilled" title="">.isFulfilled</a></li>
 <li>                <a href="#.isrejected" title="">.isRejected</a></li>
 <li>                <a href="#.ispending" title="">.isPending</a></li>
+<li>                <a href="#.iscancelled" title="">.isCancelled</a></li>
 <li>                <a href="#.value" title="">.value</a></li>
 <li>                <a href="#.reason" title="">.reason</a></li>
 </ul></li>
@@ -183,10 +184,7 @@
 
 
 <ul>
-<li>                <a href="#.cancellable" title="">.cancellable</a></li>
-<li>                <a href="#.uncancellable" title="">.uncancellable</a></li>
 <li>                <a href="#.cancel" title="">.cancel</a></li>
-<li>                <a href="#.iscancellable" title="">.isCancellable</a></li>
 </ul></li>
 <li>                <a href="#generators" title="">Generators</a>
 
@@ -983,6 +981,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
     <span class="kr">boolean</span> <span class="nx">pending</span><span class="p">()</span>
     <span class="kr">boolean</span> <span class="nx">isRejected</span><span class="p">()</span>
     <span class="kr">boolean</span> <span class="nx">isFulfilled</span><span class="p">()</span>
+    <span class="kr">boolean</span> <span class="nx">isCancelled</span><span class="p">()</span>
 <span class="p">}</span>
 </pre></div>
 <p>This interface is implemented by <code>Promise</code> instances as well as the <code>PromiseInspection</code> result given by                 <a href="/bluebird/web/docs/api-reference.html#.reflect"><code>.reflect()</code></a>
@@ -1015,6 +1014,18 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <p><hr></p>
             <h2>
                 <a class="header-anchor"
+                    name=".iscancelled"
+                    aria-hidden="true"
+                    href="#.iscancelled"><i class="fa fa-link"></i></a>
+                .isCancelled
+            </h2>
+<div class="highlight"><pre><span class="p">.</span><span class="nx">isCancelled</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kr">boolean</span>
+</pre></div>
+<p>See if this <code>promise</code> has been cancelled.</p>
+
+<p><hr></p>
+            <h2>
+                <a class="header-anchor"
                     name=".ispending"
                     aria-hidden="true"
                     href="#.ispending"><i class="fa fa-link"></i></a>
@@ -1022,7 +1033,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
             </h2>
 <div class="highlight"><pre><span class="p">.</span><span class="nx">isPending</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kr">boolean</span>
 </pre></div>
-<p>See if this <code>promise</code> is pending (not fulfilled or rejected).</p>
+<p>See if this <code>promise</code> is pending (not fulfilled or rejected or cancelled).</p>
 
 <p><hr></p>
             <h2>
@@ -2332,42 +2343,19 @@ some callback API&#39;s have multiple success value. The default is to ignore al
 <div class="highlight"><pre><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
     <span class="kr">int</span> <span class="nx">ms</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">String</span> <span class="nx">message</span><span class="o">=</span><span class="s2">&quot;operation timed out&quot;</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">CancellablePromise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </pre></div>
-<p>Returns a undefined promise that will be fulfilled with this promise&#39;s fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within <code>ms</code> milliseconds, the returned promise is cancelled with a                 <a href="/bluebird/web/docs/api-reference.html#timeouterror"><code><code>TimeoutError</code></code></a>
- as the cancellation reason.</p>
+<p>Returns a promise that will be fulfilled with this promise&#39;s fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within <code>ms</code> milliseconds, the returned promise is rejected with a                 <a href="/bluebird/web/docs/api-reference.html#timeouterror"><code><code>TimeoutError</code></code></a>
+ as the reason.</p>
 
 <p>You may specify a custom error message with the <code>message</code> parameter.</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;huge-file.txt&quot;</span><span class="p">).</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">100</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
 
-<p>The example function <code>fetchContent</code> doesn&#39;t leave the ongoing http request in the background in case the request cancelled from outside, either manually or through a timeout.</p>
-<div class="highlight"><pre><span class="c1">// Assumes TimeoutError and CancellationError are both globally available</span>
-<span class="kd">function</span> <span class="nx">fetchContent</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">jqXHR</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.slowpage.com&quot;</span><span class="p">);</span>
-    <span class="c1">// Resolve the jQuery promise into a bluebird promise</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">jqXHR</span><span class="p">)</span>
-        <span class="p">.</span><span class="nx">cancellable</span><span class="p">()</span>
-        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="nx">CancellationError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">jqXHR</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
-            <span class="c1">// Don&#39;t swallow it</span>
-            <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span>
-        <span class="p">})</span>
-<span class="p">}</span>
-
-<span class="kd">function</span> <span class="nx">fetchContentWith5Retries</span><span class="p">(</span><span class="nx">retries</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">retries</span> <span class="o">=</span> <span class="nx">retries</span> <span class="o">||</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="k">return</span> <span class="nx">fetchContent</span><span class="p">()</span>
-        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-            <span class="c1">//..</span>
-        <span class="p">})</span>
-        <span class="p">.</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">retries</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="nx">fetchContentWith5Retries</span><span class="p">(</span><span class="nx">retries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
-            <span class="p">}</span>
-            <span class="k">else</span> <span class="p">{</span>
-                <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;couldn&#39;t fetch content after 5 timeouts&quot;</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">})</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;could not read file within 100ms&quot;</span><span class="p">);</span>
+<span class="p">});</span>
 </pre></div>
 <p><hr></p>
             <h2>
@@ -2413,88 +2401,107 @@ some callback API&#39;s have multiple success value. The default is to ignore al
                 Cancellation
             </h2>
 
-<p>By default, a promise is not cancellable. A promise can be marked as cancellable with                 <a href="/bluebird/web/docs/api-reference.html#.cancellable"><code><code>.cancellable</code></code></a>
-. A cancellable promise can be cancelled if it&#39;s not resolved. Cancelling a promise propagates to the farthest cancellable ancestor of the target promise that is still pending, and rejects that promise with the given reason, or                 <a href="/bluebird/web/docs/api-reference.html#cancellationerror"><code><code>CancellationError</code></code></a>
- by default. The rejection will then propagate back to the original promise and to its descendants. This roughly follows the semantics described                 <a href="https://github.com/promises-aplus/cancellation-spec/issues/7" title="">here</a>
+<p>Cancellation has been redesigned for bluebird 3.x, any code that relies on 2.x cancellation semantics won&#39;t work in 3.x.</p>
+
+<p>The cancellation feature is <strong>by default turned off</strong>, you can enable it using                 <a href="/bluebird/web/docs/api-reference.html#promise.config"><code>Promise.config</code></a>
 .</p>
 
-<p>Promises marked with                 <a href="/bluebird/web/docs/api-reference.html#.cancellable"><code><code>.cancellable</code></code></a>
- return cancellable promises automatically.</p>
+<p>The new cancellation has &quot;don&#39;t care&quot; semantics while the old cancellation had abort semantics. Cancelling a promise simply means that its handler callbacks will not be called.</p>
 
-<p>If you are the resolver for a promise, you can react to a cancel in your promise by catching the                 <a href="/bluebird/web/docs/api-reference.html#cancellationerror"><code><code>CancellationError</code></code></a>
-:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
-        <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
-        <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nx">url</span><span class="p">);</span>
+<p>The advantages of the new cancellation compared to the old cancellation are:</p>
+
+<ul>
+<li>                <a href="/bluebird/web/docs/api-reference.html#.cancel"><code>.cancel()</code></a>
+ is synchronous.</li>
+<li>no setup code required to make cancellation work</li>
+<li>composes with other bluebird features, like                 <a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+.</li>
+<li>                <a href="#what-about-promises-that-have-multiple-consumers" title="">reasonable semantics for multiple consumer cancellation</a></li>
+</ul>
+
+<p>As an optimization, the cancellation signal propagates upwards the promise chain so that an ongoing operation e.g. network request can be aborted. However, <em>not</em> aborting the network request still doesn&#39;t make any operational difference as the callbacks are still not called either way.</p>
+
+<p>You may register an optional cancellation hook at a root promise by using the <code>onCancel</code> argument that is passed to the executor function when cancellation is enabled:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">makeCancellableRequest</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">,</span> <span class="nx">onCancel</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nx">url</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-    <span class="p">}).</span><span class="nx">cancellable</span><span class="p">().</span><span class="k">catch</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">CancellationError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">xhr</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
-        <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span> <span class="c1">//Don&#39;t swallow it</span>
+        <span class="c1">// Note the onCancel argument only exists if cancellation has been enabled!</span>
+        <span class="nx">onCancel</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">xhr</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
+        <span class="p">});</span>
     <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>Note that the <code>onCancel</code> hook is really an optional disconnected optimization, there is no real requirement to register any cancellation hooks for cancellation to work. As such, any errors that may occur while inside the <code>onCancel</code> callback are not caught and turned into rejections.</p>
+
+<p>Example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">searchPromise</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>  <span class="c1">// Dummy promise to avoid null check.</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#search-input&quot;</span><span class="p">).</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// The handlers of the previous request must not be called</span>
+    <span class="nx">searchPromise</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="s2">&quot;/search?term=&quot;</span> <span class="o">+</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">trim</span><span class="p">());</span>
+    <span class="nx">showSpinner</span><span class="p">();</span>
+    <span class="nx">searchPromise</span> <span class="o">=</span> <span class="nx">makeCancellableRequest</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">transformData</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">transformedData</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#search-results&quot;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">transformedData</span><span class="p">;</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#search-results&quot;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">renderErrorBox</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">// This check is necessary because `.finally` handlers are always called.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">searchPromise</span><span class="p">.</span><span class="nx">isCancelled</span><span class="p">())</span> <span class="p">{</span>
+                <span class="nx">hideSpinner</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>As shown in the example the handlers registered with <code>.finally</code> are called even if the promise is cancelled. Another such exception is                 <a href="/bluebird/web/docs/api-reference.html#.reflect"><code>.reflect()</code></a>
+. No other types of handlers will be called in case of cancellation. This means that in <code>.then(onSuccess, onFailure)</code> neither <code>onSuccess</code> or <code>onFailure</code> handler is called. This is similar to how                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return" title=""><code>Generator#return</code></a>
+ works - only active <code>finally</code> blocks are executed and then the generator exits.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="what-about-promises-that-have-multiple-consumers"
+                    aria-hidden="true"
+                    href="#what-about-promises-that-have-multiple-consumers"><i class="fa fa-link"></i></a>
+                What about promises that have multiple consumers?
+            </h3>
+
+<p>It is often said that promises cannot be cancellable beacuse they can have multiple consumers.</p>
+
+<p>For instance:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">makeCancellableRequest</span><span class="p">(...);</span>
+
+<span class="kd">var</span> <span class="nx">firstConsumer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span>
+<span class="kd">var</span> <span class="nx">secondConsumer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span>
+</code></pre></div>
+<p>Even though in practice most users of promises will never have any need to take advantage of the fact that you can attach multiple consumers to a promise, it is nevertheless possible. The problem: &quot;what should happen if                 <a href="/bluebird/web/docs/api-reference.html#.cancel"><code>.cancel()</code></a>
+ is called on <code>firstConsumer</code>?&quot; Propagating the cancellation signal (and therefore making it abort the request) would be very bad as the second consumer might still be interested in the result despite the first consumer&#39;s disinterest.</p>
+
+<p>What actually happens is that <code>result</code> keeps track of how many consumers it has, in this case 2, and only if all the consumers signal cancel will the request be aborted. However, as far as <code>firstConsumer</code> can tell, the promise was successfully cancelled and its handlers will not be called.</p>
+
+<p>Note that it is an error to consume an already cancelled promise, doing such a thing will give you a promise that is rejected with <code>new CancellationError(&quot;late cancellation observer&quot;)</code> as the rejection reason.</p>
+
 <p><hr></p>
 <div class="api-code-section">            <h2>
-                <a class="header-anchor"
-                    name=".cancellable"
-                    aria-hidden="true"
-                    href="#.cancellable"><i class="fa fa-link"></i></a>
-                .cancellable
-            </h2>
-<div class="highlight"><pre><span class="p">.</span><span class="nx">cancellable</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nx">CancellablePromise</span>
-</pre></div>
-<p>Marks this promise as cancellable. Promises by default are not cancellable after v0.11 and must be marked as such for                 <a href="/bluebird/web/docs/api-reference.html#.cancel"><code><code>.cancel</code></code></a>
- to have any effect. Marking a promise as cancellable is infectious and you don&#39;t need to remark any descendant promise.</p>
-
-<p>If you have code written prior v0.11 using cancellation, add calls to                 <a href="/bluebird/web/docs/api-reference.html#.cancellable"><code><code>.cancellable</code></code></a>
- at the starts of promise chains that need to support
-cancellation in themselves or somewhere in their descendants.</p>
-
-<p><hr></p>
-            <h2>
-                <a class="header-anchor"
-                    name=".uncancellable"
-                    aria-hidden="true"
-                    href="#.uncancellable"><i class="fa fa-link"></i></a>
-                .uncancellable
-            </h2>
-<div class="highlight"><pre><span class="p">.</span><span class="nx">uncancellable</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</pre></div>
-<p>Create an uncancellable promise based on this promise.</p>
-
-<p><hr></p>
-            <h2>
                 <a class="header-anchor"
                     name=".cancel"
                     aria-hidden="true"
                     href="#.cancel"><i class="fa fa-link"></i></a>
                 .cancel
             </h2>
-<div class="highlight"><pre><span class="p">.</span><span class="nx">cancel</span><span class="p">([</span><span class="nb">Error</span> <span class="nx">reason</span><span class="o">=</span><span class="k">new</span> <span class="nx">CancellationError</span><span class="p">()])</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
+<div class="highlight"><pre><span class="p">.</span><span class="nx">cancel</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </pre></div>
-<p>Cancel this promise with the given reason. The cancellation will propagate
-to farthest cancellable ancestor promise which is still pending.</p>
-
-<p>That ancestor will then be rejected with the given <code>reason</code>, or a                 <a href="/bluebird/web/docs/api-reference.html#cancellationerror"><code><code>CancellationError</code></code></a>
- if it is not given. (get a reference from <code>Promise.CancellationError</code>) object as the rejection reason.</p>
-
-<p>Promises are by default not cancellable. Use                 <a href="/bluebird/web/docs/api-reference.html#.cancellable"><code><code>.cancellable</code></code></a>
- to mark a promise as cancellable.</p>
-
-<p><hr></p>
-            <h2>
-                <a class="header-anchor"
-                    name=".iscancellable"
-                    aria-hidden="true"
-                    href="#.iscancellable"><i class="fa fa-link"></i></a>
-                .isCancellable
-            </h2>
-<div class="highlight"><pre><span class="p">.</span><span class="nx">isCancellable</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kr">boolean</span>
-</pre></div>
-<p>See if this promise can be cancelled.</p>
+<p>Cancel this promise. Will not do anything if this promise is already settled or if the                 <a href="/bluebird/web/docs/api-reference.html#cancellation"><code>Cancellation</code></a>
+ feature has not been enabled. See                 <a href="/bluebird/web/docs/api-reference.html#cancellation"><code>Cancellation</code></a>
+ for how to use cancellation.</p>
 
 <p><hr></p>
 </div>
@@ -3302,13 +3309,18 @@ of unhandled promise rejections updated in real time as promises become handled.
             </h2>
 <div class="highlight"><pre><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="nb">Object</span> <span class="p">{</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
-    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span>
+    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
+    <span class="nx">cancellation</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span>
 <span class="p">}</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span><span class="p">;</span>
 </pre></div>
-<p>Configure long stack traces and warnings.</p>
+<p>Configure long stack traces, warnings and cancellation.</p>
 <div class="highlight"><pre><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="c1">// Enable warnings.</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="c1">// Enable long stack traces.</span>
+    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="c1">// Enable cancellation.</span>
+    <span class="nx">cancellation</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </pre></div>
 <p><hr></p>
