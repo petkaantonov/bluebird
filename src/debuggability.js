@@ -20,9 +20,10 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
 
-Promise.prototype._ignoreRejections = function() {
-    this._unsetRejectionIsUnhandled();
-    this._bitField = this._bitField | IS_REJECTION_IGNORED;
+Promise.prototype.suppressUnhandledRejections = function() {
+    var target = this._target();
+    target._bitField = ((target._bitField & (~IS_REJECTION_UNHANDLED)) |
+                      IS_REJECTION_IGNORED);
 };
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {

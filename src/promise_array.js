@@ -103,7 +103,7 @@ PromiseArray.prototype._iterate = function(values) {
 
         if (isResolved) {
             if (bitField !== null) {
-                maybePromise._ignoreRejections();
+                maybePromise.suppressUnhandledRejections();
             }
         } else if (bitField !== null) {
             if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
