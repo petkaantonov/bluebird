@@ -88,7 +88,7 @@ Example
 function delay(ms) {
     var resolver = Promise.defer();
     var now = Date.now();
-    setTimeout(function () {
+    setTimeout(function() {
         resolver.resolve(Date.now() - now);
     }, ms);
     return resolver.promise;
