@@ -37,7 +37,7 @@ Shorthand for [`.then(null, null, handler);`](.). Attach a progress handler that
 
 #####`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
-The standard [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) is still supported by Bluebird and support for it will continue indefinitely . However, the variant accepting a third `progressHandler` argument is no longer supported.
+The standard [Promises/A+ `.then()`](http://promises-aplus.github.io/promises-spec/) is still supported by Bluebird and support for it will continue indefinitely. However, the variant accepting a third `progressHandler` argument is no longer supported.
 
 <hr>
 
@@ -51,18 +51,18 @@ Like [`.then()`](.), but any unhandled rejection that ends up here will be throw
 
 #####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
 
-Like [`.then()`](.), but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
+Like [`.then()`](.), but cancellation of the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
 
 <hr>
 
 
 ##Promise resolution
 
-A `PromiseResolver` can be used to control the fate of a promise. It is like "Deferred" in jQuery or `$q.defer` in $q. The `PromiseResolver` objects have a `.promise` property which returns a reference to the controlled promise that can be passed to clients. `.promise` of a `PromiseResolver` is not a getter function to match other implementations.
+A `PromiseResolver` can be used to control the fate of a promise. It is like "Deferred" in jQuery or `$q.defer` in $q. The `PromiseResolver` objects have a `.promise` property which is a reference to the controlled promise that can be passed to clients. `.promise` of a `PromiseResolver` is not a getter function to match other implementations.
 
 The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
 
-**The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`.**
+**The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`. Read more about it [here](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-deferred-anti-pattern)**
 
 <hr>
 
@@ -85,19 +85,18 @@ Progress the underlying promise with `value` as the progression value.
 Example
 
 ```js
-function delay(ms) {    var resolver = Promise.defer();
+function delay(ms) {
+    var resolver = Promise.defer();
     var now = Date.now();
-    setTimeout(function(){
+    setTimeout(function () {
         resolver.resolve(Date.now() - now);
     }, ms);
     return resolver.promise;
 }
 
-delay(500).then(function(ms){
+delay(500).then(function (ms) {
     console.log(ms + " ms passed");
 });
 ```
 
 <hr>
-
-
