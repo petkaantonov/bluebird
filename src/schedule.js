@@ -4,9 +4,15 @@ var noAsyncScheduler = function() {
     throw new Error(NO_ASYNC_SCHEDULER);
 };
 if (require("./util.js").isNode) {
-    var version = process.versions.node.split(".").map(Number);
-    schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
-        ? global.setImmediate : process.nextTick;
+    if ("node-webkit" in process.versions) {
+        var version = process.versions["node-webkit"].split(".").map(Number);
+        schedule = (version[0] === 0 && version[1] > 8) || (version[0] > 0)
+            ? global.setImmediate : process.nextTick;
+    } else {
+        var version = process.versions.node.split(".").map(Number);
+        schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
+            ? global.setImmediate : process.nextTick;        
+    }
 
     if (!schedule) {
         if (typeof setImmediate !== "undefined") {
