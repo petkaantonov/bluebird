@@ -94,7 +94,7 @@ function delay(ms) {
     return resolver.promise;
 }
 
-delay(500).then(function (ms) {
+delay(500).then(function(ms) {
     console.log(ms + " ms passed");
 });
 ```
