@@ -3,3 +3,4 @@ test/browser/bundle.js
 js/*
 zalgo.js
 coverage/*.json
+README.md
