@@ -3,6 +3,19 @@ if (global.useRx) {
     lifter = require("rx").Observable.fromNodeCallback;
 } else if (global.useBacon) {
     fromNodeCallback = require("baconjs").fromNodeCallback;
+} else if (global.useKefir) {
+    fromNodeCallback = require("kefir").Kefir.fromNodeCallback;
+    lifter = function(nodeFn) {
+        return function() {
+            var args = [].slice.call(arguments);            
+            function thunk(callback) {
+                args.push(callback);
+                nodeFn.apply(null, args);
+                args.pop();
+            }
+            return fromNodeCallback(thunk);
+        }
+    };
 } else if (global.useHighland) {
     lifter = require("highland").wrapCallback;
 }
