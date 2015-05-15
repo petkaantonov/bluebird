@@ -62,7 +62,7 @@ A `PromiseResolver` can be used to control the fate of a promise. It is like "De
 
 The methods of a `PromiseResolver` have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).
 
-**The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`. Read more about it [here](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-deferred-anti-pattern)**
+**The use of `Promise.defer` and deferred objects is discouraged - it is much more awkward and error-prone than using `new Promise`.**
 
 <hr>
 
