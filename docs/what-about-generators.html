@@ -112,7 +112,67 @@
   </header>
 
   <article class="post-content">
-    
+                <h2>
+                <a class="header-anchor"
+                    name="promises-compliment-generators-and-coroutines"
+                    aria-hidden="true"
+                    href="#promises-compliment-generators-and-coroutines"><i class="fa fa-link"></i></a>
+                Promises compliment generators and coroutines!
+            </h2>
+
+<p>A lot of people tend to think that generators/coroutines and promises are two different ways of modelling asynchronous behavior.</p>
+
+<p>They&#39;re not!</p>
+
+<p>With the use of <code>Promise.coroutine()</code> we can turn any <code>GeneratorFunction</code> constructor (any generator) into a coroutine
+that yields resolved promises! (Those of you who are familiar with the <code>await/async</code> syntax from C# might get a slight
+deja-vu)</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">myAsyncFn</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="p">[</span><span class="nx">urlResponse</span><span class="p">,</span> <span class="nx">urlBody</span><span class="p">]</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">request</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="s2">&quot;http://some.api.com/url&quot;</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">urlResponse</span><span class="p">.</span><span class="nx">code</span> <span class="o">!==</span> <span class="mi">200</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Getting URL failed! Got &#39;</span> <span class="o">+</span> <span class="nx">urlResponse</span><span class="p">.</span><span class="nx">code</span><span class="p">);</span> <span class="p">}</span>
+        <span class="nx">urlObj</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">urlBody</span><span class="p">);</span>
+        <span class="kd">let</span> <span class="p">[</span><span class="nx">apiResponse</span><span class="p">,</span> <span class="nx">apiBody</span><span class="p">]</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">request</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="nx">urlObj</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">apiResponse</span><span class="p">.</span><span class="nx">code</span> <span class="o">!==</span> <span class="mi">200</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;API call failed! Got &#39;</span> <span class="o">+</span> <span class="nx">apiResponse</span><span class="p">.</span><span class="nx">code</span><span class="p">);</span> <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">apiBody</span><span class="p">);</span> 
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Had an error!&quot;</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><code>myAsyncFn</code> is now a normal function, that returns a promise, in this case, the promise will resolve with the response
+from the API call of the URL gotten from http://some.api.com/url</p>
+
+<p>The above is equivalent to:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">myAsyncFn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">request</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="s2">&quot;http://some.api.com/url&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(([</span><span class="nx">urlResponse</span><span class="p">,</span> <span class="nx">urlBody</span><span class="p">])</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">urlResponse</span><span class="p">.</span><span class="nx">code</span> <span class="o">!==</span> <span class="mi">200</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Getting URL failed! Got &#39;</span> <span class="o">+</span> <span class="nx">urlResponse</span><span class="p">.</span><span class="nx">code</span><span class="p">));</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">urlBody</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">urlObj</span> <span class="o">=&gt;</span> <span class="nx">request</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="nx">urlObj</span><span class="p">.</span><span class="nx">url</span><span class="p">))</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(([</span><span class="nx">apiResponse</span><span class="p">,</span> <span class="nx">apiBody</span><span class="p">])</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">apiResponse</span><span class="p">.</span><span class="nx">code</span> <span class="o">!==</span> <span class="mi">200</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;API call failed! Got &#39;</span> <span class="o">+</span> <span class="nx">apiResponse</span><span class="p">.</span><span class="nx">code</span><span class="p">));</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">apiBody</span><span class="p">);</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Had an error!&quot;</span><span class="p">,</span> <span class="nx">err</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>So basically, it makes our asynchronous function read like a normal, synchronous function, while keeping all of the
+qualities of Promise based API.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="keeping-track-of-things"
+                    aria-hidden="true"
+                    href="#keeping-track-of-things"><i class="fa fa-link"></i></a>
+                Keeping track of things
+            </h2>
+
+<p>Coroutines are also a great way of keeping track of the various variables and values of resolved promises along the chain.</p>
+
+<p>For example, in the above snippets, you&#39;d be able to access <code>urlObj</code> anywhere after it&#39;s defined in the coroutine example, but
+you&#39;d have to jump through hoops to use it anywhere outside of its designated <code>.then()</code> handler in a normal promise chain.</p>
+
   </article>
 
 </div>

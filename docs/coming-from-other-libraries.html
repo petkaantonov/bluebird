@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 16 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -224,7 +224,9 @@
                 Coming from <code>async</code> module
             </h2>
 
-<p>Due to how promises compose and work naturally with the language, you can get the utility otherwise provided by a thousand narrow inflexible helper functions by just combining and composing a few existing functions and concepts.</p>
+<p>When working with promises the philosophy is basically a complete opposite than when using <code>async</code>. Async provides a bag of inflexible uncomposable helper functions that work at a very low level of abstraction. When using promises you can get the utility otherwise provided by uncountable amount of inflexible helper functions by just combining and composing a few existing functions and concepts.</p>
+
+<p>That means when you have a problem there probably isn&#39;t an existing function tailored exactly to that problem but instead you can just combine the existing utilities to arrive at a solution. The upside of this is that you don&#39;t need to come up with a new separate function for every little problem that are really not that different from each other. The most important thing to do when migrating from async to bluebird is this profound shift in philosophy.</p>
 
 <p>This section lists the most common async module replacements.</p>
             <h3>
@@ -236,7 +238,38 @@
             </h3>
 
 <p>If the waterfall elements are static, you can just replace it with a normal promise chain. For waterfalls with dynamic steps, use                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
-.</p>
+. Multiple arguments can be ferried in an array.</p>
+
+<p>Implementing the example from                 <a href="https://github.com/caolan/async#waterfalltasks-callback" title="">async homepage</a>
+</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span><span class="p">([</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">arg2</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// arg1 now equals &#39;one&#39; and arg2 now equals &#39;two&#39;</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// arg1 now equals &#39;three&#39;</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;done&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// result now equals &#39;done&#39;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Since the array passed to waterfall is static (always the same 3 functions) a plain old promise chain is used:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">]).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">arg2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// arg1 now equals &#39;one&#39; and arg2 now equals &#39;two&#39;</span>
+    <span class="k">return</span> <span class="s1">&#39;three&#39;</span><span class="p">;</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">arg1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// arg1 now equals &#39;three&#39;</span>
+    <span class="k">return</span> <span class="s1">&#39;done&#39;</span><span class="p">;</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// result now equals &#39;done&#39;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>If destructuring parameters are supported, <code>.spread(function(arg1, arg2) {})</code> can be replaced with <code>.then(function([arg1, arg2]){})</code>.</p>
             <h3>
                 <a class="header-anchor"
                     name="async.series"
@@ -245,9 +278,32 @@
                 <code>async.series</code>
             </h3>
 
-<p>If the series elements are static, you can just replace it with a normal promise chain. For series with dynamic steps, use                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
-.</p>
-            <h3>
+<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+ to implement the example from                 <a href="https://github.com/caolan/async#seriestasks-callback" title="">async homepage</a>
+:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">async</span><span class="p">.</span><span class="nx">series</span><span class="p">([</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+            <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="p">},</span> <span class="mi">200</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+            <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+        <span class="p">},</span> <span class="mi">100</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">],</span>
+<span class="c1">// optional callback</span>
+<span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="c1">// results is now equal to [1, 2]</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">([{</span><span class="nx">timeout</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mi">1</span><span class="p">},</span>
+             <span class="err"> </span><span class="p">{</span><span class="nx">timeout</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">timeout</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// results is now equal to [1, 2]</span>
+<span class="p">});</span>
+</code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="async.parallel"
                     aria-hidden="true"
@@ -255,9 +311,32 @@
                 <code>async.parallel</code>
             </h3>
 
-<p><a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
-</p>
-            <h3>
+<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+ to implement the example from                 <a href="https://github.com/caolan/async#parallel" title="">async homepage</a>
+:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">async</span><span class="p">.</span><span class="nx">parallel</span><span class="p">([</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+            <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">);</span>
+        <span class="p">},</span> <span class="mi">200</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">){</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+            <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">);</span>
+        <span class="p">},</span> <span class="mi">100</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">],</span>
+<span class="c1">// optional callback</span>
+<span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="c1">// the results array will equal [&#39;one&#39;,&#39;two&#39;] even though</span>
+    <span class="c1">// the second function had a shorter timeout.</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+             <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)]).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// the results array will equal [&#39;one&#39;,&#39;two&#39;] even though</span>
+    <span class="c1">// the second function had a shorter timeout.</span>
+<span class="p">});</span>
+</code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="async.mapseries"
                     aria-hidden="true"
@@ -265,9 +344,20 @@
                 <code>async.mapSeries</code>
             </h3>
 
-<p><a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
-</p>
-            <h3>
+<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+ to implement the example from                 <a href="https://github.com/caolan/async#maparr-iterator-callback" title="">async homepage</a>
+:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<span class="nx">async</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">([</span><span class="s1">&#39;file1&#39;</span><span class="p">,</span><span class="s1">&#39;file2&#39;</span><span class="p">,</span><span class="s1">&#39;file3&#39;</span><span class="p">],</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">stat</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="c1">// results is now an array of stats for each file</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">([</span><span class="s1">&#39;file1&#39;</span><span class="p">,</span><span class="s1">&#39;file2&#39;</span><span class="p">,</span><span class="s1">&#39;file3&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// results is now an array of stats for each file</span>
+<span class="p">});</span>
+</code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="async.map"
                     aria-hidden="true"
@@ -275,9 +365,20 @@
                 <code>async.map</code>
             </h3>
 
-<p><a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
-</p>
-            <h3>
+<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
+ to implement the example from                 <a href="https://github.com/caolan/async#maparr-iterator-callback" title="">async homepage</a>
+:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<span class="nx">async</span><span class="p">.</span><span class="nx">map</span><span class="p">([</span><span class="s1">&#39;file1&#39;</span><span class="p">,</span><span class="s1">&#39;file2&#39;</span><span class="p">,</span><span class="s1">&#39;file3&#39;</span><span class="p">],</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">stat</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">){</span>
+    <span class="c1">// results is now an array of stats for each file</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">var fs = Promise.promisifyAll(require(&#39;fs&#39;));
+Promise.map([&#39;file1&#39;,&#39;file2&#39;,&#39;file3&#39;], function(fileName, index, length) {
+    return fs.statAsync(fileName);
+}).then(function(results) {
+    // results is now an array of stats for each file
+});
+</code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="async.whilst"
                     aria-hidden="true"
@@ -285,7 +386,8 @@
                 <code>async.whilst</code>
             </h3>
 
-<p>Recursion. E.g.</p>
+<p>Using recursion to implement the example from                 <a href="https://github.com/caolan/async#whilsttest-fn-callback" title="">async homepage</a>
+:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="nx">async</span><span class="p">.</span><span class="nx">whilst</span><span class="p">(</span>
     <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">count</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="p">},</span>
@@ -307,9 +409,7 @@
     <span class="c1">// 5 seconds have passed</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Basically almost the whole <code>async</code> library can be expressed with some combination of                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
-,                 <a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
- or just plain promise usage combined with standard language features such as recursion.</p>
+<p>Be warned that the above example implementations are only superficially equivalent. Callbacks, even with the help of async, require too much boilerplate code to provide the same guarantees as promises.</p>
             <h2>
                 <a class="header-anchor"
                     name="coming-from-q"
