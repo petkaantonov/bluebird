@@ -24,8 +24,10 @@ function tryConvertToPromise(obj, context) {
         }
         var then = util.tryCatch(getThen)(obj);
         if (then === errorObj) {
+            var e = errorObj.e;
+            errorObj.e = null;
             if (context) context._pushContext();
-            var ret = Promise.reject(then.e);
+            var ret = Promise.reject(e);
             if (context) context._popContext();
             return ret;
         } else if (typeof then === "function") {
@@ -58,7 +60,9 @@ function doThenable(x, then, context) {
                                         progressFromThenable);
     synchronous = false;
     if (promise && result === errorObj) {
-        promise._rejectCallback(result.e, true, true);
+        var e = errorObj.e;
+        errorObj.e = null;
+        promise._rejectCallback(e, true, true);
         promise = null;
     }
 

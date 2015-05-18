@@ -182,7 +182,9 @@ function(callback, receiver, originalName, fn) {
                 [CodeForSwitchCase]                                          \n\
             }                                                                \n\
             if (ret === errorObj) {                                          \n\
-                promise._rejectCallback(maybeWrapAsError(ret.e), true, true);\n\
+                var e = errorObj.e;                                          \n\
+                errorObj.e = null;                                           \n\
+                promise._rejectCallback(maybeWrapAsError(e), true, true);    \n\
             }                                                                \n\
             return promise;                                                  \n\
         };                                                                   \n\

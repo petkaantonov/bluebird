@@ -17,8 +17,10 @@ function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
         var result = tryCatch(yieldHandlers[i])(value);
         traceParent._popContext();
         if (result === errorObj) {
+            var e = errorObj.e;
+            errorObj.e = null;
             traceParent._pushContext();
-            var ret = Promise.reject(errorObj.e);
+            var ret = Promise.reject(e);
             traceParent._popContext();
             return ret;
         }
@@ -53,7 +55,9 @@ PromiseSpawn.prototype._run = function () {
 
 PromiseSpawn.prototype._continue = function (result) {
     if (result === errorObj) {
-        return this._promise._rejectCallback(result.e, false, true);
+        var e = errorObj.e;
+        errorObj.e = null;
+        return this._promise._rejectCallback(e, false, true);
     }
 
     var value = result.value;

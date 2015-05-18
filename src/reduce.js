@@ -129,7 +129,11 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
         }
         this._promise._popContext();
 
-        if (ret === errorObj) return this._reject(ret.e);
+        if (ret === errorObj) {
+            var e = errorObj.e;
+            errorObj.e = null;
+            return this._reject(e);
+        }
 
         var maybePromise = tryConvertToPromise(ret, this._promise);
         if (maybePromise instanceof Promise) {

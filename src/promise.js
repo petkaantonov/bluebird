@@ -155,7 +155,9 @@ Promise.fromNode = function(fn) {
     var ret = new Promise(INTERNAL);
     var result = tryCatch(fn)(nodebackForPromise(ret));
     if (result === errorObj) {
-        ret._rejectCallback(result.e, true, true);
+        var e = errorObj.e;
+        errorObj.e = null;
+        ret._rejectCallback(e, true, true);
     }
     return ret;
 };
@@ -477,7 +479,9 @@ Promise.prototype._resolveFromResolver = function (resolver) {
     this._popContext();
 
     if (r !== undefined && r === errorObj && promise !== null) {
-        promise._rejectCallback(r.e, true, true);
+        var e = errorObj.e;
+        errorObj.e = null;
+        promise._rejectCallback(e, true, true);
         promise = null;
     }
 };
@@ -496,9 +500,12 @@ Promise.prototype._settlePromiseFromHandler = function (
     }
     promise._popContext();
 
-    if (x === errorObj || x === promise || x === NEXT_FILTER) {
-        var err = x === promise ? makeSelfResolutionError() : x.e;
-        promise._rejectCallback(err, false, true);
+    if (x === promise) {
+        promise._rejectCallback(makeSelfResolutionError(), false, true);
+    } else if (x === errorObj || x === NEXT_FILTER) {
+        var e = x.e;
+        x.e = null;
+        promise._rejectCallback(e, false, true);
     } else {
         promise._resolveCallback(x);
     }
