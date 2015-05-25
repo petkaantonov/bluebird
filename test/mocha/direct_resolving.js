@@ -168,3 +168,20 @@ describe("thenThrow", function () {
         });
     });
 });
+
+describe("gh-627", function() {
+    it("can return undefined", function() {
+        return Promise.bind(42)
+            .thenReturn(undefined)
+            .then(function (value) {
+              assert.strictEqual(value, undefined);
+            });
+    });
+    it("can throw undefined", function() {
+        return Promise.bind(42)
+            .thenThrow(undefined)
+            .then(assert.fail, function (reason) {
+              assert.strictEqual(reason, undefined);
+            });
+    });
+});
