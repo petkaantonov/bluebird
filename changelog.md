@@ -1,3 +1,10 @@
+## 2.9.26 (2015-05-25)
+
+Bugfixes:
+
+ - Fix crash in NW [#624](.)
+ - Fix [`.return()`](.) not supporting `undefined` as return value [#627](.)
+
 ## 2.9.25 (2015-04-28)
 
 Bugfixes:
