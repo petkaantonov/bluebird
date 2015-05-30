@@ -1,6 +1,7 @@
 var path = require("path");
 var build = require("./build.js");
 var Promise = require("bluebird");
+var cp = Promise.promisifyAll(require("child_process"));
 var fs = Promise.promisifyAll(require("fs"));
 var baseDir = path.join(__dirname, "..", "test", "browser");
 var browsers = [
@@ -77,6 +78,11 @@ module.exports = function(options) {
             return saucelabsRunner(saucelabsOptions);
         }).then(function() {
             process.exit(0);
+        });
+    } else if (options.nw) {
+        ret = cp.execAsync((options.nwPath || "nw") + " .", {
+            maxBuffer: 2 * 1024 * 1024,
+            cwd: path.join(process.cwd(), "test/browser")
         });
     } else {
         var open = require("open");

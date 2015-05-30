@@ -63,6 +63,8 @@
     window.setInterval = setInterval;
     window.clearInterval = clearInterval;
 })();
+window.adapter = window.Promise;
+global.Promise = global.adapter = window.adapter;
 window.assert = require("assert");
 
 var prev = window.assert.deepEqual;
