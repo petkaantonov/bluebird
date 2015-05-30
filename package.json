@@ -60,7 +60,8 @@
     "rx": "^2.3.25",
     "serve-static": "^1.7.1",
     "sinon": "~1.7.3",
-    "uglify-js": "~2.4.16"
+    "uglify-js": "~2.4.16",
+    "kefir": "^2.4.1"
   },
   "readmeFilename": "README.md",
   "main": "./js/main/bluebird.js",
