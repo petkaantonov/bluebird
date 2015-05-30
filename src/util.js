@@ -307,5 +307,9 @@ var ret = {
     isNode: isNode,
     env: env
 };
+ret.isRecentNode = ret.isNode && (function() {
+    var version = process.versions.node.split(".").map(Number);
+    return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+})();
 try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;
