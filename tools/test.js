@@ -156,20 +156,24 @@ var options = {
         } catch (e) {
             return false;
         }
-    })(),
+    })() || !!argv.nw,
     cover: !!argv["cover"],
     testName: testName,
     singleTest: false,
     saucelabs: !!argv.saucelabs,
-    testBrowser: !!argv.saucelabs || !!argv.browser,
-    executeBrowserTests: !!argv.saucelabs || (typeof argv["execute-browser-tests"] === "boolean" ?
+    testBrowser: !!argv.saucelabs || !!argv.browser || !!argv.nw,
+    executeBrowserTests: !!argv.saucelabs || !!argv.nw || (typeof argv["execute-browser-tests"] === "boolean" ?
         argv["execute-browser-tests"] : !!argv.browser),
-    openBrowser: typeof argv["open-browser"] === "boolean" ? argv["js-hint"] : true,
+    openBrowser: typeof argv["open-browser"] === "boolean" ? argv["open-browser"] : true,
     port: argv.port || 9999,
     fakeTimers: typeof argv["fake-timers"] === "boolean"
         ? argv["fake-timers"] : true,
-    jsHint: typeof argv["js-hint"] === "boolean" ? argv["js-hint"] : true
+    jsHint: typeof argv["js-hint"] === "boolean" ? argv["js-hint"] : true,
+    nw: !!argv.nw,
+    nwPath: argv["nw-path"]
 };
+
+
 
 if (options.cover && typeof argv["cover"] === "string") {
     options.coverFormat = argv["cover"];
