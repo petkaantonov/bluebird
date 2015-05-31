@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -144,7 +144,7 @@
 <p>You got this this error because you&#39;ve used <code>Promise.promisify</code> on an object, for example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>
-<p>Instead, use                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code><code>Promise.promisifyAll</code></code></a>
+<p>Instead, use                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll</code></code></a>
  :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>            <h2>
@@ -167,9 +167,9 @@
     <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Please consider reading about                 <a href="/bluebird/web/docs/api-reference.html#new-promise"><code>new Promise</code></a>
- and also consider checking out automatic                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
- as well as                 <a href="/bluebird/web/docs/api-reference.html#promise.method"><code>Promise.method</code></a>
+<p>Please consider reading about                 <a href="/docs/api/new-promise.html"><code>new Promise</code></a>
+ and also consider checking out automatic                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
+ as well as                 <a href="/docs/api/promise.method.html"><code>Promise.method</code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -198,9 +198,9 @@
        //...
 })
 </code></pre></div>
-<p>Please consider reading about                 <a href="/bluebird/web/docs/api-reference.html#new-promise"><code>new Promise</code></a>
- and also consider checking out automatic                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
- as well as                 <a href="/bluebird/web/docs/api-reference.html#promise.method"><code>Promise.method</code></a>
+<p>Please consider reading about                 <a href="/docs/api/new-promise.html"><code>new Promise</code></a>
+ and also consider checking out automatic                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
+ as well as                 <a href="/docs/api/promise.method.html"><code>Promise.method</code></a>
 </p>
             <h4>
                 <a class="header-anchor"
@@ -238,7 +238,7 @@
                 Error: generatorFunction must be a function
             </h2>
 
-<p>You are getting this error when trying to use                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+<p>You are getting this error when trying to use                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
  and not passing it a generator function as a parameter.  For example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// Note the *</span>
     <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.example.com&quot;</span><span class="p">);</span>
@@ -250,12 +250,12 @@
     <span class="k">return</span> <span class="nx">contents</span><span class="p">;</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Please refer to the relevant section in the documentation about                 <a href="/bluebird/web/docs/api-reference.html#generators"><code>Generators</code></a>
+<p>Please refer to the relevant section in the documentation about                 <a href="/docs/api/generators.html"><code>Generators</code></a>
  in order to get usage instructions:</p>
 
 <p><strong>Note</strong>: Bluebird used to eagerly check for generators which caused problems with transpilers. Because of this, you might get an error similar to <code>TypeError: Cannot read property &#39;next&#39; of undefined</code> if you pass a function instead of a generator function to Bluebird.</p>
 
-<p><a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+<p><a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
  is built to work with generators to form C# like <code>async/await</code></p>
             <h2>
                 <a class="header-anchor"
@@ -281,7 +281,7 @@
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>See the API page about                 <a href="/bluebird/web/docs/api-reference.html#promise.longstacktraces"><code>Promise.longStackTraces</code></a>
+<p>See the API page about                 <a href="/docs/api/promise.longstacktraces.html"><code>Promise.longStackTraces</code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -297,12 +297,12 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
-<p>Consider using                 <a href="/bluebird/web/docs/api-reference.html#.ispending"><code>.isPending()</code></a>
-                 <a href="/bluebird/web/docs/api-reference.html#.isfulfilled"><code>.isFulfilled()</code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.isrejected"><code>.isRejected()</code></a>
+<p>Consider using                 <a href="/docs/api/ispending.html"><code>.isPending()</code></a>
+                 <a href="/docs/api/isfulfilled.html"><code>.isFulfilled()</code></a>
+ and                 <a href="/docs/api/isrejected.html"><code>.isRejected()</code></a>
  in order to inspect the promise for status.</p>
 
-<p>Please consider reading more about                 <a href="/bluebird/web/docs/api-reference.html#synchronous-inspection"><code>synchronous inspection</code></a>
+<p>Please consider reading more about                 <a href="/docs/api/synchronous-inspection.html"><code>synchronous inspection</code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -318,12 +318,12 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
-<p>Consider using                 <a href="/bluebird/web/docs/api-reference.html#.ispending"><code>.isPending()</code></a>
-                 <a href="/bluebird/web/docs/api-reference.html#.isfulfilled"><code>.isFulfilled()</code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.isrejected"><code>.isRejected()</code></a>
+<p>Consider using                 <a href="/docs/api/ispending.html"><code>.isPending()</code></a>
+                 <a href="/docs/api/isfulfilled.html"><code>.isFulfilled()</code></a>
+ and                 <a href="/docs/api/isrejected.html"><code>.isRejected()</code></a>
  in order to inspect the promise for status.</p>
 
-<p>Please consider reading more about                 <a href="/bluebird/web/docs/api-reference.html#synchronous-inspection"><code>synchronous inspection</code></a>
+<p>Please consider reading more about                 <a href="/docs/api/synchronous-inspection.html"><code>synchronous inspection</code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -333,13 +333,13 @@
                 Error: the target of promisifyAll must be an object or a function
             </h2>
 
-<p>This can happen when you are calling                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+<p>This can happen when you are calling                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
  on a function and invoking it instead of passing it.</p>
 
-<p>In general, the usage of                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+<p>In general, the usage of                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
  is along the lines of <code>var fs = Promise.promisifyAll(require(&quot;fs&quot;))</code>.</p>
 
-<p>Consider reading the section about                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
+<p>Consider reading the section about                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -392,7 +392,7 @@
 
 <p>One possible cause is using <code>.indexOf</code> which returns <code>-1</code> when it doesn&#39;t find the value being searched for.</p>
 
-<p>Please consider reading the API docs for                 <a href="/bluebird/web/docs/api-reference.html#.some"><code><code>.some</code></code></a>
+<p>Please consider reading the API docs for                 <a href="/docs/api/some.html"><code><code>.some</code></code></a>
 </p>
             <h2>
                 <a class="header-anchor"
@@ -414,8 +414,8 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Or to use                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine.addyieldhandler"><code>Promise.coroutine.addYieldHandler`</code></a>
- to teach                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+<p>Or to use                 <a href="/docs/api/promise.coroutine.addyieldhandler.html"><code>Promise.coroutine.addYieldHandler`</code></a>
+ to teach                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
  to accept these sort of values.</p>
             <h2>
                 <a class="header-anchor"
@@ -445,11 +445,11 @@
                 Error: Cannot promisify an API that has normal methods
             </h2>
 
-<p>This error indicates you have tried to call                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+<p>This error indicates you have tried to call                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
  on an object that already has a property with the <code>Async</code> suffix:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">myApi</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">foo</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">fooAsync</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
 </code></pre></div>
-<p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call                 <a href="/bluebird/web/docs/api-reference.html#promise.promisify"><code>Promise.promisify</code></a>
+<p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call                 <a href="/docs/api/promise.promisify.html"><code>Promise.promisify</code></a>
  manually on select properties.</p>
 
 <p>You may also use the custom suffix option to choose another suffix that doesn&#39;t result in conflicts.</p>
@@ -464,7 +464,7 @@
                 Error: Catch filter must inherit from Error or be a simple predicate function
             </h2>
 
-<p>Bluebird supports typed and predicate                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+<p>Bluebird supports typed and predicate                 <a href="/docs/api/catch.html"><code>.catch()</code></a>
  calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.</p>
 
 <p>Pass it a constructor that inherits from <code>Error</code>:</p>
@@ -477,7 +477,7 @@
 <div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(function(e){ return false; }, function(e) { // this catches nothing
 }).catch(function(e){ return e.someProp = 5; }, function(e) { // this is fine
 </code></pre></div>
-<p>Please see the API docs of                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+<p>Please see the API docs of                 <a href="/docs/api/catch.html"><code>.catch()</code></a>
  on how to use predicate catches.</p>
             <h2>
                 <a class="header-anchor"
@@ -491,7 +491,7 @@
 
 <p>By default bluebird only tries a few common async schedulers, such as <code>setTimeout</code>, <code>process.nextTick</code> and <code>MutationObserver</code>. However if your JavaScript runtime environment doesn&#39;t expose any of these, you will see this error.</p>
 
-<p>You may use                 <a href="/bluebird/web/docs/api-reference.html#promise.setscheduler"><code>Promise.setScheduler</code></a>
+<p>You may use                 <a href="/docs/api/promise.setscheduler.html"><code>Promise.setScheduler</code></a>
  to pass a custom scheduler that your environment supports. For example in DukTape:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">){</span> <span class="c1">// fn is what to execute</span>
     <span class="kd">var</span> <span class="nx">timer</span> <span class="o">=</span> <span class="nx">uv</span><span class="p">.</span><span class="nx">new_timer</span><span class="p">.</span><span class="nx">call</span><span class="p">({});</span>

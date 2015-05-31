@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Promise.bind | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.bind.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/docs/support.html">Support</a></li>
+                    <li class=""><a href="/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/docs/features.html">Features</a></li>
+                <li><a href="/docs/changelog.html">Changelog</a></li>
+                <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/docs/contribute.html">Contribute</a></li>
+                <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.bind.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 31 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+  <article class="post-content">
+    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
+
+<div class="api-code-section"><markdown></p>
+            <h2>
+                <a class="header-anchor"
+                    name="promise.bind"
+                    aria-hidden="true"
+                    href="#promise.bind"><i class="fa fa-link"></i></a>
+                Promise.bind
+            </h2>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span>
+    <span class="nx">any</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">thisArg</span><span class="p">,</span>
+    <span class="p">[</span><span class="nx">any</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">value</span><span class="o">=</span><span class="kc">undefined</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">BoundPromise</span>
+</code></pre></div>
+<p>Create a promise that follows this promise or in the static method is resolved with the given <code>value</code>, but is bound to the given <code>thisArg</code> value. A bound promise will call its handlers with the bound value set to <code>this</code>. Additionally promises derived from a bound promise will also be bound promises with the same <code>thisArg</code> binding as the original promise.</p>
+
+<p>If <code>thisArg</code> is a promise or thenable, its resolution will be awaited for and the bound value will be the promise&#39;s fulfillment value. If <code>thisArg</code> rejects
+then the returned promise is rejected with the <code>thisArg&#39;s</code> rejection reason. Note that this means you cannot use <code>this</code> without checking inside catch handlers for promises that bind to promise because in case of rejection of <code>thisArg</code>, <code>this</code> will be <code>undefined</code>.</p>
+
+<p><hr></p>
+
+<p>Without arrow functions that provide lexical <code>this</code>, the correspondence between async and sync code breaks down when writing object-oriented code.                 <a href="/docs/api/bind.html"><code><code>.bind</code></code></a>
+ alleviates this.</p>
+
+<p>Consider:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpGetSync</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">refined</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">refine</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">writeRefinedSync</span><span class="p">(</span><span class="nx">refined</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">stack</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>The above has a direct translation:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">refined</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">refine</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">writeRefinedAsync</span><span class="p">(</span><span class="nx">refined</span><span class="p">);</span>
+    <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">stack</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><code>.bind</code> is the most efficient way of utilizing <code>this</code> with promises. The handler functions in the above code are not closures and can therefore even be hoisted out if needed. There is literally no overhead when propagating the bound value from one promise to another.</p>
+
+<p><hr></p>
+
+<p><code>.bind</code> also has a useful side purpose - promise handlers don&#39;t need to share a function to use shared state:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somethingAsync</span><span class="p">().</span><span class="nx">bind</span><span class="p">({})</span>
+<span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">=</span> <span class="nx">aValue</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">=</span> <span class="nx">bValue</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">somethingElseAsync</span><span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">cValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">+</span> <span class="nx">cValue</span><span class="p">;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The above without                 <a href="/docs/api/bind.html"><code><code>.bind</code></code></a>
+ could be achieved with:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">scope</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="nx">somethingAsync</span><span class="p">()</span>
+<span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">=</span> <span class="nx">aValue</span><span class="p">;</span>
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">=</span> <span class="nx">bValue</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">somethingElseAsync</span><span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">cValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">scope</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">+</span> <span class="nx">scope</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">+</span> <span class="nx">cValue</span><span class="p">;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>However, there are many differences when you look closer:</p>
+
+<ul>
+<li>Requires a statement so cannot be used in an expression context</li>
+<li>If not there already, an additional wrapper function is required to aundefined leaking or sharing <code>scope</code></li>
+<li>The handler functions are now closures, thus less efficient and not reusable</li>
+</ul>
+
+<p><hr></p>
+
+<p>Note that bind is only propagated with promise transformation. If you create new promise chains inside a handler, those chains are not bound to the &quot;upper&quot; <code>this</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">//`this` is var1 here</span>
+    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">getStuff</span><span class="p">()).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//`this` is undefined here</span>
+        <span class="c1">//refine results here etc</span>
+    <span class="p">});</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">//`this` is var1 here</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>However, if you are utilizing the full bluebird API offering, you will <em>almost never</em> need to resort to nesting promises in the first place. The above should be written more like:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">//`this` is var1 here</span>
+    <span class="k">return</span> <span class="nx">getStuff</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//`this` is var1 here</span>
+    <span class="c1">//refine result here</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">//`this` is var1 here</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Also see [this Stackoverflow answer]`](.) can clean up code.</p>
+
+<p><hr></p>
+
+<p>If you don&#39;t want to return a bound promise to the consumers of a promise, you can rebind the chain at the end:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">refined</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">refine</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">writeRefinedAsync</span><span class="p">(</span><span class="nx">refined</span><span class="p">);</span>
+    <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">stack</span><span class="p">);</span>
+    <span class="p">}).</span><span class="nx">bind</span><span class="p">();</span> <span class="c1">//The `thisArg` is implicitly undefined - I.E. the default promise `this` value</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Rebinding can also be abused to do something gratuitous like this:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;my-element&quot;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nb">document</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">);</span>
+</code></pre></div>
+<p>The above does <code>console.log</code>](.)s are necessary because in browser neither of the methods can be called as a stand-alone function.
+</markdown></div></p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = "bluebirdjs";
+    var disqus_identifier = "disqus-id-promise.bind";
+    
+    (function() {
+        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
+        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  </article>
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

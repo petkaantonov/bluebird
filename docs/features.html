@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -132,10 +132,10 @@
 
 <p>Synchronous inspection allows you retrieve the fulfillment value of an already fulfilled promise or the rejection reason of an already rejected promise synchronously.</p>
 
-<p>Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use                 <a href="/bluebird/web/docs/api-reference.html#.then"><code><code>.then</code></code></a>
+<p>Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use                 <a href="/docs/api/then.html"><code><code>.then</code></code></a>
  to get at the promise&#39;s value as the callback is always called asynchronously.</p>
 
-<p>See the API on                 <a href="/bluebird/web/docs/api-reference.html#synchronous-inspection"><code>synchronous inspection</code></a>
+<p>See the API on                 <a href="/docs/api/synchronous-inspection.html"><code>synchronous inspection</code></a>
  for more information.</p>
             <h2>
                 <a class="header-anchor"
@@ -145,8 +145,8 @@
                 Concurrency coordination
             </h2>
 
-<p>Through the use of                 <a href="/bluebird/web/docs/api-reference.html#.each"><code>.each</code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.map"><code>.map</code></a>
+<p>Through the use of                 <a href="/docs/api/each.html"><code>.each</code></a>
+ and                 <a href="/docs/api/map.html"><code>.map</code></a>
  doing things just at the right concurrency level becomes a breeze.</p>
             <h2>
                 <a class="header-anchor"
@@ -158,7 +158,7 @@
 
 <p>Promisification means converting an existing promise-unaware API to a promise-returning API.</p>
 
-<p>The usual way to use promises in node is to                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code>Promise.promisifyAll</code></a>
+<p>The usual way to use promises in node is to                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
  some API and start exclusively calling promise returning versions of the APIs methods. E.g.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">fs</span><span class="p">);</span>
@@ -230,7 +230,7 @@
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
 <span class="c1">// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises</span>
 </code></pre></div>
-<p>See also                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code><code>Promise.promisifyAll</code></code></a>
+<p>See also                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll</code></code></a>
 .</p>
             <h2>
                 <a class="header-anchor"
@@ -263,13 +263,13 @@
 <ul>
 <li>Logging after the promise became GCd (requires a native node.js module)</li>
 <li>Showing a live list of rejected promises</li>
-<li>Using no hooks and using                 <a href="/bluebird/web/docs/api-reference.html#.done"><code><code>.done</code></code></a>
+<li>Using no hooks and using                 <a href="/docs/api/done.html"><code><code>.done</code></code></a>
  to manually to mark end points where rejections will not be handled</li>
 <li>Swallowing all errors (challenge your debugging skills)</li>
 <li>...</li>
 </ul>
 
-<p>See                 <a href="/bluebird/web/docs/api-reference.html#global-rejection-events"><code>global rejection events</code></a>
+<p>See                 <a href="/docs/api/global-rejection-events.html"><code>global rejection events</code></a>
  to learn more about the hooks.</p>
             <h3>
                 <a class="header-anchor"
@@ -293,7 +293,7 @@
 </code></pre></div>
 <p>Of course you could use hacks like monkey patching or domains but these break down when something can&#39;t be monkey patched or new apis are introduced.</p>
 
-<p>Since in bluebird                 <a href="/bluebird/web/docs/api-reference.html#promisification"><code>promisification</code></a>
+<p>Since in bluebird                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
  is made trivial, you can get long stack traces all the time:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 

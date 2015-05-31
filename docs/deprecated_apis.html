@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -152,50 +152,50 @@ These APIs still work in Bluebird but will be removed at a future version of the
  for migration assistance and examples of how to convert APIs that use progression to ones that do not.</p>
             <h5>
                 <a class="header-anchor"
-                    name=".progressed"
+                    name="progressed"
                     aria-hidden="true"
-                    href="#.progressed"><i class="fa fa-link"></i></a>
+                    href="#progressed"><i class="fa fa-link"></i></a>
                 <code>.progressed(Function handler)</code> -&gt; <code>Promise</code>
             </h5>
 
-<p>Shorthand for                 <a href="/bluebird/web/docs/api-reference.html#.then"><code><code>.then(null, null, handler);</code></code></a>
+<p>Shorthand for                 <a href="/docs/api/then.html"><code><code>.then(null, null, handler);</code></code></a>
 . Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.</p>
 
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".then"
+                    name="then"
                     aria-hidden="true"
-                    href="#.then"><i class="fa fa-link"></i></a>
+                    href="#then"><i class="fa fa-link"></i></a>
                 <code>.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>Promise</code>
             </h5>
 
 <p>The standard                 <a href="http://promises-aplus.github.io/promises-spec/" title="">Promises/A+ <code>.then()</code></a>
- is still supported by Bluebird and support for it will continue indefinitely . However, the variant accepting a third <code>progressHandler</code> argument is no longer supported.</p>
+ is still supported by Bluebird and support for it will continue indefinitely. However, the variant accepting a third <code>progressHandler</code> argument is no longer supported.</p>
 
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".done"
+                    name="done"
                     aria-hidden="true"
-                    href="#.done"><i class="fa fa-link"></i></a>
+                    href="#done"><i class="fa fa-link"></i></a>
                 <code>.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>void</code>
             </h5>
 
-<p>Like                 <a href="/bluebird/web/docs/api-reference.html#.then"><code><code>.then()</code></code></a>
+<p>Like                 <a href="/docs/api/then.html"><code><code>.then()</code></code></a>
 , but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. <code>.done</code> is still fully supported.</p>
 
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".fork"
+                    name="fork"
                     aria-hidden="true"
-                    href="#.fork"><i class="fa fa-link"></i></a>
+                    href="#fork"><i class="fa fa-link"></i></a>
                 <code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>Promise</code>
             </h5>
 
-<p>Like                 <a href="/bluebird/web/docs/api-reference.html#.then"><code><code>.then()</code></code></a>
-, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise&#39;s ancestors. Again, only the variant with the progression handler is deprecated here. <code>.fork</code> is still fully supported.</p>
+<p>Like                 <a href="/docs/api/then.html"><code><code>.then()</code></code></a>
+, but cancellation of the returned promise or any of its descendant will not propagate cancellation to this promise or this promise&#39;s ancestors. Again, only the variant with the progression handler is deprecated here. <code>.fork</code> is still fully supported.</p>
 
 <p><hr></p>
             <h2>
@@ -206,7 +206,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 Promise resolution
             </h2>
 
-<p>A <code>PromiseResolver</code> can be used to control the fate of a promise. It is like &quot;Deferred&quot; in jQuery or <code>$q.defer</code> in $q. The <code>PromiseResolver</code> objects have a <code>.promise</code> property which returns a reference to the controlled promise that can be passed to clients. <code>.promise</code> of a <code>PromiseResolver</code> is not a getter function to match other implementations.</p>
+<p>A <code>PromiseResolver</code> can be used to control the fate of a promise. It is like &quot;Deferred&quot; in jQuery or <code>$q.defer</code> in $q. The <code>PromiseResolver</code> objects have a <code>.promise</code> property which is a reference to the controlled promise that can be passed to clients. <code>.promise</code> of a <code>PromiseResolver</code> is not a getter function to match other implementations.</p>
 
 <p>The methods of a <code>PromiseResolver</code> have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).</p>
 
@@ -215,9 +215,9 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".resolve"
+                    name="resolve"
                     aria-hidden="true"
-                    href="#.resolve"><i class="fa fa-link"></i></a>
+                    href="#resolve"><i class="fa fa-link"></i></a>
                 <code>.resolve(dynamic value)</code> -&gt; <code>undefined</code>
             </h5>
 
@@ -226,9 +226,9 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".reject"
+                    name="reject"
                     aria-hidden="true"
-                    href="#.reject"><i class="fa fa-link"></i></a>
+                    href="#reject"><i class="fa fa-link"></i></a>
                 <code>.reject(dynamic reason)</code> -&gt; <code>undefined</code>
             </h5>
 
@@ -237,24 +237,25 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <p><hr></p>
             <h5>
                 <a class="header-anchor"
-                    name=".progress"
+                    name="progress"
                     aria-hidden="true"
-                    href="#.progress"><i class="fa fa-link"></i></a>
+                    href="#progress"><i class="fa fa-link"></i></a>
                 <code>.progress(dynamic value)</code> -&gt; <code>undefined</code>
             </h5>
 
 <p>Progress the underlying promise with <code>value</code> as the progression value.</p>
 
 <p>Example</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>    <span class="kd">var</span> <span class="nx">resolver</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">resolver</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
     <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
-    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">resolver</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">now</span><span class="p">);</span>
     <span class="p">},</span> <span class="nx">ms</span><span class="p">);</span>
     <span class="k">return</span> <span class="nx">resolver</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">ms</span><span class="p">){</span>
+<span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">ms</span> <span class="o">+</span> <span class="s2">&quot; ms passed&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>

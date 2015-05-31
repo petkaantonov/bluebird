@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 16 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -131,10 +131,10 @@
                 Coming from native promises
             </h2>
 
-<p>Bluebird promises are a drop-in replacement for native promises except for subclassing. Additionally you might want to replace usages of the often incorrectly used                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
- with bluebird&#39;s                 <a href="/bluebird/web/docs/api-reference.html#promise.any"><code>Promise.any</code></a>
- which does what is usually mistakenly expected from                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
-. For maximum compatibility, bluebird does provide                 <a href="/bluebird/web/docs/api-reference.html#promise.race"><code>Promise.race</code></a>
+<p>Bluebird promises are a drop-in replacement for native promises except for subclassing. Additionally you might want to replace usages of the often incorrectly used                 <a href="/docs/api/promise.race.html"><code>Promise.race</code></a>
+ with bluebird&#39;s                 <a href="/docs/api/promise.any.html"><code>Promise.any</code></a>
+ which does what is usually mistakenly expected from                 <a href="/docs/api/promise.race.html"><code>Promise.race</code></a>
+. For maximum compatibility, bluebird does provide                 <a href="/docs/api/promise.race.html"><code>Promise.race</code></a>
  with ES6 semantics.</p>
 
 <p>You can also refactor some looping patterns to a more natural form that would                 <a href="https://github.com/promises-aplus/promises-spec/issues/179" title="">leak memory when using native promises</a>
@@ -161,7 +161,7 @@
     <span class="c1">// ...</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Since                 <a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+<p>Since                 <a href="/docs/api/promise.all.html"><code>Promise.all</code></a>
  takes promises, it must also take jQuery deferreds, so the above can be shortened to:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">firstRequest</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...});</span>
 <span class="kd">var</span> <span class="nx">secondRequest</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({...});</span>
@@ -224,9 +224,9 @@
                 Coming from <code>async</code> module
             </h2>
 
-<p>When working with promises the philosophy is basically a complete opposite than when using <code>async</code>. Async provides a bag of inflexible uncomposable helper functions that work at a very low level of abstraction. When using promises you can get the utility otherwise provided by uncountable amount of inflexible helper functions by just combining and composing a few existing functions and concepts.</p>
+<p>When working with promises the philosophy is basically a complete opposite than when using <code>async</code>. Async provides a huge bag of uncomposable helper functions that work at a very low level of abstraction. When using promises you can get the utility otherwise provided by uncountable amount of inflexible helper functions by just combining and composing a few existing functions and concepts.</p>
 
-<p>That means when you have a problem there probably isn&#39;t an existing function tailored exactly to that problem but instead you can just combine the existing utilities to arrive at a solution. The upside of this is that you don&#39;t need to come up with a new separate function for every little problem that are really not that different from each other. The most important thing to do when migrating from async to bluebird is this profound shift in philosophy.</p>
+<p>That means when you have a problem there probably isn&#39;t an existing function tailored exactly to that problem but instead you can just combine the existing utilities to arrive at a solution. The upside of this is that you don&#39;t need to come up with all these different functions to solve problems that are not that different from each other. The most important thing to do when migrating from async to bluebird is this profound shift in philosophy.</p>
 
 <p>This section lists the most common async module replacements.</p>
             <h3>
@@ -237,7 +237,7 @@
                 <code>async.waterfall</code>
             </h3>
 
-<p>If the waterfall elements are static, you can just replace it with a normal promise chain. For waterfalls with dynamic steps, use                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+<p>If the waterfall elements are static, you can just replace it with a normal promise chain. For waterfalls with dynamic steps, use                 <a href="/docs/api/promise.each.html"><code>Promise.each</code></a>
 . Multiple arguments can be ferried in an array.</p>
 
 <p>Implementing the example from                 <a href="https://github.com/caolan/async#waterfalltasks-callback" title="">async homepage</a>
@@ -278,7 +278,7 @@
                 <code>async.series</code>
             </h3>
 
-<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+<p>Using                 <a href="/docs/api/promise.each.html"><code>Promise.each</code></a>
  to implement the example from                 <a href="https://github.com/caolan/async#seriestasks-callback" title="">async homepage</a>
 :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">async</span><span class="p">.</span><span class="nx">series</span><span class="p">([</span>
@@ -298,7 +298,7 @@
     <span class="c1">// results is now equal to [1, 2]</span>
 <span class="p">});</span>
 </code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">([{</span><span class="nx">timeout</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mi">1</span><span class="p">},</span>
-             <span class="err"> </span><span class="p">{</span><span class="nx">timeout</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+              <span class="p">{</span><span class="nx">timeout</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mi">2</span><span class="p">}],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">timeout</span><span class="p">);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// results is now equal to [1, 2]</span>
@@ -311,7 +311,7 @@
                 <code>async.parallel</code>
             </h3>
 
-<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.all"><code>Promise.all</code></a>
+<p>Using                 <a href="/docs/api/promise.all.html"><code>Promise.all</code></a>
  to implement the example from                 <a href="https://github.com/caolan/async#parallel" title="">async homepage</a>
 :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">async</span><span class="p">.</span><span class="nx">parallel</span><span class="p">([</span>
@@ -344,7 +344,7 @@
                 <code>async.mapSeries</code>
             </h3>
 
-<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.each"><code>Promise.each</code></a>
+<p>Using                 <a href="/docs/api/promise.each.html"><code>Promise.each</code></a>
  to implement the example from                 <a href="https://github.com/caolan/async#maparr-iterator-callback" title="">async homepage</a>
 :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
@@ -365,7 +365,7 @@
                 <code>async.map</code>
             </h3>
 
-<p>Using                 <a href="/bluebird/web/docs/api-reference.html#promise.map"><code>Promise.map</code></a>
+<p>Using                 <a href="/docs/api/promise.map.html"><code>Promise.map</code></a>
  to implement the example from                 <a href="https://github.com/caolan/async#maparr-iterator-callback" title="">async homepage</a>
 :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
@@ -421,16 +421,16 @@ Promise.map([&#39;file1&#39;,&#39;file2&#39;,&#39;file3&#39;], function(fileName
 <p>Q and bluebird share a lot of common methods that nevertheless have different names:</p>
 
 <ul>
-<li><code>Q(...)</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#promise.resolve"><code>Promise.resolve()</code></a></li>
-<li><code>.fail()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.catch"><code>.catch()</code></a>
+<li><code>Q(...)</code> -&gt;                 <a href="/docs/api/promise.resolve.html"><code>Promise.resolve()</code></a></li>
+<li><code>.fail()</code> -&gt;                 <a href="/docs/api/catch.html"><code>.catch()</code></a>
  or <code>.caught()</code></li>
-<li><code>.fin()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.finally"><code>.finally()</code></a>
+<li><code>.fin()</code> -&gt;                 <a href="/docs/api/finally.html"><code>.finally()</code></a>
  or <code>.lastly()</code></li>
-<li><code>Q.fcall()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#promise.try"><code>Promise.try</code></a>
+<li><code>Q.fcall()</code> -&gt;                 <a href="/docs/api/promise.try.html"><code>Promise.try</code></a>
  or <code>Promise.attempt()</code></li>
-<li><code>.thenResolve()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.return"><code>.return()</code></a>
+<li><code>.thenResolve()</code> -&gt;                 <a href="/docs/api/return.html"><code>.return()</code></a>
  or <code>.thenReturn()</code></li>
-<li><code>.thenReject()</code> -&gt;                 <a href="/bluebird/web/docs/api-reference.html#.throw"><code>.throw()</code></a>
+<li><code>.thenReject()</code> -&gt;                 <a href="/docs/api/throw.html"><code>.throw()</code></a>
  or <code>thenThrow()</code></li>
 </ul>
             <h2>
@@ -443,7 +443,7 @@ Promise.map([&#39;file1&#39;,&#39;file2&#39;,&#39;file3&#39;], function(fileName
 
 <p>In recent versions generator libraries started abandoning old ideas of special tokens passed to callbacks and started using promises for what&#39;s being yielded.</p>
 
-<p>Bluebird&#39;s                 <a href="/bluebird/web/docs/api-reference.html#promise.coroutine"><code>Promise.coroutine</code></a>
+<p>Bluebird&#39;s                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
  is a superset of the <code>co</code> library, being more extensible as well as supporting cancellation (in environments where                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return" title=""><code>Generator#return</code></a>
  is implemented).</p>
             <h2>

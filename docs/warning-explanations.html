@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -125,7 +125,7 @@
                 Warning: .then() only accepts functions
             </h2>
 
-<p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+<p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to                 <a href="/docs/api/then.html"><code>.then()</code></a>
  instead of the function <em>itself</em>:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">processImage</span><span class="p">(</span><span class="nx">image</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Code that processes image</span>
@@ -133,10 +133,10 @@
 
 <span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">());</span>
 </code></pre></div>
-<p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+<p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to                 <a href="/docs/api/then.html"><code>.then()</code></a>
  (which is most likely <code>undefined</code> - the default return value when a function doesn&#39;t return anything).</p>
 
-<p>To fix it, simply pass the function reference to                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+<p>To fix it, simply pass the function reference to                 <a href="/docs/api/then.html"><code>.then()</code></a>
  as is:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">)</span>
 </code></pre></div>
@@ -173,7 +173,7 @@
     <span class="c1">// userData is undefined</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Because the result of <code>getUserDàta()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second                 <a href="/bluebird/web/docs/api-reference.html#.then"><code>.then()</code></a>
+<p>Because the result of <code>getUserDàta()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second                 <a href="/docs/api/then.html"><code>.then()</code></a>
  simply gets immediately called with <code>undefined</code> (because <code>undefined</code> is the default return value when you don&#39;t return anything).</p>
 
 <p>To fix it, you need to <code>return</code> the promise:</p>

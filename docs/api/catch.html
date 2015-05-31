@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>.catch | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/catch.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/docs/support.html">Support</a></li>
+                    <li class=""><a href="/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/docs/features.html">Features</a></li>
+                <li><a href="/docs/changelog.html">Changelog</a></li>
+                <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/docs/contribute.html">Contribute</a></li>
+                <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/catch.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 31 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+  <article class="post-content">
+    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
+
+<div class="api-code-section"><markdown></p>
+            <h2>
+                <a class="header-anchor"
+                    name="catch"
+                    aria-hidden="true"
+                    href="#catch"><i class="fa fa-link"></i></a>
+                .catch
+            </h2>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">caught</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div>
+<p>This is a catch-all exception handler, shortcut for calling                 <a href="/docs/api/then.html"><code><code>.then(null, handler)</code></code></a>
+ on this promise. Any exception happening in a <code>.then</code>-chain will propagate to nearest <code>.catch</code> handler.</p>
+
+<p><em>For compatibility with earlier ECMAScript version, an alias <code>.caught</code> is provided for                 <a href="/docs/api/catch.html"><code><code>.catch</code></code></a>
+.</em></p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span>
+    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">caught</span><span class="p">(</span>
+    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div>
+<p>This is an extension to                 <a href="/docs/api/catch.html"><code><code>.catch</code></code></a>
+ to work more like catch-clauses in languages like Java or C#. Instead of manually checking <code>instanceof</code> or <code>.name === &quot;SomeError&quot;</code>, you may specify a number of error constructors which are eligible for this catch handler. The catch handler that is first met that has eligible constructors specified, is the one that will be called.</p>
+
+<p>Example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">();</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">TypeError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//If a is defined, will end up here because</span>
+    <span class="c1">//it is a type error to reference property of undefined</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">ReferenceError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//Will end up here if a wasn&#39;t defined at all</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//Generic catch-the rest, error wasn&#39;t TypeError nor</span>
+    <span class="c1">//ReferenceError</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>You may also add multiple filters for a catch handler:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">();</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">TypeError</span><span class="p">,</span> <span class="nx">ReferenceError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//Will end up here on programmer error</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">NetworkError</span><span class="p">,</span> <span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//Will end up here on expected everyday network errors</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//Catch any unexpected errors</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>For a parameter to be considered a type of error that you want to filter, you need the constructor to have its <code>.prototype</code> property be <code>instanceof Error</code>.</p>
+
+<p>Such a constructor can be minimally created like so:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">()</span> <span class="p">{}</span>
+<span class="nx">MyCustomError</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nb">Error</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+</code></pre></div>
+<p>Using it:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nx">MyCustomError</span><span class="p">();</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">MyCustomError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//will end up here now</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>However if you  want stack traces and cleaner string output, then you should do:</p>
+
+<p><em>in Node.js and other V8 environments, with support for <code>Error.captureStackTrace</code></em></p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="nx">message</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;MyCustomError&quot;</span><span class="p">;</span>
+    <span class="nb">Error</span><span class="p">.</span><span class="nx">captureStackTrace</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">MyCustomError</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">MyCustomError</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nb">Error</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">MyCustomError</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">MyCustomError</span><span class="p">;</span>
+</code></pre></div>
+<p>Using CoffeeScript&#39;s <code>class</code> for the same:</p>
+<div class="highlight"><pre><code class="language-coffee" data-lang="coffee"><span class="k">class</span> <span class="nx">MyCustomError</span> <span class="k">extends</span> <span class="nb">Error</span>
+  <span class="nv">constructor: </span><span class="nf">(@message) -&gt;</span>
+    <span class="vi">@name = </span><span class="s">&quot;MyCustomError&quot;</span>
+    <span class="nb">Error</span><span class="p">.</span><span class="nx">captureStackTrace</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">MyCustomError</span><span class="p">)</span>
+</code></pre></div>
+<p>This method also supports predicate-based filters. If you pass a
+predicate function instead of an error constructor, the predicate will receive
+the error as an argument. The return result of the predicate will be used
+determine whether the error handler should be called.</p>
+
+<p>Predicates should allow for very fine grained control over caught errors:
+pattern matching, error-type sets with set operations and many other techniques
+can be implemented on top of them.</p>
+
+<p>Example of using a predicate-based filter:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+
+<span class="kd">function</span> <span class="nx">ClientError</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">400</span> <span class="o">&amp;&amp;</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">request</span><span class="p">(</span><span class="s2">&quot;http://www.google.com&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">ClientError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+   <span class="c1">//A client error like 400 Bad Request happened</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Predicate functions that only check properties have a handy shorthand. In place of a predicate function, you can pass an object, and its properties will be checked against the error object for a match:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(...)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">({</span><span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;ENOENT&#39;</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;file not found: &quot;</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">path</span><span class="p">);</span>
+    <span class="p">});</span>
+</code></pre></div>
+<p>The object predicate passed to <code>.catch</code> in the above code (<code>{code: &#39;ENOENT&#39;}</code>) is shorthand for a predicate function <code>function predicate(e) { return isObject(e) &amp;&amp; e.code == &#39;ENOENT&#39; }</code>, I.E. loose equality is used.</p>
+
+<p><em>For compatibility with earlier ECMAScript version, an alias <code>.caught</code> is provided for                 <a href="/docs/api/catch.html"><code><code>.catch</code></code></a>
+.</em>
+</markdown></div></p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = "bluebirdjs";
+    var disqus_identifier = "disqus-id-catch";
+    
+    (function() {
+        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
+        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  </article>
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

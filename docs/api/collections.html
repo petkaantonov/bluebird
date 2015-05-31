@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Collections | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/collections.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/docs/support.html">Support</a></li>
+                    <li class=""><a href="/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/docs/features.html">Features</a></li>
+                <li><a href="/docs/changelog.html">Changelog</a></li>
+                <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/docs/contribute.html">Contribute</a></li>
+                <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/collections.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 31 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+  <article class="post-content">
+    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
+
+<div class="api-code-section"><markdown></p>
+            <h2>
+                <a class="header-anchor"
+                    name="collections"
+                    aria-hidden="true"
+                    href="#collections"><i class="fa fa-link"></i></a>
+                Collections
+            </h2>
+
+<p>Methods of <code>Promise</code> instances and core static methods of the Promise class to deal with collections of promises or mixed promises and values.</p>
+
+<p>All collection methods have a static equivalent on the Promise object, e.g. <code>somePromise.map(...)...</code> is same as <code>Promise.map(somePromise, ...)...</code>,
+<code>somePromise.all</code> is same as                 <a href="/docs/api/promise.all.html"><code><code>Promise.all</code></code></a>
+ and so on.</p>
+
+<p>None of the collection methods modify the original input. Holes in arrays are treated as if they were defined with the value <code>undefined</code>.
+</markdown></div></p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = "bluebirdjs";
+    var disqus_identifier = "disqus-id-collections";
+    
+    (function() {
+        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
+        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  </article>
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

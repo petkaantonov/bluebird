@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>Promisification | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promisification.html">
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/docs/support.html">Support</a></li>
+                    <li class=""><a href="/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/docs/features.html">Features</a></li>
+                <li><a href="/docs/changelog.html">Changelog</a></li>
+                <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/docs/contribute.html">Contribute</a></li>
+                <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promisification.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 31 May 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+  <article class="post-content">
+    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
+
+<div class="api-code-section"><markdown></p>
+            <h2>
+                <a class="header-anchor"
+                    name="promisification"
+                    aria-hidden="true"
+                    href="#promisification"><i class="fa fa-link"></i></a>
+                Promisification
+            </h2>
+
+<p>Promisification means converting an existing promise-unaware API to a promise-returning API.</p>
+
+<p>The usual way to use promises in node is to                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
+ some API and start exclusively calling promise returning versions of the APIs methods. E.g.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">fs</span><span class="p">);</span>
+<span class="c1">// Now you can use fs as if it was designed to use bluebird promises from the beginning</span>
+
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.js&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(...)</span>
+</code></pre></div>
+<p>Note that the above is an exceptional case because <code>fs</code> is a singleton instance. Most libraries can be promisified by requiring the library&#39;s classes (constructor functions) and calling promisifyAll on the <code>.prototype</code>. This only needs to be done once in the entire application&#39;s lifetime and after that you may use the library&#39;s methods exactly as they are documented, except by appending the <code>&quot;Async&quot;</code>-suffix to method calls and using the promise interface instead of the callback interface.</p>
+
+<p>As a notable exception in <code>fs</code>, <code>fs.existsAsync</code> doesn&#39;t work as expected, because Node&#39;s <code>fs.exists</code> doesn&#39;t call back with error as first argument.  More at                 <a href="https://github.com/petkaantonov/bluebird/issues/418"><code>#418</code></a>
+.  One possible workaround is using <code>fs.statAsync</code>.</p>
+
+<p>Some examples of the above practice applied to some popular libraries:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular redis module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;redis&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mongodb module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mysql module</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// Note that the library&#39;s classes are not properties of the main export</span>
+<span class="c1">// so we require and promisifyAll them manually</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Connection&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Pool&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Mongoose</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongoose&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Request</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+<span class="c1">// Use request.getAsync(...) not request(..), it will not return a promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// mkdir</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mkdirp&quot;</span><span class="p">));</span>
+<span class="c1">// Use mkdirp.mkdirpAsync not mkdirp(..), it will not return a promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// winston</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;winston&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// rimraf</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// The module isn&#39;t promisified but the function returned is</span>
+<span class="kd">var</span> <span class="nx">rimrafAsync</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;rimraf&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// xml2js</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;xml2js&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jsdom</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// fs-extra</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs-extra&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// prompt</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Nodemailer</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;nodemailer&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// ncp</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ncp&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// pg</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">));</span>
+</code></pre></div>
+<p>In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">ParanoidLib</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">throwAwayInstance</span> <span class="o">=</span> <span class="nx">ParanoidLib</span><span class="p">.</span><span class="nx">createInstance</span><span class="p">();</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
+<span class="c1">// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises</span>
+</code></pre></div>
+<p>See also                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll</code></code></a>
+.
+</markdown></div></p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = "bluebirdjs";
+    var disqus_identifier = "disqus-id-promisification";
+    
+    (function() {
+        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
+        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  </article>
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

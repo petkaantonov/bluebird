@@ -101,7 +101,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 14 May 2015</i>
+                <i>Updated 31 May 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -399,7 +399,7 @@
 <p>Misc:</p>
 
 <ul>
-<li>Warn when                 <a href="/bluebird/web/docs/api-reference.html#.then"><code><code>.then()</code></code></a>
+<li>Warn when                 <a href="/docs/api/then.html"><code><code>.then()</code></code></a>
  is passed non-functions</li>
 </ul>
             <h2>
@@ -413,7 +413,7 @@
 <p>Bugfixes:</p>
 
 <ul>
-<li>Fix                 <a href="/bluebird/web/docs/api-reference.html#.timeout"><code>.timeout()</code></a>
+<li>Fix                 <a href="/docs/api/timeout.html"><code>.timeout()</code></a>
  not calling <code>clearTimeout</code> with the proper handle in node causing the process to wait for unneeded timeout. This was a regression introduced in 2.9.1.</li>
 </ul>
             <h2>
@@ -462,8 +462,8 @@
 <p>Features:</p>
 
 <ul>
-<li>If a bound promise is returned by the callback to                 <a href="/bluebird/web/docs/api-reference.html#promise.method"><code><code>Promise.method</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#promise.try"><code><code>Promise.try</code></code></a>
+<li>If a bound promise is returned by the callback to                 <a href="/docs/api/promise.method.html"><code><code>Promise.method</code></code></a>
+ and                 <a href="/docs/api/promise.try.html"><code><code>Promise.try</code></code></a>
 , the returned promise will be bound to the same value</li>
 </ul>
             <h2>
@@ -477,19 +477,19 @@
 <p>Features:</p>
 
 <ul>
-<li>Add                 <a href="/bluebird/web/docs/api-reference.html#promise.fromnode"><code><code>Promise.fromNode</code></code></a></li>
-<li>Add new paramter <code>value</code> for                 <a href="/bluebird/web/docs/api-reference.html#promise.bind"><code><code>Promise.bind</code></code></a></li>
+<li>Add                 <a href="/docs/api/promise.fromnode.html"><code><code>Promise.fromNode</code></code></a></li>
+<li>Add new paramter <code>value</code> for                 <a href="/docs/api/promise.bind.html"><code><code>Promise.bind</code></code></a></li>
 </ul>
 
 <p>Bugfixes:</p>
 
 <ul>
-<li>Fix several issues with                 <a href="/bluebird/web/docs/api-reference.html#cancellation"><code><code>cancellation</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.bind"><code><code>.bind()</code></code></a>
+<li>Fix several issues with                 <a href="/docs/api/cancellation.html"><code><code>cancellation</code></code></a>
+ and                 <a href="/docs/api/bind.html"><code><code>.bind()</code></code></a>
  interoperation when <code>thisArg</code> is a promise or thenable</li>
-<li>Fix promises created in                 <a href="/bluebird/web/docs/api-reference.html#disposers"><code><code>disposers</code></code></a>
+<li>Fix promises created in                 <a href="/docs/api/disposers.html"><code><code>disposers</code></code></a>
  not having proper long stack trace context</li>
-<li>Fix                 <a href="/bluebird/web/docs/api-reference.html#promise.join"><code><code>Promise.join</code></code></a>
+<li>Fix                 <a href="/docs/api/promise.join.html"><code><code>Promise.join</code></code></a>
  sometimes passing the passed in callback function as the last argument to itself.</li>
 </ul>
 
@@ -701,7 +701,7 @@ succint, relevant and consistent across bluebird features.</li>
 <p>Features:</p>
 
 <ul>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.get"><code><code>.get</code></code></a>
+<li>                <a href="/docs/api/get.html"><code><code>.get</code></code></a>
  now supports negative indexing.</li>
 </ul>
 
@@ -823,7 +823,7 @@ succint, relevant and consistent across bluebird features.</li>
 <p>Features:</p>
 
 <ul>
-<li>Implement                 <a href="/bluebird/web/docs/api-reference.html#.reflect"><code><code>.reflect()</code></code></a></li>
+<li>Implement                 <a href="/docs/api/reflect.html"><code><code>.reflect()</code></code></a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -900,8 +900,8 @@ succint, relevant and consistent across bluebird features.</li>
 <p>Features:</p>
 
 <ul>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.bind"><code><code>.bind()</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#promise.bind"><code><code>Promise.bind()</code></code></a>
+<li>                <a href="/docs/api/bind.html"><code><code>.bind()</code></code></a>
+ and                 <a href="/docs/api/promise.bind.html"><code><code>Promise.bind()</code></code></a>
  now await for the resolution of the <code>thisArg</code> if it&#39;s a promise or a thenable</li>
 </ul>
 
@@ -990,7 +990,7 @@ succint, relevant and consistent across bluebird features.</li>
 <p>Features:</p>
 
 <ul>
-<li>Add                 <a href="/bluebird/web/docs/api-reference.html#promisifier"><code><code>promisifier</code></code></a>
+<li>Add                 <a href="/docs/api/promisifier.html"><code><code>promisifier</code></code></a>
  option to <code>Promise.promisifyAll()</code></li>
 <li>Improve performance of <code>.props()</code> and collection methods when used with immediate values</li>
 </ul>
@@ -1072,10 +1072,10 @@ succint, relevant and consistent across bluebird features.</li>
  - never leak resources again</li>
 <li>                <a href="api-reference.html#promisification" title="">Promisification</a>
  on steroids - entire modules can now be promisified with one line of code</li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.map"><code><code>.map()</code></code></a>
-,                 <a href="/bluebird/web/docs/api-reference.html#.each"><code><code>.each()</code></code></a>
-,                 <a href="/bluebird/web/docs/api-reference.html#.filter"><code><code>.filter()</code></code></a>
-,                 <a href="/bluebird/web/docs/api-reference.html#.reduce"><code><code>.reduce()</code></code></a>
+<li>                <a href="/docs/api/map.html"><code><code>.map()</code></code></a>
+,                 <a href="/docs/api/each.html"><code><code>.each()</code></code></a>
+,                 <a href="/docs/api/filter.html"><code><code>.filter()</code></code></a>
+,                 <a href="/docs/api/reduce.html"><code><code>.reduce()</code></code></a>
  reimagined from simple sugar to powerful concurrency coordination tools</li>
 <li>                <a href="api-reference.html" title="">API Documentation</a>
  has been reorganized and more elaborate examples added</li>
@@ -1087,32 +1087,32 @@ succint, relevant and consistent across bluebird features.</li>
 <p>Features:</p>
 
 <ul>
-<li>Added                 <a href="/bluebird/web/docs/api-reference.html#using"><code><code>using()</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#disposer"><code><code>disposer()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.map"><code><code>.map()</code></code></a>
+<li>Added                 <a href="/docs/api/using.html"><code><code>using()</code></code></a>
+ and                 <a href="/docs/api/disposer.html"><code><code>disposer()</code></code></a></li>
+<li>                <a href="/docs/api/map.html"><code><code>.map()</code></code></a>
  now calls the handler as soon as items in the input array become fulfilled</li>
-<li>Added a concurrency option to                 <a href="/bluebird/web/docs/api-reference.html#.map"><code><code>.map()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.filter"><code><code>.filter()</code></code></a>
+<li>Added a concurrency option to                 <a href="/docs/api/map.html"><code><code>.map()</code></code></a></li>
+<li>                <a href="/docs/api/filter.html"><code><code>.filter()</code></code></a>
  now calls the handler as soon as items in the input array become fulfilled</li>
-<li>Added a concurrency option to                 <a href="/bluebird/web/docs/api-reference.html#.filter"><code><code>.filter()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.reduce"><code><code>.reduce()</code></code></a>
+<li>Added a concurrency option to                 <a href="/docs/api/filter.html"><code><code>.filter()</code></code></a></li>
+<li>                <a href="/docs/api/reduce.html"><code><code>.reduce()</code></code></a>
  now calls the handler as soon as items in the input array become fulfilled, but in-order</li>
-<li>Added                 <a href="/bluebird/web/docs/api-reference.html#.each"><code><code>.each()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#promise.resolve"><code><code>Promise.resolve()</code></code></a>
+<li>Added                 <a href="/docs/api/each.html"><code><code>.each()</code></code></a></li>
+<li>                <a href="/docs/api/promise.resolve.html"><code><code>Promise.resolve()</code></code></a>
  behaves like <code>Promise.cast</code>. <code>Promise.cast</code> deprecated.</li>
 <li>                <a href="api-reference.html#synchronous-inspection" title="">Synchronous inspection</a>
-: Removed <code>.inspect()</code>, added                 <a href="/bluebird/web/docs/api-reference.html#.value"><code><code>.value()</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.reason"><code><code>.reason()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#promise.join"><code><code>Promise.join()</code></code></a>
+: Removed <code>.inspect()</code>, added                 <a href="/docs/api/value.html"><code><code>.value()</code></code></a>
+ and                 <a href="/docs/api/reason.html"><code><code>.reason()</code></code></a></li>
+<li>                <a href="/docs/api/promise.join.html"><code><code>Promise.join()</code></code></a>
  now takes a function as the last argument</li>
-<li>Added                 <a href="/bluebird/web/docs/api-reference.html#promise.setscheduler"><code><code>Promise.setScheduler()</code></code></a></li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.cancel"><code><code>.cancel()</code></code></a>
+<li>Added                 <a href="/docs/api/promise.setscheduler.html"><code><code>Promise.setScheduler()</code></code></a></li>
+<li>                <a href="/docs/api/cancel.html"><code><code>.cancel()</code></code></a>
  supports a custom cancellation reason</li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.timeout"><code><code>.timeout()</code></code></a>
+<li>                <a href="/docs/api/timeout.html"><code><code>.timeout()</code></code></a>
  now cancels the promise instead of rejecting it</li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.nodeify"><code><code>.nodeify()</code></code></a>
+<li>                <a href="/docs/api/nodeify.html"><code><code>.nodeify()</code></code></a>
  now supports passing multiple success results when mapping promises to nodebacks</li>
-<li>Added <code>suffix</code> and <code>filter</code> options to                 <a href="/bluebird/web/docs/api-reference.html#promise.promisifyall"><code><code>Promise.promisifyAll()</code></code></a></li>
+<li>Added <code>suffix</code> and <code>filter</code> options to                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll()</code></code></a></li>
 </ul>
 
 <p>Breaking changes:</p>
@@ -1121,11 +1121,11 @@ succint, relevant and consistent across bluebird features.</li>
 <li>Sparse array holes are not skipped by collection methods but treated as existing elements with <code>undefined</code> value</li>
 <li><code>.map()</code> and <code>.filter()</code> do not call the given mapper or filterer function in any specific order</li>
 <li>Removed the <code>.inspect()</code> method</li>
-<li>Yielding an array from a coroutine is not supported by default. You can use                 <a href="/bluebird/web/docs/api-reference.html#coroutine.addyieldhandler"><code><code>coroutine.addYieldHandler()</code></code></a>
+<li>Yielding an array from a coroutine is not supported by default. You can use                 <a href="/docs/api/coroutine.addyieldhandler.html"><code><code>coroutine.addYieldHandler()</code></code></a>
  to configure the old behavior (or any behavior you want).</li>
-<li>                <a href="/bluebird/web/docs/api-reference.html#.any"><code><code>.any()</code></code></a>
- and                 <a href="/bluebird/web/docs/api-reference.html#.some"><code><code>.some()</code></code></a>
- no longer use an array as the rejection reason.                 <a href="/bluebird/web/docs/api-reference.html#aggregateerror"><code><code>AggregateError</code></code></a>
+<li>                <a href="/docs/api/any.html"><code><code>.any()</code></code></a>
+ and                 <a href="/docs/api/some.html"><code><code>.some()</code></code></a>
+ no longer use an array as the rejection reason.                 <a href="/docs/api/aggregateerror.html"><code><code>AggregateError</code></code></a>
  is used instead.</li>
 </ul>
             <h2>
