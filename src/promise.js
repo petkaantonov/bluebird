@@ -174,6 +174,11 @@ Promise.cast = function (obj) {
         ret._setFulfilled();
         ret._rejectionHandler0 = obj;
     }
+    if(debug.warnings() && typeof obj === "function"){
+        ret._warn(".resolve() was passed a function and not a value. " +
+        "Note that this does not convert APIs to use promises. " + 
+        "See http://bluebirdjs.com/docs/api/promisification.html");
+    }
     return ret;
 };
 
