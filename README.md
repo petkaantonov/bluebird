@@ -135,7 +135,7 @@ fs.readFileAsync("file.json").then(JSON.parse).then(function(val) {
     console.error("invalid json in file");
 })
 .catch(function(e) {
-    console.error("unable to read file")
+    console.error("unable to read file");
 });
 ```
 
@@ -153,7 +153,7 @@ catch(SyntaxError e) {
     console.error("invalid json in file");
 }
 catch(Error e) {
-    console.error("unable to read file")
+    console.error("unable to read file");
 }
 ```
 
@@ -169,7 +169,7 @@ mapSeries(URLs, function (URL, done) {
     var options = {};
     needle.get(URL, options, function (error, response, body) {
         if (error) {
-            return done(error)
+            return done(error);
         }
         try {
             var ret = JSON.parse(body);
@@ -181,13 +181,13 @@ mapSeries(URLs, function (URL, done) {
     });
 }, function (err, results) {
     if (err) {
-        console.log(err)
+        console.log(err);
     } else {
         console.log('All Needle requests successful');
         // results is a 1 to 1 mapping in order of URLs > needle.body
         processAndSaveAllInDB(results, function (err) {
             if (err) {
-                return done(err)
+                return done(err);
             }
             console.log('All Needle requests saved');
             done(null);
@@ -328,7 +328,7 @@ Example of such library is the node core library `fs`. So if we promisify it, we
 var fs = Promise.promisifyAll(require("fs"));
 
 fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
-    console.log("Successful json")
+    console.log("Successful json");
 }).catch(SyntaxError, function (e) {
     console.error("file contains invalid json");
 }).catch(Promise.OperationalError, function (e) {
@@ -411,7 +411,7 @@ Promise.longStackTraces();
 Promise.resolve().then(function outer() {
     return Promise.resolve().then(function inner() {
         return Promise.resolve().then(function evenMoreInner() {
-            a.b.c.d()
+            a.b.c.d();
         }).catch(function catcher(e){
             console.error(e.stack);
         });
