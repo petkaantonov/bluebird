@@ -477,15 +477,15 @@ Keep the test tab active because some tests are timing-sensitive and will fail i
 
 The value of boolean flags is determined by presence, if you want to pass false value for a boolean flag, use the `no-`-prefix e.g. `--no-browser`.
 
- - `--run=String`. Which tests to run (or compile when testing in browser). Default `"all"`. Can also be a glob string (relative to ./test/mocha folder)
+ - `--run=String` - Which tests to run (or compile when testing in browser). Default `"all"`. Can also be a glob string (relative to ./test/mocha folder).
  - `--cover=String`. Create code coverage using the String as istanbul reporter. Coverage is created in the ./coverage folder. No coverage is created by default, default reporter is `"html"` (use `--cover` to use default reporter).
  - `--browser` - Whether to compile tests for browsers. Default `false`.
- - `--port=Number` - Whe port where local server is hosted when testing in browser. Default `9999`
+ - `--port=Number` - Port where local server is hosted when testing in browser. Default `9999`
  - `--execute-browser-tests` - Whether to execute the compiled tests for browser when using `--browser`. Default `true`.
  - `--open-browser` - Whether to open the default browser when executing browser tests. Default `true`.
  - `--fake-timers` - Whether to use fake timers (`setTimeout` etc) when running tests in node. Default `true`.
  - `--js-hint` - Whether to run JSHint on source files. Default `true`.
- - `--saucelabs` Wheter to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser.Default `false`.
+ - `--saucelabs` - Whether to create a tunnel to sauce labs and run tests in their VMs instead of your browser when compiling tests for browser. Default `false`.
 
 ## Benchmarks
 
