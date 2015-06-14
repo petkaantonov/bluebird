@@ -12,10 +12,10 @@ var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
 var defaultPromisified = {__isPromisified__: true};
 var noCopyPropsPattern =
     /^(?:length|name|arguments|caller|callee|prototype|__isPromisified__)$/;
-var defaultFilter = function(name, func) {
+var defaultFilter = function(name) {
     return util.isIdentifier(name) &&
         name.charAt(0) !== "_" &&
-        !util.isClass(func);
+        name !== "constructor";
 };
 
 function propsFilter(key) {
