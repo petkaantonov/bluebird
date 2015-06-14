@@ -478,6 +478,16 @@ describe("Module promisification", function() {
         assert(typeof mongoose.Document.prototype.createAsync === "function");
         assert(typeof mongoose.Document.staticMethodAsync === "function")
     })
+
+    it("should promisify classes that have static methods", function() {
+        function MongoClient() {this.connect = 3;}
+        MongoClient.connect = function() {};
+        var module = {};
+        module.MongoClient = MongoClient;
+        Promise.promisifyAll(module);
+
+        assert(typeof MongoClient.connectAsync === "function");
+    });
 })
 
 describe("Promisify from prototype to object", function() {

@@ -160,13 +160,17 @@ var inheritedDataKeys = (function() {
 
 })();
 
+var thisAssignmentPattern = /this\s*\.\s*\S+\s*=/;
 function isClass(fn) {
     try {
         if (typeof fn === "function") {
             var keys = es5.names(fn.prototype);
-            if (es5.isES5) return keys.length > 1;
-            return keys.length > 0 &&
-                   !(keys.length === 1 && keys[0] === "constructor");
+            if (((es5.isES5 && keys.length > 1) ||
+                (keys.length > 0 &&
+                !(keys.length === 1 && keys[0] === "constructor"))) ||
+                thisAssignmentPattern.test(fn + "")) {
+                return true;
+            }
         }
         return false;
     } catch (e) {
