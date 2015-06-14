@@ -256,6 +256,13 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
+function isNativeFunctionMethod(fn) {
+    return fn === fn.call ||
+           fn === fn.toString ||
+           fn === fn.bind ||
+           fn === fn.apply;
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -286,7 +293,8 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]"
+        classString(process).toLowerCase() === "[object process]",
+    isNativeFunctionMethod: isNativeFunctionMethod
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
