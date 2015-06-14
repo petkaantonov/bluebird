@@ -1,3 +1,9 @@
+## 2.9.30 (2015-06-14)
+
+Bugfixes:
+
+ - Fix regression with `promisifyAll` not promisifying certain methods
+
 ## 2.9.29 (2015-06-14)
 
 Bugfixes:
