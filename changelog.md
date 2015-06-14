@@ -1,3 +1,10 @@
+## 2.9.28 (2015-06-14)
+
+Bugfixes:
+
+ - Fix handled rejection being reported as unhandled in certain scenarios when using [.all](.) or [Promise.join](.) ([#645](.))
+ - Fix custom scheduler not being called in Google Chrome when long stack traces are enabled ([#650](.))
+
 ## 2.9.27 (2015-05-30)
 
 Bugfixes:
