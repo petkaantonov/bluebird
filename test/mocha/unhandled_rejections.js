@@ -207,14 +207,14 @@ describe("Will not report rejections that are handled in time", function() {
 
     specify("Already rejected handled", function testFunction() {
         var failDeferred = Promise.reject(yesE()).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Immediately rejected handled", function testFunction() {
         var failDeferred = Promise.defer();
         failDeferred.promise.caught(noop);
         failDeferred.reject(yesE());
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
 
@@ -224,7 +224,7 @@ describe("Will not report rejections that are handled in time", function() {
             failDeferred.reject(yesE());
         }, 1);
         failDeferred.promise.caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Already rejected handled in a deep sequence", function testFunction() {
@@ -236,7 +236,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){})
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Immediately rejected handled in a deep sequence", function testFunction() {
@@ -250,7 +250,7 @@ describe("Will not report rejections that are handled in time", function() {
 
 
         failDeferred.reject(yesE());
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
 
@@ -264,7 +264,7 @@ describe("Will not report rejections that are handled in time", function() {
             .then()
             .then(function(){})
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
 
@@ -400,41 +400,41 @@ describe("immediate assert.failures with .then", function testFunction() {
     var err = new Error('');
     specify("Promise.reject", function testFunction() {
         Promise.reject(err).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("new Promise throw", function testFunction() {
         new Promise(function() {
             throw err;
         }).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("new Promise reject", function testFunction() {
         new Promise(function(_, r) {
             r(err);
         }).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Promise.method", function testFunction() {
         Promise.method(function() {
             throw err;
         })().caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Promise.all", function testFunction() {
         Promise.all([Promise.reject("err")])
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
 
     specify("Promise.all many", function testFunction() {
         Promise.all([Promise.reject("err"), Promise.reject("err2")])
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Promise.all many pending", function testFunction() {
@@ -447,13 +447,13 @@ describe("immediate assert.failures with .then", function testFunction() {
 
         Promise.all([a, b])
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("Already rejected promise for a collection", function testFunction(){
         Promise.settle(Promise.reject(err))
             .caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 });
 
@@ -467,14 +467,14 @@ describe("gh-118", function() {
                 }, 1);
             });
         }).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("already rejected promise", function testFunction() {
         Promise.resolve().then(function() {
             return Promise.reject(13);
         }).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 
     specify("immediately rejected promise", function testFunction() {
@@ -483,7 +483,7 @@ describe("gh-118", function() {
                 reject(13);
             });
         }).caught(noop);
-        return onUnhandledFail(isStrictModeSupported ? testFunction : arguments.callee);
+        return onUnhandledFail(testFunction);
     });
 });
 
@@ -756,3 +756,35 @@ if (windowDomEventSupported) {
         })
     });
 }
+
+describe("Unhandled rejection when joining chains with common rejected parent", function testFunction() {
+    specify("GH 645", function() {
+        var aError = new Error('Something went wrong');
+        var a = Promise.try(function(){
+            throw aError;
+        });
+
+        var b = Promise.try(function(){
+            throw new Error('Something went wrong here as well');
+        });
+
+        var c = Promise
+            .join(a, b)
+            .spread(function( a, b ){
+                return a+b;
+            });
+
+        var test1 = Promise
+            .join(a, c)
+            .spread(function( a, product ){
+                // ...
+            })
+            .catch(Error, function(e) {
+                assert.strictEqual(aError, e);
+            });
+
+         var test2 = onUnhandledFail(testFunction);
+
+         return Promise.all([test1, test2]);
+    });
+});

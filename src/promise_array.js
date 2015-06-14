@@ -95,7 +95,7 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
             if (isResolved) {
-                maybePromise._unsetRejectionIsUnhandled();
+                maybePromise._ignoreRejections();
             } else if (maybePromise._isPending()) {
                 // Optimized for just passing the updates through
                 maybePromise._proxyPromiseArray(this, i);

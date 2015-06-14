@@ -15,7 +15,13 @@ if (debugging) {
     async.disableTrampolineIfNecessary();
 }
 
+Promise.prototype._ignoreRejections = function() {
+    this._unsetRejectionIsUnhandled();
+    this._bitField = this._bitField | IS_REJECTION_IGNORED;
+};
+
 Promise.prototype._ensurePossibleRejectionHandled = function () {
+    if ((this._bitField & IS_REJECTION_IGNORED) !== 0) return;
     this._setRejectionIsUnhandled();
     async.invokeLater(this._notifyUnhandledRejection, this, undefined);
 };
