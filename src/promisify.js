@@ -176,7 +176,7 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
             if (!promise._isFateSealed()) promise._setAsyncGuaranteed();     \n\
             return promise;                                                  \n\
         };                                                                   \n\
-        ret.__isPromisified__ = true;                                        \n\
+        notEnumerableProp(ret, '__isPromisified__', true);                   \n\
         return ret;                                                          \n\
     ".replace("[CodeForSwitchCase]", generateArgumentSwitchCase())
         .replace("[GetFunctionCode]", getFunctionCode);
@@ -189,6 +189,7 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
                         "nodebackForPromise",
                         "tryCatch",
                         "errorObj",
+                        "notEnumerableProp",
                         "INTERNAL",
                         body)(
                     Promise,
@@ -199,6 +200,7 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
                     nodebackForPromise,
                     util.tryCatch,
                     util.errorObj,
+                    util.notEnumerableProp,
                     INTERNAL);
 };
 }
@@ -226,7 +228,7 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {
         if (!promise._isFateSealed()) promise._setAsyncGuaranteed();
         return promise;
     }
-    promisified.__isPromisified__ = true;
+    util.notEnumerableProp(promisified, "__isPromisified__", true);
     return promisified;
 }
 
