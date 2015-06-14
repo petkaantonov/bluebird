@@ -1,7 +1,7 @@
 {
   "name": "bluebird",
   "description": "Full featured Promises/A+ implementation with exceptionally good performance",
-  "version": "2.9.28",
+  "version": "2.9.29",
   "keywords": [
     "promise",
     "performance",

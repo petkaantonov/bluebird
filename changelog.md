@@ -1,3 +1,9 @@
+## 2.9.29 (2015-06-14)
+
+Bugfixes:
+
+ - Improve `promisifyAll` detection of functions that are class constructors. Fixes mongodb 2.x promisification.
+
 ## 2.9.28 (2015-06-14)
 
 Bugfixes:
