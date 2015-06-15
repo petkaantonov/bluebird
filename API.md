@@ -1119,7 +1119,7 @@ Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName
 });
 ```
 
-*If `intialValue` is `undefined` (or a promise that resolves to `undefined`) and the array contains only 1 item, the callback will not be called and `undefined` is returned. If the array is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
+*If `initialValue` is `undefined` (or a promise that resolves to `undefined`) and the array contains only 1 item, the callback will not be called and `undefined` is returned. If the array is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
 
 Reduce will call the reducer as soon as possible, this is why you might want to use it over `.all().call("reduce")`.
 
