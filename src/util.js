@@ -293,7 +293,8 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]" && (!process.type || process.type === 'browser'),
+        classString(process).toLowerCase() === "[object process]" &&
+        (!process.type || process.type === "browser"),
     isNativeFunctionMethod: isNativeFunctionMethod
 };
 ret.isRecentNode = ret.isNode && (function() {
