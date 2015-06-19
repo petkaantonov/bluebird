@@ -97,13 +97,18 @@ if (testUtils.isRecentNode) {
             }
         });
 
-        it("should preserve empty domain", function(done) {
+        it("should preserve empty domain and this function", function(done) {
 
             var deferred = new Promise.defer();
             var p = deferred.promise;
 
             p.then(function shouldBeEmpty() {
                 assert.equal(false, !!process.domain);
+            }).bind({
+                ref: 'foo'
+            }).then(function shouldKeepThisAndEmptyDomain() {
+                assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
@@ -112,7 +117,7 @@ if (testUtils.isRecentNode) {
         });
 
         it("should preserve empty domain, nodeify", function(done) {
-            done = createGroupDone(2, done);
+            done = createGroupDone(3, done);
 
             var deferred = new Promise.defer();
             var p = deferred.promise;
@@ -120,8 +125,15 @@ if (testUtils.isRecentNode) {
             p.then(function shouldBeEmpty() {
                 assert.equal(false, !!process.domain);
                 done();
-            }).nodeify(function () {
+            }).bind({
+                ref: 'foo'
+            }).then(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
+                done();
+            }).nodeify(function shouldKeepThisAndEmptyDomain() {
+                assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
@@ -131,7 +143,7 @@ if (testUtils.isRecentNode) {
 
         it("should preserve corresponding state of domain", function(done) {
 
-            done = createGroupDone(4, done);
+            done = createGroupDone(6, done);
 
             var deferred = new Promise.defer();
             var p = deferred.promise;
@@ -139,8 +151,15 @@ if (testUtils.isRecentNode) {
             p.then(function shouldBeEmpty() {
                 assert.equal(false, !!process.domain);
                 done();
-            }).nodeify(function () {
+            }).bind({
+                ref: 'foo'
+            }).then(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
+                done();
+            }).nodeify(function shouldKeepThisAndEmptyDomain() {
+                assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
@@ -149,8 +168,15 @@ if (testUtils.isRecentNode) {
                 p.then(function shouldNoBeEmpty() {
                     assert.equal(domain, process.domain);
                     done();
-                }).nodeify(function () {
+                }).bind({
+                    ref: 'bar'
+                }).then(function shouldKeepThisAndDomain() {
                     assert.equal(domain, process.domain);
+                    assert.equal('bar', this.ref);
+                    done();
+                }).nodeify(function shouldKeepThisAndDomain() {
+                    assert.equal(domain, process.domain);
+                    assert.equal('bar', this.ref);
                     done();
                 });
             });
@@ -161,15 +187,22 @@ if (testUtils.isRecentNode) {
 
         it('should preserve corresponding state of domain, complex', function(done) {
 
-            done = createGroupDone(6, done);
+            done = createGroupDone(9, done);
 
             var deferred = new Promise.defer();
             var p = deferred.promise;
             p.then(function shouldBeEmpty() {
                 assert.equal(false, !!process.domain);
                 done();
-            }).nodeify(function () {
+            }).bind({
+                ref: 'foo'
+            }).then(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
+                done();
+            }).nodeify(function shouldKeepThisAndEmptyDomain() {
+                assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
@@ -178,8 +211,15 @@ if (testUtils.isRecentNode) {
                 p.then(function shouldNoBeEmpty() {
                     assert.equal(domain1, process.domain);
                     done();
-                }).nodeify(function () {
+                }).bind({
+                    ref: 'bar'
+                }).then(function shouldKeepThisAndDomain() {
                     assert.equal(domain1, process.domain);
+                    assert.equal('bar', this.ref);
+                    done();
+                }).nodeify(function shouldKeepThisAndDomain() {
+                    assert.equal(domain1, process.domain);
+                    assert.equal('bar', this.ref);
                     done();
                 });
             });
@@ -189,8 +229,15 @@ if (testUtils.isRecentNode) {
                 p.then(function shouldNoBeEmpty() {
                     assert.equal(domain2, process.domain);
                     done();
-                }).nodeify(function () {
+                }).bind({
+                    ref: 'qaz'
+                }).then(function shouldKeepThisAndDomain() {
                     assert.equal(domain2, process.domain);
+                    assert.equal('qaz', this.ref);
+                    done();
+                }).nodeify(function shouldKeepThisAndDomain() {
+                    assert.equal(domain2, process.domain);
+                    assert.equal('qaz', this.ref);
                     done();
                 });
             });
@@ -206,21 +253,29 @@ if (testUtils.isRecentNode) {
             var deferred = new Promise.defer();
             var p = deferred.promise;
 
-            p.catch(function shouldBeEmpty() {
+            p.bind({
+                ref: 'foo'
+            }).catch(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
-            }).nodeify(function () {
+            }).nodeify(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
             var domain = Domain.create();
             domain.run(function () {
-                p.catch(function shouldNoBeEmpty() {
+                p.bind({
+                    ref: 'bar'
+                }).catch(function shouldNoBeEmpty() {
                     assert.equal(true, !!process.domain);
+                    assert.equal('bar', this.ref);
                     done();
-                }).nodeify(function () {
+                }).nodeify(function shouldKeepThisAndDomain() {
                     assert.equal(true, !!process.domain);
+                    assert.equal('bar', this.ref);
                     done();
                 });
             });
@@ -235,32 +290,44 @@ if (testUtils.isRecentNode) {
 
             var deferred = new Promise.defer();
             var p = deferred.promise;
-            p.catch(function shouldBeEmpty() {
+            p.bind({
+                ref: 'foo'
+            }).catch(function shouldBeEmpty() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
-            }).nodeify(function () {
+            }).nodeify(function shouldKeepThisAndEmptyDomain() {
                 assert.equal(false, !!process.domain);
+                assert.equal('foo', this.ref);
                 done();
             });
 
             var domain1 = Domain.create();
             domain1.run(function () {
-                p.catch(function shouldNoBeEmpty() {
+                p.bind({
+                    ref: 'bar'
+                }).catch(function shouldNoBeEmpty() {
                     assert.equal(domain1, process.domain);
+                    assert.equal('bar', this.ref);
                     done();
-                }).nodeify(function () {
+                }).nodeify(function shouldKeepThisAndDomain() {
                     assert.equal(domain1, process.domain);
+                    assert.equal('bar', this.ref);
                     done();
                 });
             });
 
             var domain2 = Domain.create();
             domain2.run(function () {
-                p.catch(function shouldNoBeEmpty() {
+                p.bind({
+                    ref: 'qaz'
+                }).catch(function shouldNoBeEmpty() {
                     assert.equal(domain2, process.domain);
+                    assert.equal('qaz', this.ref);
                     done();
-                }).nodeify(function () {
+                }).nodeify(function shouldKeepThisAndDomain() {
                     assert.equal(domain2, process.domain);
+                    assert.equal('qaz', this.ref);
                     done();
                 });
             });
