@@ -70,7 +70,6 @@
     "js/browser",
     "js/main",
     "js/zalgo",
-    "LICENSE",
     "zalgo.js"
   ]
 }
