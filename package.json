@@ -63,7 +63,6 @@
     "uglify-js": "~2.4.16",
     "kefir": "^2.4.1"
   },
-  "readmeFilename": "README.md",
   "main": "./js/main/bluebird.js",
   "browser": "./js/browser/bluebird.js",
   "files": [
