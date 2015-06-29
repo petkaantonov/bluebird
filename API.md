@@ -267,29 +267,23 @@ class MyCustomError extends Error
     Error.captureStackTrace(this, MyCustomError)
 ```
 
-This method also supports predicate-based filters. If you pass a
-predicate function instead of an error constructor, the predicate will receive
-the error as an argument. The return result of the predicate will be used
-determine whether the error handler should be called.
-
-Predicates should allow for very fine grained control over caught errors:
-pattern matching, error-type sets with set operations and many other techniques
-can be implemented on top of them.
-
-Example of using a predicate-based filter:
+If a response is receieved, Request will always resolve successfully. Use statusCode to throw specific errors.
 
 ```js
 var Promise = require("bluebird");
 var request = Promise.promisify(require("request"));
 
-function ClientError(e) {
-    return e.code >= 400 && e.code < 500;
+function sensibleRequest(opt) { 
+  return request(opt).spread(function(res, body) {
+    if (response.statusCode >= 300) { 
+      var e = new Error(body); 
+      e.code = response.statusCode; 
+      throw e; 
+    } else {
+      return body;
+    } 
+  });
 }
-
-request("http://www.google.com").then(function(contents) {
-    console.log(contents);
-}).catch(ClientError, function(e) {
-   //A client error like 400 Bad Request happened
 });
 ```
 
