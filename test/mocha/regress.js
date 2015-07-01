@@ -114,4 +114,19 @@ describe("regressions", function() {
             assert.deepEqual([1, 2, 3, 4, 5], order);
         });
     });
+
+    specify("github-682", function() {
+        var o = {
+            then: function(f) {
+                setTimeout(function() {
+                    delete o.then;
+                    f(o);
+                }, 1);
+            }
+        };
+
+        return Promise.resolve(o).then(function(value) {
+            assert.equal(o, value);
+        });
+    });
 });

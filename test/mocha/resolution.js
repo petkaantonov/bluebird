@@ -95,25 +95,11 @@ describe("PromiseResolver.resolve", function() {
 });
 
 describe("Cast thenable", function() {
-
-    var a = {
-        then: function(fn){
-            fn(a);
-        }
-    };
-
     var b = {
         then: function(f, fn){
             fn(b);
         }
     };
-
-    specify("fulfills with itself", function() {
-        var promise = Promise.cast(a);
-
-        return promise.then(assert.fail).caught(Promise.TypeError, function(){
-        });
-    });
 
     specify("rejects with itself", function() {
         var promise = Promise.cast(b);
@@ -125,25 +111,11 @@ describe("Cast thenable", function() {
 });
 
 describe("Implicitly cast thenable", function() {
-
-    var a = {
-        then: function(fn){
-            fn(a);
-        }
-    };
-
     var b = {
         then: function(f, fn){
             fn(b);
         }
     };
-
-    specify("fulfills with itself", function() {
-        return Promise.resolve().then(function(){
-            return a;
-        }).caught(Promise.TypeError, function(){
-        });
-    });
 
     specify("rejects with itself", function() {
         return Promise.resolve().then(function(){
