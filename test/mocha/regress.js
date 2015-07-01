@@ -64,4 +64,19 @@ describe("regressions", function() {
             });
         });
     });
+
+    specify("github-682", function() {
+        var o = {
+            then: function(f) {
+                setTimeout(function() {
+                    delete o.then;
+                    f(o);
+                }, 1);
+            }
+        };
+
+        return Promise.resolve(o).then(function(value) {
+            assert.equal(o, value);
+        });
+    });
 });
