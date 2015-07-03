@@ -11,7 +11,7 @@ if (testUtils.isRecentNode) {
 
         specify("gh-148", function() {
             var called = false;
-            var e = new Error();
+            var e = new Error("the error");
             Promise.resolve(23).then(function(){called = true});
             return testUtils.awaitDomainException(function(E) {
                 assert.equal(e, E);
@@ -368,6 +368,51 @@ if (testUtils.isRecentNode) {
 
         });
 
+        it('should preserve domain when using .join', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+            var d2 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.join(d1, d2, function() {
+                        assert.strictEqual(domain, process.domain);
+                    }));
+                });
+            });
+        });
+
+        it('should preserve domain when using .using', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+            var d2 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.using(d1, d2, function() {
+                        assert.strictEqual(domain, process.domain);
+                    }));
+                });
+            });
+        });
     });
 
 

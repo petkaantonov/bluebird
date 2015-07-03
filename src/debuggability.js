@@ -1,5 +1,6 @@
 "use strict";
 module.exports = function(Promise, Context) {
+var getDomain = Promise._getDomain;
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
@@ -82,11 +83,17 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace) {
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
-    possiblyUnhandledRejection = typeof fn === "function" ? fn : undefined;
+    var domain = getDomain();
+    possiblyUnhandledRejection =
+        typeof fn === "function" ? (domain === null ? fn : domain.bind(fn))
+                                 : undefined;
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
-    unhandledRejectionHandled = typeof fn === "function" ? fn : undefined;
+    var domain = getDomain();
+    unhandledRejectionHandled =
+        typeof fn === "function" ? (domain === null ? fn : domain.bind(fn))
+                                 : undefined;
 };
 
 Promise.longStackTraces = function () {

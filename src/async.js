@@ -46,8 +46,6 @@ Async.prototype.throwLater = function(fn, arg) {
         arg = fn;
         fn = function () { throw arg; };
     }
-    var domain = this._getDomain();
-    if (domain !== undefined) fn = domain.bind(fn);
     if (typeof setTimeout !== "undefined") {
         setTimeout(function() {
             fn(arg);
@@ -61,78 +59,22 @@ Async.prototype.throwLater = function(fn, arg) {
     }
 };
 
-Async.prototype._getDomain = function() {};
-
-if (!__BROWSER__) {
-if (util.isNode) {
-    var EventsModule = require("events");
-
-    var domainGetter = function() {
-        var domain = process.domain;
-        if (domain === null) return undefined;
-        return domain;
-    };
-
-    if (EventsModule.usingDomains) {
-        Async.prototype._getDomain = domainGetter;
-    } else {
-        var descriptor =
-            Object.getOwnPropertyDescriptor(EventsModule, "usingDomains");
-
-        if (descriptor) {
-            if (!descriptor.configurable) {
-                process.on("domainsActivated", function() {
-                    Async.prototype._getDomain = domainGetter;
-                });
-            } else {
-                var usingDomains = false;
-                Object.defineProperty(EventsModule, "usingDomains", {
-                    configurable: false,
-                    enumerable: true,
-                    get: function() {
-                        return usingDomains;
-                    },
-                    set: function(value) {
-                        if (usingDomains || !value) return;
-                        usingDomains = true;
-                        Async.prototype._getDomain = domainGetter;
-                        // Node doesn't do this themselves unfortunately.
-                        util.toFastProperties(process);
-                        process.emit("domainsActivated");
-                    }
-                });
-            }
-        }
-    }
-}
-}
-
 //When the fn absolutely needs to be called after
 //the queue has been completely flushed
 function AsyncInvokeLater(fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    var domain = this._getDomain();
-    if (domain !== undefined) fn = domain.bind(fn);
     this._lateQueue.push(fn, receiver, arg);
     this._queueTick();
 }
 
 function AsyncInvoke(fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    var domain = this._getDomain();
-    if (domain !== undefined) fn = domain.bind(fn);
     this._normalQueue.push(fn, receiver, arg);
     this._queueTick();
 }
 
 function AsyncSettlePromises(promise) {
-    var domain = this._getDomain();
-    if (domain !== undefined) {
-        var fn = domain.bind(promise._settlePromises);
-        this._normalQueue.push(fn, promise, undefined);
-    } else {
-        this._normalQueue._pushOne(promise);
-    }
+    this._normalQueue._pushOne(promise);
     this._queueTick();
 }
 
@@ -179,8 +121,6 @@ if (!util.hasDevTools) {
 
 Async.prototype.invokeFirst = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
-    var domain = this._getDomain();
-    if (domain !== undefined) fn = domain.bind(fn);
     this._normalQueue.unshift(fn, receiver, arg);
     this._queueTick();
 };

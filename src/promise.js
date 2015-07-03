@@ -12,6 +12,21 @@ var apiRejection = function(msg) {
 function Proxyable() {}
 var ASSERT = require("./assert");
 var util = require("./util");
+
+var getDomain;
+if (util.isNode) {
+    getDomain = function() {
+        var ret = process.domain;
+        if (ret === undefined) ret = null;
+        return ret;
+    };
+} else {
+    getDomain = function() {
+        return null;
+    };
+}
+util.notEnumerableProp(Promise, "_getDomain", getDomain);
+
 var es5 = require("./es5");
 var Async = require("./async");
 var async = new Async();
@@ -217,6 +232,7 @@ Promise.prototype._then = function (
 
     var target = this._target();
     var bitField = target._bitField;
+    var domain = getDomain();
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var handler, value, settler = target._settlePromiseCtx;
         if (BIT_FIELD_CHECK(IS_FULFILLED)) {
@@ -232,14 +248,15 @@ Promise.prototype._then = function (
             target._attachExtraTrace(value);
             handler = didReject;
         }
+
         async.invoke(settler, target, {
-            handler: handler,
+            handler: domain === null ? handler : domain.bind(handler),
             promise: promise,
             receiver: receiver,
             value: value
         });
     } else {
-        target._addCallbacks(didFulfill, didReject, promise, receiver);
+        target._addCallbacks(didFulfill, didReject, promise, receiver, domain);
     }
 
     return promise;
@@ -338,7 +355,7 @@ Promise.prototype._migrateCallback0 = function (follower) {
         receiver === undefined) {
         receiver = follower._boundTo;
     }
-    this._addCallbacks(fulfill, reject, promise, receiver);
+    this._addCallbacks(fulfill, reject, promise, receiver, null);
 };
 
 Promise.prototype._migrateCallbackAt = function (follower, index) {
@@ -347,15 +364,17 @@ Promise.prototype._migrateCallbackAt = function (follower, index) {
     var reject = follower._rejectionHandlerAt(index);
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
-    this._addCallbacks(fulfill, reject, promise, receiver);
+    this._addCallbacks(fulfill, reject, promise, receiver, null);
 };
 
 Promise.prototype._addCallbacks = function (
     fulfill,
     reject,
     promise,
-    receiver
+    receiver,
+    domain
 ) {
+    ASSERT(typeof domain === "object");
     ASSERT(!this._isFateSealed());
     ASSERT(!this._isFollowing());
     var index = this._length();
@@ -373,8 +392,14 @@ Promise.prototype._addCallbacks = function (
 
         this._promise0 = promise;
         if (receiver !== undefined) this._receiver0 = receiver;
-        if (typeof fulfill === "function") this._fulfillmentHandler0 = fulfill;
-        if (typeof reject === "function") this._rejectionHandler0 = reject;
+        if (typeof fulfill === "function") {
+            this._fulfillmentHandler0 =
+                domain === null ? fulfill : domain.bind(fulfill);
+        }
+        if (typeof reject === "function") {
+            this._rejectionHandler0 =
+                domain === null ? reject : domain.bind(reject);
+        }
     } else {
         ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
         ASSERT(this[base + CALLBACK_RECEIVER_OFFSET] === undefined);
@@ -383,10 +408,14 @@ Promise.prototype._addCallbacks = function (
         var base = index * CALLBACK_SIZE - CALLBACK_SIZE;
         this[base + CALLBACK_PROMISE_OFFSET] = promise;
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
-        if (typeof fulfill === "function")
-            this[base + CALLBACK_FULFILL_OFFSET] = fulfill;
-        if (typeof reject === "function")
-            this[base + CALLBACK_REJECT_OFFSET] = reject;
+        if (typeof fulfill === "function") {
+            this[base + CALLBACK_FULFILL_OFFSET] =
+                domain === null ? fulfill : domain.bind(fulfill);
+        }
+        if (typeof reject === "function") {
+            this[base + CALLBACK_REJECT_OFFSET] =
+                domain === null ? reject : domain.bind(reject);
+        }
     }
     this._setLength(index + 1);
     return index;
@@ -398,7 +427,7 @@ Promise.prototype._proxy = function (proxyable, arg) {
     ASSERT(!this._isFollowing());
     ASSERT(arguments.length === 2);
     ASSERT(!this._isFateSealed());
-    this._addCallbacks(undefined, undefined, arg, proxyable);
+    this._addCallbacks(undefined, undefined, arg, proxyable, null);
 };
 
 Promise.prototype._resolveCallback = function(value, shouldBind) {
@@ -720,7 +749,10 @@ Promise.defer = Promise.pending = function() {
     };
 };
 
-Promise._makeSelfResolutionError = makeSelfResolutionError;
+util.notEnumerableProp(Promise,
+                       "_makeSelfResolutionError",
+                       makeSelfResolutionError);
+
 require("./method")(Promise, INTERNAL, tryConvertToPromise, apiRejection,
     debug);
 require("./bind")(Promise, INTERNAL, tryConvertToPromise, debug);
