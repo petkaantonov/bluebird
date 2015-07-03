@@ -760,11 +760,11 @@ if (windowDomEventSupported) {
 describe("Unhandled rejection when joining chains with common rejected parent", function testFunction() {
     specify("GH 645", function() {
         var aError = new Error('Something went wrong');
-        var a = Promise.try(function(){
+        var a = Promise.attempt(function(){
             throw aError;
         });
 
-        var b = Promise.try(function(){
+        var b = Promise.attempt(function(){
             throw new Error('Something went wrong here as well');
         });
 
