@@ -1,3 +1,9 @@
+## 2.9.32 (2015-07-03)
+
+Bugfixes:
+
+ - Fix `.return(primitiveValue)` returning a wrapped version of the primitive value when a Node.js domain is active ([#689](.)).
+
 ## 2.9.31 (2015-07-03)
 
 Bugfixes:
