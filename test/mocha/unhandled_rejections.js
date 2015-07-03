@@ -47,7 +47,7 @@ describe("Will report rejections that are not handled in time", function() {
         promise.reject(yesE());
         setTimeout(function() {
             promise.promise.then(assert.fail, function(){});
-        }, 1000);
+        }, 150);
         return onUnhandledSucceed();
     });
     specify("Eventually rejected handled too late", function testFunction() {
@@ -56,7 +56,7 @@ describe("Will report rejections that are not handled in time", function() {
             promise.reject(yesE());
             setTimeout(function() {
                 promise.promise.then(assert.fail, function(){});
-            }, 1000);
+            }, 150);
         }, 1);
 
         return onUnhandledSucceed();
@@ -519,7 +519,7 @@ describe("Promise.onUnhandledRejectionHandled", function() {
         });
         setTimeout(function(){
             a.then(assert.fail, function(){});
-        }, 200);
+        }, 1);
 
         return Promise.all([spy1.promise, spy2.promise]);
     });
@@ -565,7 +565,7 @@ describe("global events", function() {
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
                 promise.then(assert.fail, function(){});
-            }, 200);
+            }, 1);
         }).timeout(500);
     });
 
@@ -604,7 +604,7 @@ describe("global events", function() {
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
                 promise.then(assert.fail, function(){});
-            }, 200);
+            }, 1);
         }).timeout(500);
 
     });
