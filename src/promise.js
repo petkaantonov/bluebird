@@ -217,19 +217,6 @@ Promise.prototype._then = function (
         if (!haveInternalData) ret._setIsMigrated();
     }
 
-    // preserve domain context if any
-    if (process.domain) {
-        if (didFulfill) {
-            didFulfill = process.domain.bind(didFulfill);
-        }
-        if (didReject) {
-            didReject = process.domain.bind(didReject);
-        }
-        if (didProgress) {
-            didProgress = process.domain.bind(didProgress);
-        }
-    }
-
     var callbackIndex =
         target._addCallbacks(didFulfill, didReject, didProgress, ret, receiver);
 
