@@ -129,7 +129,7 @@ if (testUtils.ecmaScript5) {
                 setTimeout(function() {
                     reject(e);
                 }, 1);
-            }).catch(function(err) {
+            }).caught(function(err) {
                 assert.equal(e, err);
             });
         });

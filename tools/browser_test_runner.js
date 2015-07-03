@@ -5,7 +5,6 @@ var cp = Promise.promisifyAll(require("child_process"));
 var fs = Promise.promisifyAll(require("fs"));
 var baseDir = path.join(__dirname, "..", "test", "browser");
 var browsers = [
-    ["Windows XP", "internet explorer", "6"],
     ["Windows XP", "internet explorer", "7"],
     ["Windows XP", "internet explorer", "8"],
     ["Windows 7", "internet explorer", "9"],

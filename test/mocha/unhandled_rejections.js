@@ -779,7 +779,7 @@ describe("Unhandled rejection when joining chains with common rejected parent", 
             .spread(function( a, product ){
                 // ...
             })
-            .catch(Error, function(e) {
+            .caught(Error, function(e) {
                 assert.strictEqual(aError, e);
             });
 
