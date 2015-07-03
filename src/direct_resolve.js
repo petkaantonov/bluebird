@@ -2,7 +2,6 @@
 var util = require("./util.js");
 var ASSERT = require("./assert.js");
 var isPrimitive = util.isPrimitive;
-var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 
 module.exports = function(Promise) {
 var returner = function () {
@@ -34,7 +33,7 @@ Promise.prototype["return"] =
 Promise.prototype.thenReturn = function (value) {
     if (value === undefined) return this.then(returnUndefined);
 
-    if (wrapsPrimitiveReceiver && isPrimitive(value)) {
+    if (isPrimitive(value)) {
         return this._then(
             wrapper(value, RETURN),
             undefined,
@@ -50,7 +49,7 @@ Promise.prototype["throw"] =
 Promise.prototype.thenThrow = function (reason) {
     if (reason === undefined) return this.then(throwUndefined);
 
-    if (wrapsPrimitiveReceiver && isPrimitive(reason)) {
+    if (isPrimitive(reason)) {
         return this._then(
             wrapper(reason, THROW),
             undefined,

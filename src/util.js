@@ -111,11 +111,6 @@ function notEnumerableProp(obj, name, value) {
     return obj;
 }
 
-
-var wrapsPrimitiveReceiver = (function() {
-    return this !== "string";
-}).call("string");
-
 function thrower(r) {
     throw r;
 }
@@ -280,7 +275,6 @@ var ret = {
     inherits: inherits,
     withAppended: withAppended,
     maybeWrapAsError: maybeWrapAsError,
-    wrapsPrimitiveReceiver: wrapsPrimitiveReceiver,
     toFastProperties: toFastProperties,
     filledRange: filledRange,
     toString: safeToString,
