@@ -678,3 +678,35 @@ if (windowDomEventSupported) {
         })
     });
 }
+
+describe("Unhandled rejection when joining chains with common rejected parent", function testFunction() {
+    specify("GH 645", function() {
+        var aError = new Error('Something went wrong');
+        var a = Promise.try(function(){
+            throw aError;
+        });
+
+        var b = Promise.try(function(){
+            throw new Error('Something went wrong here as well');
+        });
+
+        var c = Promise
+            .join(a, b)
+            .spread(function( a, b ){
+                return a+b;
+            });
+
+        var test1 = Promise
+            .join(a, c)
+            .spread(function( a, product ){
+                // ...
+            })
+            .caught(Error, function(e) {
+                assert.strictEqual(aError, e);
+            });
+
+         var test2 = onUnhandledFail(testFunction);
+
+         return Promise.all([test1, test2]);
+    });
+});

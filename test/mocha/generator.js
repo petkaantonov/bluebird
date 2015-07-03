@@ -36,7 +36,7 @@ describe("yielding", function() {
             assert.fail();
             return 4;
 
-        })().then(assert.fail).catch (function(e){
+        })().then(assert.fail).caught(function(e){
             assert(e instanceof TypeError);
         });
     });
