@@ -1,3 +1,12 @@
+## 2.9.31 (2015-07-03)
+
+Bugfixes:
+
+ - Fix Promises/A+ compliance issue regarding circular thenables: the correct behavior is to go into an infinite loop instead of warning with an error (Fixes [#682](.)).
+ - Fix "(node) warning: possible EventEmitter memory leak detected" ([#661](.)).
+ - Fix callbacks sometimes being called with a wrong node.js domain ([#664](.)).
+ - Fix callbacks sometimes not being called at all in iOS 8.1 WebApp mode ([#666](.), [#687](.)).
+
 ## 2.9.30 (2015-06-14)
 
 Bugfixes:
