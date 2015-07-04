@@ -452,7 +452,12 @@ var fireGlobalEvent = (function() {
         } catch (e) {}
         if (!customEventWorks) {
             try {
-                var event = document.createEvent("CustomEvent");
+                var event;
+                if (document.createEventObject) {
+                    event = document.createEventObject();
+                } else {
+                    event = document.createEvent("CustomEvent");
+                }
                 event.initCustomEvent("testingtheevent", false, true, {});
                 self.dispatchEvent(event);
             } catch (e) {
@@ -471,7 +476,11 @@ var fireGlobalEvent = (function() {
                     });
                 // IE9
                 } else if (self.dispatchEvent) {
-                    event = document.createEvent("CustomEvent");
+                    if (document.createEventObject) {
+                        event = document.createEventObject();
+                    } else {
+                        event = document.createEvent("CustomEvent");
+                    }
                     event.initCustomEvent(type, false, true, detail);
                 }
 
