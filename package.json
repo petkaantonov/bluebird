@@ -15,7 +15,10 @@
     "future",
     "flow control",
     "dsl",
-    "fluent interface"
+    "fluent interface",
+    "parallel", 
+    "thread",
+    "concurrency"
   ],
   "scripts": {
     "lint": "node scripts/jshint.js",
