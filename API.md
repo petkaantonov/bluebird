@@ -1442,6 +1442,16 @@ Promise.promisifyAll(require("mongoose"));
 ```
 
 ```js
+// Mongojs
+var Promise = require("bluebird");
+Promise.promisifyAll([
+   require("mongojs/lib/collection"),
+   require("mongojs/lib/database"),
+   require("mongojs/lib/cursor")
+]);
+```
+
+```js
 // Request
 var Promise = require("bluebird");
 Promise.promisifyAll(require("request"));
