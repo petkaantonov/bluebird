@@ -39,7 +39,8 @@ CatchFilter.prototype.doFilter = function (e) {
         if (itemIsErrorType && e instanceof item) {
             var ret = tryCatch(cb).call(boundTo, e);
             if (ret === errorObj) {
-                NEXT_FILTER.e = ret.e;
+                NEXT_FILTER.e = errorObj.e;
+                errorObj.e = null;
                 return NEXT_FILTER;
             }
             return ret;
@@ -47,11 +48,13 @@ CatchFilter.prototype.doFilter = function (e) {
             var shouldHandle = safePredicate(item, e);
             if (shouldHandle === errorObj) {
                 e = errorObj.e;
+                errorObj.e = null;
                 break;
             } else if (shouldHandle) {
                 var ret = tryCatch(cb).call(boundTo, e);
                 if (ret === errorObj) {
-                    NEXT_FILTER.e = ret.e;
+                    NEXT_FILTER.e = errorObj.e;
+                    errorObj.e = null;
                     return NEXT_FILTER;
                 }
                 return ret;

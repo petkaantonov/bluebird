@@ -32,20 +32,22 @@ Promise.prototype._doProgressWith = function (progression) {
     ASSERT(promise instanceof Promise);
     var ret = tryCatch(handler).call(receiver, progressValue);
     if (ret === errorObj) {
+        var e = errorObj.e;
+        errorObj.e = null;
         //2.4 if the onProgress callback throws an exception
         //with a name property equal to 'StopProgressPropagation',
         //then the error is silenced.
-        if (ret.e != null &&
-            ret.e.name !== "StopProgressPropagation") {
+        if (e != null &&
+            e.name !== "StopProgressPropagation") {
             //2.3 Unless the onProgress callback throws an exception
             //with a name property equal to
             //'StopProgressPropagation',
             // the result of the function is used as the progress
             //value to propagate.
-            var trace = util.canAttachTrace(ret.e)
-                ? ret.e : new Error(util.toString(ret.e));
+            var trace = util.canAttachTrace(e)
+                ? e : new Error(util.toString(e));
             promise._attachExtraTrace(trace);
-            promise._progress(ret.e);
+            promise._progress(e);
         }
     //2.2 The onProgress callback may return a promise.
     } else if (ret instanceof Promise) {

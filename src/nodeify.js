@@ -11,7 +11,9 @@ function spreadAdapter(val, nodeback) {
     if (!util.isArray(val)) return successAdapter.call(promise, val, nodeback);
     var ret = tryCatch(nodeback).apply(promise._boundTo, [null].concat(val));
     if (ret === errorObj) {
-        async.throwLater(ret.e);
+        var e = errorObj.e;
+        errorObj.e = null;
+        async.throwLater(e);
     }
 }
 
@@ -23,7 +25,9 @@ function successAdapter(val, nodeback) {
         ? tryCatch(nodeback).call(receiver, null)
         : tryCatch(nodeback).call(receiver, null, val);
     if (ret === errorObj) {
-        async.throwLater(ret.e);
+        var e = errorObj.e;
+        errorObj.e = null;
+        async.throwLater(e);
     }
 }
 function errorAdapter(reason, nodeback) {
@@ -39,7 +43,9 @@ function errorAdapter(reason, nodeback) {
     ASSERT(typeof nodeback == "function");
     var ret = tryCatch(nodeback).call(promise._boundTo, reason);
     if (ret === errorObj) {
-        async.throwLater(ret.e);
+        var e = errorObj.e;
+        errorObj.e = null;
+        async.throwLater(e);
     }
 }
 

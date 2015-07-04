@@ -38,7 +38,9 @@ Promise.attempt = Promise["try"] = function (fn, args, ctx) {
 Promise.prototype._resolveFromSyncValue = function (value) {
     ASSERT(!this._isFollowing());
     if (value === util.errorObj) {
-        this._rejectCallback(value.e, false, true);
+        var e = util.errorObj.e;
+        util.errorObj.e = null;
+        this._rejectCallback(e, false, true);
     } else {
         this._resolveCallback(value, true);
     }

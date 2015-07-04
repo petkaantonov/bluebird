@@ -64,7 +64,11 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         this._promise._pushContext();
         var ret = tryCatch(callback).call(receiver, value, index, length);
         this._promise._popContext();
-        if (ret === errorObj) return this._reject(ret.e);
+        if (ret === errorObj) {
+            var e = errorObj.e;
+            errorObj.e = null;
+            return this._reject(e);
+        }
 
         // If the mapper function returned a promise we simply reuse
         // The MappingPromiseArray as a PromiseArray for round 2.
