@@ -221,7 +221,7 @@ Promise.map(URLs, function(URL) {
 
 Also promises don't just give you correspondences for synchronous features but can also be used as limited event emitters or callback aggregators.
 
-More reading:
+# More Reading
 
  - [Promise nuggets](https://promise-nuggets.github.io/)
  - [Why I am switching to promises](http://spion.github.io/posts/why-i-am-switching-to-promises.html)
