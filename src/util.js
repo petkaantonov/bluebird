@@ -91,6 +91,7 @@ function withAppended(target, appendee) {
 function getDataPropertyOrDefault(obj, key, defaultValue) {
     if (es5.isES5) {
         var desc = Object.getOwnPropertyDescriptor(obj, key);
+
         if (desc != null) {
             return desc.get == null && desc.set == null
                     ? desc.value
@@ -118,13 +119,27 @@ function thrower(r) {
 }
 
 var inheritedDataKeys = (function() {
+    var excludedPrototypes = [
+        Array.prototype,
+        Object.prototype,
+        Function.prototype
+    ];
+
+    var isExcludedProto = function(val) {
+        for (var i = 0; i < excludedPrototypes.length; ++i) {
+            if (excludedPrototypes[i] === val) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     if (es5.isES5) {
-        var oProto = Object.prototype;
         var getKeys = Object.getOwnPropertyNames;
         return function(obj) {
             var ret = [];
             var visitedKeys = Object.create(null);
-            while (obj != null && obj !== oProto) {
+            while (obj != null && !isExcludedProto(obj)) {
                 var keys;
                 try {
                     keys = getKeys(obj);
@@ -145,11 +160,22 @@ var inheritedDataKeys = (function() {
             return ret;
         };
     } else {
+        var hasProp = {}.hasOwnProperty;
         return function(obj) {
+            if (isExcludedProto(obj)) return [];
             var ret = [];
+
             /*jshint forin:false */
-            for (var key in obj) {
-                ret.push(key);
+            enumeration: for (var key in obj) {
+                if (hasProp.call(obj, key)) {
+                    ret.push(key);
+                } else {
+                    for (var i = 0; i < excludedPrototypes; ++i) {
+                        if (hasProp.call(excludedPrototypes[i], key)) {
+                            continue enumeration;
+                        }
+                    }
+                }
             }
             return ret;
         };
@@ -162,10 +188,15 @@ function isClass(fn) {
     try {
         if (typeof fn === "function") {
             var keys = es5.names(fn.prototype);
-            if (((es5.isES5 && keys.length > 1) ||
-                (keys.length > 0 &&
-                !(keys.length === 1 && keys[0] === "constructor"))) ||
-                thisAssignmentPattern.test(fn + "")) {
+
+            var hasMethods = es5.isES5 && keys.length > 1;
+            var hasMethodsOtherThanConstructor = keys.length > 0 &&
+                !(keys.length === 1 && keys[0] === "constructor");
+            var hasThisAssignmentAndStaticMethods =
+                thisAssignmentPattern.test(fn + "") && es5.names(fn).length > 0;
+
+            if (hasMethods || hasMethodsOtherThanConstructor ||
+                hasThisAssignmentAndStaticMethods) {
                 return true;
             }
         }
@@ -253,13 +284,6 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
-function isNativeFunctionMethod(fn) {
-    return fn === fn.call ||
-           fn === fn.toString ||
-           fn === fn.bind ||
-           fn === fn.apply;
-}
-
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -289,8 +313,7 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]",
-    isNativeFunctionMethod: isNativeFunctionMethod
+        classString(process).toLowerCase() === "[object process]"
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);

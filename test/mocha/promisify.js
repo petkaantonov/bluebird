@@ -956,3 +956,22 @@ describe("filter", function() {
         });
     });
 });
+
+describe("github 680", function() {
+    before(function() {
+        Function.prototype.method = function() {};
+    });
+
+    after(function() {
+        delete Function.prototype.method;
+    });
+
+    specify("should not try to promisify methods from Function.prototype, native or otherwise", function() {
+        var a = function() {};
+        a.fn = function() {};
+        Promise.promisifyAll(a);
+        assert.strictEqual(undefined, a.methodAsync);
+        assert.strictEqual(undefined, a.applyAsync);
+        assert(typeof a.fnAsync === "function");
+    });
+});
