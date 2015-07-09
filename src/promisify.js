@@ -10,8 +10,18 @@ var ASSERT = require("./assert");
 var TypeError = require("./errors").TypeError;
 var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
 var defaultPromisified = {__isPromisified__: true};
-var noCopyPropsPattern =
-    /^(?:length|name|arguments|caller|callee|prototype|__isPromisified__)$/;
+var noCopyProps = [
+    "arity", // Firefox 4
+    "length",
+    "name",
+    "arguments",
+    "caller",
+    "callee",
+    "prototype",
+    "__isPromisified__"
+];
+var noCopyPropsPattern = new RegExp("^(?:" + noCopyProps.join("|") + ")$");
+
 var defaultFilter = function(name) {
     return util.isIdentifier(name) &&
         name.charAt(0) !== "_" &&
