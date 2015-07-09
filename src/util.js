@@ -166,6 +166,7 @@ var inheritedDataKeys = (function() {
                             continue enumeration;
                         }
                     }
+                    ret.push(key);
                 }
             }
             return ret;
