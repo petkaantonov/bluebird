@@ -1,3 +1,9 @@
+## 2.9.33 (2015-07-09)
+
+Bugfixes:
+
+ - Methods on `Function.prototype` are no longer promisified ([#680](.)).
+
 ## 2.9.32 (2015-07-03)
 
 Bugfixes:
