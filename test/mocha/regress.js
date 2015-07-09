@@ -130,7 +130,7 @@ describe("regressions", function() {
         });
     });
 
-    if (typeof process !== "undefined") {
+    if (testUtils.isNodeJS) {
         describe("github-689", function() {
             var originalProperty = Object.getOwnPropertyDescriptor(process, "domain");
             var bindCalls = 0;
