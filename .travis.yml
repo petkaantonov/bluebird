@@ -12,3 +12,6 @@ matrix:
 before_script:
 - git submodule update --init --recursive
 script: "node $NODE_FLAGS tools/test.js $SCRIPT_FLAGS"
+branches:
+  only:
+    - master
