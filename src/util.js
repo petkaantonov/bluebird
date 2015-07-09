@@ -156,7 +156,7 @@ var inheritedDataKeys = (function() {
                 if (hasProp.call(obj, key)) {
                     ret.push(key);
                 } else {
-                    for (var i = 0; i < excludedPrototypes; ++i) {
+                    for (var i = 0; i < excludedPrototypes.length; ++i) {
                         if (hasProp.call(excludedPrototypes[i], key)) {
                             continue enumeration;
                         }
