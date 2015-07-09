@@ -280,7 +280,9 @@ function copyDescriptors(from, to, filter) {
     for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
         if (filter(key)) {
-            es5.defineProperty(to, key, es5.getDescriptor(from, key));
+            try {
+                es5.defineProperty(to, key, es5.getDescriptor(from, key));
+            } catch (ignore) {}
         }
     }
 }
