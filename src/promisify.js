@@ -63,7 +63,6 @@ function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
         var passesDefaultFilter = filter === defaultFilter
             ? true : defaultFilter(key, value, obj);
         if (typeof value === "function" &&
-            !util.isNativeFunctionMethod(value) &&
             !isPromisified(value) &&
             !hasPromisified(obj, key, suffix) &&
             filter(key, value, obj, passesDefaultFilter)) {
