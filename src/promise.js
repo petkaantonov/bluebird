@@ -220,18 +220,22 @@ Promise.prototype._then = function (
     ASSERT(arguments.length === 5);
     var haveInternalData = internalData !== undefined;
     var promise = haveInternalData ? internalData : new Promise(INTERNAL);
+    var target = this._target();
+    var bitField = target._bitField;
 
     if (!haveInternalData) {
         promise._propagateFrom(this, PROPAGATE_ALL);
         promise._captureStackTrace();
         if (receiver === undefined &&
             BIT_FIELD_CHECK(IS_BOUND, this._bitField)) {
-            receiver = this._boundTo;
+            if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+                receiver = this._boundValue();
+            } else {
+                receiver = target === this ? undefined : this._boundTo;
+            }
         }
     }
 
-    var target = this._target();
-    var bitField = target._bitField;
     var domain = getDomain();
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var handler, value, settler = target._settlePromiseCtx;
@@ -319,7 +323,7 @@ Promise.prototype._receiverAt = function (index) {
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
     if (ret === undefined && this._isBound()) {
-        return this._boundTo;
+        return this._boundValue();
     }
     return ret;
 };
@@ -345,15 +349,28 @@ Promise.prototype._rejectionHandlerAt = function (index) {
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
+Promise.prototype._boundValue = function() {
+    var ret = this._boundTo;
+    if (ret !== undefined) {
+        if (ret instanceof Promise) {
+            if (ret.isFulfilled()) {
+                return ret.value();
+            } else {
+                return undefined;
+            }
+        }
+    }
+    return ret;
+};
+
 Promise.prototype._migrateCallback0 = function (follower) {
     var bitField = follower._bitField;
     var fulfill = follower._fulfillmentHandler0;
     var reject = follower._rejectionHandler0;
     var promise = follower._promise0;
     var receiver = follower._receiver0;
-    if (BIT_FIELD_CHECK(IS_BOUND) &&
-        receiver === undefined) {
-        receiver = follower._boundTo;
+    if (receiver === undefined && follower._isBound()) {
+        receiver = follower._boundValue();
     }
     this._addCallbacks(fulfill, reject, promise, receiver, null);
 };
@@ -391,7 +408,7 @@ Promise.prototype._addCallbacks = function (
         ASSERT(this._rejectionHandler0 === undefined);
 
         this._promise0 = promise;
-        if (receiver !== undefined) this._receiver0 = receiver;
+        this._receiver0 = receiver;
         if (typeof fulfill === "function") {
             this._fulfillmentHandler0 =
                 domain === null ? fulfill : domain.bind(fulfill);
@@ -505,7 +522,7 @@ Promise.prototype._settlePromiseFromHandler = function (
             x.e = new TypeError("cannot .spread() a non-array: " +
                                     util.classString(value));
         } else {
-            x = tryCatch(handler).apply(this._boundTo, value);
+            x = tryCatch(handler).apply(this._boundValue(), value);
         }
     } else {
         x = tryCatch(handler).call(receiver, value);
@@ -624,7 +641,7 @@ Promise.prototype._settlePromise0 = function(handler, value, bitField) {
     var promise = this._promise0;
     var receiver = this._receiver0;
     if (receiver === undefined) {
-        if (BIT_FIELD_CHECK(IS_BOUND)) receiver = this._boundTo;
+        if (BIT_FIELD_CHECK(IS_BOUND)) receiver = this._boundValue();
     } else {
         // Only clear if necessary
         this._receiver0 = undefined;

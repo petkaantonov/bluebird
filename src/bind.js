@@ -11,7 +11,6 @@ var targetRejected = function(e, context) {
 };
 
 var bindingResolved = function(thisArg, context) {
-    this._setBoundTo(thisArg);
     if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG, this._bitField)) {
         this._resolveCallback(context.target);
     }
@@ -30,6 +29,7 @@ Promise.prototype.bind = function (thisArg) {
     var ret = new Promise(INTERNAL);
     ret._propagateFrom(this, PROPAGATE_CANCEL);
     var target = this._target();
+    ret._setBoundTo(maybePromise);
     if (maybePromise instanceof Promise) {
         var context = {
             promiseRejectionQueued: false,
@@ -42,7 +42,6 @@ Promise.prototype.bind = function (thisArg) {
             bindingResolved, bindingRejected, undefined, ret, context);
         ret._setOnCancel(maybePromise);
     } else {
-        ret._setBoundTo(thisArg);
         ret._resolveCallback(target);
     }
     return ret;

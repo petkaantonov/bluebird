@@ -997,20 +997,13 @@ describe("When using .bind to gratuitously rebind", function() {
     var c = {value: 3};
 
     function makeTest(a, b, c) {
-        return function(done) {
-            var dones = 0;
-            function donecalls() {
-                if( ++dones === 3 ) done();
-            }
-            Promise.bind(a).then(function(){
+        return function() {
+            return Promise.bind(a).then(function(){
                 assert(this.value === 1);
-                donecalls();
             }).bind(b).then(function(){
                 assert(this.value === 2);
-                donecalls();
             }).bind(c).then(function(){
                 assert(this.value === 3);
-                donecalls();
             });
         }
     }
@@ -1132,9 +1125,91 @@ describe("Promised thisArg", function() {
 });
 
 describe("github issue", function() {
-    specify("426", function() {
+    specify("gh-426", function() {
         return Promise.all([Promise.delay(10)]).bind(THIS).spread(function() {
             assert.equal(this, THIS);
         });
     });
+
+    specify("gh-702-1", function() {
+        return Promise.bind(Promise.delay(1, THIS)).then(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("gh-702-2", function() {
+        return Promise.resolve().bind(Promise.delay(1, THIS)).then(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
 });
+
+
+describe("promised bind", function() {
+    specify("works after following", function() {
+        return Promise.bind(Promise.delay(1, THIS)).then(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with spread", function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).spread(function() {
+            assert.equal(this, THIS);
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            return Promise.delay(1, [].slice.call(arguments));
+        }).spread(function() {
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            assert.equal(this, THIS);
+            return Promise.delay(1, [].slice.call(arguments));
+        }).spread(function() {
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with immediate finally", function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).finally(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with delayed finally", function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).finally(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with immediate tap", function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).tap(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with delayed tap", function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).tap(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+});
+
+

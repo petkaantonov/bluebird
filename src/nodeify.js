@@ -9,7 +9,8 @@ var errorObj = util.errorObj;
 function spreadAdapter(val, nodeback) {
     var promise = this;
     if (!util.isArray(val)) return successAdapter.call(promise, val, nodeback);
-    var ret = tryCatch(nodeback).apply(promise._boundTo, [null].concat(val));
+    var ret =
+        tryCatch(nodeback).apply(promise._boundValue(), [null].concat(val));
     if (ret === errorObj) {
         async.throwLater(ret.e);
     }
@@ -17,7 +18,7 @@ function spreadAdapter(val, nodeback) {
 
 function successAdapter(val, nodeback) {
     var promise = this;
-    var receiver = promise._boundTo;
+    var receiver = promise._boundValue();
     ASSERT(typeof nodeback == "function");
     var ret = val === undefined
         ? tryCatch(nodeback).call(receiver, null)
@@ -35,7 +36,7 @@ function errorAdapter(reason, nodeback) {
         ASSERT(!!reason);
     }
     ASSERT(typeof nodeback == "function");
-    var ret = tryCatch(nodeback).call(promise._boundTo, reason);
+    var ret = tryCatch(nodeback).call(promise._boundValue(), reason);
     if (ret === errorObj) {
         async.throwLater(ret.e);
     }

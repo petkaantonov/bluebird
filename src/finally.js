@@ -39,7 +39,7 @@ function finallyHandler(reasonOrValue) {
 
     if (!this.called) {
         this.called = true;
-        var ret = handler.call(promise._boundTo);
+        var ret = handler.call(promise._boundValue());
         if (ret !== undefined) {
             var maybePromise = tryConvertToPromise(ret, promise);
             if (maybePromise instanceof Promise) {

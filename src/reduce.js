@@ -146,9 +146,9 @@ function gotValue(value) {
     promise._pushContext();
     var ret;
     if (array._eachValues !== undefined) {
-        ret = fn.call(promise._boundTo, value, this.index, this.length);
+        ret = fn.call(promise._boundValue(), value, this.index, this.length);
     } else {
-        ret = fn.call(promise._boundTo,
+        ret = fn.call(promise._boundValue(),
                               this.accum, value, this.index, this.length);
     }
     if (ret instanceof Promise) {

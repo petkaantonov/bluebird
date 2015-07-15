@@ -98,7 +98,7 @@ Promise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {
     } else if (onCancelCallback !== undefined) {
         if (typeof onCancelCallback === "function") {
             if (!internalOnly) {
-                var e = tryCatch(onCancelCallback).call(this._boundTo);
+                var e = tryCatch(onCancelCallback).call(this._boundValue());
                 if (e === errorObj) {
                     this._attachExtraTrace(e.e);
                     async.throwLater(e.e);

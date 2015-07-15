@@ -63,7 +63,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
 
         var promise = this._promise;
         var callback = this._callback;
-        var receiver = promise._boundTo;
+        var receiver = promise._boundValue();
         promise._pushContext();
         var ret = tryCatch(callback).call(receiver, value, index, length);
         var promisesCreated = promise._popContext();

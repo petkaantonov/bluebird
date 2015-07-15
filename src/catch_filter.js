@@ -7,7 +7,7 @@ var errorObj = util.errorObj;
 
 function catchFilter(instances, cb, promise) {
     return function(e) {
-        var boundTo = promise._boundTo;
+        var boundTo = promise._boundValue();
         predicateLoop: for (var i = 0; i < instances.length; ++i) {
             var item = instances[i];
 
