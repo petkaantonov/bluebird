@@ -227,6 +227,20 @@ function bindingPropagateFrom(parent, flags) {
 }
 var propagateFromFunction = bindingPropagateFrom;
 
+function boundValueFunction() {
+    var ret = this._boundTo;
+    if (ret !== undefined) {
+        if (ret instanceof Promise) {
+            if (ret.isFulfilled()) {
+                return ret.value();
+            } else {
+                return undefined;
+            }
+        }
+    }
+    return ret;
+}
+
 function longStackTracesCaptureStackTrace() {
     ASSERT(this._trace == null);
     this._trace = new CapturedTrace(this._peekContext());
@@ -800,6 +814,9 @@ return {
     },
     propagateFromFunction: function() {
         return propagateFromFunction;
+    },
+    boundValueFunction: function() {
+        return boundValueFunction;
     },
     checkForgottenReturns: checkForgottenReturns,
     setBounds: setBounds,

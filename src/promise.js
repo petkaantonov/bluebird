@@ -349,19 +349,7 @@ Promise.prototype._rejectionHandlerAt = function (index) {
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
 };
 
-Promise.prototype._boundValue = function() {
-    var ret = this._boundTo;
-    if (ret !== undefined) {
-        if (ret instanceof Promise) {
-            if (ret.isFulfilled()) {
-                return ret.value();
-            } else {
-                return undefined;
-            }
-        }
-    }
-    return ret;
-};
+Promise.prototype._boundValue = function() {};
 
 Promise.prototype._migrateCallback0 = function (follower) {
     var bitField = follower._bitField;

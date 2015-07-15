@@ -24,6 +24,7 @@ Promise.prototype.bind = function (thisArg) {
     if (!calledBind) {
         calledBind = true;
         Promise.prototype._propagateFrom = debug.propagateFromFunction();
+        Promise.prototype._boundValue = debug.boundValueFunction();
     }
     var maybePromise = tryConvertToPromise(thisArg);
     var ret = new Promise(INTERNAL);
