@@ -6,6 +6,7 @@ module.exports = function(Promise,
                           INTERNAL,
                           debug) {
 var ASSERT = require("./assert");
+var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -14,7 +15,8 @@ var EMPTY_ARRAY = [];
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
     this._promise._captureStackTrace();
-    this._callback = fn;
+    var domain = getDomain();
+    this._callback = domain === null ? fn : domain.bind(fn);
     this._preservedValues = _filter === INTERNAL
         ? new Array(this.length())
         : null;

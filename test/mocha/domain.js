@@ -413,7 +413,81 @@ if (testUtils.isRecentNode) {
                 });
             });
         });
-    });
 
+        it('should preserve domain when using .map', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.map([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
+                        return process.domain;
+                    }).then(function(domains) {
+                        assert.deepEqual([domain, domain, domain, domain], domains);
+                        assert.equal(process.domain, domain);
+                    }));
+                });
+            });
+        });
+
+        it('should preserve domain when using .filter', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.filter([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
+                        assert.equal(process.domain, domain);
+                    }));
+                });
+            });
+        });
+
+        it('should preserve domain when using .reduce', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.reduce([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
+                        assert.equal(process.domain, domain);
+                    }));
+                });
+            });
+        });
+
+        it('should preserve domain when using .each', function() {
+            var domain = Domain.create();
+            var d1 = new Promise(function(resolve, reject) {
+                Domain.create().run(function() {
+                    setTimeout(resolve, 1);
+                });
+            });
+
+            return new Promise(function(resolve, reject) {
+                domain.on("error", reject);
+                domain.run(function() {
+                    resolve(Promise.each([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
+                        assert.equal(process.domain, domain);
+                    }));
+                });
+            });
+        });
+    });
 
 }

@@ -5,12 +5,14 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL,
                           debug) {
+var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 
 function ReductionPromiseArray(promises, fn, initialValue, _each) {
     this.constructor$(promises);
-    this._fn = fn;
+    var domain = getDomain();
+    this._fn = domain === null ? fn : domain.bind(fn);
     if (initialValue !== undefined) {
         initialValue = Promise.resolve(initialValue);
         initialValue._attachCancellationCallback(this);
