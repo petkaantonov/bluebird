@@ -60,7 +60,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         if (preservedValues !== null) preservedValues[index] = value;
 
         var callback = this._callback;
-        var receiver = this._promise._boundTo;
+        var receiver = this._promise._boundValue();
         this._promise._pushContext();
         var ret = tryCatch(callback).call(receiver, value, index, length);
         this._promise._popContext();

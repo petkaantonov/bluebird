@@ -35,7 +35,7 @@ function finallyHandler(reasonOrValue) {
     var handler = this.handler;
 
     var ret = promise._isBound()
-                    ? handler.call(promise._boundTo)
+                    ? handler.call(promise._boundValue())
                     : handler();
 
     //Nobody ever returns anything from a .finally handler so speed this up
@@ -63,7 +63,7 @@ function tapHandler(value) {
     var handler = this.handler;
 
     var ret = promise._isBound()
-                    ? handler.call(promise._boundTo, value)
+                    ? handler.call(promise._boundValue(), value)
                     : handler(value);
 
     //Nobody ever returns anything from a .finally handler so speed this up

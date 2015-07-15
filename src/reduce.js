@@ -106,7 +106,7 @@ ReductionPromiseArray.prototype._promiseFulfilled = function (value, index) {
     if (!gotAccum) return;
 
     var callback = this._callback;
-    var receiver = this._promise._boundTo;
+    var receiver = this._promise._boundValue();
     var ret;
 
     for (var i = this._reducingIndex; i < length; ++i) {

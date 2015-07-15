@@ -327,7 +327,7 @@ Promise.prototype._receiverAt = function (index) {
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
     if (ret === undefined && this._isBound()) {
-        return this._boundTo;
+        return this._boundValue();
     }
     return ret;
 };
@@ -352,6 +352,21 @@ Promise.prototype._rejectionHandlerAt = function (index) {
     return index === 0
         ? this._rejectionHandler0
         : this[index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_REJECT_OFFSET];
+};
+
+Promise.prototype._boundValue = function() {
+    var ret = this._boundTo;
+    if (ret !== undefined) {
+        if (ret instanceof Promise) {
+            ASSERT(!ret.isPending());
+            if (ret.isFulfilled()) {
+                return ret.value();
+            } else {
+                return undefined;
+            }
+        }
+    }
+    return ret;
 };
 
 Promise.prototype._migrateCallbacks = function (follower, index) {
@@ -526,7 +541,7 @@ Promise.prototype._settlePromiseFromHandler = function (
     promise._pushContext();
     var x;
     if (receiver === APPLY && !this._isRejected()) {
-        x = tryCatch(handler).apply(this._boundTo, value);
+        x = tryCatch(handler).apply(this._boundValue(), value);
     } else {
         x = tryCatch(handler).call(receiver, value);
     }
@@ -605,8 +620,6 @@ Promise.prototype._settlePromiseAt = function (index) {
         this._isCarryingStackTrace() ? this._getCarriedStackTrace() : undefined;
     var value = this._settledValue;
     var receiver = this._receiverAt(index);
-
-
     this._clearCallbackDataAtIndex(index);
 
     if (typeof handler === "function") {

@@ -1107,9 +1107,90 @@ describe("Promised thisArg", function() {
 });
 
 describe("github issue", function() {
-    specify("426", function() {
+    specify("gh-426", function() {
         return Promise.all([Promise.delay(10)]).bind(THIS).spread(function() {
             assert.equal(this, THIS);
         });
     });
+
+    specify("gh-702-1", function() {
+        return Promise.bind(Promise.delay(THIS, 1)).then(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("gh-702-2", function() {
+        return Promise.resolve().bind(Promise.delay(THIS, 1)).then(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
 });
+
+
+describe("promised bind", function() {
+    specify("works after following", function() {
+        return Promise.bind(Promise.delay(THIS, 1)).then(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with spread", function() {
+        return Promise.bind(Promise.delay(THIS, 1), [1,2,3]).spread(function() {
+            assert.equal(this, THIS);
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            return Promise.delay([].slice.call(arguments), 1);
+        }).spread(function() {
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            assert.equal(this, THIS);
+            return Promise.delay([].slice.call(arguments), 1);
+        }).spread(function() {
+            assert.deepEqual([1,2,3], [].slice.call(arguments));
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with immediate finally", function() {
+        return Promise.bind(Promise.delay(THIS, 1), [1,2,3]).finally(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with delayed finally", function() {
+        return Promise.bind(Promise.delay(THIS, 1), [1,2,3]).finally(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with immediate tap", function() {
+        return Promise.bind(Promise.delay(THIS, 1), [1,2,3]).tap(function() {
+            assert.equal(this, THIS);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+
+    specify("works with delayed tap", function() {
+        return Promise.bind(Promise.delay(THIS, 1), [1,2,3]).tap(function() {
+            assert.equal(this, THIS);
+            return Promise.delay(1);
+        }).then(function() {
+            assert.equal(this, THIS);
+        });
+    });
+});
+
