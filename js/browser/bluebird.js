@@ -592,6 +592,12 @@ var captureStackTrace = (function stackDetection() {
             configurable: false,
             value: 25
         });
+        defineProperty(Error, "__bluebirdStackTraceLimit__", {
+            writable: true,
+            enumerable: false,
+            configurable: false,
+            value: true
+        });
         rtraceline = /@/;
         var rline = /[@\n]/;
 
