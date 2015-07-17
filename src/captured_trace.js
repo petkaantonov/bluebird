@@ -174,6 +174,14 @@ var captureStackTrace = (function stackDetection() {
             configurable: false,
             value: 25
         });
+        // the previous property definition is messing up our detection of native support of stack trace limits
+        // define another property to ensure we know this is fake...
+        defineProperty(Error, "__bluebirdStackTraceLimit__", {
+            writable: true,
+            enumerable: false,
+            configurable: false,
+            value: true
+        });
         rtraceline = /@/;
         var rline = /[@\n]/;
 
