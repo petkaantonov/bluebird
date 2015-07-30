@@ -2372,7 +2372,7 @@ var baseDir = process.argv[2] || ".";
 
 function writeFile(path, contents) {
     var fullpath = require("path").join(baseDir, path);
-    return fs.writeFileAsync(fullpath, contents).thenReturn(fullpath);
+    return fs.writeFileAsync(fullpath, contents).return(fullpath);
 }
 
 writeFile("test.txt", "this is text").then(function(fullPath) {
