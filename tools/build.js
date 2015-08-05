@@ -39,7 +39,8 @@ var optionalModuleRequireMap = {
     "filter.js": ["map.js"],
     "any.js": ["some.js"],
     "each.js": ["reduce.js"],
-    "timers.js": ["cancel.js"]
+    "timers.js": ["cancel.js"],
+    "lift.js": ["join.js"]
 };
 
 var lastLineCode = "                                                         \n\
