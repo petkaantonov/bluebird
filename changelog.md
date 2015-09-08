@@ -1,3 +1,16 @@
+## 2.10.0 (2015-09-08)
+
+Features:
+
+ - `Promise.using` can now take the promises-for-resources as an array ([#733](.)).
+ - Browser builds for minimal core are now hosted on CDN ([#724](.)).
+
+Bugfixes:
+
+ - Disabling debug mode with `BLUEBIRD_DEBUG=0` environment variable now works ([#719](.)).
+ - Fix unhandled rejection reporting when passing rejected promise to `.return()` ([#721](.)).
+ - Fix unbound promise's then handlers being called with wrong `this` value ([#738](.)).
+
 ## 2.9.34 (2015-07-15)
 
 Bugfixes:
