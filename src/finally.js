@@ -39,7 +39,9 @@ function finallyHandler(reasonOrValue) {
 
     if (!this.called) {
         this.called = true;
-        var ret = handler.call(promise._boundValue());
+        var ret = this.type === FINALLY_TYPE
+            ? handler.call(promise._boundValue())
+            : handler.call(promise._boundValue(), reasonOrValue);
         if (ret !== undefined) {
             var maybePromise = tryConvertToPromise(ret, promise);
             if (maybePromise instanceof Promise) {
@@ -71,23 +73,27 @@ function finallyHandler(reasonOrValue) {
     }
 }
 
-Promise.prototype._passThrough = function(handler, success, fail) {
+Promise.prototype._passThrough = function(handler, type, success, fail) {
     if (typeof handler !== "function") return this.then();
     return this._then(success, fail, undefined, {
         promise: this,
         handler: handler,
         called: false,
-        cancelPromise: null
+        cancelPromise: null,
+        type: type
     }, undefined);
 };
 
 Promise.prototype.lastly =
 Promise.prototype["finally"] = function (handler) {
-    return this._passThrough(handler, finallyHandler, finallyHandler);
+    return this._passThrough(handler,
+                             FINALLY_TYPE,
+                             finallyHandler,
+                             finallyHandler);
 };
 
 Promise.prototype.tap = function (handler) {
-    return this._passThrough(handler, finallyHandler);
+    return this._passThrough(handler, TAP_TYPE, finallyHandler);
 };
 
 return finallyHandler;

@@ -90,6 +90,10 @@ CONSTANT(NO_STACK_TRACE, "    (No stack trace)");
 CONSTANT(ADDITIONAL_STACK_TRACE, "^--- With additional stack trace: ");
 CONSTANT(UNHANDLED_REJECTION_HEADER, "Unhandled rejection ");
 
+//finally.js
+CONSTANT(FINALLY_TYPE, 0);
+CONSTANT(TAP_TYPE, 1);
+
 //direct_resolve.js
 CONSTANT(THROW, 1);
 CONSTANT(RETURN, 2);

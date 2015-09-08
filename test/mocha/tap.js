@@ -57,4 +57,10 @@ describe("tap", function () {
             assert(err === e);
         });
     });
+
+    specify("passes value", function() {
+        return Promise.resolve(123).tap(function(a) {
+            assert(a === 123);
+        });
+    });
 });
