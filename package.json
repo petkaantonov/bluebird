@@ -24,7 +24,8 @@
     "lint": "node scripts/jshint.js",
     "test": "node tools/test.js",
     "istanbul": "istanbul",
-    "prepublish": "node tools/build.js --no-debug --main --zalgo --browser --minify"
+    "prepublish": "node tools/build.js --no-debug --main --zalgo --browser --minify",
+    "generate-browser-core": "node tools/build.js --features=core --no-debug --main --zalgo --browser --minify && mv js/browser/bluebird.js js/browser/bluebird.core.js && mv js/browser/bluebird.min.js js/browser/bluebird.core.min.js"
   },
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {

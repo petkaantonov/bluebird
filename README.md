@@ -73,6 +73,8 @@ There are many ways to use bluebird in browsers:
 - Direct downloads
     - Full build [bluebird.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.js)
     - Full build minified [bluebird.min.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js)
+    - Core build [bluebird.core.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.js)
+    - Core build minified [bluebird.core.min.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.min.js)
 - You may use browserify on the main export
 - You may use the [bower](http://bower.io) package.
 
