@@ -27,6 +27,7 @@ if (util.isNode) {
 }
 util.notEnumerableProp(Promise, "_getDomain", getDomain);
 
+var UNDEFINED_BINDING = {};
 var async = require("./async.js");
 var errors = require("./errors.js");
 var TypeError = Promise.TypeError = errors.TypeError;
@@ -326,7 +327,9 @@ Promise.prototype._receiverAt = function (index) {
         : this[
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
-    if (ret === undefined && this._isBound()) {
+    if (ret === UNDEFINED_BINDING) {
+        return undefined;
+    } else if (ret === undefined && this._isBound()) {
         return this._boundValue();
     }
     return ret;
@@ -376,6 +379,7 @@ Promise.prototype._migrateCallbacks = function (follower, index) {
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
     if (promise instanceof Promise) promise._setIsMigrated();
+    if (receiver === undefined) receiver = UNDEFINED_BINDING;
     this._addCallbacks(fulfill, reject, progress, promise, receiver, null);
 };
 
