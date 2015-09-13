@@ -8,7 +8,7 @@ var afterTimeout = function (promise, message) {
     if (!promise.isPending()) return;
     
     var err;
-    if(!util.isPrimitive(message) && (message instanceof Error)){
+    if(!util.isPrimitive(message) && (message instanceof Error)) {
         err = message;
     } else {
         if (typeof message !== "string") {

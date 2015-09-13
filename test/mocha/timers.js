@@ -76,6 +76,15 @@ describe("timeout", function () {
         });
     });
 
+    it("should reject with a custom error if an error was provided as a parameter", function() {
+        var err = Error("Testing Errors")
+        return Promise.delay(1)
+        .timeout(10, err)
+        .caught(function(e){
+            assert(e === err);
+        });
+    });
+    
     it("should propagate the timeout error to cancellable parents", function() {
         function doExpensiveOp() {
             return new Promise(function() {
