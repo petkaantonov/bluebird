@@ -50,7 +50,7 @@
         - [Option: `spread`](#option-spread)
 - [Timers](#timers)
     - [`.delay(int ms)`](#delayint-ms---promise)
-    - [`.timeout(int ms [, String message])`](#timeoutint-ms--string-message---promise)
+    - [`.timeout(int ms [, String|Error message])`](#timeoutint-ms--stringerror-message---promise)
         - [`Promise.delay([dynamic value], int ms)`](#promisedelaydynamic-value-int-ms---promise)
 - [Cancellation](#cancellation)
     - [`.cancellable()`](#cancellable---promise)
@@ -1922,11 +1922,11 @@ Same as calling [`Promise.delay(this, ms)`](#promisedelaydynamic-value-int-ms---
 
 <hr>
 
-#####`.timeout(int ms [, String message])` -> `Promise`
+#####`.timeout(int ms [, String|Error message])` -> `Promise`
 
-Returns a [`cancellable`](#cancellable---promise) promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is cancelled with a [`TimeoutError`](#timeouterror) as the cancellation reason.
+Returns a [`cancellable`](#cancellable---promise) promise that will be fulfilled with this promise's fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within `ms` milliseconds, the returned promise is cancelled with a [`TimeoutError`](#timeouterror) as the cancellation reason or an `Error` if one is passed in instead of a string.
 
-You may specify a custom error message with the `message` parameter.
+You may specify a custom error message with the `message` parameter, or you can pass your own `Error` to reject with instead of a [`TimeoutError`](#timeouterror), subclassing [`TimeoutError`](#timeouterror) for that matter is recommended.
 
 The example function `fetchContent` doesn't leave the ongoing http request in the background in case the request cancelled from outside, either manually or through a timeout.
 
