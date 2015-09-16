@@ -995,7 +995,7 @@ Promise.some(...)
 
 Map an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-The mapper function for a given item is called as soon as possible, that is, when the promise for that item's index in the input array is fulfilled. This doesn't mean that the result array has items in random order, it means that `.map` can be used for concurrency coordination unlike `.all().call("map", fn).all()`.
+The mapper function for a given item is called as soon as possible, that is, when the promise for that item's index in the input array is fulfilled. This doesn't mean that the result array has items in random order, it means that `.map` can be used for concurrency coordination unlike `.all().call("map", fn).all()`. 
 
 Example (copy paste and run):
 
@@ -1057,6 +1057,8 @@ You may optionally specify a concurrency limit:
 
 The concurrency limit applies to Promises returned by the mapper function and it basically limits the number of Promises created. For example, if `concurrency` is `3` and the mapper callback has been called enough so that there are three returned Promises currently pending, no further callbacks are called until one of the pending Promises resolves. So the mapper function will be called three times and it will be called again only after at least one of the Promises resolves.
 
+The order `map` calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it'll execute the `map`er on the elements. This makes sense because the order of the even with the `{concurrency: 1}`. For order guarantee in sequential execution - see [`.each`](#eachfunction-iterator---promise).
+
 Playing with the first example with and without limits, and seeing how it affects the duration when reading 20 files:
 
 ```js
@@ -1095,7 +1097,7 @@ $ node test.js Infinity
 reading files: 9ms
 ```
 
-such concurrency
+such concurrency.
 
 
 
