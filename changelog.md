@@ -1,3 +1,7 @@
+## 2.10.1 (2015-09-21)
+
+ - Fix error "Cannot promisify an API that has normal methods with 'Async'-suffix" when promisifying certain objects with a custom promisifier
+
 ## 2.10.0 (2015-09-08)
 
 Features:
