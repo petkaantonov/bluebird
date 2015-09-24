@@ -1882,7 +1882,7 @@ Promise.reject(null).nodeify(function(err, result) {
 });
 ```
 
-There is no effect on peformance if the user doesn't actually pass a node-style callback function.
+There is no effect on performance if the user doesn't actually pass a node-style callback function.
 
 ######Option: `spread`
 
