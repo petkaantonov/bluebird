@@ -958,7 +958,7 @@ You most likely want to use the [`.any()`](#any---promise) method.
 
 #####`.some(int count)` -> `Promise`
 
-Initiate a competetive race between multiple promises or values (values will become immediately fulfilled promises). When `count` amount of promises have been fulfilled, the returned promise is fulfilled with an array that contains the fulfillment values of the winners in order of resolution.
+Initiate a competitive race between multiple promises or values (values will become immediately fulfilled promises). When `count` amount of promises have been fulfilled, the returned promise is fulfilled with an array that contains the fulfillment values of the winners in order of resolution.
 
 This example pings 4 nameservers, and logs the fastest 2 on console:
 
