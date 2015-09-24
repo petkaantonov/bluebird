@@ -464,7 +464,7 @@ You may specify an individual test file to run with the `--run` script flag:
     node tools/test --run=cancel.js
 
 
-This enables output from the test and may give a better idea where the test is failing. The paramter to `--run` can be any file name located in `test/mocha` folder.
+This enables output from the test and may give a better idea where the test is failing. The parameter to `--run` can be any file name located in `test/mocha` folder.
 
 #### Testing in browsers
 
