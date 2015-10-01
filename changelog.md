@@ -1,3 +1,9 @@
+## 2.10.2 (2015-10-01)
+
+Features:
+
+ - `.timeout()` now takes a custom error object as second argument
+
 ## 2.10.1 (2015-09-21)
 
  - Fix error "Cannot promisify an API that has normal methods with 'Async'-suffix" when promisifying certain objects with a custom promisifier
