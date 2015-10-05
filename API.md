@@ -69,6 +69,7 @@
     - [`Promise.noConflict()`](#promisenoconflict---object)
     - [`Promise.setScheduler(Function scheduler)`](#promisesetschedulerfunction-scheduler---void)
     - [`.reflect()`](#reflect---promisepromiseinspection)
+    - [`Promise.lift()`](#promiseliftfunction---function)
 - [Built-in error types](#built-in-error-types)
     - [`OperationalError()`](#operationalerror)
     - [`TimeoutError()`](#timeouterror)
@@ -2470,6 +2471,32 @@ Promise.setScheduler(function(fn) {
 #####`.reflect()` -> `Promise<PromiseInspection>`
 
 The `.reflect()` method returns a promise that is always successful when this promise is settled. Its fulfillment value is a `PromiseInspection` instance that reflects the resolution this promise. See [this issue](https://github.com/petkaantonov/bluebird/issues/346) for example usage.
+
+<hr>
+
+#####`Promise.lift(Function)` -> `Function`
+
+The `.lift()` method returns a function that will invoke the original function after calling Promise.join on the parameters. This is useful when you want to accept Promise or resolved values as arguments but only want to deal with resolved values.
+After "lifting" a function, you can call it with `Promise`, resolved values or a mix of both, but the original function will only see resolved values.
+
+For example:
+```js
+exports.someFunction = Promise.lift(function(param1, param2){
+    // param1 and 2 are resolved
+    console.log(param1+param2);
+});
+exports.someFunction(40, Promise.resolve(2))
+// Output 42
+```
+is the equivalent of
+```js
+exports.someFunction = function(param1, param2){
+    Promise.join(param1, param2, function(param1, param2){
+        // param1 and 2 are resolved
+        console.log(param1+param2);
+    });
+};
+```
 
 ##Built-in error types
 
