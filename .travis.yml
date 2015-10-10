@@ -5,6 +5,12 @@ matrix:
       env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
     - node_js: "0.11.15"
       env: "NODE_FLAGS='--harmony' SCRIPT_FLAGS=''"
+    - node_js: "0.12"
+      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
+    - node_js: "iojs"
+      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
+    - node_js: "4"
+      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
     - node_js: "0.10"
       env: "NODE_FLAGS='' SCRIPT_FLAGS='--saucelabs'"
   fast_finish: true
