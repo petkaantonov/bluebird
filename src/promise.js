@@ -109,6 +109,11 @@ Promise.prototype.reflect = function () {
     return this._then(reflect, reflect, undefined, this, undefined);
 };
 
+Promise.prototype.thru = function(fn) {
+    if (typeof fn !== "function") return apiRejection(NOT_FUNCTION_ERROR);
+    return fn(this);
+};
+
 Promise.prototype.then = function (didFulfill, didReject, didProgress) {
     if (isDebugging() && arguments.length > 0 &&
         typeof didFulfill !== "function" &&

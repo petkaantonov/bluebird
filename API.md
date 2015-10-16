@@ -62,6 +62,7 @@
     - [`Promise.coroutine.addYieldHandler(function handler)`](#promisecoroutineaddyieldhandlerfunction-handler---void)
 - [Utility](#utility)
     - [`.tap(Function handler)`](#tapfunction-handler---promise)
+    - [`.thru(Function handler)`](#thrufunction-handler---dynamic)
     - [`.call(String propertyName [, dynamic arg...])`](#callstring-propertyname--dynamic-arg---promise)
     - [`.get(String propertyName|int index)`](#getstring-propertynameint-index---promise)
     - [`.return(dynamic value)`](#returndynamic-value---promise)
@@ -2225,6 +2226,32 @@ doSomething()
 ```
 
 *Note: in browsers it is necessary to call `.tap` with `console.log.bind(console)` because console methods can not be called as stand-alone functions.*
+
+<hr>
+
+#####`.thru(Function handler)` -> `Dynamic`
+
+Passes the promise into the handler and returns the result.
+
+Useful if you need to perform a side-effect with the promise itself instead
+of the result. For example, caching or transforming into a stream.
+
+Example, read and log all of the files in a directory:
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+var highland = require("highland");
+
+fs.readdirAsync("./directory")
+    .filter(function(path) {
+        return fs.statAsync(path).call("isFile");
+    })
+    .map(fs.createReadStream)
+    .thru(highland)
+    .flatten()
+    .each(console.log);
+```
 
 <hr>
 
