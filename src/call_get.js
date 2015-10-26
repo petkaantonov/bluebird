@@ -106,6 +106,13 @@ function indexedGetter(obj) {
     return obj[index];
 }
 Promise.prototype.get = function (propertyName) {
+    if (util.isArray(propertyName)) {
+        if (propertyName.length > 1) {
+            var firstProperty = propertyName.shift();
+            return this.get(firstProperty).get(propertyName);
+        }
+        propertyName = propertyName[0];
+    }
     var isIndex = (typeof propertyName === "number");
     var getter;
     if (!isIndex) {
