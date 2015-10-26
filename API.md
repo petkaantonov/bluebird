@@ -995,7 +995,7 @@ Promise.some(...)
 
 Map an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `mapper` function with the signature `(item, index, arrayLength)` where `item` is the resolved value of a respective promise in the input array. If any promise in the input array is rejected the returned promise is rejected as well.
 
-The mapper function for a given item is called as soon as possible, that is, when the promise for that item's index in the input array is fulfilled. This doesn't mean that the result array has items in random order, it means that `.map` can be used for concurrency coordination unlike `.all().call("map", fn).all()`. 
+The mapper function for a given item is called as soon as possible, that is, when the promise for that item's index in the input array is fulfilled. This doesn't mean that the result array has items in random order, it means that `.map` can be used for concurrency coordination unlike `.all().call("map", fn).all()`.
 
 Example (copy paste and run):
 
@@ -2301,7 +2301,7 @@ fs.readdirAsync(".").then(_)
 
 <hr>
 
-#####`.get(String propertyName|int index)` -> `Promise`
+#####`.get(String propertyName|int index|Array)` -> `Promise`
 
 This is a convenience method for doing:
 
@@ -2354,6 +2354,21 @@ var request = Promise.promisifyAll(require("request"));
 request.getAsync("http://www.google.com").get(1).then(function(body) {
     // ...
 });
+```
+
+You can pass an array of property names to go multiple levels down:
+```
+.get(['hits', 'hits', 0, '_source', 'message']
+```
+
+instead of
+
+```
+.get('hits')
+.get('hits')
+.get(0)
+.get('_source')
+.get('message')
 ```
 
 <hr>
