@@ -10,6 +10,7 @@ var apiRejection = function(msg) {
     return Promise.reject(new TypeError(msg));
 };
 function Proxyable() {}
+var UNDEFINED_BINDING = {};
 var ASSERT = require("./assert");
 var util = require("./util");
 
@@ -317,12 +318,13 @@ Promise.prototype._setAsyncGuaranteed = function() {
 };
 
 Promise.prototype._receiverAt = function (index) {
-    ASSERT(index > 0);
     ASSERT(!this._isFollowing());
-    var ret = this[
+    var ret = index === 0 ? this._receiver0 : this[
             index * CALLBACK_SIZE - CALLBACK_SIZE + CALLBACK_RECEIVER_OFFSET];
     //Only use the bound value when not calling internal methods
-    if (ret === undefined && this._isBound()) {
+    if (ret === UNDEFINED_BINDING) {
+        return undefined;
+    } else if (ret === undefined && this._isBound()) {
         return this._boundValue();
     }
     return ret;
@@ -356,10 +358,8 @@ Promise.prototype._migrateCallback0 = function (follower) {
     var fulfill = follower._fulfillmentHandler0;
     var reject = follower._rejectionHandler0;
     var promise = follower._promise0;
-    var receiver = follower._receiver0;
-    if (receiver === undefined && follower._isBound()) {
-        receiver = follower._boundValue();
-    }
+    var receiver = follower._receiverAt(0);
+    if (receiver === undefined) receiver = UNDEFINED_BINDING;
     this._addCallbacks(fulfill, reject, promise, receiver, null);
 };
 
@@ -369,6 +369,7 @@ Promise.prototype._migrateCallbackAt = function (follower, index) {
     var reject = follower._rejectionHandlerAt(index);
     var promise = follower._promiseAt(index);
     var receiver = follower._receiverAt(index);
+    if (receiver === undefined) receiver = UNDEFINED_BINDING;
     this._addCallbacks(fulfill, reject, promise, receiver, null);
 };
 
@@ -627,14 +628,9 @@ Promise.prototype._settlePromiseCtx = function(ctx) {
 
 Promise.prototype._settlePromise0 = function(handler, value, bitField) {
     var promise = this._promise0;
-    var receiver = this._receiver0;
-    if (receiver === undefined) {
-        if (BIT_FIELD_CHECK(IS_BOUND)) receiver = this._boundValue();
-    } else {
-        // Only clear if necessary
-        this._receiver0 = undefined;
-    }
+    var receiver = this._receiverAt(0);
     this._promise0 = undefined;
+    this._receiver0 = undefined;
     this._settlePromise(promise, handler, receiver, value);
 };
 

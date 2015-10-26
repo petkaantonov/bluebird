@@ -424,4 +424,17 @@ describe("Promise.using", function() {
     specify("Return rejected promise when last argument is not function", function() {
         return Promise.using({}, {}, {}, {}).caught(Promise.TypeError, function(e) {});
     });
+
+
+    specify("Supports an array of 2 items", function() {
+        return Promise.using([Promise.resolve(1), Promise.resolve(2)], function(results) {
+            assert.deepEqual(results, [1,2]);
+        });
+    });
+
+    specify("Supports an empty array", function() {
+        return Promise.using([], function(results) {
+            assert.deepEqual(results, []);
+        });
+    })
 })

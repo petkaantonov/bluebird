@@ -1,6 +1,7 @@
 "use strict";
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
+var defaultThis = function() {return this}();
 
 function timedThenableOf(value) {
     return {
@@ -1021,7 +1022,6 @@ describe("When using .bind to gratuitously rebind", function() {
 
 describe("Promised thisArg", function() {
 
-    var defaultThis = function() {return this}();
     var e = {value: 1};
 
     specify("basic case, this first", function(done) {
@@ -1031,6 +1031,16 @@ describe("Promised thisArg", function() {
             assert(+this === 1);
             assert(+val === 2);
             done();
+        });
+    });
+
+    specify("bound value is not changed by returned promise", function() {
+        return Promise.resolve().then(function() {
+          return new Promise(function(resolve) {
+            resolve();
+          }).bind(THIS).then(function() {});
+        }).then(function() {
+            assert.strictEqual(this, defaultThis);
         });
     });
 

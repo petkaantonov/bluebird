@@ -129,10 +129,19 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
         if (typeof fn !== "function") {
             return apiRejection(FUNCTION_ERROR + util.classString(fn));
         }
-        len--;
+        var input;
+        var spreadArgs = true;
+        if (len === 2 && Array.isArray(arguments[0])) {
+            input = arguments[0];
+            len = input.length;
+            spreadArgs = false;
+        } else {
+            input = arguments;
+            len--;
+        }
         var resources = new ResourceList(len);
         for (var i = 0; i < len; ++i) {
-            var resource = arguments[i];
+            var resource = input[i];
             if (Disposer.isDisposer(resource)) {
                 var disposer = resource;
                 resource = resource.promise();
@@ -169,7 +178,10 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                     inspections[i] = inspection.value();
                 }
                 promise._pushContext();
-                var ret = tryCatch(fn).apply(undefined, inspections);
+
+                fn = tryCatch(fn);
+                var ret = spreadArgs
+                    ? fn.apply(undefined, inspections) : fn(inspections);
                 var promisesCreated = promise._popContext();
                 debug.checkForgottenReturns(
                     ret, promisesCreated, "Promise.using", promise);
