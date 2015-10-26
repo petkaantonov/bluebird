@@ -340,7 +340,7 @@ fs.readFileAsync("myfile.json").then(JSON.parse).then(function (json) {
 });
 ```
 
-Now, because there is no catch-all handler, if you typed `console.lag` (causes an error you don't expect), you will see:
+Now, because there is no catch-all handler, if you typed `console.log` (causes an error you don't expect), you will see:
 
 ```
 Possibly unhandled TypeError: Object #<Console> has no method 'lag'
