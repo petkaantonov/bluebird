@@ -658,7 +658,7 @@ A single cohesive guide compiled from the articles will probably be done eventua
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Petka Antonov
+Copyright (c) 2015 Petka Antonov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
