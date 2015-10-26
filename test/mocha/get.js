@@ -81,3 +81,12 @@ describe("non identifier getters", function() {
         return b;
     });
 });
+
+describe("nested getters", function() {
+    var p = Promise.resolve({"a": {"b": ["c", {"d": "e"}]}});
+    specify("get deeply nested properties", function() {
+        return p.get(["a", "b", 1, "d"]).then(function(val) {
+            assert(val === "e");
+        });
+    });
+});
