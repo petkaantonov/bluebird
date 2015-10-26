@@ -6,10 +6,16 @@ var TimeoutError = Promise.TimeoutError;
 var afterTimeout = function (promise, message) {
     //Don't waste time concatting strings or creating stack traces
     if (!promise.isPending()) return;
+    var err;
     if (typeof message !== "string") {
-        message = TIMEOUT_ERROR;
+        if (message instanceof Error) {
+            err = message;
+        } else {
+            err = new TimeoutError(TIMEOUT_ERROR);
+        }
+    } else {
+        err = new TimeoutError(message);
     }
-    var err = new TimeoutError(message);
     util.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
     promise._reject(err);

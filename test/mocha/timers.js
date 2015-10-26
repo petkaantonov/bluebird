@@ -149,4 +149,14 @@ describe("delay", function () {
             assert.equal(value, 3);
         });
     });
+
+    it("should reject with a custom error if an error was provided as a parameter", function() {
+        var err = Error("Testing Errors")
+        return Promise.delay(1)
+            .timeout(10, err)
+            .caught(function(e){
+                assert(e === err);
+            });
+    });
+
 });
