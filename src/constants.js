@@ -107,7 +107,7 @@ CONSTANT(BLUEBIRD_ERRORS, "__BluebirdErrorTypes__");
 
 //deprecated
 CONSTANT(OBJECT_PROMISIFY_DEPRECATED, "Promise.promisify for promisifying entire objects is deprecated. Use Promise.promisifyAll instead.\n\n\
-    See http://goo.gl/RZ1TF0");
+    See http://goo.gl/MqrFmX");
 CONSTANT(SPAWN_DEPRECATED, "Promise.spawn is deprecated. Use Promise.coroutine instead.");
 
 //errors
@@ -117,31 +117,31 @@ CONSTANT(COLLECTION_ERROR,  "expecting an array or an iterable object but got ")
 CONSTANT(OBJECT_ERROR,  "expecting an object but got ");
 CONSTANT(FUNCTION_ERROR,  "expecting a function but got ");
 CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked directly\n\n\
-    See http://goo.gl/KsIlge\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function\n\n\
-    See http://goo.gl/6Vqhm0\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(LONG_STACK_TRACES_ERROR, "cannot enable long stack traces after promises have been created\n\n\
-    See http://goo.gl/DT1qyG\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(INSPECTION_VALUE_ERROR, "cannot get fulfillment value of a non-fulfilled promise\n\n\
-    See http://goo.gl/hc1DLj\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(INSPECTION_REASON_ERROR, "cannot get rejection reason of a non-rejected promise\n\n\
-    See http://goo.gl/hPuiwB\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(PROMISIFY_TYPE_ERROR, "the target of promisifyAll must be an object or a function\n\n\
-    See http://goo.gl/9ITlV0\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(CIRCULAR_RESOLUTION_ERROR, "circular promise resolution chain\n\n\
-    See http://goo.gl/LhFpo0\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(PROPS_TYPE_ERROR, "cannot await properties of a non-object\n\n\
-    See http://goo.gl/OsFKC8\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(POSITIVE_INTEGER_ERROR, "expecting a positive integer\n\n\
-    See http://goo.gl/1wAmHx\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(YIELDED_NON_PROMISE_ERROR, "A value %s was yielded that could not be treated as a promise\n\n\
-    See http://goo.gl/4Y4pDk\n\n");
+    See http://goo.gl/MqrFmX\n\n");
 CONSTANT(FROM_COROUTINE_CREATED_AT, "From coroutine:\n");
 CONSTANT(UNBOUND_RESOLVER_INVOCATION, "Illegal invocation, resolver resolve/reject must be called within a resolver context. Consider using the promise constructor instead.\n\n\
-    See http://goo.gl/sdkXL9\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(PROMISIFICATION_NORMAL_METHODS_ERROR, "Cannot promisify an API that has normal methods with '%s'-suffix\n\n\
-    See http://goo.gl/iWrZbw\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(SUFFIX_NOT_IDENTIFIER, "suffix must be a valid identifier\n\n\
-    See http://goo.gl/8FZo5V\n");
+    See http://goo.gl/MqrFmX\n");
 CONSTANT(NO_ASYNC_SCHEDULER, "No async scheduler available\n\n\
-    See http://goo.gl/m3OTXk\n");
+    See http://goo.gl/MqrFmX\n");
