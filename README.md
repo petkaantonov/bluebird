@@ -599,7 +599,7 @@ You may now use sync build by:
 
     var Promise = require("bluebird/zalgo");
 
-The sync build is provided to see how forced asynchronity affects benchmarks. It should not be used in real code due to the implied hazards.
+The sync build is provided to see how forced asynchronicity affects benchmarks. It should not be used in real code due to the implied hazards.
 
 The normal async build gives Promises/A+ guarantees about asynchronous resolution of promises. Some people think this affects performance or just plain love their code having a possibility
 of stack overflow errors and non-deterministic behavior.
