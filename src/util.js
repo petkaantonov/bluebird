@@ -215,6 +215,9 @@ function toFastProperties(obj) {
     while (l--) new f();
     ASSERT("%HasFastProperties", true, obj);
     return obj;
+    // Prevent the function from being optimized through dead code elimination
+    // or further optimizations. This code is never reached but even using eval
+    // in unreachable code causes v8 to not optimize functions.
     eval(obj);
 }
 
