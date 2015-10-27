@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.props.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -119,13 +121,11 @@
             </h2>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">(</span><span class="nb">Object</span><span class="o">|</span><span class="nx">Map</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">|</span><span class="nx">Map</span><span class="o">&gt;</span> <span class="nx">input</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Like                 <a href="/docs/api/all.html"><code><code>.all</code></code></a>
- but for object properties or <code>Map</code>s* entries instead of iterated values. Returns a promise that is fulfilled when all the properties of the object or the <code>Map</code>&#39;s&#39; values** are fulfilled. The promise&#39;s fulfillment value is an object or a <code>Map</code> with fulfillment values at respective keys to the original object or a <code>Map</code>. If any promise in the object or <code>Map</code> rejects, the returned promise is rejected with the rejection reason.</p>
+<p>Like <a href='/docs/api/all.html'><code><code>.all</code></code></a> but for object properties or <code>Map</code>s* entries instead of iterated values. Returns a promise that is fulfilled when all the properties of the object or the <code>Map</code>&#39;s&#39; values** are fulfilled. The promise&#39;s fulfillment value is an object or a <code>Map</code> with fulfillment values at respective keys to the original object or a <code>Map</code>. If any promise in the object or <code>Map</code> rejects, the returned promise is rejected with the rejection reason.</p>
 
 <p>If <code>object</code> is a trusted <code>Promise</code>, then it will be treated as a promise for object rather than for its properties. All other objects (except <code>Map</code>s) are treated for their properties as is returned by <code>Object.keys</code> - the object&#39;s own enumerable properties.</p>
 
-<p><em>*Only the native                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" title="">ECMAScript 6 <code>Map</code></a>
- implementation that is provided by the environment as is is supported</em></p>
+<p><em>*Only the native <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map' title=''>ECMAScript 6 <code>Map</code></a> implementation that is provided by the environment as is is supported</em></p>
 
 <p><em>**If the map&#39;s keys happen to be <code>Promise</code>s, they are not awaited for and the resulting <code>Map</code> will still have those same <code>Promise</code> instances as keys</em></p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
@@ -184,8 +184,7 @@
         <span class="nx">sizeInfo</span><span class="p">.</span><span class="nx">largest</span><span class="p">.</span><span class="nx">filePath</span><span class="p">,</span> <span class="nx">sizeInfo</span><span class="p">.</span><span class="nx">largest</span><span class="p">.</span><span class="nx">size</span><span class="p">));</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Note that if you have no use for the result object other than retrieving the properties, it is more convenient to use                 <a href="/docs/api/promise.join.html"><code><code>Promise.join</code></code></a>
-:</p>
+<p>Note that if you have no use for the result object other than retrieving the properties, it is more convenient to use <a href='/docs/api/promise.join.html'><code><code>Promise.join</code></code></a>:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">getPictures</span><span class="p">(),</span> <span class="nx">getComments</span><span class="p">(),</span> <span class="nx">getTweets</span><span class="p">(),</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">pictures</span><span class="p">,</span> <span class="nx">comments</span><span class="p">,</span> <span class="nx">tweets</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">pictures</span><span class="p">,</span> <span class="nx">comments</span><span class="p">,</span> <span class="nx">tweets</span><span class="p">);</span>
@@ -194,6 +193,7 @@
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.props";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.props";
     

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.using.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -122,9 +124,12 @@
     <span class="nx">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">...,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">resources</span><span class="p">...)</span> <span class="nx">handler</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span>
+    <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">Any</span><span class="o">&gt;</span> <span class="nx">resources</span><span class="p">,</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">resources</span><span class="p">)</span> <span class="nx">handler</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>In conjunction with                 <a href="/docs/api/disposer.html"><code><code>.disposer</code></code></a>
-, <code>using</code> will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to <code>using</code> has settled. The disposer is necessary because there is no standard interface in node for disposing resources.</p>
+<p>In conjunction with <a href='/docs/api/disposer.html'><code><code>.disposer</code></code></a>, <code>using</code> will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to <code>using</code> has settled. The disposer is necessary because there is no standard interface in node for disposing resources.</p>
 
 <p>Here is a simple example ` [has been defined] to return a proper undefined))</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
@@ -156,8 +161,7 @@
 <span class="p">})</span>
 </code></pre></div>
 <p>However, if the second <code>getConnection</code> throws <strong>synchronously</strong>, the first connection is leaked. This will not happen
-when using APIs through bluebird promisified methods though. You can wrap functions that could throw in                 <a href="/docs/api/promise.method.html"><code><code>Promise.method</code></code></a>
- which will turn synchronous rejections into rejected promises.</p>
+when using APIs through bluebird promisified methods though. You can wrap functions that could throw in <a href='/docs/api/promise.method.html'><code><code>Promise.method</code></code></a> which will turn synchronous rejections into rejected promises.</p>
 
 <p>Note that you can mix promises and disposers, so that you can acquire all the things you need in parallel instead of sequentially</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The files don&#39;t need resource management but you should</span>
@@ -169,12 +173,26 @@ when using APIs through bluebird promisified methods though. You can wrap functi
     <span class="c1">// use conn and have access to txt1 and txt2</span>
 <span class="p">});</span>
 </code></pre></div>
+<p><hr></p>
+
+<p>+You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one rgument that is the array containing the resolved resources in respective positions in the array. Example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">connectionPromises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">()];</span>
+
+<span class="nx">using</span><span class="p">(</span><span class="nx">connectionPromises</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connections</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">conn1</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">conn2</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="c1">// use conn1 and conn2</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Both connections closed by now</span>
+<span class="p">})</span>
+</code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.using";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.using";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";

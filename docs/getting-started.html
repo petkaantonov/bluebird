@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/getting-started.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -112,7 +115,50 @@
   </header>
 
   <article class="post-content">
-    
+    <p><div class="info-box">
+                This article is partially or completely unfinished.
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/getting-started.md">pull requests</a>
+                to help completing this article.
+            </div>
+</p>
+            <h2>
+                <a class="header-anchor"
+                    name="node.js"
+                    aria-hidden="true"
+                    href="#node.js"><i class="fa fa-link"></i></a>
+                Node.js
+            </h2>
+<div class="highlight"><pre><code class="language-text" data-lang="text">npm install bluebird
+</code></pre></div>
+<p>Then:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+</code></pre></div>            <h2>
+                <a class="header-anchor"
+                    name="browsers"
+                    aria-hidden="true"
+                    href="#browsers"><i class="fa fa-link"></i></a>
+                Browsers
+            </h2>
+
+<p>(See also <a href='install.html' title=''>Installation</a>.)</p>
+
+<p>There are many ways to use bluebird in browsers:</p>
+
+<ul>
+<li>Direct downloads
+
+<ul>
+<li>Full build <a href='https://cdn.jsdelivr.net/bluebird/latest/bluebird.js' title=''>bluebird.js</a></li>
+<li>Full build minified <a href='https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js' title=''>bluebird.min.js</a></li>
+<li>Core build <a href='https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.js' title=''>bluebird.core.js</a></li>
+<li>Core build minified <a href='https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.min.js' title=''>bluebird.core.min.js</a></li>
+</ul></li>
+<li>You may use browserify on the main export</li>
+<li>You may use the <a href='http://bower.io' title=''>bower</a> package.</li>
+</ul>
+
+<p>When using script tags the global variables <code>Promise</code> and <code>P</code> (alias for <code>Promise</code>) become available.</p>
+
   </article>
 
 </div>

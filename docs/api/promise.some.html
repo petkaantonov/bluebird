@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.some.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -122,8 +124,7 @@
     <span class="kr">int</span> <span class="nx">count</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Given an                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols" title=""><code>Iterable</code></a>
-(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and return a promise that is fulfilled as soon <code>count</code> promises are fulfilled in the array. The fulfillment value is an array with <code>count</code> values in the order they were fulfilled.</p>
+<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and return a promise that is fulfilled as soon <code>count</code> promises are fulfilled in the array. The fulfillment value is an array with <code>count</code> values in the order they were fulfilled.</p>
 
 <p>This example pings 4 nameservers, and logs the fastest 2 on console:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">([</span>
@@ -135,11 +136,9 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an                 <a href="/docs/api/aggregateerror.html"><code>AggregateError</code></a>
- of the rejection reasons in the order they were thrown in.</p>
+<p>If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an <a href='/docs/api/aggregateerror.html'><code>AggregateError</code></a> of the rejection reasons in the order they were thrown in.</p>
 
-<p>You can get a reference to                 <a href="/docs/api/aggregateerror.html"><code>AggregateError</code></a>
- from <code>Promise.AggregateError</code>.</p>
+<p>You can get a reference to <a href='/docs/api/aggregateerror.html'><code>AggregateError</code></a> from <code>Promise.AggregateError</code>.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">(...)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
@@ -152,6 +151,7 @@
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.some";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.some";
     

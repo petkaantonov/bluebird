@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/benchmarks.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -136,8 +139,7 @@
                 1. DoxBee sequential
             </h3>
 
-<p>This is Gorki Kosev&#39;s benchmark used in the article                 <a href="http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html" title="">Analysis of generators and other async patterns in node</a>
-. The benchmark emulates a situation where N=10000 requests are being made concurrently to execute some mixed async/sync action with fast I/O response times.</p>
+<p>This is Gorki Kosev&#39;s benchmark used in the article <a href='http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html' title=''>Analysis of generators and other async patterns in node</a>. The benchmark emulates a situation where N=10000 requests are being made concurrently to execute some mixed async/sync action with fast I/O response times.</p>
 
 <p>This is a throughput benchmark.</p>
 
@@ -145,34 +147,37 @@
 
 <p>Command: <code>./bench doxbee</code> (<a href="/docs/contribute.html#benchmarking">needs cloned repository</a>)</p>
 
-<p>The implementations for this benchmark are found in                 <a href="https://github.com/petkaantonov/bluebird/tree/master/benchmark/doxbee-sequential" title=""><code>benchmark/doxbee-sequential</code></a>
- directory.</p>
+<p>The implementations for this benchmark are found in <a href='https://github.com/petkaantonov/bluebird/tree/master/benchmark/doxbee-sequential' title=''><code>benchmark/doxbee-sequential</code></a> directory.</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">results for 10000 parallel executions, 1 ms per I/O op
 
-file                                     time(ms)  memory(MB)
-callbacks-baseline.js                         232       35.86
-promises-bluebird-generator.js                235       38.04
-promises-bluebird.js                          335       52.08
-promises-cujojs-when.js                       405       75.77
-promises-tildeio-rsvp.js                      468       87.56
-promises-dfilatov-vow.js                      578      125.98
-callbacks-caolan-async-waterfall.js           634       88.64
-promises-lvivski-davy.js                      653      109.64
-promises-calvinmetcalf-lie.js                 732      165.41
-promises-obvious-kew.js                      1346      261.69
-promises-ecmascript6-native.js               1348      189.29
-generators-tj-co.js                          1419      164.03
-promises-then-promise.js                     1571      294.45
-promises-medikoo-deferred.js                 2091      262.18
-observables-Reactive-Extensions-RxJS.js      3201      356.76
-observables-caolan-highland.js               7429      616.78
-promises-kriskowal-q.js                      9952      694.23
-observables-baconjs-bacon.js.js             25805      885.55
+file                                       time(ms)  memory(MB)
+callbacks-baseline.js                           663       44.55
+promises-bluebird-generator.js                  813       37.60
+callbacks-suguru03-neo-async-waterfall.js       888       52.06
+promises-bluebird.js                            968       44.70
+streamline-callbacks.js                         975       46.09
+promises-cujojs-when.js                        1186       67.83
+promises-tildeio-rsvp.js                       1206       66.36
+callbacks-caolan-async-waterfall.js            1362       74.04
+promises-lvivski-davy.js                       1661      116.60
+promises-dfilatov-vow.js                       1752      112.46
+promises-calvinmetcalf-lie.js                  1785      148.23
+promises-ecmascript6-native.js                 2342      185.77
+generators-tj-co.js                            2395      139.55
+streamline-generators.js                       2418       73.86
+promises-obvious-kew.js                        3227      260.14
+promises-then-promise.js                       3861      198.64
+promises-medikoo-deferred.js                   5679      193.71
+observables-Reactive-Extensions-RxJS.js        7101      296.21
+observables-caolan-highland.js                23080      506.65
+observables-baconjs-bacon.js.js               32433      840.13
+promises-kriskowal-q.js                       35247      874.35
+observables-pozadi-kefir.js                     OOM         OOM
 
 Platform info:
-Windows_NT 6.1.7601 x64
-Node.JS 1.1.0
-V8 4.1.0.14
+Linux 3.13.0-45-generic x64
+Node.JS 4.2.1
+V8 4.5.103.35
 Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
 </code></pre></div>            <h3>
                 <a class="header-anchor"
@@ -190,29 +195,31 @@ Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
 
 <p>Command: <code>./bench parallel</code> (<a href="/docs/contribute.html#benchmarking">needs cloned repository</a>)</p>
 
-<p>The implementations for this benchmark are found in                 <a href="https://github.com/petkaantonov/bluebird/tree/master/benchmark/madeup-parallel" title=""><code>benchmark/madeup-parallel</code></a>
- directory.</p>
+<p>The implementations for this benchmark are found in <a href='https://github.com/petkaantonov/bluebird/tree/master/benchmark/madeup-parallel' title=''><code>benchmark/madeup-parallel</code></a> directory.</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">results for 10000 parallel executions, 1 ms per I/O op
 
-file                                time(ms)  memory(MB)
-callbacks-baseline.js                    211       25.57
-promises-bluebird.js                     389       53.49
-promises-bluebird-generator.js           491       55.52
-promises-tildeio-rsvp.js                 785      108.14
-promises-dfilatov-vow.js                 798      102.08
-promises-cujojs-when.js                  851       60.46
-promises-calvinmetcalf-lie.js           1065      187.69
-promises-lvivski-davy.js                1298      135.43
-callbacks-caolan-async-parallel.js      1780      101.11
-promises-then-promise.js                2438      338.91
-promises-ecmascript6-native.js          3532      301.96
-promises-medikoo-deferred.js            4207      357.60
-promises-obvious-kew.js                 8311      559.24
+file                                      time(ms)  memory(MB)
+callbacks-baseline.js                         1156       49.62
+promises-bluebird.js                          1734       72.48
+promises-bluebird-generator.js                1781       76.48
+callbacks-suguru03-neo-async-parallel.js      1923       98.93
+promises-tildeio-rsvp.js                      2094      182.40
+promises-cujojs-when.js                       2213      141.85
+promises-dfilatov-vow.js                      2636      167.55
+callbacks-caolan-async-parallel.js            3597      184.08
+promises-lvivski-davy.js                      3903      239.07
+promises-calvinmetcalf-lie.js                 4082      358.31
+promises-ecmascript6-native.js                4816      486.15
+streamline-callbacks.js                       5413      315.71
+promises-then-promise.js                      6132      640.13
+promises-medikoo-deferred.js                 14128      576.38
+promises-obvious-kew.js                      15782     1095.91
+streamline-generators.js                     24743      840.59
 
 Platform info:
-Windows_NT 6.1.7601 ia32
-Node.JS 0.11.14
-V8 3.26.33
+Linux 3.13.0-45-generic x64
+Node.JS 4.2.1
+V8 4.5.103.35
 Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
 </code></pre></div>            <h3>
                 <a class="header-anchor"
@@ -222,7 +229,7 @@ Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
                 3. Latency benchmarks
             </h3>
 
-<p>For reasonably fast promise implementations latency is going to be fully determined by the scheduler being used and is therefore not interesting to benchmark. JSPerfs that benchmark promises usually benchmark latency.</p>
+<p>For reasonably fast promise implementations latency is going to be fully determined by the scheduler being used and is therefore not interesting to benchmark. <a href='https://jsperf.com/' title=''>JSPerfs</a> that benchmark promises tend to benchmark latency.</p>
 
   </article>
 

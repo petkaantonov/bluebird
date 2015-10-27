@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/coming-from-other-languages.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,14 +118,14 @@
     <p>This page describes parallels of using promises in other languages. Promises as a pattern are very common in other languages and knowing what they map to in other languages might help you with grasping them conceptually</p>
 
 <ul>
-<li>                <a href="#c" title="">C#</a></li>
-<li>                <a href="#scala" title="">Scala</a></li>
-<li>                <a href="#python" title="">Python</a></li>
-<li>                <a href="#c" title="">C++</a></li>
-<li>                <a href="#haskell" title="">Haskell</a></li>
-<li>                <a href="#java" title="">Java</a></li>
-<li>                <a href="#android-java" title="">Android Java</a></li>
-<li>                <a href="#objective-c" title="">Objective-C</a></li>
+<li><a href='#c' title=''>C#</a></li>
+<li><a href='#scala' title=''>Scala</a></li>
+<li><a href='#python' title=''>Python</a></li>
+<li><a href='#c' title=''>C++</a></li>
+<li><a href='#haskell' title=''>Haskell</a></li>
+<li><a href='#java' title=''>Java</a></li>
+<li><a href='#android-java' title=''>Android Java</a></li>
+<li><a href='#objective-c' title=''>Objective-C</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -134,20 +137,17 @@
 
 <p>A promise is similar to a C# <code>Task</code>. They both represent the result of an operation.</p>
 
-<p>A promise&#39;s <code>then</code> method is similar to a Task&#39;s <code>ContinueWith</code> method in that both allow attaching a continuation to the promise. Bluebird&#39;s                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
- is analogous to C#&#39;s <code>async/await</code> syntax.</p>
+<p>A promise&#39;s <code>then</code> method is similar to a Task&#39;s <code>ContinueWith</code> method in that both allow attaching a continuation to the promise. Bluebird&#39;s <a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> is analogous to C#&#39;s <code>async/await</code> syntax.</p>
 
 <p>A <code>TaskCompletionSource</code> is analogous to the promise constructor. Although usually promisification is preferred (see the API reference or working with callbacks section).</p>
 
-<p><code>Task.FromResult</code> is analogous to                 <a href="/docs/api/promise.resolve.html"><code>Promise.resolve</code></a>
-.</p>
+<p><code>Task.FromResult</code> is analogous to <a href='/docs/api/promise.resolve.html'><code>Promise.resolve</code></a>.</p>
 
 <p>The difference between a <code>Task</code> and a promise are that a task might not be started and might require a <code>.Start</code> call where a promise always represents an already started operation.</p>
 
 <p>In addition promises are always unwrapped. A promise implicitly has <code>Task.Unwrap</code> called on it - that is, promises perform recursive assimilation of promises within them.</p>
 
-<p>See                 <a href="http://stackoverflow.com/questions/26136389/how-can-i-realize-pattern-promise-deffered" title="">this question on StackOverflow</a>
- for more differences.</p>
+<p>See <a href='http://stackoverflow.com/questions/26136389/how-can-i-realize-pattern-promise-deffered' title=''>this question on StackOverflow</a> for more differences.</p>
             <h2>
                 <a class="header-anchor"
                     name="scala"
@@ -164,8 +164,7 @@
 
 <p>In addition promises are always unwrapped. That is, promises perform recursive assimilation of promises within them. You can&#39;t have a <code>Promise&lt;Promise&lt;T&gt;&gt;</code> where a <code>Future[Future[T]]</code> is valid in Scala.</p>
 
-<p>See                 <a href="http://stackoverflow.com/questions/22724883/js-deferred-promise-future-compared-to-functional-languages-like-scala" title="">this question on StackOverflow</a>
- for more differences.</p>
+<p>See <a href='http://stackoverflow.com/questions/22724883/js-deferred-promise-future-compared-to-functional-languages-like-scala' title=''>this question on StackOverflow</a> for more differences.</p>
             <h2>
                 <a class="header-anchor"
                     name="python"

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/warning-explanations.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -112,10 +115,17 @@
   </header>
 
   <article class="post-content">
-    <ul>
-<li>                <a href="#warning-.then" title="">Warning: .then() only accepts functions</a></li>
-<li>                <a href="#warning-a-promise-was-rejected-with-a-non-error" title="">Warning: a promise was rejected with a non-error</a></li>
-<li>                <a href="#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it" title="">Warning: a promise was created in a handler but none were returned from it</a></li>
+    <p><div class="info-box">
+                This article is partially or completely unfinished.
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/warning-explanations.md">pull requests</a>
+                to help completing this article.
+            </div>
+</p>
+
+<ul>
+<li><a href='#warning-.then' title=''>Warning: .then() only accepts functions</a></li>
+<li><a href='#warning-a-promise-was-rejected-with-a-non-error' title=''>Warning: a promise was rejected with a non-error</a></li>
+<li><a href='#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it' title=''>Warning: a promise was created in a handler but none were returned from it</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -125,19 +135,16 @@
                 Warning: .then() only accepts functions
             </h2>
 
-<p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to                 <a href="/docs/api/then.html"><code>.then()</code></a>
- instead of the function <em>itself</em>:</p>
+<p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to <a href='/docs/api/then.html'><code>.then()</code></a> instead of the function <em>itself</em>:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">processImage</span><span class="p">(</span><span class="nx">image</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Code that processes image</span>
 <span class="p">}</span>
 
 <span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">());</span>
 </code></pre></div>
-<p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to                 <a href="/docs/api/then.html"><code>.then()</code></a>
- (which is most likely <code>undefined</code> - the default return value when a function doesn&#39;t return anything).</p>
+<p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to <a href='/docs/api/then.html'><code>.then()</code></a> (which is most likely <code>undefined</code> - the default return value when a function doesn&#39;t return anything).</p>
 
-<p>To fix it, simply pass the function reference to                 <a href="/docs/api/then.html"><code>.then()</code></a>
- as is:</p>
+<p>To fix it, simply pass the function reference to <a href='/docs/api/then.html'><code>.then()</code></a> as is:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">)</span>
 </code></pre></div>
 <p><em>If you are wondering why this is a warning and not a simple TypeError it is because the due to historic reasons Promises/A+ specification requires that incorrect usage is silently ignored.</em></p>
@@ -173,8 +180,7 @@
     <span class="c1">// userData is undefined</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Because the result of <code>getUserDàta()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second                 <a href="/docs/api/then.html"><code>.then()</code></a>
- simply gets immediately called with <code>undefined</code> (because <code>undefined</code> is the default return value when you don&#39;t return anything).</p>
+<p>Because the result of <code>getUserDàta()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second <a href='/docs/api/then.html'><code>.then()</code></a> simply gets immediately called with <code>undefined</code> (because <code>undefined</code> is the default return value when you don&#39;t return anything).</p>
 
 <p>To fix it, you need to <code>return</code> the promise:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/anti-patterns.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,8 +118,8 @@
     <p>This page will contain common promise anti-patterns that are exercised in the wild.</p>
 
 <ul>
-<li>                <a href="#the-deferred-anti-pattern" title="">The deferred anti-pattern</a></li>
-<li>                <a href="#the-thensuccess-fail-anti-pattern" title="">The <code>.then(success, fail)</code> anti-pattern</a></li>
+<li><a href='#the-deferred-anti-pattern' title=''>The deferred anti-pattern</a></li>
+<li><a href='#the-thensuccess-fail-anti-pattern' title=''>The <code>.then(success, fail)</code> anti-pattern</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -224,8 +227,7 @@
 </code></pre></div>
 <p>Such wrappers should be rare, if they&#39;re common for the reason that the promise library cannot generically promisify them, you should file an issue.</p>
 
-<p>Also see                 <a href="http://stackoverflow.com/questions/23803743/what-is-the-deferred-antipattern-and-how-do-i-avoid-it" title="">this StackOverflow question</a>
- for more examples and a debate around it.</p>
+<p>Also see <a href='http://stackoverflow.com/questions/23803743/what-is-the-deferred-antipattern-and-how-do-i-avoid-it' title=''>this StackOverflow question</a> for more examples and a debate around it.</p>
             <h2>
                 <a class="header-anchor"
                     name="the-.then"

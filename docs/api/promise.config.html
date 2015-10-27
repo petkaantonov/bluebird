@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.config.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -133,12 +135,26 @@
     <span class="nx">cancellation</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
+<p><hr></p>
+
+<p>In Node.js you may configure warnings and long stack traces for the entire process using environment variables:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 node app.js
+</code></pre></div>
+<p>Both features are automatically enabled if the <code>BLUEBIRD_DEBUG</code> environment variable has been set or if the <code>NODE_ENV</code> environment variable is equal to <code>&quot;development&quot;</code>.</p>
+
+<p>Using the value <code>0</code> will explicitly disable a feature despite debug environment otherwise activating it:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text"># Warnings are disabled despite being in development environment
+NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
+</code></pre></div>
+<p>Cancellation is always configured separately per bluebird instance.</p>
+
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.config";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.config";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";

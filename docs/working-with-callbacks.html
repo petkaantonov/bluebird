@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/working-with-callbacks.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -114,8 +117,7 @@
   <article class="post-content">
     <p>This page explains how to interface your code with existing callback APIs and libraries you&#39;re using. We&#39;ll see that making bluebird work with callback APIs is not only easy - it&#39;s also fast.</p>
 
-<p>We&#39;ll cover several subjects. If you want to get the tl;dr what you need is likely the                 <a href="#working-with-callback-apis-using-the-node-convention" title="">Working with callback APIs using the Node convention</a>
- section.</p>
+<p>We&#39;ll cover several subjects. If you want to get the tl;dr what you need is likely the <a href='#working-with-callback-apis-using-the-node-convention' title=''>Working with callback APIs using the Node convention</a> section.</p>
 
 <p>First to make sure we&#39;re on the same page:</p>
 
@@ -126,22 +128,20 @@
 <li><strong>rejected</strong> meaning that the computation failed.</li>
 </ul>
 
-<p>Promise returning functions <em>should never throw</em>, they should always successfully return a promise which is rejected in the case of an error. Throwing from a promise returning function will force you to use both a <code>} catch {</code> <em>and</em> a <code>.catch</code>. People using promisified APIs do not expect promises to throw. If you&#39;re not sure how async APIs work in JS - please                 <a href="http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-asynchronous-call/16825593#16825593" title="">see this answer</a>
- first.</p>
+<p>Promise returning functions <em>should never throw</em>, they should always successfully return a promise which is rejected in the case of an error. Throwing from a promise returning function will force you to use both a <code>} catch {</code> <em>and</em> a <code>.catch</code>. People using promisified APIs do not expect promises to throw. If you&#39;re not sure how async APIs work in JS - please <a href='http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-asynchronous-call/16825593#16825593' title=''>see this answer</a> first.</p>
 
 <ul>
-<li>                <a href="#automatic-vs.-manual-conversion" title="">Automatic vs. Manual conversion</a></li>
-<li>                <a href="#working-with-callback-apis-using-the-node-convention" title="">Working with callback APIs using the Node convention</a></li>
-<li>                <a href="#working-with-one-time-events" title="">Working with one time events.</a></li>
-<li>                <a href="#working-with-delays/setTimeout" title="">Working with delays</a></li>
-<li>                <a href="#working-with-browser-apis" title="">Working with browser APIs</a></li>
-<li>                <a href="#working-with-databases" title="">Working with databases</a></li>
-<li>                <a href="#more-common-examples" title="">More Common Examples</a></li>
-<li>                <a href="#working-with-any-other-apis" title="">Working with any other APIs</a></li>
+<li><a href='#automatic-vs.-manual-conversion' title=''>Automatic vs. Manual conversion</a></li>
+<li><a href='#working-with-callback-apis-using-the-node-convention' title=''>Working with callback APIs using the Node convention</a></li>
+<li><a href='#working-with-one-time-events' title=''>Working with one time events.</a></li>
+<li><a href='#working-with-delays/setTimeout' title=''>Working with delays</a></li>
+<li><a href='#working-with-browser-apis' title=''>Working with browser APIs</a></li>
+<li><a href='#working-with-databases' title=''>Working with databases</a></li>
+<li><a href='#more-common-examples' title=''>More Common Examples</a></li>
+<li><a href='#working-with-any-other-apis' title=''>Working with any other APIs</a></li>
 </ul>
 
-<p>There is also                 <a href="http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises" title="">this more general StackOverflow question</a>
- about conversion of callback APIs to promises. If you find anything missing in this guide however, please do open an issue or pull request.</p>
+<p>There is also <a href='http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises' title=''>this more general StackOverflow question</a> about conversion of callback APIs to promises. If you find anything missing in this guide however, please do open an issue or pull request.</p>
             <h3>
                 <a class="header-anchor"
                     name="automatic-vs.-manual-conversion"
@@ -161,8 +161,7 @@
                 Working with callback APIs using the Node convention
             </h3>
 
-<p>In Node/io.js most APIs follow a convention of                 <a href="https://gist.github.com/CrabDude/10907185" title="">&#39;error-first, single-parameter&#39;</a>
- as such:</p>
+<p>In Node/io.js most APIs follow a convention of <a href='https://gist.github.com/CrabDude/10907185' title=''>&#39;error-first, single-parameter&#39;</a> as such:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getStuff</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
     <span class="p">...</span>
 <span class="p">}</span>
@@ -176,10 +175,8 @@
 <p>This APIs are what most core modules in Node/io use and bluebird comes with a fast and efficient way to convert them to promise based APIs through the <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> function calls.</p>
 
 <ul>
-<li>                <a href="/docs/api/promise.promisify.html"><code>Promise.promisify</code></a>
- - converts a <em>single</em> callback taking function into a promise returning function. It does not alter the original function and returns the modified version.</li>
-<li>                <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
- - takes an <em>object</em> full of functions and <em>converts each function</em> into the new one with the <code>Async</code> suffix (by default). It does not change the original functions but instead adds new ones.</li>
+<li><a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> - converts a <em>single</em> callback taking function into a promise returning function. It does not alter the original function and returns the modified version.</li>
+<li><a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> - takes an <em>object</em> full of functions and <em>converts each function</em> into the new one with the <code>Async</code> suffix (by default). It does not change the original functions but instead adds new ones.</li>
 </ul>
 
 <blockquote>
@@ -206,8 +203,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <blockquote>
-<p><strong>Note</strong> <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> use dynamic recompilation for really fast wrappers and thus calling them should be done only once.                 <a href="/docs/api/promise.fromcallback.html"><code>Promise.fromCallback</code></a>
- exists for cases where this is not possible.</p>
+<p><strong>Note</strong> <code>Promise.promisify</code> and <code>Promise.promisifyAll</code> use dynamic recompilation for really fast wrappers and thus calling them should be done only once. <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> exists for cases where this is not possible.</p>
 </blockquote>
             <h3>
                 <a class="header-anchor"
@@ -217,9 +213,7 @@
                 Working with one time events
             </h3>
 
-<p>Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use                 <a href="/docs/api/new-promise.html"><code>new Promise</code></a>
-. Note that this option should be considered only if                 <a href="#working-with-callback-apis-using-the-node-convention" title="">automatic conversion</a>
- isn&#39;t possible.</p>
+<p>Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use <a href='/docs/api/new-promise.html'><code>new Promise</code></a>. Note that this option should be considered only if <a href='#working-with-callback-apis-using-the-node-convention' title=''>automatic conversion</a> isn&#39;t possible.</p>
 
 <p>Note that promises model a <em>single value through time</em>, they only resolve <em>once</em> - so while they&#39;re a good fit for a single event, they are not recommended for multiple event APIs.</p>
 
@@ -279,9 +273,7 @@
                 Working with delays/setTimeout
             </h3>
 
-<p>There is no need to convert timeouts/delays to a bluebird API, bluebird already ships with the                 <a href="/docs/api/promise.delay.html"><code>Promise.delay</code></a>
- function for this use case. Please consult the                 <a href="/docs/api/timers.html"><code>timers</code></a>
- section of the docs on usage and examples.</p>
+<p>There is no need to convert timeouts/delays to a bluebird API, bluebird already ships with the <a href='/docs/api/promise.delay.html'><code>Promise.delay</code></a> function for this use case. Please consult the <a href='/docs/api/timers.html'><code>timers</code></a> section of the docs on usage and examples.</p>
             <h3>
                 <a class="header-anchor"
                     name="working-with-browser-apis"
@@ -290,10 +282,7 @@
                 Working with browser APIs
             </h3>
 
-<p>Often browser APIs are nonstandard and automatic promisification will fail for them. If you&#39;re running into an API that you can&#39;t promisify with                 <a href="/docs/api/promisify.html"><code>promisify</code></a>
- and                 <a href="/docs/api/promisifyall.html"><code>promisifyAll</code></a>
- - please consult the                 <a href="#working-with-any-other-apis" title="">working with other APIs section</a>
-</p>
+<p>Often browser APIs are nonstandard and automatic promisification will fail for them. If you&#39;re running into an API that you can&#39;t promisify with <a href='/docs/api/promisify.html'><code>promisify</code></a> and <a href='/docs/api/promisifyall.html'><code>promisifyAll</code></a> - please consult the <a href='#working-with-any-other-apis' title=''>working with other APIs section</a></p>
             <h3>
                 <a class="header-anchor"
                     name="working-with-databases"
@@ -302,14 +291,12 @@
                 Working with databases
             </h3>
 
-<p>For resource management in general and databases in particular, bluebird includes the powerful                  <a href="/docs/api/promise.using.html"><code>Promise.using</code></a>
- and disposers system. This is similar to <code>with</code> in Python, <code>using</code> in C#, try/resource in Java or RAII in C++ in that it lets you handle resource management in an automatic way.</p>
+<p>For resource management in general and databases in particular, bluebird includes the powerful  <a href='/docs/api/promise.using.html'><code>Promise.using</code></a> and disposers system. This is similar to <code>with</code> in Python, <code>using</code> in C#, try/resource in Java or RAII in C++ in that it lets you handle resource management in an automatic way.</p>
 
 <p>Several examples of databases follow.</p>
 
 <blockquote>
-<p><strong>Note</strong> for more examples please see the                 <a href="/docs/api/promise.using.html"><code>Promise.using</code></a>
- section.</p>
+<p><strong>Note</strong> for more examples please see the <a href='/docs/api/promise.using.html'><code>Promise.using</code></a> section.</p>
 </blockquote>
             <h4>
                 <a class="header-anchor"

@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/error-explanations.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -113,25 +116,25 @@
 
   <article class="post-content">
     <ul>
-<li>                <a href="#error-promise.promisify-called-on-an-object" title="">Error: Promise.promisify called on an object</a></li>
-<li>                <a href="#error-the-promise-constructor-requires-a-resolver-function" title="">Error: the promise constructor requires a resolver function</a></li>
-<li>                <a href="#error-the-promise-constructor-cannot-be-invoked-directly" title="">Error: the promise constructor cannot be invoked directly</a></li>
-<li>                <a href="#error-expecting-an-array-a-promise-or-a-thenable" title="">Error: expecting an array, a promise or a thenable</a></li>
-<li>                <a href="#error-generatorfunction-must-be-a-function" title="">Error: generatorFunction must be a function</a></li>
-<li>                <a href="#error-fn-must-be-a-function" title="">Error: fn must be a function</a></li>
-<li>                <a href="#error-cannot-enable-long-stack-traces-after-promises-have-been-created" title="">Error: cannot enable long stack traces after promises have been created</a></li>
-<li>                <a href="#error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise" title="">Error: cannot get fulfillment value of a non-fulfilled promise</a></li>
-<li>                <a href="#error-cannot-get-rejection-reason-of-a-non-rejected-promise" title="">Error: cannot get rejection reason of a non-rejected promise</a></li>
-<li>                <a href="#error-the-target-of-promisifyall-must-be-an-object-or-a-function" title="">Error: the target of promisifyAll must be an object or a function</a></li>
-<li>                <a href="#error-circular-promise-resolution-chain" title="">Error: circular promise resolution chain</a></li>
-<li>                <a href="#error-cannot-await-properties-of-a-non-object" title="">Error: cannot await properties of a non-object</a></li>
-<li>                <a href="#error-expecting-a-positive-integer" title="">Error: expecting a positive integer</a></li>
-<li>                <a href="#error-a-value-was-yielded-that-could-not-be-treated-as-a-promise" title="">Error: A value was yielded that could not be treated as a promise</a></li>
-<li>                <a href="#error-cannot-await-properties-of-a-non-object" title="">Error: cannot await properties of a non object</a></li>
-<li>                <a href="#error-cannot-enable-long-stack-traces-after-promises-have-been-created" title="">Error: cannot enable long stack traces after promises have been created</a></li>
-<li>                <a href="#error-cannot-promisify-an-api-that-has-normal-methods" title="">Error: Cannot promisify an API that has normal methods</a></li>
-<li>                <a href="#error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function" title="">Error: Catch filter must inherit from Error or be a simple predicate function</a></li>
-<li>                <a href="#error-no-async-scheduler-available" title="">Error: No async scheduler available</a></li>
+<li><a href='#error-promise.promisify-called-on-an-object' title=''>Error: Promise.promisify called on an object</a></li>
+<li><a href='#error-the-promise-constructor-requires-a-resolver-function' title=''>Error: the promise constructor requires a resolver function</a></li>
+<li><a href='#error-the-promise-constructor-cannot-be-invoked-directly' title=''>Error: the promise constructor cannot be invoked directly</a></li>
+<li><a href='#error-expecting-an-array-a-promise-or-a-thenable' title=''>Error: expecting an array, a promise or a thenable</a></li>
+<li><a href='#error-generatorfunction-must-be-a-function' title=''>Error: generatorFunction must be a function</a></li>
+<li><a href='#error-fn-must-be-a-function' title=''>Error: fn must be a function</a></li>
+<li><a href='#error-cannot-enable-long-stack-traces-after-promises-have-been-created' title=''>Error: cannot enable long stack traces after promises have been created</a></li>
+<li><a href='#error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise' title=''>Error: cannot get fulfillment value of a non-fulfilled promise</a></li>
+<li><a href='#error-cannot-get-rejection-reason-of-a-non-rejected-promise' title=''>Error: cannot get rejection reason of a non-rejected promise</a></li>
+<li><a href='#error-the-target-of-promisifyall-must-be-an-object-or-a-function' title=''>Error: the target of promisifyAll must be an object or a function</a></li>
+<li><a href='#error-circular-promise-resolution-chain' title=''>Error: circular promise resolution chain</a></li>
+<li><a href='#error-cannot-await-properties-of-a-non-object' title=''>Error: cannot await properties of a non-object</a></li>
+<li><a href='#error-expecting-a-positive-integer' title=''>Error: expecting a positive integer</a></li>
+<li><a href='#error-a-value-was-yielded-that-could-not-be-treated-as-a-promise' title=''>Error: A value was yielded that could not be treated as a promise</a></li>
+<li><a href='#error-cannot-await-properties-of-a-non-object' title=''>Error: cannot await properties of a non object</a></li>
+<li><a href='#error-cannot-enable-long-stack-traces-after-promises-have-been-created' title=''>Error: cannot enable long stack traces after promises have been created</a></li>
+<li><a href='#error-cannot-promisify-an-api-that-has-normal-methods' title=''>Error: Cannot promisify an API that has normal methods</a></li>
+<li><a href='#error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function' title=''>Error: Catch filter must inherit from Error or be a simple predicate function</a></li>
+<li><a href='#error-no-async-scheduler-available' title=''>Error: No async scheduler available</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -144,8 +147,7 @@
 <p>You got this this error because you&#39;ve used <code>Promise.promisify</code> on an object, for example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>
-<p>Instead, use                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll</code></code></a>
- :</p>
+<p>Instead, use <a href='/docs/api/promise.promisifyall.html'><code><code>Promise.promisifyAll</code></code></a> :</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>            <h2>
                 <a class="header-anchor"
@@ -167,10 +169,7 @@
     <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Please consider reading about                 <a href="/docs/api/new-promise.html"><code>new Promise</code></a>
- and also consider checking out automatic                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
- as well as                 <a href="/docs/api/promise.method.html"><code>Promise.method</code></a>
-</p>
+<p>Please consider reading about <a href='/docs/api/new-promise.html'><code>new Promise</code></a> and also consider checking out automatic <a href='/docs/api/promisification.html'><code>promisification</code></a> as well as <a href='/docs/api/promise.method.html'><code>Promise.method</code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-the-promise-constructor-cannot-be-invoked-directly"
@@ -198,10 +197,7 @@
        //...
 })
 </code></pre></div>
-<p>Please consider reading about                 <a href="/docs/api/new-promise.html"><code>new Promise</code></a>
- and also consider checking out automatic                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
- as well as                 <a href="/docs/api/promise.method.html"><code>Promise.method</code></a>
-</p>
+<p>Please consider reading about <a href='/docs/api/new-promise.html'><code>new Promise</code></a> and also consider checking out automatic <a href='/docs/api/promisification.html'><code>promisification</code></a> as well as <a href='/docs/api/promise.method.html'><code>Promise.method</code></a></p>
             <h4>
                 <a class="header-anchor"
                     name="2.-you-are-trying-to-subclass-promise"
@@ -210,8 +206,7 @@
                 2. You are trying to subclass <code>Promise</code>
             </h4>
 
-<p>Bluebird does not support extending promises this way. Instead, see                 <a href="features.html#scoped-prototypes" title="">scoped prototypes</a>
-.</p>
+<p>Bluebird does not support extending promises this way. Instead, see <a href='features.html#scoped-prototypes' title=''>scoped prototypes</a>.</p>
             <h2>
                 <a class="header-anchor"
                     name="error-expecting-an-array"
@@ -238,8 +233,7 @@
                 Error: generatorFunction must be a function
             </h2>
 
-<p>You are getting this error when trying to use                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
- and not passing it a generator function as a parameter.  For example:</p>
+<p>You are getting this error when trying to use <a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> and not passing it a generator function as a parameter.  For example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// Note the *</span>
     <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.example.com&quot;</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">moreUrls</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;\n&quot;</span><span class="p">);</span>
@@ -250,13 +244,11 @@
     <span class="k">return</span> <span class="nx">contents</span><span class="p">;</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Please refer to the relevant section in the documentation about                 <a href="/docs/api/generators.html"><code>Generators</code></a>
- in order to get usage instructions:</p>
+<p>Please refer to the relevant section in the documentation about <a href='/docs/api/generators.html'><code>Generators</code></a> in order to get usage instructions:</p>
 
 <p><strong>Note</strong>: Bluebird used to eagerly check for generators which caused problems with transpilers. Because of this, you might get an error similar to <code>TypeError: Cannot read property &#39;next&#39; of undefined</code> if you pass a function instead of a generator function to Bluebird.</p>
 
-<p><a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
- is built to work with generators to form C# like <code>async/await</code></p>
+<p><a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> is built to work with generators to form C# like <code>async/await</code></p>
             <h2>
                 <a class="header-anchor"
                     name="error-fn-must-be-a-function"
@@ -281,8 +273,7 @@
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>See the API page about                 <a href="/docs/api/promise.longstacktraces.html"><code>Promise.longStackTraces</code></a>
-</p>
+<p>See the API page about <a href='/docs/api/promise.longstacktraces.html'><code>Promise.longStackTraces</code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-cannot-get-fulfillment-value-of-a-non-fulfilled-promise"
@@ -297,13 +288,9 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
-<p>Consider using                 <a href="/docs/api/ispending.html"><code>.isPending()</code></a>
-                 <a href="/docs/api/isfulfilled.html"><code>.isFulfilled()</code></a>
- and                 <a href="/docs/api/isrejected.html"><code>.isRejected()</code></a>
- in order to inspect the promise for status.</p>
+<p>Consider using <a href='/docs/api/ispending.html'><code>.isPending()</code></a> <a href='/docs/api/isfulfilled.html'><code>.isFulfilled()</code></a> and <a href='/docs/api/isrejected.html'><code>.isRejected()</code></a> in order to inspect the promise for status.</p>
 
-<p>Please consider reading more about                 <a href="/docs/api/synchronous-inspection.html"><code>synchronous inspection</code></a>
-</p>
+<p>Please consider reading more about <a href='/docs/api/synchronous-inspection.html'><code>synchronous inspection</code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-cannot-get-rejection-reason-of-a-non-rejected-promise"
@@ -318,13 +305,9 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
-<p>Consider using                 <a href="/docs/api/ispending.html"><code>.isPending()</code></a>
-                 <a href="/docs/api/isfulfilled.html"><code>.isFulfilled()</code></a>
- and                 <a href="/docs/api/isrejected.html"><code>.isRejected()</code></a>
- in order to inspect the promise for status.</p>
+<p>Consider using <a href='/docs/api/ispending.html'><code>.isPending()</code></a> <a href='/docs/api/isfulfilled.html'><code>.isFulfilled()</code></a> and <a href='/docs/api/isrejected.html'><code>.isRejected()</code></a> in order to inspect the promise for status.</p>
 
-<p>Please consider reading more about                 <a href="/docs/api/synchronous-inspection.html"><code>synchronous inspection</code></a>
-</p>
+<p>Please consider reading more about <a href='/docs/api/synchronous-inspection.html'><code>synchronous inspection</code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-the-target-of-promisifyall-must-be-an-object-or-a-function"
@@ -333,14 +316,11 @@
                 Error: the target of promisifyAll must be an object or a function
             </h2>
 
-<p>This can happen when you are calling                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
- on a function and invoking it instead of passing it.</p>
+<p>This can happen when you are calling <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> on a function and invoking it instead of passing it.</p>
 
-<p>In general, the usage of                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
- is along the lines of <code>var fs = Promise.promisifyAll(require(&quot;fs&quot;))</code>.</p>
+<p>In general, the usage of <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> is along the lines of <code>var fs = Promise.promisifyAll(require(&quot;fs&quot;))</code>.</p>
 
-<p>Consider reading the section about                 <a href="/docs/api/promisification.html"><code>promisification</code></a>
-</p>
+<p>Consider reading the section about <a href='/docs/api/promisification.html'><code>promisification</code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-circular-promise-resolution-chain"
@@ -392,8 +372,7 @@
 
 <p>One possible cause is using <code>.indexOf</code> which returns <code>-1</code> when it doesn&#39;t find the value being searched for.</p>
 
-<p>Please consider reading the API docs for                 <a href="/docs/api/some.html"><code><code>.some</code></code></a>
-</p>
+<p>Please consider reading the API docs for <a href='/docs/api/some.html'><code><code>.some</code></code></a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-a-value-was-yielded-that-could-not-be-treated-as-a-promise"
@@ -414,9 +393,7 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Or to use                 <a href="/docs/api/promise.coroutine.addyieldhandler.html"><code>Promise.coroutine.addYieldHandler`</code></a>
- to teach                 <a href="/docs/api/promise.coroutine.html"><code>Promise.coroutine</code></a>
- to accept these sort of values.</p>
+<p>Or to use <a href='/docs/api/promise.coroutine.addyieldhandler.html'><code>Promise.coroutine.addYieldHandler`</code></a> to teach <a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> to accept these sort of values.</p>
             <h2>
                 <a class="header-anchor"
                     name="error-cannot-await-properties-of-a-non-object"
@@ -445,17 +422,14 @@
                 Error: Cannot promisify an API that has normal methods
             </h2>
 
-<p>This error indicates you have tried to call                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
- on an object that already has a property with the <code>Async</code> suffix:</p>
+<p>This error indicates you have tried to call <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> on an object that already has a property with the <code>Async</code> suffix:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">myApi</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">foo</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">fooAsync</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
 </code></pre></div>
-<p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call                 <a href="/docs/api/promise.promisify.html"><code>Promise.promisify</code></a>
- manually on select properties.</p>
+<p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call <a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> manually on select properties.</p>
 
 <p>You may also use the custom suffix option to choose another suffix that doesn&#39;t result in conflicts.</p>
 
-<p>If you find this issue in a common library please                 <a href="https://github.com/petkaantonov/bluebird/issues/new" title="">open an issue</a>
-</p>
+<p>If you find this issue in a common library please <a href='https://github.com/petkaantonov/bluebird/issues/new' title=''>open an issue</a></p>
             <h2>
                 <a class="header-anchor"
                     name="error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function"
@@ -464,8 +438,7 @@
                 Error: Catch filter must inherit from Error or be a simple predicate function
             </h2>
 
-<p>Bluebird supports typed and predicate                 <a href="/docs/api/catch.html"><code>.catch()</code></a>
- calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.</p>
+<p>Bluebird supports typed and predicate <a href='/docs/api/catch.html'><code>.catch()</code></a> calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.</p>
 
 <p>Pass it a constructor that inherits from <code>Error</code>:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(ReferenceError, function(e) { // this is fine
@@ -477,8 +450,7 @@
 <div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(function(e){ return false; }, function(e) { // this catches nothing
 }).catch(function(e){ return e.someProp = 5; }, function(e) { // this is fine
 </code></pre></div>
-<p>Please see the API docs of                 <a href="/docs/api/catch.html"><code>.catch()</code></a>
- on how to use predicate catches.</p>
+<p>Please see the API docs of <a href='/docs/api/catch.html'><code>.catch()</code></a> on how to use predicate catches.</p>
             <h2>
                 <a class="header-anchor"
                     name="error-no-async-scheduler-available"
@@ -491,8 +463,7 @@
 
 <p>By default bluebird only tries a few common async schedulers, such as <code>setTimeout</code>, <code>process.nextTick</code> and <code>MutationObserver</code>. However if your JavaScript runtime environment doesn&#39;t expose any of these, you will see this error.</p>
 
-<p>You may use                 <a href="/docs/api/promise.setscheduler.html"><code>Promise.setScheduler</code></a>
- to pass a custom scheduler that your environment supports. For example in DukTape:</p>
+<p>You may use <a href='/docs/api/promise.setscheduler.html'><code>Promise.setScheduler</code></a> to pass a custom scheduler that your environment supports. For example in DukTape:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">){</span> <span class="c1">// fn is what to execute</span>
     <span class="kd">var</span> <span class="nx">timer</span> <span class="o">=</span> <span class="nx">uv</span><span class="p">.</span><span class="nx">new_timer</span><span class="p">.</span><span class="nx">call</span><span class="p">({});</span>
     <span class="nx">uv</span><span class="p">.</span><span class="nx">timer_start</span><span class="p">(</span><span class="nx">timer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">fn</span><span class="p">);</span> <span class="c1">// add the function as a callback to the timer</span>

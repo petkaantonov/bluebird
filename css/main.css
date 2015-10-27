@@ -165,3 +165,13 @@ h6:hover .header-anchor {
     float: right;
 }
 
+.info-box {
+    margin-top: 20px;
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px dashed #8a6d3b;
+    border-radius: 4px;
+}

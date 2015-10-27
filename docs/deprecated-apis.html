@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/deprecated_apis.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/deprecated-apis.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -100,7 +100,7 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/deprecated_apis.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/deprecated-apis.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
@@ -115,7 +115,14 @@
   </header>
 
   <article class="post-content">
-    <p>This file contains documentation for APIs that are no longer supported by Bluebird.
+    <p><div class="info-box">
+                This article is partially or completely unfinished.
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/deprecated-apis.md">pull requests</a>
+                to help completing this article.
+            </div>
+</p>
+
+<p>This file contains documentation for APIs that are no longer supported by Bluebird.
 These APIs still work in Bluebird but will be removed at a future version of the library.</p>
 
 <p>For every use case that the methods below solve there exists a better alternative in <a href='./API.md' title=''>the API reference</a>.</p>
@@ -124,18 +131,18 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <li><p><a href='#progression' title=''>Progression</a></p>
 
 <ul>
-<li><a href='#.progressed' title=''><code>.progressed(Function handler)</code></a></li>
-<li><a href='#.then' title=''><code>.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
-<li><a href='#.done' title=''><code>.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
-<li><a href='#.fork' title=''><code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
+<li><a href='#progressedfunction-handler---promise' title=''><code>.progressed(Function handler)</code></a></li>
+<li><a href='#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
+<li><a href='#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
+<li><a href='#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
 </ul></li>
 <li><p><a href='#promise-resolution' title=''>Promise resolution</a></p>
 
 <ul>
-<li><a href='#.resolve' title=''><code>.resolve(dynamic value)</code></a></li>
-<li><a href='#.reject' title=''><code>.reject(dynamic reason)</code></a></li>
-<li><a href='#.progress' title=''><code>.progress(dynamic value)</code></a></li>
-<li><a href='#.callback' title=''><code>.callback</code></a></li>
+<li><a href='#resolvedynamic-value---undefined' title=''><code>.resolve(dynamic value)</code></a></li>
+<li><a href='#rejectdynamic-reason---undefined' title=''><code>.reject(dynamic reason)</code></a></li>
+<li><a href='#progressdynamic-value---undefined' title=''><code>.progress(dynamic value)</code></a></li>
+<li><a href='#callback---function' title=''><code>.callback</code></a></li>
 </ul></li>
 </ul>
             <h2>
@@ -157,7 +164,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 <code>.progressed(Function handler)</code> -&gt; <code>Promise</code>
             </h5>
 
-<p>Shorthand for <a href='/docs/api/then.html'><code><code>.then(null, null, handler);</code></code></a>. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.</p>
+<p>Shorthand for <code>.then(null, null, handler);</code>. Attach a progress handler that will be called if this promise is progressed. Returns a new promise chained from this promise.</p>
 
 <p><hr></p>
             <h5>
@@ -168,7 +175,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 <code>.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>Promise</code>
             </h5>
 
-<p>The standard <a href='http://promises-aplus.github.io/promises-spec/' title=''>Promises/A+ <code>.then()</code></a> is still supported by Bluebird and support for it will continue indefinitely. However, the variant accepting a third <code>progressHandler</code> argument is no longer supported.</p>
+<p>The standard <a href='http://promises-aplus.github.io/promises-spec/' title=''>Promises/A+ <code>.then()</code></a> is still supported by Bluebird and support for it will continue indefinitely . However, the variant accepting a third <code>progressHandler</code> argument is no longer supported.</p>
 
 <p><hr></p>
             <h5>
@@ -179,7 +186,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 <code>.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>void</code>
             </h5>
 
-<p>Like <a href='/docs/api/then.html'><code><code>.then()</code></code></a>, but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. <code>.done</code> is still fully supported.</p>
+<p>Like <code>.then()</code>, but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. <code>.done</code> is still fully supported.</p>
 
 <p><hr></p>
             <h5>
@@ -190,7 +197,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 <code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>Promise</code>
             </h5>
 
-<p>Like <a href='/docs/api/then.html'><code><code>.then()</code></code></a>, but cancellation of the returned promise or any of its descendant will not propagate cancellation to this promise or this promise&#39;s ancestors. Again, only the variant with the progression handler is deprecated here. <code>.fork</code> is still fully supported.</p>
+<p>Like <code>.then()</code>, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise&#39;s ancestors. Again, only the variant with the progression handler is deprecated here. <code>.fork</code> is still fully supported.</p>
 
 <p><hr></p>
             <h2>
@@ -201,7 +208,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
                 Promise resolution
             </h2>
 
-<p>A <code>PromiseResolver</code> can be used to control the fate of a promise. It is like &quot;Deferred&quot; in jQuery or <code>$q.defer</code> in $q. The <code>PromiseResolver</code> objects have a <code>.promise</code> property which is a reference to the controlled promise that can be passed to clients. <code>.promise</code> of a <code>PromiseResolver</code> is not a getter function to match other implementations.</p>
+<p>A <code>PromiseResolver</code> can be used to control the fate of a promise. It is like &quot;Deferred&quot; in jQuery or <code>$q.defer</code> in $q. The <code>PromiseResolver</code> objects have a <code>.promise</code> property which returns a reference to the controlled promise that can be passed to clients. <code>.promise</code> of a <code>PromiseResolver</code> is not a getter function to match other implementations.</p>
 
 <p>The methods of a <code>PromiseResolver</code> have no effect if the fate of the underlying promise is already decided (follow, reject, fulfill).</p>
 
@@ -244,13 +251,13 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">resolver</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
     <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
-    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
         <span class="nx">resolver</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">now</span><span class="p">);</span>
     <span class="p">},</span> <span class="nx">ms</span><span class="p">);</span>
     <span class="k">return</span> <span class="nx">resolver</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">ms</span><span class="p">){</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">ms</span> <span class="o">+</span> <span class="s2">&quot; ms passed&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>

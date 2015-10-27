@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.bind.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -129,8 +131,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 
 <p><hr></p>
 
-<p>Without arrow functions that provide lexical <code>this</code>, the correspondence between async and sync code breaks down when writing object-oriented code.                 <a href="/docs/api/bind.html"><code><code>.bind</code></code></a>
- alleviates this.</p>
+<p>Without arrow functions that provide lexical <code>this</code>, the correspondence between async and sync code breaks down when writing object-oriented code. <a href='/docs/api/bind.html'><code><code>.bind</code></code></a> alleviates this.</p>
 
 <p>Consider:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -175,8 +176,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
     <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">+</span> <span class="nx">cValue</span><span class="p">;</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>The above without                 <a href="/docs/api/bind.html"><code><code>.bind</code></code></a>
- could be achieved with:</p>
+<p>The above without <a href='/docs/api/bind.html'><code><code>.bind</code></code></a> could be achieved with:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">scope</span> <span class="o">=</span> <span class="p">{};</span>
 <span class="nx">somethingAsync</span><span class="p">()</span>
 <span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">)</span> <span class="p">{</span>
@@ -249,6 +249,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.bind";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.bind";
     

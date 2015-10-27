@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.map.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -123,9 +125,7 @@
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">concurrency</span><span class="o">:</span> <span class="kr">int</span><span class="o">=</span><span class="kc">Infinity</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Given an                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols" title=""><code>Iterable</code></a>
-(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and                 <a href="http://en.wikipedia.org/wiki/Map_(higher-order_function)" title="">map the array to another</a>
- using the given <code>mapper</code> function.</p>
+<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and <a href='http://en.wikipedia.org/wiki/Map_(higher-order_function)' title=''>map the array to another</a> using the given <code>mapper</code> function.</p>
 
 <p>Promises returned by the <code>mapper</code> function are awaited for and the returned promise doesn&#39;t fulfill until all mapped promises have fulfilled as well. If any promise in the array is rejected, or any promise returned by the <code>mapper</code> function is rejected, the returned promise is rejected as well.</p>
 
@@ -217,12 +217,14 @@ reading files 35ms
 <span class="nv">$ </span>node test.js Infinity
 reading files: 9ms
 </code></pre></div>
-<p></markdown></div></p>
+<p>The order <code>map</code> calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it&#39;ll execute the <code>map</code>er on the elements. This makes sense because the order of the even with the <code>{concurrency: 1}</code>. For order guarantee in sequential execution - see <a href='/docs/api/promise.each.html'><code>Promise.each</code></a>.
+</markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promise.map";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.map";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";

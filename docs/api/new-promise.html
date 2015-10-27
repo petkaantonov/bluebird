@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/new-promise.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -121,8 +123,7 @@
 </code></pre></div>
 <p>Create a new promise. The passed in function will receive functions <code>resolve</code> and <code>reject</code> as its arguments which can be called to seal the fate of the created promise.</p>
 
-<p><em>Note: See                 <a href="/docs/anti-patterns.html#explicit-construction-anti-pattern" title="">explicit construction anti-pattern</a>
- before creating promises yourself</em></p>
+<p><em>Note: See <a href='/docs/anti-patterns.html#explicit-construction-anti-pattern' title=''>explicit construction anti-pattern</a> before creating promises yourself</em></p>
 
 <p>Example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
@@ -148,9 +149,7 @@
     <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The above ensures <code>getConnection</code> fulfills the contract of a promise-returning function of never throwing a synchronous exception. Also see                 <a href="/docs/api/promise.try.html"><code><code>Promise.try</code></code></a>
- and                 <a href="/docs/api/promise.method.html"><code><code>Promise.method</code></code></a>
-</p>
+<p>The above ensures <code>getConnection</code> fulfills the contract of a promise-returning function of never throwing a synchronous exception. Also see <a href='/docs/api/promise.try.html'><code><code>Promise.try</code></code></a> and <a href='/docs/api/promise.method.html'><code><code>Promise.method</code></code></a></p>
 
 <p>The resolver is called synchronously (the following is for documentation purposes and not idiomatic code):</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getPromiseResolveFn</span><span class="p">()</span> <span class="p">{</span>
@@ -165,6 +164,7 @@
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "new Promise";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-new-promise";
     

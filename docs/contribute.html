@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/contribute.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -114,30 +117,26 @@
   <article class="post-content">
     <p>For development tasks such as contributing, running benchmarks or testing, you need to clone the repository and install dev-dependencies.</p>
 
-<p>Install                 <a href="http://nodejs.org/" title="">node</a>
- or                 <a href="https://iojs.org/" title="">io.js</a>
-</p>
+<p>Install <a href='http://nodejs.org/' title=''>node</a> or <a href='https://iojs.org/' title=''>io.js</a></p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">git clone git@github.com:petkaantonov/bluebird.git
 cd bluebird
 npm install
 </code></pre></div>
 <ul>
-<li>                <a href="#directory-structure" title="">Directory structure</a></li>
-<li>                <a href="#style-guide" title="">Style guide</a></li>
-<li>                <a href="#building" title="">Building</a>
-
-
-<ul>
-<li>                <a href="#supported-options-by-the-build-tool" title="">Supported options by the build tool</a></li>
-</ul></li>
-<li>                <a href="#testing" title="">Testing</a>
-
+<li><a href='#directory-structure' title=''>Directory structure</a></li>
+<li><a href='#style-guide' title=''>Style guide</a></li>
+<li><a href='#building' title=''>Building</a>
 
 <ul>
-<li>                <a href="#testing-in-browsers" title="">Testing in browsers</a></li>
-<li>                <a href="#supported-options-by-the-test-tool" title="">Supported options by the test tool</a></li>
+<li><a href='#supported-options-by-the-build-tool' title=''>Supported options by the build tool</a></li>
 </ul></li>
-<li>                <a href="#benchmarking" title="">Benchmarking</a></li>
+<li><a href='#testing' title=''>Testing</a>
+
+<ul>
+<li><a href='#testing-in-browsers' title=''>Testing in browsers</a></li>
+<li><a href='#supported-options-by-the-test-tool' title=''>Supported options by the test tool</a></li>
+</ul></li>
+<li><a href='#benchmarking' title=''>Benchmarking</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -155,8 +154,7 @@ npm install
 
 <ul>
 <li><code>/test/mocha</code> contains tests using the mocha testing framework</li>
-<li><code>/test/browser</code> a directory that can be statically served using a webserver to run tests in browsers. See                 <a href="README.md#testing-in-browsers" title="">testing in browsers</a>
-.</li>
+<li><code>/test/browser</code> a directory that can be statically served using a webserver to run tests in browsers. See <a href='README.md#testing-in-browsers' title=''>testing in browsers</a>.</li>
 </ul></li>
 </ul>
             <h2>
@@ -313,8 +311,7 @@ npm install
                 1. DoxBee sequential
             </h3>
 
-<p>Currently the most relevant benchmark is @gorkikosev&#39;s benchmark in the article                 <a href="http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html" title="">Analysis of generators and other async patterns in node</a>
-. The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action.</p>
+<p>Currently the most relevant benchmark is @gorkikosev&#39;s benchmark in the article <a href='http://spion.github.io/posts/analysis-generators-and-other-async-patterns-node.html' title=''>Analysis of generators and other async patterns in node</a>. The benchmark emulates a situation where n amount of users are making a request in parallel to execute some mixed async/sync action.</p>
 
 <p>Command: <code>bench doxbee</code></p>
 

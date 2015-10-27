@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/cancellation.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -120,20 +122,17 @@
 
 <p>Cancellation has been redesigned for bluebird 3.x, any code that relies on 2.x cancellation semantics won&#39;t work in 3.x.</p>
 
-<p>The cancellation feature is <strong>by default turned off</strong>, you can enable it using                 <a href="/docs/api/promise.config.html"><code>Promise.config</code></a>
-.</p>
+<p>The cancellation feature is <strong>by default turned off</strong>, you can enable it using <a href='/docs/api/promise.config.html'><code>Promise.config</code></a>.</p>
 
 <p>The new cancellation has &quot;don&#39;t care&quot; semantics while the old cancellation had abort semantics. Cancelling a promise simply means that its handler callbacks will not be called.</p>
 
 <p>The advantages of the new cancellation compared to the old cancellation are:</p>
 
 <ul>
-<li>                <a href="/docs/api/cancel.html"><code>.cancel()</code></a>
- is synchronous.</li>
+<li><a href='/docs/api/cancel.html'><code>.cancel()</code></a> is synchronous.</li>
 <li>no setup code required to make cancellation work</li>
-<li>composes with other bluebird features, like                 <a href="/docs/api/promise.all.html"><code>Promise.all</code></a>
-.</li>
-<li>                <a href="#what-about-promises-that-have-multiple-consumers" title="">reasonable semantics for multiple consumer cancellation</a></li>
+<li>composes with other bluebird features, like <a href='/docs/api/promise.all.html'><code>Promise.all</code></a>.</li>
+<li><a href='#what-about-promises-that-have-multiple-consumers' title=''>reasonable semantics for multiple consumer cancellation</a></li>
 </ul>
 
 <p>As an optimization, the cancellation signal propagates upwards the promise chain so that an ongoing operation e.g. network request can be aborted. However, <em>not</em> aborting the network request still doesn&#39;t make any operational difference as the callbacks are still not called either way.</p>
@@ -180,9 +179,7 @@
         <span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>As shown in the example the handlers registered with <code>.finally</code> are called even if the promise is cancelled. Another such exception is                 <a href="/docs/api/reflect.html"><code>.reflect()</code></a>
-. No other types of handlers will be called in case of cancellation. This means that in <code>.then(onSuccess, onFailure)</code> neither <code>onSuccess</code> or <code>onFailure</code> handler is called. This is similar to how                 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return" title=""><code>Generator#return</code></a>
- works - only active <code>finally</code> blocks are executed and then the generator exits.</p>
+<p>As shown in the example the handlers registered with <code>.finally</code> are called even if the promise is cancelled. Another such exception is <a href='/docs/api/reflect.html'><code>.reflect()</code></a>. No other types of handlers will be called in case of cancellation. This means that in <code>.then(onSuccess, onFailure)</code> neither <code>onSuccess</code> or <code>onFailure</code> handler is called. This is similar to how <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator/return' title=''><code>Generator#return</code></a> works - only active <code>finally</code> blocks are executed and then the generator exits.</p>
             <h3>
                 <a class="header-anchor"
                     name="what-about-promises-that-have-multiple-consumers"
@@ -199,8 +196,7 @@
 <span class="kd">var</span> <span class="nx">firstConsumer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span>
 <span class="kd">var</span> <span class="nx">secondConsumer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span>
 </code></pre></div>
-<p>Even though in practice most users of promises will never have any need to take advantage of the fact that you can attach multiple consumers to a promise, it is nevertheless possible. The problem: &quot;what should happen if                 <a href="/docs/api/cancel.html"><code>.cancel()</code></a>
- is called on <code>firstConsumer</code>?&quot; Propagating the cancellation signal (and therefore making it abort the request) would be very bad as the second consumer might still be interested in the result despite the first consumer&#39;s disinterest.</p>
+<p>Even though in practice most users of promises will never have any need to take advantage of the fact that you can attach multiple consumers to a promise, it is nevertheless possible. The problem: &quot;what should happen if <a href='/docs/api/cancel.html'><code>.cancel()</code></a> is called on <code>firstConsumer</code>?&quot; Propagating the cancellation signal (and therefore making it abort the request) would be very bad as the second consumer might still be interested in the result despite the first consumer&#39;s disinterest.</p>
 
 <p>What actually happens is that <code>result</code> keeps track of how many consumers it has, in this case 2, and only if all the consumers signal cancel will the request be aborted. However, as far as <code>firstConsumer</code> can tell, the promise was successfully cancelled and its handlers will not be called.</p>
 
@@ -210,6 +206,7 @@
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Cancellation";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-cancellation";
     

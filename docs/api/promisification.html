@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/promisification.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -120,8 +122,7 @@
 
 <p>Promisification means converting an existing promise-unaware API to a promise-returning API.</p>
 
-<p>The usual way to use promises in node is to                 <a href="/docs/api/promise.promisifyall.html"><code>Promise.promisifyAll</code></a>
- some API and start exclusively calling promise returning versions of the APIs methods. E.g.</p>
+<p>The usual way to use promises in node is to <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> some API and start exclusively calling promise returning versions of the APIs methods. E.g.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">fs</span><span class="p">);</span>
 <span class="c1">// Now you can use fs as if it was designed to use bluebird promises from the beginning</span>
@@ -130,8 +131,7 @@
 </code></pre></div>
 <p>Note that the above is an exceptional case because <code>fs</code> is a singleton instance. Most libraries can be promisified by requiring the library&#39;s classes (constructor functions) and calling promisifyAll on the <code>.prototype</code>. This only needs to be done once in the entire application&#39;s lifetime and after that you may use the library&#39;s methods exactly as they are documented, except by appending the <code>&quot;Async&quot;</code>-suffix to method calls and using the promise interface instead of the callback interface.</p>
 
-<p>As a notable exception in <code>fs</code>, <code>fs.existsAsync</code> doesn&#39;t work as expected, because Node&#39;s <code>fs.exists</code> doesn&#39;t call back with error as first argument.  More at                 <a href="https://github.com/petkaantonov/bluebird/issues/418"><code>#418</code></a>
-.  One possible workaround is using <code>fs.statAsync</code>.</p>
+<p>As a notable exception in <code>fs</code>, <code>fs.existsAsync</code> doesn&#39;t work as expected, because Node&#39;s <code>fs.exists</code> doesn&#39;t call back with error as first argument.  More at <a href='https://github.com/petkaantonov/bluebird/issues/418'><code>#418</code></a>.  One possible workaround is using <code>fs.statAsync</code>.</p>
 
 <p>Some examples of the above practice applied to some popular libraries:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular redis module</span>
@@ -192,11 +192,11 @@
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
 <span class="c1">// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises</span>
 </code></pre></div>
-<p>See also                 <a href="/docs/api/promise.promisifyall.html"><code><code>Promise.promisifyAll</code></code></a>
-.
+<p>See also <a href='/docs/api/promise.promisifyall.html'><code><code>Promise.promisifyAll</code></code></a>.
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = "Promisification";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promisification";
     

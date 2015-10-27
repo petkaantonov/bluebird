@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/api/error.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,14 +104,13 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
   <article class="post-content">
-    <p><a href="/docs/api-reference.html" title="">← Back To API Reference</a>
-
+    <p><a href='/docs/api-reference.html' title=''>← Back To API Reference</a>
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
@@ -119,14 +121,11 @@
             </h2>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">error</span><span class="p">([</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">rejectedHandler</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Like                 <a href="/docs/api/catch.html"><code><code>.catch</code></code></a>
- but instead of catching all types of exceptions, it only catches operational errors.</p>
+<p>Like <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> but instead of catching all types of exceptions, it only catches operational errors.</p>
 
-<p><em>Note, &quot;errors&quot; mean errors, as in objects that are <code>instanceof Error</code> - not strings, numbers and so on. See                 <a href="http://www.devthought.com/2011/12/22/a-string-is-not-an-error/" title="">a string is not an error</a>
-.</em></p>
+<p><em>Note, &quot;errors&quot; mean errors, as in objects that are <code>instanceof Error</code> - not strings, numbers and so on. See <a href='http://www.devthought.com/2011/12/22/a-string-is-not-an-error/' title=''>a string is not an error</a>.</em></p>
 
-<p>It is equivalent to the following                 <a href="/docs/api/catch.html"><code><code>.catch</code></code></a>
- pattern:</p>
+<p>It is equivalent to the following <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> pattern:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Assumes OperationalError has been made global</span>
 <span class="kd">function</span> <span class="nx">isOperationalError</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">e</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
@@ -144,8 +143,7 @@
     <span class="c1">// ...</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>For example, if a promisified function errbacks the node-style callback with an error, that could be caught with                 <a href="/docs/api/error.html"><code><code>.error</code></code></a>
-. However if the node-style callback <strong>throws</strong> an error, only <code>.catch</code> would catch that.</p>
+<p>For example, if a promisified function errbacks the node-style callback with an error, that could be caught with <a href='/docs/api/error.html'><code><code>.error</code></code></a>. However if the node-style callback <strong>throws</strong> an error, only <code>.catch</code> would catch that.</p>
 
 <p>In the following example you might want to handle just the <code>SyntaxError</code> from JSON.parse and Filesystem errors from <code>fs</code> but let programmer errors bubble as unhandled rejections:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
@@ -171,8 +169,7 @@ From previous event:
     at startup (node.js:121:16)
     at node.js:761:3
 </code></pre></div>
-<p><em>( If you don&#39;t get the above - you need to enable                 <a href="#promiselongstacktraces---undefined" title="">long stack traces</a>
- )</em></p>
+<p><em>( If you don&#39;t get the above - you need to enable <a href='#promiselongstacktraces---undefined' title=''>long stack traces</a> )</em></p>
 
 <p>And if the file contains invalid JSON:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">file contains invalid json
@@ -183,6 +180,7 @@ From previous event:
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
+    var disqus_title = ".error";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-error";
     

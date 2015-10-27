@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/what-about-generators.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -112,52 +115,12 @@
   </header>
 
   <article class="post-content">
-    <p>You might know about a little trick you can do with generators where asynchronous code can be made look like synchronous:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">run</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">generator</span> <span class="o">=</span> <span class="nx">fn</span><span class="p">();</span>
-    <span class="p">(</span><span class="kd">function</span> <span class="nx">loop</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">result</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">result</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-                <span class="nx">loop</span><span class="p">(</span><span class="nx">generator</span><span class="p">.</span><span class="nx">next</span><span class="p">());</span>
-            <span class="p">});</span>
-        <span class="p">}</span>
-    <span class="p">})(</span><span class="nx">generator</span><span class="p">.</span><span class="nx">next</span><span class="p">());</span>
-<span class="p">}</span>
-
-<span class="kd">function</span> <span class="nx">sleep</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">cb</span><span class="p">,</span> <span class="nx">ms</span><span class="p">);</span>
-    <span class="p">};</span>
-<span class="p">}</span>
-
-<span class="nx">run</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
-   <span class="k">yield</span> <span class="nx">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
-   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;1 second passed&quot;</span><span class="p">);</span>
-   <span class="k">yield</span> <span class="nx">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
-   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;1 second passed&quot;</span><span class="p">);</span>
-   <span class="k">yield</span> <span class="nx">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
-   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;1 second passed&quot;</span><span class="p">);</span>
-<span class="p">});</span>
-</code></pre></div>
-<p><em>(You can play with this example at: http://jsfiddle.net/ewg9p6gg/)</em></p>
-
-<p>When the function &quot;is sleeping&quot;, it isn&#39;t blocking the process (though it&#39;s blocking itself of course). You might suppose that this is enough to solve all the asynchronous problems, as if you were having your cake and eating it too and now you can forget about callbacks and promises. That is just toy example fallacy at work.</p>
-
-<p>What are some differences between real world code and toy examples?</p>
-
-<ul>
-<li>The need for concurrency</li>
-<li>The need to reuse existing and well known utilities</li>
-<li>Error handling</li>
-<li>Resource management</li>
-</ul>
-            <h2>
-                <a class="header-anchor"
-                    name="need-for-concurrency"
-                    aria-hidden="true"
-                    href="#need-for-concurrency"><i class="fa fa-link"></i></a>
-                Need for concurrency
-            </h2>
+    <p><div class="info-box">
+                This article is partially or completely unfinished.
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/what-about-generators.md">pull requests</a>
+                to help completing this article.
+            </div>
+</p>
 
   </article>
 

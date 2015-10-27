@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="canonical" href="http://bluebirdjs.com/docs/install.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
   <body>
@@ -61,10 +62,12 @@
                 <li><a href="/docs/features.html">Features</a></li>
                 <li><a href="/docs/changelog.html">Changelog</a></li>
                 <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
                 <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
                 <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
                 <li><a href="/docs/contribute.html">Contribute</a></li>
                 <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
                 <li><hr></li>
                 <li>Why?
                     <ul class="nav nav-child">
@@ -101,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 May 2015</i>
+                <i>Updated 27 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -113,9 +116,9 @@
 
   <article class="post-content">
     <ul>
-<li>                <a href="#browser-installation" title="">Browser installation</a></li>
-<li>                <a href="#node-installation" title="">Node installation</a></li>
-<li>                <a href="#supported-platforms" title="">Supported platforms</a></li>
+<li><a href='#browser-installation' title=''>Browser installation</a></li>
+<li><a href='#node-installation' title=''>Node installation</a></li>
+<li><a href='#supported-platforms' title=''>Supported platforms</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -174,8 +177,7 @@
 <p>To enable long stack traces and warnings in node production:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">$ BLUEBIRD_DEBUG=1 node server.js
 </code></pre></div>
-<p>See                 <a href="/docs/api/environment-variables.html"><code>Environment Variables</code></a>
-.</p>
+<p>See <a href='/docs/api/environment-variables.html'><code>Environment Variables</code></a>.</p>
             <h2>
                 <a class="header-anchor"
                     name="supported-platforms"
@@ -189,22 +191,16 @@
 <p>IE7 and IE8 do not support using keywords as property names, so if supporting these browsers is required you need to use the compatibility aliases:</p>
 
 <ul>
-<li>                <a href="/docs/api/promise.try.html"><code><code>Promise.try()</code></code></a>
- -&gt; <code>Promise.attempt()</code></li>
-<li>                <a href="/docs/api/catch.html"><code><code>.catch()</code></code></a>
- -&gt; <code>.caught()</code></li>
-<li>                <a href="/docs/api/finally.html"><code><code>.finally()</code></code></a>
- -&gt; <code>.lastly()</code></li>
-<li>                <a href="/docs/api/return.html"><code><code>.return()</code></code></a>
- -&gt; <code>.thenReturn()</code></li>
-<li>                <a href="/docs/api/throw.html"><code><code>.throw()</code></code></a>
- -&gt; <code>.thenThrow()</code></li>
+<li><a href='/docs/api/promise.try.html'><code><code>Promise.try()</code></code></a> -&gt; <code>Promise.attempt()</code></li>
+<li><a href='/docs/api/catch.html'><code><code>.catch()</code></code></a> -&gt; <code>.caught()</code></li>
+<li><a href='/docs/api/finally.html'><code><code>.finally()</code></code></a> -&gt; <code>.lastly()</code></li>
+<li><a href='/docs/api/return.html'><code><code>.return()</code></code></a> -&gt; <code>.thenReturn()</code></li>
+<li><a href='/docs/api/throw.html'><code><code>.throw()</code></code></a> -&gt; <code>.thenThrow()</code></li>
 </ul>
 
 <p>Long stack traces are only supported in Chrome, recent Firefoxes and Internet Explorer 10+</p>
 
-<p><a href="https://saucelabs.com/u/petka_antonov" title=""><img src="https://saucelabs.com/browser-matrix/petka_antonov.svg" alt="Selenium Test Status"></a>
-</p>
+<p><a href='https://saucelabs.com/u/petka_antonov' title=''><img src="https://saucelabs.com/browser-matrix/petka_antonov.svg" alt="Selenium Test Status"></a></p>
 
   </article>
 

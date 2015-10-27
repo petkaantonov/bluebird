@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>New in bluebird 3.0 | bluebird</title>
+    <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
+    <link rel="stylesheet" href="/css/hover-min.css" media="all">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/new-in-bluebird-3.html">
+    <link rel="icon" href="/img/favicon.png" type="image/png" />
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/bluebird" class="title">
+                    <img src="/img/logo.png" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    
+                        
+                    
+
+                    <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+                    <li class=""><a href="/docs/support.html">Support</a></li>
+                    <li class=""><a href="/docs/install.html">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="/docs/getting-started.html">Getting Started</a></li>
+                <li><a href="/docs/features.html">Features</a></li>
+                <li><a href="/docs/changelog.html">Changelog</a></li>
+                <li><a href="/docs/api-reference.html"><strong>API Reference</strong></a></li>
+                <li><a href="/docs/new-in-bluebird-3.html"><strong>New in 3.0</strong></a></li>
+                <li><a href="/docs/warning-explanations.html">Warning Explanations</a></li>
+                <li><a href="/docs/error-explanations.html">Error Explanations</a></li>
+                <li><a href="/docs/contribute.html">Contribute</a></li>
+                <li><a href="/docs/benchmarks.html">Benchmarks</a></li>
+                <li><a href="/docs/deprecated-apis.html">Deprecated APIs</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/why-promises.html">Why Promises?</a></li>
+                        <li><a href="/docs/why-bluebird.html">Why bluebird?</a></li>
+                        <li><a href="/docs/why-performance.html">Why Performance?</a></li>
+                        <li><a href="/docs/what-about-generators.html">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/async-dialogs.html">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="/docs/beginners-guide.html">Beginner's Guide</a></li>
+                        <li><a href="/docs/anti-patterns.html">Anti-patterns</a></li>
+                        <li><a href="/docs/working-with-callbacks.html">Working with Callbacks</a></li>
+                        <li><a href="/docs/coming-from-other-languages.html">Coming from Other Languages</a></li>
+                        <li><a href="/docs/coming-from-other-libraries.html">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            
+            <div class="post-info">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/new-in-bluebird-3.md">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated 27 Oct 2015</i>
+            </div>
+            <div class="clearfix"></div>
+            
+            <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">New in bluebird 3.0</h1>
+  </header>
+
+  <article class="post-content">
+                <h2>
+                <a class="header-anchor"
+                    name="cancellation-overhaul"
+                    aria-hidden="true"
+                    href="#cancellation-overhaul"><i class="fa fa-link"></i></a>
+                Cancellation overhaul
+            </h2>
+
+<p>Cancellation has been redesigned for bluebird 3.0. Any code that relies on 2.x cancellation semantics won&#39;t work in 3.0 or later. See <a href='/docs/api/cancellation.html'><code>Cancellation</code></a> for more information.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="promisification-api-changes"
+                    aria-hidden="true"
+                    href="#promisification-api-changes"><i class="fa fa-link"></i></a>
+                Promisification API changes
+            </h2>
+
+<p>Both promisification (<a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> and <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a>) methods and <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> now by default ignore multiple arguments passed to the callback adapter and instead only the first argument is used to resolve the promise. The behavior in 2.x is to construct an array of the arguments and resolve the promise with it when more than one argument is passed to the callback adapter. The problems with this approach and reasons for the change are discussed in <a href='https://github.com/petkaantonov/bluebird/issues/307'><code>#307</code></a>.</p>
+
+<p><a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a>&#39;s second argument is now an options object, so any code using the second argument needs to change:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// 2.x</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">);</span>
+<span class="c1">// 3.0</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">ctx</span><span class="p">});</span>
+</code></pre></div>
+<p>Both promisification (<a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> and <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a>) methods and <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> all take a new boolean option <code>multiArgs</code> which defaults to <code>false</code>. Enabling this option will make the adapter callback <em>always</em> construct an array of the passed arguments regardless of amount of arguments. This can be used to reliably get access to all arguments rather than just the first one.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="collection-method-changes"
+                    aria-hidden="true"
+                    href="#collection-method-changes"><i class="fa fa-link"></i></a>
+                Collection method changes
+            </h2>
+
+<p>All collection methods now support objects that implement <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''>ES6&#39;s <em>iterable</em></a> protocol along with regular arrays.</p>
+
+<p><a href='/docs/api/promise.props.html'><code>Promise.props</code></a> and <a href='/docs/api/props.html'><code>.props</code></a> now support <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map' title=''>ES6 <code>Map</code></a> objects along with normal objects. Actual <code>Map</code> objects are only considered for their entries in the map instead of both entries and properties.</p>
+
+<p><a href='/docs/api/promise.each.html'><code>Promise.each</code></a> and <a href='/docs/api/each.html'><code>.each</code></a> don&#39;t return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as <a href='/docs/api/promise.map.html'><code>Promise.map</code></a>. The aliases <code>Promise.mapSeries</code> and <code>.mapSeries</code> have been added for these methods, respectively.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="warnings"
+                    aria-hidden="true"
+                    href="#warnings"><i class="fa fa-link"></i></a>
+                Warnings
+            </h2>
+
+<p>Warnings have been added to report usages which are very likely to be programmer errors. See <a href='/docs/api/promise.config.html'><code>Promise.config</code></a> for how to enable warnings. See <a href='warning-explanations.html' title=''>Warning Explanations</a> for list of the warnings and their explanations.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="feature-additions"
+                    aria-hidden="true"
+                    href="#feature-additions"><i class="fa fa-link"></i></a>
+                Feature additions
+            </h2>
+
+<ul>
+<li><a href='/docs/api/catch.html'><code>.catch()</code></a> now supports an object predicate as a filter: <code>.catch({code: &#39;ENOENT&#39;}, e =&gt; ...)</code>.</li>
+<li>Added <a href='/docs/api/suppressunhandledrejections.html'><code>.suppressUnhandledRejections()</code></a>.</li>
+<li>Added <a href='/docs/api/catchthrow.html'><code>.catchThrow()</code></a>.</li>
+<li>Added <a href='/docs/api/catchreturn.html'><code>.catchReturn()</code></a>.</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="deprecations"
+                    aria-hidden="true"
+                    href="#deprecations"><i class="fa fa-link"></i></a>
+                Deprecations
+            </h2>
+
+<ul>
+<li><code>Promise.settle</code> has been deprecated. Use <a href='/docs/api/reflect.html'><code>.reflect</code></a> instead.</li>
+<li><code>Promise.spawn</code> has been deprecated. Use <a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> instead.</li>
+<li><a href='/docs/api/promise.try.html'><code>Promise.try</code></a>&#39;s <code>ctx</code> and <code>arg</code> arguments have been deprecated.</li>
+<li><code>.nodeify</code> is now better known as <a href='/docs/api/ascallback.html'><code>.asCallback</code></a></li>
+<li><code>.fromNode</code> is now better known as <a href='/docs/api/fromcallback.html'><code>.fromCallback</code></a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="summary-of-breaking-changes"
+                    aria-hidden="true"
+                    href="#summary-of-breaking-changes"><i class="fa fa-link"></i></a>
+                Summary of breaking changes
+            </h2>
+
+<ul>
+<li>Promisifier APIs.</li>
+<li>Cancellation redesign.</li>
+<li>Promise progression has been completely removed.</li>
+<li><a href='/docs/api/spread.html'><code>.spread</code></a>&#39;s second argument has been removed.</li>
+<li><a href='/docs/api/promise.each.html'><code>Promise.each</code></a> and <a href='/docs/api/each.html'><code>.each</code></a> don&#39;t return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as <a href='/docs/api/promise.map.html'><code>Promise.map</code></a>.</li>
+<li><a href='/docs/api/done.html'><code>.done</code></a> causes an irrecoverable fatal error in Node.js environments now. See <a href='https://github.com/petkaantonov/bluebird/issues/471'><code>#471</code></a> for rationale.</li>
+<li>Errors created with <a href='/docs/api/promise.reject.html'><code>Promise.reject</code></a> or <code>reject</code> callback of <a href='/docs/api/new-promise.html'><code>new Promise</code></a> are no longer marked as <a href='/docs/api/operationalerror.html'><code>OperationalError</code></a>s.</li>
+</ul>
+
+  </article>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
