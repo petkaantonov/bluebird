@@ -48,7 +48,7 @@ Warnings have been added to report usages which are very likely to be programmer
 - `Promise.spawn` has been deprecated. Use [Promise.coroutine](.) instead.
 - [Promise.try](.)'s `ctx` and `arg` arguments have been deprecated.
 - `.nodeify` is now better known as [.asCallback](.)
-- `.fromNode` is now better known as [.fromCallback](.)
+- `.fromNode` is now better known as [Promise.fromCallback](.)
 
 
 ##Summary of breaking changes
