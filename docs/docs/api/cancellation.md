@@ -77,7 +77,7 @@ As shown in the example the handlers registered with `.finally` are called even 
 
 ###What about promises that have multiple consumers?
 
-It is often said that promises cannot be cancellable beacuse they can have multiple consumers.
+It is often said that promises cannot be cancellable because they can have multiple consumers.
 
 For instance:
 
