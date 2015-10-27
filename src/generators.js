@@ -3,7 +3,8 @@ module.exports = function(Promise,
                           apiRejection,
                           INTERNAL,
                           tryConvertToPromise,
-                          Proxyable) {
+                          Proxyable,
+                          debug) {
 var errors = require("./errors");
 var TypeError = errors.TypeError;
 var ASSERT = require("./assert");
@@ -196,6 +197,7 @@ Promise.coroutine.addYieldHandler = function(fn) {
 };
 
 Promise.spawn = function (generatorFunction) {
+    debug.deprecated("Promise.spawn()", "Promise.coroutine()");
     //Return rejected promise because Promise.spawn is semantically
     //something that will be called at runtime with possibly dynamic values
     if (typeof generatorFunction !== "function") {
