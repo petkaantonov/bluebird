@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 27 Oct 2015</i>
+                <i>Updated 28 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -152,8 +152,6 @@
 <p>All collection methods now support objects that implement <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''>ES6&#39;s <em>iterable</em></a> protocol along with regular arrays.</p>
 
 <p><a href='/docs/api/promise.props.html'><code>Promise.props</code></a> and <a href='/docs/api/props.html'><code>.props</code></a> now support <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map' title=''>ES6 <code>Map</code></a> objects along with normal objects. Actual <code>Map</code> objects are only considered for their entries in the map instead of both entries and properties.</p>
-
-<p><a href='/docs/api/promise.each.html'><code>Promise.each</code></a> and <a href='/docs/api/each.html'><code>.each</code></a> don&#39;t return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as <a href='/docs/api/promise.map.html'><code>Promise.map</code></a>. The aliases <code>Promise.mapSeries</code> and <code>.mapSeries</code> have been added for these methods, respectively.</p>
             <h2>
                 <a class="header-anchor"
                     name="warnings"
@@ -176,6 +174,7 @@
 <li>Added <a href='/docs/api/suppressunhandledrejections.html'><code>.suppressUnhandledRejections()</code></a>.</li>
 <li>Added <a href='/docs/api/catchthrow.html'><code>.catchThrow()</code></a>.</li>
 <li>Added <a href='/docs/api/catchreturn.html'><code>.catchReturn()</code></a>.</li>
+<li>Added <a href='/docs/api/promise.mapseries.html'><code>Promise.mapSeries()</code></a> and <a href='/docs/api/mapseries.html'><code>.mapSeries()</code></a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -205,10 +204,18 @@
 <li>Cancellation redesign.</li>
 <li>Promise progression has been completely removed.</li>
 <li><a href='/docs/api/spread.html'><code>.spread</code></a>&#39;s second argument has been removed.</li>
-<li><a href='/docs/api/promise.each.html'><code>Promise.each</code></a> and <a href='/docs/api/each.html'><code>.each</code></a> don&#39;t return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as <a href='/docs/api/promise.map.html'><code>Promise.map</code></a>.</li>
 <li><a href='/docs/api/done.html'><code>.done</code></a> causes an irrecoverable fatal error in Node.js environments now. See <a href='https://github.com/petkaantonov/bluebird/issues/471'><code>#471</code></a> for rationale.</li>
 <li>Errors created with <a href='/docs/api/promise.reject.html'><code>Promise.reject</code></a> or <code>reject</code> callback of <a href='/docs/api/new-promise.html'><code>new Promise</code></a> are no longer marked as <a href='/docs/api/operationalerror.html'><code>OperationalError</code></a>s.</li>
 </ul>
+            <h2>
+                <a class="header-anchor"
+                    name="3.0.1-update"
+                    aria-hidden="true"
+                    href="#3.0.1-update"><i class="fa fa-link"></i></a>
+                3.0.1 update
+            </h2>
+
+<p>Note that the 3.0.1 update is strictly speaking backward-incompatible with 3.0.0. Version 3.0.0 changed the previous behavior of the <code>.each</code> method and made it work more same as the new <code>.mapSeries</code> - 3.0.1 unrolls this change by reverting to the <code>.tap</code>-like behavior found in 2.x However, this would only affect users who updated to 3.0.0 during the short time that it wasn&#39;t deprecated and started relying on the new <code>.each</code> behavior. This seems unlikely, and therefore the major version was not changed.</p>
 
   </article>
 

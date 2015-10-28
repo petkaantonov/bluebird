@@ -11,13 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <title>Promise.each | bluebird</title>
+    <title>.mapseries | bluebird</title>
     <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.each.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/mapseries.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -100,7 +100,7 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.each.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/mapseries.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
@@ -114,34 +114,20 @@
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
-                    name="promise.each"
+                    name="mapseries"
                     aria-hidden="true"
-                    href="#promise.each"><i class="fa fa-link"></i></a>
-                Promise.each
+                    href="#mapseries"><i class="fa fa-link"></i></a>
+                .mapSeries
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span>
-    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
-    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">iterator</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">mapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p><div class="info-box">
-                This article is partially or completely unfinished.
-                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.each.md">pull requests</a>
-                to help completing this article.
-            </div>
-</p>
-
-<p>Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given <code>iterator</code> function with the signature <code>(value, index, length)</code> where <code>value</code> is the resolved value of a respective promise in the input array. Iteration happens serially. If any promise in the input array is rejected the returned promise is rejected as well.</p>
-
-<p>Resolves to the original array unmodified, this method is meant to be used for side effects. If the iterator function returns a promise or a thenable, then the result of the promise is awaited, before continuing with next iteration.</p>
-
-<p><hr>
+<p>Same as <a href='/docs/api/promise.mapseries.html'><code>Promise.mapSeries(this, iterator)</code></a>.
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = "Promise.each";
+    var disqus_title = ".mapSeries";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.each";
+    var disqus_identifier = "disqus-id-mapSeries";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;

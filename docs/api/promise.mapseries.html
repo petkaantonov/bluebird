@@ -11,13 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <title>Promise.each | bluebird</title>
+    <title>Promise.mapSeries | bluebird</title>
     <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.each.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.mapseries.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -100,7 +100,7 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.each.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.mapseries.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
@@ -114,34 +114,43 @@
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
-                    name="promise.each"
+                    name="promise.mapseries"
                     aria-hidden="true"
-                    href="#promise.each"><i class="fa fa-link"></i></a>
-                Promise.each
+                    href="#promise.mapseries"><i class="fa fa-link"></i></a>
+                Promise.mapSeries
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span>
     <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
-    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">iterator</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">mapper</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p><div class="info-box">
-                This article is partially or completely unfinished.
-                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.each.md">pull requests</a>
-                to help completing this article.
-            </div>
-</p>
+<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and iterate over the array serially, in-order.</p>
 
-<p>Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given <code>iterator</code> function with the signature <code>(value, index, length)</code> where <code>value</code> is the resolved value of a respective promise in the input array. Iteration happens serially. If any promise in the input array is rejected the returned promise is rejected as well.</p>
+<p>Returns a promise for an array that contains the values returned by the <code>iterator</code> function in their respective positions. The iterator won&#39;t be called for an item until its previous item, and the promise returned by the iterator for that item are fulfilled. This results in a <code>mapSeries</code> kind of utility but it can also be used simply as a side effect iterator similar to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach' title=''><code>Array#forEach</code></a>.</p>
 
-<p>Resolves to the original array unmodified, this method is meant to be used for side effects. If the iterator function returns a promise or a thenable, then the result of the promise is awaited, before continuing with next iteration.</p>
+<p>If any promise in the input array is rejected or any promise returned by the iterator function is rejected, the result will be rejected as well.</p>
 
+<p>Example where <a href='/docs/api/mapseries.html'><code>.mapSeries</code></a>(the instance method) is used for iterating with side effects:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Source: http://jakearchibald.com/2014/es7-async-functions/</span>
+<span class="kd">function</span> <span class="nx">loadStory</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">getJSON</span><span class="p">(</span><span class="s1">&#39;story.json&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">story</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">addHtmlToPage</span><span class="p">(</span><span class="nx">story</span><span class="p">.</span><span class="nx">heading</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">story</span><span class="p">.</span><span class="nx">chapterURLs</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">getJSON</span><span class="p">);</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">chapter</span><span class="p">)</span> <span class="p">{</span> <span class="nx">addHtmlToPage</span><span class="p">(</span><span class="nx">chapter</span><span class="p">.</span><span class="nx">html</span><span class="p">);</span> <span class="p">})</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="nx">addTextToPage</span><span class="p">(</span><span class="s2">&quot;All done&quot;</span><span class="p">);</span> <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="nx">addTextToPage</span><span class="p">(</span><span class="s2">&quot;Argh, broken: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span> <span class="p">})</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.spinner&#39;</span><span class="p">).</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span> <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
 <p><hr>
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = "Promise.each";
+    var disqus_title = "Promise.mapSeries";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.each";
+    var disqus_identifier = "disqus-id-promise.mapSeries";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
