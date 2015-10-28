@@ -3,6 +3,10 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.1 (2015-10-28)
+
+See [New in 3.0](new-in-bluebird-3.html).
+
 ## 3.0.0 (2015-10-27)
 
 See [New in 3.0](new-in-bluebird-3.html).
