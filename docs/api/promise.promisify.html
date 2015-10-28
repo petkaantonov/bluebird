@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 27 Oct 2015</i>
+                <i>Updated 28 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -129,7 +129,7 @@
 </code></pre></div>
 <p>Returns a function that will wrap the given <code>nodeFunction</code>. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.</p>
 
-<p>If the <code>nodeFunction</code> calls its callback with multiple success values, the fulfillment value will be an array of them.</p>
+<p>If the <code>nodeFunction</code> calls its callback with multiple success values, the fulfillment value will be the first fulfillment item.</p>
 
 <p>Setting <code>multiArgs</code> to <code>true</code> means the resulting promise will always fulfill with an array of the callback&#39;s success value(s). This is needed because promises only support a single success value while some callback API&#39;s have multiple success value. The default is to ignore all but the first success value of a callback function.</p>
 
