@@ -28,7 +28,7 @@ describe("Promise.each", function() {
     it("should return the array's values mapped", function() {
         var a = [promised(1), promised(2), promised(3)];
         var b = [];
-        return Promise.resolve(a).each(function(val) {
+        return Promise.resolve(a).mapSeries(function(val) {
             b.push(3-val);
             return val + 2;
         }).then(function(ret) {

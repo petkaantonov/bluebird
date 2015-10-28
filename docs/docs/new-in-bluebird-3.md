@@ -28,7 +28,6 @@ All collection methods now support objects that implement [ES6's *iterable*](htt
 
 [Promise.props](.) and [.props](.) now support [ES6 `Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) objects along with normal objects. Actual `Map` objects are only considered for their entries in the map instead of both entries and properties.
 
-[Promise.each](.) and [.each](.) don't return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as [Promise.map](.). The aliases `Promise.mapSeries` and `.mapSeries` have been added for these methods, respectively.
 
 ##Warnings
 
@@ -40,6 +39,7 @@ Warnings have been added to report usages which are very likely to be programmer
 - Added [.suppressUnhandledRejections\(\)](.).
 - Added [.catchThrow\(\)](.).
 - Added [.catchReturn\(\)](.).
+- Added [Promise.mapSeries\(\)](.) and [.mapSeries\(\)](.)
 
 
 ##Deprecations
@@ -57,6 +57,5 @@ Warnings have been added to report usages which are very likely to be programmer
 - Cancellation redesign.
 - Promise progression has been completely removed.
 - [.spread](.)'s second argument has been removed.
-- [Promise.each](.) and [.each](.) don't return the original array anymore. They return a new array that contains returned values from the iterator callback function in respective positions to the old array, same as [Promise.map](.).
 - [.done](.) causes an irrecoverable fatal error in Node.js environments now. See [#471](.) for rationale.
 - Errors created with [Promise.reject](.) or `reject` callback of [new Promise](.) are no longer marked as [OperationalError](.)s.
