@@ -11,7 +11,7 @@ title: Promise.promisify
 
 ```js
 Promise.promisify(
-    function(any arguments.a.., function callback) nodeFunction,
+    function(any arguments..., function callback) nodeFunction,
     [Object {
         multiArgs: boolean=false,
         context: any=this
