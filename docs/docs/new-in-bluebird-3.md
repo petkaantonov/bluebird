@@ -41,7 +41,6 @@ Warnings have been added to report usages which are very likely to be programmer
 - Added [.catchReturn\(\)](.).
 - Added [Promise.mapSeries\(\)](.) and [.mapSeries\(\)](.)
 
-
 ##Deprecations
 
 - `Promise.settle` has been deprecated. Use [.reflect](.) instead.
@@ -59,3 +58,7 @@ Warnings have been added to report usages which are very likely to be programmer
 - [.spread](.)'s second argument has been removed.
 - [.done](.) causes an irrecoverable fatal error in Node.js environments now. See [#471](.) for rationale.
 - Errors created with [Promise.reject](.) or `reject` callback of [new Promise](.) are no longer marked as [OperationalError](.)s.
+
+##3.0.1 update
+
+Note that the 3.0.1 update is strictly speaking backward-incompatible with 3.0.0. Version 3.0.0 broke the previous behavior of the `.each` method and made it work more like the new `.mapSeries` - 3.0.1 fixes this breakage by reverting to the `.tap`-like behavior found in 2.x However, this would only affect users who updated to 3.0.0 during the short time that it wasnt deprecated and started relying on the new `.each` behavior. This seems unlikely, and therefore the major version was not changed.
