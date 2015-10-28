@@ -158,3 +158,27 @@ describe("Promise.prototype.each", function() {
         });
     });
 });
+
+describe("mapSeries and each", function() {
+    it("is mixed", function() {
+        return Promise.mapSeries([1, 2, 3], function(value) {
+            return value * 2;
+        }).then(function(result) {
+            assert.deepEqual(result, [2, 4, 6]);
+        }).then(function() {
+            return Promise.each([1, 2, 3], function(value) {
+                return value * 2;
+            }).then(function(result) {
+                assert.deepEqual(result, [1, 2, 3]);
+            });
+        }).thenReturn([1, 2, 3]).mapSeries(function(value) {
+            return value * 2;
+        }).then(function(result) {
+            assert.deepEqual(result, [2, 4, 6]);
+        }).thenReturn([1, 2, 3]).each(function(value) {
+            return value * 2;
+        }).then(function(result) {
+            assert.deepEqual(result, [1, 2, 3]);
+        });
+    })
+});
