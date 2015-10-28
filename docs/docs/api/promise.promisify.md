@@ -11,7 +11,7 @@ title: Promise.promisify
 
 ```js
 Promise.promisify(
-    function(any arguments..., function callback) nodeFunction,
+    function(any arguments.a.., function callback) nodeFunction,
     [Object {
         multiArgs: boolean=false,
         context: any=this
@@ -21,7 +21,7 @@ Promise.promisify(
 
 Returns a function that will wrap the given `nodeFunction`. Instead of taking a callback, the returned function will return a promise whose fate is decided by the callback behavior of the given node function. The node function should conform to node.js convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument.
 
-If the `nodeFunction` calls its callback with multiple success values, the fulfillment value will be an array of them.
+If the `nodeFunction` calls its callback with multiple success values, the fulfillment value will be the first fulfillment item.
 
 Setting `multiArgs` to `true` means the resulting promise will always fulfill with an array of the callback's success value(s). This is needed because promises only support a single success value while some callback API's have multiple success value. The default is to ignore all but the first success value of a callback function.
 
