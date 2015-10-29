@@ -19,7 +19,7 @@ title: .finally
 
 Pass a handler that will be called regardless of this promise's fate. Returns a new promise chained from this promise. There are special semantics for [`.finally`](.) in that the final value cannot be modified from the handler.
 
-*Note: using [`.finally`](.) for resource management has better alternatives, see [resource management](#resource-management)*
+*Note: using [`.finally`](.) for resource management has better alternatives, see [resource management](/docs/api/resource-management.html)*
 
 Consider the example:
 
