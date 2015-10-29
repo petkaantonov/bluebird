@@ -14,8 +14,10 @@ var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
 var printWarning;
-var debugging =!!(__DEBUG__ || util.env("BLUEBIRD_DEBUG") ||
-                               util.env("NODE_ENV") === "development");
+var debugging = !!(util.env("BLUEBIRD_DEBUG") != 0 &&
+                        (__DEBUG__ ||
+                         util.env("BLUEBIRD_DEBUG") ||
+                         util.env("NODE_ENV") === "development"));
 var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
     (debugging || util.env("BLUEBIRD_WARNINGS")));
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&

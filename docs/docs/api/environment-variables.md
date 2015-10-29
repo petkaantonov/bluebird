@@ -20,7 +20,7 @@ Environment variables supported by 2.x:
 
 Environment variables supported by 3.x:
 
-- `BLUEBIRD_DEBUG` - Set to any truthy value this will enable long stack traces and warnings, unless those are explicitly disabled
+- `BLUEBIRD_DEBUG` - If set this will enable long stack traces and warnings, unless those are explicitly disabled. Setting this to exactly `0` can be used to override `NODE_ENV=development` enabling long stack traces and warnings.
 - `NODE_ENV` - If set exactly to `development` it will have the same effect as if the `BLUEBIRD_DEBUG` variable was set.
 - `BLUEBIRD_WARNINGS` - if set exactly to `0` it will explicitly disable warnings and this overrides any other setting that might enable warnings. If set to any truthy value, it will explicitly enable warnings.
 - `BLUEBIRD_LONG_STACK_TRACES` - if set exactly to `0` it will explicitly disable long stack traces and this overrides any other setting that might enable long stack traces. If set to any truthy value, it will explicitly enable long stack traces.
@@ -31,7 +31,7 @@ Environment variables supported by 3.x:
     var disqus_title = "Environment variables";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-environment-variables";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
