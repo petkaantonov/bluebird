@@ -488,6 +488,16 @@ if (testUtils.isRecentNode) {
                 });
             });
         });
+
+        it("should not crash with already rejected promise", function() {
+            return new Promise(function(resolve) {
+                Domain.create().run(function() {
+                    Promise.resolve(1).timeout(200).then(function() {
+                        resolve();
+                    })
+                });
+            });
+        })
     });
 
 }

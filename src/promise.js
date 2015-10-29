@@ -255,7 +255,8 @@ Promise.prototype._then = function (
         }
 
         async.invoke(settler, target, {
-            handler: domain === null ? handler : domain.bind(handler),
+            handler: domain === null ? handler
+                : (typeof handler === "function" && domain.bind(handler)),
             promise: promise,
             receiver: receiver,
             value: value
