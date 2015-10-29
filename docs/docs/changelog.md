@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.2 (2015-10-29)
+
+Bugfixes:
+
+ - Fix crash when using node.js domains [#829](.)
+
 ## 3.0.1 (2015-10-28)
 
 See [New in 3.0](new-in-bluebird-3.html).
