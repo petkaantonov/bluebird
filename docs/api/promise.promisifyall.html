@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 27 Oct 2015</i>
+                <i>Updated 31 Oct 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -190,7 +190,17 @@
             </h4>
 
 <p>Setting <code>multiArgs</code> to <code>true</code> means the resulting promise will always fulfill with an array of the callback&#39;s success value(s). This is needed because promises only support a single success value while some callback API&#39;s have multiple success value. The default is to ignore all but the first success value of a callback function.</p>
-            <h4>
+
+<p>If a module has multiple argument callbacks as an exception rather than the rule, you can filter out the multiple argument methods in first go and then promisify rest of the module in second go:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">something</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">filter</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">name</span> <span class="o">===</span> <span class="s2">&quot;theMultiArgMethodIwant&quot;</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">});</span>
+<span class="c1">// Rest of the methods</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">something</span><span class="p">);</span>
+</code></pre></div>            <h4>
                 <a class="header-anchor"
                     name="option-filter"
                     aria-hidden="true"
@@ -322,7 +332,21 @@ promisification:</p>
 <span class="c1">// All promisified fs functions now await their arguments if they are promises</span>
 <span class="kd">var</span> <span class="nx">version</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;package.json&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">);</span>
 <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="s2">&quot;the-version.txt&quot;</span><span class="p">,</span> <span class="nx">version</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">);</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="promisifying-multiple-classes-in-one-go"
+                    aria-hidden="true"
+                    href="#promisifying-multiple-classes-in-one-go"><i class="fa fa-link"></i></a>
+                Promisifying multiple classes in one go
+            </h4>
+
+<p>You can promisify multiple classes in one go by constructing an array out of the classes and passing it to <code>promisifyAll</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Pool</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Pool&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Connection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Connection&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">([</span><span class="nx">Pool</span><span class="p">,</span> <span class="nx">Connection</span><span class="p">]);</span>
 </code></pre></div>
+<p>This works because the array acts as a &quot;module&quot; where the indices are the &quot;module&quot;&#39;s properties for classes.</p>
+
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
