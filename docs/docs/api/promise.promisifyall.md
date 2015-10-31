@@ -83,6 +83,19 @@ module.exports = function myPromisifyAll(target) {
 
 Setting `multiArgs` to `true` means the resulting promise will always fulfill with an array of the callback's success value(s). This is needed because promises only support a single success value while some callback API's have multiple success value. The default is to ignore all but the first success value of a callback function.
 
+If a module has multiple argument callbacks as an exception rather than the rule, you can filter out the multiple argument methods in first go and then promisify rest of the module in second go:
+
+```js
+Promise.promisifyAll(something, {
+    filter: function(name) {
+        return name === "theMultiArgMethodIwant";
+    },
+    multiArgs: true
+});
+// Rest of the methods
+Promise.promisifyAll(something);
+```
+
 ####Option: filter
 
 Optionally, you can define a custom filter through the options object:
