@@ -217,6 +217,21 @@ var fs = Promise.promisifyAll(require("fs"), {
 var version = fs.readFileAsync("package.json", "utf8").then(JSON.parse).get("version");
 fs.writeFileAsync("the-version.txt", version, "utf8");
 ```
+
+####Promisifying multiple classes in one go
+
+You can promisify multiple classes in one go by constructing an array out of the classes and passing it to `promisifyAll`:
+
+```js
+var Pool = require("mysql/lib/Pool");
+var Connection = require("mysql/lib/Connection");
+Promise.promisifyAll([Pool, Connection]);
+```
+
+This works because the array acts as a "module" where the indices are the "module"'s properties for classes.
+
+
+
 </markdown></div>
 
 <div id="disqus_thread"></div>
