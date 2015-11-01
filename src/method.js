@@ -14,7 +14,9 @@ Promise.method = function (fn) {
         ret._captureStackTrace();
         ret._pushContext();
         var value = tryCatch(fn).apply(this, arguments);
-        ret._popContext();
+        var promiseCreated = ret._popContext();
+        debug.checkForgottenReturns(
+            value, promiseCreated, "Promise.method", ret);
         ret._resolveFromSyncValue(value);
         return ret;
     };
@@ -37,7 +39,9 @@ Promise.attempt = Promise["try"] = function (fn) {
     } else {
         value = tryCatch(fn)();
     }
-    ret._popContext();
+    var promiseCreated = ret._popContext();
+    debug.checkForgottenReturns(
+        value, promiseCreated, "Promise.try", ret);
     ret._resolveFromSyncValue(value);
     return ret;
 };
