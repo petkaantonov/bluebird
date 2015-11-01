@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.5 (2015-11-01)
+
+Bugfixes:
+
+ - Added [forgotten return warnings](http://bluebirdjs.com/docs/warning-explanations.html#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it)  to [Promise.try](.) and [Promise.method](.)
+
 ## 3.0.4 (2015-11-01)
 
 Bugfixes:
