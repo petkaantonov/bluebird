@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.4 (2015-11-01)
+
+Bugfixes:
+
+ - The stack trace for [forgotten return warnings](http://bluebirdjs.com/docs/warning-explanations.html#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it) is more useful now.
+
+
 ## 3.0.3 (2015-11-01)
 
 Bugfixes:
