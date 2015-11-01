@@ -5,7 +5,7 @@ var contextStack = [];
 
 Promise.prototype._promiseCreated = function() {};
 Promise.prototype._pushContext = function() {};
-Promise.prototype._popContext = function() {return 0;};
+Promise.prototype._popContext = function() {return null;};
 Promise._peekContext = Promise.prototype._peekContext = function() {};
 
 function Context() {
@@ -13,7 +13,7 @@ function Context() {
 }
 Context.prototype._pushContext = function () {
     if (this._trace !== undefined) {
-        this._trace._promisesCreated = 0;
+        this._trace._promiseCreated = null;
         contextStack.push(this._trace);
     }
 };
@@ -21,11 +21,11 @@ Context.prototype._pushContext = function () {
 Context.prototype._popContext = function () {
     if (this._trace !== undefined) {
         var trace = contextStack.pop();
-        var ret = trace._promisesCreated;
-        trace._promisesCreated = 0;
+        var ret = trace._promiseCreated;
+        trace._promiseCreated = null;
         return ret;
     }
-    return 0;
+    return null;
 };
 
 function createContext() {
@@ -48,7 +48,7 @@ Context.activateLongStackTraces = function() {
     Promise._peekContext = Promise.prototype._peekContext = peekContext;
     Promise.prototype._promiseCreated = function() {
         var ctx = this._peekContext();
-        if (ctx) ctx._promisesCreated++;
+        if (ctx && ctx._promiseCreated == null) ctx._promiseCreated = this;
     };
 };
 return Context;

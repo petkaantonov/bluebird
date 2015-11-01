@@ -156,10 +156,10 @@ function gotValue(value) {
     if (ret instanceof Promise) {
         array._currentCancellable = ret;
     }
-    var promisesCreated = promise._popContext();
+    var promiseCreated = promise._popContext();
     debug.checkForgottenReturns(
         ret,
-        promisesCreated,
+        promiseCreated,
         array._eachValues !== undefined ? "Promise.each" : "Promise.reduce",
         promise
     );

@@ -182,9 +182,9 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                 fn = tryCatch(fn);
                 var ret = spreadArgs
                     ? fn.apply(undefined, inspections) : fn(inspections);
-                var promisesCreated = promise._popContext();
+                var promiseCreated = promise._popContext();
                 debug.checkForgottenReturns(
-                    ret, promisesCreated, "Promise.using", promise);
+                    ret, promiseCreated, "Promise.using", promise);
                 return ret;
             });
 

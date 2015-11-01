@@ -80,8 +80,8 @@ Promise.prototype._isRejectionUnhandled = function () {
     return (this._bitField & IS_REJECTION_UNHANDLED) > 0;
 };
 
-Promise.prototype._warn = function(message, shouldUseOwnTrace) {
-    return warn(message, shouldUseOwnTrace, this);
+Promise.prototype._warn = function(message, shouldUseOwnTrace, promise) {
+    return warn(message, shouldUseOwnTrace, promise || this);
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
@@ -265,14 +265,14 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
     }
 }
 
-function checkForgottenReturns(returnValue, promisesCreated, name, promise) {
+function checkForgottenReturns(returnValue, promiseCreated, name, promise) {
     if (returnValue === undefined &&
-        promisesCreated > 0 &&
+        promiseCreated !== null &&
         config.longStackTraces &&
         config.warnings) {
         var msg = "a promise was created in a " + name +
             " handler but was not returned from it";
-        promise._warn(msg);
+        promise._warn(msg, true, promiseCreated);
     }
 }
 

@@ -518,7 +518,7 @@ Promise.prototype._settlePromiseFromHandler = function (
     } else {
         x = tryCatch(handler).call(receiver, value);
     }
-    var promisesCreatedDuringHandlerInvocation = promise._popContext();
+    var promiseCreatedDuringHandlerInvocation = promise._popContext();
     bitField = promise._bitField;
     if (BIT_FIELD_CHECK(IS_CANCELLED)) return;
 
@@ -531,11 +531,12 @@ Promise.prototype._settlePromiseFromHandler = function (
         promise._rejectCallback(err, false);
     } else {
         if (x === undefined &&
-            promisesCreatedDuringHandlerInvocation > 0 &&
+            promiseCreatedDuringHandlerInvocation !== null &&
             debug.longStackTraces() &&
             debug.warnings()) {
             promise._warn("a promise was created in a handler but " +
-                "none were returned from it", true);
+                "none were returned from it", true,
+                promiseCreatedDuringHandlerInvocation);
         }
         promise._resolveCallback(x);
     }

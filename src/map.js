@@ -68,10 +68,10 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
         var receiver = promise._boundValue();
         promise._pushContext();
         var ret = tryCatch(callback).call(receiver, value, index, length);
-        var promisesCreated = promise._popContext();
+        var promiseCreated = promise._popContext();
         debug.checkForgottenReturns(
             ret,
-            promisesCreated,
+            promiseCreated,
             preservedValues !== null ? "Promise.filter" : "Promise.map",
             promise
         );
