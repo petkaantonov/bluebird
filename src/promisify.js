@@ -180,7 +180,7 @@ function(callback, receiver, originalName, fn, _, multiArgs) {
                 [CodeForSwitchCase]                                          \n\
             }                                                                \n\
             if (ret === errorObj) {                                          \n\
-                promise._rejectCallback(maybeWrapAsError(ret.e), true);      \n\
+                promise._rejectCallback(maybeWrapAsError(ret.e), true, true);\n\
             }                                                                \n\
             if (!promise._isFateSealed()) promise._setAsyncGuaranteed();     \n\
             return promise;                                                  \n\
@@ -232,7 +232,7 @@ function makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {
         try {
             cb.apply(_receiver, withAppended(arguments, fn));
         } catch(e) {
-            promise._rejectCallback(maybeWrapAsError(e), true);
+            promise._rejectCallback(maybeWrapAsError(e), true, true);
         }
         if (!promise._isFateSealed()) promise._setAsyncGuaranteed();
         return promise;

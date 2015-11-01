@@ -63,7 +63,7 @@ function doThenable(x, then, context) {
     synchronous = false;
 
     if (promise && result === errorObj) {
-        promise._rejectCallback(result.e, true);
+        promise._rejectCallback(result.e, true, true);
         promise = null;
     }
 
@@ -75,7 +75,7 @@ function doThenable(x, then, context) {
 
     function reject(reason) {
         if (!promise) return;
-        promise._rejectCallback(reason, synchronous);
+        promise._rejectCallback(reason, synchronous, true);
         promise = null;
     }
     return ret;
