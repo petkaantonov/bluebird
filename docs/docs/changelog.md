@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.3 (2015-11-01)
+
+Bugfixes:
+
+ - 3rd party libraries rejecting promises with non-errors no longer causes warnings
+ - When `NODE_ENV` environment variable is `"development"` setting `BLUEBIRD_DEBUG` environment variable to `0` can now be used to disable debug mode
+
 ## 3.0.2 (2015-10-29)
 
 Bugfixes:
