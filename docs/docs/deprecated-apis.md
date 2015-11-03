@@ -8,7 +8,7 @@ title: Deprecated APIs
 This file contains documentation for APIs that are no longer supported by Bluebird.
 These APIs still work in Bluebird but will be removed at a future version of the library.
 
-For every use case that the methods below solve there exists a better alternative in [the API reference](./API.md).
+For every use case that the methods below solve there exists a better alternative in [the API reference](/docs/api-reference.html).
 
 - [Progression](#progression)
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
