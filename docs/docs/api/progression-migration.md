@@ -11,7 +11,7 @@ title: Progression migration
 
 Progression has been removed as there are composability and chaining issues with APIs that use promise progression handlers. Implementing the common use case of progress bars can be accomplished using a pattern similar to [IProgress](http://blogs.msdn.com/b/dotnet/archive/2012/06/06/async-in-4-5-enabling-progress-and-cancellation-in-async-apis.aspx) in C#.
 
-For old code that still uses it, see [the progression docs in the deprecated API documentation](/bluebird/web/docs/deprecated_apis.html#progression).
+For old code that still uses it, see [the progression docs in the deprecated API documentation](/docs/deprecated-apis.html#progression).
 
 Using jQuery before:
 
