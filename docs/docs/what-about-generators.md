@@ -16,7 +16,7 @@ A generator is a new es6 feature that allows a safe way to create coroutines, it
 
 here's a quick example.
 
-```javascript
+```js
 
 let Promise = require('bluebird');
 
@@ -39,7 +39,7 @@ The yield keyword is where it gets interesting. By default, when you yield, the 
 
 The effect is that the generator coroutine gives you an encapsulated environment where you can write all your async in such a way that it looks synchronous. This can be very useful when you are making multiple successive io calls.
 
-```javascript
+```js
 //
 let signToken = function() {
   return this.fetch()
