@@ -57,7 +57,7 @@ getUser().then(function(user) {
 });
 ```
 
-Because the result of `getUserDàta()` is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second [.then()](.) simply gets immediately called with `undefined` (because `undefined` is the default return value when you don't return anything).
+Because the result of `getUserData()` is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second [.then()](.) simply gets immediately called with `undefined` (because `undefined` is the default return value when you don't return anything).
 
 To fix it, you need to `return` the promise:
 
