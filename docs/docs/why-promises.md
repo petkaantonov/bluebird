@@ -3,13 +3,13 @@ id: why-promises
 title: Why Promises?
 ---
 
-Promises are a concurrency primitive with a proven track record and language integration in most modern programming languages. It has been extensively studied since the 80s and most importantly - promises will make your life much easier.
+Promises are a concurrency primitive with a proven track record and language integration in most modern programming languages. They have been extensively studied since the 80s and will make your life much easier.
 
 You should use promises to turn this:
 
 ```js
-fs.readFile("file.json", function(err, val) {
-    if( err ) {
+fs.readFile("file.json", function (err, val) {
+    if (err) {
         console.error("unable to read file");
     }
     else {
@@ -17,7 +17,7 @@ fs.readFile("file.json", function(err, val) {
             val = JSON.parse(val);
             console.log(val.success);
         }
-        catch( e ) {
+        catch (e) {
             console.error("invalid json in file");
         }
     }
@@ -27,39 +27,38 @@ fs.readFile("file.json", function(err, val) {
 Into this:
 
 ```js
-fs.readFileAsync("file.json").then(JSON.parse).then(function(val) {
+fs.readFileAsync("file.json").then(JSON.parse).then(function (val) {
     console.log(val.success);
 })
-.catch(SyntaxError, function(e) {
+.catch(SyntaxError, function (e) {
     console.error("invalid json in file");
 })
-.catch(function(e) {
-    console.error("unable to read file")
+.catch(function (e) {
+    console.error("unable to read file");
 });
 ```
 
-*If you are wondering "there is no `readFileAsync` method on `fs` that returns a promise", see [promisification](API.md#promisification)*
+*If you're thinking, "There's no `readFileAsync` method on `fs` that returns a promise!" see [promisification](api/promisification.html)*
 
-Actually you might notice the latter has a lot in common with code that would do the same using synchronous I/O:
+You might notice that the promise approach looks very similar to using synchronous I/O:
 
 ```js
 try {
     var val = JSON.parse(fs.readFileSync("file.json"));
     console.log(val.success);
 }
-//Syntax actually not supported in JS but drives the point
-catch(SyntaxError e) {
+// Gecko-only syntax; used for illustrative purposes
+catch (e if e instanceof SyntaxError) {
     console.error("invalid json in file");
 }
-catch(Error e) {
-    console.error("unable to read file")
+catch (e) {
+    console.error("unable to read file");
 }
 ```
 
-And that is the point - being able to have something that is a lot like `return` and `throw` in synchronous code.
+This is the point—to have something that works like `return` and `throw` in synchronous code.
 
-You can also use promises to improve code that was written with callback helpers:
-
+You can also use promises to improve code that was written with callbacks:
 
 ```js
 //Copyright Plato http://stackoverflow.com/a/19385911/995876
@@ -68,7 +67,7 @@ mapSeries(URLs, function (URL, done) {
     var options = {};
     needle.get(URL, options, function (error, response, body) {
         if (error) {
-            return done(error)
+            return done(error);
         }
         try {
             var ret = JSON.parse(body);
@@ -80,13 +79,13 @@ mapSeries(URLs, function (URL, done) {
     });
 }, function (err, results) {
     if (err) {
-        console.log(err)
+        console.log(err);
     } else {
         console.log('All Needle requests successful');
         // results is a 1 to 1 mapping in order of URLs > needle.body
         processAndSaveAllInDB(results, function (err) {
             if (err) {
-                return done(err)
+                return done(err);
             }
             console.log('All Needle requests saved');
             done(null);
@@ -95,30 +94,30 @@ mapSeries(URLs, function (URL, done) {
 });
 ```
 
-Is more pleasing to the eye when done with promises:
+This is far more readable when done with promises:
 
 ```js
 Promise.promisifyAll(needle);
 var options = {};
 
 var current = Promise.resolve();
-Promise.map(URLs, function(URL) {
+Promise.map(URLs, function (URL) {
     current = current.then(function () {
         return needle.getAsync(URL, options);
     });
     return current;
-}).map(function(responseAndBody){
+}).map(function (responseAndBody) {
     return JSON.parse(responseAndBody[1]);
 }).then(function (results) {
     return processAndSaveAllInDB(results);
-}).then(function(){
+}).then(function () {
     console.log('All Needle requests saved');
 }).catch(function (e) {
     console.log(e);
 });
 ```
 
-Also promises don't just give you correspondences for synchronous features but can also be used as limited event emitters or callback aggregators.
+Also, promises don't just give you correspondences for synchronous features; they can also be used as limited event emitters or callback aggregators.
 
 More reading:
 
