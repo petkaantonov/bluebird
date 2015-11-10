@@ -67,9 +67,9 @@ var fs = require("fs");
 
 Promise.coroutine.addYieldHandler(function(v) {
     if (typeof v === "function") {
-        var def = Promise.defer();
-        try { v(def.callback); } catch(e) { def.reject(e); }
-        return def.promise;
+        return Promise.fromCallback(function(cb) {
+            v(cb);
+        });
     }
 });
 
