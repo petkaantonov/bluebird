@@ -33,7 +33,7 @@ Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName
 });
 ```
 
-*If `initialValue` is `undefined` (or a promise that resolves to `undefined`) and the iterable contains only 1 item, the callback will not be called and `undefined` is returned. If the iterable is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
+*If `initialValue` is `undefined` (or a promise that resolves to `undefined`) and the iterable contains only 1 item, the callback will not be called and the iterable's single item is returned. If the iterable is empty, the callback will not be called and `initialValue` is returned (which may be `undefined`).*
 
 `Promise.reduce` will start calling the reducer as soon as possible, this is why you might want to use it over `Promise.all` (which awaits for the entire array before you can call [`Array#reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) on it).
 </markdown></div>
