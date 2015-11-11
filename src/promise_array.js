@@ -87,7 +87,16 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
 PromiseArray.prototype._iterate = function(values) {
     var len = this.getActualLength(values.length);
     this._length = len;
-    this._values = this.shouldCopyValues() ? new Array(len) : this._values;
+    if (this.shouldCopyValues()) {
+         // Create new array and copy custom properties
+         // getOwnPropertyNames is not used as it appeared in ECMA script 5.1 only
+         this._values = new Array(len);
+         for (var property in values) {
+             if (values.hasOwnProperty(property)) {
+                 this._values[property] = values[property];
+             }
+         }
+    }
     var result = this._promise;
     var isResolved = false;
     var bitField = null;
