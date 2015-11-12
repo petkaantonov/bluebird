@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 27 Oct 2015</i>
+                <i>Updated 12 Nov 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,11 +115,11 @@
   </header>
 
   <article class="post-content">
-    <p>Promises are a concurrency primitive with a proven track record and language integration in most modern programming languages. It has been extensively studied since the 80s and most importantly - promises will make your life much easier.</p>
+    <p>Promises are a concurrency primitive with a proven track record and language integration in most modern programming languages. They have been extensively studied since the 80s and will make your life much easier.</p>
 
 <p>You should use promises to turn this:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span> <span class="nx">err</span> <span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">else</span> <span class="p">{</span>
@@ -127,48 +127,48 @@
             <span class="nx">val</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">val</span><span class="p">);</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
         <span class="p">}</span>
-        <span class="k">catch</span><span class="p">(</span> <span class="nx">e</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;invalid json in file&quot;</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Into this:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
 <span class="p">})</span>
-<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">SyntaxError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">SyntaxError</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;invalid json in file&quot;</span><span class="p">);</span>
 <span class="p">})</span>
-<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">)</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p><em>If you are wondering &quot;there is no <code>readFileAsync</code> method on <code>fs</code> that returns a promise&quot;, see <a href='API.md#promisification' title=''>promisification</a></em></p>
+<p><em>If you&#39;re thinking, &quot;There&#39;s no <code>readFileAsync</code> method on <code>fs</code> that returns a promise!&quot; see <a href='api/promisification.html' title=''>promisification</a></em></p>
 
-<p>Actually you might notice the latter has a lot in common with code that would do the same using synchronous I/O:</p>
+<p>You might notice that the promise approach looks very similar to using synchronous I/O:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">try</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">));</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
 <span class="p">}</span>
-<span class="c1">//Syntax actually not supported in JS but drives the point</span>
-<span class="k">catch</span><span class="p">(</span><span class="nx">SyntaxError</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">// Gecko-only syntax; used for illustrative purposes</span>
+<span class="k">catch</span> <span class="p">(</span><span class="nx">e</span> <span class="k">if</span> <span class="nx">e</span> <span class="k">instanceof</span> <span class="nx">SyntaxError</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;invalid json in file&quot;</span><span class="p">);</span>
 <span class="p">}</span>
-<span class="k">catch</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">)</span>
+<span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>And that is the point - being able to have something that is a lot like <code>return</code> and <code>throw</code> in synchronous code.</p>
+<p>This is the point—to have something that works like <code>return</code> and <code>throw</code> in synchronous code.</p>
 
-<p>You can also use promises to improve code that was written with callback helpers:</p>
+<p>You can also use promises to improve code that was written with callbacks:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//Copyright Plato http://stackoverflow.com/a/19385911/995876</span>
 <span class="c1">//CC BY-SA 2.5</span>
 <span class="nx">mapSeries</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
     <span class="nx">needle</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">response</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
         <span class="p">}</span>
         <span class="k">try</span> <span class="p">{</span>
             <span class="kd">var</span> <span class="nx">ret</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">body</span><span class="p">);</span>
@@ -180,13 +180,13 @@
     <span class="p">});</span>
 <span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;All Needle requests successful&#39;</span><span class="p">);</span>
         <span class="c1">// results is a 1 to 1 mapping in order of URLs &gt; needle.body</span>
         <span class="nx">processAndSaveAllInDB</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
             <span class="p">}</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;All Needle requests saved&#39;</span><span class="p">);</span>
             <span class="nx">done</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
@@ -194,27 +194,27 @@
     <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Is more pleasing to the eye when done with promises:</p>
+<p>This is far more readable when done with promises:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">needle</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
 
 <span class="kd">var</span> <span class="nx">current</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">URL</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">URL</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">current</span> <span class="o">=</span> <span class="nx">current</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
     <span class="p">});</span>
     <span class="k">return</span> <span class="nx">current</span><span class="p">;</span>
-<span class="p">}).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">responseAndBody</span><span class="p">){</span>
+<span class="p">}).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">responseAndBody</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseAndBody</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">processAndSaveAllInDB</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
-<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;All Needle requests saved&#39;</span><span class="p">);</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Also promises don&#39;t just give you correspondences for synchronous features but can also be used as limited event emitters or callback aggregators.</p>
+<p>Also, promises don&#39;t just give you correspondences for synchronous features; they can also be used as limited event emitters or callback aggregators.</p>
 
 <p>More reading:</p>
 
@@ -235,6 +235,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.0.5/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
