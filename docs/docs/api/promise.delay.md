@@ -11,8 +11,8 @@ title: Promise.delay
 
 ```js
 Promise.delay(
-    [any|Promise<any> value=undefined],
-    int ms
+    int ms,
+    [any|Promise<any> value=undefined]
 ) -> Promise
 ```
 

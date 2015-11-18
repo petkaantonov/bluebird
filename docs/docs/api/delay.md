@@ -13,7 +13,7 @@ title: .delay
 .delay(int ms) -> Promise
 ```
 
-Same as calling [Promise.delay(this, ms)](.).
+Same as calling [Promise.delay(ms, this)](.).
 </markdown></div>
 
 <div id="disqus_thread"></div>
