@@ -14,7 +14,7 @@ title: .reflect
 ```
 
 
-The [`.reflect`](.) method returns a promise that is always successful when this promise is settled. Its fulfillment value is an object that implements the [PromiseInspection](.) interface and reflects the resolution this promise.
+The [`.reflect`](.) method returns a promise that is always successful when this promise is settled. Its fulfillment value is an object that implements the [PromiseInspection](.) interface and reflects the resolution of this promise.
 
 Using `.reflect()` to implement `settleAll` (wait until all promises in an array are either rejected or fulfilled) functionality
 
