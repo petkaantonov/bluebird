@@ -4,9 +4,8 @@ var path = require("path");
 var spawn = require("cross-spawn");
 Promise.longStackTraces();
 var fs = Promise.promisifyAll(require("fs"));
-var notAscii = /[^\u0019-\u007E]/;
+var notAscii = /[^\u000D\u0019-\u007E]/;
 var Table = require('cli-table');
-var os = require('os');
 
 function noStackError(message) {
     var e = new Error(message);
@@ -16,7 +15,7 @@ function noStackError(message) {
 
 function checkAscii(fileName, contents) {
     if (notAscii.test(contents)) {
-        contents.split(os.EOL).forEach(function(line, i) {
+        contents.split("\n").forEach(function(line, i) {
             if (notAscii.test(line)) {
                 var lineNo = i + 1;
                 var col = line.indexOf(RegExp.lastMatch) + 1;
