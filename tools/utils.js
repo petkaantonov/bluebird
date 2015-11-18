@@ -4,7 +4,7 @@ var path = require("path");
 var spawn = require("cross-spawn");
 Promise.longStackTraces();
 var fs = Promise.promisifyAll(require("fs"));
-var notAscii = /[^\u0019-\u007E]/;
+var notAscii = /[^\u000D\u0019-\u007E]/;
 var Table = require('cli-table');
 
 function noStackError(message) {
