@@ -2,6 +2,10 @@ body {
     font-size: 16px;
 }
 
+body > .container {
+    padding-bottom: 50px;
+}
+
 .navbar-bluebird {
     font-family: 'Raleway', sans-serif;
     font-size: 18px;
