@@ -1,16 +1,14 @@
 language: node_js
+sudo: false
 matrix:
   include:
     - node_js: "0.10"
-      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
     - node_js: "0.12"
-      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
-    - node_js: "iojs"
-      env: "NODE_FLAGS='' SCRIPT_FLAGS='--saucelabs'"
-    - node_js: "iojs"
-      env: "NODE_FLAGS='' SCRIPT_FLAGS=''"
+    - node_js: "4"
+    - node_js: "5"
   fast_finish: true
-
+env:
+  - "NODE_FLAGS='' SCRIPT_FLAGS=''"  
 before_script:
 - git submodule update --init --recursive
 script: "node $NODE_FLAGS tools/test.js $SCRIPT_FLAGS"
