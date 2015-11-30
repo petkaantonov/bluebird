@@ -3,7 +3,7 @@ module.exports = function(Promise, INTERNAL) {
 var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function (promise, message) {
+var afterTimeout = function (promise, message, parent) {
     //Don't waste time concatting strings or creating stack traces
     if (!promise.isPending()) return;
     var err;
@@ -19,6 +19,7 @@ var afterTimeout = function (promise, message) {
     util.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
     promise._reject(err);
+    parent.cancel();
 };
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
@@ -55,9 +56,10 @@ function failureClear(reason) {
 
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
-    var ret = this.then();
+    var parent = this.then();
+    var ret = parent.then();
     var handle = setTimeout(function timeoutTimeout() {
-        afterTimeout(ret, message);
+        afterTimeout(ret, message, parent);
     }, ms);
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };

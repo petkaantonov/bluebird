@@ -2,6 +2,7 @@
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 var Q = Promise;
+Promise.config({cancellation: true})
 var globalObject = typeof window !== "undefined" ? window : new Function("return this;")();
 /*
 Copyright 2009–2012 Kristopher Michael Kowal. All rights reserved.
@@ -56,6 +57,33 @@ describe("timeout", function () {
             assert(/custom/i.test(e.message));
         });
     });
+
+    it("should cancel the parent promise once the timeout expires", function() {
+        var didNotExecute = true;
+        var wasRejectedWithTimeout = false;
+        var p = Promise.delay(22).then(function() {
+            didNotExecute = false;
+        })
+        p.timeout(11).thenReturn(10).caught(Promise.TimeoutError, function(e) {
+            wasRejectedWithTimeout = true;
+        })
+        return Promise.delay(33).then(function() {
+            assert(didNotExecute, "parent promise was not cancelled");
+            assert(wasRejectedWithTimeout, "promise was not rejected with timeout");
+        })
+    })
+
+    it("should not cancel the parent promise if there are multiple consumers", function() {
+        var derivedNotCancelled = false;
+        var p = Promise.delay(22);
+        var derived = p.then(function() {
+            derivedNotCancelled = true;
+        })
+        p.timeout(11).thenReturn(10)
+        return Promise.delay(33).then(function() {
+            assert(derivedNotCancelled, "derived promise was cancelled")
+        })
+    })
 
     var globalsAreReflectedInGlobalObject = (function(window) {
         var fn = function(id){return clearTimeout(id);};
