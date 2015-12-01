@@ -167,7 +167,7 @@ describe(".then as context", function() {
 
         return circle1().then(assert.fail, function(e) {
             assertLongTrace(e,
-                (4 + 1) + (4 + 1) + (4 + 1) + 1,
+                1 + 1 + 1 + 1,
                 [
                     1, 1, 2, 1, 1,
                     1, 1, 2, 1, 1,

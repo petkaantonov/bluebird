@@ -187,6 +187,7 @@ Promise.cast = function (obj) {
     var ret = tryConvertToPromise(obj);
     if (!(ret instanceof Promise)) {
         ret = new Promise(INTERNAL);
+        ret._captureStackTrace();
         ret._setFulfilled();
         ret._rejectionHandler0 = obj;
     }
