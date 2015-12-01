@@ -89,6 +89,8 @@ module.exports = function mochaRun(progress) {
         return ret;
     };
     Promise.config({cancellation: true});
+    Promise.config({longStackTraces: false});
+    Promise.config({longStackTraces: true});
     return Promise.each(testGroup, function(test, index, length) {
         var mocha = new Mocha({
             reporter: "spec",

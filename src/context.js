@@ -41,7 +41,21 @@ function peekContext() {
 }
 Context.CapturedTrace = null;
 Context.create = createContext;
+Context.deactivateLongStackTraces = function() {};
 Context.activateLongStackTraces = function() {
+    var Promise_pushContext = Promise.prototype._pushContext;
+    var Promise_popContext = Promise.prototype._popContext;
+    var Promise_PeekContext = Promise._peekContext;
+    var Promise_peekContext = Promise.prototype._peekContext;
+    var Promise_promiseCreated = Promise.prototype._promiseCreated;
+    Context.deactivateLongStackTraces = function() {
+        Promise.prototype._pushContext = Promise_pushContext;
+        Promise.prototype._popContext = Promise_popContext;
+        Promise._peekContext = Promise_PeekContext;
+        Promise.prototype._peekContext = Promise_peekContext;
+        Promise.prototype._promiseCreated = Promise_promiseCreated;
+        longStackTraces = false;
+    };
     longStackTraces = true;
     Promise.prototype._pushContext = Context.prototype._pushContext;
     Promise.prototype._popContext = Context.prototype._popContext;
