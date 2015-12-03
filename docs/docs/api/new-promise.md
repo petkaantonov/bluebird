@@ -69,7 +69,7 @@ function getPromiseResolveFn() {
     var disqus_title = "new Promise";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-new-promise";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
