@@ -11,7 +11,7 @@ This page will contain common promise anti-patterns that are exercised in the wi
 
 ##The Deferred anti-pattern
 
-This is the most common anti-pattern. It is easy to fall into this when you don't really understand promises and think of them as glorified event emitters or callback utility. It's also sometimes called the promise constructor anti-pattern. Let's recap: promises are about making asynchronous code retain most of the lost properties of synchronous code such as flat indentation and one exception channel.
+This is the most common anti-pattern. It is easy to fall into this when you don't really understand promises and think of them as glorified event emitters or callback utility. It's also sometimes called the promise constructor anti-pattern or explicit construction anti-pattern. Let's recap: promises are about making asynchronous code retain most of the lost properties of synchronous code such as flat indentation and one exception channel.
 
 In Deferred anti-pattern, "deferred" objects are created for no reason, complicating code.
 
