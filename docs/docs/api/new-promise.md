@@ -16,7 +16,7 @@ new Promise(function(function resolve, function reject) resolver) -> Promise
 
 Create a new promise. The passed in function will receive functions `resolve` and `reject` as its arguments which can be called to seal the fate of the created promise.
 
-*Note: See [explicit construction anti-pattern]({{ "/docs/anti-patterns.html#explicit-construction-anti-pattern" | prepend: site.baseurl }}) before creating promises yourself*
+*Note: See [explicit construction anti-pattern]({{ "/docs/anti-patterns.html#the-deferred-anti-pattern" | prepend: site.baseurl }}) before creating promises yourself*
 
 Example:
 
@@ -69,7 +69,7 @@ function getPromiseResolveFn() {
     var disqus_title = "new Promise";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-new-promise";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
