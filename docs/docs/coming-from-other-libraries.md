@@ -184,9 +184,9 @@ function(err, results){
 ```
 
 ```js
-Promise.each([{timeout: 200, value: 1},
-              {timeout: 100, value: 2}], function(item) {
-    return Promise.delay(item.value, item.timeout);
+Promise.mapSeries([{timeout: 200, value: 1},
+                   {timeout: 100, value: 2}], function(item) {
+    return Promise.delay(item.timeout, item.value);
 }).then(function(results) {
     // results is now equal to [1, 2]
 });
