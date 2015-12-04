@@ -184,11 +184,15 @@ function(err, results){
 ```
 
 ```js
+var newResults = [];
 Promise.each([{timeout: 200, value: 1},
               {timeout: 100, value: 2}], function(item) {
-    return Promise.delay(item.value, item.timeout);
+    return Promise.delay(item.value, item.timeout).then(function() {
+       newResults.push(item.value);
+    });
 }).then(function(results) {
-    // results is now equal to [1, 2]
+    // results is equal to original array
+    // newResults is now equal to [1, 2]
 });
 ```
 
