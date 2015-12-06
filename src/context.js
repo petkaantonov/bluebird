@@ -1,6 +1,5 @@
 "use strict";
 module.exports = function(Promise) {
-var util = require("./util");
 
 var longStackTraces = false;
 var contextStack = [];
