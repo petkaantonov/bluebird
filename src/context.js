@@ -1,9 +1,13 @@
 "use strict";
 module.exports = function(Promise) {
+var util = require("./util");
+
 var longStackTraces = false;
 var contextStack = [];
 
 Promise.prototype._promiseCreated = function() {};
+Promise.prototype._promiseSettled = function() {};
+Promise.prototype._promiseChained = function() {};
 Promise.prototype._pushContext = function() {};
 Promise.prototype._popContext = function() {return null;};
 Promise._peekContext = Promise.prototype._peekContext = function() {};

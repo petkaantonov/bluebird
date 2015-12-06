@@ -276,6 +276,16 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
+function wrapMethodIfExists(prototypeObject, methodName, extension) {
+    var existingMethodImpl = prototypeObject[methodName];
+    if (typeof existingMethodImpl === "function") {
+        prototypeObject[methodName] = function () {
+            existingMethodImpl.apply(this, arguments);
+            extension.apply(this, arguments);
+        };
+    }
+}
+
 var asArray = function(v) {
     if (es5.isArray(v)) {
         return v;
@@ -339,6 +349,7 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
+    wrapMethodIfExists: wrapMethodIfExists,
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,
