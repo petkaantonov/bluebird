@@ -22,6 +22,8 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
     (debugging || util.env("BLUEBIRD_WARNINGS")));
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
+var monitor = !!(util.env("BLUEBIRD_MONITOR") != 0 &&
+    (debugging || util.env("BLUEBIRD_MONITOR")));
 
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
@@ -159,6 +161,45 @@ Promise.prototype._clearCancellationData = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
     USE(flags);
+};
+
+Promise.monitor = function () {
+    // Pending promises are stored in array for better performance: number
+    // of simultaneously pending promises is assumed to be relatively small,
+    // thus storing promises in the map and calculating hash for each promise
+    // is more expensive then iterating trough pending promises array when
+    // each promise is finished
+    Promise.prototype._pendingPromises = [];
+
+    function registerPromise() {
+        Promise.prototype._pendingPromises.push(this);
+    }
+
+    function unregisterPromise() {
+        var indexOfPromise = Promise.prototype._pendingPromises.indexOf(this);
+        ASSERT(indexOfPromise >= 0);
+        Promise.prototype._pendingPromises.splice(indexOfPromise,1);
+    }
+
+    util.wrapMethodIfExists(Promise.prototype,"_promiseCreated",
+        registerPromise);
+    util.wrapMethodIfExists(Promise.prototype,"_promiseSettled",
+        unregisterPromise);
+
+    Promise.getAllPendingPromises = function () {
+        return Promise.prototype._pendingPromises;
+    };
+
+    Promise.getLeafPendingPromises = function () {
+        var leafPromises = [];
+        for (var  i = 0; i < Promise.prototype._pendingPromises.length; i++) {
+            var currentPromise = Promise.prototype._pendingPromises[i];
+            if (!(currentPromise._promise0 && currentPromise._receiver0)) {
+                leafPromises.push(currentPromise);
+            }
+        }
+        return leafPromises;
+    };
 };
 
 function cancellationExecute(executor, resolve, reject) {
@@ -799,14 +840,19 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 var config = {
     warnings: warnings,
     longStackTraces: false,
+    monitor: false,
     cancellation: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
+if (monitor) Promise.monitor();
 
 return {
     longStackTraces: function() {
         return config.longStackTraces;
+    },
+    monitor: function() {
+        return config.monitor;
     },
     warnings: function() {
         return config.warnings;
