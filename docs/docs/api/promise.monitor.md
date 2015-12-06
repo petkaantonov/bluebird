@@ -17,6 +17,8 @@ Call this method to enable promises monitoring feature. This feature cannot be d
 
 Promises monitoring feature allows to see list of all pending promises at any moment. After the feature have been enabled Promise.getAllPendingPromises() method can be called at any moment to examine all pending promises objects.
 
+Promise.getLeafPendingPromises() method can be called at any moment to examine only the pending promises at the end of promise chains.
+
 Monitoring is enabled by default in the debug build.
 
 To enable this feature in all instances of bluebird in node.js, use the environment variable `BLUEBIRD_DEBUG`:
