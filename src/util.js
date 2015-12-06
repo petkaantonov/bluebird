@@ -276,13 +276,19 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
-function wrapMethodIfExists(prototypeObject, methodName, extension) {
+// This function should not be used for methods that return a value
+function wrapMethodIfExistsDefineIfNot(prototypeObject, methodName, extension) {
     var existingMethodImpl = prototypeObject[methodName];
     if (typeof existingMethodImpl === "function") {
         prototypeObject[methodName] = function () {
             existingMethodImpl.apply(this, arguments);
             extension.apply(this, arguments);
         };
+    } else if (typeof existingMethodImpl === "undefined") {
+        prototypeObject[methodName] = extension;
+    } else {
+        throw new Error("Trying to wrap " + typeof existingMethodImpl + 
+            ", expecting a function or undefined");
     }
 }
 
@@ -349,7 +355,7 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
-    wrapMethodIfExists: wrapMethodIfExists,
+    wrapMethodIfExistsDefineIfNot: wrapMethodIfExistsDefineIfNot,
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,

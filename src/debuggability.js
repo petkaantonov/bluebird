@@ -219,9 +219,9 @@ Promise.monitor = function () {
         Promise.prototype._pendingPromises.splice(indexOfPromise,1);
     }
 
-    util.wrapMethodIfExists(Promise.prototype,"_promiseCreated",
+    util.wrapMethodIfExistsDefineIfNot(Promise.prototype,"_promiseCreated",
         registerPromise);
-    util.wrapMethodIfExists(Promise.prototype,"_promiseSettled",
+    util.wrapMethodIfExistsDefineIfNot(Promise.prototype,"_promiseSettled",
         unregisterPromise);
 
     Promise.getAllPendingPromises = function () {
@@ -232,7 +232,8 @@ Promise.monitor = function () {
         var leafPromises = [];
         for (var  i = 0; i < Promise.prototype._pendingPromises.length; i++) {
             var currentPromise = Promise.prototype._pendingPromises[i];
-            if (!(currentPromise._promise0 && currentPromise._receiver0)) {
+            if (typeof currentPromise._promise0 === "undefined" &&
+                typeof currentPromise._receiver0 === "undefined") {
                 leafPromises.push(currentPromise);
             }
         }
