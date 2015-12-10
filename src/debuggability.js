@@ -23,7 +23,7 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
 var monitor = !!(util.env("BLUEBIRD_MONITOR") != 0 &&
-    (debugging || util.env("BLUEBIRD_MONITOR")));
+    util.env("BLUEBIRD_LONG_STACK_TRACES"));
 
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
@@ -158,6 +158,14 @@ Promise.config = function(opts) {
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
     }
+
+    if ("monitor" in opts) {
+        if (opts.monitor) {
+            Promise.enableMonitoring();
+        } else {
+            Promise.disableMonitoring();
+        }
+    }
 };
 
 Promise.prototype._execute = function(executor, resolve, reject) {
@@ -180,37 +188,68 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     USE(flags);
 };
 
-Promise.monitor = function () {
-    // Pending promises are stored in array for better performance: number
-    // of simultaneously pending promises is assumed to be relatively small,
-    // thus storing promises in the map and calculating hash for each promise
-    // is more expensive then iterating trough pending promises array when
-    // each promise is finished
-    Promise.prototype._pendingPromises = [];
+Promise.enableMonitoring = function () {
+    // Property that holds monitoring related info,
+    // existence of it means that monitoring feature is currently enabled
+    Promise.monitor = {};
+
+    Promise.monitor._pendingPromises = {};
+
+    // Storing
+    Promise.monitor._promiseIdCounter = 0;
 
     function registerPromise() {
-        Promise.prototype._pendingPromises.push(this);
+        Promise.monitor._promiseIdCounter++;
+        if (Promise.monitor._promiseIdCounter === Number.MAX_VALUE) {
+            Promise.monitor._promiseIdCounter = 0;
+        }
+        if (Promise.monitor._pendingPromises[
+                Promise.monitor._promiseIdCounter]) {
+            // Use case when number of promises is higher than
+            // Number.MAX_VALUE and collision happens is not handled,
+            // disabling the monitoring feature.
+            // Probability of this case is very low
+            Promise.disableMonitoring();
+            throw new Error(
+                "Promises ids collision happened, sorry."+
+                " Monitoring feature will be disabled");
+        }
+        this._promiseId = Promise.monitor._promiseIdCounter;
+        Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter] =
+            this;
     }
 
     function unregisterPromise() {
-        var indexOfPromise = Promise.prototype._pendingPromises.indexOf(this);
-        ASSERT(indexOfPromise >= 0);
-        Promise.prototype._pendingPromises.splice(indexOfPromise,1);
+        delete Promise.monitor._pendingPromises[this._promiseId];
     }
 
-    util.wrapMethodIfExistsDefineIfNot(Promise.prototype,"_promiseCreated",
-        registerPromise);
-    util.wrapMethodIfExistsDefineIfNot(Promise.prototype,"_promiseSettled",
-        unregisterPromise);
+    Promise.disableMonitoring = function() {
+        // No reason to clean up the id's from pending promises
+        util.unhookFrom(Promise.prototype, "_promiseCreated", registerPromise);
+        util.unhookFrom(Promise.prototype,
+            "_promiseSettled", unregisterPromise);
+        delete Promise.monitor;
+    };
 
-    Promise.getAllPendingPromises = function () {
-        return Promise.prototype._pendingPromises;
+    util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
+    util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+
+    Promise.getPendingPromises = function () {
+        var result = [];
+        // Object.values() comes only in EC7
+        for (var key in Promise.monitor._pendingPromises) {
+            if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
+                result.push(Promise.monitor._pendingPromises[key]);
+            }
+        }
+        return result;
     };
 
     Promise.getLeafPendingPromises = function () {
+        var pendingPromises = Promise.getPendingPromises();
         var leafPromises = [];
-        for (var  i = 0; i < Promise.prototype._pendingPromises.length; i++) {
-            var currentPromise = Promise.prototype._pendingPromises[i];
+        for (var  i = 0; i < pendingPromises.length; i++) {
+            var currentPromise = pendingPromises[i];
             if (typeof currentPromise._promise0 === "undefined" &&
                 typeof currentPromise._receiver0 === "undefined") {
                 leafPromises.push(currentPromise);
@@ -219,7 +258,6 @@ Promise.monitor = function () {
         return leafPromises;
     };
 };
-
 function cancellationExecute(executor, resolve, reject) {
     var promise = this;
     try {
@@ -863,14 +901,14 @@ var config = {
 };
 
 if (longStackTraces) Promise.longStackTraces();
-if (monitor) Promise.monitor();
+if (monitor) Promise.enableMonitoring();
 
 return {
     longStackTraces: function() {
         return config.longStackTraces;
     },
-    monitor: function() {
-        return config.monitor;
+    enableMonitoring: function() {
+        return config.enableMonitoring;
     },
     warnings: function() {
         return config.warnings;
