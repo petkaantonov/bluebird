@@ -6,14 +6,13 @@ title: Async Dialogs
 [async-dialogs](unfinished-article)
 
 Typically *promises* are used in conjunction with asynchronous tasks such as a
-network request or a `setTimeout`; a lesser explored use is in dealing with user
+network request or a `setTimeout`; a lesser explored use is dealing with user
 input. Since a program has to wait for a user to continue some actions it makes
 sense to consider it an asynchronous event.
 
 For comparison I'll start with an example of a *synchronous* user interaction
-using the `window.prompt` and then move to an *asynchronous* interaction my
-making our own DOM based prompt. To begin here is a template for a simple HTML
-page:
+using `window.prompt` and then move to an *asynchronous* interaction by making
+our own DOM based prompt. To begin, here is a template for a simple HTML page:
 
 ```html
 <!DOCTYPE html>
@@ -21,14 +20,14 @@ page:
 <head>
   <meta charset="UTF-8">
   <title>Async Dislogs Example</title>
-  <script src="//cdn.jsdelivr.net/bluebird/3.0.5/bluebird.js"></script>
+  <script src="//cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.js"></script>
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
       var time = document.getElementById('time-stamp');
       clockTick();
       setInterval(clockTick, 1000);
       function clockTick() {
-        time.innerHTML = '' + new Date();
+        time.innerHTML = new Date().toLocalTimeString();
       }
     });
   </script>
@@ -42,9 +41,10 @@ page:
 ```
 
 `window.prompt` blocks the web page from processing while it waits for the user
-to enter in data. I has to block because the input is returned and the next line
-of code needs that result. But for sake of this tutorial we are going to convert
-the typical conditional code into a promise API.
+to enter in data. I has to block because the input is returned and the next
+line of code needs that result. But for sake of this tutorial we are going to
+convert the typical conditional code into a promise API using a [promise
+constructor](api/new-promise.html).
 
 ```javascript
 function promptPromise(message) {
@@ -53,28 +53,26 @@ function promptPromise(message) {
     if (result != null) {
       resolve(result);
     } else {
-      reject();
+      reject(new Error('User cancelled'));
     }
   });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  var button = document.getElementById('action');
-  var output = document.getElementById('prompt');
+var button = document.getElementById('action');
+var output = document.getElementById('prompt');
 
-  button.addEventListener('click', function() {
-    promptPromise('What is your name?')
-      .then(function(name) {
-        output.innerHTML = '' + name;
-      })
-      .catch(function() {
-        output.innerHTML = '¯\\_(ツ)_/¯';
-      });
-  });
+button.addEventListener('click', function() {
+  promptPromise('What is your name?')
+    .then(function(name) {
+      output.innerHTML = String(name);
+    })
+    .catch(function() {
+      output.innerHTML = '¯\\_(ツ)_/¯';
+    });
 });
 ```
 
-[Run example on JSBin](http://jsbin.com/kowama/edit?js,output)
+[Run example on JSBin][Example1]
 
 This doesn't add much much using `window.prompt`; however, one advantage is the
 API that promises provide. In the case where we call `promisePrompt(…)` we can
@@ -127,7 +125,7 @@ function promptPromise(message) {
   var cancelButton = dialog.querySelector('button.cancel');
   var resolver, rejector;
 
-  dialog.querySelector('.message').innerHTML = '' + message;
+  dialog.querySelector('.message').innerHTML = String(message);
   dialog.className = '';
 
   function handleOk() {
@@ -135,7 +133,7 @@ function promptPromise(message) {
   }
 
   function handleCancel() {
-    rejector();
+    rejector(new Error('User cancelled'));
   }
 
   okButton.addEventListener('click', handleOk);
@@ -153,7 +151,7 @@ function promptPromise(message) {
 }
 ```
 
-[Run example on JSBin](http://jsbin.com/fucofu/edit?js,output)
+[Run example on JSBin][Example2]
 
 Now when the user presses the **Set Name** button the clock continues to update
 while the dialog is visible.
@@ -263,7 +261,7 @@ PromptDialog.prototype.attachDomEvents = function() {
   });
 };
 PromptDialog.prototype.show = function(message) {
-  this.messageEl.innerHTML = '' + message;
+  this.messageEl.innerHTML = String(message);
   this.el.className = '';
   return this;
 };
@@ -288,7 +286,7 @@ var prompt = new PromptDialog();
 prompt.show('What is your name?')
   .waitForUser()
   .then(function(name) {
-    output.innerHTML = '' + name;
+    output.innerHTML = String(name);
   })
   .catch(function() {
     output.innerHTML = '¯\\_(ツ)_/¯';
@@ -298,7 +296,7 @@ prompt.show('What is your name?')
   });
 ```
 
-[Run example on JSBin](http://jsbin.com/wupixi/edit?js,output)
+[Run example on JSBin][Example3]
 
 This abstraction can be expanded on in other ways. For example a notification
 dialog:
@@ -316,7 +314,7 @@ function NotifyDialog() {
 }
 NotifyDialog.prototype = Object.create(Dialog.prototype);
 NotifyDialog.prototype.show = function(message) {
-  this.messageEl.innerHTML = '' + message;
+  this.messageEl.innerHTML = String(message);
   this.el.className = '';
   return this;
 };
@@ -415,7 +413,7 @@ setTimeout(function() { prompt.cancel(); }, 5000);
 prompt.show('What is your name?')
   .waitForUser()
   .then(function(name) {
-    output.innerHTML = '' + name;
+    output.innerHTML = String(name);
   })
   .catch(UserCanceledError, function() {
     output.innerHTML = '¯\\_(ツ)_/¯';
@@ -428,7 +426,7 @@ prompt.show('What is your name?')
   });
 ```
 
-[Run example on JSBin](http://jsbin.com/yaropo/edit?js,output)
+[Run example on JSBin][Example4]
 
 **NOTE:** Bluebird supports [cancellation](api/cancellation.html) as an optional
 feature that is turned off by default. However, its implementation (since
@@ -529,10 +527,10 @@ ProgressDialog.prototype.attachDomEvents = function() {
   this.cancelButton.addEventListener('click', function() {
     _this.cancel();
   });
-  
+
 };
 ProgressDialog.prototype.show = function(message) {
-  this.messageEl.innerHTML = '' + message;
+  this.messageEl.innerHTML = String(message);
   this.el.className = '';
   return this;
 };
@@ -594,12 +592,12 @@ document.addEventListener('DOMContentLoaded', function() {
         prompt.setProgress(progress);
       }
     });
-    
+
     // Prevent user from pressing button while dialog is visible.
     button.disabled = true;
 
     prompt.show('Simulating a file upload.');
-    
+
     Promise.race([waitForPromise, prompt.waitForUser()])
       .then(function() {
         output.innerHTML = 'Progress completed';
@@ -619,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ```
 
-[Run example on JSBin](http://jsbin.com/bipeve/edit?js,output)
+[Run example on JSBin][Example5]
 
 I hope this helps illustrate some concepts available with Promises and a
 different perspective on how promises can represent more then just AJAX data.
@@ -629,3 +627,9 @@ modular and can be easily changed. A trait difficult to achieve with a more
 procedural style.
 
 Happy coding, [@sukima](https://github.com/sukima).
+
+[Example1]: http://jsbin.com/kowama/edit?js,output
+[Example2]: http://jsbin.com/fucofu/edit?js,output
+[Example3]: http://jsbin.com/wupixi/edit?js,output
+[Example4]: http://jsbin.com/yaropo/edit?js,output
+[Example5]: http://jsbin.com/bipeve/edit?js,output
