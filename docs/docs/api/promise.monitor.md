@@ -10,24 +10,16 @@ title: Promise.monitor
 ##Promise.monitor
 
 ```js
-Promise.monitor() -> undefined
+Promise.enableMonitoring() -> undefined
 ```
 
-Call this method to enable promises monitoring feature. This feature cannot be disabled after being enabled. Monitoring implies performance penalty.
+Call this method to enable promises monitoring feature. Monitoring implies performance penalty.
 
-Promises monitoring feature allows to see list of all pending promises at any moment. After the feature have been enabled Promise.getAllPendingPromises() method can be called at any moment to examine all pending promises objects.
+Promises monitoring feature allows to see list of all pending promises at any moment. After the feature have been enabled Promise.getPendingPromises() method can be called at any moment to examine all pending promises objects.
 
 Promise.getLeafPendingPromises() method can be called at any moment to examine only the pending promises at the end of promise chains.
 
-Monitoring is enabled by default in the debug build.
-
-To enable this feature in all instances of bluebird in node.js, use the environment variable `BLUEBIRD_DEBUG`:
-
-```
-BLUEBIRD_DEBUG=1 node server.js
-```
-
-Setting the environment variable `NODE_ENV` to `"development"` also automatically enables monitoring functionality.
+Monitoring feature can be disabled by calling Promise.disableMonitoring().
 
 </markdown></div>
 

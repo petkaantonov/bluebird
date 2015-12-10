@@ -5,8 +5,6 @@ var assert = require("assert");
 
 describe("promises monitoring", function() {
 
-	Promise.monitor();
-
 	function assertPendingPromises(expectedPromisesArray, getPendingPromisesFunctionName) {
 		assert(typeof Promise[getPendingPromisesFunctionName] === "function");
 		var allPendingPromises = Promise[getPendingPromisesFunctionName]();
@@ -25,7 +23,7 @@ describe("promises monitoring", function() {
 	}
 
 	function assertAllAndLeafPendingPromises(expectedPromisesArray) {
-		assertPendingPromises(expectedPromisesArray, "getAllPendingPromises");
+		assertPendingPromises(expectedPromisesArray, "getPendingPromises");
 		assertPendingPromises(expectedPromisesArray, "getLeafPendingPromises");
 	}
 
@@ -42,13 +40,14 @@ describe("promises monitoring", function() {
 			promise: promise
 		};
 	}
-	
-	afterEach( function() {
-		var allPromises = Promise.getAllPendingPromises();
-		for (var i = 0; i < allPromises.length; i++) {
-			delete allPromises[i];   
-		}
-	});
+
+    before(function() {
+        Promise.enableMonitoring();
+    });
+
+    after(function() {
+        Promise.disableMonitoring();
+    });
 
 	it("promises added to monitor array after creation and removed after resolution", function() {
 		var deferred = deferAndMarkAsTestPromise();
@@ -111,14 +110,14 @@ describe("promises monitoring", function() {
 		var G = F.then(function() {});
 		G.test = true;
 
-		assertPendingPromises([A, B, C, D, E, F, G], "getAllPendingPromises");
+		assertPendingPromises([A, B, C, D, E, F, G], "getPendingPromises");
 		assertPendingPromises([C, E, G], "getLeafPendingPromises");
 
 		var lastPromise = Promise.all([C, E]).then(function() {
-			assertPendingPromises([F, G], "getAllPendingPromises");
+			assertPendingPromises([F, G], "getPendingPromises");
 			assertPendingPromises([G], "getLeafPendingPromises");
 			G.catch(function() {
-				assertPendingPromises([], "getAllPendingPromises");
+				assertPendingPromises([], "getPendingPromises");
 				assertPendingPromises([], "getLeafPendingPromises");
 			});
 			Fdeferred.reject();

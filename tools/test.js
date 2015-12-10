@@ -246,8 +246,12 @@ var testResults = Promise.join(tests, buildResult, function(tests) {
     } else if (singleTest) {
         return runTestGroup(tests, options);
     } else {
-        process.stdout.cursorTo(0, 0);
-        process.stdout.clearScreenDown();
+        // Node.js on git bash in Windows 10 and Cygwin do not have
+        // cursorTo and clear screenDown implementations
+        if (process.stdout.cursorTo && process.stdout.clearScreenDown) {
+	        process.stdout.cursorTo(0, 0);
+            process.stdout.clearScreenDown();
+	    }
         tableLogger.addTests(tests);
         return Promise.map(combineTests(tests), function(testGroup, index) {
             return runTestGroup(testGroup, options, function(test) {

@@ -277,18 +277,47 @@ function copyDescriptors(from, to, filter) {
 }
 
 // This function should not be used for methods that return a value
-function wrapMethodIfExistsDefineIfNot(prototypeObject, methodName, extension) {
+// Using this function implies small performance overhead, should be used only
+// for debug methods
+function hookTo(prototypeObject, methodName, extension) {
     var existingMethodImpl = prototypeObject[methodName];
-    if (typeof existingMethodImpl === "function") {
-        prototypeObject[methodName] = function () {
-            existingMethodImpl.apply(this, arguments);
-            extension.apply(this, arguments);
-        };
+    if (typeof existingMethodImpl === "function" &&
+        existingMethodImpl.extensions) {
+        var extensions = existingMethodImpl.extensions;
+        extensions[extension.toString()] = extension;
+        // Performance optimization: remove noops
+        for (var key in extensions) {
+            if (extensions.hasOwnProperty(key) &&
+                extensions[key].toString().replace(/\s/g, "") ===
+                "function(){}") {
+                delete extensions[key];
+            }
+        }
     } else if (typeof existingMethodImpl === "undefined") {
-        prototypeObject[methodName] = extension;
+        prototypeObject[methodName] = function () {
+            var extensions = prototypeObject[methodName].extensions;
+            for (var key in extensions) {
+                if (extensions.hasOwnProperty(key)) {
+                    extensions[key].apply(this, arguments);
+                }
+            }
+        };
+        // Using object instead of array of functions to allow optimizations
+        prototypeObject[methodName].extensions = {};
+        prototypeObject[methodName].extensions[extension.toString()] =
+            extension;
     } else {
-        throw new Error("Trying to wrap " + typeof existingMethodImpl + 
+        throw new Error("Trying to wrap " + typeof existingMethodImpl +
             ", expecting a function or undefined");
+    }
+}
+
+function unhookFrom(prototypeObject, methodName, extension) {
+    var extensions = prototypeObject[methodName].extensions;
+    for (var i = 0; i < extensions; i++) {
+        if (extensions[i] === extension) {
+            extensions.splice(i, 1);
+        }
     }
 }
 
@@ -355,7 +384,8 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
-    wrapMethodIfExistsDefineIfNot: wrapMethodIfExistsDefineIfNot,
+    hookTo: hookTo,
+    unhookFrom: unhookFrom,
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,
