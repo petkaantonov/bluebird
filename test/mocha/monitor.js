@@ -5,8 +5,6 @@ var assert = require("assert");
 
 describe("promises monitoring", function() {
 
-	Promise.monitor();
-
 	function assertPendingPromises(expectedPromisesArray, getPendingPromisesFunctionName) {
 		assert(typeof Promise[getPendingPromisesFunctionName] === "function");
 		var allPendingPromises = Promise[getPendingPromisesFunctionName]();
@@ -42,13 +40,14 @@ describe("promises monitoring", function() {
 			promise: promise
 		};
 	}
-	
-	afterEach( function() {
-		var allPromises = Promise.getAllPendingPromises();
-		for (var i = 0; i < allPromises.length; i++) {
-			delete allPromises[i];   
-		}
-	});
+
+    before(function() {
+        Promise.enableMonitoring();
+    });
+
+    after(function() {
+        Promise.disableMonitoring();
+    });
 
 	it("promises added to monitor array after creation and removed after resolution", function() {
 		var deferred = deferAndMarkAsTestPromise();
