@@ -9,7 +9,6 @@ function thrower() {
 
 Promise.prototype["return"] =
 Promise.prototype.thenReturn = function (value) {
-    this._setFulfilled();
     if (value instanceof Promise) value.suppressUnhandledRejections();
     return this._then(
         returner, undefined, undefined, {value: value}, undefined);
@@ -17,13 +16,11 @@ Promise.prototype.thenReturn = function (value) {
 
 Promise.prototype["throw"] =
 Promise.prototype.thenThrow = function (reason) {
-    this._setRejected();
     return this._then(
         thrower, undefined, undefined, {reason: reason}, undefined);
 };
 
 Promise.prototype.catchThrow = function (reason) {
-    this._setRejected();
     if (arguments.length <= 1) {
         return this._then(
             undefined, thrower, undefined, {reason: reason}, undefined);
@@ -35,7 +32,6 @@ Promise.prototype.catchThrow = function (reason) {
 };
 
 Promise.prototype.catchReturn = function (value) {
-    this._setFulfilled();
     if (arguments.length <= 1) {
         if (value instanceof Promise) value.suppressUnhandledRejections();
         return this._then(
