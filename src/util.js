@@ -284,23 +284,28 @@ function hookTo(prototypeObject, methodName, extension) {
     if (typeof existingMethodImpl === "function" &&
         existingMethodImpl.extensions) {
         var extensions = existingMethodImpl.extensions;
-        extensions.push(extension);
+        extensions[extension.toString()] = extension;
         // Performance optimization: remove noops
-        for (var i = 0; i < extensions.length; i++) {
-            if (extensions[i].toString().replace(/\s/g, "") ===
+        for (var key in extensions) {
+            if (extensions.hasOwnProperty(key) &&
+                extensions[key].toString().replace(/\s/g, "") ===
                 "function(){}") {
-                extensions.splice(i,1);
-                i--;
+                delete extensions[key];
             }
         }
     } else if (typeof existingMethodImpl === "undefined") {
-        prototypeObject[methodName] = function() {
+        prototypeObject[methodName] = function () {
             var extensions = prototypeObject[methodName].extensions;
-            for (var i=0; i<extensions.length; i++) {
-                extensions[i].apply(this, arguments);
+            for (var key in extensions) {
+                if (extensions.hasOwnProperty(key)) {
+                    extensions[key].apply(this, arguments);
+                }
             }
         };
-        prototypeObject[methodName].extensions = [extension];
+        // Using object instead of array of functions to allow optimizations
+        prototypeObject[methodName].extensions = {};
+        prototypeObject[methodName].extensions[extension.toString()] =
+            extension;
     } else {
         throw new Error("Trying to wrap " + typeof existingMethodImpl +
             ", expecting a function or undefined");
@@ -309,9 +314,9 @@ function hookTo(prototypeObject, methodName, extension) {
 
 function unhookFrom(prototypeObject, methodName, extension) {
     var extensions = prototypeObject[methodName].extensions;
-    for (var i=0; i<extensions; i++) {
-        if (extensions[i]===extension) {
-            extensions.splice(i,1);
+    for (var i = 0; i < extensions; i++) {
+        if (extensions[i] === extension) {
+            extensions.splice(i, 1);
         }
     }
 }

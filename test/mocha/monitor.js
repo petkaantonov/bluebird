@@ -23,7 +23,7 @@ describe("promises monitoring", function() {
 	}
 
 	function assertAllAndLeafPendingPromises(expectedPromisesArray) {
-		assertPendingPromises(expectedPromisesArray, "getAllPendingPromises");
+		assertPendingPromises(expectedPromisesArray, "getPendingPromises");
 		assertPendingPromises(expectedPromisesArray, "getLeafPendingPromises");
 	}
 
@@ -110,14 +110,14 @@ describe("promises monitoring", function() {
 		var G = F.then(function() {});
 		G.test = true;
 
-		assertPendingPromises([A, B, C, D, E, F, G], "getAllPendingPromises");
+		assertPendingPromises([A, B, C, D, E, F, G], "getPendingPromises");
 		assertPendingPromises([C, E, G], "getLeafPendingPromises");
 
 		var lastPromise = Promise.all([C, E]).then(function() {
-			assertPendingPromises([F, G], "getAllPendingPromises");
+			assertPendingPromises([F, G], "getPendingPromises");
 			assertPendingPromises([G], "getLeafPendingPromises");
 			G.catch(function() {
-				assertPendingPromises([], "getAllPendingPromises");
+				assertPendingPromises([], "getPendingPromises");
 				assertPendingPromises([], "getLeafPendingPromises");
 			});
 			Fdeferred.reject();

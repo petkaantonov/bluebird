@@ -25,7 +25,7 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
 var monitor = !!(util.env("BLUEBIRD_MONITOR") != 0 &&
-    util.env("BLUEBIRD_LONG_STACK_TRACES"));
+    util.env("BLUEBIRD_MONITOR"));
 
 var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
     (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
@@ -220,28 +220,31 @@ Promise.enableMonitoring = function () {
     Promise.monitor._promiseIdCounter = 0;
 
     function registerPromise() {
-        Promise.monitor._promiseIdCounter++;
-        if (Promise.monitor._promiseIdCounter === Number.MAX_VALUE) {
-            Promise.monitor._promiseIdCounter = 0;
+        if (Promise.monitor) {
+            Promise.monitor._promiseIdCounter++;
+            if (Promise.monitor._promiseIdCounter === Number.MAX_VALUE) {
+                Promise.monitor._promiseIdCounter = 0;
+            }
+            if (Promise.monitor._pendingPromises[
+                    Promise.monitor._promiseIdCounter]) {
+                // Use case when number of promises is higher than
+                // Number.MAX_VALUE and collision happens is not handled,
+                // disabling the monitoring feature.
+                // Probability of this case is very low
+                Promise.disableMonitoring();
+                throw new Error(
+                    "Promises ids collision happened, sorry." +
+                    " Monitoring feature will be disabled");
+            }
+            this._promiseId = Promise.monitor._promiseIdCounter;
+            Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
+                = this;
         }
-        if (Promise.monitor._pendingPromises[
-                Promise.monitor._promiseIdCounter]) {
-            // Use case when number of promises is higher than
-            // Number.MAX_VALUE and collision happens is not handled,
-            // disabling the monitoring feature.
-            // Probability of this case is very low
-            Promise.disableMonitoring();
-            throw new Error(
-                "Promises ids collision happened, sorry."+
-                " Monitoring feature will be disabled");
-        }
-        this._promiseId = Promise.monitor._promiseIdCounter;
-        Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter] =
-            this;
     }
 
     function unregisterPromise() {
-        delete Promise.monitor._pendingPromises[this._promiseId];
+        if (Promise.monitor)
+            delete Promise.monitor._pendingPromises[this._promiseId];
     }
 
     Promise.disableMonitoring = function() {
