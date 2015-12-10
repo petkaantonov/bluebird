@@ -100,12 +100,25 @@ Promise.onUnhandledRejectionHandled = function (fn) {
                                  : undefined;
 };
 
+var disableLongStackTraces = function() {};
 Promise.longStackTraces = function () {
     if (async.haveItemsQueued() && !config.longStackTraces) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
     if (!config.longStackTraces && longStackTracesIsSupported()) {
+        var Promise_captureStackTrace = Promise.prototype._captureStackTrace;
+        var Promise_attachExtraTrace = Promise.prototype._attachExtraTrace;
         config.longStackTraces = true;
+        disableLongStackTraces = function() {
+            if (async.haveItemsQueued() && !config.longStackTraces) {
+                throw new Error(LONG_STACK_TRACES_ERROR);
+            }
+            Promise.prototype._captureStackTrace = Promise_captureStackTrace;
+            Promise.prototype._attachExtraTrace = Promise_attachExtraTrace;
+            Context.deactivateLongStackTraces();
+            async.enableTrampoline();
+            config.longStackTraces = false;
+        };
         Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
         Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
         Context.activateLongStackTraces();
@@ -119,8 +132,12 @@ Promise.hasLongStackTraces = function () {
 
 Promise.config = function(opts) {
     opts = Object(opts);
-    if ("longStackTraces" in opts && opts.longStackTraces) {
-        Promise.longStackTraces();
+    if ("longStackTraces" in opts) {
+        if (opts.longStackTraces) {
+            Promise.longStackTraces();
+        } else if (!opts.longStackTraces && Promise.hasLongStackTraces()) {
+            disableLongStackTraces();
+        }
     }
     if ("warnings" in opts) {
         config.warnings = !!opts.warnings;

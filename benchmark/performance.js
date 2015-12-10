@@ -1,8 +1,6 @@
 
 var args = require('optimist').argv;
 
-var util = require('util');
-
 var path = require('path');
 
 global.LIKELIHOOD_OF_REJECTION = args.e || 0.1;

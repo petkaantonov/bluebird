@@ -20,6 +20,10 @@ function Async() {
         schedule.isStatic ? schedule(this.drainQueues) : schedule;
 }
 
+Async.prototype.enableTrampoline = function() {
+    this._trampolineEnabled = true;
+};
+
 Async.prototype.disableTrampolineIfNecessary = function() {
     if (util.hasDevTools) {
         this._trampolineEnabled = false;

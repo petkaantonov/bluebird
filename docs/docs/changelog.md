@@ -3,6 +3,18 @@ id: changelog
 title: Changelog
 ---
 
+## 3.0.6 (2015-12-01)
+
+Features:
+
+ - feature
+
+Bugfixes:
+
+ - Fix [.timeout()](.) not cancelling parent \([#891](.)\)
+ - Fix long stack traces when using [Promise.resolve()](.) \([#861](.)\)
+ - Fix [Promise.config()](.) not disabling long stack traces when passing `longStackTraces: false` \([#897](.)\)
+
 ## 3.0.5 (2015-11-01)
 
 Bugfixes:
