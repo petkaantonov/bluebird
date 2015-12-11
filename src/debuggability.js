@@ -130,6 +130,68 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
+function registerPromise() {
+    if (Promise.monitor) {
+        Promise.monitor._promiseIdCounter++;
+        this._promiseId = Promise.monitor._promiseIdCounter;
+        Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
+            = this;
+    }
+}
+
+function unregisterPromise() {
+    if (Promise.monitor)
+        delete Promise.monitor._pendingPromises[this._promiseId];
+}
+
+function enableMonitoring () {
+    if (!Promise.monitor) {
+        // Property that holds monitoring related info,
+        // existence of it means that monitoring feature is currently enabled
+        Promise.monitor = {};
+        Promise.monitor._pendingPromises = {};
+        Promise.monitor._promiseIdCounter = 0;
+
+        util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
+        util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+
+        Promise.getPendingPromises = function () {
+            var result = [];
+            // Object.values() comes only in ES7
+            for (var key in Promise.monitor._pendingPromises) {
+                if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
+                    result.push(Promise.monitor._pendingPromises[key]);
+                }
+            }
+            return result;
+        };
+
+        Promise.getLeafPendingPromises = function () {
+            var pendingPromises = Promise.getPendingPromises();
+            var leafPromises = [];
+            for (var i = 0; i < pendingPromises.length; i++) {
+                var currentPromise = pendingPromises[i];
+                if (typeof currentPromise._promise0 === "undefined" &&
+                    typeof currentPromise._receiver0 === "undefined") {
+                    leafPromises.push(currentPromise);
+                }
+            }
+            return leafPromises;
+        };
+    }
+}
+
+function disableMonitoring () {
+    if (Promise.monitor) {
+        // No reason to clean up the id's from pending promises
+        util.unhookFrom(Promise.prototype, "_promiseCreated",
+            registerPromise);
+        util.unhookFrom(Promise.prototype,
+            "_promiseSettled", unregisterPromise);
+        Promise.monitor = null;
+    }
+}
+
 Promise.config = function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
@@ -161,9 +223,9 @@ Promise.config = function(opts) {
 
     if ("monitor" in opts) {
         if (opts.monitor) {
-            Promise.enableMonitoring();
-        } else if (typeof Promise.disableMonitoring === "function") {
-                Promise.disableMonitoring();
+            enableMonitoring();
+        } else {
+            disableMonitoring();
         }
     }
 };
@@ -188,65 +250,6 @@ Promise.prototype._propagateFrom = function (parent, flags) {
     USE(flags);
 };
 
-Promise.enableMonitoring = function () {
-    function registerPromise() {
-        if (Promise.monitor) {
-            Promise.monitor._promiseIdCounter++;
-            this._promiseId = Promise.monitor._promiseIdCounter;
-            Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
-                = this;
-        }
-    }
-
-    function unregisterPromise() {
-        if (Promise.monitor)
-            delete Promise.monitor._pendingPromises[this._promiseId];
-    }
-
-    if (!Promise.monitor) {
-        // Property that holds monitoring related info,
-        // existence of it means that monitoring feature is currently enabled
-        Promise.monitor = {};
-        Promise.monitor._pendingPromises = {};
-        Promise.monitor._promiseIdCounter = 0;
-
-        Promise.disableMonitoring = function () {
-            // No reason to clean up the id's from pending promises
-            util.unhookFrom(Promise.prototype, "_promiseCreated",
-                registerPromise);
-            util.unhookFrom(Promise.prototype,
-                "_promiseSettled", unregisterPromise);
-            Promise.monitor = null;
-        };
-
-        util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
-        util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
-
-        Promise.getPendingPromises = function () {
-            var result = [];
-            // Object.values() comes only in ES7
-            for (var key in Promise.monitor._pendingPromises) {
-                if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
-                    result.push(Promise.monitor._pendingPromises[key]);
-                }
-            }
-            return result;
-        };
-
-        Promise.getLeafPendingPromises = function () {
-            var pendingPromises = Promise.getPendingPromises();
-            var leafPromises = [];
-            for (var i = 0; i < pendingPromises.length; i++) {
-                var currentPromise = pendingPromises[i];
-                if (typeof currentPromise._promise0 === "undefined" &&
-                    typeof currentPromise._receiver0 === "undefined") {
-                    leafPromises.push(currentPromise);
-                }
-            }
-            return leafPromises;
-        };
-    }
-};
 function cancellationExecute(executor, resolve, reject) {
     var promise = this;
     try {
@@ -890,7 +893,7 @@ var config = {
 };
 
 if (longStackTraces) Promise.longStackTraces();
-if (monitor) Promise.enableMonitoring();
+if (monitor) enableMonitoring();
 
 return {
     longStackTraces: function() {

@@ -42,11 +42,11 @@ describe("promises monitoring", function() {
 	}
 
     before(function() {
-        Promise.enableMonitoring();
+        Promise.config({monitor: true});
     });
 
     after(function() {
-        Promise.disableMonitoring();
+        Promise.config({monitor: false});
         assert(Promise.monitor === null);
     });
 
