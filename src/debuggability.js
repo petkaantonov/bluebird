@@ -23,7 +23,7 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
 var monitor = !!(util.env("BLUEBIRD_MONITOR") != 0 &&
-    util.env("BLUEBIRD_LONG_STACK_TRACES"));
+    util.env("BLUEBIRD_MONITOR"));
 
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
