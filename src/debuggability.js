@@ -189,15 +189,6 @@ Promise.prototype._propagateFrom = function (parent, flags) {
 };
 
 Promise.enableMonitoring = function () {
-    // Property that holds monitoring related info,
-    // existence of it means that monitoring feature is currently enabled
-    Promise.monitor = {};
-
-    Promise.monitor._pendingPromises = {};
-
-    // Storing
-    Promise.monitor._promiseIdCounter = 0;
-
     function registerPromise() {
         if (Promise.monitor) {
             Promise.monitor._promiseIdCounter++;
@@ -226,40 +217,49 @@ Promise.enableMonitoring = function () {
             delete Promise.monitor._pendingPromises[this._promiseId];
     }
 
-    Promise.disableMonitoring = function() {
-        // No reason to clean up the id's from pending promises
-        util.unhookFrom(Promise.prototype, "_promiseCreated", registerPromise);
-        util.unhookFrom(Promise.prototype,
-            "_promiseSettled", unregisterPromise);
-        delete Promise.monitor;
-    };
+    if (!Promise.monitor) {
+        // Property that holds monitoring related info,
+        // existence of it means that monitoring feature is currently enabled
+        Promise.monitor = {};
+        Promise.monitor._pendingPromises = {};
+        Promise.monitor._promiseIdCounter = 0;
 
-    util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
-    util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+        Promise.disableMonitoring = function () {
+            // No reason to clean up the id's from pending promises
+            util.unhookFrom(Promise.prototype, "_promiseCreated",
+                registerPromise);
+            util.unhookFrom(Promise.prototype,
+                "_promiseSettled", unregisterPromise);
+            delete Promise.monitor;
+        };
 
-    Promise.getPendingPromises = function () {
-        var result = [];
-        // Object.values() comes only in EC7
-        for (var key in Promise.monitor._pendingPromises) {
-            if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
-                result.push(Promise.monitor._pendingPromises[key]);
+        util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
+        util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+
+        Promise.getPendingPromises = function () {
+            var result = [];
+            // Object.values() comes only in EC7
+            for (var key in Promise.monitor._pendingPromises) {
+                if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
+                    result.push(Promise.monitor._pendingPromises[key]);
+                }
             }
-        }
-        return result;
-    };
+            return result;
+        };
 
-    Promise.getLeafPendingPromises = function () {
-        var pendingPromises = Promise.getPendingPromises();
-        var leafPromises = [];
-        for (var  i = 0; i < pendingPromises.length; i++) {
-            var currentPromise = pendingPromises[i];
-            if (typeof currentPromise._promise0 === "undefined" &&
-                typeof currentPromise._receiver0 === "undefined") {
-                leafPromises.push(currentPromise);
+        Promise.getLeafPendingPromises = function () {
+            var pendingPromises = Promise.getPendingPromises();
+            var leafPromises = [];
+            for (var i = 0; i < pendingPromises.length; i++) {
+                var currentPromise = pendingPromises[i];
+                if (typeof currentPromise._promise0 === "undefined" &&
+                    typeof currentPromise._receiver0 === "undefined") {
+                    leafPromises.push(currentPromise);
+                }
             }
-        }
-        return leafPromises;
-    };
+            return leafPromises;
+        };
+    }
 };
 function cancellationExecute(executor, resolve, reject) {
     var promise = this;
