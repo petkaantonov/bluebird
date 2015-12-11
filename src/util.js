@@ -285,7 +285,7 @@ function hookTo(prototypeObject, methodName, extension) {
     if (typeof existingMethodImpl === "function" &&
         typeof extension === "function") {
         if (!existingMethodImpl.extensions) {
-            throw new Error("Trying to override extended method,"+
+            throw new Error("Trying to extended overriden method,"+
                 " please use util.js:hookTo() to extend it");
         }
         extension._hookExtensionId = ++_hookIdCounter;
