@@ -13,6 +13,7 @@ title: Features
 - [Resource management](#resource-management)
 - [Cancellation and timeouts](#cancellation-and-timeouts)
 - [Scoped prototypes](#scoped-prototypes)
+- [Promises monitoring](#promises-monitoring)
 - [Async/Await](#async-await)
 
 ##Synchronous inspection
@@ -265,6 +266,7 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 
 
 ##Async/Await
+
 
 
 ##Promises monitoring
