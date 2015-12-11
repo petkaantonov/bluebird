@@ -192,20 +192,6 @@ Promise.enableMonitoring = function () {
     function registerPromise() {
         if (Promise.monitor) {
             Promise.monitor._promiseIdCounter++;
-            if (Promise.monitor._promiseIdCounter === Number.MAX_VALUE) {
-                Promise.monitor._promiseIdCounter = 0;
-            }
-            if (Promise.monitor._pendingPromises[
-                    Promise.monitor._promiseIdCounter]) {
-                // Use case when number of promises is higher than
-                // Number.MAX_VALUE and collision happens is not handled,
-                // disabling the monitoring feature.
-                // Probability of this case is very low
-                Promise.disableMonitoring();
-                throw new Error(
-                    "Promises ids collision happened, sorry." +
-                    " Monitoring feature will be disabled");
-            }
             this._promiseId = Promise.monitor._promiseIdCounter;
             Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
                 = this;
@@ -230,7 +216,7 @@ Promise.enableMonitoring = function () {
                 registerPromise);
             util.unhookFrom(Promise.prototype,
                 "_promiseSettled", unregisterPromise);
-            delete Promise.monitor;
+            Promise.monitor = null;
         };
 
         util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
@@ -238,7 +224,7 @@ Promise.enableMonitoring = function () {
 
         Promise.getPendingPromises = function () {
             var result = [];
-            // Object.values() comes only in EC7
+            // Object.values() comes only in ES7
             for (var key in Promise.monitor._pendingPromises) {
                 if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
                     result.push(Promise.monitor._pendingPromises[key]);
