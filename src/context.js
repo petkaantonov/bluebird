@@ -5,10 +5,10 @@ var util = require("./util");
 var longStackTraces = false;
 var contextStack = [];
 
-util.hookTo(Promise.prototype, "_promiseCreated", function() {});
-util.hookTo(Promise.prototype, "_promiseSettled", function() {});
-util.hookTo(Promise.prototype, "_promiseChained", function() {});
-util.hookTo(Promise.prototype, "_pushContext", function() {});
+util.hookTo(Promise.prototype, "_promiseCreated", null);
+util.hookTo(Promise.prototype, "_promiseSettled", null);
+util.hookTo(Promise.prototype, "_promiseChained", null);
+util.hookTo(Promise.prototype, "_pushContext", null);
 Promise.prototype._popContext = function() {return null;};
 Promise._peekContext = Promise.prototype._peekContext = function() {};
 

@@ -47,6 +47,7 @@ describe("promises monitoring", function() {
 
     after(function() {
         Promise.disableMonitoring();
+        assert(Promise.monitor === null);
     });
 
 	it("promises added to monitor array after creation and removed after resolution", function() {

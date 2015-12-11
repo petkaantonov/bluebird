@@ -222,20 +222,6 @@ Promise.enableMonitoring = function () {
     function registerPromise() {
         if (Promise.monitor) {
             Promise.monitor._promiseIdCounter++;
-            if (Promise.monitor._promiseIdCounter === Number.MAX_VALUE) {
-                Promise.monitor._promiseIdCounter = 0;
-            }
-            if (Promise.monitor._pendingPromises[
-                    Promise.monitor._promiseIdCounter]) {
-                // Use case when number of promises is higher than
-                // Number.MAX_VALUE and collision happens is not handled,
-                // disabling the monitoring feature.
-                // Probability of this case is very low
-                Promise.disableMonitoring();
-                throw new Error(
-                    "Promises ids collision happened, sorry." +
-                    " Monitoring feature will be disabled");
-            }
             this._promiseId = Promise.monitor._promiseIdCounter;
             Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
                 = this;
@@ -247,27 +233,35 @@ Promise.enableMonitoring = function () {
             delete Promise.monitor._pendingPromises[this._promiseId];
     }
 
-    Promise.disableMonitoring = function() {
-        // No reason to clean up the id's from pending promises
-        util.unhookFrom(Promise.prototype, "_promiseCreated", registerPromise);
-        util.unhookFrom(Promise.prototype,
-            "_promiseSettled", unregisterPromise);
-        delete Promise.monitor;
-    };
+    if (!Promise.monitor) {
+        // Property that holds monitoring related info,
+        // existence of it means that monitoring feature is currently enabled
+        Promise.monitor = {};
+        Promise.monitor._pendingPromises = {};
+        Promise.monitor._promiseIdCounter = 0;
+
+        Promise.disableMonitoring = function () {
+            // No reason to clean up the id's from pending promises
+            util.unhookFrom(Promise.prototype, "_promiseCreated",
+                registerPromise);
+            util.unhookFrom(Promise.prototype,
+                "_promiseSettled", unregisterPromise);
+            Promise.monitor = null;
+        };
 
     util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
     util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
 
-    Promise.getPendingPromises = function () {
-        var result = [];
-        // Object.values() comes only in EC7
-        for (var key in Promise.monitor._pendingPromises) {
-            if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
-                result.push(Promise.monitor._pendingPromises[key]);
+        Promise.getPendingPromises = function () {
+            var result = [];
+            // Object.values() comes only in ES7
+            for (var key in Promise.monitor._pendingPromises) {
+                if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
+                    result.push(Promise.monitor._pendingPromises[key]);
+                }
             }
-        }
-        return result;
-    };
+            return result;
+        };
 
     Promise.getLeafPendingPromises = function () {
         var pendingPromises = Promise.getPendingPromises();

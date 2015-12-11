@@ -276,23 +276,20 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
+var _hookIdCounter = 0;
 // This function should not be used for methods that return a value
 // Using this function implies small performance overhead, should be used only
 // for debug methods
 function hookTo(prototypeObject, methodName, extension) {
     var existingMethodImpl = prototypeObject[methodName];
     if (typeof existingMethodImpl === "function" &&
-        existingMethodImpl.extensions) {
-        var extensions = existingMethodImpl.extensions;
-        extensions[extension.toString()] = extension;
-        // Performance optimization: remove noops
-        for (var key in extensions) {
-            if (extensions.hasOwnProperty(key) &&
-                extensions[key].toString().replace(/\s/g, "") ===
-                "function(){}") {
-                delete extensions[key];
-            }
+        typeof extension === "function") {
+        if (!existingMethodImpl.extensions) {
+            throw new Error("Trying to override extended method,"+
+                " please use util.js:hookTo() to extend it");
         }
+        extension._hookExtensionId = ++_hookIdCounter;
+        existingMethodImpl.extensions[extension._hookExtensionId] = extension;
     } else if (typeof existingMethodImpl === "undefined") {
         prototypeObject[methodName] = function () {
             var extensions = prototypeObject[methodName].extensions;
@@ -304,8 +301,10 @@ function hookTo(prototypeObject, methodName, extension) {
         };
         // Using object instead of array of functions to allow optimizations
         prototypeObject[methodName].extensions = {};
-        prototypeObject[methodName].extensions[extension.toString()] =
-            extension;
+        if (typeof extension === "function") {
+            extension._hookExtensionId = ++_hookIdCounter;
+            prototypeObject[methodName].extensions[_hookIdCounter] = extension;
+        }
     } else {
         throw new Error("Trying to wrap " + typeof existingMethodImpl +
             ", expecting a function or undefined");
@@ -313,12 +312,7 @@ function hookTo(prototypeObject, methodName, extension) {
 }
 
 function unhookFrom(prototypeObject, methodName, extension) {
-    var extensions = prototypeObject[methodName].extensions;
-    for (var i = 0; i < extensions; i++) {
-        if (extensions[i] === extension) {
-            extensions.splice(i, 1);
-        }
-    }
+    delete prototypeObject[methodName].extensions[extension._hookExtensionId];
 }
 
 var asArray = function(v) {
