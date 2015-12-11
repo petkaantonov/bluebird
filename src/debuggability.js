@@ -183,8 +183,8 @@ Promise.config = function(opts) {
     if ("monitor" in opts) {
         if (opts.monitor) {
             Promise.enableMonitoring();
-        } else {
-            Promise.disableMonitoring();
+        } else if (typeof Promise.disableMonitoring === "function") {
+                Promise.disableMonitoring();
         }
     }
 };

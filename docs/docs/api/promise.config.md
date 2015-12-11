@@ -13,7 +13,8 @@ title: Promise.config
 Promise.config(Object {
     warnings: boolean=false,
     longStackTraces: boolean=false,
-    cancellation: boolean=false
+    cancellation: boolean=false,
+    monitor: boolean=false
 } options) -> undefined;
 ```
 
