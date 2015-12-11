@@ -267,3 +267,8 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 ##Async/Await
 
 
+##Promises monitoring
+
+Promises monitoring feature allows to list all pending promises at any moment. After the feature have been enabled (see [config](promise.config.html)) Promise.getPendingPromises() method can be called at any moment to examine all pending promises objects.
+Promise.getLeafPendingPromises() method will list only the pending promises at the end of promise chains.
+Monitoring feature can be disabled by reconfiguring bluebird. Monitoring implies performance penalty.
