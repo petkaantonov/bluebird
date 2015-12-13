@@ -22,29 +22,28 @@ describe("utilities", function() {
     it("hookTo function adds handler to a hook", function() {
         util.hookTo(Promise.prototype,"hook", hookExtension);
         var promise = new Promise(function (){});
-        assert (promise.hook.extensions[hookExtension._hookExtensionId].executedFlag === false);
+        assert (promise.hook.extensions[0].executedFlag === false);
         promise.hook();
-        assert (promise.hook.extensions[hookExtension._hookExtensionId].executedFlag === true);
+        assert (promise.hook.extensions[0].executedFlag === true);
     });
 
     it("hookTo function adds 2 handlers to a hook", function() {
         util.hookTo(Promise.prototype,"hook", hookExtension);
         util.hookTo(Promise.prototype,"hook", hookExtension1);
         var promise = new Promise(function (){});
-        assert (promise.hook.extensions[hookExtension._hookExtensionId].executedFlag === false);
-        assert (promise.hook.extensions[hookExtension1._hookExtensionId].executedFlag === false);
+        assert (promise.hook.extensions[0].executedFlag === false);
+        assert (promise.hook.extensions[1].executedFlag === false);
         promise.hook();
-        assert (promise.hook.extensions[hookExtension._hookExtensionId].executedFlag === true);
-        assert (promise.hook.extensions[hookExtension1._hookExtensionId].executedFlag === true);
+        assert (promise.hook.extensions[0].executedFlag === true);
+        assert (promise.hook.extensions[1].executedFlag === true);
     });
 
     it("unhookFrom function removes handler from a hook", function() {
         util.hookTo(Promise.prototype,"hook", hookExtension);
         util.unhookFrom(Promise.prototype,"hook", hookExtension);
         var promise = new Promise(function (){});
-        assert(typeof Promise.prototype["hook"].extensions[
-                hookExtension.toString()] === "undefined");
-        assert(typeof promise.hook.extensions[hookExtension._hookExtensionId] === "undefined");
+        assert(typeof Promise.prototype["hook"].extensions.length === 0);
+        assert(typeof promise.hook.extensions.length === 0);
     });
 
     after(function () {

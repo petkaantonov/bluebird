@@ -276,7 +276,6 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
-var _hookIdCounter = 0;
 // This function should not be used for methods that return a value
 // Using this function implies small performance overhead, should be used only
 // for debug methods
@@ -288,21 +287,15 @@ function hookTo(prototypeObject, methodName, extension) {
             throw new Error("Trying to extend overriden method,"+
                 " please use util.js:hookTo() to extend it");
         }
-        extension._hookExtensionId = ++_hookIdCounter;
-        existingMethodImpl.extensions[extension._hookExtensionId] = extension;
+        existingMethodImpl.extensions.push(extension);
+        prototypeObject[methodName] = generateFunctionFromExtensions(
+            existingMethodImpl.extensions);
     } else if (typeof existingMethodImpl === "undefined") {
-        prototypeObject[methodName] = function () {
-            var extensions = prototypeObject[methodName].extensions;
-            var keys = es5.keys(extensions);
-            for (var i = 0; i < keys.length; i++) {
-                extensions[keys[i]].apply(this, arguments);
-            }
-        };
-        // Using object instead of array of functions to allow optimizations
-        prototypeObject[methodName].extensions = {};
         if (typeof extension === "function") {
-            extension._hookExtensionId = ++_hookIdCounter;
-            prototypeObject[methodName].extensions[_hookIdCounter] = extension;
+            prototypeObject[methodName] = generateFunctionFromExtensions(
+                [extension]);
+        } else {
+            prototypeObject[methodName] = generateFunctionFromExtensions([]);
         }
     } else {
         throw new Error("Trying to wrap " + typeof existingMethodImpl +
@@ -311,7 +304,45 @@ function hookTo(prototypeObject, methodName, extension) {
 }
 
 function unhookFrom(prototypeObject, methodName, extension) {
-    delete prototypeObject[methodName].extensions[extension._hookExtensionId];
+    if (!prototypeObject[methodName].extensions) {
+        throw new Error("Trying to unhook from method, that was not extended");
+    }
+    var index = prototypeObject[methodName].extensions.indexOf(extension);
+    if (index < 0) {
+        throw new Error("Trying to unhook extension function " + extension +
+            " that was not hooked to current prototype, extensions that were" +
+            " hooked are: " + prototypeObject[methodName].extensions);
+    }
+    var extensions = prototypeObject[methodName].extensions.splice(index,1);
+    prototypeObject[methodName] = generateFunctionFromExtensions(extensions);
+}
+
+function generateFunctionFromExtensions(extensions) {
+    var currentImpl = null;
+    if (extensions.length === 0) {
+        currentImpl = function () {};
+    } else if (extensions.length === 1) {
+        var singleImpl = extensions[0];
+        currentImpl = function () {
+            singleImpl.apply(this, arguments);
+        };
+    } else {
+        currentImpl = extensions[0];
+        for (var i = 1; i < extensions.length ; i++) {
+            //if (extensions[i].extensions) delete extensions[i].extensions;
+            var previousImpl = currentImpl;
+            currentImpl = (function () {
+                var prev = previousImpl;
+                var next = extensions[i];
+                return function () {
+                    prev.apply(this, arguments);
+                    next.apply(this, arguments);
+                };
+            }());
+        }
+    }
+    currentImpl.extensions = extensions;
+    return currentImpl;
 }
 
 var asArray = function(v) {
