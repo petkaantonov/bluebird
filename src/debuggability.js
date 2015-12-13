@@ -156,7 +156,7 @@ function enableMonitoring () {
         util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
         util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
 
-        Promise.getPendingPromises = function () {
+        Promise.monitor.getPendingPromises = function () {
             var result = [];
             var keys = es5.keys(Promise.monitor._pendingPromises);
             for (var i = 0; i < keys.length; i++) {
@@ -165,8 +165,8 @@ function enableMonitoring () {
             return result;
         };
 
-        Promise.getLeafPendingPromises = function () {
-            var pendingPromises = Promise.getPendingPromises();
+        Promise.monitor.getLeafPendingPromises = function () {
+            var pendingPromises = Promise.monitor.getPendingPromises();
             var leafPromises = [];
             for (var i = 0; i < pendingPromises.length; i++) {
                 var currentPromise = pendingPromises[i];

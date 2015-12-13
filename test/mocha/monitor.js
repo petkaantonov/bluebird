@@ -6,8 +6,8 @@ var assert = require("assert");
 describe("promise monitoring", function() {
 
 	function assertPendingPromises(expectedPromisesArray, getPendingPromisesFunctionName) {
-		assert(typeof Promise[getPendingPromisesFunctionName] === "function");
-		var allPendingPromises = Promise[getPendingPromisesFunctionName]();
+		assert(typeof Promise.monitor[getPendingPromisesFunctionName] === "function");
+		var allPendingPromises = Promise.monitor[getPendingPromisesFunctionName]();
 		// Remove all promises not related to this test
 		var i;
 		for (i = 0; i < allPendingPromises.length; i++) {
@@ -117,11 +117,11 @@ describe("promise monitoring", function() {
 		var lastPromise = Promise.all([C, E]).then(function() {
 			assertPendingPromises([F, G], "getPendingPromises");
 			assertPendingPromises([G], "getLeafPendingPromises");
-			G.catch(function() {
+            Fdeferred.reject();
+			return G.catch(function() {
 				assertPendingPromises([], "getPendingPromises");
 				assertPendingPromises([], "getLeafPendingPromises");
 			});
-			Fdeferred.reject();
 		});
 		Adeferred.resolve();
 		return lastPromise;
