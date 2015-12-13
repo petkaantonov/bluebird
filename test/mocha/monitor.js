@@ -3,7 +3,7 @@ var assert = require("assert");
 // In this test each promise created in this test should be explicitly marked,
 // not to mix it up with promises created by Mocha
 
-describe("promises monitoring", function() {
+describe("promise monitoring", function() {
 
 	function assertPendingPromises(expectedPromisesArray, getPendingPromisesFunctionName) {
 		assert(typeof Promise[getPendingPromisesFunctionName] === "function");

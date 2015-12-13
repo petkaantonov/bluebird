@@ -18,7 +18,7 @@ Promise.config(Object {
 } options) -> undefined;
 ```
 
-Configure long stack traces, warnings, promises monitoring and cancellation.
+Configure long stack traces, warnings, promise monitoring and cancellation.
 
 ```js
 Promise.config({
@@ -28,14 +28,14 @@ Promise.config({
     longStackTraces: true,
     // Enable cancellation.
     cancellation: true,
-    // Enable promises monitoring.
+    // Enable promise monitoring.
     monitor: true
 });
 ```
 
 <hr>
 
-In Node.js you may configure warnings, long stack traces and promises monitoring for the entire process using environment variables:
+In Node.js you may configure warnings, long stack traces and promise monitoring for the entire process using environment variables:
 
 ```
 BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 BLUEBIRD_MONITOR=1 node app.js
