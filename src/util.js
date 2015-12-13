@@ -313,8 +313,9 @@ function unhookFrom(prototypeObject, methodName, extension) {
             " that was not hooked to current prototype, extensions that were" +
             " hooked are: " + prototypeObject[methodName].extensions);
     }
-    var extensions = prototypeObject[methodName].extensions.splice(index,1);
-    prototypeObject[methodName] = generateFunctionFromExtensions(extensions);
+    prototypeObject[methodName].extensions.splice(index,1);
+    prototypeObject[methodName] = generateFunctionFromExtensions(
+        prototypeObject[methodName].extensions);
 }
 
 function generateFunctionFromExtensions(extensions) {
