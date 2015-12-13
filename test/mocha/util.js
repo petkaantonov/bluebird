@@ -42,8 +42,8 @@ describe("utilities", function() {
         util.hookTo(Promise.prototype,"hook", hookExtension);
         util.unhookFrom(Promise.prototype,"hook", hookExtension);
         var promise = new Promise(function (){});
-        assert(typeof Promise.prototype["hook"].extensions.length === 0);
-        assert(typeof promise.hook.extensions.length === 0);
+        assert(Promise.prototype["hook"].extensions.length === 0);
+        assert(promise.hook.extensions.length === 0);
     });
 
     after(function () {
