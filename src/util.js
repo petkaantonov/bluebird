@@ -330,7 +330,6 @@ function generateFunctionFromExtensions(extensions) {
     } else {
         currentImpl = extensions[0];
         for (var i = 1; i < extensions.length ; i++) {
-            //if (extensions[i].extensions) delete extensions[i].extensions;
             var previousImpl = currentImpl;
             currentImpl = (function () {
                 var prev = previousImpl;
