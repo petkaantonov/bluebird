@@ -24,7 +24,7 @@ Environment variables supported by 3.x:
 - `NODE_ENV` - If set exactly to `development` it will have the same effect as if the `BLUEBIRD_DEBUG` variable was set.
 - `BLUEBIRD_WARNINGS` - if set exactly to `0` it will explicitly disable warnings and this overrides any other setting that might enable warnings. If set to any truthy value, it will explicitly enable warnings.
 - `BLUEBIRD_LONG_STACK_TRACES` - if set exactly to `0` it will explicitly disable long stack traces and this overrides any other setting that might enable long stack traces. If set to any truthy value, it will explicitly enable long stack traces.
-- `BLUEBIRD_MONITOR` - if set exactly to `0` it will explicitly disable promises monitoring and this overrides any other setting that might enable promises monitoring. If set to any truthy value, it will explicitly enable promises monitoring.
+- `BLUEBIRD_MONITOR` - if set exactly to `0` it will explicitly disable promise monitoring and this overrides any other setting that might enable promise monitoring. If set to any truthy value, it will explicitly enable promise monitoring.
 </markdown></div>
 
 <div id="disqus_thread"></div>

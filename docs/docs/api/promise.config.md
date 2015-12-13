@@ -28,7 +28,7 @@ Promise.config({
     longStackTraces: true,
     // Enable cancellation.
     cancellation: true,
-    // Enable promises monitoring.
+    // Enable promise monitoring.
     monitor: true
 });
 ```

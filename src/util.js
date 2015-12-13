@@ -293,10 +293,9 @@ function hookTo(prototypeObject, methodName, extension) {
     } else if (typeof existingMethodImpl === "undefined") {
         prototypeObject[methodName] = function () {
             var extensions = prototypeObject[methodName].extensions;
-            for (var key in extensions) {
-                if (extensions.hasOwnProperty(key)) {
-                    extensions[key].apply(this, arguments);
-                }
+            var keys = es5.keys(extensions);
+            for (var i = 0; i < keys.length; i++) {
+                extensions[keys[i]].apply(this, arguments);
             }
         };
         // Using object instead of array of functions to allow optimizations

@@ -4,6 +4,7 @@ var getDomain = Promise._getDomain;
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
+var es5 = require("./es5");
 var ASSERT = require("./assert");
 var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
@@ -170,11 +171,9 @@ function enableMonitoring () {
 
         Promise.getPendingPromises = function () {
             var result = [];
-            // Object.values() comes only in ES7
-            for (var key in Promise.monitor._pendingPromises) {
-                if (Promise.monitor._pendingPromises.hasOwnProperty(key)) {
-                    result.push(Promise.monitor._pendingPromises[key]);
-                }
+            var keys = es5.keys(Promise.monitor._pendingPromises);
+            for (var i = 0; i < keys.length; i++) {
+                result.push(Promise.monitor._pendingPromises[keys[i]]);
             }
             return result;
         };
