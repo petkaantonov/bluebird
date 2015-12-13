@@ -131,18 +131,20 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
+var pendingPromises = {};
+var promiseIdCounter = 0;
+
 function registerPromise() {
     if (Promise.monitor) {
-        Promise.monitor._promiseIdCounter++;
-        this._promiseId = Promise.monitor._promiseIdCounter;
-        Promise.monitor._pendingPromises[Promise.monitor._promiseIdCounter]
-            = this;
+        promiseIdCounter++;
+        this._promiseId = promiseIdCounter;
+        pendingPromises[promiseIdCounter] = this;
     }
 }
 
 function unregisterPromise() {
     if (Promise.monitor)
-        delete Promise.monitor._pendingPromises[this._promiseId];
+        delete pendingPromises[this._promiseId];
 }
 
 function enableMonitoring () {
@@ -150,17 +152,15 @@ function enableMonitoring () {
         // Property that holds monitoring related info,
         // existence of it means that monitoring feature is currently enabled
         Promise.monitor = {};
-        Promise.monitor._pendingPromises = {};
-        Promise.monitor._promiseIdCounter = 0;
 
         util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
         util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
 
         Promise.monitor.getPendingPromises = function () {
             var result = [];
-            var keys = es5.keys(Promise.monitor._pendingPromises);
+            var keys = es5.keys(pendingPromises);
             for (var i = 0; i < keys.length; i++) {
-                result.push(Promise.monitor._pendingPromises[keys[i]]);
+                result.push(pendingPromises[keys[i]]);
             }
             return result;
         };
@@ -188,6 +188,7 @@ function disableMonitoring () {
         util.unhookFrom(Promise.prototype,
             "_promiseSettled", unregisterPromise);
         Promise.monitor = null;
+        pendingPromises = null;
     }
 }
 
