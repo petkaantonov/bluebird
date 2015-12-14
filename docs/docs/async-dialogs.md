@@ -123,30 +123,21 @@ function promptPromise(message) {
   var input        = dialog.querySelector('input');
   var okButton     = dialog.querySelector('button.ok');
   var cancelButton = dialog.querySelector('button.cancel');
-  var resolver, rejector;
 
   dialog.querySelector('.message').innerHTML = String(message);
   dialog.className = '';
 
-  function handleOk() {
-    resolver(input.value);
-  }
-
-  function handleCancel() {
-    rejector(new Error('User cancelled'));
-  }
-
-  okButton.addEventListener('click', handleOk);
-  cancelButton.addEventListener('click', handleCancel);
-
   return new Promise(function(resolve, reject) {
-    resolver = resolve;
-    rejector = reject;
-  })
-  .finally(function() {
-    okButton.removeEventListener('click', handleOk);
-    cancelButton.removeEventListener('click', handleCancel);
-    dialog.className = 'hidden';
+    dialog.addEventListener('click', function handleButtonClicks(e) {
+      if (e.target.tagName !== 'BUTTON') { return true; }
+      dialog.removeEventListener('click', handleButtonClicks);
+      dialog.className = 'hidden';
+      if (e.target === okButton) {
+        resolve(input.value);
+      } else if (e.target === cancelButton) {
+        reject(new Error('User cancelled'));
+      }
+    });
   });
 }
 ```
