@@ -28,7 +28,7 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 2);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 3);
 CONSTANT(CALLBACK_SIZE, 4);
 //Layout for ._bitField
-//[RR]RR GWFN CTBH RUDE LLLL LLLL LLLL LLLL
+//[RR]RR GWFN CTBH IUDE LLLL LLLL LLLL LLLL
 //[RR] = [Reserved] (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //R = [Reserved]
@@ -39,7 +39,7 @@ CONSTANT(CALLBACK_SIZE, 4);
 //C = isCancellable
 //T = isFinal (used for .done() implementation)
 //B = isBound
-//R = isMigrated
+//I = isRejectionIgnored
 //H = isRejectionUnhandled
 //U = isUnhanldedRejectionNotified
 //D = isDisposable
@@ -54,7 +54,7 @@ CONSTANT(IS_CANCELLABLE, 0x800000|0);
 CONSTANT(IS_FINAL, 0x400000|0);
 CONSTANT(IS_BOUND, 0x200000|0);
 CONSTANT(IS_REJECTION_UNHANDLED, 0x100000|0);
-CONSTANT(IS_REJECTION_IGNORED, 0x200000|0);
+CONSTANT(IS_REJECTION_IGNORED, 0x80000|0);
 CONSTANT(IS_UNHANDLED_REJECTION_NOTIFIED, 0x40000|0);
 CONSTANT(IS_DISPOSABLE, 0x20000|0);
 CONSTANT(IS_CANCELLED, 0x10000|0);
