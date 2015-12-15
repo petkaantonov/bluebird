@@ -282,14 +282,61 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
     }
 }
 
+function isInternalFrameWithin(string, lineStart, lineEnd) {
+    return shouldIgnore(string.slice(lineStart, lineEnd));
+}
+
 function checkForgottenReturns(returnValue, promiseCreated, name, promise) {
     if (returnValue === undefined &&
-        promiseCreated !== null &&
+        promiseCreated.length > 0 &&
         config.longStackTraces &&
         config.warnings) {
-        var msg = "a promise was created in a " + name +
-            " handler but was not returned from it";
-        promise._warn(msg, true, promiseCreated);
+
+        promiseLoop: for (var i = 0; i < promiseCreated.length; ++i) {
+            var stackString = promiseCreated[i]._trace.stack;
+
+            var frameStart = stackString.search(stackFramePattern);
+            if (frameStart === -1) continue;
+
+            var lineStart = frameStart, lineEnd;
+
+            // If the stack trace for the promise creation has exactly 1
+            // user frame in between the creation of the promise and calling
+            // of the handler, then that handler was directly creating
+            // a promise and forgetting to return it:
+            //
+            // [n internal frames]
+            // [1 user frame]
+            // [n internal frames]
+            do {
+                lineEnd = stackString.indexOf("\n", lineStart);
+
+                // Keep going until the first user frame is found.
+                if (!isInternalFrameWithin(stackString, lineStart, lineEnd)) {
+                    var nextLine = stackString.indexOf("\n", lineEnd + 4);
+
+                    // Check that the next frame is again internal and
+                    // trigger the warning.
+                    if (nextLine >= 0 && isInternalFrameWithin(
+                                stackString, lineEnd + 1, nextLine)) {
+                        if (name) name = name + " ";
+                        var msg = "a promise was created in a " + name +
+                            "handler but was not returned from it";
+                        promise._warn(msg, true, promiseCreated[i]);
+                        // Don't flood the user with messages, let them fix
+                        // it one at a time.
+                        return;
+
+                    }
+
+                    // This promise was created deep somewhere else, forget
+                    // about it.
+                    continue promiseLoop;
+                }
+
+                lineStart = lineEnd + 1;
+            } while (lineEnd >= 0);
+        }
     }
 }
 
@@ -652,7 +699,7 @@ CapturedTrace.prototype.attachExtraTrace = function(error) {
 };
 
 var captureStackTrace = (function stackDetection() {
-    var v8stackFramePattern = /^\s*at\s*/;
+    var v8stackFramePattern = / {4}at {1}/;
     var v8stackFormatter = function(stack, error) {
         ASSERT(error !== null);
 

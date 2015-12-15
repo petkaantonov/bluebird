@@ -13,7 +13,7 @@ function Context() {
 }
 Context.prototype._pushContext = function () {
     if (this._trace !== undefined) {
-        this._trace._promiseCreated = null;
+        this._trace._promiseCreated = [];
         contextStack.push(this._trace);
     }
 };
@@ -22,7 +22,7 @@ Context.prototype._popContext = function () {
     if (this._trace !== undefined) {
         var trace = contextStack.pop();
         var ret = trace._promiseCreated;
-        trace._promiseCreated = null;
+        trace._promiseCreated = [];
         return ret;
     }
     return null;
@@ -62,7 +62,7 @@ Context.activateLongStackTraces = function() {
     Promise._peekContext = Promise.prototype._peekContext = peekContext;
     Promise.prototype._promiseCreated = function() {
         var ctx = this._peekContext();
-        if (ctx && ctx._promiseCreated == null) ctx._promiseCreated = this;
+        if (ctx) ctx._promiseCreated.push(this);
     };
 };
 return Context;
