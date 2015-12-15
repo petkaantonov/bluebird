@@ -46,7 +46,7 @@ function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
 util.inherits(PromiseSpawn, Proxyable);
 
 PromiseSpawn.prototype._isResolved = function() {
-    return this.promise === null;
+    return this._promise === null;
 };
 
 PromiseSpawn.prototype._cleanup = function() {
