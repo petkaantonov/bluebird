@@ -153,6 +153,7 @@ Promise.config = function(opts) {
     if ("warnings" in opts) {
         var warningsOption = opts.warnings;
         config.warnings = !!warningsOption;
+        wForgottenReturn = config.warnings;
 
         if (util.isObject(warningsOption)) {
             if ("wForgottenReturn" in warningsOption) {
