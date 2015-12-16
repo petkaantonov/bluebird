@@ -17,7 +17,7 @@ Promise.config(Object {
 } options) -> undefined;
 ```
 
-Configure long stack traces, warnings and cancellation.
+Configure long stack traces, warnings and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
 
 ```js
 Promise.config({
@@ -30,7 +30,22 @@ Promise.config({
 });
 ```
 
+You can configure the warning for checking forgotten return statements with `wForgottenReturn`:
+
+```js
+Promise.config({
+    // Enables all warnings except forgotten return statements.
+    warnings: {
+        wForgottenReturn: false
+    }
+});
+```
+
+`wForgottenReturn` is the only warning type that can be separately configured. The corresponding environmental variable key is `BLUEBIRD_W_FORGOTTEN_RETURN`.
+
 <hr>
+
+
 
 In Node.js you may configure warnings and long stack traces for the entire process using environment variables:
 

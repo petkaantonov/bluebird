@@ -18,10 +18,15 @@ var debugging = !!(util.env("BLUEBIRD_DEBUG") != 0 &&
                         (__DEBUG__ ||
                          util.env("BLUEBIRD_DEBUG") ||
                          util.env("NODE_ENV") === "development"));
+
 var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
     (debugging || util.env("BLUEBIRD_WARNINGS")));
+
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
+
+var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
+    (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
 
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
@@ -146,7 +151,14 @@ Promise.config = function(opts) {
         }
     }
     if ("warnings" in opts) {
-        config.warnings = !!opts.warnings;
+        var warningsOption = opts.warnings;
+        config.warnings = !!warningsOption;
+
+        if (util.isObject(warningsOption)) {
+            if ("wForgottenReturn" in warningsOption) {
+                wForgottenReturn = !!warningsOption.wForgottenReturn;
+            }
+        }
     }
     if ("cancellation" in opts && opts.cancellation && !config.cancellation) {
         if (async.haveItemsQueued()) {
@@ -292,10 +304,8 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
 
 function checkForgottenReturns(returnValue, promiseCreated, name, promise,
                                parent) {
-    if (returnValue === undefined &&
-        promiseCreated !== null &&
-        config.warnings) {
-
+    if (returnValue === undefined && promiseCreated !== null &&
+        wForgottenReturn) {
         if (parent !== undefined && parent._returnedNonUndefined()) return;
 
         if (name) name = name + " ";
