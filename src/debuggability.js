@@ -40,6 +40,14 @@ Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
                                   unhandledRejectionHandled, undefined, this);
 };
 
+Promise.prototype._setReturnedNonUndefined = function() {
+    this._bitField = this._bitField | RETURNED_NON_UNDEFINED;
+};
+
+Promise.prototype._returnedNonUndefined = function() {
+    return (this._bitField & RETURNED_NON_UNDEFINED) !== 0;
+};
+
 Promise.prototype._notifyUnhandledRejection = function () {
     if (this._isRejectionUnhandled()) {
         var reason = this._settledValue();
@@ -282,13 +290,17 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
     }
 }
 
-function checkForgottenReturns(returnValue, promiseCreated, name, promise) {
+function checkForgottenReturns(returnValue, promiseCreated, name, promise,
+                               parent) {
     if (returnValue === undefined &&
         promiseCreated !== null &&
-        config.longStackTraces &&
         config.warnings) {
+
+        if (parent !== undefined && parent._returnedNonUndefined()) return;
+
+        if (name) name = name + " ";
         var msg = "a promise was created in a " + name +
-            " handler but was not returned from it";
+            "handler but was not returned from it";
         promise._warn(msg, true, promiseCreated);
     }
 }

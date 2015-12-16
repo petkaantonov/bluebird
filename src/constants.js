@@ -28,10 +28,11 @@ CONSTANT(CALLBACK_PROMISE_OFFSET, 2);
 CONSTANT(CALLBACK_RECEIVER_OFFSET, 3);
 CONSTANT(CALLBACK_SIZE, 4);
 //Layout for ._bitField
-//[RR]RR GWFN CTBH IUDE LLLL LLLL LLLL LLLL
+//[RR]RO GWFN CTBH IUDE LLLL LLLL LLLL LLLL
 //[RR] = [Reserved] (Both bits are either on or off to represent
 //                    1 bit due to 31-bit integers in 32-bit v8)
 //R = [Reserved]
+//O = returnedNonUndefined
 //G = isAsyncGuaranteed
 //W = isFollowing (The promise that is being followed is not stored explicitly)
 //F = isFulfilled
@@ -46,6 +47,7 @@ CONSTANT(CALLBACK_SIZE, 4);
 //E = isCancelled
 //L = Length, 16 bit unsigned
 CONSTANT(NO_STATE, 0x0|0);
+CONSTANT(RETURNED_NON_UNDEFINED, 0x10000000|0);
 CONSTANT(IS_ASYNC_GUARANTEED, 0x8000000|0);
 CONSTANT(IS_FOLLOWING, 0x4000000|0);
 CONSTANT(IS_FULFILLED, 0x2000000|0);
