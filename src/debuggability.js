@@ -741,40 +741,27 @@ var fireGlobalEvent = (function() {
             }
         };
     } else {
-        var customEventWorks = false;
-        var anyEventWorks = true;
-        try {
-            var ev = new self.CustomEvent("test");
-            customEventWorks = ev instanceof CustomEvent;
-        } catch (e) {}
-        if (!customEventWorks) {
-            try {
-                var event = document.createEvent("CustomEvent");
-                event.initCustomEvent("testingtheevent", false, true, {});
-                self.dispatchEvent(event);
-            } catch (e) {
-                anyEventWorks = false;
-            }
-        }
-        if (anyEventWorks) {
-            fireDomEvent = function(type, detail) {
-                var event;
-                // WebWorkers and Up-to-date browsers
-                if (customEventWorks) {
-                    event = new self.CustomEvent(type, {
-                        detail: detail,
-                        bubbles: false,
-                        cancelable: true
-                    });
-                // IE9
-                } else if (self.dispatchEvent) {
-                    event = document.createEvent("CustomEvent");
-                    event.initCustomEvent(type, false, true, detail);
-                }
+        var globalObject = typeof self !== "undefined" ? self :
+                     typeof window !== "undefined" ? window :
+                     typeof global !== "undefined" ? global :
+                     this !== undefined ? this : null;
 
-                return event ? !self.dispatchEvent(event) : false;
+        if (!globalObject) {
+            return function() {
+                return false;
             };
         }
+
+        try {
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("testingtheevent", false, true, {});
+            globalObject.dispatchEvent(event);
+            fireDomEvent = function(type, detail) {
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent(type, false, true, detail);
+                return !globalObject.dispatchEvent(event);
+            };
+        } catch (e) {}
 
         var toWindowMethodNameMap = {};
         toWindowMethodNameMap[UNHANDLED_REJECTION_EVENT] = ("on" +
@@ -784,12 +771,12 @@ var fireGlobalEvent = (function() {
 
         return function(name, reason, promise) {
             var methodName = toWindowMethodNameMap[name];
-            var method = self[methodName];
+            var method = globalObject[methodName];
             if (!method) return false;
             if (name === REJECTION_HANDLED_EVENT) {
-                method.call(self, promise);
+                method.call(globalObject, promise);
             } else {
-                method.call(self, reason, promise);
+                method.call(globalObject, reason, promise);
             }
             return true;
         };

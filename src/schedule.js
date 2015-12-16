@@ -24,13 +24,33 @@ if (util.isNode && typeof MutationObserver === "undefined") {
           !(typeof window !== "undefined" &&
             window.navigator &&
             window.navigator.standalone)) {
-    schedule = function(fn) {
+    schedule = (function() {
+        // Using 2 mutation observers to batch multiple updates into one.
         var div = document.createElement("div");
-        var observer = new MutationObserver(fn);
-        observer.observe(div, {attributes: true});
-        return function() { div.classList.toggle("foo"); };
-    };
-    schedule.isStatic = true;
+        var opts = {attributes: true};
+        var toggleScheduled = false;
+        var div2 = document.createElement("div");
+        var o2 = new MutationObserver(function() {
+            div.classList.toggle("foo");
+          toggleScheduled = false;
+        });
+        o2.observe(div2, opts);
+
+        var scheduleToggle = function() {
+            if (toggleScheduled) return;
+          toggleScheduled = true;
+          div2.classList.toggle("foo");
+        };
+
+        return function schedule(fn) {
+          var o = new MutationObserver(function() {
+            o.disconnect();
+            fn();
+          });
+          o.observe(div, opts);
+          scheduleToggle();
+        };
+    })();
 // setImmediate has higher latency but is still pretty good. This is useful for
 // cases where MutationObserver is not defined (older IE, for example).
 } else if (typeof setImmediate !== "undefined") {

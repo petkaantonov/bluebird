@@ -519,7 +519,7 @@ describe("Promise.onUnhandledRejectionHandled", function() {
         });
         setTimeout(function(){
             a.then(assert.fail, function(){});
-        }, 1);
+        }, 200);
 
         return Promise.all([spy1.promise, spy2.promise]);
     });
@@ -565,7 +565,7 @@ describe("global events", function() {
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
                 promise.then(assert.fail, function(){});
-            }, 1);
+            }, 150);
         }).timeout(500);
     });
 
@@ -604,7 +604,7 @@ describe("global events", function() {
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
                 promise.then(assert.fail, function(){});
-            }, 1);
+            }, 150);
         }).timeout(500);
 
     });
@@ -672,7 +672,7 @@ if (windowDomEventSupported) {
                         assert.strictEqual(r, err);
                         assert.deepEqual(order, [1,2,3,4,5]);
                     });
-                }, 100);
+                }, 150);
             }).timeout(500);
 
         })
