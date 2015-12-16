@@ -4,6 +4,13 @@ title: Changelog
 ---
 
 
+## 3.1.1 (2015-12-16)
+
+Bugfixes:
+
+ - Disable wForgottenWarning when all warnings are disabled
+
+
 ## 3.1.0 (2015-12-16)
 
 Features:
