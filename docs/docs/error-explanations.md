@@ -18,7 +18,6 @@ title: Error Explanations
  - [Error: expecting a positive integer](#error-expecting-a-positive-integer)
  - [Error: A value was yielded that could not be treated as a promise](#error-a-value-was-yielded-that-could-not-be-treated-as-a-promise)
  - [Error: cannot await properties of a non object](#error-cannot-await-properties-of-a-non-object)
- - [Error: cannot enable long stack traces after promises have been created](#error-cannot-enable-long-stack-traces-after-promises-have-been-created)
  - [Error: Cannot promisify an API that has normal methods](#error-cannot-promisify-an-api-that-has-normal-methods)
  - [Error: Catch filter must inherit from Error or be a simple predicate function](#error-catch-filter-must-inherit-from-error-or-be-a-simple-predicate-function)
  - [Error: No async scheduler available](#error-no-async-scheduler-available)
