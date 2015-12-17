@@ -236,6 +236,7 @@ Promise.prototype._then = function (
                 receiver = target === this ? undefined : this._boundTo;
             }
         }
+        this._promiseChained(target);
     }
 
     var domain = getDomain();
@@ -289,14 +290,17 @@ Promise.prototype._setLength = function (len) {
 
 Promise.prototype._setFulfilled = function () {
     this._bitField = this._bitField | IS_FULFILLED;
+    this._promiseSettled();
 };
 
 Promise.prototype._setRejected = function () {
     this._bitField = this._bitField | IS_REJECTED;
+    this._promiseSettled();
 };
 
 Promise.prototype._setFollowing = function () {
     this._bitField = this._bitField | IS_FOLLOWING;
+    this._promiseSettled();
 };
 
 Promise.prototype._setIsFinal = function () {
@@ -313,6 +317,7 @@ Promise.prototype._unsetCancelled = function() {
 
 Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
+    this._promiseSettled();
 };
 
 Promise.prototype._setAsyncGuaranteed = function() {
