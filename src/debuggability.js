@@ -909,9 +909,6 @@ return {
     longStackTraces: function() {
         return config.longStackTraces;
     },
-    enableMonitoring: function() {
-        return config.enableMonitoring;
-    },
     warnings: function() {
         return config.warnings;
     },

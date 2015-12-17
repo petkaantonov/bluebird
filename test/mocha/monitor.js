@@ -63,7 +63,7 @@ describe("promise monitoring", function() {
 	it("promises added to monitor array after creation and removed after rejection", function() {
 		var deferred = deferAndMarkAsTestPromise();
 		assertAllAndLeafPendingPromises([deferred.promise]);
-		var lastPromise = deferred.promise.catch(function() {
+		var lastPromise = deferred.promise.caught(function() {
 			assertAllAndLeafPendingPromises([]);
 		});
 		deferred.reject(new Error("reason"));
@@ -83,7 +83,7 @@ describe("promise monitoring", function() {
 		var deferred = deferAndMarkAsTestPromise();
 		assertAllAndLeafPendingPromises([deferred.promise]);
 		deferred.resolve();
-		var lastPromise = deferred.promise.thenThrow(new Error("reason")).catch(function (){});
+		var lastPromise = deferred.promise.thenThrow(new Error("reason")).caught(function (){});
 		assertAllAndLeafPendingPromises([]);
 		return lastPromise;
 	});
@@ -118,7 +118,7 @@ describe("promise monitoring", function() {
 			assertPendingPromises([F, G], "getPendingPromises");
 			assertPendingPromises([G], "getLeafPendingPromises");
             Fdeferred.reject();
-			return G.catch(function() {
+			return G.caught(function() {
 				assertPendingPromises([], "getPendingPromises");
 				assertPendingPromises([], "getLeafPendingPromises");
 			});
