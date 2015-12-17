@@ -276,6 +276,75 @@ function copyDescriptors(from, to, filter) {
     }
 }
 
+// This function should not be used for methods that return a value
+// Using this function implies small performance overhead, should be used only
+// for debug methods
+function hookTo(prototypeObject, methodName, extension) {
+    var existingMethodImpl = prototypeObject[methodName];
+    if (typeof existingMethodImpl === "function" &&
+        typeof extension === "function") {
+        if (!existingMethodImpl.extensions) {
+            throw new Error("Trying to extend overriden method,"+
+                " please use util.js:hookTo() to extend it");
+        }
+        existingMethodImpl.extensions.push(extension);
+        prototypeObject[methodName] = generateFunctionFromExtensions(
+            existingMethodImpl.extensions);
+    } else if (typeof existingMethodImpl === "undefined") {
+        if (typeof extension === "function") {
+            prototypeObject[methodName] = generateFunctionFromExtensions(
+                [extension]);
+        } else {
+            prototypeObject[methodName] = generateFunctionFromExtensions([]);
+        }
+    } else {
+        throw new Error("Trying to wrap " + typeof existingMethodImpl +
+            ", expecting a function or undefined");
+    }
+}
+
+function unhookFrom(prototypeObject, methodName, extension) {
+    if (!prototypeObject[methodName].extensions) {
+        throw new Error("Trying to unhook from method, that was not extended");
+    }
+    var index = prototypeObject[methodName].extensions.indexOf(extension);
+    if (index < 0) {
+        throw new Error("Trying to unhook extension function " + extension +
+            " that was not hooked to current prototype, extensions that were" +
+            " hooked are: " + prototypeObject[methodName].extensions);
+    }
+    prototypeObject[methodName].extensions.splice(index,1);
+    prototypeObject[methodName] = generateFunctionFromExtensions(
+        prototypeObject[methodName].extensions);
+}
+
+function generateFunctionFromExtensions(extensions) {
+    var currentImpl = null;
+    if (extensions.length === 0) {
+        currentImpl = function () {};
+    } else if (extensions.length === 1) {
+        var singleImpl = extensions[0];
+        currentImpl = function () {
+            singleImpl.apply(this, arguments);
+        };
+    } else {
+        currentImpl = extensions[0];
+        for (var i = 1; i < extensions.length ; i++) {
+            var previousImpl = currentImpl;
+            currentImpl = (function () {
+                var prev = previousImpl;
+                var next = extensions[i];
+                return function () {
+                    prev.apply(this, arguments);
+                    next.apply(this, arguments);
+                };
+            }());
+        }
+    }
+    currentImpl.extensions = extensions;
+    return currentImpl;
+}
+
 var asArray = function(v) {
     if (es5.isArray(v)) {
         return v;
@@ -339,6 +408,8 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
+    hookTo: hookTo,
+    unhookFrom: unhookFrom,
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,

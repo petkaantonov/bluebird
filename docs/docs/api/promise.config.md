@@ -13,11 +13,12 @@ title: Promise.config
 Promise.config(Object {
     warnings: boolean=false,
     longStackTraces: boolean=false,
-    cancellation: boolean=false
+    cancellation: boolean=false,
+    monitor: boolean=false
 } options) -> undefined;
 ```
 
-Configure long stack traces, warnings and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
+Configure long stack traces, warnings, promise monitoring and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
 
 ```js
 Promise.config({
@@ -26,7 +27,9 @@ Promise.config({
     // Enable long stack traces.
     longStackTraces: true,
     // Enable cancellation.
-    cancellation: true
+    cancellation: true,
+    // Enable promise monitoring.
+    monitor: true
 });
 ```
 
@@ -47,10 +50,10 @@ Promise.config({
 
 
 
-In Node.js you may configure warnings and long stack traces for the entire process using environment variables:
+In Node.js you may configure warnings, promise monitoring and long stack traces for the entire process using environment variables:
 
 ```
-BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 node app.js
+BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 BLUEBIRD_MONITOR=1 node app.js
 ```
 
 Both features are automatically enabled if the `BLUEBIRD_DEBUG` environment variable has been set or if the `NODE_ENV` environment variable is equal to `"development"`.

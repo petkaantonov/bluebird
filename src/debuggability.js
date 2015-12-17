@@ -4,6 +4,7 @@ var getDomain = Promise._getDomain;
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
+var es5 = require("./es5");
 var ASSERT = require("./assert");
 var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
@@ -24,6 +25,8 @@ var warnings = !!(util.env("BLUEBIRD_WARNINGS") != 0 &&
 
 var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
     (debugging || util.env("BLUEBIRD_LONG_STACK_TRACES")));
+var monitor = !!(util.env("BLUEBIRD_MONITOR") != 0 &&
+    util.env("BLUEBIRD_MONITOR"));
 
 var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
     (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
@@ -141,6 +144,67 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
+var pendingPromises = {};
+var promiseIdCounter = 0;
+
+function registerPromise() {
+    if (Promise.monitor) {
+        promiseIdCounter++;
+        this._promiseId = promiseIdCounter;
+        pendingPromises[promiseIdCounter] = this;
+    }
+}
+
+function unregisterPromise() {
+    if (Promise.monitor)
+        delete pendingPromises[this._promiseId];
+}
+
+function enableMonitoring () {
+    if (!Promise.monitor) {
+        // Property that holds monitoring related info,
+        // existence of it means that monitoring feature is currently enabled
+        Promise.monitor = {};
+
+        util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
+        util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+
+        Promise.monitor.getPendingPromises = function () {
+            var result = [];
+            var keys = es5.keys(pendingPromises);
+            for (var i = 0; i < keys.length; i++) {
+                result.push(pendingPromises[keys[i]]);
+            }
+            return result;
+        };
+
+        Promise.monitor.getLeafPendingPromises = function () {
+            var pendingPromises = Promise.monitor.getPendingPromises();
+            var leafPromises = [];
+            for (var i = 0; i < pendingPromises.length; i++) {
+                var currentPromise = pendingPromises[i];
+                if (typeof currentPromise._promise0 === "undefined" &&
+                    typeof currentPromise._receiver0 === "undefined") {
+                    leafPromises.push(currentPromise);
+                }
+            }
+            return leafPromises;
+        };
+    }
+}
+
+function disableMonitoring () {
+    if (Promise.monitor) {
+        // No reason to clean up the id's from pending promises
+        util.unhookFrom(Promise.prototype, "_promiseCreated",
+            registerPromise);
+        util.unhookFrom(Promise.prototype,
+            "_promiseSettled", unregisterPromise);
+        Promise.monitor = null;
+        pendingPromises = null;
+    }
+}
+
 Promise.config = function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
@@ -176,6 +240,14 @@ Promise.config = function(opts) {
         Promise.prototype._execute = cancellationExecute;
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
+    }
+
+    if ("monitor" in opts) {
+        if (opts.monitor) {
+            enableMonitoring();
+        } else {
+            disableMonitoring();
+        }
     }
 };
 
@@ -826,14 +898,19 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 var config = {
     warnings: warnings,
     longStackTraces: false,
+    monitor: false,
     cancellation: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
+if (monitor) enableMonitoring();
 
 return {
     longStackTraces: function() {
         return config.longStackTraces;
+    },
+    enableMonitoring: function() {
+        return config.enableMonitoring;
     },
     warnings: function() {
         return config.warnings;

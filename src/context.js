@@ -1,10 +1,14 @@
 "use strict";
 module.exports = function(Promise) {
+
+var util = require("./util");
 var longStackTraces = false;
 var contextStack = [];
 
-Promise.prototype._promiseCreated = function() {};
-Promise.prototype._pushContext = function() {};
+util.hookTo(Promise.prototype, "_promiseCreated", null);
+util.hookTo(Promise.prototype, "_promiseSettled", null);
+util.hookTo(Promise.prototype, "_promiseChained", null);
+util.hookTo(Promise.prototype, "_pushContext", null);
 Promise.prototype._popContext = function() {return null;};
 Promise._peekContext = Promise.prototype._peekContext = function() {};
 
@@ -43,27 +47,30 @@ Context.CapturedTrace = null;
 Context.create = createContext;
 Context.deactivateLongStackTraces = function() {};
 Context.activateLongStackTraces = function() {
-    var Promise_pushContext = Promise.prototype._pushContext;
     var Promise_popContext = Promise.prototype._popContext;
     var Promise_PeekContext = Promise._peekContext;
     var Promise_peekContext = Promise.prototype._peekContext;
-    var Promise_promiseCreated = Promise.prototype._promiseCreated;
-    Context.deactivateLongStackTraces = function() {
-        Promise.prototype._pushContext = Promise_pushContext;
-        Promise.prototype._popContext = Promise_popContext;
-        Promise._peekContext = Promise_PeekContext;
-        Promise.prototype._peekContext = Promise_peekContext;
-        Promise.prototype._promiseCreated = Promise_promiseCreated;
-        longStackTraces = false;
-    };
-    longStackTraces = true;
-    Promise.prototype._pushContext = Context.prototype._pushContext;
-    Promise.prototype._popContext = Context.prototype._popContext;
-    Promise._peekContext = Promise.prototype._peekContext = peekContext;
-    Promise.prototype._promiseCreated = function() {
+    var longStackTracesPromiseCreatedHookExtension = function() {
         var ctx = this._peekContext();
         if (ctx && ctx._promiseCreated == null) ctx._promiseCreated = this;
     };
+    Context.deactivateLongStackTraces = function() {
+        util.unhookFrom(Promise.prototype, "_pushContext",
+            Context.prototype._pushContext);
+        util.unhookFrom(Promise.prototype, "_promiseCreated",
+            longStackTracesPromiseCreatedHookExtension);
+        Promise.prototype._popContext = Promise_popContext;
+        Promise._peekContext = Promise_PeekContext;
+        Promise.prototype._peekContext = Promise_peekContext;
+        longStackTraces = false;
+    };
+    longStackTraces = true;
+    util.hookTo(Promise.prototype, "_pushContext",
+        Context.prototype._pushContext);
+    util.hookTo(Promise.prototype, "_promiseCreated",
+        longStackTracesPromiseCreatedHookExtension);
+    Promise.prototype._popContext = Context.prototype._popContext;
+    Promise._peekContext = Promise.prototype._peekContext = peekContext;
 };
 return Context;
 };
