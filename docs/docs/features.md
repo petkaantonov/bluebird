@@ -14,6 +14,7 @@ title: Features
 - [Cancellation and timeouts](#cancellation-and-timeouts)
 - [Scoped prototypes](#scoped-prototypes)
 - [Promises monitoring](#promises-monitoring)
+- [Promise lifecycle events](#promise-lifecycle-events)
 - [Async/Await](#async-await)
 
 ##Synchronous inspection
@@ -247,7 +248,7 @@ Promises monitoring feature allows to list all pending promises at any moment. A
 Promise.monitor.getLeafPendingPromises() method will list only the pending promises at the end of promise chains.
 Monitoring feature can be disabled by reconfiguring bluebird. Monitoring implies performance penalty.
 
-###Promise lifecycle events subscribtion
+###Promise lifecycle events
 On and off methods (see [on](promise.on.html) and [off](promise.off.html)) allow subscribing and un-subscribing handler functions to promise lifecycle events ("created", "chained", "fulfilled", "rejected", "following" and "cancelled").
 
 ##Resource management
