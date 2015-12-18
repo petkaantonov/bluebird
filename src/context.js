@@ -5,8 +5,13 @@ var util = require("./util");
 var longStackTraces = false;
 var contextStack = [];
 
-util.hookTo(Promise.prototype, "_promiseCreated", null);
-util.hookTo(Promise.prototype, "_promiseSettled", null);
+util.hookTo(Promise.prototype, "_hook_created", null);
+util.hookTo(Promise.prototype, "_hook_fulfilled", null);
+util.hookTo(Promise.prototype, "_hook_rejected", null);
+util.hookTo(Promise.prototype, "_hook_following", null);
+util.hookTo(Promise.prototype, "_hook_cancelled", null);
+util.hookTo(Promise.prototype, "_hook_chained", null);
+
 util.hookTo(Promise.prototype, "_pushContext", null);
 Promise.prototype._popContext = function() {return null;};
 Promise._peekContext = Promise.prototype._peekContext = function() {};
@@ -56,7 +61,7 @@ Context.activateLongStackTraces = function() {
     Context.deactivateLongStackTraces = function() {
         util.unhookFrom(Promise.prototype, "_pushContext",
             Context.prototype._pushContext);
-        util.unhookFrom(Promise.prototype, "_promiseCreated",
+        util.unhookFrom(Promise.prototype, "_hook_created",
             longStackTracesPromiseCreatedHookExtension);
         Promise.prototype._popContext = Promise_popContext;
         Promise._peekContext = Promise_PeekContext;
@@ -66,7 +71,7 @@ Context.activateLongStackTraces = function() {
     longStackTraces = true;
     util.hookTo(Promise.prototype, "_pushContext",
         Context.prototype._pushContext);
-    util.hookTo(Promise.prototype, "_promiseCreated",
+    util.hookTo(Promise.prototype, "_hook_created",
         longStackTracesPromiseCreatedHookExtension);
     Promise.prototype._popContext = Context.prototype._popContext;
     Promise._peekContext = Promise.prototype._peekContext = peekContext;
