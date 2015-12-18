@@ -235,16 +235,20 @@ See [installation](install.html) on how to enable long stack traces in your envi
 
 Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored. However
 
-
-
-
 ###Warnings
 
 Promises can have a steep learning curve and it doesn't help that promise standards go out of their way to make it even harder. Bluebird works around the limitations by providing warnings where the standards disallow throwing errors when incorrect usage is detected. See [Warning Explanations](warning-explanations.html) for the possible warnings that bluebird covers.
 
 See [installation](install.html) on how to enable warnings in your environment.
 
+###Promises monitoring
 
+Promises monitoring feature allows to list all pending promises at any moment. After the feature have been enabled (see [config](promise.config.html)) Promise.monitor.getPendingPromises() method can be called at any moment to examine all pending promises objects.
+Promise.monitor.getLeafPendingPromises() method will list only the pending promises at the end of promise chains.
+Monitoring feature can be disabled by reconfiguring bluebird. Monitoring implies performance penalty.
+
+###Promise lifecycle events subscribtion
+On and off methods (see [on](promise.on.html) and [off](promise.off.html)) allow subscribing and un-subscribing handler functions to promise lifecycle events ("created", "chained", "fulfilled", "rejected", "following" and "cancelled").
 
 ##Resource management
 
@@ -267,10 +271,3 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 
 ##Async/Await
 
-
-
-##Promises monitoring
-
-Promises monitoring feature allows to list all pending promises at any moment. After the feature have been enabled (see [config](promise.config.html)) Promise.monitor.getPendingPromises() method can be called at any moment to examine all pending promises objects.
-Promise.monitor.getLeafPendingPromises() method will list only the pending promises at the end of promise chains.
-Monitoring feature can be disabled by reconfiguring bluebird. Monitoring implies performance penalty.
