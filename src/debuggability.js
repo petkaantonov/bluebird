@@ -144,7 +144,8 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
-var supportedEvents = ["created", "chained", "fulfilled", "rejected"];
+var supportedEvents = ["created", "chained", "fulfilled",
+    "rejected", "following", "cancelled"];
 
 Promise.on = function (eventName, hookFunction, simpleEventApi) {
     if (supportedEvents.indexOf(eventName)<0) {
@@ -163,7 +164,8 @@ Promise.on = function (eventName, hookFunction, simpleEventApi) {
         newHook = function (other) {
             hookFunction({
                 guid: this._promiseId ? this._promiseId : null,
-                childGuid: other ? other : null,
+                childGuid: (other && other._promiseId) ?
+                    other._promiseId : null,
                 eventName: eventName,
                 detail: this.isRejected() ? this.reason :
                     this.isFulfilled() ? this.value : null,
@@ -172,9 +174,9 @@ Promise.on = function (eventName, hookFunction, simpleEventApi) {
                 stack: this._trace ? this._trace : null
             });
         };
-        newHook._eventHandler = hookFunction;
+        hookFunction._eventHandler = newHook;
     }
-    util.hookTo(Promise.prototype, eventName, newHook);
+    util.hookTo(Promise.prototype, "_hook_" + eventName, newHook);
 };
 
 Promise.off = function (eventName, hookFunction) {
@@ -182,8 +184,8 @@ Promise.off = function (eventName, hookFunction) {
         throw new Error("You can only subscribe to these events:"
             + supportedEvents);
     }
-    util.unhookFrom(Promise.prototype, eventName, hookFunction._eventHandler ?
-        hookFunction._eventHandler : hookFunction);
+    util.unhookFrom(Promise.prototype, "_hook_" + eventName,
+        hookFunction._eventHandler ? hookFunction._eventHandler : hookFunction);
 };
 
 var pendingPromises = {};
@@ -208,8 +210,11 @@ function enableMonitoring () {
         // existence of it means that monitoring feature is currently enabled
         Promise.monitor = {};
 
-        util.hookTo(Promise.prototype, "_promiseCreated", registerPromise);
-        util.hookTo(Promise.prototype, "_promiseSettled", unregisterPromise);
+        util.hookTo(Promise.prototype, "_hook_created", registerPromise);
+        util.hookTo(Promise.prototype, "_hook_fulfilled", unregisterPromise);
+        util.hookTo(Promise.prototype, "_hook_rejected", unregisterPromise);
+        util.hookTo(Promise.prototype, "_hook_following", unregisterPromise);
+        util.hookTo(Promise.prototype, "_hook_cancelled", unregisterPromise);
 
         Promise.monitor.getPendingPromises = function () {
             var result = [];
@@ -238,10 +243,16 @@ function enableMonitoring () {
 function disableMonitoring () {
     if (Promise.monitor) {
         // No reason to clean up the id's from pending promises
-        util.unhookFrom(Promise.prototype, "_promiseCreated",
+        util.unhookFrom(Promise.prototype, "_hook_created",
             registerPromise);
-        util.unhookFrom(Promise.prototype,
-            "_promiseSettled", unregisterPromise);
+        util.unhookFrom(Promise.prototype, "_hook_fulfilled",
+            unregisterPromise);
+        util.unhookFrom(Promise.prototype, "_hook_rejected",
+            unregisterPromise);
+        util.unhookFrom(Promise.prototype, "_hook_following",
+            unregisterPromise);
+        util.unhookFrom(Promise.prototype, "_hook_cancelled",
+            unregisterPromise);
         Promise.monitor = null;
         pendingPromises = null;
     }
