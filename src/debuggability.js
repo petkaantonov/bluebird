@@ -144,6 +144,48 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
+var supportedEvents = ["created", "chained", "fulfilled", "rejected"];
+
+Promise.on = function (eventName, hookFunction, simpleEventApi) {
+    if (supportedEvents.indexOf(eventName)<0) {
+        throw new Error("You can only subscribe to these events:" +
+            supportedEvents);
+    }
+    var newHook = null;
+    if (simpleEventApi) {
+        // This interface allows users to subscribe to promises
+        // related events in more performable way then event API
+        // hookFunction is called after the event it has this
+        // (current promise reference) defined and single
+        // argument (child promise in "chained" event)
+        newHook = hookFunction;
+    } else {
+        newHook = function (other) {
+            hookFunction({
+                guid: this._promiseId ? this._promiseId : null,
+                childGuid: other ? other : null,
+                eventName: eventName,
+                detail: this.isRejected() ? this.reason :
+                    this.isFulfilled() ? this.value : null,
+                //event.label //is this relevant?
+                timeStamp: Date.now(),
+                stack: this._trace ? this._trace : null
+            });
+        };
+        newHook._eventHandler = hookFunction;
+    }
+    util.hookTo(Promise.prototype, eventName, newHook);
+};
+
+Promise.off = function (eventName, hookFunction) {
+    if (supportedEvents.indexOf(eventName)<0) {
+        throw new Error("You can only subscribe to these events:"
+            + supportedEvents);
+    }
+    util.unhookFrom(Promise.prototype, eventName, hookFunction._eventHandler ?
+        hookFunction._eventHandler : hookFunction);
+};
+
 var pendingPromises = {};
 var promiseIdCounter = 0;
 
