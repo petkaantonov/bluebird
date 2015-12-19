@@ -129,12 +129,12 @@ function promptPromise(message) {
 
   return new Promise(function(resolve, reject) {
     dialog.addEventListener('click', function handleButtonClicks(e) {
-      if (e.target.tagName !== 'BUTTON') { return true; }
+      if (e.target.tagName !== 'BUTTON') { return; }
       dialog.removeEventListener('click', handleButtonClicks);
       dialog.className = 'hidden';
       if (e.target === okButton) {
         resolve(input.value);
-      } else if (e.target === cancelButton) {
+      } else {
         reject(new Error('User cancelled'));
       }
     });
