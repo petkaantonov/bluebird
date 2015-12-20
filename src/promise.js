@@ -236,7 +236,7 @@ Promise.prototype._then = function (
                 receiver = target === this ? undefined : this._boundTo;
             }
         }
-        this._hook_chained(target);
+        this._hook_chained(promise);
     }
 
     var domain = getDomain();
