@@ -36,6 +36,7 @@ var optionalModuleRequireMap = {
     "some.js": true,
     "using.js": true,
     "timers.js": true,
+    "extended_debuggability.js": false,
     "filter.js": ["map.js"],
     "any.js": ["some.js"],
     "each.js": ["reduce.js"]
