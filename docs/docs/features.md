@@ -244,9 +244,20 @@ See [installation](install.html) on how to enable warnings in your environment.
 
 ###Promises monitoring
 
-Promises monitoring feature allows to list all pending promises at any moment. After the feature have been enabled (see [config](promise.config.html)) Promise.monitor.getPendingPromises() method can be called at any moment to examine all pending promises objects.
-Promise.monitor.getLeafPendingPromises() method will list only the pending promises at the end of promise chains.
-Monitoring feature can be disabled by reconfiguring bluebird. Monitoring implies performance penalty.
+Monitoring:
+ - List all pending promises
+ - List pending promises at the ends of promise chains
+Tracing:
+ - Find the promises a given promise is waiting for (only for pending promises)
+ - Get a graph of all promises connected to given promise.
+   The graph is in DOT format and can be viewed in online viewers.
+Runtime complexity limits:
+ - Limit number of concurrently pending promises
+ - Limit length of a promise chain
+
+This feature is off by default and has to be explicitly enabled at both build time and runtime.
+Build: using "--features" flag and module name "extended_debuggability", see [build](contribute.html#building), for runtime see [config](promise.config.html).
+Monitoring implies performance penalty.
 
 ###Promise lifecycle events
 On and off methods (see [on](promise.on.html) and [off](promise.off.html)) allow subscribing and un-subscribing handler functions to promise lifecycle events ("created", "chained", "fulfilled", "rejected", "following" and "cancelled").

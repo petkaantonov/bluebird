@@ -9,7 +9,21 @@ try {
     return;
 }
 
-// In this test each promise created in this test should be explicitly marked,
+function deferAndMarkAsTestPromise() {
+    var resolve, reject;
+    var promise = new Promise(function () {
+        resolve = arguments[0];
+        reject = arguments[1];
+    });
+    promise.test = true;
+    return {
+        resolve: resolve,
+        reject: reject,
+        promise: promise
+    };
+}
+
+// In this test each promise created should be explicitly marked,
 // not to mix it up with promises created by Mocha
 describe("promise monitoring", function () {
     function assertPendingPromises(expectedPromisesArray, getPendingPromisesFunctionName) {
@@ -32,20 +46,6 @@ describe("promise monitoring", function () {
     function assertAllAndLeafPendingPromises(expectedPromisesArray) {
         assertPendingPromises(expectedPromisesArray, "getPendingPromises");
         assertPendingPromises(expectedPromisesArray, "getLeafPendingPromises");
-    }
-
-    function deferAndMarkAsTestPromise() {
-        var resolve, reject;
-        var promise = new Promise(function () {
-            resolve = arguments[0];
-            reject = arguments[1];
-        });
-        promise.test = true;
-        return {
-            resolve: resolve,
-            reject: reject,
-            promise: promise
-        };
     }
 
     before(function () {
@@ -118,10 +118,8 @@ describe("promise monitoring", function () {
         F.test = true;
         var G = F.then(function () {});
         G.test = true;
-
         assertPendingPromises([A, B, C, D, E, F, G], "getPendingPromises");
         assertPendingPromises([C, E, G], "getLeafPendingPromises");
-
         var lastPromise = Promise.all([C, E]).then(function () {
             assertPendingPromises([F, G], "getPendingPromises");
             assertPendingPromises([G], "getLeafPendingPromises");
@@ -193,7 +191,6 @@ describe("promises chains length limitation", function () {
 
 
 describe("pending promises number limitation", function () {
-
     it("when pending promises limit is reached exception is thrown",
         function () {
         Promise.config({maxPendingPromises: 5});
@@ -231,6 +228,30 @@ describe("pending promises number limitation", function () {
     });
 });
 
+describe("tracing", function () {
+        before(function() {
+            Promise.config({tracing: true});
+        });
 
+        after(function() {
+            Promise.config({tracing: false});
+        });
 
+        it("DOT graph matches promises state and number", function () {
+            // A <- B <- C
+            //     /|\
+            //      D <- E
+            var edges = /[0-9]+->[0-9]+;/g;
+            var nodes = /[0-9]+\[label=.*at extended_debuggability.js:[0-9]+:[0-9]+.*,color=red];/g;
+            var A = new Promise(function (){});
+            var B = A.then(function () {});
+            var C = B.then(function () {});
+            var D = B.then(function () {});
+            var E = D.then(function () {});
+            var graph = B.getDOTGraph();
+            assert(graph.indexOf("digraph promises {") === 0);
+            assert(graph.match(edges).length === 4);
+            assert(graph.match(nodes).length === 5);
+        });
+    });
 });
