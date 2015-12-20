@@ -64,13 +64,11 @@ function enableMonitoring() {
         // Property that holds monitoring related info,
         // existence of it means that monitoring feature is currently enabled
         Promise.monitor = {};
-
         util.hookTo(Promise.prototype, "_hook_created", registerPromise);
         util.hookTo(Promise.prototype, "_hook_fulfilled", unregisterPromise);
         util.hookTo(Promise.prototype, "_hook_rejected", unregisterPromise);
         util.hookTo(Promise.prototype, "_hook_following", unregisterPromise);
         util.hookTo(Promise.prototype, "_hook_cancelled", unregisterPromise);
-
         Promise.monitor.getPendingPromises = function () {
             var result = [];
             var keys = es5.keys(pendingPromises);
@@ -203,8 +201,12 @@ function addTracingInfo (next) {
         promiseTraceIdCounter++;
         this._promiseId = promiseTraceIdCounter;
     }
+    if (!next._promiseId) {
+        promiseTraceIdCounter++;
+        next._promiseId = promiseTraceIdCounter;
+    }
     if (!this._tracks) this._tracks = [];
-    if (!next._trackedBy) this._trackedBy = [];
+    if (!next._trackedBy) next._trackedBy = [];
     this._tracks.push(next);
     next._trackedBy.push(this);
 }
@@ -214,48 +216,52 @@ function addTracingInfo (next) {
 function getDOTGraph (depth, destination) {
     var result = [];
     depth++;
-    if (depth > 1000) {
+    if (depth > 100) {
         return;
     }
 
     var nodeName = null;
-    if (this._trace && this._trace.stack) {
-        var firstLine = this._trace.stack.split("\n")[1].trim();
-        var functionNameAndLocation = /at (.*) \(.*\/(.*:.*:.*)\)/g;
+
+    if (this._trace) {
+        // Parse useful node name from stack
+        // TODO: Get rid of library related frames in the beginning of stack
+        var firstLine = this._trace.stack.split("\n")[4].trim();
+        var functionNameAndLocation = /at (.*) \(.*[\\\/](.*:.*:.*)\)/g;
         var match = functionNameAndLocation.exec(firstLine);
-        if (match.length !== 2) {
+        if (match.length !== 3) {
             throw new Error(
                 "Failed parsing function name from stack trace");
+
         }
         nodeName = match[1] + " at " + match[2];
     } else {
         nodeName = this._promiseId;
     }
-
-    result.push(this._promiseId + "[label=\"" + nodeName + "\"" +
-    this.inspect().state !== "fulfilled" ? ",color=red" : "" + "];");
-
-    if (this._tracks && (typeof destination === "undefined" ||
-        destination === true)) {
-        var tracksLength =
-            this._tracks.length > 1000 ? 1000 : this._tracks.length;
-        for (var i = 0; i < tracksLength; i++) {
+    var color = "";
+    if (this.isRejected()) color = ",color=blue";
+    if (this.isPending()) color = ",color=red";
+    if (this.isCancelled()) color = ",color=gray";
+    result.push(this._promiseId + "[label=\"" + nodeName + "\"" + color+ "];");
+    var firstIteration = typeof destination === "undefined";
+    if (this._tracks && (firstIteration || destination === true)) {
+        for (var i = 0; i < Math.min(this._tracks.length,1000); i++) {
             result.push(
                 this._promiseId + "->" + this._tracks[i]._promiseId + ";");
-            result.concat(this._tracks[i].getDOTGraph(depth, true));
+            result = result.concat(this._tracks[i].getDOTGraph(depth, true));
         }
     }
-    if (this._trackedBy && (typeof destination === "undefined" ||
-        destination === false)) {
-        var trackedByLength =
-            this._trackedBy.length > 1000 ? 1000 : this._trackedBy.length;
-        for (var i = 0; i < trackedByLength; i++) {
+    if (this._trackedBy && (firstIteration || destination === false)) {
+        for (var i = 0; i < Math.min(this._trackedBy.length,1000); i++) {
             result.push(
-                this._tracks[i]._promiseId + "->" + this._promiseId + ";");
-            result.concat(this._tracks[i].getDOTGraph(depth, false));
+                this._trackedBy[i]._promiseId + "->" + this._promiseId + ";");
+            result = result.concat(this._trackedBy[i].getDOTGraph(depth,
+                false));
         }
     }
-    return typeof destination === "undefined" ? result.toString() : result;
+    if (firstIteration) {
+        result = "digraph promises {"+result.join("\n")+"}";
+    }
+    return result;
 }
 
 function findWaitingFor (){
@@ -281,25 +287,10 @@ function findWaitingFor (){
     }
 }
 
-function findRejectionReason () {
-    if (!this.isRejected()) {
-        throw new Error("This promise was not rejected");
-    }
-    if (!this._tracks) {
-        throw new Error("Tracing data is missing, "+
-            "tracing the reason is not possible");
-    }
-    for (var i = 0; i < this._tracks.length; i++) {
-        return this._tracks[i].findRejectionReason();
-    }
-    return this;
-}
-
 function enableTracing() {
     if (!chainLengthLimit) {
         tracingEnabled = true;
         util.hookTo(Promise.prototype, "_hook_chained", addTracingInfo);
-        Promise.prototype.findRejectionReason = findRejectionReason;
         Promise.prototype.findWaitingFor = findWaitingFor;
         Promise.prototype.getDOTGraph = getDOTGraph;
     }
@@ -310,7 +301,6 @@ function disableTracing() {
         tracingEnabled = false;
         promiseTraceIdCounter = 0;
         util.unhookFrom(Promise.prototype, "_hook_chained", addTracingInfo);
-        Promise.prototype.findRejectionReason = null;
         Promise.prototype.findWaitingFor = null;
         Promise.prototype.getDOTGraph = null;
     }
