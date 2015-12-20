@@ -26,8 +26,7 @@ Promise.using(
 
 In conjunction with [`.disposer`](.), `using` will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to `using` has settled. The disposer is necessary because there is no standard interface in node for disposing resources.
 
-Here is a simple example ` [has been defined] to return a proper undefined))
-
+Here is a simple example (where `getConnection()` has been defined to return a proper Disposer object)
 
 ```js
 using(getConnection(), function(connection) {
@@ -84,7 +83,7 @@ using(readFile("1.txt"), readFile("2.txt"), getConnection(), function(txt1, txt2
 
 <hr>
 
-+You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one rgument that is the array containing the resolved resources in respective positions in the array. Example:
+You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one argument that is the array containing the resolved resources in respective positions in the array. Example:
 
 ```js
 var connectionPromises = [getConnection(), getConnection()];
