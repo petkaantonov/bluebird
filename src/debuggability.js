@@ -28,6 +28,9 @@ var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
 var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
     (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
 
+// Require extended_debuggability module if exists
+require("./extended_debuggability", function(){}, function(){})(Promise);
+
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
     target._bitField = ((target._bitField & (~IS_REJECTION_UNHANDLED)) |

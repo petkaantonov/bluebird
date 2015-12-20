@@ -1,9 +1,13 @@
+var assert = require("assert");
+describe("extended debuggability", function() {
+
 // Extended dubuggability module is optional and off by default,
 // so we have to require it explicitly
-require("../../js/debug/extended_debuggability.js")(Promise);
-var assert = require("assert");
-
-describe("extended debuggability", function() {
+try {
+    require("../../js/debug/extended_debuggability.js")(Promise);
+} catch (e) {
+    return;
+}
 
 // In this test each promise created in this test should be explicitly marked,
 // not to mix it up with promises created by Mocha
@@ -101,23 +105,18 @@ describe("promise monitoring", function () {
         var Adeferred = deferAndMarkAsTestPromise();
         var A = Adeferred.promise;
         A.test = true;
-        var B = A.then(function () {
-        });
+        var B = A.then(function () {});
         B.test = true;
-        var C = B.then(function () {
-        });
+        var C = B.then(function () {});
         C.test = true;
-        var D = B.then(function () {
-        });
+        var D = B.then(function () {});
         D.test = true;
-        var E = D.then(function () {
-        });
+        var E = D.then(function () {});
         E.test = true;
         var Fdeferred = deferAndMarkAsTestPromise();
         var F = Fdeferred.promise;
         F.test = true;
-        var G = F.then(function () {
-        });
+        var G = F.then(function () {});
         G.test = true;
 
         assertPendingPromises([A, B, C, D, E, F, G], "getPendingPromises");
@@ -139,16 +138,12 @@ describe("promise monitoring", function () {
 
 
 describe("promises chains length limitation", function () {
-    before(function () {
+    beforeEach(function () {
         Promise.config({maxChainLength: 5});
     });
 
-    after(function () {
-        Promise.config({maxChainLength: false});
-    });
-
     it("chain length calculated correctly", function () {
-        var A = new Promise(function () {});
+        var A = new Promise.resolve("");
         var B = A.then(function () {});
         var C = B.then(function () {});
         var D = A.then(function () {});
@@ -156,12 +151,13 @@ describe("promises chains length limitation", function () {
         assert(B._chainLength === 1);
         assert(C._chainLength === 2);
         assert(D._chainLength === 1);
+        Promise.config({maxChainLength: false});
+        return A;
     });
 
-    it("when chain length limit is reached exception is thrown",
-        function () {
+    it("when chain length limit is reached exception is thrown", function () {
         var exceptionCaught = false;
-        var promise = new Promise(function () {});
+        var promise = new Promise.resolve("");
         for (var i = 0; i < 5; i++) {
             promise = promise.then(function () {});
         }
@@ -174,6 +170,8 @@ describe("promises chains length limitation", function () {
         } finally {
             assert(exceptionCaught === true);
         }
+        Promise.config({maxChainLength: false});
+        return promise;
     });
 
     it("when chain length limit is reached hook is called", function () {
@@ -181,13 +179,15 @@ describe("promises chains length limitation", function () {
         Promise.onChainLengthLimitExceeded(function () {
             hookCalled = true;
         });
-        var promise = new Promise(function () {});
+        var promise = new Promise.resolve("");
         for (var i = 0; i < 5; i++) {
             promise = promise.then(function () {});
         }
         assert(hookCalled === false);
         promise = promise.then(function () {});
         assert(hookCalled === true);
+        Promise.config({maxChainLength: false});
+        return promise;
     });
 });
 
@@ -230,4 +230,7 @@ describe("pending promises number limitation", function () {
         Promise.config({maxPendingPromises: false});
     });
 });
+
+
+
 });

@@ -279,13 +279,24 @@ function copyDescriptors(from, to, filter) {
 // This function should not be used for methods that return a value
 // Using this function implies small performance overhead, should be used only
 // for debug methods
-function hookTo(prototypeObject, methodName, extension) {
+function hookTo(prototypeObject, methodName, extension, ignoreSameName) {
     var existingMethodImpl = prototypeObject[methodName];
     if (typeof existingMethodImpl === "function" &&
         typeof extension === "function") {
         if (!existingMethodImpl.extensions) {
-            throw new Error("Trying to extend overriden method,"+
+            throw new Error("Trying to extend overridden method,"+
                 " please use util.js:hookTo() to extend it");
+        }
+        if (existingMethodImpl.extensions.indexOf(extension) >= 0) {
+            throw new Error("Trying to register same extension method twice");
+        }
+        if (ignoreSameName) {
+            for (var i=0; i < existingMethodImpl.extensions.length; i++) {
+                if (existingMethodImpl.extensions[i].constructor.name ===
+                    extension.constructor.name) {
+                    existingMethodImpl.extensions.splice(i,1);
+                }
+            }
         }
         existingMethodImpl.extensions.push(extension);
         prototypeObject[methodName] = generateFunctionFromExtensions(

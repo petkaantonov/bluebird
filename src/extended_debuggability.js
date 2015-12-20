@@ -2,7 +2,7 @@ module.exports = function(Promise) {
 var util = require("./util");
 var es5 = require("./es5");
 
-util.hookTo(Promise, "config", function (opts) {
+function extendedDebugConfig (opts) {
     if ("monitor" in opts) {
         if (opts.monitor) {
             enableMonitoring();
@@ -39,7 +39,8 @@ util.hookTo(Promise, "config", function (opts) {
             disableMaxPendingPromises();
         }
     }
-});
+}
+util.hookTo(Promise, "config", extendedDebugConfig, true);
 
 // Promise monitoring
 var pendingPromises = {};
@@ -114,10 +115,11 @@ function disableMonitoring() {
 
 // Chain length limit
 var chainLengthLimit = null;
-var chainLengthLimitHandler = function() {
+var exceptionChainLengthLimitHandler = function() {
     throw new Error("Promises chain is too long, it reached " +
         "limit of " + chainLengthLimit + " promises");
 };
+var chainLengthLimitHandler = exceptionChainLengthLimitHandler;
 
 function incrementChainLength (next) {
     if (typeof this._chainLength === "undefined") this._chainLength = 0;
@@ -137,10 +139,11 @@ function enableChainLengthLimit(limit) {
 }
 
 function disableChainLengthLimit() {
-    if (chainLengthLimit) {
-        chainLengthLimit = null;
+    if (chainLengthLimit > 0) {
         util.unhookFrom(Promise.prototype, "_hook_chained",
             incrementChainLength);
+        chainLengthLimitHandler = exceptionChainLengthLimitHandler;
+        chainLengthLimit = null;
     }
 }
 
@@ -287,7 +290,7 @@ function findRejectionReason () {
             "tracing the reason is not possible");
     }
     for (var i = 0; i < this._tracks.length; i++) {
-        return this._tracks[i].findReason();
+        return this._tracks[i].findRejectionReason();
     }
     return this;
 }
