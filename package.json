@@ -49,11 +49,13 @@
     "co": "^4.2.0",
     "cross-spawn": "^0.2.3",
     "glob": "^4.3.2",
+    "grunt": "^0.4.1",
     "grunt-saucelabs": "~8.4.1",
     "highland": "^2.3.0",
     "istanbul": "^0.3.5",
     "jshint": "^2.6.0",
     "jshint-stylish": "~0.2.0",
+    "kefir": "^2.4.1",
     "mkdirp": "~0.5.0",
     "mocha": "~2.1",
     "open": "~0.0.5",
@@ -62,8 +64,7 @@
     "rx": "^2.3.25",
     "serve-static": "^1.7.1",
     "sinon": "~1.7.3",
-    "uglify-js": "~2.4.16",
-    "kefir": "^2.4.1"
+    "uglify-js": "~2.4.16"
   },
   "readmeFilename": "README.md",
   "main": "./js/release/bluebird.js",

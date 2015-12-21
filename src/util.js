@@ -8,6 +8,13 @@ var canEvaluate = typeof navigator == "undefined";
 //compiler, so it is isolated
 var errorObj = {e: {}};
 var tryCatchTarget;
+var isNode = typeof process !== "undefined" &&
+    classString(process).toLowerCase() === "[object process]";
+var globalObject = typeof self !== "undefined" ? self :
+    typeof window !== "undefined" ? window :
+    typeof global !== "undefined" ? global :
+    this !== undefined ? this : null;
+
 function tryCatcher() {
     try {
         var target = tryCatchTarget;
@@ -306,9 +313,6 @@ if (typeof Symbol !== "undefined" && Symbol.iterator) {
     };
 }
 
-var isNode = typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]";
-
 function env(key, def) {
     return isNode ? process.env[key] : def;
 }
@@ -342,7 +346,8 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,
-    env: env
+    env: env,
+    global: globalObject
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
