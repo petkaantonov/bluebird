@@ -269,11 +269,9 @@ function findWaitingFor (){
         throw new Error("This promise is not waiting "+
             "for any other promise");
     }
-    if (!this._tracks) {
-        throw new Error("Tracing data is missing, " +
-            "tracing the last pending promises in chain is not possible");
-    }
-    if (this._tracks.length > 0) {
+    if (!this._tracks || this._tracks.length == 0) {
+        return [this];
+    } else {
         var foundWaitingFor = [];
         for (var i = 0; i < this._tracks.length; i++) {
             if (this.isPending()) {
@@ -281,9 +279,7 @@ function findWaitingFor (){
                     this._tracks[i].findWaitingFor());
             }
         }
-        return;
-    } else {
-        return [this];
+        return foundWaitingFor;
     }
 }
 
