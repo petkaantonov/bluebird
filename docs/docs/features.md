@@ -260,6 +260,7 @@ Build: using "--features" flag and module name "extended_debuggability", see [bu
 Monitoring implies performance penalty.
 
 ###Promise lifecycle events
+
 On and off methods (see [on](promise.on.html) and [off](promise.off.html)) allow subscribing and un-subscribing handler functions to promise lifecycle events ("created", "chained", "fulfilled", "rejected", "following" and "cancelled").
 
 ##Resource management
