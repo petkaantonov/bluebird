@@ -13,6 +13,7 @@ title: Features
 - [Resource management](#resource-management)
 - [Cancellation and timeouts](#cancellation-and-timeouts)
 - [Scoped prototypes](#scoped-prototypes)
+- [Promises monitoring](#promises-monitoring)
 - [Async/Await](#async-await)
 
 ##Synchronous inspection
@@ -232,10 +233,7 @@ See [installation](install.html) on how to enable long stack traces in your envi
 
 ###Error pattern matching
 
-Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored. However
-
-
-
+Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored.
 
 ###Warnings
 
@@ -243,7 +241,36 @@ Promises can have a steep learning curve and it doesn't help that promise standa
 
 See [installation](install.html) on how to enable warnings in your environment.
 
+###Promise monitoring
 
+This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js. Following events are available: "promiseCreated", "promiseChained", "promiseFulfilled", "promiseRejected", "promiseResolved" and "promiseCancelled".
+This feature has to be explicitly enabled, see: [Promise.config](api/promise.config.html).
+Subscription to promise lifecycle events is possible in these ways:
+1. In Node.js via process.on() method:
+```
+process.on("promiseCreated", function(eventName, promise) {
+    // eventName - "promiseCreated"
+    // promise - promise object that was created
+})
+```
+2. In browsers via self.addEventListener() method:
+```
+self.addEventListener("promiseChained", function(event) {
+    // event.type - "promiseCreated"
+    // event.details.promise - promise object that was chained to child promise
+    // event.details.child - child promise object
+})
+```
+3. In browsers via overriding handler method on self:
+Note: In this method event names have "on" prefix and have to be in lower case.
+This method implies single event handler function per event type.
+```
+self.onpromisechained = function(eventName, promise, child) {
+    // eventName - "promiseChained"
+    // promise - promise object that was chained to child promise
+    // child - child promise object
+})
+```
 
 ##Resource management
 
@@ -265,5 +292,4 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 
 
 ##Async/Await
-
 
