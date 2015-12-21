@@ -28,6 +28,9 @@ var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
 var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
     (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
 
+// Require extended_debuggability module if exists
+require("./extended_debuggability", function(){}, function(){})(Promise);
+
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
     target._bitField = ((target._bitField & (~IS_REJECTION_UNHANDLED)) |
@@ -141,7 +144,62 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
-Promise.config = function(opts) {
+var supportedEvents = ["created", "chained", "fulfilled",
+    "rejected", "following", "cancelled"];
+
+Promise.on = function (eventName, hookFunction, simpleEventApi) {
+    if (supportedEvents.indexOf(eventName)<0) {
+        throw new Error("You can only subscribe to these events:" +
+            supportedEvents);
+    }
+    var newHook = null;
+    if (simpleEventApi) {
+        // This interface allows users to subscribe to promises
+        // related events in more performable way then event API
+        // hookFunction is called after the event it has this
+        // (current promise reference) defined and single
+        // argument (child promise in "chained" event)
+        newHook = hookFunction;
+    } else {
+        newHook = function (other) {
+            hookFunction({
+                guid: this._promiseId ? this._promiseId : null,
+                childGuid: (other && other._promiseId) ?
+                    other._promiseId : null,
+                eventName: eventName,
+                detail: this.isRejected() ? this.reason :
+                    this.isFulfilled() ? this.value : null,
+                //event.label //is this relevant?
+                timeStamp: Date.now(),
+                stack: this._trace ? this._trace : null
+            });
+        };
+        hookFunction._eventHandler = newHook;
+    }
+    util.hookTo(Promise.prototype, "_hook_" + eventName, newHook);
+};
+
+Promise.off = function (eventName, hookFunction) {
+    if (supportedEvents.indexOf(eventName)<0) {
+        throw new Error("You can only subscribe to these events:"
+            + supportedEvents);
+    }
+    util.unhookFrom(Promise.prototype, "_hook_" + eventName,
+        hookFunction._eventHandler ? hookFunction._eventHandler : hookFunction);
+};
+
+// Event handlers can be placed on window.__PROMISE_INSTRUMENTATION__ object
+if (typeof window !== "undefined" &&
+    typeof window["__PROMISE_INSTRUMENTATION__"] === "object") {
+    var callbacks = window["__PROMISE_INSTRUMENTATION__"];
+    for (var eventName in callbacks) {
+        if (callbacks.hasOwnProperty(eventName)) {
+            Promise.on(eventName, callbacks[eventName]);
+        }
+    }
+}
+
+util.hookTo(Promise, "config", function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
         if (opts.longStackTraces) {
@@ -177,7 +235,7 @@ Promise.config = function(opts) {
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
     }
-};
+});
 
 Promise.prototype._execute = function(executor, resolve, reject) {
     try {

@@ -13,6 +13,8 @@ title: Features
 - [Resource management](#resource-management)
 - [Cancellation and timeouts](#cancellation-and-timeouts)
 - [Scoped prototypes](#scoped-prototypes)
+- [Promises monitoring](#promises-monitoring)
+- [Promise lifecycle events](#promise-lifecycle-events)
 - [Async/Await](#async-await)
 
 ##Synchronous inspection
@@ -234,16 +236,32 @@ See [installation](install.html) on how to enable long stack traces in your envi
 
 Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored. However
 
-
-
-
 ###Warnings
 
 Promises can have a steep learning curve and it doesn't help that promise standards go out of their way to make it even harder. Bluebird works around the limitations by providing warnings where the standards disallow throwing errors when incorrect usage is detected. See [Warning Explanations](warning-explanations.html) for the possible warnings that bluebird covers.
 
 See [installation](install.html) on how to enable warnings in your environment.
 
+###Promises monitoring
 
+Monitoring:
+ - List all pending promises
+ - List pending promises at the ends of promise chains
+Tracing:
+ - Find the promises a given promise is waiting for (only for pending promises)
+ - Get a graph of all promises connected to given promise.
+   The graph is in DOT format and can be viewed in online viewers.
+Runtime complexity limits:
+ - Limit number of concurrently pending promises
+ - Limit length of a promise chain
+
+This feature is off by default and has to be explicitly enabled at both build time and runtime.
+Build: using "--features" flag and module name "extended_debuggability", see [build](contribute.html#building), for runtime see [config](promise.config.html).
+Monitoring implies performance penalty.
+
+###Promise lifecycle events
+
+On and off methods (see [on](promise.on.html) and [off](promise.off.html)) allow subscribing and un-subscribing handler functions to promise lifecycle events ("created", "chained", "fulfilled", "rejected", "following" and "cancelled").
 
 ##Resource management
 
@@ -265,5 +283,4 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 
 
 ##Async/Await
-
 
