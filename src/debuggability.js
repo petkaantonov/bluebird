@@ -188,6 +188,16 @@ Promise.off = function (eventName, hookFunction) {
         hookFunction._eventHandler ? hookFunction._eventHandler : hookFunction);
 };
 
+// Event handlers can be placed on window.__PROMISE_INSTRUMENTATION__ object
+if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
+    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
+    for (var eventName in callbacks) {
+        if (callbacks.hasOwnProperty(eventName)) {
+            Promise.on(eventName, callbacks[eventName]);
+        }
+    }
+}
+
 util.hookTo(Promise, "config", function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
