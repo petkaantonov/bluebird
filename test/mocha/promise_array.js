@@ -175,4 +175,18 @@ describe("Promise.all-test", function () {
         });
     });
 
+    specify("should keep resolved value for foreign thenables with internal data", function() {
+        var foreign = {
+            _v: 2,
+            then: function (f) {
+                this._v = f(this._v);
+                return this._v;
+            }
+        };
+        return Promise.all([foreign, foreign]).then(
+            function (results) {
+                assert.equal(results[0], results[1]);
+            });
+    });
+
 });
