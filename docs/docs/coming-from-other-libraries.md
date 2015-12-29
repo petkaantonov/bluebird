@@ -162,7 +162,7 @@ If destructuring parameters are supported, `.spread(function(arg1, arg2) {})` ca
 
 ###`async.series`
 
-Using [Promise.each](.) to implement the example from [async homepage](https://github.com/caolan/async#seriestasks-callback):
+Using [Promise.mapSeries](.) to implement the example from [async homepage](https://github.com/caolan/async#seriestasks-callback):
 
 ```js
 async.series([
