@@ -256,7 +256,7 @@ async.map(['file1','file2','file3'], fs.stat, function(err, results){
 });
 ```
 
-```
+```js
 var fs = Promise.promisifyAll(require('fs'));
 Promise.map(['file1','file2','file3'], function(fileName, index, length) {
     return fs.statAsync(fileName);
