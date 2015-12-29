@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Dec 2015</i>
+                <i>Updated 29 Dec 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -143,7 +143,7 @@ some callback API&#39;s have multiple success value. The default is to ignore al
 <span class="nx">emailTemplates</span><span class="p">(</span><span class="nx">templatesDir</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">template</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">template</span><span class="p">(</span><span class="s2">&quot;newsletter&quot;</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
-    <span class="p">},</span> <span class="kc">true</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">},</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span><span class="p">}).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">);</span>
     <span class="p">});</span>
 <span class="p">});</span>
@@ -156,7 +156,7 @@ some callback API&#39;s have multiple success value. The default is to ignore al
 
 
 <span class="nx">emailTemplates</span><span class="p">(</span><span class="nx">templatesDir</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">template</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="nx">template</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;newsletter&quot;</span><span class="p">),</span> <span class="kc">true</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="nx">template</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;newsletter&quot;</span><span class="p">),</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span><span class="p">})</span>
         <span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">);</span>
         <span class="p">});</span>
@@ -168,7 +168,7 @@ some callback API&#39;s have multiple success value. The default is to ignore al
     var disqus_title = "Promise.fromCallback";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.fromcallback";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
@@ -186,7 +186,7 @@ some callback API&#39;s have multiple success value. The default is to ignore al
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.0/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

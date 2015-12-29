@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Dec 2015</i>
+                <i>Updated 29 Dec 2015</i>
             </div>
             <div class="clearfix"></div>
             
@@ -129,7 +129,7 @@
 </code></pre></div>
 <p>In conjunction with <a href='/docs/api/disposer.html'><code><code>.disposer</code></code></a>, <code>using</code> will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to <code>using</code> has settled. The disposer is necessary because there is no standard interface in node for disposing resources.</p>
 
-<p>Here is a simple example ` [has been defined] to return a proper undefined))</p>
+<p>Here is a simple example (where <code>getConnection()</code> has been defined to return a proper Disposer object)</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
    <span class="c1">// Don&#39;t leak the `connection` variable anywhere from here</span>
    <span class="c1">// it is only guaranteed to be open while the promise returned from</span>
@@ -173,7 +173,7 @@ when using APIs through bluebird promisified methods though. You can wrap functi
 </code></pre></div>
 <p><hr></p>
 
-<p>+You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one rgument that is the array containing the resolved resources in respective positions in the array. Example:</p>
+<p>You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one argument that is the array containing the resolved resources in respective positions in the array. Example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">connectionPromises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">()];</span>
 
 <span class="nx">using</span><span class="p">(</span><span class="nx">connectionPromises</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connections</span><span class="p">)</span> <span class="p">{</span>
@@ -208,7 +208,7 @@ when using APIs through bluebird promisified methods though. You can wrap functi
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.0/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
