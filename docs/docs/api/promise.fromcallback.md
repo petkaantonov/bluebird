@@ -41,7 +41,7 @@ var templatesDir = path.join(__dirname, 'templates');
 emailTemplates(templatesDir).then(function(template) {
     return Promise.fromCallback(function(callback) {
         return template("newsletter", callback);
-    }, true).spread(function(html, text) {
+    }, {multiArgs: true}).spread(function(html, text) {
         console.log(html, text);
     });
 });
@@ -57,7 +57,7 @@ var templatesDir = path.join(__dirname, 'templates');
 
 
 emailTemplates(templatesDir).then(function(template) {
-    return Promise.fromCallback(template.bind(null, "newsletter"), true)
+    return Promise.fromCallback(template.bind(null, "newsletter"), {multiArgs: true})
         .spread(function(html, text) {
             console.log(html, text);
         });
@@ -70,7 +70,7 @@ emailTemplates(templatesDir).then(function(template) {
     var disqus_title = "Promise.fromCallback";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.fromcallback";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
