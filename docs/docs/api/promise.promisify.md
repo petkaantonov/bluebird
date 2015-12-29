@@ -25,7 +25,7 @@ If the `nodeFunction` calls its callback with multiple success values, the fulfi
 
 Setting `multiArgs` to `true` means the resulting promise will always fulfill with an array of the callback's success value(s). This is needed because promises only support a single success value while some callback API's have multiple success value. The default is to ignore all but the first success value of a callback function.
 
-If you pass a `receiver`, the `nodeFunction` will be called as a method on the `receiver`.
+If you pass a `context`, the `nodeFunction` will be called as a method on the `context`.
 
 Example of promisifying the asynchronous `readFile` of node.js `fs`-module:
 
