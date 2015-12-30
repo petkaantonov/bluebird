@@ -11,7 +11,7 @@
 
 Bluebird is a fully featured promise library with focus on innovative features and performance
 
-See the [bluebird website](http://bluebirdjs.com/docs/getting-started.html) for further documentation, references and instructions.
+See the [**bluebird website**](http://bluebirdjs.com/docs/getting-started.html) for further documentation, references and instructions. See the [**API reference**](http://bluebirdjs.com/docs/api-reference.html) here.
 
 For bluebird 2.x documentation and files, see the [2.x tree](https://github.com/petkaantonov/bluebird/tree/2.x).
 
