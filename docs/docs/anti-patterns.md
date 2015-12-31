@@ -6,7 +6,7 @@ title: Anti-patterns
 This page will contain common promise anti-patterns that are exercised in the wild.
 
 
-- [The explicit construction anti-pattern](#the-deferred-anti-pattern)
+- [The explicit construction anti-pattern](#the-explicit-construction-anti-pattern)
 - [The `.then(success, fail)` anti-pattern](#the-thensuccess-fail-anti-pattern)
 
 ##The Explicit Construction Anti-Pattern
