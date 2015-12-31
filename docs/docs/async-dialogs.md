@@ -149,18 +149,15 @@ while the dialog is visible.
 
 Because the `removeEventListener` requires a reference to the original function
 that was used with the `addEventListener` it makes it difficult to clean up
-after itself without storing the references in a scope higher then the promise
-resolution function. This pattern of storing the `resolve` and `reject`
-callbacks outside the scope of the promise function is called [the **deferred**
-anti-pattern](api/anti-patterns.html#the-deferred-anti-pattern). It is an
-*anti-pattern* because it is often used when it is not needed. However, in this
-case it is the only way to accomplish the clean-up requirements imposed by the
-DOM API (namely the need for the original function reference to
-`removeEventListener`).
+after itself without storing the references in a scope higher then the handler
+itself. Using a named function we can reference it when a user clicks the
+button. To help with performance and to avoid duplicating code the example uses
+[event delegation][1] to capture both buttons in one *click* handler.
 
-If this was using jQuery there would be no need for the deferred pattern because
-jQuery can remove events handlers without the need for a function reference
-using [event namespacing](https://api.jquery.com/on/#event-names).
+[1]: https://davidwalsh.name/event-delegate
+
+The same thing can be done with less code using jQuery's [event
+namespacing](https://api.jquery.com/on/#event-names).
 
 ```javascript
 return new Promise(function(resolve, reject) {
@@ -175,12 +172,11 @@ return new Promise(function(resolve, reject) {
 });
 ```
 
-Now looking at the example above there are a few issues with it. Mainly the need
-for the deferred anti-pattern and it feels like it is doing too much. A *squint*
-test reveals four inner functions, six variable references, and its behavior is
-to show the dialog, attach two DOM events, construct a promise, hide the dialog,
-and finally detach DOM events. That is a lot for one little function. A
-refactoring can help.
+There are still a few problems with the earlier code example. It feels like it
+is doing too much. A *squint* test reveals behavior for showing the dialog, set
+the dialog's message, attach two DOM events, construct a promise, event
+delegation, hide the dialog, and finally detach DOM events. That is a lot for
+one little function. A refactoring can help.
 
 Abstraction is the key here. We will make an *object* (or class) that is
 responsible for managing the dialog box. Its interface will manage only two
