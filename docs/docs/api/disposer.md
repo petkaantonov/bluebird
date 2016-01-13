@@ -15,9 +15,9 @@ title: .disposer
 
 A meta method used to specify the disposer method that cleans up a resource when using `Promise.using`.
 
-Returns a Disposer object which encapsulates both the resource as well as the method to clean it up. 
-The user can pass this object to `Promise.using` to get access to the resource when it becomes available,
-as well as to ensure its automatically cleaned up.
+Returns a Disposer object which encapsulates both the resource as well as the method to clean it up. The user can pass this object to `Promise.using` to get access to the resource when it becomes available, as well as to ensure its automatically cleaned up.
+
+The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.
 
 Example:
 
@@ -25,25 +25,28 @@ Example:
 // This function doesn't return a promise but a Disposer
 // so it's very hard to use it wrong (not passing it to `using`)
 function getConnection() {
-    return pool.getConnectionAsync().disposer(function(connection, promise) {
+    return db.connect().disposer(function(connection, promise) {
         connection.close();
     });
 }
 ```
 
-In the above example, the connection is only usable with `Promise.using`, e.g.
+In the above example, the connection returned by `getConnection` can only be 
+used via `Promise.using`, like so:
 
 ```js
 function useConnection(query) {
-return Promise.using(getConnection(), function(connection) {
-  return connection.sendQuery(query).then(function(results) {
-    return process(results);
-  })
-});
+  return Promise.using(getConnection(), function(connection) {
+    return connection.sendQuery(query).then(function(results) {
+      return process(results);
+    })
+  });
+}
 ```
 
-which will ensure that `connection.close()` will be called once the promise returned
-from the `Promise.using` closure is resolved.
+This will ensure that `connection.close()` will be called once the promise returned
+from the `Promise.using` closure is resolved or if an exception was thrown in the closure
+body.
 
 Real example:
 
@@ -97,8 +100,6 @@ function getSqlConnection() {
 
 module.exports = getSqlConnection;
 ```
-
-The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.
 
 #### Note about disposers in node
 
