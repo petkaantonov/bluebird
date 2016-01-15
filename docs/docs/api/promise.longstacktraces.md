@@ -7,12 +7,21 @@ title: Promise.longStackTraces
 
 [← Back To API Reference](/docs/api-reference.html)
 <div class="api-code-section"><markdown>
-##Promise.longStackTraces
+## ~~Promise.longStackTraces~~
+
+This method is deprecated. Use [Promise.config](/docs/api/promise.config.html) instead.
+
+```js
+Promise.config({
+  longStackTraces: true
+})
+```
+
+---
 
 ```js
 Promise.longStackTraces() -> undefined
 ```
-
 
 Call this right after the library is loaded to enabled long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.
 
