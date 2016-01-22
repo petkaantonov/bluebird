@@ -650,7 +650,7 @@ Bugfixes:
 
 Bugfixes:
 
- - [#93](https://github.com/petkaantonov/bluebird/issues/88)
+ - [#93](https://github.com/petkaantonov/bluebird/issues/93)
 
 ## 1.0.2 (2014-02-04)
 
