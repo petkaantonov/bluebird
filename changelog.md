@@ -163,25 +163,25 @@ Bugfixes:
 
 Bugfixes:
 
- - Fix .each, .filter, .reduce and .map callbacks being called synchornously if the input is immediate. ([#513](.))
+ - Fix .each, .filter, .reduce and .map callbacks being called synchornously if the input is immediate. ([#513](https://github.com/petkaantonov/bluebird/issues/513))
 
 ## 2.9.12 (2015-02-19)
 
 Bugfixes:
 
- - Fix memory leak introduced in 2.9.0 ([#502](.))
+ - Fix memory leak introduced in 2.9.0 ([#502](https://github.com/petkaantonov/bluebird/issues/502))
 
 ## 2.9.11 (2015-02-19)
 
 Bugfixes:
 
- - Fix [#503](.)
+ - Fix [#503](https://github.com/petkaantonov/bluebird/issues/503)
 
 ## 2.9.10 (2015-02-18)
 
 Bugfixes:
 
- - Fix [#501](.)
+ - Fix [#501](https://github.com/petkaantonov/bluebird/issues/501)
 
 ## 2.9.9 (2015-02-12)
 
@@ -300,7 +300,7 @@ Features:
 
 Bugfixes:
 
- - Fix `.noConflict()` call signature ([#446]())
+ - Fix `.noConflict()` call signature ([#446](https://github.com/petkaantonov/bluebird/issues/446))
  - Fix `Promise.method`ified functions being called with `undefined` when they were called with no arguments
 
 ## 2.6.4 (2015-01-12)
