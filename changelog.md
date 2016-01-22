@@ -432,7 +432,7 @@ Bugfixes:
 
 Bugfixes:
 
- - Fix [#318](https://github.com/petkaantonov/bluebird/issues/318), [#314](https://github.com/petkaantonov/bluebird/issues/#314)
+ - Fix [#318](https://github.com/petkaantonov/bluebird/issues/318), [#314](https://github.com/petkaantonov/bluebird/issues/314)
 
 ## 2.3.2 (2014-08-25)
 
