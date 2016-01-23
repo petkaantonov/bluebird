@@ -4,6 +4,14 @@ var util = require("./util");
 var CancellationError = Promise.CancellationError;
 var errorObj = util.errorObj;
 
+function PassThroughHandlerContext(promise, type, handler) {
+    this.promise = promise;
+    this.type = type;
+    this.handler = handler;
+    this.called = false;
+    this.cancelPromise = null;
+}
+
 function FinallyHandlerCancelReaction(finallyHandler) {
     this.finallyHandler = finallyHandler;
 }
@@ -76,13 +84,11 @@ function finallyHandler(reasonOrValue) {
 
 Promise.prototype._passThrough = function(handler, type, success, fail) {
     if (typeof handler !== "function") return this.then();
-    return this._then(success, fail, undefined, {
-        promise: this,
-        handler: handler,
-        called: false,
-        cancelPromise: null,
-        type: type
-    }, undefined);
+    return this._then(success,
+                      fail,
+                      undefined,
+                      new PassThroughHandlerContext(this, type, handler),
+                      undefined);
 };
 
 Promise.prototype.lastly =
@@ -97,5 +103,5 @@ Promise.prototype.tap = function (handler) {
     return this._passThrough(handler, TAP_TYPE, finallyHandler);
 };
 
-return finallyHandler;
+return PassThroughHandlerContext;
 };

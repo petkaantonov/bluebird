@@ -2903,3 +2903,42 @@ describe("Multi-branch cancellation", function() {
         });
     });
 });
+
+
+
+if (testUtils.isNodeJS) {
+    describe("issues", function() {
+        specify("cancels the promise chain within a domain GH963", function() {
+            var called = 0;
+            var thens = 0;
+            var resolveChain;
+            var Domain = require("domain");
+            var domain = Domain.create();
+
+            domain.enter();
+
+            var root = new Promise(function(resolve, reject, onCancel) {
+                resolveChain = resolve;
+                onCancel(function() {
+                    called++;
+                });
+            }).then(function() {
+                thens++;
+            }).then(function() {
+                thens++;
+            }).then(function() {
+                thens++;
+            }).lastly(function() {
+                called++;
+            });
+
+            root.cancel();
+            resolveChain();
+            return awaitLateQueue(function() {
+                assert.equal(0, thens);
+                assert.equal(2, called);
+                domain.exit();
+            });
+        });
+    });
+}

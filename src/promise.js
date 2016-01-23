@@ -52,7 +52,8 @@ var Context = require("./context")(Promise);
 var createContext = Context.create;
 var debug = require("./debuggability")(Promise, Context);
 var CapturedTrace = debug.CapturedTrace;
-var finallyHandler = require("./finally")(Promise, tryConvertToPromise);
+var PassThroughHandlerContext =
+    require("./finally")(Promise, tryConvertToPromise);
 var catchFilter = require("./catch_filter")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback");
 var errorObj = util.errorObj;
@@ -562,7 +563,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
     if (BIT_FIELD_CHECK(IS_CANCELLED)) {
         if (isPromise) promise._invokeInternalOnCancel();
 
-        if (handler === finallyHandler) {
+        if (receiver instanceof PassThroughHandlerContext) {
             receiver.cancelPromise = promise;
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);
