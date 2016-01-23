@@ -1188,7 +1188,7 @@ describe("promised bind", function() {
     });
 
     specify("works with immediate finally", function() {
-        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).finally(function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).lastly(function() {
             assert.equal(this, THIS);
         }).then(function() {
             assert.equal(this, THIS);
@@ -1196,7 +1196,7 @@ describe("promised bind", function() {
     });
 
     specify("works with delayed finally", function() {
-        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).finally(function() {
+        return Promise.bind(Promise.delay(1, THIS), [1,2,3]).lastly(function() {
             assert.equal(this, THIS);
             return Promise.delay(1);
         }).then(function() {
