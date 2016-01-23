@@ -56,6 +56,7 @@ function failureClear(reason) {
     throw reason;
 }
 
+
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
     var parent = this.then();
@@ -63,6 +64,13 @@ Promise.prototype.timeout = function (ms, message) {
     var handle = setTimeout(function timeoutTimeout() {
         afterTimeout(ret, message, parent);
     }, ms);
+    if (debug.cancellation()) {
+        ret._setOnCancel({
+            _resultCancelled: function() {
+                clearTimeout(handle);
+            }
+        });
+    }
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };
 

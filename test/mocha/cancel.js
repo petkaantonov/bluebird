@@ -2941,4 +2941,45 @@ if (testUtils.isNodeJS) {
             });
         });
     });
+
+    describe("GH926", function() {
+        var clear, set;
+        var clears = 0;
+        before(function() {
+            clears = 0;
+            set = setTimeout;
+            clear = clearTimeout;
+            setTimeout = function() {
+                return set.apply(this, arguments);
+            };
+            clearTimeout = function() {
+                clears++;
+                return clear.apply(this, arguments);
+            };
+        });
+
+        after(function() {
+            clears = 0;
+            setTimeout = set;
+            clearTimeout = clear;
+        });
+
+        specify("GH926", function() {
+            var calls = 0;
+            var p = new Promise(function(resolve, reject, onCancel) {
+                onCancel(function() { calls++; });
+              })
+              .timeout(10000000)
+              .lastly(function() {
+                calls++;
+              });
+
+            p.cancel();
+
+            return awaitLateQueue(function() {
+                assert.equal(2, calls);
+                assert.equal(1, clears);
+            });
+        });
+    });
 }
