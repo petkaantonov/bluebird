@@ -3,6 +3,18 @@ id: changelog
 title: Changelog
 ---
 
+## 3.1.2 (2016-01-23)
+
+Features:
+
+ - [.timeout()](.) now `clearTimeout`s the timer if the resulting promise is cancelled ([#926](.))
+ - [Promise.coroutine](.) now returns function with same `.length` as the original function ([#927](.), [#933](.))
+
+Bugfixes:
+
+ - Fix long stack traces not working when promise is created from [Promise.fromCallback](.) ([#971](.))
+ - Fix [.finally()](.) handlers not being called when promise is cancelled while a domain is active ([#963](.))
+ - Fix [.timeout()](.) trying to cancel a promise even if cancellation is disabled ([#970](.))
 
 ## 3.1.1 (2015-12-16)
 
