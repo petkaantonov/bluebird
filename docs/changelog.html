@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 16 Dec 2015</i>
+                <i>Updated 23 Jan 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -114,6 +114,28 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.1.2"
+                    aria-hidden="true"
+                    href="#3.1.2"><i class="fa fa-link"></i></a>
+                3.1.2 (2016-01-23)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li><a href='/docs/api/timeout.html'><code>.timeout()</code></a> now <code>clearTimeout</code>s the timer if the resulting promise is cancelled (<a href='https://github.com/petkaantonov/bluebird/issues/926'><code>#926</code></a>)</li>
+<li><a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> now returns function with same <code>.length</code> as the original function (<a href='https://github.com/petkaantonov/bluebird/issues/927'><code>#927</code></a>, <a href='https://github.com/petkaantonov/bluebird/issues/933'><code>#933</code></a>)</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix long stack traces not working when promise is created from <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> (<a href='https://github.com/petkaantonov/bluebird/issues/971'><code>#971</code></a>)</li>
+<li>Fix <a href='/docs/api/finally.html'><code>.finally()</code></a> handlers not being called when promise is cancelled while a domain is active (<a href='https://github.com/petkaantonov/bluebird/issues/963'><code>#963</code></a>)</li>
+<li>Fix <a href='/docs/api/timeout.html'><code>.timeout()</code></a> trying to cancel a promise even if cancellation is disabled (<a href='https://github.com/petkaantonov/bluebird/issues/970'><code>#970</code></a>)</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.1.1"
                     aria-hidden="true"
@@ -3695,7 +3717,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

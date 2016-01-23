@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Dec 2015</i>
+                <i>Updated 23 Jan 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,8 +115,15 @@
                     name="promise.longstacktraces"
                     aria-hidden="true"
                     href="#promise.longstacktraces"><i class="fa fa-link"></i></a>
-                Promise.longStackTraces
+                ~~Promise.longStackTraces~~
             </h2>
+
+<p>This method is deprecated. Use <a href='/docs/api/promise.config.html' title=''>Promise.config</a> instead.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+  <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">})</span>
+</code></pre></div>
+<hr>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">longStackTraces</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
 <p>Call this right after the library is loaded to enabled long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.</p>
@@ -188,7 +195,7 @@ From previous event:
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Dec 2015</i>
+                <i>Updated 23 Jan 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,7 +115,7 @@
   <article class="post-content">
     <p>For development tasks such as contributing, running benchmarks or testing, you need to clone the repository and install dev-dependencies.</p>
 
-<p>Install <a href='http://nodejs.org/' title=''>node</a> or <a href='https://iojs.org/' title=''>io.js</a></p>
+<p>Install <a href='http://nodejs.org/' title=''>node</a></p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">git clone git@github.com:petkaantonov/bluebird.git
 cd bluebird
 npm install
@@ -239,11 +239,11 @@ npm install
 <p>To run all tests, run</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test
 </code></pre></div>
-<p>If you need to run generator tests run the <code>tool/test.js</code> script with <code>--harmony</code> argument and node 0.11+:</p>
+<p>If you need to run generator tests in older versions of NodeJS run the <code>tool/test.js</code> script with <code>--harmony</code> argument and 0.11+:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">node-dev --harmony tools/test
 </code></pre></div>
-<p>Or use io.js where generators are enabled by default:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">iojs tools/test
+<p>In recent versions of NodeJS where generators are enabled by default:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test
 </code></pre></div>
 <p>You may specify an individual test file to run with the <code>--run</code> script flag:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test --run=cancel.js
@@ -338,7 +338,7 @@ npm install
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

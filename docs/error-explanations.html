@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 29 Dec 2015</i>
+                <i>Updated 23 Jan 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -212,17 +212,58 @@
                 Error: expecting an array, a promise or a thenable
             </h2>
 
-<p>This error message usually happens when trying to work with collections but passing a single element instead.</p>
+<p>The function being called expects a Promise, but is given something different. There are two main reasons why this may occur.</p>
 
-<p>For example:</p>
+<p><strong>1. Working with collections (like arrays) but pass a single, non-collection element instead</strong></p>
+
+<p>Example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mi">3</span><span class="p">;}</span>
 
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span>
+     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span> 
 <span class="p">});</span>
 </code></pre></div>
 <p>The <code>map</code> operation is expecting an array here (or a promise on one) and instead gets the number <code>5</code>.</p>
-            <h2>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mi">3</span><span class="p">;}</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mi">5</span><span class="p">]).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
+     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span> 
+<span class="p">});</span>
+</code></pre></div>
+<p><code>map</code> is given an array with a single element (see <code>[5]</code> instead of <code>5</code>), so this statement will work (but is bad practice).</p>
+
+<hr>
+
+<p><strong>2.<code>return</code> is forgotten in a &#39;fat&#39; arrow / anonymous function call <code>=&gt;</code>:</strong></p>
+
+<p>When debugging or performing a one-time operation on a variable before passing it to a function, a return variable is forgotten.</p>
+
+<p>Example:
+```js
+function nextFunction(something){ return Promise.resolve(something*3); }</p>
+
+<p>myFunction()
+    .then(result =&gt; nextFunction(result)); // We are implicitly returning a Promise
+```</p>
+
+<p>Debugging, we want to see the value of result, so we add a <code>console.log()</code> line:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
+
+<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Debug:&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+    <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// The chain is broken! We don&#39;t return anything to the .then() call</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>As this is an anonymous function call, we need to <strong>return</strong> something, which is not currently happening.</p>
+
+<p>To fix, simply remember to add <code>return</code> in front of your promise-complying function:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
+
+<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Debug:&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// The anonymous function returns the function which returns the promise .then() needs</span>
+<span class="p">});</span>
+</code></pre></div>            <h2>
                 <a class="header-anchor"
                     name="error-generatorfunction-must-be-a-function"
                     aria-hidden="true"
@@ -476,7 +517,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.1.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.1.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
