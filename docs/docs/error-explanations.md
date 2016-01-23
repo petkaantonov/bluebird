@@ -83,19 +83,69 @@ Bluebird does not support extending promises this way. Instead, see [scoped prot
 
 ##Error: expecting an array, a promise or a thenable
 
-This error message usually happens when trying to work with collections but passing a single element instead.
+The function being called expects a Promise, but is given something different. There are two main reasons why this may occur.
 
-For example:
+**1. Working with collections (like arrays) but pass a single, non-collection element instead**
+
+Example:
 
 ```js
 function returnThree(){ return 3;}
 
 Promise.resolve(5).map(returnThree).then(function(val){
-    console.log("Hello Value!",val);
+     console.log("Hello Value!",val); 
 });
 ```
 
 The `map` operation is expecting an array here (or a promise on one) and instead gets the number `5`.
+
+```js
+function returnThree(){ return 3;}
+
+Promise.resolve([5]).map(returnThree).then(function(val){
+     console.log("Hello Value!",val); 
+});
+```
+```map``` is given an array with a single element (see ```[5]``` instead of ```5```), so this statement will work (but is bad practice).
+
+---
+
+**2.```return``` is forgotten in a 'fat' arrow / anonymous function call ```=>```:**
+
+When debugging or performing a one-time operation on a variable before passing it to a function, a return variable is forgotten.
+
+Example:
+```js
+function nextFunction(something){ return Promise.resolve(something*3); }
+
+myFunction()
+    .then(result => nextFunction(result)); // We are implicitly returning a Promise
+```
+
+Debugging, we want to see the value of result, so we add a ```console.log()``` line:
+
+```js
+function nextFunction(something){ return Promise.resolve(something*3); }
+
+myFunction().then(result => {
+    console.log("Debug:", result);
+    nextFunction(result)); // The chain is broken! We don't return anything to the .then() call
+});
+```
+
+As this is an anonymous function call, we need to **return** something, which is not currently happening.
+
+To fix, simply remember to add ```return``` in front of your promise-complying function:
+
+```js
+function nextFunction(something){ return Promise.resolve(something*3); }
+
+myFunction().then(result => {
+    console.log("Debug:", result);
+    return nextFunction(result)); // The anonymous function returns the function which returns the promise .then() needs
+});
+```
+
 
 ##Error: generatorFunction must be a function
 
