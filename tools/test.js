@@ -101,7 +101,7 @@ function writeCoverageFile(coverage, groupNumber) {
 }
 
 function needsFreshProcess(testName) {
-    return /domain|multiple-copies|unhandled_rejections/.test(testName) ||
+    return /domain|multiple-copies|unhandled_rejections|nodeify/.test(testName) ||
             testUtils.isOldNode && /api_exceptions|promisify/.test(testName);
 }
 

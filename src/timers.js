@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
+module.exports = function(Promise, INTERNAL, debug) {
 var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
 
@@ -19,7 +19,9 @@ var afterTimeout = function (promise, message, parent) {
     util.markAsOriginatingFromRejection(err);
     promise._attachExtraTrace(err);
     promise._reject(err);
-    parent.cancel();
+    if (debug.cancellation()) {
+        parent.cancel();
+    }
 };
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
