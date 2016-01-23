@@ -170,6 +170,7 @@ Promise.is = function (val) {
 
 Promise.fromNode = Promise.fromCallback = function(fn) {
     var ret = new Promise(INTERNAL);
+    ret._captureStackTrace();
     var multiArgs = arguments.length > 1 ? !!Object(arguments[1]).multiArgs
                                          : false;
     var result = tryCatch(fn)(nodebackForPromise(ret, multiArgs));
