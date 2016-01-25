@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.1.4 (2016-01-25)
+
+Bugfixes:
+
+ - Fix broken npm prepublish script release
+
+
 ## 3.1.3 (2016-01-25)
 
 Bugfixes:
