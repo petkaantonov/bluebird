@@ -295,23 +295,18 @@ describe("Promise.coroutine", function() {
             this.goblins = 3;
         }
 
-        function* gen(increment) {
-            this.goblins = yield get(this.goblins+increment);
-        }
-
-        MyClass.prototype.spawnGoblins = Promise.coroutine(gen);
-
-        specify("generator function's arity should be replicated", function() {
-          assert.equal(MyClass.prototype.spawnGoblins.length, gen.length);
+        MyClass.prototype.spawnGoblins = Promise.coroutine(function* () {
+            this.goblins = yield get(this.goblins+1);
         });
+
 
         specify("generator function's receiver should be the instance too", function() {
             var a = new MyClass();
             var b = new MyClass();
 
-            return Promise.join(a.spawnGoblins(1).then(function(){
-                return a.spawnGoblins(1)
-            }), b.spawnGoblins(1)).then(function(){
+            return Promise.join(a.spawnGoblins().then(function(){
+                return a.spawnGoblins()
+            }), b.spawnGoblins()).then(function(){
                 assert.equal(a.goblins, 5);
                 assert.equal(b.goblins, 4);
             });

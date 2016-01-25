@@ -12,7 +12,6 @@ var util = require("./util");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 var yieldHandlers = [];
-var defineProperty = require("./es5").defineProperty;
 
 function promiseFromYieldHandler(value, yieldHandlers, traceParent) {
     for (var i = 0; i < yieldHandlers.length; ++i) {
@@ -179,8 +178,7 @@ Promise.coroutine = function (generatorFunction, options) {
     var yieldHandler = Object(options).yieldHandler;
     var PromiseSpawn$ = PromiseSpawn;
     var stack = new Error().stack;
-
-    function wrap () {
+    return function () {
         var generator = generatorFunction.apply(this, arguments);
         var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler,
                                       stack);
@@ -188,16 +186,7 @@ Promise.coroutine = function (generatorFunction, options) {
         spawn._generator = generator;
         spawn._promiseFulfilled(undefined);
         return ret;
-    }
-
-    defineProperty(wrap, "length", {
-      value: generatorFunction.length,
-      writable: false,
-      enumerable: false,
-      configurable: true
-    });
-
-    return wrap;
+    };
 };
 
 Promise.coroutine.addYieldHandler = function(fn) {
