@@ -127,8 +127,8 @@ function getSourcePaths(features) {
     });
 }
 
-function ensureDirectory(dir, isUsed) {
-    return rimraf(dir).then(function() {
+function ensureDirectory(dir, isUsed, clean) {
+    return (clean ? rimraf(dir) : Promise.resolve()).then(function() {
         if (!isUsed) return dir;
         return mkdirp(dir).thenReturn(dir);
     });
@@ -274,13 +274,15 @@ var dirs = {
 };
 
 function build(options) {
+    options = Object(options);
+    var clean = (typeof options.clean !== "boolean" ? true : options.clean);
     var npmPackage = fs.readFileAsync("./package.json").then(JSON.parse);
     var sourceFileNames = getSourcePaths(options.features);
     var license = utils.getLicense();
-    var releaseDir = ensureDirectory(dirs.release, options.release);
-    var debugDir = ensureDirectory(dirs.debug, options.debug);
-    var browserDir = ensureDirectory(dirs.browser, options.browser);
-    var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser);
+    var releaseDir = ensureDirectory(dirs.release, options.release, clean);
+    var debugDir = ensureDirectory(dirs.debug, options.debug, clean);
+    var browserDir = ensureDirectory(dirs.browser, options.browser, clean);
+    var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser, clean);
     return license.then(function(license) {
         return sourceFileNames.map(function(sourceFileName) {
             return jobRunner.run(function() {
@@ -329,11 +331,13 @@ module.exports.dirs = dirs;
 if (require.main === module) {
     var argv = require("optimist").argv;
     var browser = (typeof argv.browser !== "boolean" ? false : argv.browser) || !!argv.features;
+    var clean = (typeof argv.clean !== "boolean" ? true : argv.clean);
     module.exports({
         minify: browser && (typeof argv.minify !== "boolean" ? true : argv.minify),
         browser: browser,
         debug: !!argv.debug,
         release: !!argv.release,
-        features: argv.features || null
+        features: argv.features || null,
+        clean: clean
     });
 }

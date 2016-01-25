@@ -193,7 +193,7 @@ if (options.testBrowser) {
 var buildResult = build(buildOpts);
 if (options.cover) {
     var exclusions = ["assert.js", "captured_trace.js"];
-    var coverageInstrumentedRoot = build.ensureDirectory(build.dirs.instrumented,options.cover);
+    var coverageInstrumentedRoot = build.ensureDirectory(build.dirs.instrumented,options.cover, true);
     var coverageReportsRoot = mkdirp(build.dirs.coverage, true).then(function() {
         return fs.readdirAsync(build.dirs.coverage);
     }).map(function(fileName) {
