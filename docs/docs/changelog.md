@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.1.3 (2016-01-25)
+
+Bugfixes:
+
+ - Fix generators crashing in node 0.12 ([#978](.))
+ - Add minimal build files to build ([#976](.), [#757](.))
+
 ## 3.1.2 (2016-01-23)
 
 Features:
