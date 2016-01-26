@@ -3,6 +3,10 @@ id: changelog
 title: Changelog
 ---
 
+## 3.1.5 (2016-01-26)
+
+Dummy release to trigger CDN update.
+
 ## 3.1.4 (2016-01-25)
 
 Bugfixes:
