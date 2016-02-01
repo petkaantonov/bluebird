@@ -145,11 +145,11 @@ function createFireDomEvent() {
     try {
         var event = document.createEvent("CustomEvent");
         event.initCustomEvent("testingtheevent", false, true, {});
-        global.dispatchEvent(event);
+        util.global.dispatchEvent(event);
         return function(name, event) {
             var domEvent = document.createEvent("CustomEvent");
             domEvent.initCustomEvent(name.toLowerCase(), false, true, event);
-            return !global.dispatchEvent(domEvent);
+            return !util.global.dispatchEvent(domEvent);
         };
     } catch (e) {}
 }
@@ -161,16 +161,16 @@ var fireGlobalEvent = (function() {
             return process.emit.apply(process, arguments);
         };
     } else {
-        if (!global) {
+        if (!util.global) {
             return function() {
                 return false;
             };
         }
         return function(name) {
             var methodName = "on" + name.toLowerCase();
-            var method = global[methodName];
+            var method = util.global[methodName];
             if (!method) return false;
-            method.apply(global, [].slice.call(arguments, 1));
+            method.apply(util.global, [].slice.call(arguments, 1));
             return true;
         };
     }
