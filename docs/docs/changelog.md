@@ -3,11 +3,16 @@ id: changelog
 title: Changelog
 ---
 
+## 3.2.1 (2016-02-01)
+
+Bugfixes:
+
+ - Revert monitoring feature due to crash in browser
+
+
 ## 3.2.0 (2016-02-01)
 
-Features:
-
- - Add [promise monitoring] feature
+- Broken build
 
 ## 3.1.5 (2016-01-26)
 
