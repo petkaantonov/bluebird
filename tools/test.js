@@ -108,7 +108,7 @@ function needsFreshProcess(testName) {
 function runTestGroup(testGroup, options, progress) {
     return jobRunner.run(mochaRunner, {
         isolated: !options.singleTest,
-        log: options.singleTest || options.verbose,
+        log: options.singleTest,
         progress: progress,
         context: {
             testGroup: testGroup,
@@ -170,8 +170,7 @@ var options = {
         ? argv["fake-timers"] : true,
     jsHint: typeof argv["js-hint"] === "boolean" ? argv["js-hint"] : true,
     nw: !!argv.nw,
-    nwPath: argv["nw-path"],
-    verbose: !!argv.verbose
+    nwPath: argv["nw-path"]
 };
 
 
@@ -247,12 +246,8 @@ var testResults = Promise.join(tests, buildResult, function(tests) {
     } else if (singleTest) {
         return runTestGroup(tests, options);
     } else {
-        // Node.js on git bash in Windows 10 and Cygwin do not have
-        // cursorTo and clear screenDown implementations
-        if (process.stdout.cursorTo && process.stdout.clearScreenDown) {
-	        process.stdout.cursorTo(0, 0);
-            process.stdout.clearScreenDown();
-	    }
+        process.stdout.cursorTo(0, 0);
+        process.stdout.clearScreenDown();
         tableLogger.addTests(tests);
         return Promise.map(combineTests(tests), function(testGroup, index) {
             return runTestGroup(testGroup, options, function(test) {

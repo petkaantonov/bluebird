@@ -126,9 +126,9 @@ var tableLogger = (function() {
         split = table.split("\n").map(function(line) {
             return stripVTControlCharacters(line);
         });
-	if (process.stdout.cursorTo) process.stdout.cursorTo(0, 0);
+        process.stdout.cursorTo(0, 0);
         process.stdout.write(table);
-        if (process.stdout.cursorTo) process.stdout.cursorTo(0, split.length + 1);
+        process.stdout.cursorTo(0, split.length + 1);
     }
 
     function addTests(tests) {
@@ -168,9 +168,9 @@ var tableLogger = (function() {
 
     function update(test, message) {
         var pos = getPosition(test);
-        if (process.stdout.cursorTo) process.stdout.cursorTo(pos.x + 1, pos.y);
+        process.stdout.cursorTo(pos.x + 1, pos.y);
         process.stdout.write(message);
-        if (process.stdout.cursorTo) process.stdout.cursorTo(0, split.length + 2);
+        process.stdout.cursorTo(0, split.length + 2);
     }
 
     function testFail(test) {

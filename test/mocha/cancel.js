@@ -2036,11 +2036,11 @@ describe("Cancellation with .bind", function() {
         var cancelled = 0;
         var ctx = {};
         var main = new Promise(function(_, __, onCancel) {});
+        main.cancel();
         main.bind(ctx).lastly(function() {
             assert.equal(this, ctx);
             finalled++;
         });
-        main.cancel();
         return awaitLateQueue(function() {
             assert.equal(1, finalled);
             assert.equal(0, cancelled);

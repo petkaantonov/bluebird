@@ -141,84 +141,6 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
-function createFireDomEvent() {
-    try {
-        var event = document.createEvent("CustomEvent");
-        event.initCustomEvent("testingtheevent", false, true, {});
-        global.dispatchEvent(event);
-        return function(name, event) {
-            var domEvent = document.createEvent("CustomEvent");
-            domEvent.initCustomEvent(name.toLowerCase(), false, true, event);
-            return !global.dispatchEvent(domEvent);
-        };
-    } catch (e) {}
-}
-
-var fireDomEvent = createFireDomEvent();
-var fireGlobalEvent = (function() {
-    if (util.isNode) {
-        return function() {
-            return process.emit.apply(process, arguments);
-        };
-    } else {
-        if (!global) {
-            return function() {
-                return false;
-            };
-        }
-        return function(name) {
-            var methodName = "on" + name.toLowerCase();
-            var method = global[methodName];
-            if (!method) return false;
-            method.apply(global, [].slice.call(arguments, 1));
-            return true;
-        };
-    }
-})();
-
-function generatePromiseLifecycleEventObject(name, promise) {
-    return {promise: promise};
-}
-
-var eventToObjectGenerator = {
-    promiseCreated: generatePromiseLifecycleEventObject,
-    promiseFulfilled: generatePromiseLifecycleEventObject,
-    promiseRejected: generatePromiseLifecycleEventObject,
-    promiseResolved: generatePromiseLifecycleEventObject,
-    promiseCancelled: generatePromiseLifecycleEventObject,
-    promiseChained: function(name, promise, child) {
-        return {promise: promise, child: child};
-    },
-    warning: function(name, warning) {
-        return {warning: warning};
-    },
-    unhandledRejection: function (name, reason, promise) {
-        return {reason: reason, promise: promise};
-    },
-    rejectionHandled: generatePromiseLifecycleEventObject
-};
-
-var fireEventImpl = function () {
-    var name = arguments[0];
-    var eventFired = false;
-    try {
-        eventFired = fireGlobalEvent.apply(null, arguments);
-    } catch (e) {
-        async.throwLater(e);
-        eventFired = true;
-    }
-    if (fireDomEvent) {
-        try {
-            eventFired = eventFired || fireDomEvent(name,
-                    eventToObjectGenerator[name].apply(null, arguments));
-        } catch (e) {
-            async.throwLater(e);
-            eventFired = true;
-        }
-    }
-    return eventFired;
-};
-
 Promise.config = function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
@@ -254,20 +176,6 @@ Promise.config = function(opts) {
         Promise.prototype._execute = cancellationExecute;
         propagateFromFunction = cancellationPropagateFrom;
         config.cancellation = true;
-    }
-    if ("monitoring" in opts) {
-        if (opts.monitoring && !config.monitoring) {
-            if (opts.monitoring === "no_dom_events") {
-                fireDomEvent = undefined;
-            } else {
-                fireDomEvent = createFireDomEvent();
-            }
-            Promise.fireEvent = fireEventImpl;
-            config.monitoring = opts.monitoring;
-        } else if (config.monitoring) {
-            Promise.fireEvent = function (){};
-            config.monitoring = false;
-        }
     }
 };
 
@@ -428,7 +336,6 @@ function warn(message, shouldUseOwnTrace, promise) {
         warning.stack = parsed.message + "\n" + parsed.stack.join("\n");
     }
     formatAndLogError(warning, "", true);
-    Promise.fireEvent("warning", warning);
 }
 
 function reconstructStack(message, stacks) {
@@ -559,12 +466,30 @@ function fireRejectionEvent(name, localHandler, reason, promise) {
         async.throwLater(e);
     }
 
-    if (name === UNHANDLED_REJECTION_EVENT) {
-        if (!fireEventImpl(name, reason, promise) && !localEventFired) {
-            formatAndLogError(reason, UNHANDLED_REJECTION_HEADER);
+    var globalEventFired = false;
+    try {
+        globalEventFired = fireGlobalEvent(name, reason, promise);
+    } catch (e) {
+        globalEventFired = true;
+        async.throwLater(e);
+    }
+
+    var domEventFired = false;
+    if (fireDomEvent) {
+        try {
+            domEventFired = fireDomEvent(name.toLowerCase(), {
+                reason: reason,
+                promise: promise
+            });
+        } catch (e) {
+            domEventFired = true;
+            async.throwLater(e);
         }
-    } else {
-        fireEventImpl(name, promise);
+    }
+
+    if (!globalEventFired && !localEventFired && !domEventFired &&
+        name === UNHANDLED_REJECTION_EVENT) {
+        formatAndLogError(reason, UNHANDLED_REJECTION_HEADER);
     }
 }
 
@@ -828,6 +753,59 @@ var captureStackTrace = (function stackDetection() {
 
 })([]);
 
+var fireDomEvent;
+var fireGlobalEvent = (function() {
+    if (util.isNode) {
+        return function(name, reason, promise) {
+            if (name === REJECTION_HANDLED_EVENT) {
+                return process.emit(name, promise);
+            } else {
+                return process.emit(name, reason, promise);
+            }
+        };
+    } else {
+        var globalObject = typeof self !== "undefined" ? self :
+                     typeof window !== "undefined" ? window :
+                     typeof global !== "undefined" ? global :
+                     this !== undefined ? this : null;
+
+        if (!globalObject) {
+            return function() {
+                return false;
+            };
+        }
+
+        try {
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("testingtheevent", false, true, {});
+            globalObject.dispatchEvent(event);
+            fireDomEvent = function(type, detail) {
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent(type, false, true, detail);
+                return !globalObject.dispatchEvent(event);
+            };
+        } catch (e) {}
+
+        var toWindowMethodNameMap = {};
+        toWindowMethodNameMap[UNHANDLED_REJECTION_EVENT] = ("on" +
+            UNHANDLED_REJECTION_EVENT).toLowerCase();
+        toWindowMethodNameMap[REJECTION_HANDLED_EVENT] = ("on" +
+            REJECTION_HANDLED_EVENT).toLowerCase();
+
+        return function(name, reason, promise) {
+            var methodName = toWindowMethodNameMap[name];
+            var method = globalObject[methodName];
+            if (!method) return false;
+            if (name === REJECTION_HANDLED_EVENT) {
+                method.call(globalObject, promise);
+            } else {
+                method.call(globalObject, reason, promise);
+            }
+            return true;
+        };
+    }
+})();
+
 if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
     printWarning = function (message) {
         console.warn(message);
@@ -848,8 +826,7 @@ if (typeof console !== "undefined" && typeof console.warn !== "undefined") {
 var config = {
     warnings: warnings,
     longStackTraces: false,
-    cancellation: false,
-    monitoring: false
+    cancellation: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
@@ -864,9 +841,6 @@ return {
     cancellation: function() {
         return config.cancellation;
     },
-    monitoring: function() {
-        return config.monitoring;
-    },
     propagateFromFunction: function() {
         return propagateFromFunction;
     },
@@ -877,8 +851,6 @@ return {
     setBounds: setBounds,
     warn: warn,
     deprecated: deprecated,
-    CapturedTrace: CapturedTrace,
-    fireDomEvent: fireDomEvent,
-    fireGlobalEvent: fireGlobalEvent
+    CapturedTrace: CapturedTrace
 };
 };

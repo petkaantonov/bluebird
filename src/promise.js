@@ -44,14 +44,13 @@ var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {};
 var tryConvertToPromise = require("./thenables")(Promise, INTERNAL);
+var PromiseArray =
+    require("./promise_array")(Promise, INTERNAL,
+                               tryConvertToPromise, apiRejection, Proxyable);
 var Context = require("./context")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
-Promise.fireEvent = function(){};
 var debug = require("./debuggability")(Promise, Context);
-var PromiseArray =
-    require("./promise_array")(Promise, INTERNAL,
-    tryConvertToPromise, apiRejection, Proxyable);
 var CapturedTrace = debug.CapturedTrace;
 var PassThroughHandlerContext =
     require("./finally")(Promise, tryConvertToPromise);
@@ -79,7 +78,6 @@ function Promise(executor) {
         this._resolveFromExecutor(executor);
     }
     this._promiseCreated();
-    Promise.fireEvent("promiseCreated", this);
 }
 
 Promise.prototype.toString = function () {
@@ -240,7 +238,6 @@ Promise.prototype._then = function (
                 receiver = target === this ? undefined : this._boundTo;
             }
         }
-        Promise.fireEvent("promiseChained", this, promise);
     }
 
     var domain = getDomain();
@@ -294,17 +291,14 @@ Promise.prototype._setLength = function (len) {
 
 Promise.prototype._setFulfilled = function () {
     this._bitField = this._bitField | IS_FULFILLED;
-    Promise.fireEvent("promiseFulfilled", this);
 };
 
 Promise.prototype._setRejected = function () {
     this._bitField = this._bitField | IS_REJECTED;
-    Promise.fireEvent("promiseRejected", this);
 };
 
 Promise.prototype._setFollowing = function () {
     this._bitField = this._bitField | IS_FOLLOWING;
-    Promise.fireEvent("promiseResolved", this);
 };
 
 Promise.prototype._setIsFinal = function () {
@@ -321,7 +315,6 @@ Promise.prototype._unsetCancelled = function() {
 
 Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
-    Promise.fireEvent("promiseCancelled", this);
 };
 
 Promise.prototype._setAsyncGuaranteed = function() {

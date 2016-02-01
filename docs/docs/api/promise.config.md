@@ -13,23 +13,20 @@ title: Promise.config
 Promise.config(Object {
     warnings: boolean=false,
     longStackTraces: boolean=false,
-    cancellation: boolean=false,
-    monitoring: boolean=false
+    cancellation: boolean=false
 } options) -> undefined;
 ```
 
-Configure long stack traces, warnings, monitoring and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
+Configure long stack traces, warnings and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
 
 ```js
 Promise.config({
-    // Enable warnings
+    // Enable warnings.
     warnings: true,
-    // Enable long stack traces
+    // Enable long stack traces.
     longStackTraces: true,
-    // Enable cancellation
-    cancellation: true,
-    // Enable monitoring
-    monitoring: true
+    // Enable cancellation.
+    cancellation: true
 });
 ```
 
