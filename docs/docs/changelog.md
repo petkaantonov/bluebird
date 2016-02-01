@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.2.0 (2016-02-01)
+
+Features:
+
+ - Add [promise monitoring] feature
+
 ## 3.1.5 (2016-01-26)
 
 Dummy release to trigger CDN update.
