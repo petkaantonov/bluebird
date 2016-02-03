@@ -35,14 +35,18 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
 We can do better, retaining concurrency and not leaking resources, by using `.using`:
 
 ```js
-var using = Promise.using;
-
-using(getConnection(),
-      fs.readFileAsync("file.sql", "utf8"), function(connection, fileContents) {
-    return connection.query(fileContents);
-}).then(function() {
-    console.log("query successful and connection closed");
-});
+function doStuff() {
+    return Promise.using([
+        connectionPool.getConnectionAsync(),
+        fs.readFileAsync("file.sql", "utf8")
+    ]), function(connection, fileContents) {
+        return connection.query(fileContents);
+    }).then(function() {
+        console.log("query successful and connection closed");
+    }).finally(function() {
+        connection.close();
+    });
+}
 ```
 </markdown></div>
 
@@ -51,7 +55,7 @@ using(getConnection(),
     var disqus_title = "Resource management";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-resource-management";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
