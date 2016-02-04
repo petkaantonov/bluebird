@@ -246,8 +246,8 @@ var testResults = Promise.join(tests, buildResult, function(tests) {
     } else if (singleTest) {
         return runTestGroup(tests, options);
     } else {
-        process.stdout.cursorTo(0, 0);
-        process.stdout.clearScreenDown();
+        utils.cursorTo(0, 0);
+        utils.clearScreenDown();
         tableLogger.addTests(tests);
         return Promise.map(combineTests(tests), function(testGroup, index) {
             return runTestGroup(testGroup, options, function(test) {
