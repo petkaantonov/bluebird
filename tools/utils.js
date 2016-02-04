@@ -41,6 +41,15 @@ function getLicense() {
     });
 }
 
+function cursorTo(x, y) {
+    if (process.stdout.cursorTo)
+        process.stdout.cursorTo(x, y);
+}
+
+function clearScreenDown() {
+    if (process.stdout.clearScreenDown)
+        process.stdout.clearScreenDown();
+}
 
 function run(cmd, args, dir, log) {
     return new Promise(function(resolve, reject) {
@@ -126,9 +135,9 @@ var tableLogger = (function() {
         split = table.split("\n").map(function(line) {
             return stripVTControlCharacters(line);
         });
-        process.stdout.cursorTo(0, 0);
+        cursorTo(0, 0);
         process.stdout.write(table);
-        process.stdout.cursorTo(0, split.length + 1);
+        cursorTo(0, split.length + 1);
     }
 
     function addTests(tests) {
@@ -168,9 +177,9 @@ var tableLogger = (function() {
 
     function update(test, message) {
         var pos = getPosition(test);
-        process.stdout.cursorTo(pos.x + 1, pos.y);
+        cursorTo(pos.x + 1, pos.y);
         process.stdout.write(message);
-        process.stdout.cursorTo(0, split.length + 2);
+        cursorTo(0, split.length + 2);
     }
 
     function testFail(test) {
@@ -203,5 +212,7 @@ module.exports = {
     run: run,
     parseDeps: parseDeps,
     tableLogger: tableLogger,
-    stringToStream: stringToStream
+    stringToStream: stringToStream,
+    cursorTo: cursorTo,
+    clearScreenDown: clearScreenDown
 };
