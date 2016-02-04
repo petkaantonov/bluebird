@@ -32,7 +32,7 @@ reading the file may fail and then of course `.spread` is not called at all and 
 One could solve this by either reading the file first or connecting first, and only proceeding if the first step succeeds. However,
 this would lose a lot of the benefits of using asynchronity and we might almost as well go back to using simple synchronous code.
 
-We can do better, retaining concurrency and not leaking resources, by using `.using`:
+We can do better, retaining concurrency and not leaking resources, by using [`Promise.using`](promise.using.html):
 
 ```js
 var using = Promise.using;
@@ -44,6 +44,9 @@ using(getConnection(),
     console.log("query successful and connection closed");
 });
 ```
+
+[Continue by reading the `Promise.using` documentation](promise.using.html)
+
 </markdown></div>
 
 <div id="disqus_thread"></div>
