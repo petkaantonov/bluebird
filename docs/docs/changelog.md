@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.2.2 (2016-02-05)
+
+Bugfixes:
+
+ - Make build script's output work without TTY
+
 ## 3.2.1 (2016-02-01)
 
 Bugfixes:
