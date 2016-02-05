@@ -14,7 +14,7 @@ Promise.onUnhandledRejectionHandled(function(Promise promise) handler) -> undefi
 ```
 
 
-*Note: this hook is specific to the bluebird instance its called on, application developers should use [global rejection events](#global-rejection-events)*
+*Note: this hook is specific to the bluebird instance its called on, application developers should use [global rejection events](/docs/api/error-management-configuration.html#global-rejection-events)*
 
 Add `handler` as the handler to call when a rejected promise that was reported as "possibly unhandled rejection" became handled.
 
