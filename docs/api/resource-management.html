@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 29 Dec 2015</i>
+                <i>Updated 05 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -138,7 +138,12 @@ reading the file may fail and then of course <code>.spread</code> is not called 
 <p>One could solve this by either reading the file first or connecting first, and only proceeding if the first step succeeds. However,
 this would lose a lot of the benefits of using asynchronity and we might almost as well go back to using simple synchronous code.</p>
 
-<p>We can do better, retaining concurrency and not leaking resources, by using <code>.using</code>:</p>
+<p>We can do better, retaining concurrency and not leaking resources, by using:</p>
+
+<ul>
+<li><a href='disposers.html' title=''>disposers</a>, objects that wrap a resource and a method to release that resource, together with<br></li>
+<li><a href='promise.using.html' title=''><code>Promise.using</code></a>, a function to safely use disposers in a way that automatically calls their release method</li>
+</ul>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">using</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">;</span>
 
 <span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span>
@@ -148,6 +153,8 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;query successful and connection closed&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
+<p>Continue by reading about <a href='disposers.html' title=''>disposers</a> and <a href='promise.using.html' title=''><code>Promise.using</code></a></p>
+
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -172,7 +179,7 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.2.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.2.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
