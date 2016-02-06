@@ -34,7 +34,7 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
 
 We can do better, retaining concurrency and not leaking resources, by using:
 
-* [disposers](disposers.html), objects that wrap a resource and a method to release that resource, together with  
+* [disposers](disposer.html), objects that wrap a resource and a method to release that resource, together with  
 * [`Promise.using`](promise.using.html), a function to safely use disposers in a way that automatically calls their release method
 
 ```js
@@ -48,7 +48,7 @@ using(getConnection(),
 });
 ```
 
-Continue by reading about [disposers](disposers.html) and [`Promise.using`](promise.using.html)
+Continue by reading about [disposers](disposer.html) and [`Promise.using`](promise.using.html)
 
 </markdown></div>
 
