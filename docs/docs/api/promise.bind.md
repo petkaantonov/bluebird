@@ -128,7 +128,7 @@ something().bind(var1).then(function() {
 });
 ```
 
-Also see [this Stackoverflow answer]`](.) can clean up code.
+Also see this [http://stackoverflow.com/a/24412873/191693](Stackoverflow answer) as an additional example.
 
 <hr>
 
@@ -159,7 +159,7 @@ Promise.resolve("my-element")
     .then(console.log);
 ```
 
-The above does `console.log`](.)s are necessary because in browser neither of the methods can be called as a stand-alone function.
+The above does a `console.log` of `my-element`.  Doing it this way is necessary because neither of the methods (`getElementById`, `console.log`) can be called as stand-alone methods.
 </markdown></div>
 
 <div id="disqus_thread"></div>
