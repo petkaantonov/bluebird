@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Dec 2015</i>
+                <i>Updated 07 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -119,7 +119,7 @@
             </h2>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">onPossiblyUnhandledRejection</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">Promise</span> <span class="nx">promise</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
-<p><em>Note: this hook is specific to the bluebird instance its called on, application developers should use <a href='#global-rejection-events' title=''>global rejection events</a></em></p>
+<p><em>Note: this hook is specific to the bluebird instance its called on, application developers should use <a href='/docs/api/error-management-configuration.html#global-rejection-events' title=''>global rejection events</a></em></p>
 
 <p>Add <code>handler</code> as the handler to call when there is a possibly unhandled rejection. The default handler logs the error stack to stderr or <code>console.error</code> in browsers.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">onPossiblyUnhandledRejection</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>

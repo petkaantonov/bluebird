@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 05 Feb 2016</i>
+                <i>Updated 07 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -141,7 +141,7 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
 <p>We can do better, retaining concurrency and not leaking resources, by using:</p>
 
 <ul>
-<li><a href='disposers.html' title=''>disposers</a>, objects that wrap a resource and a method to release that resource, together with<br></li>
+<li><a href='disposer.html' title=''>disposers</a>, objects that wrap a resource and a method to release that resource, together with<br></li>
 <li><a href='promise.using.html' title=''><code>Promise.using</code></a>, a function to safely use disposers in a way that automatically calls their release method</li>
 </ul>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">using</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">;</span>
@@ -153,7 +153,7 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;query successful and connection closed&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>Continue by reading about <a href='disposers.html' title=''>disposers</a> and <a href='promise.using.html' title=''><code>Promise.using</code></a></p>
+<p>Continue by reading about <a href='disposer.html' title=''>disposers</a> and <a href='promise.using.html' title=''><code>Promise.using</code></a></p>
 
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
