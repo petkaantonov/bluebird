@@ -10,7 +10,7 @@ title: Promise.setScheduler
 ##Promise.setScheduler
 
 ```js
-Promise.setScheduler(function(function fn) scheduler) -> prev
+Promise.setScheduler(function(function fn) scheduler) -> function
 ```
 
 
