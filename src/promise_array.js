@@ -97,6 +97,8 @@ PromiseArray.prototype._iterate = function(values) {
         if (maybePromise instanceof Promise) {
             maybePromise = maybePromise._target();
             bitField = maybePromise._bitField;
+            Promise.fireEvent("promiseChained", this,
+                maybePromise);
         } else {
             bitField = null;
         }

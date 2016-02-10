@@ -83,6 +83,7 @@ describe("regressions", function() {
     if (testUtils.isNodeJS) {
         describe("github-689", function() {
             var originalProperty = Object.getOwnPropertyDescriptor(process, "domain");
+            var originalBind = process.domain ? process.domain.bind : null;
             var bindCalls = 0;
 
             beforeEach(function() {
@@ -90,24 +91,35 @@ describe("regressions", function() {
             });
 
             before(function() {
-                Object.defineProperty(process, "domain", {
-                    writable: true,
-                    enumerable: true,
-                    configurable: true,
-                    value: {
-                        bind: function(fn) {
-                            bindCalls++;
-                            // Ensure non-strict mode.
-                            return new Function("fn", "return function() {return fn.apply(this, arguments);}")(fn);
-                        },
-                        enter: function() {},
-                        exit: function() {}
-                    }
-                });
+                if (originalBind) {
+                    process.domain.bind = function () {
+                        bindCalls++;
+                        return originalBind.apply(this, arguments);
+                    };
+                } else {
+                    Object.defineProperty(process, "domain", {
+                        writable: true,
+                        enumerable: true,
+                        configurable: true,
+                        value: {
+                            bind: function(fn) {
+                                bindCalls++;
+                                // Ensure non-strict mode.
+                                return new Function("fn", "return function() {return fn.apply(this, arguments);}")(fn);
+                            },
+                            enter: function() {},
+                            exit: function() {}
+                        }
+                    });
+                }
             });
 
             after(function() {
-                Object.defineProperty(process, "domain", originalProperty);
+                if (originalBind) {
+                    process.domain.bind = originalBind;
+                } else {
+                    Object.defineProperty(process, "domain", originalProperty);
+                }
             });
 
             specify(".return", function() {

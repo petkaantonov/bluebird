@@ -108,7 +108,7 @@ function needsFreshProcess(testName) {
 function runTestGroup(testGroup, options, progress) {
     return jobRunner.run(mochaRunner, {
         isolated: !options.singleTest,
-        log: options.singleTest,
+        log: options.singleTest || options.verbose,
         progress: progress,
         context: {
             testGroup: testGroup,
@@ -170,7 +170,8 @@ var options = {
         ? argv["fake-timers"] : true,
     jsHint: typeof argv["js-hint"] === "boolean" ? argv["js-hint"] : true,
     nw: !!argv.nw,
-    nwPath: argv["nw-path"]
+    nwPath: argv["nw-path"],
+    verbose: !!argv.verbose
 };
 
 
