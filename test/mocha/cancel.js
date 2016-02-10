@@ -2982,4 +2982,51 @@ if (testUtils.isNodeJS) {
             });
         });
     });
+
+    describe("GH1000", function() {
+        var clear, set;
+        var clears = 0;
+        before(function() {
+            clears = 0;
+            set = setTimeout;
+            clear = clearTimeout;
+            setTimeout = function() {
+                return set.apply(this, arguments);
+            };
+            clearTimeout = function() {
+                clears++;
+                return clear.apply(this, arguments);
+            };
+        });
+
+        after(function() {
+            clears = 0;
+            setTimeout = set;
+            clearTimeout = clear;
+        });
+
+        specify("GH1000", function() {
+            var calls = 0,
+                never = 0;
+            var p = Promise
+              .delay(10000000)
+              .then(function () {
+                never++;
+              });
+
+            p.lastly(function() {
+                if (p.isCancelled()) {
+                    calls++;
+                }
+            });
+
+            p.cancel();
+
+            return awaitLateQueue(function() {
+                assert.equal(0, never);
+                assert.equal(1, calls);
+                assert.equal(1, clears);
+            });
+        });
+    });
 }
