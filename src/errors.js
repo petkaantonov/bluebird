@@ -97,7 +97,12 @@ if (!errorTypes) {
         RejectionError: OperationalError,
         AggregateError: AggregateError
     });
-    notEnumerableProp(Error, BLUEBIRD_ERRORS, errorTypes);
+    es5.defineProperty(Error, BLUEBIRD_ERRORS, {
+        value: errorTypes,
+        writable: false,
+        enumerable: false,
+        configurable: false
+    });
 }
 
 module.exports = {
