@@ -78,6 +78,7 @@ function Promise(executor) {
         this._resolveFromExecutor(executor);
     }
     this._promiseCreated();
+    this._fireEvent("promiseCreated", this);
 }
 
 Promise.prototype.toString = function () {
@@ -238,6 +239,7 @@ Promise.prototype._then = function (
                 receiver = target === this ? undefined : this._boundTo;
             }
         }
+        this._fireEvent("promiseChained", this, promise);
     }
 
     var domain = getDomain();
@@ -291,14 +293,17 @@ Promise.prototype._setLength = function (len) {
 
 Promise.prototype._setFulfilled = function () {
     this._bitField = this._bitField | IS_FULFILLED;
+    this._fireEvent("promiseFulfilled", this);
 };
 
 Promise.prototype._setRejected = function () {
     this._bitField = this._bitField | IS_REJECTED;
+    this._fireEvent("promiseRejected", this);
 };
 
 Promise.prototype._setFollowing = function () {
     this._bitField = this._bitField | IS_FOLLOWING;
+    this._fireEvent("promiseResolved", this);
 };
 
 Promise.prototype._setIsFinal = function () {
@@ -315,6 +320,7 @@ Promise.prototype._unsetCancelled = function() {
 
 Promise.prototype._setCancelled = function() {
     this._bitField = this._bitField | IS_CANCELLED;
+    this._fireEvent("promiseCancelled", this);
 };
 
 Promise.prototype._setAsyncGuaranteed = function() {

@@ -120,7 +120,7 @@ describe("Promise constructor", function() {
 
     it("passes arguments even if parameters are not defined", function(){
         new Promise(function() {
-            assert(arguments.length === 2);
+            assert(arguments.length === 2 || arguments.length === 3);
         });
     });
 
