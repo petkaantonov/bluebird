@@ -31,6 +31,9 @@ var delay = Promise.delay = function (ms, value) {
     if (value !== undefined) {
         ret = Promise.resolve(value)
                 ._then(afterValue, null, null, ms, undefined);
+        if (debug.cancellation() && value instanceof Promise) {
+            ret._setOnCancel(value);
+        }
     } else {
         ret = new Promise(INTERNAL);
         handle = setTimeout(function() { ret._fulfill(); }, +ms);
