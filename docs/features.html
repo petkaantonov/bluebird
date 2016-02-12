@@ -376,7 +376,7 @@ From previous event:
     <span class="c1">// event.details.child - The created child promise.</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>3. In legacy browsers use <code>window.eventname = handlerFunction;</code></p>
+<p>3. In legacy browsers use <code>window.oneventname = handlerFunction;</code>.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event names are in mashedtogetherlowercase, as per legacy convention.</span>
 <span class="nb">window</span><span class="p">.</span><span class="nx">onpromisechained</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// event.details.promise - The parent promise the child was chained from</span>
