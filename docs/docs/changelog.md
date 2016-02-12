@@ -3,6 +3,19 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.0 (2016-02-12)
+
+Features:
+
+ - Cancelling Promise returned from [Promise.delay()](.) and [.delay()](.) now calls `clearTimeout` ([#1000](.))
+ - Add [monitoring and lifecycle hooks](http://bluebirdjs.com/docs/features.html#promise-monitoring)
+ - Add `'warning'` hook for warnings ([#980](.))
+
+Bugfixes:
+
+ - Fix warnings for "promise was rejected with non-error" being output when promises are rejected with errors from different realm ([#990](.))
+
+
 ## 3.2.2 (2016-02-05)
 
 Bugfixes:
