@@ -360,7 +360,7 @@ From previous event:
 
 <p>This feature has to be explicitly enabled by calling <a href='/docs/api/promise.config.html'><code>Promise.config</code></a> with <code>monitoring: true</code>.</p>
 
-<p>Subscribing to these events depends on the environment.</p>
+<p>The actual subscription API depends on the environment.</p>
 
 <p>1. In Node.js, use <code>process.on</code>:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event name is in camelCase, as per Node.js convention.</span>
@@ -378,7 +378,7 @@ From previous event:
 </code></pre></div>
 <p>3. In legacy browsers use <code>window.eventname = handlerFunction;</code></p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event names are in mashedtogetherlowercase, as per legacy convention.</span>
-<span class="nx">self</span><span class="p">.</span><span class="nx">onpromisechained</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">onpromisechained</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// event.details.promise - The parent promise the child was chained from</span>
     <span class="c1">// event.details.child - The created child promise.</span>
 <span class="p">});</span>
