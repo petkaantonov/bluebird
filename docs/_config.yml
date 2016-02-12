@@ -19,7 +19,7 @@ markdown: redcarpet
 redcarpet:
   extensions:
     - fenced_code_blocks
-version: 3.2.2
+version: 3.3.0
 gems:
   - jekyll-redirect-from
 destination: ../gh-pages/
