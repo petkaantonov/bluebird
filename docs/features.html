@@ -347,7 +347,7 @@ From previous event:
 
 <p>This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js.</p>
 
-<p>Following events are available: </p>
+<p>The following lifecycle events are available: </p>
 
 <ul>
 <li><code>&quot;promiseCreated&quot;</code> - Fired when a promise is created through the constructor.</li>
@@ -363,8 +363,10 @@ From previous event:
 <p>Subscribing to these events depends on the environment.</p>
 
 <p>1. In Node.js, use <code>process.on</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;promiseCreated&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// promise - The promise that was created.</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event name is in camelCase, as per Node.js convention.</span>
+<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;promiseChained&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// promise - The parent promise the child was chained from</span>
+    <span class="c1">// child - The created child promise.</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>2. In modern browsers use <code>window.addEventListener</code> (window context) or <code>self.addEventListener()</code> (web worker or window context) method:</p>
@@ -379,7 +381,7 @@ From previous event:
 <span class="nx">self</span><span class="p">.</span><span class="nx">onpromisechained</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// event.details.promise - The parent promise the child was chained from</span>
     <span class="c1">// event.details.child - The created child promise.</span>
-<span class="p">})</span>
+<span class="p">});</span>
 </code></pre></div>            <h2>
                 <a class="header-anchor"
                     name="resource-management"
