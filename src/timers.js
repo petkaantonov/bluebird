@@ -24,6 +24,14 @@ var afterTimeout = function (promise, message, parent) {
     }
 };
 
+function TimeoutCanceller(handle)  {
+    this.handle = handle;
+}
+
+TimeoutCanceller.prototype._resultCancelled = function() {
+    clearTimeout(this.handle);
+};
+
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
 var delay = Promise.delay = function (ms, value) {
     var ret;
@@ -38,11 +46,7 @@ var delay = Promise.delay = function (ms, value) {
         ret = new Promise(INTERNAL);
         handle = setTimeout(function() { ret._fulfill(); }, +ms);
         if (debug.cancellation()) {
-            ret._setOnCancel({
-                _resultCancelled: function() {
-                    clearTimeout(handle);
-                }
-            });
+            ret._setOnCancel(new TimeoutCanceller(handle));
         }
     }
     ret._setAsyncGuaranteed();
@@ -76,11 +80,7 @@ Promise.prototype.timeout = function (ms, message) {
         afterTimeout(ret, message, parent);
     }, ms);
     if (debug.cancellation()) {
-        ret._setOnCancel({
-            _resultCancelled: function() {
-                clearTimeout(handle);
-            }
-        });
+        ret._setOnCancel(new TimeoutCanceller(handle));
     }
     return ret._then(successClear, failureClear, undefined, handle, undefined);
 };
