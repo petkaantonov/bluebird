@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 23 Jan 2016</i>
+                <i>Updated 12 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -223,6 +223,8 @@
 <span class="p">}</span>
 </code></pre></div>
 <p>Such wrappers should be rare, if they&#39;re common for the reason that the promise library cannot generically promisify them, you should file an issue.</p>
+
+<p>If you cannot do static promisification (promisify and promisifyAll perform too slowly to use at runtime), you may use <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a>.</p>
 
 <p>Also see <a href='http://stackoverflow.com/questions/23803743/what-is-the-deferred-antipattern-and-how-do-i-avoid-it' title=''>this StackOverflow question</a> for more examples and a debate around it.</p>
             <h2>
