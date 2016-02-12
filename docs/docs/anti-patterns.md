@@ -124,6 +124,8 @@ function delay(ms) {
 
 Such wrappers should be rare, if they're common for the reason that the promise library cannot generically promisify them, you should file an issue.
 
+If you cannot do static promisification (promisify and promisifyAll perform too slowly to use at runtime), you may use [Promise.fromCallback](.).
+
 Also see [this StackOverflow question](http://stackoverflow.com/questions/23803743/what-is-the-deferred-antipattern-and-how-do-i-avoid-it) for more examples and a debate around it.
 
 ##The `.then(success, fail)` anti-pattern
