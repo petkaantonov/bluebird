@@ -13,7 +13,7 @@ title: Features
 - [Resource management](#resource-management)
 - [Cancellation and timeouts](#cancellation-and-timeouts)
 - [Scoped prototypes](#scoped-prototypes)
-- [Promises monitoring](#promises-monitoring)
+- [Promise monitoring](#promise-monitoring)
 - [Async/Await](#async-await)
 
 ##Synchronous inspection
@@ -243,32 +243,46 @@ See [installation](install.html) on how to enable warnings in your environment.
 
 ###Promise monitoring
 
-This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js. Following events are available: "promiseCreated", "promiseChained", "promiseFulfilled", "promiseRejected", "promiseResolved" and "promiseCancelled".
-This feature has to be explicitly enabled, see: [Promise.config](api/promise.config.html).
-Subscription to promise lifecycle events is possible in these ways:
-1. In Node.js via process.on() method:
+This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js.
+
+Following events are available: 
+
+ - `"promiseCreated"` - Fired when a promise is created through the constructor.
+ - `"promiseChained"` - Fired when a promise is created through chaining (e.g. [.then](.)).
+ - `"promiseFulfilled"` - Fired when a promise is fulfilled.
+ - `"promiseRejected"` - Fired when a promise is rejected.
+ - `"promiseResolved"` - Fired when a promise adopts another's state.
+ - `"promiseCancelled"` - Fired when a promise is cancelled.
+
+This feature has to be explicitly enabled by calling [Promise.config](.) with `monitoring: true`.
+
+Subscribing to these events depends on the environment.
+
+1\. In Node.js, use `process.on`:
+
+```js
+process.on("promiseCreated", function(promise) {
+    // promise - The promise that was created.
+});
 ```
-process.on("promiseCreated", function(eventName, promise) {
-    // eventName - "promiseCreated"
-    // promise - promise object that was created
-})
+
+2\. In modern browsers use `window.addEventListener` (window context) or `self.addEventListener()` (web worker or window context) method:
+
+```js
+// Note the event names are in mashedtogetherlowercase, as per DOM convention.
+self.addEventListener("promisechained", function(event) {
+    // event.details.promise - The parent promise the child was chained from
+    // event.details.child - The created child promise.
+});
 ```
-2. In browsers via self.addEventListener() method:
-```
-self.addEventListener("promiseChained", function(event) {
-    // event.type - "promiseCreated"
-    // event.details.promise - promise object that was chained to child promise
-    // event.details.child - child promise object
-})
-```
-3. In browsers via overriding handler method on self:
-Note: In this method event names have "on" prefix and have to be in lower case.
-This method implies single event handler function per event type.
-```
-self.onpromisechained = function(eventName, promise, child) {
-    // eventName - "promiseChained"
-    // promise - promise object that was chained to child promise
-    // child - child promise object
+
+3\. In legacy browsers use `window.eventname = handlerFunction;`
+
+```js
+// Note the event names are in mashedtogetherlowercase, as per legacy convention.
+self.onpromisechained = function(promise, child) {
+    // event.details.promise - The parent promise the child was chained from
+    // event.details.child - The created child promise.
 })
 ```
 
