@@ -27,12 +27,23 @@ var afterTimeout = function (promise, message, parent) {
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
 var delay = Promise.delay = function (ms, value) {
     var ret;
+    var handle;
     if (value !== undefined) {
         ret = Promise.resolve(value)
                 ._then(afterValue, null, null, ms, undefined);
+        if (debug.cancellation() && value instanceof Promise) {
+            ret._setOnCancel(value);
+        }
     } else {
         ret = new Promise(INTERNAL);
-        setTimeout(function() { ret._fulfill(); }, +ms);
+        handle = setTimeout(function() { ret._fulfill(); }, +ms);
+        if (debug.cancellation()) {
+            ret._setOnCancel({
+                _resultCancelled: function() {
+                    clearTimeout(handle);
+                }
+            });
+        }
     }
     ret._setAsyncGuaranteed();
     return ret;
