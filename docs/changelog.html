@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 05 Feb 2016</i>
+                <i>Updated 12 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -114,6 +114,27 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.3.0"
+                    aria-hidden="true"
+                    href="#3.3.0"><i class="fa fa-link"></i></a>
+                3.3.0 (2016-02-12)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Cancelling Promise returned from <a href='/docs/api/promise.delay.html'><code>Promise.delay()</code></a> and <a href='/docs/api/delay.html'><code>.delay()</code></a> now calls <code>clearTimeout</code> (<a href='https://github.com/petkaantonov/bluebird/issues/1000'><code>#1000</code></a>)</li>
+<li>Add <a href='http://bluebirdjs.com/docs/features.html#promise-monitoring' title=''>monitoring and lifecycle hooks</a></li>
+<li>Add <code>&#39;warning&#39;</code> hook for warnings (<a href='https://github.com/petkaantonov/bluebird/issues/980'><code>#980</code></a>)</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix warnings for &quot;promise was rejected with non-error&quot; being output when promises are rejected with errors from different realm (<a href='https://github.com/petkaantonov/bluebird/issues/990'><code>#990</code></a>)</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.2.2"
                     aria-hidden="true"
@@ -3790,7 +3811,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.2.2/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

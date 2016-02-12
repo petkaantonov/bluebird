@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 01 Feb 2016</i>
+                <i>Updated 12 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -128,6 +128,7 @@
 <li><a href='#resource-management' title=''>Resource management</a></li>
 <li><a href='#cancellation-and-timeouts' title=''>Cancellation and timeouts</a></li>
 <li><a href='#scoped-prototypes' title=''>Scoped prototypes</a></li>
+<li><a href='#promises-monitoring' title=''>Promises monitoring</a></li>
 <li><a href='#async-await' title=''>Async/Await</a></li>
 </ul>
             <h2>
@@ -324,7 +325,7 @@ From previous event:
                 Error pattern matching
             </h3>
 
-<p>Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored. However</p>
+<p>Perhaps the greatest thing about promises is that it unifies all error handling into one mechanism where errors propagate automatically and have to be explicitly ignored.</p>
             <h3>
                 <a class="header-anchor"
                     name="warnings"
@@ -336,6 +337,42 @@ From previous event:
 <p>Promises can have a steep learning curve and it doesn&#39;t help that promise standards go out of their way to make it even harder. Bluebird works around the limitations by providing warnings where the standards disallow throwing errors when incorrect usage is detected. See <a href='warning-explanations.html' title=''>Warning Explanations</a> for the possible warnings that bluebird covers.</p>
 
 <p>See <a href='install.html' title=''>installation</a> on how to enable warnings in your environment.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="promise-monitoring"
+                    aria-hidden="true"
+                    href="#promise-monitoring"><i class="fa fa-link"></i></a>
+                Promise monitoring
+            </h3>
+
+<p>This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js. Following events are available: &quot;promiseCreated&quot;, &quot;promiseChained&quot;, &quot;promiseFulfilled&quot;, &quot;promiseRejected&quot;, &quot;promiseResolved&quot; and &quot;promiseCancelled&quot;.
+This feature has to be explicitly enabled, see: <a href='api/promise.config.html' title=''>Promise.config</a>.
+Subscription to promise lifecycle events is possible in these ways:
+1. In Node.js via process.on() method:
+<code>
+process.on(&quot;promiseCreated&quot;, function(eventName, promise) {
+    // eventName - &quot;promiseCreated&quot;
+    // promise - promise object that was created
+})
+</code>
+2. In browsers via self.addEventListener() method:
+<code>
+self.addEventListener(&quot;promiseChained&quot;, function(event) {
+    // event.type - &quot;promiseCreated&quot;
+    // event.details.promise - promise object that was chained to child promise
+    // event.details.child - child promise object
+})
+</code>
+3. In browsers via overriding handler method on self:
+Note: In this method event names have &quot;on&quot; prefix and have to be in lower case.
+This method implies single event handler function per event type.
+<code>
+self.onpromisechained = function(eventName, promise, child) {
+    // eventName - &quot;promiseChained&quot;
+    // promise - promise object that was chained to child promise
+    // child - child promise object
+})
+</code></p>
             <h2>
                 <a class="header-anchor"
                     name="resource-management"
@@ -384,7 +421,7 @@ that creates an isolated copy. For example, creating a file called <code>bluebir
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.2.2/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
