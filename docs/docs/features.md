@@ -245,7 +245,7 @@ See [installation](install.html) on how to enable warnings in your environment.
 
 This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js.
 
-Following events are available: 
+The following lifecycle events are available: 
 
  - `"promiseCreated"` - Fired when a promise is created through the constructor.
  - `"promiseChained"` - Fired when a promise is created through chaining (e.g. [.then](.)).
@@ -256,13 +256,15 @@ Following events are available:
 
 This feature has to be explicitly enabled by calling [Promise.config](.) with `monitoring: true`.
 
-Subscribing to these events depends on the environment.
+The actual subscription API depends on the environment.
 
 1\. In Node.js, use `process.on`:
 
 ```js
-process.on("promiseCreated", function(promise) {
-    // promise - The promise that was created.
+// Note the event name is in camelCase, as per Node.js convention.
+process.on("promiseChained", function(promise, child) {
+    // promise - The parent promise the child was chained from
+    // child - The created child promise.
 });
 ```
 
@@ -276,14 +278,14 @@ self.addEventListener("promisechained", function(event) {
 });
 ```
 
-3\. In legacy browsers use `window.eventname = handlerFunction;`
+3\. In legacy browsers use `window.oneventname = handlerFunction;`.
 
 ```js
 // Note the event names are in mashedtogetherlowercase, as per legacy convention.
-self.onpromisechained = function(promise, child) {
+window.onpromisechained = function(promise, child) {
     // event.details.promise - The parent promise the child was chained from
     // event.details.child - The created child promise.
-})
+};
 ```
 
 ##Resource management
