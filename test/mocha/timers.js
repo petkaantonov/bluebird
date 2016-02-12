@@ -71,7 +71,7 @@ describe("timeout", function () {
             assert(didNotExecute, "parent promise was not cancelled");
             assert(wasRejectedWithTimeout, "promise was not rejected with timeout");
         })
-    })
+    });
 
     it("should not cancel the parent promise if there are multiple consumers", function() {
         var derivedNotCancelled = false;
@@ -133,7 +133,9 @@ describe("timeout", function () {
                     globalObject.clearTimeout = old;
                 };
 
-                return new Promise(function(){}).timeout(1).then(null, function() {
+                return new Promise(function(_, reject) {
+                    setTimeout(reject, 10);
+                }).timeout(10000).then(null, function() {
                     assert.strictEqual(expectedHandleType, handleType);
                 });
             });

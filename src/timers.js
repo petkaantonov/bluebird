@@ -3,32 +3,11 @@ module.exports = function(Promise, INTERNAL, debug) {
 var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
 
-var afterTimeout = function (promise, message, parent) {
-    //Don't waste time concatting strings or creating stack traces
-    if (!promise.isPending()) return;
-    var err;
-    if (typeof message !== "string") {
-        if (message instanceof Error) {
-            err = message;
-        } else {
-            err = new TimeoutError(TIMEOUT_ERROR);
-        }
-    } else {
-        err = new TimeoutError(message);
-    }
-    util.markAsOriginatingFromRejection(err);
-    promise._attachExtraTrace(err);
-    promise._reject(err);
-    if (debug.cancellation()) {
-        parent.cancel();
-    }
-};
-
-function TimeoutCanceller(handle)  {
+function HandleWrapper(handle)  {
     this.handle = handle;
 }
 
-TimeoutCanceller.prototype._resultCancelled = function() {
+HandleWrapper.prototype._resultCancelled = function() {
     clearTimeout(this.handle);
 };
 
@@ -46,7 +25,7 @@ var delay = Promise.delay = function (ms, value) {
         ret = new Promise(INTERNAL);
         handle = setTimeout(function() { ret._fulfill(); }, +ms);
         if (debug.cancellation()) {
-            ret._setOnCancel(new TimeoutCanceller(handle));
+            ret._setOnCancel(new HandleWrapper(handle));
         }
     }
     ret._setAsyncGuaranteed();
@@ -57,32 +36,57 @@ Promise.prototype.delay = function (ms) {
     return delay(ms, this);
 };
 
+var afterTimeout = function (promise, message, parent) {
+    var err;
+    if (typeof message !== "string") {
+        if (message instanceof Error) {
+            err = message;
+        } else {
+            err = new TimeoutError(TIMEOUT_ERROR);
+        }
+    } else {
+        err = new TimeoutError(message);
+    }
+    util.markAsOriginatingFromRejection(err);
+    promise._attachExtraTrace(err);
+    promise._reject(err);
+
+    if (parent != null) {
+        parent.cancel();
+    }
+};
+
 function successClear(value) {
-    var handle = this;
-    if (handle instanceof Number) handle = +handle;
-    clearTimeout(handle);
+    clearTimeout(this.handle);
     return value;
 }
 
 function failureClear(reason) {
-    var handle = this;
-    if (handle instanceof Number) handle = +handle;
-    clearTimeout(handle);
+    clearTimeout(this.handle);
     throw reason;
 }
 
-
 Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
-    var parent = this.then();
-    var ret = parent.then();
-    var handle = setTimeout(function timeoutTimeout() {
-        afterTimeout(ret, message, parent);
-    }, ms);
+    var ret, parent;
+
+    var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {
+        if (ret.isPending()) {
+            afterTimeout(ret, message, parent);
+        }
+    }, ms));
+
     if (debug.cancellation()) {
-        ret._setOnCancel(new TimeoutCanceller(handle));
+        parent = this.then();
+        ret = parent._then(successClear, failureClear,
+                            undefined, handleWrapper, undefined);
+        ret._setOnCancel(handleWrapper);
+    } else {
+        ret = this._then(successClear, failureClear,
+                            undefined, handleWrapper, undefined);
     }
-    return ret._then(successClear, failureClear, undefined, handle, undefined);
+
+    return ret;
 };
 
 };
