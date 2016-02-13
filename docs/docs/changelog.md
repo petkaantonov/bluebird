@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.1 (2016-02-13)
+
+Bugfixes:
+
+ - Fix crash when cancelling a [.tap()](.) handler promise ([#1006](.)).
+
 ## 3.3.0 (2016-02-12)
 
 Features:
