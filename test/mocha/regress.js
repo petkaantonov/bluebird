@@ -80,6 +80,12 @@ describe("regressions", function() {
         });
     });
 
+    specify("gh-1006", function() {
+        return Promise.resolve().then(function() {
+            new Promise(function() {}).tap(function() {}).cancel();
+        });
+    });
+
     if (testUtils.isNodeJS) {
         describe("github-689", function() {
             var originalProperty = Object.getOwnPropertyDescriptor(process, "domain");

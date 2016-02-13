@@ -570,7 +570,8 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
     if (BIT_FIELD_CHECK(IS_CANCELLED)) {
         if (isPromise) promise._invokeInternalOnCancel();
 
-        if (receiver instanceof PassThroughHandlerContext) {
+        if (receiver instanceof PassThroughHandlerContext &&
+            receiver.isFinallyHandler()) {
             receiver.cancelPromise = promise;
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);

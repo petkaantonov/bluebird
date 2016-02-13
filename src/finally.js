@@ -12,6 +12,10 @@ function PassThroughHandlerContext(promise, type, handler) {
     this.cancelPromise = null;
 }
 
+PassThroughHandlerContext.prototype.isFinallyHandler = function() {
+    return this.type === FINALLY_TYPE;
+};
+
 function FinallyHandlerCancelReaction(finallyHandler) {
     this.finallyHandler = finallyHandler;
 }
@@ -47,7 +51,7 @@ function finallyHandler(reasonOrValue) {
 
     if (!this.called) {
         this.called = true;
-        var ret = this.type === FINALLY_TYPE
+        var ret = this.isFinallyHandler()
             ? handler.call(promise._boundValue())
             : handler.call(promise._boundValue(), reasonOrValue);
         if (ret !== undefined) {
