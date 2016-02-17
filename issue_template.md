@@ -1,4 +1,4 @@
-(This issue tracker is only for bug reports or feature requests, if this is neither, please choose appropriate channel from http://bluebirdjs.com/docs/support.html)
+(This issue tracker is only for bug reports or feature requests, if this is neither, please choose appropriate channel from http://bluebirdjs.com/docs/support.html support questions will not be answered)
 
 Please answer the questions the best you can:
 
