@@ -8,4 +8,5 @@ Please answer the questions the best you can:
 
 3) Did this issue happen with earlier version of bluebird?
 
-(Write description of your issue here)
+(Write description of your issue here, stack traces from errors and code that reproduces the issue are helpful)
+
