@@ -57,7 +57,27 @@ function ajaxGetAsync(url) {
 }
 ```
 
-Now the animation is hidden but an exception or the actual return value will automatically skip the finally and propagate to further chainers. This is more in line with the synchronous `finally` keyword.
+Now the animation is hidden but, unless it throws an exception, the function has no effect on the fulfilled or rejected value of the returned promise.  This is similar to how the synchronous `finally` keyword behaves.
+
+If the handler function passed to `.finally` returns a promise, the promise returned by `.finally` will not be settled until the promise returned by the handler is settled.  If the handler fulfills its promise, the returned promise will be fulfilled or rejected with the original value.  If the handler rejects its promise, the returned promise will be rejected with the handler's value.  This is similar to throwing an exception in a synchronous `finally` block, causing the original value or exception to be forgotten.  This delay can be useful if the actions performed by the handler are done asynchronously.  For example:
+
+```js
+function ajaxGetAsync(url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest;
+        xhr.addEventListener("error", reject);
+        xhr.addEventListener("load", resolve);
+        xhr.open("GET", url);
+        xhr.send(null);
+    }).finally(function() {
+        return Promise.fromCallback(function(callback) {
+            $("#ajax-loader-animation").fadeOut(1000, callback);
+        });
+    });
+}
+```
+
+If the fade out completes successfully, the returned promise will be fulfilled or rejected with the value from `xhr`.  If `.fadeOut` throws an exception or passes an error to the callback, the returned promise will be rejected with the error from `.fadeOut`.
 
 *For compatibility with earlier ECMAScript version, an alias `.lastly` is provided for [`.finally`](.).*
 </markdown></div>
