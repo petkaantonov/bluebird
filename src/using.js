@@ -7,10 +7,6 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
     var errorObj = util.errorObj;
     var tryCatch = util.tryCatch;
 
-    function thrower(e) {
-        setTimeout(function(){throw e;}, 0);
-    }
-
     function castPreservingDisposable(thenable) {
         var maybePromise = tryConvertToPromise(thenable);
         if (maybePromise !== thenable &&
@@ -35,10 +31,10 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
                         maybePromise._getDisposer().tryDispose(inspection),
                         resources.promise);
                 } catch (e) {
-                    return thrower(e);
+                    return util.panic(e);
                 }
                 if (maybePromise instanceof Promise) {
-                    return maybePromise._then(iterator, thrower,
+                    return maybePromise._then(iterator, util.panic,
                                               null, null, null);
                 }
             }

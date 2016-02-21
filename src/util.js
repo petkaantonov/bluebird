@@ -109,6 +109,10 @@ function thrower(r) {
     throw r;
 }
 
+function panic(e) {
+    setTimeout(function(){throw e;}, 0);
+}
+
 var inheritedDataKeys = (function() {
     var excludedPrototypes = [
         Array.prototype,
@@ -331,6 +335,7 @@ var ret = {
     inheritedDataKeys: inheritedDataKeys,
     getDataPropertyOrDefault: getDataPropertyOrDefault,
     thrower: thrower,
+    panic: panic,
     isArray: es5.isArray,
     asArray: asArray,
     notEnumerableProp: notEnumerableProp,

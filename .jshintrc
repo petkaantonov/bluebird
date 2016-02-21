@@ -130,6 +130,7 @@
         "MAX_PARAM_COUNT": false,
         "PARAM_COUNTS_TO_TRY": false,
         "BLUEBIRD_ERRORS": false,
+        "BLUEBIRD_COROUTINES": false,
         "OBJECT_PROMISIFY_DEPRECATED": false,
         "SPAWN_DEPRECATED": false,
         "LATE_CANCELLATION_OBSERVER": false,
