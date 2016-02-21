@@ -40,7 +40,7 @@ Example:
 somePromise.then(function() {
     return a.b.c.d();
 }).catch(TypeError, function(e) {
-    //If a is undefined, will end up here because
+    //If it is a TypeError, will end up here because
     //it is a type error to reference property of undefined
 }).catch(ReferenceError, function(e) {
     //Will end up here if a was never declared at all
