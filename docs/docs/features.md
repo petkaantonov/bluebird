@@ -176,7 +176,7 @@ Such policies could include:
 - Swallowing all errors (challenge your debugging skills)
 - ...
 
-See [global rejection events](.) to learn more about the hooks.
+See [global rejection events](http://bluebirdjs.com/docs/api/error-management-configuration.html#global-rejection-events) to learn more about the hooks.
 
 ###Long stack traces
 
