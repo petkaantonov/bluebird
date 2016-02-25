@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 13 Feb 2016</i>
+                <i>Updated 25 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -114,6 +114,33 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.3.3"
+                    aria-hidden="true"
+                    href="#3.3.3"><i class="fa fa-link"></i></a>
+                3.3.3 (2016-02-25)
+            </h2>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix stack overflow error when a promise returned by promisified function rejects early in a huge array when using <a href='/docs/api/promise.mapseries.html'><code>Promise.mapSeries</code></a> or <a href='/docs/api/promise.each.html'><code>Promise.each</code></a></li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="3.3.2"
+                    aria-hidden="true"
+                    href="#3.3.2"><i class="fa fa-link"></i></a>
+                3.3.2 (2016-02-25)
+            </h2>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix missing newline in stack trace reported by <a href='/docs/api/done.html'><code>.done()</code></a> (<a href='https://github.com/petkaantonov/bluebird/issues/1020'><code>#1020</code></a>).</li>
+<li>Detect deep circular resolutions</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.3.1"
                     aria-hidden="true"
@@ -3824,7 +3851,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

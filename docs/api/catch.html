@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 25 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -138,10 +138,10 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">();</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">TypeError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">//If a is defined, will end up here because</span>
+    <span class="c1">//If it is a TypeError, will end up here because</span>
     <span class="c1">//it is a type error to reference property of undefined</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">ReferenceError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">//Will end up here if a wasn&#39;t defined at all</span>
+    <span class="c1">//Will end up here if a was never declared at all</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//Generic catch-the rest, error wasn&#39;t TypeError nor</span>
     <span class="c1">//ReferenceError</span>
@@ -245,7 +245,7 @@ can be implemented on top of them.</p>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

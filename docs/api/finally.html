@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 25 Feb 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -154,7 +154,24 @@
     <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Now the animation is hidden but an exception or the actual return value will automatically skip the finally and propagate to further chainers. This is more in line with the synchronous <code>finally</code> keyword.</p>
+<p>Now the animation is hidden but, unless it throws an exception, the function has no effect on the fulfilled or rejected value of the returned promise.  This is similar to how the synchronous <code>finally</code> keyword behaves.</p>
+
+<p>If the handler function passed to <code>.finally</code> returns a promise, the promise returned by <code>.finally</code> will not be settled until the promise returned by the handler is settled.  If the handler fulfills its promise, the returned promise will be fulfilled or rejected with the original value.  If the handler rejects its promise, the returned promise will be rejected with the handler&#39;s value.  This is similar to throwing an exception in a synchronous <code>finally</code> block, causing the original value or exception to be forgotten.  This delay can be useful if the actions performed by the handler are done asynchronously.  For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nx">url</span><span class="p">);</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+    <span class="p">}).</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#ajax-loader-animation&quot;</span><span class="p">).</span><span class="nx">fadeOut</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>If the fade out completes successfully, the returned promise will be fulfilled or rejected with the value from <code>xhr</code>.  If <code>.fadeOut</code> throws an exception or passes an error to the callback, the returned promise will be rejected with the error from <code>.fadeOut</code>.</p>
 
 <p><em>For compatibility with earlier ECMAScript version, an alias <code>.lastly</code> is provided for <a href='/docs/api/finally.html'><code><code>.finally</code></code></a>.</em>
 </markdown></div></p>
@@ -181,7 +198,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
