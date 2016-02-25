@@ -139,5 +139,30 @@ describe("regressions", function() {
                 });
             });
         });
+
+        describe("long promise chain stack overflow", function() {
+            specify("mapSeries", function() {
+                var array = new Array(5000);
+                for (var i = 0; i < array.length; ++i) {
+                    array[i] = null;
+                }
+
+                var theError = new Error();
+
+                var queryAsync = Promise.promisify(function(cb) {
+                    process.nextTick(function() {
+                        cb(theError);
+                    }, 1);
+                });
+
+                return Promise.mapSeries(array, function() {
+                    return queryAsync();
+                }).caught(function(e) {
+                    assert.strictEqual(e.cause, theError);
+                });
+            });
+        });
     }
+
+
 });

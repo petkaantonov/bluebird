@@ -687,11 +687,7 @@ Promise.prototype._reject = function (reason) {
     }
 
     if (BIT_FIELD_READ(LENGTH_MASK) > 0) {
-        if (BIT_FIELD_CHECK(IS_ASYNC_GUARANTEED)) {
-            this._settlePromises();
-        } else {
-            async.settlePromises(this);
-        }
+        async.settlePromises(this);
     } else {
         this._ensurePossibleRejectionHandled();
     }
