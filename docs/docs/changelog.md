@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.2 (2016-02-25)
+
+Bugfixes:
+
+ - Fix missing newline in stack trace reported by [.done()](.) ([#1020](.)).
+ - Detect deep circular resolutions
+
 ## 3.3.1 (2016-02-13)
 
 Bugfixes:
