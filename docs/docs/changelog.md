@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.3 (2016-02-25)
+
+Bugfixes:
+
+ - Fix stack overflow error when a promise returned by promisified function rejects early in a huge array when using [Promise.mapSeries](.) or [Promise.each](.)
+
+
 ## 3.3.2 (2016-02-25)
 
 Bugfixes:
