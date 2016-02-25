@@ -456,6 +456,12 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
     if (shouldBind) this._propagateFrom(maybePromise, PROPAGATE_BIND);
 
     var promise = maybePromise._target();
+
+    if (promise === this) {
+        this._reject(makeSelfResolutionError());
+        return;
+    }
+
     var bitField = promise._bitField;
     if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var len = this._length();
@@ -535,9 +541,8 @@ Promise.prototype._settlePromiseFromHandler = function (
 
     if (x === NEXT_FILTER) {
         promise._reject(value);
-    } else if (x === errorObj || x === promise) {
-        var err = x === promise ? makeSelfResolutionError() : x.e;
-        promise._rejectCallback(err, false);
+    } else if (x === errorObj) {
+        promise._rejectCallback(x.e, false);
     } else {
         debug.checkForgottenReturns(x, promiseCreated, "",  promise, this);
         promise._resolveCallback(x);
