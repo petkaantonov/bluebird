@@ -36,7 +36,8 @@ Async.prototype.haveItemsQueued = function () {
 
 Async.prototype.fatalError = function(e, isNode) {
     if (isNode) {
-        process.stderr.write("Fatal " + (e instanceof Error ? e.stack : e));
+        process.stderr.write("Fatal " + (e instanceof Error ? e.stack : e) +
+            "\n");
         process.exit(2);
     } else {
         this.throwLater(e);
