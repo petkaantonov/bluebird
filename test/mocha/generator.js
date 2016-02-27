@@ -676,4 +676,24 @@ describe("Cancellation with generators", function() {
             });
         });
     });
+
+
+    specify("finally block runs before finally handler", function(done) {
+        var finallyBlockCalled = false;
+        var asyncFn = Promise.coroutine(function* () {
+            try {
+                yield Promise.delay(100);
+            } finally {
+                finallyBlockCalled = true;
+            }
+        });
+        var p = asyncFn();
+        Promise.resolve().then(function() {
+            p.cancel();
+        });
+        return p.finally(function() {
+            assert.ok(finallyBlockCalled, "finally block should have been called before finally handler");
+            done();
+        });
+    });
 });
