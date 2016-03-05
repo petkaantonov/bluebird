@@ -7,7 +7,7 @@ This page will contain common promise anti-patterns that are exercised in the wi
 
 
 - [The explicit construction anti-pattern](#the-explicit-construction-anti-pattern)
-- [The `.then(success, fail)` anti-pattern](#the-thensuccess-fail-anti-pattern)
+- [The `.then(success, fail)` anti-pattern](#the-.then)
 
 ##The Explicit Construction Anti-Pattern
 
