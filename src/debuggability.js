@@ -400,8 +400,7 @@ function checkForgottenReturns(returnValue, promiseCreated, name, promise,
     if (returnValue === undefined && promiseCreated !== null &&
         wForgottenReturn) {
         if (parent !== undefined && parent._returnedNonUndefined()) return;
-        var bitField = promise._bitField;
-        if (BIT_FIELD_READ(LENGTH_MASK) === 0) return;
+        if (BIT_FIELD_READ(LENGTH_MASK, promise._bitField) === 0) return;
 
         if (name) name = name + " ";
         var msg = "a promise was created in a " + name +
