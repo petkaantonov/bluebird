@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.4 (2016-03-07)
+
+Features:
+
+ - Warnings about created promises that are not returned are no longer given if the handler promise has not been chained. This should reduce the amount of false positives with this warning.
+
 ## 3.3.3 (2016-02-25)
 
 Bugfixes:
