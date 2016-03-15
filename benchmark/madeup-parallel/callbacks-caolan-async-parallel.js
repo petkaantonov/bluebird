@@ -1,22 +1,13 @@
 require('../lib/fakes');
 var async = require('async');
 
-function fileInsertFor(i, tx) {
-    return function(callback) {
-        FileVersion.insert({index: i})
-            .execWithin(tx, callback);
-    };
-}
-
 module.exports = function upload(stream, idOrPath, tag, done) {
     var queries = new Array(global.parallelQueries);
     var tx = db.begin();
 
-    for( var i = 0, len = queries.length; i < len; ++i ) {
-        queries[i] = fileInsertFor(i, tx);
-    }
-
-    async.parallel(queries, function(err, callback) {
+    async.forEachOf(queries, function(data, i, done) {
+        FileVersion.insert({index: i}).execWithin(tx, done);
+    }, function(err) {
         if (err) {
             tx.rollback();
             done(err);
