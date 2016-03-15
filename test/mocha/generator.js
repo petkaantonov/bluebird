@@ -501,6 +501,7 @@ describe("Cancellation with generators", function() {
                 if (e === Promise.coroutine.returnSentinel) throw e;
                 unreached++;
             } finally {
+                yield Promise.resolve();
                 finalled++;
             }
             unreached++;
@@ -544,6 +545,7 @@ describe("Cancellation with generators", function() {
                 if (e === Promise.coroutine.returnSentinel) throw e;
                 unreached++;
             } finally {
+                yield Promise.resolve();
                 finalled++;
             }
             unreached++;
@@ -596,6 +598,7 @@ describe("Cancellation with generators", function() {
                 if (e === Promise.coroutine.returnSentinel) throw e;
                 unreached++;
             } finally {
+                yield Promise.resolve()
                 finalled++;
             }
             unreached++;
@@ -646,6 +649,7 @@ describe("Cancellation with generators", function() {
                 if (e === Promise.coroutine.returnSentinel) throw e;
                 unreached++;
             } finally {
+                yield Promise.resolve()
                 finalled++;
             }
             unreached++;
@@ -684,6 +688,7 @@ describe("Cancellation with generators", function() {
             try {
                 yield Promise.delay(100);
             } finally {
+                yield Promise.delay(100);
                 finallyBlockCalled = true;
             }
         });
@@ -691,9 +696,9 @@ describe("Cancellation with generators", function() {
         Promise.resolve().then(function() {
             p.cancel();
         });
-        return p.finally(function() {
+        p.finally(function() {
             assert.ok(finallyBlockCalled, "finally block should have been called before finally handler");
             done();
-        });
+        }).catch(done);
     });
 });
