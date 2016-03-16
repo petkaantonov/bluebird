@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 07 Mar 2016</i>
+                <i>Updated 16 Mar 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -215,7 +215,7 @@
 <p>You might have to use a deferred object when wrapping a callback API that doesn&#39;t follow the standard convention. Like <code>setTimeout</code>:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//setTimeout that returns a promise</span>
 <span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">pending</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span> <span class="c1">// warning, defer is deprecated, use the promise constructor</span>
     <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
         <span class="nx">deferred</span><span class="p">.</span><span class="nx">fulfill</span><span class="p">();</span>
     <span class="p">},</span> <span class="nx">ms</span><span class="p">);</span>
