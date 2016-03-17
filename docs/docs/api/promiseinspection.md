@@ -13,7 +13,7 @@ title: PromiseInspection
 interface PromiseInspection {
     any reason()
     any value()
-    boolean pending()
+    boolean isPending()
     boolean isRejected()
     boolean isFulfilled()
     boolean isCancelled()
