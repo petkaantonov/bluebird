@@ -18,7 +18,7 @@ title: Features
 
 ##Synchronous inspection
 
-Synchronous inspection allows you retrieve the fulfillment value of an already fulfilled promise or the rejection reason of an already rejected promise synchronously.
+Synchronous inspection allows you to retrieve the fulfillment value of an already fulfilled promise or the rejection reason of an already rejected promise synchronously.
 
 Often it is known in certain code paths that a promise is guaranteed to be fulfilled at that point - it would then be extremely inconvenient to use [`.then`](.) to get at the promise's value as the callback is always called asynchronously.
 
