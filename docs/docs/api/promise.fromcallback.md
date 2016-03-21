@@ -1,20 +1,14 @@
 ---
 layout: api
-id: promise.fromcallback
-title: Promise.fromCallback
+id: promise.fromnode
+title: Promise.fromNode
 ---
 
 
 [← Back To API Reference](/docs/api-reference.html)
 <div class="api-code-section"><markdown>
-##Promise.fromCallback
+##Promise.fromNode
 
-```js
-Promise.fromCallback(
-    function(function callback) resolver,
-    [Object {multiArgs: boolean=false} options]
-) -> Promise
-```
 ```js
 Promise.fromNode(
     function(function callback) resolver,
@@ -39,7 +33,7 @@ var templatesDir = path.join(__dirname, 'templates');
 
 
 emailTemplates(templatesDir).then(function(template) {
-    return Promise.fromCallback(function(callback) {
+    return Promise.fromNode(function(callback) {
         return template("newsletter", callback);
     }, {multiArgs: true}).spread(function(html, text) {
         console.log(html, text);
@@ -57,7 +51,7 @@ var templatesDir = path.join(__dirname, 'templates');
 
 
 emailTemplates(templatesDir).then(function(template) {
-    return Promise.fromCallback(template.bind(null, "newsletter"), {multiArgs: true})
+    return Promise.fromNode(template.bind(null, "newsletter"), {multiArgs: true})
         .spread(function(html, text) {
             console.log(html, text);
         });
@@ -67,9 +61,9 @@ emailTemplates(templatesDir).then(function(template) {
 
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = "Promise.fromCallback";
+    var disqus_title = "Promise.fromNode";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.fromcallback";
+    var disqus_identifier = "disqus-id-promise.fromnode";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
