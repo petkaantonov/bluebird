@@ -174,6 +174,7 @@ function Async() {
         self._consumeFunctionBuffer();
     };
     this.externalDispatcher = undefined;
+    this.batchSize = undefined;
 }
 
 Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
@@ -195,14 +196,22 @@ Async.prototype.invoke = function Async$invoke(fn, receiver, arg) {
 Async.prototype._consumeFunctionBuffer =
 function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
-    while(functionBuffer.length() > 0) {
+    var workItemsProcessed = 0;
+    while(functionBuffer.length() > 0 &&
+          (this.batchSize === undefined || workItemsProcessed < this.batchSize)) {
         var fn = functionBuffer.shift();
         var receiver = functionBuffer.shift();
         var arg = functionBuffer.shift();
         fn.call(receiver, arg);
+        workItemsProcessed += 1;
     }
-    this._reset();
-    this._consumeLateBuffer();
+
+    if (functionBuffer.length() > 0) {
+        this.externalDispatcher.queueCallback(this.consumeFunctionBuffer);
+    } else {
+        this._reset();
+        this._consumeLateBuffer();
+    }
 };
 
 Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
@@ -1746,6 +1755,10 @@ var setExternalDispatcher = function Promise$setExternalDispatcher(dispatcher) {
     async.externalDispatcher = dispatcher;
 };
 
+var setBatchSize = function Promise$setBatchSize(batchSize) {
+    async.batchSize = batchSize;
+}
+
 function isPromise(obj) {
     if (obj === void 0) return false;
     return obj instanceof Promise;
@@ -2831,6 +2844,7 @@ if (!CapturedTrace.isSupported()) {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 Promise.setExternalDispatcher = setExternalDispatcher;
+Promise.setBatchSize = setBatchSize;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);

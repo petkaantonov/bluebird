@@ -41,6 +41,10 @@ var setExternalDispatcher = function Promise$setExternalDispatcher(dispatcher) {
     async.externalDispatcher = dispatcher;
 };
 
+var setBatchSize = function Promise$setBatchSize(batchSize) {
+    async.batchSize = batchSize;
+}
+
 function isPromise(obj) {
     if (obj === void 0) return false;
     return obj instanceof Promise;
@@ -1227,6 +1231,7 @@ if (!CapturedTrace.isSupported()) {
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
 Promise.setExternalDispatcher = setExternalDispatcher;
+Promise.setBatchSize = setBatchSize;
 require("./finally.js")(Promise, NEXT_FILTER);
 require("./direct_resolve.js")(Promise);
 require("./thenables.js")(Promise, INTERNAL);
