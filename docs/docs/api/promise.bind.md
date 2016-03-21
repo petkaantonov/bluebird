@@ -128,7 +128,7 @@ something().bind(var1).then(function() {
 });
 ```
 
-Also see this [http://stackoverflow.com/a/24412873/191693](Stackoverflow answer) as an additional example.
+Also see this [Stackoverflow answer](http://stackoverflow.com/a/24412873/191693) as an additional example.
 
 <hr>
 
