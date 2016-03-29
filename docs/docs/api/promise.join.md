@@ -69,7 +69,7 @@ join(fContents, fStat, fSqlClient, function(contents, stat, sqlClient) {
 });
 ```
 
-*Note: In 1.x and 0.x `Promise.join` used to be a `Promise.all` that took the values in as arguments instead in an array. This behavior has been deprecated but is still supported partially - when the last argument is an immediate function value the new semantics will apply*
+*Note: In 1.x and 0.x `Promise.join` used to be a `Promise.all` that took the values in as arguments instead of an array. This behavior has been deprecated but is still supported partially - when the last argument is an immediate function value the new semantics will apply*
 </markdown></div>
 
 <div id="disqus_thread"></div>
