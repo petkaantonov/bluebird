@@ -67,15 +67,9 @@ var lastLineCode = "                                                         \n\
 
 function getOptionalRequireCode(srcs) {
     return srcs.sort(function(a, b) {
-        var deps = optionalModuleRequireMap[a.sourceFileName];
-        if (deps !== undefined) {
-            if (Array.isArray(deps)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-        return 0;
+        var aHasDeps = Array.isArray(optionalModuleRequireMap[a.sourceFileName]);
+        var bHasDeps = Array.isArray(optionalModuleRequireMap[b.sourceFileName]);
+        return aHasDeps - bHasDeps;
     }).reduce(function(ret, cur, i) {
         if(optionalModuleRequireMap[cur.sourceFileName]) {
             ret += "require('./"+cur.sourceFileName+"')("+ cur.deps.join(", ") +");\n";
