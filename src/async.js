@@ -25,6 +25,7 @@ function Async() {
         self._consumeFunctionBuffer();
     };
     this.externalDispatcher = undefined;
+    this.batchSize = undefined;
 }
 
 Async.prototype.haveItemsQueued = function Async$haveItemsQueued() {
@@ -53,14 +54,23 @@ Async.prototype._consumeFunctionBuffer =
 function Async$_consumeFunctionBuffer() {
     var functionBuffer = this._functionBuffer;
     ASSERT(this._isTickUsed);
-    while(functionBuffer.length() > 0) {
+    var workItemsProcessed = 0;
+    while(functionBuffer.length() > 0 &&
+          (this.batchSize === undefined || workItemsProcessed < this.batchSize)) {
         var fn = functionBuffer.shift();
         var receiver = functionBuffer.shift();
         var arg = functionBuffer.shift();
         fn.call(receiver, arg);
+        workItemsProcessed += 1;
     }
-    this._reset();
-    this._consumeLateBuffer();
+
+    if (functionBuffer.length() > 0) {
+        ASSERT(this.externalDispatcher !== undefined);
+        this.externalDispatcher.queueCallback(this.consumeFunctionBuffer);
+    } else {
+        this._reset();
+        this._consumeLateBuffer();
+    }
 };
 
 Async.prototype._consumeLateBuffer = function Async$_consumeLateBuffer() {
