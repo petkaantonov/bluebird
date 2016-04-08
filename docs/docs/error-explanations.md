@@ -115,6 +115,7 @@ Promise.resolve([5]).map(returnThree).then(function(val){
 When debugging or performing a one-time operation on a variable before passing it to a function, a return variable is forgotten.
 
 Example:
+
 ```js
 function nextFunction(something){ return Promise.resolve(something*3); }
 
