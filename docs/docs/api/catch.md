@@ -147,17 +147,29 @@ The object predicate passed to `.catch` in the above code (`{code: 'ENOENT'}`) i
 *For compatibility with earlier ECMAScript version, an alias `.caught` is provided for [`.catch`](.).*
 </markdown></div>
 
-By returning a value from the catch, you can do a "recover from failure" and continue the chain:
+By not returning a rejected value or `throw`ing from a catch, you "recover from failure" and continue the chain:
 
 ```js
-Promise.reject('fail!')
-  .catch(function() {
+Promise.reject(Error('fail!'))
+  .catch(function(e) {
     // fallback with "recover from failure"
     return Promise.resolve('success!'); // promise or value
   })
   .then(function(result) {
     console.log(result); // will print "success!"
   });
+```
+
+This is exactly like the synchronous code:
+
+```js
+var result;
+try {
+  throw Error('fail');
+} catch(e) {
+  result = 'success!';
+}
+console.log(result);
 ```
 
 <div id="disqus_thread"></div>
