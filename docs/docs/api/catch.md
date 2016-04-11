@@ -147,6 +147,19 @@ The object predicate passed to `.catch` in the above code (`{code: 'ENOENT'}`) i
 *For compatibility with earlier ECMAScript version, an alias `.caught` is provided for [`.catch`](.).*
 </markdown></div>
 
+By returning a value from the catch, you can do a "recover from failure" and continue the chain:
+
+```js
+Promise.reject('fail!')
+  .catch(function() {
+    // fallback with "recover from failure"
+    return Promise.resolve('success!'); // promise or value
+  })
+  .then(function(result) {
+    console.log(result); // will print "success!"
+  });
+```
+
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_title = ".catch";
