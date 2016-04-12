@@ -4,6 +4,7 @@ var schedule;
 var noAsyncScheduler = function() {
     throw new Error(NO_ASYNC_SCHEDULER);
 };
+var NativePromise = util.getNativePromise();
 // This file figures out which scheduler to use for Bluebird. It normalizes
 // async task scheduling across target platforms. Note that not all JS target
 // platforms come supported. The scheduler is overridable with `setScheduler`.
@@ -17,6 +18,11 @@ if (util.isNode && typeof MutationObserver === "undefined") {
     schedule = util.isRecentNode
                 ? function(fn) { GlobalSetImmediate.call(global, fn); }
                 : function(fn) { ProcessNextTick.call(process, fn); };
+} else if (typeof NativePromise === "function") {
+    var nativePromise = NativePromise.resolve();
+    schedule = function(fn) {
+        nativePromise.then(fn);
+    };
 // Outside of Node, we're using MutationObservers because they provide low
 // latency. The second check is to guard against iOS standalone apps which
 // do not fire DOM mutation events for some reason on iOS 8.3+.
@@ -32,23 +38,23 @@ if (util.isNode && typeof MutationObserver === "undefined") {
         var div2 = document.createElement("div");
         var o2 = new MutationObserver(function() {
             div.classList.toggle("foo");
-          toggleScheduled = false;
+            toggleScheduled = false;
         });
         o2.observe(div2, opts);
 
         var scheduleToggle = function() {
             if (toggleScheduled) return;
-          toggleScheduled = true;
-          div2.classList.toggle("foo");
-        };
+                toggleScheduled = true;
+                div2.classList.toggle("foo");
+            };
 
-        return function schedule(fn) {
-          var o = new MutationObserver(function() {
-            o.disconnect();
-            fn();
-          });
-          o.observe(div, opts);
-          scheduleToggle();
+            return function schedule(fn) {
+            var o = new MutationObserver(function() {
+                o.disconnect();
+                fn();
+            });
+            o.observe(div, opts);
+            scheduleToggle();
         };
     })();
 // setImmediate has higher latency but is still pretty good. This is useful for

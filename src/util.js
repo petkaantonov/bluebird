@@ -325,6 +325,17 @@ function env(key, def) {
     return isNode ? process.env[key] : def;
 }
 
+function getNativePromise() {
+    if (typeof Promise === "function") {
+        try {
+            var promise = new Promise(function(){});
+            if ({}.toString.call(promise) === "[object Promise]") {
+                return Promise;
+            }
+        } catch (e) {}
+    }
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -356,7 +367,8 @@ var ret = {
                  typeof chrome.loadTimes === "function",
     isNode: isNode,
     env: env,
-    global: globalObject
+    global: globalObject,
+    getNativePromise: getNativePromise
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
