@@ -102,7 +102,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 12 Apr 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -238,14 +238,12 @@
 
 <p>When debugging or performing a one-time operation on a variable before passing it to a function, a return variable is forgotten.</p>
 
-<p>Example:
-```js
-function nextFunction(something){ return Promise.resolve(something*3); }</p>
+<p>Example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
 
-<p>myFunction()
-    .then(result =&gt; nextFunction(result)); // We are implicitly returning a Promise
-```</p>
-
+<span class="nx">myFunction</span><span class="p">()</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// We are implicitly returning a Promise</span>
+</code></pre></div>
 <p>Debugging, we want to see the value of result, so we add a <code>console.log()</code> line:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
 
@@ -517,7 +515,7 @@ function nextFunction(something){ return Promise.resolve(something*3); }</p>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.4/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
