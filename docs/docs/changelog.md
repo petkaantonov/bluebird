@@ -3,6 +3,14 @@ id: changelog
 title: Changelog
 ---
 
+## 3.3.5 (2016-04-12)
+
+Bugfixes:
+
+ - Fix then sometimes not being called on iOS/Firefox ([#1022](.)).
+ - Fix custom schedulers not being called when using promisified functions ([#1023](.)).
+ - Fix unexpected error being thrown when promisifed function is called with no arguments ([#1063](.)).
+
 ## 3.3.4 (2016-03-07)
 
 Features:
