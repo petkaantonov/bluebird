@@ -1082,3 +1082,13 @@ describe("github 680", function() {
     });
 });
 
+describe("github 1063", function() {
+    specify("should not cause error when called with no arguments", function() {
+        return Promise.promisify(function(cb) {
+            cb();
+        }, { multiArgs: true})().then(function(values) {
+            assert(Array.isArray(values));
+            assert.strictEqual(values.length, 0);
+        });
+    })
+});

@@ -278,8 +278,8 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
             if (this.isBrowser) {
                 return "var " + varExpr + " = [].slice.call("+collectionExpression+", "+startExpression+");";
             } else {
-                return init + "var " + varExpr + " = new Array($_len - " +
-                 startExpression + "); " +
+                return init + "var " + varExpr + " = new Array(Math.max($_len - " +
+                 startExpression + ", 0)); " +
                 "for(var $_i = " + startExpression + "; $_i < $_len; ++$_i) {" +
                         varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
                 "}";
@@ -298,8 +298,8 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
             if (this.isBrowser) {
                 return "var " + varExpr + " = [].slice.call("+collectionExpression+", "+startExpression+", "+endExpression+");";
             } else {
-                return init + "var " + varExpr + " = new Array(" + endExpression + " - " +
-                 startExpression + "); " +
+                return init + "var " + varExpr + " = new Array(Math.max(" + endExpression + " - " +
+                 startExpression + ", 0)); " +
                 "for(var $_i = " + startExpression + "; $_i < " + endExpression + "; ++$_i) {" +
                         varExpr + "[$_i - "+startExpression+"] = " + collectionExpression + "[$_i];" +
                 "}";
