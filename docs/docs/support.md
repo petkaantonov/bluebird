@@ -7,9 +7,9 @@ Depending on the nature of your problem there are a few possible ways of getting
 
 ###Stack Overflow
 
-Stack overflow has an active community answering questions on both the [bluebird](http://stackoverflow.com/questions/tagged/bluebird) and [promise](http://stackoverflow.com/questions/tagged/promise) tags. If you are unfamiliar with Stack Overflow, do review [the asking guidelines](http://stackoverflow.com/help/asking) before asking a new question there.
+Stack Overflow has an active community answering questions on both the [bluebird](http://stackoverflow.com/questions/tagged/bluebird) and [promise](http://stackoverflow.com/questions/tagged/promise) tags. If you are unfamiliar with Stack Overflow, do review [the asking guidelines](http://stackoverflow.com/help/asking) before asking a new question there.
 
-###Goole Groups mailing list
+###Google Groups mailing list
 
 The [bluebird-js@googlegroups.com](https://groups.google.com/forum/#!forum/bluebird-js) mailing list is the best place to ask any question that cannot be easily fit in the stack overflow question format.
 
