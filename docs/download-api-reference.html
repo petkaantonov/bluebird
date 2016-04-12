@@ -11,13 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <title>API Reference | bluebird</title>
+    <title>Download API Reference | bluebird</title>
     <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/api-reference.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/download-api-reference.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -99,141 +99,27 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api-reference.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/download-api-reference.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 12 Apr 2016</i>
             </div>
             <div class="clearfix"></div>
             
             <div class="post">
 
   <header class="post-header">
-    <h1 class="post-title">API Reference</h1>
+    <h1 class="post-title">Download API Reference</h1>
   </header>
 
   <article class="post-content">
-    <div class="api-reference-menu">
-<ul>
-<li><a href='api/core.html' title=''>Core</a>
-
-<ul>
-<li><a href='api/new-promise.html' title=''>new Promise</a></li>
-<li><a href='api/then.html' title=''>.then</a></li>
-<li><a href='api/spread.html' title=''>.spread</a></li>
-<li><a href='api/catch.html' title=''>.catch</a></li>
-<li><a href='api/error.html' title=''>.error</a></li>
-<li><a href='api/finally.html' title=''>.finally</a></li>
-<li><a href='api/bind.html' title=''>.bind</a></li>
-<li><a href='api/promise.join.html' title=''>Promise.join</a></li>
-<li><a href='api/promise.try.html' title=''>Promise.try</a></li>
-<li><a href='api/promise.method.html' title=''>Promise.method</a></li>
-<li><a href='api/promise.resolve.html' title=''>Promise.resolve</a></li>
-<li><a href='api/promise.reject.html' title=''>Promise.reject</a></li>
-</ul></li>
-<li><a href='api/synchronous-inspection.html' title=''>Synchronous inspection</a>
-
-<ul>
-<li><a href='api/promiseinspection.html' title=''>PromiseInspection</a></li>
-<li><a href='api/isfulfilled.html' title=''>.isFulfilled</a></li>
-<li><a href='api/isrejected.html' title=''>.isRejected</a></li>
-<li><a href='api/ispending.html' title=''>.isPending</a></li>
-<li><a href='api/iscancelled.html' title=''>.isCancelled</a></li>
-<li><a href='api/value.html' title=''>.value</a></li>
-<li><a href='api/reason.html' title=''>.reason</a></li>
-</ul></li>
-<li><a href='api/collections.html' title=''>Collections</a>
-
-<ul>
-<li><a href='api/promise.all.html' title=''>Promise.all</a></li>
-<li><a href='api/promise.props.html' title=''>Promise.props</a></li>
-<li><a href='api/promise.any.html' title=''>Promise.any</a></li>
-<li><a href='api/promise.some.html' title=''>Promise.some</a></li>
-<li><a href='api/promise.map.html' title=''>Promise.map</a></li>
-<li><a href='api/promise.reduce.html' title=''>Promise.reduce</a></li>
-<li><a href='api/promise.filter.html' title=''>Promise.filter</a></li>
-<li><a href='api/promise.each.html' title=''>Promise.each</a></li>
-<li><a href='api/promise.mapseries.html' title=''>Promise.mapSeries</a></li>
-<li><a href='api/promise.race.html' title=''>Promise.race</a></li>
-<li><a href='api/all.html' title=''>.all</a></li>
-<li><a href='api/props.html' title=''>.props</a></li>
-<li><a href='api/any.html' title=''>.any</a></li>
-<li><a href='api/some.html' title=''>.some</a></li>
-<li><a href='api/map.html' title=''>.map</a></li>
-<li><a href='api/reduce.html' title=''>.reduce</a></li>
-<li><a href='api/filter.html' title=''>.filter</a></li>
-<li><a href='api/each.html' title=''>.each</a></li>
-<li><a href='api/mapseries.html' title=''>.mapSeries</a></li>
-</ul></li>
-<li><a href='api/resource-management.html' title=''>Resource management</a>
-
-<ul>
-<li><a href='api/promise.using.html' title=''>Promise.using</a></li>
-<li><a href='api/disposer.html' title=''>.disposer</a></li>
-</ul></li>
-<li><a href='api/promisification.html' title=''>Promisification</a>
-
-<ul>
-<li><a href='api/promise.promisify.html' title=''>Promise.promisify</a></li>
-<li><a href='api/promise.promisifyall.html' title=''>Promise.promisifyAll</a></li>
-<li><a href='api/promise.fromcallback.html' title=''>Promise.fromCallback</a></li>
-<li><a href='api/ascallback.html' title=''>.asCallback</a></li>
-</ul></li>
-<li><a href='api/timers.html' title=''>Timers</a>
-
-<ul>
-<li><a href='api/delay.html' title=''>.delay</a></li>
-<li><a href='api/timeout.html' title=''>.timeout</a></li>
-</ul></li>
-<li><a href='api/cancellation.html' title=''>Cancellation</a>
-
-<ul>
-<li><a href='api/cancel.html' title=''>.cancel</a></li>
-</ul></li>
-<li><a href='api/generators.html' title=''>Generators</a>
-
-<ul>
-<li><a href='api/promise.coroutine.html' title=''>Promise.coroutine</a></li>
-<li><a href='api/promise.coroutine.addyieldhandler.html' title=''>Promise.coroutine.addYieldHandler</a></li>
-</ul></li>
-<li><a href='api/utility.html' title=''>Utility</a>
-
-<ul>
-<li><a href='api/tap.html' title=''>.tap</a></li>
-<li><a href='api/call.html' title=''>.call</a></li>
-<li><a href='api/get.html' title=''>.get</a></li>
-<li><a href='api/return.html' title=''>.return</a></li>
-<li><a href='api/throw.html' title=''>.throw</a></li>
-<li><a href='api/catchreturn.html' title=''>.catchReturn</a></li>
-<li><a href='api/catchthrow.html' title=''>.catchThrow</a></li>
-<li><a href='api/reflect.html' title=''>.reflect</a></li>
-<li><a href='api/promise.noconflict.html' title=''>Promise.noConflict</a></li>
-<li><a href='api/promise.setscheduler.html' title=''>Promise.setScheduler</a></li>
-</ul></li>
-<li><a href='api/built-in-error-types.html' title=''>Built-in error types</a>
-
-<ul>
-<li><a href='api/operationalerror.html' title=''>OperationalError</a></li>
-<li><a href='api/timeouterror.html' title=''>TimeoutError</a></li>
-<li><a href='api/cancellationerror.html' title=''>CancellationError</a></li>
-<li><a href='api/aggregateerror.html' title=''>AggregateError</a></li>
-</ul></li>
-<li><a href='api/error-management-configuration.html' title=''>Configuration</a>
-
-<ul>
-<li><a href='api/error-management-configuration.html#global-rejection-events' title=''>Global rejection events</a></li>
-<li><a href='api/promise.onpossiblyunhandledrejection.html' title=''>Local rejection events</a></li>
-<li><a href='api/promise.config.html' title=''>Promise.config</a></li>
-<li><a href='api/suppressunhandledrejections.html' title=''>.suppressUnhandledRejections</a></li>
-<li><a href='api/done.html' title=''>.done</a></li>
-</ul></li>
-<li><a href='api/progression-migration.html' title=''>Progression migration</a></li>
-<li><a href='api/deferred-migration.html' title=''>Deferred migration</a></li>
-<li><a href='api/environment-variables.html' title=''>Environment variables</a></li>
-</ul>
-
-</div>
+    <p><div class="info-box">
+                This article is partially or completely unfinished.
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/download-api-reference.md">pull requests</a>
+                to help completing this article.
+            </div>
+</p>
 
   </article>
 
