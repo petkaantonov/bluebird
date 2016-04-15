@@ -30,6 +30,10 @@ Promise.all(files).then(function() {
 
 
 This method is compatible with [`Promise.all`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) from native promises.
+
+
+If you have a finite list of parallel promises, you can also consider Bluebird's `Promise.join` method.
+
 </markdown></div>
 
 <div id="disqus_thread"></div>
