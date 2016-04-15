@@ -12,7 +12,7 @@ title: .catch
 `.catch` is a convenience method for handling errors in promise chains. 
 It comes in two variants 
  - A catch-all variant similar to the synchronous `catch(e) {` block. This variant is compatible with native promises. 
- - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. 
+ - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. **This variant is usually preferable and is significantly safer**. 
 
 ### A note on promise exception handling.
 
