@@ -9,6 +9,44 @@ title: .catch
 <div class="api-code-section"><markdown>
 ##.catch
 
+`.catch` is a convenience method for handling errors in promise chains. 
+It comes in two variants 
+ - A catch-all variant similar to the synchronous `catch(e) {` block. This variant is compatible with native promises. 
+ - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. 
+
+### A note on promise exception handling.
+
+Promise exception handling mirrors native exception handling in JavaScript. A synchronous function `throw`ing is similar to a promise rejecting. Here is an example to illustrate it:
+
+```js
+function getItems(parma) {
+    try { 
+        var items = getItemsSync();
+        if(!items) throw new InvalidItemsError();  
+    } catch(e) { 
+        // can address the error here, either from getItemsSync returning a falsey value or throwing itself
+        throw e; // need to re-throw the error unless I want it to be considered handled. 
+    }
+    return process(items);
+}
+```
+
+Similarly, with promises:
+
+```js
+function getItems(param) {
+    return getItemsAsync().then(items => {
+        if(!items) throw new InvalidItemsError(); 
+        return items;
+    }).catch(e => {
+        // can address the error here and recover from it, from getItemsAsync rejects or returns a falsey value
+        throw e; // Need to rethrow unless we actually recovered, just like in the synchronous version
+    }).then(process);
+}
+```
+
+### Catch-all
+
 ```js
 .catch(function(any error) handler) -> Promise
 ```
@@ -18,7 +56,9 @@ title: .catch
 
 This is a catch-all exception handler, shortcut for calling [`.then(null, handler)`](.) on this promise. Any exception happening in a `.then`-chain will propagate to nearest `.catch` handler.
 
-*For compatibility with earlier ECMAScript version, an alias `.caught` is provided for [`.catch`](.).*
+*For compatibility with earlier ECMAScript versions, an alias `.caught` is provided for [`.catch`](.).*
+
+### Filtered Catch 
 
 ```js
 .catch(
