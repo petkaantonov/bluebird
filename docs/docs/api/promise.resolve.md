@@ -16,7 +16,24 @@ Promise.resolve(Promise<any>|any value) -> Promise
 
 Create a promise that is resolved with the given value. If `value` is already a trusted `Promise`, it is returned as is. If `value` is not a thenable, a fulfilled Promise is returned with `value` as its fulfillment value. If `value` is a thenable (Promise-like object, like those returned by jQuery's `$.ajax`), returns a trusted Promise that assimilates the state of the thenable.
 
-Example: (`$` is jQuery)
+This can be useful if a function returns a promise (say into a chain) but can optionally return a static value. Say, for a lazy-loaded value. Example:
+
+```js
+var someCachedValue;
+
+var getValue = function() {
+    if (someCachedValue) {
+        return Promise.resolve(someCachedValue);
+    }
+
+    return db.queryAsync().then(function(value) {
+        someCachedValue = value;
+        return value;
+    });
+};
+```
+
+Another example with handling jQuery castable objects (`$` is jQuery)
 
 ```js
 Promise.resolve($.get("http://www.google.com")).then(function() {
