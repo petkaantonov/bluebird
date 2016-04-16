@@ -10,7 +10,7 @@ title: Promise.coroutine
 ##Promise.coroutine
 
 ```js
-Promise.coroutine(GeneratorFunction(...arguments) generatorFunction) -> function
+Promise.coroutine(GeneratorFunction(...arguments) generatorFunction, Object options) -> function
 ```
 
 Returns a function that can use `yield` to yield promises. Control is returned back to the generator when the yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Requires node.js 0.12+, io.js 1.0+ or Google Chrome 40+.
@@ -58,7 +58,7 @@ Doing `Promise.coroutine` is almost like using the C# `async` keyword to mark th
 
 **Tip**
 
-You are able to yield non-promise values by adding your own yield handler using  [`Promise.coroutine.addYieldHandler`](.)
+You are able to yield non-promise values by adding your own yield handler using  [`Promise.coroutine.addYieldHandler`](.) or calling `Promise.coroutine()` with a yield handler function as `options.yieldHandler`.
 </markdown></div>
 
 <div id="disqus_thread"></div>

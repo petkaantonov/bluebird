@@ -101,6 +101,23 @@ var readFiles = Promise.coroutine(function* (fileNames) {
    });
 });
 ```
+
+A custom yield handler can also be used just for a single call to `Promise.coroutine()`:
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+
+var readFiles = Promise.coroutine(function* (fileNames) {
+   return yield fileNames.map(function (fileName) {
+      return fs.readFileAsync(fileName, "utf8");
+   });
+}, {
+   yieldHandler: function(yieldedValue) {
+      if (Array.isArray(yieldedValue)) return Promise.all(yieldedValue);
+   }
+});
+```
 </markdown></div>
 
 <div id="disqus_thread"></div>
