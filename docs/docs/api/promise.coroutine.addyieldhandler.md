@@ -96,13 +96,9 @@ Promise.coroutine.addYieldHandler(function(yieldedValue) {
 });
 
 var readFiles = Promise.coroutine(function* (fileNames) {
-   var promises = [];
-
-   fileNames.forEach(function (fileName) {
-      promises.push(fs.readFileAsync(fileName, "utf8"));
+   return yield fileNames.map(function (fileName) {
+      return fs.readFileAsync(fileName, "utf8");
    });
-
-   return yield promises;
 });
 ```
 </markdown></div>
