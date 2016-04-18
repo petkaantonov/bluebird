@@ -153,8 +153,8 @@ Async.prototype._drainQueue = function(queue) {
 
 Async.prototype._drainQueues = function () {
     ASSERT(this._isTickUsed);
-    this._drainQueue(this._normalQueue);
     this._reset();
+    this._drainQueue(this._normalQueue);
     this._haveDrainedQueues = true;
     this._drainQueue(this._lateQueue);
 };
