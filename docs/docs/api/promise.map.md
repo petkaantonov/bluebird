@@ -120,7 +120,7 @@ $ node test.js Infinity
 reading files: 9ms
 ```
 
-The order `map` calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it'll execute the `map`er on the elements. This makes sense because the order of the even with the `{concurrency: 1}`. For order guarantee in sequential execution - see [Promise.each](.).
+The order `map` calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it'll execute the `map`er on the elements. For order guarantee in sequential execution - see [Promise.mapSeries](.).
 </markdown></div>
 
 <div id="disqus_thread"></div>
