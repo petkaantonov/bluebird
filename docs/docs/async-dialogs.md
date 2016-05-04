@@ -75,10 +75,10 @@ button.addEventListener('click', function() {
 [Run example on JSBin][Example1]
 
 This doesn't add much much using `window.prompt`; however, one advantage is the
-API that promises provide. In the case where we call `promisePrompt(…)` we can
+API that promises provide. In the case where we call `promptPromise(…)` we can
 easily react to the result of the dialog without having to worry about how it is
 implemented. In our example we've implemented the `window.prompt` but our call
-to `promisePrompt()` doesn't care. This makes a change to an *asynchronous*
+to `promptPromise()` doesn't care. This makes a change to an *asynchronous*
 dialog a little more future proof.
 
 To drive home the synchronous nature of the `window.prompt` notice that the time
