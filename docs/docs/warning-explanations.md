@@ -5,9 +5,9 @@ title: Warning Explanations
 
 [warning-explanations](unfinished-article)
 
- - [Warning: .then() only accepts functions](#warning-.then)
+ - [Warning: .then() only accepts functions](#warning-then-only-accepts-functions)
  - [Warning: a promise was rejected with a non-error](#warning-a-promise-was-rejected-with-a-non-error)
- - [Warning: a promise was created in a handler but none were returned from it](#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it)
+ - [Warning: a promise was created in a handler but was not returned from it](#warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it)
 
 
 ##Warning: .then() only accepts functions
@@ -43,7 +43,7 @@ Since all objects support having properties you might still wonder why exactly d
 You should heed this warning because rejecting a promise with a non-error makes debugging extremely hard and costly. Additionally, if you reject with simple primitives such as `undefined` (commonly caused by simple calling `reject()`) you cannot handle errors at all because it's impossible to tell from `undefined` what exactly went wrong. All you can tell the user is that "something went wrong" and lose them forever.
 
 
-##Warning: a promise was created in a handler but none were returned from it
+##Warning: a promise was created in a handler but was not returned from it
 
 This usually means that you simply forgot a `return` statement somewhere which will cause a runaway promise that is not connected to any promise chain.
 
