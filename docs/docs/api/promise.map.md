@@ -74,10 +74,22 @@ fs.readdirAsync(".").map(function(fileName) {
 
 ####Map Option: concurrency
 
-You may optionally specify a concurrency limit:
+You may optionally specify a concurrency limit parameter:
 
 ```js
 ...map(..., {concurrency: 3});
+```
+
+Or using the newer [Promise.concurrency](.) method:
+
+```js
+var results = fs.readdirAsync(".")
+    .concurrency(4) // 4x Thread/CPU limit on following `,map()`
+    .map(function(fileName) {
+        return [fileName, fs.readFileAsync(fileName, 'utf8')];
+    })
+    .concurrency(null)// Reset thread limit to unrestricted
+    .map(cacheData)
 ```
 
 The concurrency limit applies to Promises returned by the mapper function and it basically limits the number of Promises created. For example, if `concurrency` is `3` and the mapper callback has been called enough so that there are three returned Promises currently pending, no further callbacks are called until one of the pending Promises resolves. So the mapper function will be called three times and it will be called again only after at least one of the Promises resolves.

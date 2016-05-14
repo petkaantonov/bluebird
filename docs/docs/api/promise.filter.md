@@ -56,7 +56,27 @@ fs.readdirAsync(process.cwd()).filter(function(fileName) {
 
 ####Filter Option: concurrency
 
-See [Map Option: concurrency](#map-option-concurrency)
+You may optionally specify a concurrency limit parameter:
+
+```js
+...filter(..., {concurrency: 3});
+```
+
+Or using the newer [Promise.concurrency](.) method:
+
+```js
+var smallFiles = fs.readdirAsync(".")
+    .concurrency(4) // 4x Thread/CPU limit on following `,filter()`
+    .map(function(fileName) {
+        return [fileName, fs.readFileAsync(fileName, 'utf8')];
+    })
+    .concurrency(null)// Reset thread limit to unrestricted
+    .filter(function(fileData) {
+        return fileData[1].length <= 1024;
+    });
+// `smallFiles` has filtered out all files bigger than 1024 in size;
+```
+
 </markdown></div>
 
 <div id="disqus_thread"></div>
