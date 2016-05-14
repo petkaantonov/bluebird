@@ -26,7 +26,18 @@ See the API on [synchronous inspection](.) for more information.
 
 ##Concurrency coordination
 
-Through the use of [.each](.) and [.map](.) doing things just at the right concurrency level becomes a breeze.
+Through the use of [Promise.concurrency(limit)](.) you can easily control your upper thread limit for [.filter](.) and [.map](.) calls.
+
+```js
+var calculatedValidRecs = Promise
+    .resolve(records)
+    .concurrency(4)
+    .map(mapper)
+    .concurrency(1)
+    .map(rec => rec.calculate())
+    .concurrency(8)
+    .filter(rec => rec.isValid)
+```
 
 ##Promisification on steroids
 
