@@ -11,7 +11,7 @@ title: Promise.concurrency
 
 ```js
 Promise.concurrency(
-    [Object {concurrency: int=Infinity} options],
+    [int limit=Infinity],
     [any|Promise<any> value=undefined]
 ) -> Promise
 ```
