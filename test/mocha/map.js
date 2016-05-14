@@ -28,6 +28,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 var assert = require("assert");
 var testUtils = require("./helpers/util.js");
+// Error.stackTraceLimit = 30;
+
 describe("Promise.map-test", function () {
 
     function mapper(val) {
@@ -234,6 +236,153 @@ describe("Promise.map-test with concurrency", function () {
                 b.push(value);
             });
         }, {concurrency: 5});
+
+        var ret2 = Promise.delay(100).then(function() {
+            assert.strictEqual(0, b.length);
+            immediates.forEach(resolve);
+            return immediates.map(function(item){return item[0]});
+        }).delay(100).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4]);
+            lates.forEach(resolve);
+        }).delay(100).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6 ]);
+            lates.forEach(resolve);
+        }).thenReturn(ret1).then(function() {
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6, 5]);
+        });
+        return Promise.all([ret1, ret2]);
+    });
+});
+
+describe("Promise.concurrency-test with map", function () {
+
+    // var concurrency = {concurrency: 2};
+    var limit = 2;
+
+    function mapper(val) {
+        return val * 2;
+    }
+
+    function deferredMapper(val) {
+        return Promise.delay(1, mapper(val));
+    }
+
+    specify("should map input values array with concurrency", function() {
+        var input = [1, 2, 3];
+        return Promise
+        .map(input, mapper)
+        .concurrency(limit)
+        .then(
+            function(results) {
+                assert.deepEqual(results, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should map input promises array with concurrency", function() {
+        var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
+        return Promise.map(input, mapper)
+        .concurrency(limit).then(
+            function(results) {
+                assert.deepEqual(results, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should map mixed input array with concurrency", function() {
+        var input = [1, Promise.resolve(2), 3];
+        return Promise.concurrency(limit).map(input, mapper).then(
+            function(results) {
+                assert.deepEqual(results, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should map input when mapper returns a promise with concurrency", function() {
+        var input = [1,2,3];
+        return Promise.concurrency(limit).map(input, deferredMapper).then(
+            function(results) {
+                assert.deepEqual(results, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should accept a promise for an array with concurrency", function() {
+        return Promise.concurrency(limit)
+        .map(Promise.resolve([1, Promise.resolve(2), 3]), mapper).then(
+            function(result) {
+                assert.deepEqual(result, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should resolve to empty array when input promise does not resolve to an array with concurrency", function() {
+        return Promise.concurrency(limit).map(Promise.resolve(123), mapper).caught(TypeError, function(e){
+        });
+    });
+
+    specify("should map input promises when mapper returns a promise with concurrency", function() {
+        var input = [Promise.resolve(1),Promise.resolve(2),Promise.resolve(3)];
+        return Promise.concurrency(limit).map(input, mapper).then(
+            function(results) {
+                assert.deepEqual(results, [2,4,6]);
+            },
+            assert.fail
+        );
+    });
+
+    specify("should reject when input contains rejection with concurrency", function() {
+        var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
+        return Promise.concurrency(limit).map(input, mapper).then(
+            assert.fail,
+            function(result) {
+                assert(result === 2);
+            }
+        );
+    });
+
+    specify("should not have more than {concurrency} promises in flight", function() {
+        var array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        var b = [];
+        var now = Date.now();
+
+        var immediates = [];
+        function immediate(index) {
+            var resolve;
+            var ret = new Promise(function(){resolve = arguments[0]});
+            immediates.push([ret, resolve, index]);
+            return ret;
+        }
+
+        var lates = [];
+        function late(index) {
+            var resolve;
+            var ret = new Promise(function(){resolve = arguments[0]});
+            lates.push([ret, resolve, index]);
+            return ret;
+        }
+
+
+        function promiseByIndex(index) {
+            return index < 5 ? immediate(index) : late(index);
+        }
+
+        function resolve(item) {
+            item[1](item[2]);
+        }
+
+        var ret1 = Promise
+        .concurrency(5)
+        .map(array, function(value, index) {
+            return promiseByIndex(index).then(function() {
+                b.push(value);
+            });
+        });
 
         var ret2 = Promise.delay(100).then(function() {
             assert.strictEqual(0, b.length);

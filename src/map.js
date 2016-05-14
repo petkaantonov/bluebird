@@ -146,11 +146,19 @@ MappingPromiseArray.prototype.preservedValues = function () {
 
 function map(promises, fn, options, _filter) {
     if (typeof fn !== "function") {
+        console.error("Failer to avoid error!");
+        console.trace("Failer to avoid error!");
         return apiRejection(FUNCTION_ERROR + util.classString(fn));
     }
-    var limit = typeof options === "object" && options !== null
+    var limit = typeof Promise.concurrency._limit === "number" 
+        ?  Promise.concurrency._limit
+        : promises instanceof Promise || promises instanceof PromiseArray
+        && typeof promises._limit === "number" 
+        ? promises._limit
+        : typeof options === "object" && options !== null
         ? options.concurrency
         : 0;
+    Promise.concurrency._limit = undefined;
     limit = typeof limit === "number" &&
         isFinite(limit) && limit >= 1 ? limit : 0;
     return new MappingPromiseArray(promises, fn, limit, _filter).promise();
@@ -164,5 +172,19 @@ Promise.map = function (promises, fn, options, _filter) {
     return map(promises, fn, options, _filter);
 };
 
+function _concurrency(limit, value) {
+    if (value instanceof Promise || value instanceof PromiseArray) {
+        value._limit = limit;
+    } else {
+        Promise.concurrency._limit = limit;
+        return Promise;
+    }
+    return value;
+}
+
+Promise.concurrency = _concurrency;
+Promise.prototype.concurrency = function (limit) {
+    return _concurrency(limit, this);
+};
 
 };
