@@ -164,5 +164,4 @@ Promise.map = function (promises, fn, options, _filter) {
     return map(promises, fn, options, _filter);
 };
 
-
 };
