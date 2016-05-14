@@ -88,7 +88,7 @@ var results = fs.readdirAsync(".")
     .map(function(fileName) {
         return [fileName, fs.readFileAsync(fileName, 'utf8')];
     })
-    .concurrency(null)// Reset thread limit to unrestricted
+    .concurrency(null)// Unrestricted thread limit
     .map(cacheData)
 ```
 

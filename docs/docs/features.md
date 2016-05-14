@@ -26,7 +26,7 @@ See the API on [synchronous inspection](.) for more information.
 
 ##Concurrency coordination
 
-Through the use of [Promise.concurrency](.) you can easily control your thread limit for [.filter](.) and [.map](.) at just the right level.
+Through the use of [Promise.concurrency(limit)](.) you can easily control your upper thread limit for [.filter](.) and [.map](.) calls.
 
 ```js
 var calculatedValidRecs = Promise

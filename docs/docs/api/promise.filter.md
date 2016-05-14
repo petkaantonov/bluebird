@@ -62,7 +62,7 @@ You may optionally specify a concurrency limit parameter:
 ...filter(..., {concurrency: 3});
 ```
 
-Or using the newer [Promise.concurrency](.) method:
+Or using the newer [Promise.concurrency(limit)](.) method:
 
 ```js
 var smallFiles = fs.readdirAsync(".")
@@ -70,7 +70,7 @@ var smallFiles = fs.readdirAsync(".")
     .map(function(fileName) {
         return [fileName, fs.readFileAsync(fileName, 'utf8')];
     })
-    .concurrency(null)// Reset thread limit to unrestricted
+    .concurrency(null)// Unrestricted thread limit
     .filter(function(fileData) {
         return fileData[1].length <= 1024;
     });
