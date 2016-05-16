@@ -97,11 +97,7 @@ if (args.file) {
 } else {
     var cp    = require('child_process')
     var async = require('async');
-    var fs    = require('fs');
-    var dir = __dirname + '/examples';
-
     var table = require('text-table');
-
 
     var files = args._.filter(function(f) {
         return !/^src-/.test(path.basename(f));
