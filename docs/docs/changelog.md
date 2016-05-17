@@ -3,6 +3,18 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.0 (2016-05-17)
+
+Features:
+
+ - Add `Promise.version` which tells the bluebird version as a string e.g. `"3.4.0"` ([#1042](.)).
+ - [.map](.), [Promise.map](.), [.filter](.) and [Promise.filter](.) now return rejected promise when inappropriate options argument is passed ([#1097](.)).
+
+Bugfixes:
+
+- Fix bug where callback to [.disposer](.) is not called if the resource is `null` ([#1099](.)).
+- Fix bug where assimilating thenable throws unexpectedly when using hostile host objects as thenables ([#1104](.)).
+
 ## 3.3.5 (2016-04-12)
 
 Bugfixes:
