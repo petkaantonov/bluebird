@@ -148,9 +148,22 @@ function map(promises, fn, options, _filter) {
     if (typeof fn !== "function") {
         return apiRejection(FUNCTION_ERROR + util.classString(fn));
     }
-    var limit = typeof options === "object" && options !== null
-        ? options.concurrency
-        : 0;
+
+    var limit = 0;
+    if (options !== undefined) {
+        if (typeof options === "object" && options !== null) {
+            if (typeof options.concurrency !== "number") {
+                return Promise.reject(
+                    new TypeError("'concurrency' must be a number but it is " +
+                                    util.classString(options.concurrency)));
+            }
+            limit = options.concurrency;
+        } else {
+            return Promise.reject(new TypeError(
+                            "options argument must be an object but it is " +
+                             util.classString(options)));
+        }
+    }
     limit = typeof limit === "number" &&
         isFinite(limit) && limit >= 1 ? limit : 0;
     return new MappingPromiseArray(promises, fn, limit, _filter).promise();
