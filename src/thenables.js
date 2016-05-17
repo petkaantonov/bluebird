@@ -48,7 +48,11 @@ function getThen(obj) {
 
 var hasProp = {}.hasOwnProperty;
 function isAnyBluebirdPromise(obj) {
-    return hasProp.call(obj, "_promise0");
+    try {
+        return hasProp.call(obj, "_promise0");
+    } catch (e) {
+        return false;
+    }
 }
 
 function doThenable(x, then, context) {
