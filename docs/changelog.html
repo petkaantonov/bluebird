@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Apr 2016</i>
+                <i>Updated 17 May 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -115,6 +115,27 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.4.0"
+                    aria-hidden="true"
+                    href="#3.4.0"><i class="fa fa-link"></i></a>
+                3.4.0 (2016-05-17)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Add <code>Promise.version</code> which tells the bluebird version as a string e.g. <code>&quot;3.4.0&quot;</code> (<a href='https://github.com/petkaantonov/bluebird/issues/1042'><code>#1042</code></a>).</li>
+<li><a href='/docs/api/map.html'><code>.map</code></a>, <a href='/docs/api/promise.map.html'><code>Promise.map</code></a>, <a href='/docs/api/filter.html'><code>.filter</code></a> and <a href='/docs/api/promise.filter.html'><code>Promise.filter</code></a> now return rejected promise when inappropriate options argument is passed (<a href='https://github.com/petkaantonov/bluebird/issues/1097'><code>#1097</code></a>).</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix bug where callback to <a href='/docs/api/disposer.html'><code>.disposer</code></a> is not called if the resource is <code>null</code> (<a href='https://github.com/petkaantonov/bluebird/issues/1099'><code>#1099</code></a>).</li>
+<li>Fix bug where assimilating thenable throws unexpectedly when using hostile host objects as thenables (<a href='https://github.com/petkaantonov/bluebird/issues/1104'><code>#1104</code></a>).</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.3.5"
                     aria-hidden="true"
@@ -3880,7 +3901,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Apr 2016</i>
+                <i>Updated 06 May 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -123,7 +123,7 @@
     <span class="kd">function</span> <span class="nx">handler</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>For coordinating multiple concurrent discrete promises. While <a href='/docs/api/all.html'><code><code>.all</code></code></a> is good for handling a dynamically sized list of uniform promises, <code>Promise.join</code> is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently, for example:</p>
+<p>For coordinating multiple concurrent discrete promises. While <a href='/docs/api/all.html'><code><code>.all</code></code></a> is good for handling a dynamically sized list of uniform promises, <code>Promise.join</code> is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently. The final parameter, handler function, will be invoked with the result values of all of the fufilled promises. For example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
 
@@ -194,7 +194,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

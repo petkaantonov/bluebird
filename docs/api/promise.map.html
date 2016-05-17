@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 06 May 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -216,7 +216,7 @@ reading files 35ms
 <span class="nv">$ </span>node test.js Infinity
 reading files: 9ms
 </code></pre></div>
-<p>The order <code>map</code> calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it&#39;ll execute the <code>map</code>er on the elements. This makes sense because the order of the even with the <code>{concurrency: 1}</code>. For order guarantee in sequential execution - see <a href='/docs/api/promise.each.html'><code>Promise.each</code></a>.
+<p>The order <code>map</code> calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it&#39;ll execute the <code>map</code>er on the elements. For order guarantee in sequential execution - see <a href='/docs/api/promise.mapseries.html'><code>Promise.mapSeries</code></a>.
 </markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -241,7 +241,7 @@ reading files: 9ms
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

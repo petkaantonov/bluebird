@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 17 May 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -122,9 +122,9 @@
 </p>
 
 <ul>
-<li><a href='#warning-.then' title=''>Warning: .then() only accepts functions</a></li>
+<li><a href='#warning-then-only-accepts-functions' title=''>Warning: .then() only accepts functions</a></li>
 <li><a href='#warning-a-promise-was-rejected-with-a-non-error' title=''>Warning: a promise was rejected with a non-error</a></li>
-<li><a href='#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it' title=''>Warning: a promise was created in a handler but none were returned from it</a></li>
+<li><a href='#warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it' title=''>Warning: a promise was created in a handler but was not returned from it</a></li>
 </ul>
             <h2>
                 <a class="header-anchor"
@@ -164,10 +164,10 @@
 <p>You should heed this warning because rejecting a promise with a non-error makes debugging extremely hard and costly. Additionally, if you reject with simple primitives such as <code>undefined</code> (commonly caused by simple calling <code>reject()</code>) you cannot handle errors at all because it&#39;s impossible to tell from <code>undefined</code> what exactly went wrong. All you can tell the user is that &quot;something went wrong&quot; and lose them forever.</p>
             <h2>
                 <a class="header-anchor"
-                    name="warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it"
+                    name="warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it"
                     aria-hidden="true"
-                    href="#warning-a-promise-was-created-in-a-handler-but-none-were-returned-from-it"><i class="fa fa-link"></i></a>
-                Warning: a promise was created in a handler but none were returned from it
+                    href="#warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it"><i class="fa fa-link"></i></a>
+                Warning: a promise was created in a handler but was not returned from it
             </h2>
 
 <p>This usually means that you simply forgot a <code>return</code> statement somewhere which will cause a runaway promise that is not connected to any promise chain.</p>
@@ -208,7 +208,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

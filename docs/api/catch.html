@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Apr 2016</i>
+                <i>Updated 06 May 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -118,12 +118,61 @@
                     href="#catch"><i class="fa fa-link"></i></a>
                 .catch
             </h2>
+
+<p><code>.catch</code> is a convenience method for handling errors in promise chains. 
+It comes in two variants 
+ - A catch-all variant similar to the synchronous <code>catch(e) {</code> block. This variant is compatible with native promises. 
+ - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. <strong>This variant is usually preferable and is significantly safer</strong>. </p>
+            <h3>
+                <a class="header-anchor"
+                    name="a-note-on-promise-exception-handling"
+                    aria-hidden="true"
+                    href="#a-note-on-promise-exception-handling"><i class="fa fa-link"></i></a>
+                A note on promise exception handling.
+            </h3>
+
+<p>Promise exception handling mirrors native exception handling in JavaScript. A synchronous function <code>throw</code>ing is similar to a promise rejecting. Here is an example to illustrate it:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">parma</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span> 
+        <span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="nx">getItemsSync</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">items</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">InvalidItemsError</span><span class="p">();</span>  
+    <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="c1">// can address the error here, either from getItemsSync returning a falsey value or throwing itself</span>
+        <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span> <span class="c1">// need to re-throw the error unless I want it to be considered handled. </span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">process</span><span class="p">(</span><span class="nx">items</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Similarly, with promises:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getItemsAsync</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">items</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">items</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">InvalidItemsError</span><span class="p">();</span> 
+        <span class="k">return</span> <span class="nx">items</span><span class="p">;</span>
+    <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="c1">// can address the error here and recover from it, from getItemsAsync rejects or returns a falsey value</span>
+        <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span> <span class="c1">// Need to rethrow unless we actually recovered, just like in the synchronous version</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">process</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>            <h3>
+                <a class="header-anchor"
+                    name="catch-all"
+                    aria-hidden="true"
+                    href="#catch-all"><i class="fa fa-link"></i></a>
+                Catch-all
+            </h3>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">caught</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
 <p>This is a catch-all exception handler, shortcut for calling <a href='/docs/api/then.html'><code><code>.then(null, handler)</code></code></a> on this promise. Any exception happening in a <code>.then</code>-chain will propagate to nearest <code>.catch</code> handler.</p>
 
-<p><em>For compatibility with earlier ECMAScript version, an alias <code>.caught</code> is provided for <a href='/docs/api/catch.html'><code><code>.catch</code></code></a>.</em></p>
+<p><em>For compatibility with earlier ECMAScript versions, an alias <code>.caught</code> is provided for <a href='/docs/api/catch.html'><code><code>.catch</code></code></a>.</em></p>
+            <h3>
+                <a class="header-anchor"
+                    name="filtered-catch"
+                    aria-hidden="true"
+                    href="#filtered-catch"><i class="fa fa-link"></i></a>
+                Filtered Catch
+            </h3>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span>
     <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
@@ -265,7 +314,7 @@ can be implemented on top of them.</p>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.3.5/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
