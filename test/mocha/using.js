@@ -437,4 +437,19 @@ describe("Promise.using", function() {
             assert.deepEqual(results, []);
         });
     })
+
+    specify("null disposer is called", function() {
+        var calls = 0;
+        var getNull = function() {
+            return Promise.resolve(null).disposer(function() {
+                calls++;
+            });
+        };
+
+        return Promise.using(getNull(), function() {
+            calls++;
+        }).then(function() {
+            assert.equal(2, calls);
+        })
+    })
 })
