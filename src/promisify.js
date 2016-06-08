@@ -1,219 +1,243 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var THIS = {};
-var util = require("./util.js");
-var es5 = require("./es5.js");
-var nodebackForPromise = require("./promise_resolver.js")
-    ._nodebackForPromise;
+var util = require("./util");
+var nodebackForPromise = require("./nodeback");
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var notEnumerableProp = util.notEnumerableProp;
-var deprecated = util.deprecated;
-var ASSERT = require("./assert.js");
+var ASSERT = require("./assert");
+var TypeError = require("./errors").TypeError;
+var defaultSuffix = AFTER_PROMISIFIED_SUFFIX;
+var defaultPromisified = {__isPromisified__: true};
+var noCopyProps = [
+    "arity", // Firefox 4
+    "length",
+    "name",
+    "arguments",
+    "caller",
+    "callee",
+    "prototype",
+    "__isPromisified__"
+];
+var noCopyPropsPattern = new RegExp("^(?:" + noCopyProps.join("|") + ")$");
 
+var defaultFilter = function(name) {
+    return util.isIdentifier(name) &&
+        name.charAt(0) !== "_" &&
+        name !== "constructor";
+};
 
-var roriginal = new RegExp(BEFORE_PROMISIFIED_SUFFIX + "$");
-var hasProp = {}.hasOwnProperty;
-function isPromisified(fn) {
-    return fn.__isPromisified__ === true;
+function propsFilter(key) {
+    return !noCopyPropsPattern.test(key);
 }
-var inheritedMethods = (function() {
-    if (es5.isES5) {
-        //Guaranteed since ES-5
-        var create = Object.create;
-        var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-        return function(cur) {
-            var original = cur;
-            var ret = [];
-            var visitedKeys = create(null);
-            //Need to reinvent for-in because getOwnPropertyDescriptor
-            //only works if the property is exactly on the object
-            while (cur !== null) {
-                var keys = es5.keys(cur);
-                for (var i = 0, len = keys.length; i < len; ++i) {
-                    var key = keys[i];
-                    //For shadowing
-                    if (visitedKeys[key] ||
-                        roriginal.test(key) ||
-                        hasProp.call(original, key + BEFORE_PROMISIFIED_SUFFIX)
-                   ) {
-                        continue;
-                    }
-                    visitedKeys[key] = true;
-                    var desc = getOwnPropertyDescriptor(cur, key);
-                    if (desc != null &&
-                        typeof desc.value === "function" &&
-                        !isPromisified(desc.value)) {
-                        ret.push(key, desc.value);
-                    }
-                }
-                cur = es5.getPrototypeOf(cur);
-            }
-            return ret;
-        };
-    }
-    else {
-        return function(obj) {
-            var ret = [];
-            /*jshint forin:false */
-            for (var key in obj) {
-                if (roriginal.test(key) ||
-                    hasProp.call(obj, key + BEFORE_PROMISIFIED_SUFFIX)) {
-                    continue;
-                }
-                var fn = obj[key];
-                if (typeof fn === "function" &&
-                    !isPromisified(fn)) {
-                    ret.push(key, fn);
-                }
-            }
-            return ret;
-        };
-    }
-})();
 
+function isPromisified(fn) {
+    try {
+        return fn.__isPromisified__ === true;
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+function hasPromisified(obj, key, suffix) {
+    var val = util.getDataPropertyOrDefault(obj, key + suffix,
+                                            defaultPromisified);
+    return val ? isPromisified(val) : false;
+}
+function checkValid(ret, suffix, suffixRegexp) {
+    // Verify that in the list of methods to promisify there is no
+    // method that has a name ending in "Async"-suffix while
+    // also having a method with the same name but no Async suffix
+    for (var i = 0; i < ret.length; i += 2) {
+        var key = ret[i];
+        if (suffixRegexp.test(key)) {
+            var keyWithoutAsyncSuffix = key.replace(suffixRegexp, "");
+            for (var j = 0; j < ret.length; j += 2) {
+                if (ret[j] === keyWithoutAsyncSuffix) {
+                    throw new TypeError(PROMISIFICATION_NORMAL_METHODS_ERROR
+                        .replace("%s", suffix));
+                }
+            }
+        }
+    }
+}
+
+function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
+    var keys = util.inheritedDataKeys(obj);
+    var ret = [];
+    for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var value = obj[key];
+        var passesDefaultFilter = filter === defaultFilter
+            ? true : defaultFilter(key, value, obj);
+        if (typeof value === "function" &&
+            !isPromisified(value) &&
+            !hasPromisified(obj, key, suffix) &&
+            filter(key, value, obj, passesDefaultFilter)) {
+            ret.push(key, value);
+        }
+    }
+    checkValid(ret, suffix, suffixRegexp);
+    return ret;
+}
+
+var escapeIdentRegex = function(str) {
+    return str.replace(/([$])/, "\\$");
+};
+
+var makeNodePromisifiedEval;
+if (!__BROWSER__) {
 //Gives an optimal sequence of argument count to try given a formal parameter
 //.length for a function
-function switchCaseArgumentOrder(likelyArgumentCount) {
+var switchCaseArgumentOrder = function(likelyArgumentCount) {
     var ret = [likelyArgumentCount];
     var min = Math.max(0, likelyArgumentCount - 1 - PARAM_COUNTS_TO_TRY);
     for(var i = likelyArgumentCount - 1; i >= min; --i) {
-        if (i === likelyArgumentCount) continue;
         ret.push(i);
     }
     for(var i = likelyArgumentCount + 1; i <= PARAM_COUNTS_TO_TRY; ++i) {
         ret.push(i);
     }
     return ret;
-}
+};
 
-function parameterDeclaration(parameterCount) {
-    var ret = new Array(parameterCount);
-    for(var i = 0; i < ret.length; ++i) {
-        ret[i] = "_arg" + i;
-    }
-    return ret.join(", ");
-}
+var argumentSequence = function(argumentCount) {
+    return util.filledRange(argumentCount, "_arg", "");
+};
 
-function parameterCount(fn) {
+var parameterDeclaration = function(parameterCount) {
+    return util.filledRange(
+        Math.max(parameterCount, PARAM_COUNTS_TO_TRY), "_arg", "");
+};
+
+var parameterCount = function(fn) {
     if (typeof fn.length === "number") {
         return Math.max(Math.min(fn.length, MAX_PARAM_COUNT + 1), 0);
     }
     //Unsupported .length for functions
     return 0;
-}
+};
 
-function propertyAccess(id) {
-    var rident = /^[a-z$_][a-z$_0-9]*$/i;
-
-    if (rident.test(id)) {
-        return "." + id;
-    }
-    else return "['" + id.replace(/(['\\])/g, "\\$1") + "']";
-}
-
-function makeNodePromisifiedEval(callback, receiver, originalName, fn) {
-    ASSERT(typeof fn === "function");
+makeNodePromisifiedEval =
+function(callback, receiver, originalName, fn, _, multiArgs) {
                                         //-1 for the callback parameter
     var newParameterCount = Math.max(0, parameterCount(fn) - 1);
     var argumentOrder = switchCaseArgumentOrder(newParameterCount);
-
-    var callbackName = (typeof originalName === "string" ?
-        originalName + "Async" :
-        "promisified");
+    var shouldProxyThis = typeof callback === "string" || receiver === THIS;
 
     function generateCallForArgumentCount(count) {
-        var args = new Array(count);
-        for (var i = 0, len = args.length; i < len; ++i) {
-            args[i] = "arguments[" + i + "]";
+        var args = argumentSequence(count).join(", ");
+        var comma = count > 0 ? ", " : "";
+        var ret;
+        if (shouldProxyThis) {
+            ret = "ret = callback.call(this, {{args}}, nodeback); break;\n";
+        } else {
+            ret = receiver === undefined
+                ? "ret = callback({{args}}, nodeback); break;\n"
+                : "ret = callback.call(receiver, {{args}}, nodeback); break;\n";
         }
-        var comma = count > 0 ? "," : "";
-
-        if (typeof callback === "string" &&
-            receiver === THIS) {
-            return "this" + propertyAccess(callback) + "("+args.join(",") +
-                comma +" fn);"+
-                "break;";
-        }
-        return (receiver === void 0
-            ? "callback("+args.join(",")+ comma +" fn);"
-            : "callback.call("+(receiver === THIS
-                ? "this"
-                : "receiver")+", "+args.join(",") + comma + " fn);") +
-        "break;";
+        return ret.replace("{{args}}", args).replace(", ", comma);
     }
 
     function generateArgumentSwitchCase() {
         var ret = "";
-        for(var i = 0; i < argumentOrder.length; ++i) {
+        for (var i = 0; i < argumentOrder.length; ++i) {
             ret += "case " + argumentOrder[i] +":" +
                 generateCallForArgumentCount(argumentOrder[i]);
         }
-        ret += "default: var args = new Array(len + 1);" +
-            "var i = 0;" +
-            "for (var i = 0; i < len; ++i) { " +
-            "   args[i] = arguments[i];" +
-            "}" +
-            "args[i] = fn;" +
 
-            (typeof callback === "string"
-            ? "this" + propertyAccess(callback) + ".apply("
-            : "callback.apply(") +
-
-            (receiver === THIS ? "this" : "receiver") +
-            ", args); break;";
+        ret += "                                                             \n\
+        default:                                                             \n\
+            var args = new Array(len + 1);                                   \n\
+            var i = 0;                                                       \n\
+            for (var i = 0; i < len; ++i) {                                  \n\
+               args[i] = arguments[i];                                       \n\
+            }                                                                \n\
+            args[i] = nodeback;                                              \n\
+            [CodeForCall]                                                    \n\
+            break;                                                           \n\
+        ".replace("[CodeForCall]", (shouldProxyThis
+                                ? "ret = callback.apply(this, args);\n"
+                                : "ret = callback.apply(receiver, args);\n"));
         return ret;
     }
 
-    return new Function("Promise", "callback", "receiver",
-            "withAppended", "maybeWrapAsError", "nodebackForPromise",
-            "INTERNAL",
-        "var ret = function " + callbackName +
-        "(" + parameterDeclaration(newParameterCount) + ") {\"use strict\";" +
-        "var len = arguments.length;" +
-        "var promise = new Promise(INTERNAL);"+
-        "promise._setTrace(" + callbackName + ", void 0);" +
-        "var fn = nodebackForPromise(promise);"+
-        "try {" +
-        "switch(len) {" +
-        generateArgumentSwitchCase() +
-        "}" +
-        "}" +
-        "catch(e){ " +
-        "var wrapped = maybeWrapAsError(e);" +
-        "promise._attachExtraTrace(wrapped);" +
-        "promise._reject(wrapped);" +
-        "}" +
-        "return promise;" +
-        "" +
-        "}; ret.__isPromisified__ = true; return ret;"
-   )(Promise, callback, receiver, withAppended,
-        maybeWrapAsError, nodebackForPromise, INTERNAL);
+    var getFunctionCode = typeof callback === "string"
+                                ? ("this != null ? this['"+callback+"'] : fn")
+                                : "fn";
+    var body = "'use strict';                                                \n\
+        var ret = function (Parameters) {                                    \n\
+            'use strict';                                                    \n\
+            var len = arguments.length;                                      \n\
+            var promise = new Promise(INTERNAL);                             \n\
+            promise._captureStackTrace();                                    \n\
+            var nodeback = nodebackForPromise(promise, " + multiArgs + ");   \n\
+            var ret;                                                         \n\
+            var callback = tryCatch([GetFunctionCode]);                      \n\
+            switch(len) {                                                    \n\
+                [CodeForSwitchCase]                                          \n\
+            }                                                                \n\
+            if (ret === errorObj) {                                          \n\
+                promise._rejectCallback(maybeWrapAsError(ret.e), true, true);\n\
+            }                                                                \n\
+            if (!promise._isFateSealed()) promise._setAsyncGuaranteed();     \n\
+            return promise;                                                  \n\
+        };                                                                   \n\
+        notEnumerableProp(ret, '__isPromisified__', true);                   \n\
+        return ret;                                                          \n\
+    ".replace("[CodeForSwitchCase]", generateArgumentSwitchCase())
+        .replace("[GetFunctionCode]", getFunctionCode);
+    body = body.replace("Parameters", parameterDeclaration(newParameterCount));
+    return new Function("Promise",
+                        "fn",
+                        "receiver",
+                        "withAppended",
+                        "maybeWrapAsError",
+                        "nodebackForPromise",
+                        "tryCatch",
+                        "errorObj",
+                        "notEnumerableProp",
+                        "INTERNAL",
+                        body)(
+                    Promise,
+                    fn,
+                    receiver,
+                    withAppended,
+                    maybeWrapAsError,
+                    nodebackForPromise,
+                    util.tryCatch,
+                    util.errorObj,
+                    util.notEnumerableProp,
+                    INTERNAL);
+};
 }
 
-function makeNodePromisifiedClosure(callback, receiver) {
+function makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {
+    var defaultThis = (function() {return this;})();
+    var method = callback;
+    if (typeof method === "string") {
+        callback = fn;
+    }
     function promisified() {
         var _receiver = receiver;
         if (receiver === THIS) _receiver = this;
-        if (typeof callback === "string") {
-            callback = _receiver[callback];
-        }
         ASSERT(typeof callback === "function");
         var promise = new Promise(INTERNAL);
-        promise._setTrace(promisified, void 0);
-        var fn = nodebackForPromise(promise);
+        promise._captureStackTrace();
+        var cb = typeof method === "string" && this !== defaultThis
+            ? this[method] : callback;
+        var fn = nodebackForPromise(promise, multiArgs);
         try {
-            callback.apply(_receiver, withAppended(arguments, fn));
+            cb.apply(_receiver, withAppended(arguments, fn));
+        } catch(e) {
+            promise._rejectCallback(maybeWrapAsError(e), true, true);
         }
-        catch(e) {
-            var wrapped = maybeWrapAsError(e);
-            promise._attachExtraTrace(wrapped);
-            promise._reject(wrapped);
-        }
+        if (!promise._isFateSealed()) promise._setAsyncGuaranteed();
         return promise;
     }
-    promisified.__isPromisified__ = true;
+    util.notEnumerableProp(promisified, "__isPromisified__", true);
     return promisified;
 }
 
@@ -221,53 +245,82 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function f(){}
-function _promisify(callback, receiver, isAll) {
-    if (isAll) {
-        var methods = inheritedMethods(callback);
-        for (var i = 0, len = methods.length; i < len; i+= 2) {
-            var key = methods[i];
-            var fn = methods[i+1];
-            var originalKey = key + BEFORE_PROMISIFIED_SUFFIX;
-            var promisifiedKey = key + AFTER_PROMISIFIED_SUFFIX;
-            notEnumerableProp(callback, originalKey, fn);
-            callback[promisifiedKey] =
-                makeNodePromisified(originalKey, THIS,
-                    key, fn);
+function promisifyAll(obj, suffix, filter, promisifier, multiArgs) {
+    ASSERT(typeof suffix === "string");
+    ASSERT(typeof filter === "function");
+    var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
+    var methods =
+        promisifiableMethods(obj, suffix, suffixRegexp, filter);
+
+    for (var i = 0, len = methods.length; i < len; i+= 2) {
+        var key = methods[i];
+        var fn = methods[i+1];
+        var promisifiedKey = key + suffix;
+        if (promisifier === makeNodePromisified) {
+            obj[promisifiedKey] =
+                makeNodePromisified(key, THIS, key, fn, suffix, multiArgs);
+        } else {
+            var promisified = promisifier(fn, function() {
+                return makeNodePromisified(key, THIS, key,
+                                           fn, suffix, multiArgs);
+            });
+            util.notEnumerableProp(promisified, "__isPromisified__", true);
+            obj[promisifiedKey] = promisified;
         }
-        //Right now the above loop will easily turn the
-        //object into hash table in V8
-        //but this will turn it back. Yes I am ashamed.
-        if (methods.length > 16) f.prototype = callback;
-        return callback;
     }
-    else {
-        return makeNodePromisified(callback, receiver, void 0, callback);
-    }
+    util.toFastProperties(obj);
+    return obj;
 }
 
-Promise.promisify = function Promise$Promisify(fn, receiver) {
-    if (typeof fn === "object" && fn !== null) {
-        deprecated(OBJECT_PROMISIFY_DEPRECATED);
-        return _promisify(fn, receiver, true);
-    }
+function promisify(callback, receiver, multiArgs) {
+    return makeNodePromisified(callback, receiver, undefined,
+                                callback, null, multiArgs);
+}
+
+Promise.promisify = function (fn, options) {
     if (typeof fn !== "function") {
-        throw new TypeError(NOT_FUNCTION_ERROR);
+        throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
     if (isPromisified(fn)) {
         return fn;
     }
-    return _promisify(
-        fn,
-        arguments.length < 2 ? THIS : receiver,
-        false);
+    options = Object(options);
+    var receiver = options.context === undefined ? THIS : options.context;
+    var multiArgs = !!options.multiArgs;
+    var ret = promisify(fn, receiver, multiArgs);
+    util.copyDescriptors(fn, ret, propsFilter);
+    return ret;
 };
 
-Promise.promisifyAll = function Promise$PromisifyAll(target) {
+Promise.promisifyAll = function (target, options) {
     if (typeof target !== "function" && typeof target !== "object") {
         throw new TypeError(PROMISIFY_TYPE_ERROR);
     }
-    return _promisify(target, void 0, true);
+    options = Object(options);
+    var multiArgs = !!options.multiArgs;
+    var suffix = options.suffix;
+    if (typeof suffix !== "string") suffix = defaultSuffix;
+    var filter = options.filter;
+    if (typeof filter !== "function") filter = defaultFilter;
+    var promisifier = options.promisifier;
+    if (typeof promisifier !== "function") promisifier = makeNodePromisified;
+
+    if (!util.isIdentifier(suffix)) {
+        throw new RangeError(SUFFIX_NOT_IDENTIFIER);
+    }
+
+    var keys = util.inheritedDataKeys(target);
+    for (var i = 0; i < keys.length; ++i) {
+        var value = target[keys[i]];
+        if (keys[i] !== "constructor" &&
+            util.isClass(value)) {
+            promisifyAll(value.prototype, suffix, filter, promisifier,
+                multiArgs);
+            promisifyAll(value, suffix, filter, promisifier, multiArgs);
+        }
+    }
+
+    return promisifyAll(target, suffix, filter, promisifier, multiArgs);
 };
 };
 

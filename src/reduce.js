@@ -1,160 +1,168 @@
 "use strict";
-module.exports = function(
-    Promise, Promise$_CreatePromiseArray,
-    PromiseArray, apiRejection, INTERNAL) {
+module.exports = function(Promise,
+                          PromiseArray,
+                          apiRejection,
+                          tryConvertToPromise,
+                          INTERNAL,
+                          debug) {
+var getDomain = Promise._getDomain;
+var util = require("./util");
+var tryCatch = util.tryCatch;
 
-    var ASSERT = require("./assert.js");
+function ReductionPromiseArray(promises, fn, initialValue, _each) {
+    this.constructor$(promises);
+    var domain = getDomain();
+    this._fn = domain === null ? fn : domain.bind(fn);
+    if (initialValue !== undefined) {
+        initialValue = Promise.resolve(initialValue);
+        initialValue._attachCancellationCallback(this);
+    }
+    this._initialValue = initialValue;
+    this._currentCancellable = null;
+    this._eachValues = _each === INTERNAL ? [] : undefined;
+    this._promise._captureStackTrace();
+    this._init$(undefined, RESOLVE_CALL_METHOD);
+}
+util.inherits(ReductionPromiseArray, PromiseArray);
 
-    function Reduction(callback, index, accum, items, receiver) {
-        this.promise = new Promise(INTERNAL);
-        this.index = index;
-        this.length = items.length;
-        this.items = items;
-        this.callback = callback;
-        this.receiver = receiver;
-        this.accum = accum;
+ReductionPromiseArray.prototype._gotAccum = function(accum) {
+    if (this._eachValues !== undefined && accum !== INTERNAL) {
+        this._eachValues.push(accum);
+    }
+};
+
+ReductionPromiseArray.prototype._eachComplete = function(value) {
+    this._eachValues.push(value);
+    return this._eachValues;
+};
+
+// Override
+ReductionPromiseArray.prototype._init = function() {};
+
+// Override
+ReductionPromiseArray.prototype._resolveEmptyArray = function() {
+    this._resolve(this._eachValues !== undefined ? this._eachValues
+                                                 : this._initialValue);
+};
+
+// Override
+ReductionPromiseArray.prototype.shouldCopyValues = function () {
+    return false;
+};
+
+// Override
+ReductionPromiseArray.prototype._resolve = function(value) {
+    this._promise._resolveCallback(value);
+    this._values = null;
+};
+
+// Override
+ReductionPromiseArray.prototype._resultCancelled = function(sender) {
+    if (sender === this._initialValue) return this._cancel();
+    if (this._isResolved()) return;
+    this._resultCancelled$();
+    if (this._currentCancellable instanceof Promise) {
+        this._currentCancellable.cancel();
+    }
+    if (this._initialValue instanceof Promise) {
+        this._initialValue.cancel();
+    }
+};
+
+// Override
+ReductionPromiseArray.prototype._iterate = function (values) {
+    this._values = values;
+    var value;
+    var i;
+    var length = values.length;
+    if (this._initialValue !== undefined) {
+        value = this._initialValue;
+        i = 0;
+    } else {
+        value = Promise.resolve(values[0]);
+        i = 1;
     }
 
-    Reduction.prototype.reject = function Reduction$reject(e) {
-        this.promise._reject(e);
-    };
+    this._currentCancellable = value;
 
-    Reduction.prototype.fulfill = function Reduction$fulfill(value, index) {
-        this.accum = value;
-        this.index = index + 1;
-        this.iterate();
-    };
-
-    Reduction.prototype.iterate = function Reduction$iterate() {
-        var i = this.index;
-        var len = this.length;
-        var items = this.items;
-        var result = this.accum;
-        var receiver = this.receiver;
-        var callback = this.callback;
-        var iterate = this.iterate;
-
-        for(; i < len; ++i) {
-            result = Promise._cast(
-                callback.call(
-                    receiver,
-                    result,
-                    items[i],
-                    i,
-                    len
-                ),
-                iterate,
-                void 0
-            );
-
-            //Continue iteration after the returned promise fulfills
-            if (result instanceof Promise) {
-                result._then(
-                    this.fulfill, this.reject, void 0, this, i, iterate);
-                return;
-            }
-        }
-        this.promise._fulfill(result);
-    };
-
-    function Promise$_reducer(fulfilleds, initialValue) {
-        var fn = this;
-        var receiver = void 0;
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
-        }
-        ASSERT(typeof fn === "function");
-        var len = fulfilleds.length;
-        var accum = void 0;
-        var startIndex = 0;
-
-        if (initialValue !== void 0) {
-            accum = initialValue;
-            startIndex = 0;
-        }
-        else {
-            startIndex = 1;
-            if (len > 0) accum = fulfilleds[0];
-        }
-        var i = startIndex;
-
-        if (i >= len) {
-            return accum;
-        }
-
-        var reduction = new Reduction(fn, i, accum, fulfilleds, receiver);
-        reduction.iterate();
-        return reduction.promise;
-    }
-
-    function Promise$_unpackReducer(fulfilleds) {
-        var fn = this.fn;
-        var initialValue = this.initialValue;
-        return Promise$_reducer.call(fn, fulfilleds, initialValue);
-    }
-
-    function Promise$_slowReduce(
-        promises, fn, initialValue, useBound, caller) {
-        return initialValue._then(function callee(initialValue) {
-            return Promise$_Reduce(
-                promises, fn, initialValue, useBound, callee);
-        }, void 0, void 0, void 0, void 0, caller);
-    }
-
-    function Promise$_Reduce(promises, fn, initialValue, useBound, caller) {
-        if (typeof fn !== "function") {
-            return apiRejection(NOT_FUNCTION_ERROR);
-        }
-
-        if (useBound === USE_BOUND && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
+    if (!value.isRejected()) {
+        for (; i < length; ++i) {
+            var ctx = {
+                accum: null,
+                value: values[i],
+                index: i,
+                length: length,
+                array: this
             };
+            value = value._then(gotAccum, undefined, undefined, ctx, undefined);
         }
-
-        if (initialValue !== void 0) {
-            if (Promise.is(initialValue)) {
-                if (initialValue.isFulfilled()) {
-                    initialValue = initialValue._settledValue;
-                }
-                else {
-                    return Promise$_slowReduce(promises,
-                        fn, initialValue, useBound, caller);
-                }
-            }
-
-            return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
-                useBound === USE_BOUND && promises._isBound()
-                    ? promises._boundTo
-                    : void 0)
-                .promise()
-                ._then(Promise$_unpackReducer, void 0, void 0, {
-                    fn: fn,
-                    initialValue: initialValue
-                }, void 0, Promise.reduce);
-        }
-        return Promise$_CreatePromiseArray(promises, PromiseArray, caller,
-                useBound === USE_BOUND && promises._isBound()
-                    ? promises._boundTo
-                    : void 0).promise()
-            //Currently smuggling internal data has a limitation
-            //in that no promises can be chained after it.
-            //One needs to be able to chain to get at
-            //the reduced results, so fast case is only possible
-            //when there is no initialValue.
-            ._then(Promise$_reducer, void 0, void 0, fn, void 0, caller);
     }
 
+    if (this._eachValues !== undefined) {
+        value = value
+            ._then(this._eachComplete, undefined, undefined, this, undefined);
+    }
+    value._then(completed, completed, undefined, value, this);
+};
 
-    Promise.reduce = function Promise$Reduce(promises, fn, initialValue) {
-        return Promise$_Reduce(promises, fn,
-            initialValue, DONT_USE_BOUND, Promise.reduce);
-    };
+Promise.prototype.reduce = function (fn, initialValue) {
+    return reduce(this, fn, initialValue, null);
+};
 
-    Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
-        return Promise$_Reduce(this, fn, initialValue,
-                                USE_BOUND, this.reduce);
-    };
+Promise.reduce = function (promises, fn, initialValue, _each) {
+    return reduce(promises, fn, initialValue, _each);
+};
+
+function completed(valueOrReason, array) {
+    if (this.isFulfilled()) {
+        array._resolve(valueOrReason);
+    } else {
+        array._reject(valueOrReason);
+    }
+}
+
+function reduce(promises, fn, initialValue, _each) {
+    if (typeof fn !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+    }
+    var array = new ReductionPromiseArray(promises, fn, initialValue, _each);
+    return array.promise();
+}
+
+function gotAccum(accum) {
+    this.accum = accum;
+    this.array._gotAccum(accum);
+    var value = tryConvertToPromise(this.value, this.array._promise);
+    if (value instanceof Promise) {
+        this.array._currentCancellable = value;
+        return value._then(gotValue, undefined, undefined, this, undefined);
+    } else {
+        return gotValue.call(this, value);
+    }
+}
+
+function gotValue(value) {
+    var array = this.array;
+    var promise = array._promise;
+    var fn = tryCatch(array._fn);
+    promise._pushContext();
+    var ret;
+    if (array._eachValues !== undefined) {
+        ret = fn.call(promise._boundValue(), value, this.index, this.length);
+    } else {
+        ret = fn.call(promise._boundValue(),
+                              this.accum, value, this.index, this.length);
+    }
+    if (ret instanceof Promise) {
+        array._currentCancellable = ret;
+    }
+    var promiseCreated = promise._popContext();
+    debug.checkForgottenReturns(
+        ret,
+        promiseCreated,
+        array._eachValues !== undefined ? "Promise.each" : "Promise.reduce",
+        promise
+    );
+    return ret;
+}
 };

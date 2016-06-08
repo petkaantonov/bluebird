@@ -1,14 +1,11 @@
+"use strict";
 
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 var helpers = require("./helpers/testThreeCases.js");
-var adapter = require("../../js/debug/bluebird.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 var TypeError = Promise.TypeError;
 
 function passthru(fn) {
@@ -25,37 +22,33 @@ function wrap(fn, val) {
 }
 
 function returnValue(value) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(value).then(function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(value).then(function(v){
             assert(v === value);
-            done();
         });
     });
 }
 
 function throwValue(value) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenThrow(value).then(assert.fail, function(v) {
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenThrow(value).then(assert.fail, function(v) {
             assert(v === value);
-            done();
         });
     });
 }
 
 function returnThenable(thenable, expected) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(thenable).then(function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(thenable).then(function(v){
             assert(v === expected);
-            done();
         });
     });
 }
 
 function returnThenableReject(thenable, expected) {
-    helpers.testFulfilled(void 0, function(promise, done) {
-        promise.thenReturn(thenable).then(assert.fail, function(v){
+    helpers.testFulfilled(void 0, function(promise) {
+        return promise.thenReturn(thenable).then(assert.fail, function(v){
             assert(v === expected);
-            done();
         });
     });
 }
@@ -88,7 +81,7 @@ describe("thenReturn", function () {
                 then: function(f) {
                     setTimeout(function() {
                         f(10);
-                    }, 13);
+                    }, 1);
                 }
             }, 10));
         });
@@ -102,7 +95,7 @@ describe("thenReturn", function () {
                 then: function(f, r) {
                     setTimeout(function() {
                         r(10);
-                    }, 13);
+                    }, 1);
                 }
             }, 10));
         });
@@ -110,36 +103,40 @@ describe("thenReturn", function () {
 
     describe("promises", function() {
         describe("which fulfill", function() {
-            var d1 = Promise.pending();
-            var d2 = Promise.pending();
-            describe("already", wrap(returnThenable, fulfilled(10), 10));
+            var d1 = Promise.defer();
+            var d2 = Promise.defer();
+            describe("already", wrap(returnThenable, Promise.resolve(10), 10));
             describe("immediately", wrap(returnThenable, d1.promise, 10));
             describe("eventually", wrap(returnThenable, d2.promise, 10));
             d1.fulfill(10);
             setTimeout(function(){
                 d2.fulfill(10);
-            }, 13);
+            }, 1);
         });
         describe("which reject", function() {
-            var d1 = Promise.pending();
-            var d2 = Promise.pending();
-            describe("already", wrap(returnThenableReject, rejected(10), 10));
+            var d1 = Promise.defer();
+            var d2 = Promise.defer();
+            var alreadyRejected = Promise.reject(10);
+            alreadyRejected.then(assert.fail, function(){});
+            describe("already", wrap(returnThenableReject, alreadyRejected, 10));
             describe("immediately", wrap(returnThenableReject, d1.promise, 10));
             describe("eventually", wrap(returnThenableReject, d2.promise, 10));
             d1.reject(10);
             setTimeout(function(){
                 d2.reject(10);
-            }, 13);
+            }, 1);
+
+            d1.promise.caught(function(){});
+            d2.promise.caught(function(){});
         });
 
     });
 
     describe("doesn't swallow errors", function() {
         var e = {};
-        helpers.testRejected(e, function(promise, done){
-            promise.thenReturn(3).then(assert.fail, function(err) {
+        helpers.testRejected(e, function(promise){
+            return promise.thenReturn(3).then(assert.fail, function(err) {
                 assert(err = e);
-                done();
             });
         });
     });
@@ -164,11 +161,97 @@ describe("thenThrow", function () {
 
     describe("doesn't swallow errors", function() {
         var e = {};
-        helpers.testRejected(e, function(promise, done){
-            promise.thenThrow(3).then(assert.fail, function(err) {
+        helpers.testRejected(e, function(promise){
+            return promise.thenThrow(3).then(assert.fail, function(err) {
                 assert(err = e);
-                done();
             });
         });
+    });
+});
+
+describe("catchReturn", function () {
+
+    specify("catches and returns", function() {
+        return Promise.reject(3).catchReturn(1).then(function(val) {
+            assert.strictEqual(1, val);
+        });
+    });
+
+    specify("doesn't catch succesful promise", function() {
+        return Promise.resolve(3).catchReturn(1).then(function(val) {
+            assert.strictEqual(3, val);
+        });
+    });
+
+    specify("supports 1 error type", function() {
+        var e = new Error();
+        e.prop = 3;
+        var predicate = function(e) {return e.prop === 3};
+        return Promise.reject(e)
+                .catchReturn(TypeError, 1)
+                .catchReturn(predicate, 2)
+                .then(function(val) {
+            assert.strictEqual(2, val);
+        });
+    });
+});
+
+describe("catchThrow", function () {
+
+    specify("catches and throws", function() {
+        return Promise.reject(3).catchThrow(1).then(assert.fail, function(val) {
+            assert.strictEqual(1, val);
+        });
+    });
+
+    specify("doesn't catch succesful promise", function() {
+        return Promise.resolve(3).catchThrow(1).then(function(val) {
+            assert.strictEqual(3, val);
+        });
+    });
+
+    specify("supports 1 error type", function() {
+        var e = new Error();
+        e.prop = 3;
+        var predicate = function(e) {return e.prop === 3};
+        return Promise.reject(e)
+                .catchThrow(TypeError, 1)
+                .catchThrow(predicate, 2)
+                .then(assert.fail, function(val) {
+            assert.strictEqual(2, val);
+        });
+    });
+});
+
+
+describe("gh-627", function() {
+    it("can return undefined", function() {
+        return Promise.bind(42)
+            .thenReturn(undefined)
+            .then(function (value) {
+              assert.strictEqual(value, undefined);
+            });
+    });
+    it("can throw undefined", function() {
+        return Promise.bind(42)
+            .thenThrow(undefined)
+            .then(assert.fail, function (reason) {
+              assert.strictEqual(reason, undefined);
+            });
+    });
+
+    it("can catch return undefined", function() {
+        return Promise.bind(42).thenThrow(new Error())
+            .catchReturn()
+            .then(function (value) {
+              assert.strictEqual(value, undefined);
+            });
+    });
+    it("can catch throw undefined", function() {
+        return Promise.bind(42).thenThrow(new Error())
+            .catchThrow()
+            .then(assert.fail, function (reason) {
+              assert.strictEqual(reason, undefined);
+            });
     });
 });

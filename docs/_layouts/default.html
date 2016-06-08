@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ "/css/mono-blue.css" | prepend: site.baseurl }}" type='text/css' />
+    <link rel="stylesheet" href="{{ "/css/hover-min.css" | prepend: site.baseurl }}" media="all">
+    <link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }}">
+    <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+    <link rel="icon" href="{{ "/img/favicon.png" | prepend: site.baseurl }}" type="image/png" />
+  </head>
+
+  <body>
+
+    <nav class="navbar" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a href="/" class="title">
+                    <img src="{{ "/img/logo.png" | prepend: site.baseurl }}" class="hidden-xs" />
+
+                    <span class="tagline">bluebird</span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
+                <ul class="nav navbar-nav bb-nav">
+                    {% if page.path == 'docs/support.md' %}
+                        {% assign name = 'support' %}
+                    {% elsif page.path == 'docs/install.md' %}
+                        {% assign name = 'install' %}
+                    {% else %}
+                        {% assign name = 'docs' %}
+                    {% endif %}
+
+                    <li class="{% if name == 'docs' %}active{% endif %}"><a href="{{ "/docs/getting-started.html" | prepend: site.baseurl }}">Docs</a></li>
+                    <li class="{% if name == 'support' %}active{% endif %}"><a href="{{ "/docs/support.html" | prepend: site.baseurl }}">Support</a></li>
+                    <li class="{% if name == 'install' %}active{% endif %}"><a href="{{ "/docs/install.html" | prepend: site.baseurl }}">Install</a></li>
+                    <li><a href="https://github.com/petkaantonov/bluebird/">Github</a></li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
+
+   <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav left-nav">
+                <li><a href="{{ "/docs/getting-started.html" | prepend: site.baseurl }}">Getting Started</a></li>
+                <li><a href="{{ "/docs/features.html" | prepend: site.baseurl }}">Features</a></li>
+                <li><a href="{{ "/docs/changelog.html" | prepend: site.baseurl }}">Changelog</a></li>
+                <li><a href="{{ "/docs/api-reference.html" | prepend: site.baseurl }}"><strong>API Reference</strong></a></li>
+                <li><a href="{{ "/docs/new-in-bluebird-3.html" | prepend: site.baseurl }}"><strong>New in 3.0</strong></a></li>
+                <li><a href="{{ "/docs/warning-explanations.html" | prepend: site.baseurl }}">Warning Explanations</a></li>
+                <li><a href="{{ "/docs/error-explanations.html" | prepend: site.baseurl }}">Error Explanations</a></li>
+                <li><a href="{{ "/docs/contribute.html" | prepend: site.baseurl }}">Contribute</a></li>
+                <li><a href="{{ "/docs/benchmarks.html" | prepend: site.baseurl }}">Benchmarks</a></li>
+                <li><a href="{{ "/docs/deprecated-apis.html" | prepend: site.baseurl }}">Deprecated APIs</a></li>
+                <li><a href="{{ "/docs/download-api-reference.html" | prepend: site.baseurl }}">Download API Reference</a></li>
+                <li><hr></li>
+                <li>Why?
+                    <ul class="nav nav-child">
+                        <li><a href="{{ "/docs/why-promises.html" | prepend: site.baseurl }}">Why Promises?</a></li>
+                        <li><a href="{{ "/docs/why-bluebird.html" | prepend: site.baseurl }}">Why bluebird?</a></li>
+                        <li><a href="{{ "/docs/why-performance.html" | prepend: site.baseurl }}">Why Performance?</a></li>
+                        <li><a href="{{ "/docs/what-about-generators.html" | prepend: site.baseurl }}">What About Generators?</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Tutorials
+                    <ul class="nav nav-child">
+                        <li><a href="{{ "/docs/async-dialogs.html" | prepend: site.baseurl }}">Async Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><hr></li>
+                <li>
+                    Guides
+                    <ul class="nav nav-child">
+                        <li><a href="{{ "/docs/beginners-guide.html" | prepend: site.baseurl }}">Beginner's Guide</a></li>
+                        <li><a href="{{ "/docs/anti-patterns.html" | prepend: site.baseurl }}">Anti-patterns</a></li>
+                        <li><a href="{{ "/docs/working-with-callbacks.html" | prepend: site.baseurl }}">Working with Callbacks</a></li>
+                        <li><a href="{{ "/docs/coming-from-other-languages.html" | prepend: site.baseurl }}">Coming from Other Languages</a></li>
+                        <li><a href="{{ "/docs/coming-from-other-libraries.html" | prepend: site.baseurl }}">Coming from Other Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            {% if page.path %}
+            <div class="post-info">
+                <a href="{{ page.path | prepend: "https://github.com/petkaantonov/bluebird/edit/master/docs/" }}">
+                    <i class="fa fa-edit"></i>
+                    Edit on Github</a>
+                <br>
+                <i>Updated {{ page.path | file_date | date_to_string }}</i>
+            </div>
+            <div class="clearfix"></div>
+            {% endif %}
+            {{ content }}
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-46253177-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</body>
+
+</html>

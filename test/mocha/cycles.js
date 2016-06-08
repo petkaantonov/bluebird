@@ -1,73 +1,68 @@
 "use strict";
 
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
 var helpers = require("./helpers/testThreeCases.js");
-var adapter = require("../../js/debug/bluebird.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
 var TypeError = Promise.TypeError;
 
-function passthru(fn) {
-    return function() {
-        fn();
-    };
-}
 
 describe("Cyclical promises should throw TypeError when", function(){
     describe("returning from fulfill", function() {
-        helpers.testFulfilled(3, function(promise, done) {
+        helpers.testFulfilled(3, function(promise) {
             var self = promise.then(function() {
                 return self;
             });
 
-            self.caught(TypeError, passthru(done));
+            return self.then(assert.fail).caught(TypeError, testUtils.noop);
         });
     });
 
     describe("returning from reject", function() {
-        helpers.testRejected(3, function(promise, done) {
-            var self = promise.caught(function() {
+        helpers.testRejected(3, function(promise) {
+            var self = promise.then(assert.fail, function() {
                 return self;
             });
 
-            self.caught(TypeError, passthru(done));
+            return self.then(assert.fail).caught(TypeError, testUtils.noop);
         });
     });
 
     describe("fulfill with itself when using a ", function() {
-        specify("deferred", function(done) {
-            var d = Promise.pending();
+        specify("deferred", function() {
+            var d = Promise.defer();
             d.fulfill(d.promise);
-            d.promise.caught(TypeError, passthru(done));
+            return d.promise.then(assert.fail).caught(TypeError, testUtils.noop);
         });
 
-        specify("constructor", function(done) {
+        specify("constructor", function() {
             var resolve;
             var p = new Promise(function(r) {
                 resolve = r;
             });
             resolve(p);
-            p.caught(TypeError, passthru(done));
+            return p.then(assert.fail).caught(TypeError, testUtils.noop);
         });
     });
 
     describe("reject with itself when using a ", function() {
-        specify("deferred", function(done) {
-            var d = Promise.pending();
+        specify("deferred", function() {
+            var d = Promise.defer();
             d.reject(d.promise);
-            d.promise.caught(TypeError, passthru(done));
+            return d.promise.then(assert.fail).caught(function(v) {
+                assert.equal(d.promise, v);
+            });
         });
 
-        specify("constructor", function(done) {
+        specify("constructor", function() {
             var reject;
             var p = new Promise(function(f, r) {
                 reject = r;
             });
             reject(p);
-            p.caught(TypeError, passthru(done));
+            return p.then(assert.fail).caught(function(v) {
+                assert.equal(p, v);
+            });
         });
     });
 });

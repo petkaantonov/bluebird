@@ -1,113 +1,92 @@
 "use strict";
+module.exports = function(Promise, INTERNAL, debug) {
+var util = require("./util");
+var TimeoutError = Promise.TimeoutError;
 
-var global = require("./global.js");
-var setTimeout = function(fn, time) {
-    INLINE_SLICE(args, arguments, 2);
-    global.setTimeout(function() {
-        fn.apply(void 0, args);
-    }, time);
+function HandleWrapper(handle)  {
+    this.handle = handle;
+}
+
+HandleWrapper.prototype._resultCancelled = function() {
+    clearTimeout(this.handle);
 };
 
-//Feature detect set timeout that passes arguments.
-//
-//Because it cannot be done synchronously
-//the setTimeout defaults to shim and later on
-//will start using the faster (can be used without creating closures) one
-//if available (i.e. not <=IE8)
-var pass = {};
-global.setTimeout( function(_) {
-    if(_ === pass) {
-        setTimeout = global.setTimeout;
+var afterValue = function(value) { return delay(+this).thenReturn(value); };
+var delay = Promise.delay = function (ms, value) {
+    var ret;
+    var handle;
+    if (value !== undefined) {
+        ret = Promise.resolve(value)
+                ._then(afterValue, null, null, ms, undefined);
+        if (debug.cancellation() && value instanceof Promise) {
+            ret._setOnCancel(value);
+        }
+    } else {
+        ret = new Promise(INTERNAL);
+        handle = setTimeout(function() { ret._fulfill(); }, +ms);
+        if (debug.cancellation()) {
+            ret._setOnCancel(new HandleWrapper(handle));
+        }
     }
-}, 1, pass);
+    ret._setAsyncGuaranteed();
+    return ret;
+};
 
-module.exports = function(Promise, INTERNAL) {
-    var util = require("./util.js");
-    var ASSERT = require("./assert.js");
-    var errors = require("./errors.js");
-    var apiRejection = require("./errors_api_rejection")(Promise);
-    var TimeoutError = Promise.TimeoutError;
-    var async = require("./async.js");
+Promise.prototype.delay = function (ms) {
+    return delay(ms, this);
+};
 
-    var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
-        //Don't waste time concatting strings or creating stack traces
-        if (!promise.isPending()) return;
-        if (typeof message !== "string") {
-            message = TIMEOUT_ERROR + " " + ms + " ms"
-        }
-        var err = new TimeoutError(message);
-        errors.markAsOriginatingFromRejection(err);
-        promise._attachExtraTrace(err);
-        promise._rejectUnchecked(err);
-    };
-
-    var afterDelay = function Promise$_afterDelay(value, promise) {
-        promise._fulfill(value);
-    };
-
-    Promise.delay = function Promise$Delay(value, ms, caller) {
-        if (ms === void 0) {
-            ms = value;
-            value = void 0;
-        }
-        ms = +ms;
-        if (typeof caller !== "function") {
-            caller = Promise.delay;
-        }
-        var maybePromise = Promise._cast(value, caller, void 0);
-
-        if (Promise.is(maybePromise)) {
-            var promise = new Promise(INTERNAL);
-            if (maybePromise._isBound()) {
-                promise._setBoundTo(maybePromise._boundTo);
-            }
-            if (maybePromise._cancellable()) {
-                promise._setCancellable();
-                promise._cancellationParent = maybePromise;
-            }
-            promise._setTrace(caller, maybePromise);
-            promise._follow(maybePromise);
-            return promise.then(function(value) {
-                return Promise.delay(value, ms);
-            });
-        }
-        else {
-            if (async.externalDispatcher !== undefined) {
-                return async.externalDispatcher.setTimeout(ms).then(function () {
-                    return Promise.fulfilled(value);
-                });
-            } else {
-                var promise = new Promise(INTERNAL);
-                promise._setTrace(caller, void 0);
-                setTimeout(afterDelay, ms, value, promise);
-                return promise;
-            }
-        }
-    };
-
-    Promise.prototype.delay = function Promise$delay(ms) {
-        return Promise.delay(this, ms, this.delay);
-    };
-
-    Promise.prototype.timeout = function Promise$timeout(ms, message) {
-        ms = +ms;
-
-        if (async.externalDispatcher !== undefined) {
-            return async.externalDispatcher.setTimeout(ms);
+var afterTimeout = function (promise, message, parent) {
+    var err;
+    if (typeof message !== "string") {
+        if (message instanceof Error) {
+            err = message;
         } else {
-            var ret = new Promise(INTERNAL);
-            ret._setTrace(this.timeout, this);
-
-            if (this._isBound()) ret._setBoundTo(this._boundTo);
-            if (this._cancellable()) {
-                ret._setCancellable();
-                ret._cancellationParent = this;
-            }
-            ret._follow(this);
-
-            setTimeout(afterTimeout, ms, ret, message, ms);
-            return ret;
+            err = new TimeoutError(TIMEOUT_ERROR);
         }
-    };
+    } else {
+        err = new TimeoutError(message);
+    }
+    util.markAsOriginatingFromRejection(err);
+    promise._attachExtraTrace(err);
+    promise._reject(err);
+
+    if (parent != null) {
+        parent.cancel();
+    }
+};
+
+function successClear(value) {
+    clearTimeout(this.handle);
+    return value;
+}
+
+function failureClear(reason) {
+    clearTimeout(this.handle);
+    throw reason;
+}
+
+Promise.prototype.timeout = function (ms, message) {
+    ms = +ms;
+    var ret, parent;
+
+    var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {
+        if (ret.isPending()) {
+            afterTimeout(ret, message, parent);
+        }
+    }, ms));
+
+    if (debug.cancellation()) {
+        parent = this.then();
+        ret = parent._then(successClear, failureClear,
+                            undefined, handleWrapper, undefined);
+        ret._setOnCancel(handleWrapper);
+    } else {
+        ret = this._then(successClear, failureClear,
+                            undefined, handleWrapper, undefined);
+    }
+
+    return ret;
+};
 
 };

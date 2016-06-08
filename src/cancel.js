@@ -1,68 +1,132 @@
 "use strict";
-module.exports = function(Promise, INTERNAL) {
-    var errors = require("./errors.js");
-    var async = require("./async.js");
-    var ASSERT = require("./assert.js");
-    var CancellationError = errors.CancellationError;
-    var SYNC_TOKEN = {};
+module.exports = function(Promise, PromiseArray, apiRejection, debug) {
+var ASSERT = require("./assert");
+var util = require("./util");
+var tryCatch = util.tryCatch;
+var errorObj = util.errorObj;
+var async = Promise._async;
 
-    Promise.prototype._cancel = function Promise$_cancel(reason) {
-        if (!this.isCancellable()) return this;
-        var parent;
-        //Propagate to the last cancellable parent
-        if ((parent = this._cancellationParent) !== void 0) {
-            parent.cancel(reason, SYNC_TOKEN);
-            return;
+Promise.prototype["break"] = Promise.prototype.cancel = function() {
+    if (!debug.cancellation()) return this._warn("cancellation is disabled");
+
+    var promise = this;
+    var child = promise;
+    while (promise.isCancellable()) {
+        if (!promise._cancelBy(child)) {
+            if (child._isFollowing()) {
+                child._followee().cancel();
+            } else {
+                child._cancelBranched();
+            }
+            break;
         }
 
-        if (reason === undefined) {
-            reason = new CancellationError();
-            this._attachExtraTrace(reason);
+        var parent = promise._cancellationParent;
+        if (parent == null || !parent.isCancellable()) {
+            if (promise._isFollowing()) {
+                promise._followee().cancel();
+            } else {
+                promise._cancelBranched();
+            }
+            break;
+        } else {
+            if (promise._isFollowing()) promise._followee().cancel();
+            child = promise;
+            promise = parent;
         }
-        this._rejectUnchecked(reason);
-    };
+    }
+};
 
-    Promise.prototype.cancel = function Promise$cancel(reason, token) {
-        if (!this.isCancellable()) return this;
-        ASSERT("_cancellationParent" in this);
+Promise.prototype._branchHasCancelled = function() {
+    ASSERT(typeof this._branchesRemainingToCancel === "number");
+    this._branchesRemainingToCancel--;
+};
 
-        if (reason === undefined) {
-            reason = new CancellationError();
-            this._attachExtraTrace(reason);
+Promise.prototype._enoughBranchesHaveCancelled = function() {
+    return this._branchesRemainingToCancel === undefined ||
+           this._branchesRemainingToCancel <= 0;
+};
+
+Promise.prototype._cancelBy = function(canceller) {
+    if (canceller === this) {
+        this._branchesRemainingToCancel = 0;
+        this._invokeOnCancel();
+        return true;
+    } else {
+        ASSERT(canceller._cancellationParent === this);
+        this._branchHasCancelled();
+        if (this._enoughBranchesHaveCancelled()) {
+            this._invokeOnCancel();
+            return true;
         }
+    }
+    return false;
+};
 
-        if (token === SYNC_TOKEN) {
-            this._cancel(reason);
-            return this;
+Promise.prototype._cancelBranched = function() {
+    if (this._enoughBranchesHaveCancelled()) {
+        this._cancel();
+    }
+};
+
+Promise.prototype._cancel = function() {
+    if (!this.isCancellable()) return;
+
+    ASSERT(!this._isFollowing());
+    this._setCancelled();
+    async.invoke(this._cancelPromises, this, undefined);
+};
+
+Promise.prototype._cancelPromises = function() {
+    if (this._length() > 0) this._settlePromises();
+};
+
+Promise.prototype._unsetOnCancel = function() {
+    ASSERT(this.isCancellable() || this.isCancelled());
+    this._onCancelField = undefined;
+};
+
+Promise.prototype.isCancellable = function() {
+    return this.isPending() && !this.isCancelled();
+};
+
+Promise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {
+    if (util.isArray(onCancelCallback)) {
+        for (var i = 0; i < onCancelCallback.length; ++i) {
+            this._doInvokeOnCancel(onCancelCallback[i], internalOnly);
         }
+    } else if (onCancelCallback !== undefined) {
+        if (typeof onCancelCallback === "function") {
+            if (!internalOnly) {
+                var e = tryCatch(onCancelCallback).call(this._boundValue());
+                if (e === errorObj) {
+                    this._attachExtraTrace(e.e);
+                    async.throwLater(e.e);
+                }
+            }
+        } else {
+            onCancelCallback._resultCancelled(this);
+        }
+    }
+};
 
-        async.invokeLater(this._cancel, this, reason);
-        return this;
-    };
+Promise.prototype._invokeOnCancel = function() {
+    var onCancelCallback = this._onCancel();
+    // The existence of onCancel handler on a promise signals that the handler
+    // has not been queued for invocation yet.
+    this._unsetOnCancel();
+    async.invoke(this._doInvokeOnCancel, this, onCancelCallback);
+};
 
-    Promise.prototype.cancellable = function Promise$cancellable() {
-        if (this._cancellable()) return this;
-        this._setCancellable();
-        this._cancellationParent = void 0;
-        return this;
-    };
+Promise.prototype._invokeInternalOnCancel = function() {
+    if (this.isCancellable()) {
+        this._doInvokeOnCancel(this._onCancel(), true);
+        this._unsetOnCancel();
+    }
+};
 
-    Promise.prototype.uncancellable = function Promise$uncancellable() {
-        var ret = new Promise(INTERNAL);
-        ret._setTrace(this.uncancellable, this);
-        ret._follow(this);
-        ret._unsetCancellable();
-        if (this._isBound()) ret._setBoundTo(this._boundTo);
-        return ret;
-    };
+Promise.prototype._resultCancelled = function() {
+    this.cancel();
+};
 
-    Promise.prototype.fork =
-    function Promise$fork(didFulfill, didReject, didProgress) {
-        var ret = this._then(didFulfill, didReject, didProgress,
-            void 0, void 0, this.fork);
-
-        ret._setCancellable();
-        ret._cancellationParent = void 0;
-        return ret;
-    };
 };

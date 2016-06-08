@@ -1,108 +1,181 @@
 "use strict";
-module.exports = function(
-    Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
+module.exports = function(Promise,
+                          PromiseArray,
+                          apiRejection,
+                          tryConvertToPromise,
+                          INTERNAL,
+                          debug) {
+var ASSERT = require("./assert");
+var getDomain = Promise._getDomain;
+var util = require("./util");
+var tryCatch = util.tryCatch;
+var errorObj = util.errorObj;
+var EMPTY_ARRAY = [];
 
-    var ASSERT = require("./assert.js");
+function MappingPromiseArray(promises, fn, limit, _filter) {
+    this.constructor$(promises);
+    this._promise._captureStackTrace();
+    var domain = getDomain();
+    this._callback = domain === null ? fn : domain.bind(fn);
+    this._preservedValues = _filter === INTERNAL
+        ? new Array(this.length())
+        : null;
+    this._limit = limit;
+    this._inFlight = 0;
+    this._queue = limit >= 1 ? [] : EMPTY_ARRAY;
+    this._init$(undefined, RESOLVE_ARRAY);
+}
+util.inherits(MappingPromiseArray, PromiseArray);
 
-    function Promise$_mapper(values) {
-        var fn = this;
-        var receiver = void 0;
+// The following hack is required because the super constructor
+// might call promiseFulfilled before this.callback = fn is set
+//
+// The super constructor call must always be first so that fields
+// are initialized in the same order so that the sub-class instances
+// will share same memory layout as the super class instances
 
-        if (typeof fn !== "function")  {
-            receiver = fn.receiver;
-            fn = fn.fn;
+// Override
+MappingPromiseArray.prototype._init = function () {};
+
+// Override
+MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
+    ASSERT(!this._isResolved());
+    var values = this._values;
+    var length = this.length();
+    var preservedValues = this._preservedValues;
+    var limit = this._limit;
+
+    // Callback has been called for this index if it's negative
+    if (index < 0) {
+        // Restore the actual index value
+        index = (index * -1) - 1;
+        values[index] = value;
+        if (limit >= 1) {
+            this._inFlight--;
+            this._drainQueue();
+            if (this._isResolved()) return true;
         }
-        ASSERT(typeof fn === "function");
-        var shouldDefer = false;
+    } else {
+        if (limit >= 1 && this._inFlight >= limit) {
+            values[index] = value;
+            this._queue.push(index);
+            return false;
+        }
+        if (preservedValues !== null) preservedValues[index] = value;
 
-        var ret = new Array(values.length);
+        var promise = this._promise;
+        var callback = this._callback;
+        var receiver = promise._boundValue();
+        promise._pushContext();
+        var ret = tryCatch(callback).call(receiver, value, index, length);
+        var promiseCreated = promise._popContext();
+        debug.checkForgottenReturns(
+            ret,
+            promiseCreated,
+            preservedValues !== null ? "Promise.filter" : "Promise.map",
+            promise
+        );
+        if (ret === errorObj) {
+            this._reject(ret.e);
+            return true;
+        }
 
-        if (receiver === void 0) {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = fn(values[i], i, len);
-                if (!shouldDefer) {
-                    var maybePromise = Promise._cast(value,
-                            Promise$_mapper, void 0);
-                    if (maybePromise instanceof Promise) {
-                        if (maybePromise.isFulfilled()) {
-                            ret[i] = maybePromise._settledValue;
-                            continue;
-                        }
-                        else {
-                            shouldDefer = true;
-                        }
-                        value = maybePromise;
-                    }
-                }
-                ret[i] = value;
+        // If the mapper function returned a promise we simply reuse
+        // The MappingPromiseArray as a PromiseArray for round 2.
+        // To mark an index as "round 2" its inverted by adding +1 and
+        // multiplying by -1
+        var maybePromise = tryConvertToPromise(ret, this._promise);
+        if (maybePromise instanceof Promise) {
+            maybePromise = maybePromise._target();
+            var bitField = maybePromise._bitField;
+            USE(bitField);
+            if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+                if (limit >= 1) this._inFlight++;
+                values[index] = maybePromise;
+                maybePromise._proxy(this, (index + 1) * -1);
+                return false;
+            } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+                ret = maybePromise._value();
+            } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
+                this._reject(maybePromise._reason());
+                return true;
+            } else {
+                this._cancel();
+                return true;
             }
         }
-        else {
-            for (var i = 0, len = values.length; i < len; ++i) {
-                var value = fn.call(receiver, values[i], i, len);
-                if (!shouldDefer) {
-                    var maybePromise = Promise._cast(value,
-                            Promise$_mapper, void 0);
-                    if (maybePromise instanceof Promise) {
-                        if (maybePromise.isFulfilled()) {
-                            ret[i] = maybePromise._settledValue;
-                            continue;
-                        }
-                        else {
-                            shouldDefer = true;
-                        }
-                        value = maybePromise;
-                    }
-                }
-                ret[i] = value;
+        values[index] = ret;
+    }
+    var totalResolved = ++this._totalResolved;
+    if (totalResolved >= length) {
+        if (preservedValues !== null) {
+            this._filter(values, preservedValues);
+        } else {
+            this._resolve(values);
+        }
+        return true;
+    }
+    return false;
+};
+
+MappingPromiseArray.prototype._drainQueue = function () {
+    var queue = this._queue;
+    var limit = this._limit;
+    var values = this._values;
+    while (queue.length > 0 && this._inFlight < limit) {
+        if (this._isResolved()) return;
+        var index = queue.pop();
+        this._promiseFulfilled(values[index], index);
+    }
+};
+
+MappingPromiseArray.prototype._filter = function (booleans, values) {
+    var len = values.length;
+    var ret = new Array(len);
+    var j = 0;
+    for (var i = 0; i < len; ++i) {
+        if (booleans[i]) ret[j++] = values[i];
+    }
+    ret.length = j;
+    this._resolve(ret);
+};
+
+MappingPromiseArray.prototype.preservedValues = function () {
+    return this._preservedValues;
+};
+
+function map(promises, fn, options, _filter) {
+    if (typeof fn !== "function") {
+        return apiRejection(FUNCTION_ERROR + util.classString(fn));
+    }
+
+    var limit = 0;
+    if (options !== undefined) {
+        if (typeof options === "object" && options !== null) {
+            if (typeof options.concurrency !== "number") {
+                return Promise.reject(
+                    new TypeError("'concurrency' must be a number but it is " +
+                                    util.classString(options.concurrency)));
             }
+            limit = options.concurrency;
+        } else {
+            return Promise.reject(new TypeError(
+                            "options argument must be an object but it is " +
+                             util.classString(options)));
         }
-        return shouldDefer
-            ? Promise$_CreatePromiseArray(ret, PromiseArray,
-                Promise$_mapper, void 0).promise()
-            : ret;
     }
+    limit = typeof limit === "number" &&
+        isFinite(limit) && limit >= 1 ? limit : 0;
+    return new MappingPromiseArray(promises, fn, limit, _filter).promise();
+}
 
-    function Promise$_Map(promises, fn, useBound, caller, ref) {
-        if (typeof fn !== "function") {
-            return apiRejection(NOT_FUNCTION_ERROR);
-        }
+Promise.prototype.map = function (fn, options) {
+    return map(this, fn, options, null);
+};
 
-        if (useBound === USE_BOUND && promises._isBound()) {
-            fn = {
-                fn: fn,
-                receiver: promises._boundTo
-            };
-        }
+Promise.map = function (promises, fn, options, _filter) {
+    return map(promises, fn, options, _filter);
+};
 
-        var ret = Promise$_CreatePromiseArray(
-            promises,
-            PromiseArray,
-            caller,
-            useBound === USE_BOUND && promises._isBound()
-                ? promises._boundTo
-                : void 0
-       ).promise();
 
-        if (ref !== void 0) {
-            ref.ref = ret;
-        }
-
-        return ret._then(
-            Promise$_mapper,
-            void 0,
-            void 0,
-            fn,
-            void 0,
-            caller
-       );
-    }
-
-    Promise.prototype.map = function Promise$map(fn, ref) {
-        return Promise$_Map(this, fn, USE_BOUND, this.map, ref);
-    };
-
-    Promise.map = function Promise$Map(promises, fn, ref) {
-        return Promise$_Map(promises, fn, DONT_USE_BOUND, Promise.map, ref);
-    };
 };

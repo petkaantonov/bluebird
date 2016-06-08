@@ -1,44 +1,125 @@
 "use strict";
-module.exports = function(Promise, PromiseArray) {
-    var PropertiesPromiseArray = require("./properties_promise_array.js")(
-        Promise, PromiseArray);
-    var util = require("./util.js");
-    var apiRejection = require("./errors_api_rejection")(Promise);
-    var isObject = util.isObject;
+module.exports = function(
+    Promise, PromiseArray, tryConvertToPromise, apiRejection) {
+var ASSERT = require("./assert");
+var util = require("./util");
+var isObject = util.isObject;
+var es5 = require("./es5");
+var Es6Map;
+if (typeof Map === "function") Es6Map = Map;
 
-    function Promise$_Props(promises, useBound, caller) {
-        var ret;
-        var castValue = Promise._cast(promises, caller, void 0);
+var mapToEntries = (function() {
+    var index = 0;
+    var size = 0;
 
-        if (!isObject(castValue)) {
-            return apiRejection(PROPS_TYPE_ERROR);
-        }
-        else if (Promise.is(castValue)) {
-            ret = castValue._then(Promise.props, void 0, void 0,
-                            void 0, void 0, caller);
-        }
-        else {
-            ret = new PropertiesPromiseArray(
-                castValue,
-                caller,
-                useBound === USE_BOUND && castValue._isBound()
-                            ? castValue._boundTo
-                            : void 0
-           ).promise();
-            //The constructor took care of it
-            useBound = DONT_USE_BOUND;
-        }
-        if (useBound === USE_BOUND && castValue._isBound()) {
-            ret._setBoundTo(castValue._boundTo);
-        }
-        return ret;
+    function extractEntry(value, key) {
+        this[index] = value;
+        this[index + size] = key;
+        index++;
     }
 
-    Promise.prototype.props = function Promise$props() {
-        return Promise$_Props(this, USE_BOUND, this.props);
+    return function mapToEntries(map) {
+        size = map.size;
+        index = 0;
+        var ret = new Array(map.size * 2);
+        map.forEach(extractEntry, ret);
+        return ret;
     };
+})();
 
-    Promise.props = function Promise$Props(promises) {
-        return Promise$_Props(promises, DONT_USE_BOUND, Promise.props);
-    };
+var entriesToMap = function(entries) {
+    var ret = new Es6Map();
+    var length = entries.length / 2 | 0;
+    for (var i = 0; i < length; ++i) {
+        var key = entries[length + i];
+        var value = entries[i];
+        ret.set(key, value);
+    }
+    return ret;
+};
+
+function PropertiesPromiseArray(obj) {
+    var isMap = false;
+    var entries;
+    if (Es6Map !== undefined && obj instanceof Es6Map) {
+        entries = mapToEntries(obj);
+        isMap = true;
+    } else {
+        var keys = es5.keys(obj);
+        var len = keys.length;
+        entries = new Array(len * 2);
+        for (var i = 0; i < len; ++i) {
+            var key = keys[i];
+            entries[i] = obj[key];
+            entries[i + len] = key;
+        }
+    }
+    this.constructor$(entries);
+    this._isMap = isMap;
+    this._init$(undefined, RESOLVE_OBJECT);
+}
+util.inherits(PropertiesPromiseArray, PromiseArray);
+
+//Override
+PropertiesPromiseArray.prototype._init = function () {};
+
+//Override
+PropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {
+    ASSERT(!this._isResolved());
+    ASSERT(!(value instanceof Promise));
+    this._values[index] = value;
+    var totalResolved = ++this._totalResolved;
+    if (totalResolved >= this._length) {
+        var val;
+        if (this._isMap) {
+            val = entriesToMap(this._values);
+        } else {
+            val = {};
+            var keyOffset = this.length();
+            for (var i = 0, len = this.length(); i < len; ++i) {
+                val[this._values[i + keyOffset]] = this._values[i];
+            }
+        }
+        this._resolve(val);
+        return true;
+    }
+    return false;
+};
+
+// Override
+PropertiesPromiseArray.prototype.shouldCopyValues = function () {
+    return false;
+};
+
+// Override
+PropertiesPromiseArray.prototype.getActualLength = function (len) {
+    return len >> 1;
+};
+
+function props(promises) {
+    var ret;
+    var castValue = tryConvertToPromise(promises);
+
+    if (!isObject(castValue)) {
+        return apiRejection(PROPS_TYPE_ERROR);
+    } else if (castValue instanceof Promise) {
+        ret = castValue._then(
+            Promise.props, undefined, undefined, undefined, undefined);
+    } else {
+        ret = new PropertiesPromiseArray(castValue).promise();
+    }
+
+    if (castValue instanceof Promise) {
+        ret._propagateFrom(castValue, PROPAGATE_BIND);
+    }
+    return ret;
+}
+
+Promise.prototype.props = function () {
+    return props(this);
+};
+
+Promise.props = function (promises) {
+    return props(promises);
+};
 };

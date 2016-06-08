@@ -21,7 +21,7 @@ exports.fulfilled = {
             then: function (onFulfilled) {
                 setTimeout(function () {
                     onFulfilled(value);
-                }, 0);
+                }, 1);
             }
         };
     },
@@ -71,7 +71,7 @@ exports.fulfilled = {
         var tuple = pending();
         setTimeout(function () {
             tuple.fulfill(value);
-        }, 50);
+        }, 1);
         return tuple.promise;
     }
 };
@@ -90,7 +90,7 @@ exports.rejected = {
             then: function (onFulfilled, onRejected) {
                 setTimeout(function () {
                     onRejected(reason);
-                }, 0);
+                }, 1);
             }
         };
     },
@@ -131,14 +131,16 @@ exports.rejected = {
     },
 
     "an already-rejected promise": function (reason) {
-        return rejected(reason);
+        var ret = rejected(reason);
+        ret.caught(function(){});
+        return ret;
     },
 
     "an eventually-rejected promise": function (reason) {
         var tuple = pending();
         setTimeout(function () {
             tuple.reject(reason);
-        }, 50);
+        }, 1);
         return tuple.promise;
     }
 };

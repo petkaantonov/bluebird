@@ -1,68 +1,66 @@
+"use strict";
 var assert = require("assert");
+var testUtils = require("./helpers/util.js");
 
-var adapter = require("../../js/debug/bluebird.js");
-var Promise = adapter;
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
 
 describe("tap", function () {
-    specify("passes through value", function(done) {
-        Promise.resolve("test").tap(function() {
+    specify("passes through value", function() {
+        return Promise.resolve("test").tap(function() {
             return 3;
         }).then(function(value){
             assert.equal(value, "test");
-            done();
         });
     });
 
-    specify("passes through value after returned promise is fulfilled", function(done) {
+    specify("passes through value after returned promise is fulfilled", function() {
         var async = false;
-        Promise.resolve("test").tap(function() {
+        return Promise.resolve("test").tap(function() {
             return new Promise(function(r) {
                 setTimeout(function(){
                     async = true;
                     r(3);
-                }, 13);
+                }, 1);
             });
         }).then(function(value){
             assert(async);
             assert.equal(value, "test");
-            done();
         });
     });
 
-    specify("is not called on rejected promise", function(done) {
+    specify("is not called on rejected promise", function() {
         var called = false;
-        Promise.reject("test").tap(function() {
+        return Promise.reject("test").tap(function() {
             called = true;
-        }).caught(function(value){
+        }).then(assert.fail, function(value){
             assert(!called);
-            done();
         });
     });
 
-    specify("passes immediate rejection", function(done) {
+    specify("passes immediate rejection", function() {
         var err = new Error();
-        Promise.resolve("test").tap(function() {
+        return Promise.resolve("test").tap(function() {
             throw err;
-        }).tap(assert.fail).caught(function(e){
+        }).tap(assert.fail).then(assert.fail, function(e){
             assert(err === e);
-            done();
         });
     });
 
-    specify("passes eventual rejection", function(done) {
+    specify("passes eventual rejection", function() {
         var err = new Error();
-        Promise.resolve("test").tap(function() {
+        return Promise.resolve("test").tap(function() {
             return new Promise(function(_, rej) {
                 setTimeout(function(){
                     rej(err);
-                }, 13)
+                }, 1)
             });
-        }).tap(assert.fail).caught(function(e) {
+        }).tap(assert.fail).then(assert.fail, function(e) {
             assert(err === e);
-            done();
+        });
+    });
+
+    specify("passes value", function() {
+        return Promise.resolve(123).tap(function(a) {
+            assert(a === 123);
         });
     });
 });

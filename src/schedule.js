@@ -1,106 +1,76 @@
 "use strict";
-var global = require("./global.js");
-var ASSERT = require("./assert.js");
+var util = require("./util");
 var schedule;
-if (typeof process !== "undefined" && process !== null &&
-    typeof process.cwd === "function" &&
-    typeof process.nextTick === "function" &&
-    typeof process.version === "string") {
-    schedule = function Promise$_Scheduler(fn) {
-        process.nextTick(fn);
+var noAsyncScheduler = function() {
+    throw new Error(NO_ASYNC_SCHEDULER);
+};
+var NativePromise = util.getNativePromise();
+// This file figures out which scheduler to use for Bluebird. It normalizes
+// async task scheduling across target platforms. Note that not all JS target
+// platforms come supported. The scheduler is overridable with `setScheduler`.
+
+// Our scheduler for NodeJS/io.js is setImmediate for recent
+// versions of node because of macrotask semantics.
+// The `typeof` check is for an edge case with nw.js.
+if (util.isNode && typeof MutationObserver === "undefined") {
+    var GlobalSetImmediate = global.setImmediate;
+    var ProcessNextTick = process.nextTick;
+    schedule = util.isRecentNode
+                ? function(fn) { GlobalSetImmediate.call(global, fn); }
+                : function(fn) { ProcessNextTick.call(process, fn); };
+} else if (typeof NativePromise === "function") {
+    var nativePromise = NativePromise.resolve();
+    schedule = function(fn) {
+        nativePromise.then(fn);
     };
-}
-else if ((typeof global.MutationObserver === "function" ||
-        typeof global.WebkitMutationObserver === "function" ||
-        typeof global.WebKitMutationObserver === "function") &&
-        typeof document !== "undefined" &&
-        typeof document.createElement === "function") {
-
-
-    schedule = (function(){
-        var MutationObserver = global.MutationObserver ||
-            global.WebkitMutationObserver ||
-            global.WebKitMutationObserver;
+// Outside of Node, we're using MutationObservers because they provide low
+// latency. The second check is to guard against iOS standalone apps which
+// do not fire DOM mutation events for some reason on iOS 8.3+.
+} else if ((typeof MutationObserver !== "undefined") &&
+          !(typeof window !== "undefined" &&
+            window.navigator &&
+            window.navigator.standalone)) {
+    schedule = (function() {
+        // Using 2 mutation observers to batch multiple updates into one.
         var div = document.createElement("div");
-        var queuedFn = void 0;
-        var observer = new MutationObserver(
-            function Promise$_Scheduler() {
-                ASSERT(queuedFn !== void 0);
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-            }
-       );
-        observer.observe(div, {
-            attributes: true
+        var opts = {attributes: true};
+        var toggleScheduled = false;
+        var div2 = document.createElement("div");
+        var o2 = new MutationObserver(function() {
+            div.classList.toggle("foo");
+            toggleScheduled = false;
         });
-        return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
-            queuedFn = fn;
-            div.setAttribute("class", "foo");
-        };
+        o2.observe(div2, opts);
 
-    })();
-}
-else if (typeof global.postMessage === "function" &&
-    typeof global.importScripts !== "function" &&
-    typeof global.addEventListener === "function" &&
-    typeof global.removeEventListener === "function") {
+        var scheduleToggle = function() {
+            if (toggleScheduled) return;
+                toggleScheduled = true;
+                div2.classList.toggle("foo");
+            };
 
-    var MESSAGE_KEY = "bluebird_message_key_" + Math.random();
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        function Promise$_Scheduler(e) {
-            if (e.source === global &&
-                e.data === MESSAGE_KEY) {
-                ASSERT(queuedFn !== void 0);
-                var fn = queuedFn;
-                queuedFn = void 0;
+            return function schedule(fn) {
+            var o = new MutationObserver(function() {
+                o.disconnect();
                 fn();
-            }
-        }
-
-        global.addEventListener("message", Promise$_Scheduler, false);
-
-        return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
-            queuedFn = fn;
-            global.postMessage(
-                MESSAGE_KEY, "*"
-           );
-        };
-
-    })();
-}
-else if (typeof global.MessageChannel === "function") {
-    schedule = (function(){
-        var queuedFn = void 0;
-
-        var channel = new global.MessageChannel();
-        channel.port1.onmessage = function Promise$_Scheduler() {
-                ASSERT(queuedFn !== void 0);
-                var fn = queuedFn;
-                queuedFn = void 0;
-                fn();
-        };
-
-        return function Promise$_Scheduler(fn) {
-            ASSERT(queuedFn === void 0);
-            queuedFn = fn;
-            channel.port2.postMessage(null);
+            });
+            o.observe(div, opts);
+            scheduleToggle();
         };
     })();
-}
-else if (global.setTimeout) {
-    schedule = function Promise$_Scheduler(fn) {
-        setTimeout(fn, 4);
+// setImmediate has higher latency but is still pretty good. This is useful for
+// cases where MutationObserver is not defined (older IE, for example).
+} else if (typeof setImmediate !== "undefined") {
+    schedule = function (fn) {
+        setImmediate(fn);
     };
-}
-else {
-    schedule = function Promise$_Scheduler(fn) {
-        fn();
+// setTimeout also works, it has the most latency but it does the trick.
+} else if (typeof setTimeout !== "undefined") {
+    schedule = function (fn) {
+        setTimeout(fn, 0);
     };
+} else {
+// Do __Not__ default to a sync scheduler, that would break Promises/A+
+// compliancy and cause race conditions.
+    schedule = noAsyncScheduler;
 }
-
 module.exports = schedule;

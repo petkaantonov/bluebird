@@ -96,7 +96,8 @@ describe("3.2.6: `then` must return a promise: `promise2 = promise1.then(onFulfi
         testReason({}, "an object");
         testReason({ then: function () { } }, "a promise-alike");
         testReason(fulfilled(dummy), "a fulfilled promise");
-        testReason(rejected(dummy), "a rejected promise");
+        var promise = rejected(dummy); promise.caught(function(){});
+        testReason(promise, "a rejected promise");
     });
 
     describe("3.2.6.3: If either `onFulfilled` or `onRejected` returns a promise (call it `returnedPromise`), " +

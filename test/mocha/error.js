@@ -1,131 +1,184 @@
 "use strict";
-
 var assert = require("assert");
-
-var adapter = require("../../js/debug/bluebird.js");
-var fulfilled = adapter.fulfilled;
-var rejected = adapter.rejected;
-var pending = adapter.pending;
-var Promise = adapter;
+var testUtils = require("./helpers/util.js");
 
 describe("Promise.prototype.error", function(){
     describe("catches stuff originating from explicit rejections", function() {
-        specify("using constructor", function(done) {
-            var e = new Error("sup");
-            new Promise(function(resolve, reject) {
-                reject(e);
-            }).error(function(err){
-                assert(err === e);
-                done();
-            });
-        });
-        specify("using Promise.reject", function(done) {
-            var e = new Error("sup");
-            Promise.reject(e).error(function(err) {
-                assert(err === e);
-                done();
-            });
-        });
-        specify("using deferred", function(done) {
-            var e = new Error("sup");
-            var d = Promise.defer();
-            d.promise.error(function(err) {
-                assert(err === e);
-                done();
-            });
-            d.reject(e);
-        });
-
-        specify("using callback", function(done) {
+        specify("using callback", function() {
             var e = new Promise.TypeError("sup");
             function callsback(a, b, c, fn) {
                 fn(e);
             }
             callsback = Promise.promisify(callsback);
 
-            callsback(1, 2, 3).error(function(err) {
+            return callsback(1, 2, 3).error(function(err) {
                 assert(err === e);
-                done();
             });
         });
     });
 
     describe("does not catch stuff originating from thrown errors", function() {
-        specify("using constructor", function(done) {
+        specify("using constructor", function() {
             var e = new Error("sup");
-            new Promise(function(resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 throw e;
             }).error(function(err) {
                 assert.fail();
-            }).caught(function(err){
+            }).then(assert.fail, function(err){
                 assert(err === e);
-                done();
             });
         });
-        specify("using thenable", function(done) {
+        specify("using thenable", function() {
             var e = new Error("sup");
             var thenable = {
                 then: function(resolve, reject){
                     reject(e);
                 }
             };
-            Promise.cast(thenable).error(function(err) {
+            return Promise.cast(thenable).error(function(err) {
                 console.error(err);
                 assert.fail();
-            }).caught(function(err) {
+            }).then(assert.fail, function(err) {
                 assert(err === e);
-                done();
             });
         });
-        specify("using callback", function(done) {
+        specify("using callback", function() {
             var e = new Error("sup");
             function callsback(a, b, c, fn) {
                 throw e;
             }
             callsback = Promise.promisify(callsback);
 
-            callsback(1, 2, 3).error(function(err) {
+            return callsback(1, 2, 3).error(function(err) {
                 assert.fail();
-            }).caught(function(err){
+            }).then(assert.fail, function(err){
                 assert(err === e);
-                done();
+            });
+        });
+    });
+})
+
+if (testUtils.ecmaScript5) {
+    describe("Weird errors", function() {
+        specify("unwritable stack", function() {
+            var e = new Error();
+            var stack = e.stack;
+            Object.defineProperty(e, "stack", {
+                configurable: true,
+                get: function() {return stack;},
+                set: function() {throw new Error("cannot set");}
+            });
+            return new Promise(function(_, reject) {
+                setTimeout(function() {
+                    reject(e);
+                }, 1);
+            }).caught(function(err) {
+                assert.equal(e, err);
+            });
+        });
+    });
+}
+
+describe("Error constructors", function() {
+    describe("OperationalError", function() {
+        it("should work without new", function() {
+            var a = Promise.OperationalError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.OperationalError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should retain custom properties", function() {
+            var message;
+            var name;
+            function f(cb) {
+                var err = new Error("custom message");
+                message = err.message;
+                name = err.name;
+                err.code = "ENOENT";
+                err.path = "C:\\";
+                cb(err);
+            }
+            return Promise.promisify(f)().error(function(e) {
+                assert.strictEqual(e.message, message);
+                assert.strictEqual(e.name, name);
+                assert(e instanceof Promise.OperationalError);
+                assert.strictEqual(e.code, "ENOENT");
+                assert.strictEqual(e.path, "C:\\");
             });
         });
     });
 
-    specify("gh-54-1", function(done) {
-        function doThing(arg) {
-          return new Promise(function (resolve, reject) {
-            if (typeof arg !== "string") return reject(new Error("invalid thing"));
-          });
-        }
-
-        doThing().error(function(){
-            done();
-        }).caught(function(){
-            assert.fail();
+    describe("CancellationError", function() {
+        it("should work without new", function() {
+            var a = Promise.CancellationError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
         });
 
+        it("should work with new", function() {
+            var a = new Promise.CancellationError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
     });
 
-    specify("gh-54-2", function(done) {
-        function doBuggyThing(arg) {
-          return new Promise(function (resolve, rej) {
-            // arg2 & reject dont exist. this is buggy.
-            if (arg2 && typeof arg2 !== "string") return reject(new Error("invalid thing"));
-          });
-        }
-        var called = false;
-        doBuggyThing().error(function(){
-            called = true;
-        }).caught(function() {
-
+    describe("TimeoutError", function() {
+        it("should work without new", function() {
+            var a = Promise.TimeoutError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
         });
 
-        setTimeout(function(){
-            assert(!called);
-            done();
-        }, 13);
-
+        it("should work with new", function() {
+            var a = new Promise.TimeoutError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
     });
-})
+
+    describe("AggregateError", function() {
+        it("should work without new", function() {
+            var a = Promise.AggregateError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        it("should work with new", function() {
+            var a = new Promise.AggregateError("msg");
+            assert.strictEqual(a.message, "msg");
+            assert(a instanceof Error);
+        });
+
+        if (testUtils.isNodeJS) {
+            it("should stringify without circular errors", function() {
+                var a = Promise.AggregateError();
+                a.push(new Error("1"));
+                a.push(new Error("2"));
+                a.push(new Error("3"));
+                a = a.toString();
+                assert(a.indexOf("Error: 1") >= 0);
+                assert(a.indexOf("Error: 2") >= 0);
+                assert(a.indexOf("Error: 3") >= 0);
+            });
+
+            it("should stringify with circular errors", function() {
+                var a = Promise.AggregateError();
+                a.push(new Error("1"));
+                a.push(a);
+                a.push(new Error("3"));
+                a = a.toString();
+                assert(a.indexOf("Error: 1") >= 0);
+                assert(a.indexOf("[Circular AggregateError]") >= 0);
+                assert(a.indexOf("Error: 3") >= 0);
+            });
+        }
+    });
+
+
+});

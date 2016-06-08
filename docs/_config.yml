@@ -1,0 +1,35 @@
+name: bluebird
+description: Bluebird is a fully featured JavaScript promises library with unmatched performance.
+url: "http://bluebirdjs.com"
+baseurl: ""
+title: bluebird
+timezone: Helsinki/Finland
+highlighter: pygments
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - helpers.rb
+defaults:
+  - scope:
+      path: docs
+      type: pages
+    values:
+      layout: page
+markdown: redcarpet
+redcarpet:
+  extensions:
+    - fenced_code_blocks
+version: 3.4.0
+gems:
+  - jekyll-redirect-from
+destination: ../gh-pages/
+keep_files:
+  - .git
+  - .gitignore
+  - logo.png
+  - CNAME
+  - coverage
+safe: false
+encoding: utf-8
+host: 0.0.0.0
+
