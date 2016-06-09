@@ -13,7 +13,7 @@ title: .isRejected
 .isRejected() -> boolean
 ```
 
-See if this `promise` has been rejected.
+See if this promise has been rejected.
 </markdown></div>
 
 <div id="disqus_thread"></div>
