@@ -16,7 +16,7 @@ title: .value
 
 Get the fulfillment value of this promise. Throws an error if the promise isn't fulfilled - it is a bug to call this method on an unfulfilled promise.
 
-You should check if this promise is [.isFulfilled()](.) in code paths where it's guaranteed that this promise is fulfilled.
+You should check [.isFulfilled()](.) in code paths where it's not guaranteed that this promise is fulfilled.
 </markdown></div>
 
 <div id="disqus_thread"></div>
