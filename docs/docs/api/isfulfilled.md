@@ -13,7 +13,7 @@ title: .isFulfilled
 .isFulfilled() -> boolean
 ```
 
-See if this `promise` has been fulfilled.
+See if this promise has been fulfilled.
 </markdown></div>
 
 <div id="disqus_thread"></div>
