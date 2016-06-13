@@ -747,12 +747,17 @@ function deferResolve(v) {this.promise._resolveCallback(v);}
 function deferReject(v) {this.promise._rejectCallback(v, false);}
 
 Promise.defer = Promise.pending = function() {
-    debug.deprecated("Promise.defer", "new Promise");
+    // TODO: un deprecate defer for now
+    // will fix the defer instances with new promise later.
+    // debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
     return {
         promise: promise,
         resolve: deferResolve,
-        reject: deferReject
+        reject: deferReject,
+        cancel: function () {
+            return this.promise.cancel();
+        }
     };
 };
 
