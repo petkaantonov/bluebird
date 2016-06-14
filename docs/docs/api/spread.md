@@ -24,7 +24,7 @@ Promise.delay(500).then(function() {
    return [fs.readFileAsync("file1.txt"),
            fs.readFileAsync("file2.txt")] ;
 }).spread(function(file1text, file2text) {
-    if (file1text !== file2text) {
+    if (file1text === file2text) {
         console.log("files are equal");
     }
     else {
