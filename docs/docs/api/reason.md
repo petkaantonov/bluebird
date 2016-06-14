@@ -16,7 +16,7 @@ title: .reason
 
 Get the rejection reason of this promise. Throws an error if the promise isn't rejected - it is a bug to call this method on an unrejected promise.
 
-You should check if this promise is [.isRejected()](.) in code paths where it's guaranteed that this promise is rejected.
+You should check [.isRejected()](.) in code paths where it's not guaranteed that this promise is rejected.
 
 <hr>
 </markdown></div>
