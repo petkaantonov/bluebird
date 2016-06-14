@@ -13,7 +13,7 @@ title: .disposer
 .disposer(function(any resource, Promise usingOutcomePromise) disposer) -> Disposer
 ```
 
-A meta method used to specify the disposer method that cleans up a resource when using `Promise.using`.
+A meta method used to specify the disposer method that cleans up a resource when using [`Promise.using`](/docs/api/promise.using.html).
 
 Returns a Disposer object which encapsulates both the resource as well as the method to clean it up. The user can pass this object to `Promise.using` to get access to the resource when it becomes available, as well as to ensure its automatically cleaned up.
 
