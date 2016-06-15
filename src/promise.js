@@ -206,11 +206,21 @@ Promise.reject = Promise.rejected = function (reason) {
     return ret;
 };
 
-Promise.setScheduler = function(fn) {
+Promise.setScheduler = function(fn, setTimeoutFn) {
     if (typeof fn !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
-    return async.setScheduler(fn);
+    if (setTimeoutFn !== undefined && typeof setTimeoutFn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(setTimeoutFn));
+    }
+    return async.setScheduler(fn, setTimeoutFn);
+};
+
+Promise.setTimeout = function(fn) {
+    if (typeof fn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(fn));
+    }
+    return async.setTimeout(fn);
 };
 
 Promise.prototype._then = function (

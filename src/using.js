@@ -7,9 +7,10 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise,
     var errorObj = util.errorObj;
     var tryCatch = util.tryCatch;
     var NULL = {};
+    var async = Promise.async;
 
     function thrower(e) {
-        setTimeout(function(){throw e;}, 0);
+        async._setTimeout(function(){throw e;}, 0);
     }
 
     function castPreservingDisposable(thenable) {

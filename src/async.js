@@ -17,15 +17,21 @@ function Async() {
     this.drainQueues = function () {
         self._drainQueues();
     };
+    this._setTimeout = setTimeout;
     this._schedule = schedule;
 }
 
-Async.prototype.setScheduler = function(fn) {
+Async.prototype.setScheduler = function(fn, setTimeoutFn) {
     var prev = this._schedule;
     this._schedule = fn;
+    this._setTimeout = setTimeoutFn || setTimeout;
     this._customScheduler = true;
     return prev;
 };
+
+Async.prototype.setTimeout = function(fn, ms) {
+    return this._setTimeout(fn, ms);
+}
 
 Async.prototype.hasCustomScheduler = function() {
     return this._customScheduler;
@@ -62,8 +68,8 @@ Async.prototype.throwLater = function(fn, arg) {
         arg = fn;
         fn = function () { throw arg; };
     }
-    if (typeof setTimeout !== "undefined") {
-        setTimeout(function() {
+    if (typeof this._setTimeout !== "undefined") {
+        this._setTimeout(function() {
             fn(arg);
         }, 0);
     } else try {
@@ -104,7 +110,7 @@ if (!util.hasDevTools) {
             AsyncInvokeLater.call(this, fn, receiver, arg);
         } else {
             this._schedule(function() {
-                setTimeout(function() {
+                this._setTimeout(function() {
                     fn.call(receiver, arg);
                 }, 100);
             });
