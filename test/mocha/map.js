@@ -87,7 +87,7 @@ describe("Promise.map-test", function () {
         );
     });
 
-    specify("should resolve to empty array when input promise does not resolve to an array", function() {
+    specify("should throw a TypeError when input promise does not resolve to an array", function() {
         return Promise.map(Promise.resolve(123), mapper).caught(TypeError, function(e){
         });
     });
