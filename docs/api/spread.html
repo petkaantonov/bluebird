@@ -103,7 +103,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 16 Jun 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -127,7 +127,7 @@
    <span class="k">return</span> <span class="p">[</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">),</span>
            <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file2.txt&quot;</span><span class="p">)]</span> <span class="p">;</span>
 <span class="p">}).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">file1text</span><span class="p">,</span> <span class="nx">file2text</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">file1text</span> <span class="o">!==</span> <span class="nx">file2text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">file1text</span> <span class="o">===</span> <span class="nx">file2text</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;files are equal&quot;</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">else</span> <span class="p">{</span>
