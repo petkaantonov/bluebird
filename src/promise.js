@@ -750,7 +750,8 @@ function deferResolve(v) {this.promise._resolveCallback(v);}
 function deferReject(v) {this.promise._rejectCallback(v, false);}
 
 Promise.defer = Promise.pending = function() {
-    // TODO: un deprecate defer for now
+    // TODO HAD-15960 remove shim for deprecated APIs,
+    //      and update callers  to use recommended API
     // will fix the defer instances with new promise later.
     // debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
@@ -758,6 +759,9 @@ Promise.defer = Promise.pending = function() {
         promise: promise,
         resolve: deferResolve,
         reject: deferReject,
+        // TODO HAD-15960 remove shim for deprecated APIs,
+        //      and update callers  to use recommended API
+        fulfill: deferResolve,
         cancel: function () {
             return this.promise.cancel();
         }
