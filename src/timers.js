@@ -25,7 +25,7 @@ var delay = Promise.delay = function (ms, value) {
     } else {
         ret = new Promise(INTERNAL);
 
-        handle = async.setTimeout(function() { ret._fulfill(); }, +ms);
+        handle = async._setTimeout(function() { ret._fulfill(); }, +ms);
         if (debug.cancellation()) {
             ret._setOnCancel(new HandleWrapper(handle));
         }

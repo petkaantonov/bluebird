@@ -105,6 +105,7 @@ describe("timeout", function () {
                 globalObject.setTimeout = globalObject.oldSetTimeout;
                 globalObject.clearTimeout = globalObject.oldClearTimeout;
                 expectedHandleType = typeof (globalObject.setTimeout(function(){}, 1));
+                expectedHandleType = "number";
             });
 
             after(function() {

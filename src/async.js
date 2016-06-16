@@ -29,10 +29,6 @@ Async.prototype.setScheduler = function(fn, setTimeoutFn) {
     return prev;
 };
 
-Async.prototype.setTimeout = function(fn, ms) {
-    return this._setTimeout(fn, ms);
-};
-
 Async.prototype.hasCustomScheduler = function() {
     return this._customScheduler;
 };
