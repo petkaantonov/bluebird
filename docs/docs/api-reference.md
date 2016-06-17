@@ -74,6 +74,7 @@ redirect_from: "/docs/api/index.html"
     - [.catchReturn](api/catchreturn.html)
     - [.catchThrow](api/catchthrow.html)
     - [.reflect](api/reflect.html)
+    - [Promise.getNewLibraryCopy](api/promise.getnewlibrarycopy.html)
     - [Promise.noConflict](api/promise.noconflict.html)
     - [Promise.setScheduler](api/promise.setscheduler.html)
 - [Built-in error types](api/built-in-error-types.html)
