@@ -1,7 +1,14 @@
+
 ---
 id: changelog
 title: Changelog
 ---
+
+## 3.4.1 (2016-06-17)
+
+Features:
+
+ - Added [Promise.getNewLibraryCopy](.)
 
 ## 3.4.0 (2016-05-17)
 
