@@ -11,13 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <title>.timeout | bluebird</title>
+    <title>Promise.getNewLibraryCopy | bluebird</title>
     <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/api/timeout.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/promise.getnewlibrarycopy.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -99,11 +99,11 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/timeout.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/promise.getnewlibrarycopy.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 17 Jun 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -113,37 +113,48 @@
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
-                    name="timeout"
+                    name="promise.getnewlibrarycopy"
                     aria-hidden="true"
-                    href="#timeout"><i class="fa fa-link"></i></a>
-                .timeout
+                    href="#promise.getnewlibrarycopy"><i class="fa fa-link"></i></a>
+                Promise.getNewLibraryCopy
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
-    <span class="kr">int</span> <span class="nx">ms</span><span class="p">,</span>
-    <span class="p">[</span><span class="nb">String</span> <span class="nx">message</span><span class="o">=</span><span class="s2">&quot;operation timed out&quot;</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
-    <span class="kr">int</span> <span class="nx">ms</span><span class="p">,</span>
-    <span class="p">[</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Object</span>
 </code></pre></div>
-<p>Returns a promise that will be fulfilled with this promise&#39;s fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within <code>ms</code> milliseconds, the returned promise is rejected with a <a href='/docs/api/timeouterror.html'><code><code>TimeoutError</code></code></a> or the <code>error</code> as the reason.</p>
+<p>Returns a new independent copy of the Bluebird library.</p>
 
-<p>When using the first signature, you may specify a custom error message with the <code>message</code> parameter.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
-<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;huge-file.txt&quot;</span><span class="p">).</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">100</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
+<p>This method should be used before you use any of the methods which would otherwise alter the global <code>Bluebird</code> object - to avoid polluting global state.</p>
 
-<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;could not read file within 100ms&quot;</span><span class="p">);</span>
+<p>A basic example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Promise2</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
+
+<span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="mi">123</span><span class="p">;</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span> <span class="o">==</span> <span class="nx">Promise</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// 123</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// undefined</span>
+</code></pre></div>
+<p><code>Promise</code> is independent to <code>Promise</code>. Any changes to <code>Promise2</code> do not affect the copy of Bluebird returned by <code>require(&#39;bluebird&#39;)</code>.</p>
+
+<p>In practice:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">).</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* */</span> <span class="p">}</span> <span class="p">);</span> <span class="c1">// alters behavior of `Promise.coroutine()`</span>
+
+<span class="c1">// somewhere in another file or module in same app</span>
+<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// this code is unaffected by the yieldHandler defined above</span>
+    <span class="c1">// because it was defined on an independent copy of Bluebird</span>
 <span class="p">});</span>
 </code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = ".timeout";
+    var disqus_title = "Promise.getNewLibraryCopy";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-timeout";
+    var disqus_identifier = "disqus-id-promise.getnewlibrarycopy";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
