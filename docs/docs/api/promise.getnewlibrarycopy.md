@@ -30,7 +30,7 @@ console.log(Promise2.x); // 123
 console.log(Promise.x); // undefined
 ```
 
-`Promise` is independent to `Promise`. Any changes to `Promise2` do not affect the copy of Bluebird returned by `require('bluebird')`.
+`Promise2` is independent to `Promise`. Any changes to `Promise2` do not affect the copy of Bluebird returned by `require('bluebird')`.
 
 In practice:
 
