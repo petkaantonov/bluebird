@@ -216,6 +216,13 @@ Promise.setScheduler = function(fn, setTimeoutFn) {
     return async.setScheduler(fn, setTimeoutFn);
 };
 
+Promise.setTimeoutScheduler = function(setTimeoutFn) {
+    if (setTimeoutFn !== undefined && typeof setTimeoutFn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(setTimeoutFn));
+    }
+    return async.setTimeoutScheduler(setTimeoutFn);
+};
+
 Promise.prototype._then = function (
     didFulfill,
     didReject,

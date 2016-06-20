@@ -21,11 +21,16 @@ function Async() {
     this._schedule = schedule;
 }
 
-Async.prototype.setScheduler = function(fn, setTimeoutFn) {
+Async.prototype.setScheduler = function(fn) {
     var prev = this._schedule;
     this._schedule = fn;
-    this._setTimeout = setTimeoutFn;
     this._customScheduler = true;
+    return prev;
+};
+
+Async.prototype.setTimeoutScheduler = function(setTimeoutFn) {
+    var prev = this._setTimeout;
+    this._setTimeout = setTimeoutFn;
     return prev;
 };
 

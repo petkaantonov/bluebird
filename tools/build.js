@@ -214,8 +214,6 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                     standalone: "Promise"
                 });
                 return Promise.promisify(b.bundle, b)().then(function(src) {
-                    // TODO: our post-process build step does not like this
-                    // appended line.
                     var alias = "\
                     ;if (typeof window !== 'undefined' && window !== null) {       \
                         window.P = window.Promise;                                 \

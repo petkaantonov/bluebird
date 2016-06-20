@@ -190,4 +190,17 @@ describe("delay", function () {
             });
     });
 
+    it("should call custom timeout function", function() {
+        var custom = false;
+        var customTimeOutFunction = function  (fn, ms) {
+            custom = true;
+            assert(ms === 3);
+            setTimeout(fn, ms);
+        }
+        var old = Promise.setTimeoutScheduler(customTimeOutFunction);
+        return Promise.delay(3).then(function () {
+            assert(custom === true);
+            Promise.setTimeoutScheduler(old);
+        });
+    });
 });
