@@ -53,8 +53,7 @@ function nodeToString( expr ) {
     else if( expr.type === "UnaryExpression" ) {
         if( expr.operator === "~" ||
             expr.operator === "-" ||
-            expr.operator === "+" ||
-            expr.operator === "-" ) {
+            expr.operator === "+" ) {
             return expr.operator + nodeToString( expr.argument );
         }
         return "(" + expr.operator + " " + nodeToString( expr.argument ) + ")";
