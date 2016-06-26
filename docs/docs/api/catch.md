@@ -19,7 +19,7 @@ It comes in two variants
 Promise exception handling mirrors native exception handling in JavaScript. A synchronous function `throw`ing is similar to a promise rejecting. Here is an example to illustrate it:
 
 ```js
-function getItems(parma) {
+function getItems(param) {
     try { 
         var items = getItemsSync();
         if(!items) throw new InvalidItemsError();  
