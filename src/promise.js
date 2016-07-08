@@ -771,5 +771,5 @@ require("./synchronous_inspection")(Promise);
 require("./join")(
     Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
 Promise.Promise = Promise;
-Promise.version = "3.4.0";
+Promise.version = "__VERSION__";
 };

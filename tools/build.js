@@ -277,7 +277,7 @@ function build(options) {
     var debugDir = ensureDirectory(dirs.debug, options.debug, clean);
     var browserDir = ensureDirectory(dirs.browser, options.browser, clean);
     var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser, clean);
-    return license.then(function(license) {
+    return Promise.join(license, npmPackage, function(license, npmPackage) {
         return sourceFileNames.map(function(sourceFileName) {
             return jobRunner.run(function() {
                 var sourcePath = path.join("./src", sourceFileName);
@@ -289,6 +289,9 @@ function build(options) {
                         deps = utils.parseDeps(source);
                     }
                     source = astPasses.removeComments(source, sourceFileName);
+                    if (sourceFileName === "promise.js") {
+                      source = source.replace( /__VERSION__/, npmPackage.version );
+                    }
                     return {
                         sourceFileName: sourceFileName,
                         source: source,
@@ -299,7 +302,8 @@ function build(options) {
                 context: {
                     sourceFileName: sourceFileName,
                     optionalModuleRequireMap: optionalModuleRequireMap,
-                    license: license
+                    license: license,
+                    npmPackage: npmPackage
                 }
             });
         });
