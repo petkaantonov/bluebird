@@ -71,7 +71,7 @@ From previous event:
     at node.js:761:3
 ```
 
-*( If you don't get the above - you need to enable [long stack traces](#promiselongstacktraces---undefined) )*
+*( If you don't get the above - you need to enable [long stack traces](/docs/api/promise.config.html) )*
 
 And if the file contains invalid JSON:
 
@@ -91,7 +91,7 @@ unable to read file, because:  ENOENT, open 'not_there.txt'
     var disqus_title = ".error";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-error";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
