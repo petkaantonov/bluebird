@@ -18,6 +18,21 @@ title: .spread
 
 Like calling `.then`, but the fulfillment value _must be_ an array, which is flattened to the formal parameters of the fulfillment handler.
 
+```js
+Promise.all([
+    fs.readFileAsync("file1.txt"),
+    fs.readFileAsync("file2.txt")
+]).spread(function(file1text, file2text) {
+    if (file1text === file2text) {
+        console.log("files are equal");
+    }
+    else {
+        console.log("files are not equal");
+    }
+});
+```
+
+When chaining `.spread`, returning an array of promises also works:
 
 ```js
 Promise.delay(500).then(function() {
@@ -33,7 +48,7 @@ Promise.delay(500).then(function() {
 });
 ```
 
-If using ES6, the above can be replaced with [.then()](.) and destructuring:
+Note that if using ES6, the above can be replaced with [.then()](.) and destructuring:
 
 ```js
 Promise.delay(500).then(function() {
