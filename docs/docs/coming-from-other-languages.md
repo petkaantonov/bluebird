@@ -64,7 +64,7 @@ Boost futures expose a `.then` method similar to promises and allow this functio
 A promise is a monadic construct with `.then` filling the role of `>>=` (bind). The major difference is that `.then` performs recursive assimilation which acts like a `flatMap` or a map. The type signature of `then` is quote complicated. If we omit the error argument and not throw - it's similar to:
 
 ```hs
-then::Promise a -> a -> (Either (Promise b) b) -> Promise B
+then::Promise a -> (a -> (Either (Promise b) b)) -> Promise b
 ```
 
 That is, you can return either a promise _or a plain value_ from a `then` without wrapping it.
