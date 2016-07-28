@@ -243,6 +243,40 @@ describe("Promise.coroutine", function() {
                 assert.equal(e, error);
             });
         });
+
+        specify("when they are already fulfilled, the yielded value should be returned asynchronously", function(){
+            var value;
+
+            var promise = Promise.coroutine(function*(){
+                yield Promise.resolve();
+                value = 2;
+            })();
+
+            value = 1;
+
+            return promise.then(function(){
+                assert.equal(value, 2);
+            });
+        });
+
+        specify("when they are already rejected, the yielded reason should be thrown asynchronously", function(){
+            var value;
+
+            var promise = Promise.coroutine(function*(){
+                try {
+                    yield Promise.reject();
+                }
+                catch (e) {
+                    value = 2;
+                }
+            })();
+
+            value = 1;
+
+            return promise.then(function(){
+                assert.equal(value, 2);
+            });
+        });
     });
 
     describe("yield loop", function(){
