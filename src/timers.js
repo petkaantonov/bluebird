@@ -27,6 +27,7 @@ var delay = Promise.delay = function (ms, value) {
         if (debug.cancellation()) {
             ret._setOnCancel(new HandleWrapper(handle));
         }
+        ret._captureStackTrace();
     }
     ret._setAsyncGuaranteed();
     return ret;
