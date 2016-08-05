@@ -240,6 +240,16 @@ Promise.config = function(opts) {
                 wForgottenReturn = !!warningsOption.wForgottenReturn;
             }
         }
+    
+        //For versions of node (>=6.x) with a 'warning' event, remove default
+        //listener (which does not print the stack trace) and replace it with
+        //a listener that does.
+        if (process.listenerCount("warning") === 1) {
+            process.removeAllListeners("warning");
+            process.on("warning", function (warning) {
+                console.error(warning.stack);
+            });
+        }
     }
     if ("cancellation" in opts && opts.cancellation && !config.cancellation) {
         if (async.haveItemsQueued()) {
