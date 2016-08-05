@@ -101,6 +101,7 @@
         "IS_UNHANDLED_REJECTION_NOTIFIED": false,
         "IS_DISPOSABLE": false,
         "IS_CANCELLED": false,
+        "IS_RUNAWAY_IGNORED": false,
         "IS_CANCELLED_OR_WILL_BE_CANCELLED": false,
         "LENGTH_MASK": false,
         "LENGTH_CLEAR_MASK": false,

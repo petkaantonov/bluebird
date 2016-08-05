@@ -88,6 +88,7 @@ redirect_from: "/docs/api/index.html"
     - [Promise.config](api/promise.config.html)
     - [.suppressUnhandledRejections](api/suppressunhandledrejections.html)
     - [.done](api/done.html)
+    - [.suppressRunawayWarning](api/suppressrunawaywarning.html)
 - [Progression migration](api/progression-migration.html)
 - [Deferred migration](api/deferred-migration.html)
 - [Environment variables](api/environment-variables.html)

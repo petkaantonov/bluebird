@@ -83,4 +83,26 @@ getUser().then(function(user) {
 });
 ```
 
+Or the producer of the Promise can suppress the warning for a individual promise using `.suppressRunawayWarning()`:
+
+```js
+function saveAnalytics(user) {
+    return performSaveAnalytics(user)
+        .suppressRunawayWarning();
+}
+
+function updateUser() {
+    return getUser()
+        .then(function (user) {
+            // Perform this in the "background" and don't care about it's result at all
+            saveAnalytics(user);
+        });
+}
+
+updateUser('user')
+    .then(() => {
+        console.log('updated user');
+    });
+```
+
 

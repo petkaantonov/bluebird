@@ -35,6 +35,11 @@ Promise.prototype.suppressUnhandledRejections = function() {
     target._bitField = ((target._bitField & (~IS_REJECTION_UNHANDLED)) |
                       IS_REJECTION_IGNORED);
 };
+    
+Promise.prototype.suppressRunawayWarning = function() {
+    var target = this._target();
+    target._bitField = target._bitField | IS_RUNAWAY_IGNORED;
+};
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     if ((this._bitField & IS_REJECTION_IGNORED) !== 0) return;
@@ -431,6 +436,9 @@ function checkForgottenReturns(returnValue, promiseCreated, name, promise,
         wForgottenReturn) {
         if (parent !== undefined && parent._returnedNonUndefined()) return;
         if (BIT_FIELD_READ(LENGTH_MASK, promise._bitField) === 0) return;
+        if (promiseCreated !== undefined &&
+            BIT_FIELD_READ(IS_RUNAWAY_IGNORED, promiseCreated._bitField) === 1)
+            return;
 
         if (name) name = name + " ";
         var handlerLine = "";
