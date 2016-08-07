@@ -41,7 +41,9 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
-                    {% if page.path == 'docs/support.md' %}
+                     {% if page.path == 'docs/api-reference.md' %}
++                        {% assign name = 'api' %}
++                    {% elsif page.path == 'docs/support.md' %}
                         {% assign name = 'support' %}
                     {% elsif page.path == 'docs/install.md' %}
                         {% assign name = 'install' %}
@@ -49,6 +51,7 @@
                         {% assign name = 'docs' %}
                     {% endif %}
 
+                    <li class="{% if name == 'api' %}active{% endif %}"><a href="{{ "/docs/api-reference.html" | prepend: site.baseurl }}">API</a></li>
                     <li class="{% if name == 'docs' %}active{% endif %}"><a href="{{ "/docs/getting-started.html" | prepend: site.baseurl }}">Docs</a></li>
                     <li class="{% if name == 'support' %}active{% endif %}"><a href="{{ "/docs/support.html" | prepend: site.baseurl }}">Support</a></li>
                     <li class="{% if name == 'install' %}active{% endif %}"><a href="{{ "/docs/install.html" | prepend: site.baseurl }}">Install</a></li>
