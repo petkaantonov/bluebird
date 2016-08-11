@@ -92,8 +92,6 @@ if (isNodeJS) {
                 var a = 0;
                 Promise.resolve(3).nodeify(function(){
                     a++;
-                }).then(function() {
-                    assert(1 == 1);
                 });
             });
         });
