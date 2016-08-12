@@ -4,9 +4,6 @@ var assert = require("assert");
 var testUtils = require("./helpers/util.js");
 var isNodeJS = testUtils.isNodeJS;
 
-function async(cb){
-    return Promise.resolve().nodeify(cb);
-}
 
 if (isNodeJS) {
     describe("Late buffer", function() {
@@ -15,9 +12,7 @@ if (isNodeJS) {
             var l = length;
             var a = 0;
             while (l--){
-                async(function(){
-                    throw (a++);
-                });
+                Promise._async.throwLater(a++);
             }
             var errs = [];
             return testUtils.awaitGlobalException(function(e) {
