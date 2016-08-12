@@ -1,62 +1,70 @@
 "use strict";
 module.exports = function(Promise) {
 var util = require("./util");
-var async = Promise._async;
 var ASSERT = require("./assert");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
-
-function spreadAdapter(val, nodeback) {
-    var promise = this;
-    if (!util.isArray(val)) return successAdapter.call(promise, val, nodeback);
-    var ret =
-        tryCatch(nodeback).apply(promise._boundValue(), [null].concat(val));
-    if (ret === errorObj) {
-        async.throwLater(ret.e);
-    }
+    
+function spreadAdapter(nodeback) {
+    ASSERT(typeof nodeback == "function");
+    return function (val) {
+        var result = val === undefined
+            ? tryCatch(nodeback).call(this._boundValue(), [null])
+            : tryCatch(nodeback).apply(this._boundValue(), [null].concat(val));
+        
+        if (result === errorObj)
+            return Promise.reject(result.e);
+        return Promise.resolve(result);
+    };
 }
 
-function successAdapter(val, nodeback) {
-    var promise = this;
-    var receiver = promise._boundValue();
+function successAdapter(nodeback) {
     ASSERT(typeof nodeback == "function");
-    var ret = val === undefined
-        ? tryCatch(nodeback).call(receiver, null)
-        : tryCatch(nodeback).call(receiver, null, val);
-    if (ret === errorObj) {
-        async.throwLater(ret.e);
-    }
+    return function (val) {
+        var result = val === undefined
+            ? tryCatch(nodeback).call(this._boundValue(), null)
+            : tryCatch(nodeback).call(this._boundValue(), null, val);
+        
+        if (result === errorObj)
+            return Promise.reject(result.e);
+        return Promise.resolve(result);
+    };
 }
-function errorAdapter(reason, nodeback) {
-    var promise = this;
-    if (!reason) {
-        var newReason = new Error(reason + "");
-        newReason.cause = reason;
-        reason = newReason;
-        ASSERT(!!reason);
-    }
+
+function errorAdapter(nodeback) {
     ASSERT(typeof nodeback == "function");
-    var ret = tryCatch(nodeback).call(promise._boundValue(), reason);
-    if (ret === errorObj) {
-        async.throwLater(ret.e);
-    }
+    return function (reason) {
+        if (!reason) {
+            var newReason = new Error(reason + "");
+            newReason.cause = reason;
+            reason = newReason;
+            ASSERT(!!reason);
+        }
+        
+        var result = tryCatch(nodeback).call(this._boundValue(), reason);
+        
+        if (result === errorObj)
+            return Promise.reject(result.e);
+        return Promise.resolve(result);
+    };
 }
 
 Promise.prototype.asCallback = Promise.prototype.nodeify = function (nodeback,
                                                                      options) {
     if (typeof nodeback == "function") {
         var adapter = successAdapter;
-        if (options !== undefined && Object(options).spread) {
+        if (options !== undefined && Object(options).spread)
             adapter = spreadAdapter;
-        }
-        this._then(
-            adapter,
-            errorAdapter,
+        
+        return this._then(
+            adapter(nodeback),
+            errorAdapter(nodeback),
             undefined,
             this,
-            nodeback
-        );
+            undefined);
+        
+    } else {
+        return this;
     }
-    return this;
 };
 };

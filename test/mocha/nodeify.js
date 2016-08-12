@@ -74,17 +74,14 @@ if (isNodeJS) {
             throw e;
         }
 
-        it("throws normally in the node process if the function throws", function() {
-            var promise = Promise.resolve(10);
-            var turns = 0;
-            process.nextTick(function(){
-                turns++;
-            });
-            promise.nodeify(thrower);
-            return awaitGlobalException(function(err) {
-                assert(err === e);
-                assert(turns === 1);
-            });
+        it("catches if the function throws", function() {
+            var spy = sinon.spy();
+            Promise.resolve(3).nodeify(thrower)
+                .catch(spy);
+            setTimeout(function () {
+                sinon.assert.calledOnce(spy);
+                sinon.assert.calledWith(spy, e);
+            }, 1);
         });
 
         it("always returns promise for now", function() {
@@ -175,26 +172,24 @@ if (isNodeJS) {
             return spy.promise;
         });
 
-        it("should work if the callback throws when spread", function() {
-            var err = new Error();
-            Promise.resolve([1,2,3]).nodeify(function(_, a) {
-                throw err;
-            }, {spread: true});
-
-            return awaitGlobalException(function(e) {
-                assert.strictEqual(err, e);
-            });
+        it("should catch if the callback throws when spread", function() {
+            var spy = sinon.spy();
+            Promise.resolve([1, 2, 3]).nodeify(thrower, {spread: true})
+                .catch(spy);
+            setTimeout(function () {
+                sinon.assert.calledOnce(spy);
+                sinon.assert.calledWith(spy, e);
+            }, 1);
         });
 
-        it("should work if the callback throws when rejected", function() {
-            var err = new Error();
-            Promise.reject(new Error()).nodeify(function(_, a) {
-                throw err;
-            });
-
-            return awaitGlobalException(function(e) {
-                assert.strictEqual(err, e);
-            });
+        it("should catch if the callback throws when rejected", function() {
+            var spy = sinon.spy();
+            Promise.reject(new Error()).nodeify(thrower)
+                .catch(spy);
+            setTimeout(function () {
+                sinon.assert.calledOnce(spy);
+                sinon.assert.calledWith(spy, e);
+            }, 1);
         });
     });
 }
