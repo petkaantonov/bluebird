@@ -95,7 +95,7 @@ somethingAsync()
 However, there are many differences when you look closer:
 
 - Requires a statement so cannot be used in an expression context
-- If not there already, an additional wrapper function is required to aundefined leaking or sharing `scope`
+- If not there already, an additional wrapper function is required to undefined leaking or sharing `scope`
 - The handler functions are now closures, thus less efficient and not reusable
 
 <hr>
