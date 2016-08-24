@@ -28,7 +28,7 @@ For every use case that the methods below solve there exists a better alternativ
 
 The old progression API was meant to be used for tracking the progress of promise resolution. In retrospect, it did not work or compose very well. We understand that problem better now and the use case could be better solved without it.
 
-See [Progression Migration](./progression-migration.html) for migration assistance and examples of how to convert APIs that use progression to ones that do not.
+See [Progression Migration](./api/progression-migration.html) for migration assistance and examples of how to convert APIs that use progression to ones that do not.
 
 #####`.progressed(Function handler)` -> `Promise`
 
