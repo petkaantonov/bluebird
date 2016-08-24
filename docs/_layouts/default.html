@@ -41,9 +41,9 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
-                     {% if page.path == 'docs/api-reference.md' %}
-+                        {% assign name = 'api' %}
-+                    {% elsif page.path == 'docs/support.md' %}
+                    {% if page.path == 'docs/api-reference.md' %}
+                        {% assign name = 'api' %}
+                    {% elsif page.path == 'docs/support.md' %}
                         {% assign name = 'support' %}
                     {% elsif page.path == 'docs/install.md' %}
                         {% assign name = 'install' %}
