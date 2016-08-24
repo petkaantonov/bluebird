@@ -218,8 +218,8 @@ function(err, results){
 ```
 
 ```js
-Promise.all([Promise.delay('one', 200),
-             Promise.delay('two', 100)]).then(function(results) {
+Promise.all([Promise.delay(200, 'one'),
+             Promise.delay(100, 'two')]).then(function(results) {
     // the results array will equal ['one','two'] even though
     // the second function had a shorter timeout.
 });
