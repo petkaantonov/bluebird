@@ -770,7 +770,7 @@ require("./method")(Promise, INTERNAL, tryConvertToPromise, apiRejection,
     debug);
 require("./bind")(Promise, INTERNAL, tryConvertToPromise, debug);
 require("./cancel")(Promise, PromiseArray, apiRejection, debug);
-require("./direct_resolve")(Promise);
+require("./direct_resolve")(Promise, tryConvertToPromise);
 require("./synchronous_inspection")(Promise);
 require("./join")(
     Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
