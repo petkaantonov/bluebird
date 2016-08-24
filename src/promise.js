@@ -323,6 +323,10 @@ Promise.prototype._setCancelled = function() {
     this._fireEvent("promiseCancelled", this);
 };
 
+Promise.prototype._setWillBeCancelled = function() {
+    this._bitField = this._bitField | WILL_BE_CANCELLED;
+};
+
 Promise.prototype._setAsyncGuaranteed = function() {
     if (async.hasCustomScheduler()) return;
     this._bitField = this._bitField | IS_ASYNC_GUARANTEED;

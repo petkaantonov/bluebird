@@ -307,7 +307,7 @@ function cancellationExecute(executor, resolve, reject) {
 }
 
 function cancellationAttachCancellationCallback(onCancel) {
-    if (!this.isCancellable()) return this;
+    if (!this._isCancellable()) return this;
 
     var previousOnCancel = this._onCancel();
     if (previousOnCancel !== undefined) {
@@ -322,12 +322,12 @@ function cancellationAttachCancellationCallback(onCancel) {
 }
 
 function cancellationOnCancel() {
-    ASSERT(this.isCancellable());
+    ASSERT(this._isCancellable());
     return this._onCancelField;
 }
 
 function cancellationSetOnCancel(onCancel) {
-    ASSERT(this.isCancellable());
+    ASSERT(this._isCancellable());
     this._onCancelField = onCancel;
 }
 

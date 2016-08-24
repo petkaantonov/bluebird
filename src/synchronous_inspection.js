@@ -48,13 +48,20 @@ var isResolved = PromiseInspection.prototype.isResolved = function () {
     return (this._bitField & IS_REJECTED_OR_FULFILLED) !== 0;
 };
 
-PromiseInspection.prototype.isCancelled =
-Promise.prototype._isCancelled = function() {
+PromiseInspection.prototype.isCancelled = function() {
+    return (this._bitField & IS_CANCELLED_OR_WILL_BE_CANCELLED) !== 0;
+};
+
+Promise.prototype.__isCancelled = function() {
     return (this._bitField & IS_CANCELLED) === IS_CANCELLED;
 };
 
+Promise.prototype._isCancelled = function() {
+    return this._target().__isCancelled();
+};
+
 Promise.prototype.isCancelled = function() {
-    return this._target()._isCancelled();
+    return (this._target()._bitField & IS_CANCELLED_OR_WILL_BE_CANCELLED) !== 0;
 };
 
 Promise.prototype.isPending = function() {

@@ -750,6 +750,13 @@ describe("Cancellation", function() {
         var p = new Promise(function(_, __, onCancel) {resolve = arguments[0]});
         return p;
     });
+
+    specify("gh-1187", function() {
+        var a = Promise.delay(300).lastly(function() {});
+        a.cancel();
+        assert(a.isCancelled());
+        assert(!a.isCancellable());
+    })
 });
 
 describe("Cancellation with .all", function() {
