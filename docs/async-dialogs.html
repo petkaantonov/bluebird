@@ -41,8 +41,11 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
+                     
+                        
                     
 
+                    <li class=""><a href="/docs/api-reference.html">API</a></li>
                     <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
                     <li class=""><a href="/docs/support.html">Support</a></li>
                     <li class=""><a href="/docs/install.html">Install</a></li>
@@ -103,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 24 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -121,6 +124,577 @@
             </div>
 </p>
 
+<p>Typically <em>promises</em> are used in conjunction with asynchronous tasks such as a
+network request or a <code>setTimeout</code>; a lesser explored use is dealing with user
+input. Since a program has to wait for a user to continue some actions it makes
+sense to consider it an asynchronous event.</p>
+
+<p>For comparison I&#39;ll start with an example of a <em>synchronous</em> user interaction
+using <code>window.prompt</code> and then move to an <em>asynchronous</em> interaction by making
+our own DOM based prompt. To begin, here is a template for a simple HTML page:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">&quot;en&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>Async Dislogs Example<span class="nt">&lt;/title&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;time-stamp&#39;</span><span class="p">);</span>
+      <span class="nx">clockTick</span><span class="p">();</span>
+      <span class="nx">setInterval</span><span class="p">(</span><span class="nx">clockTick</span><span class="p">,</span> <span class="mi">1000</span><span class="p">);</span>
+      <span class="kd">function</span> <span class="nx">clockTick</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">toLocalTimeString</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;p&gt;</span>The current time is <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">&quot;time-stamp&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Your name is <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">&quot;prompt&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;button</span> <span class="na">id=</span><span class="s">&quot;action&quot;</span><span class="nt">&gt;</span>Set Name<span class="nt">&lt;/button&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>
+<p><code>window.prompt</code> blocks the web page from processing while it waits for the user
+to enter in data. I has to block because the input is returned and the next
+line of code needs that result. But for sake of this tutorial we are going to
+convert the typical conditional code into a promise API using a <a href='api/new-promise.html' title=''>promise
+constructor</a>.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">promptPromise</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">prompt</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">result</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">resolve</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;User cancelled&#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">button</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">output</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;prompt&#39;</span><span class="p">);</span>
+
+<span class="nx">button</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">promptPromise</span><span class="p">(</span><span class="s1">&#39;What is your name?&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;¯\\_(ツ)_/¯&#39;</span><span class="p">;</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href='http://jsbin.com/kowama/edit?js,output' title=''>Run example on JSBin</a></p>
+
+<p>This doesn&#39;t add much much using <code>window.prompt</code>; however, one advantage is the
+API that promises provide. In the case where we call <code>promptPromise(…)</code> we can
+easily react to the result of the dialog without having to worry about how it is
+implemented. In our example we&#39;ve implemented the <code>window.prompt</code> but our call
+to <code>promptPromise()</code> doesn&#39;t care. This makes a change to an <em>asynchronous</em>
+dialog a little more future proof.</p>
+
+<p>To drive home the synchronous nature of the <code>window.prompt</code> notice that the time
+stops ticking when the prompt dialog is displayed. Lets fix that by making our
+own prompt. Since our dialog is just DOM manipulation the page won&#39;t be blocked
+while waiting for user input.</p>
+
+<p>First add the prompt dialog to the HTML:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;style </span><span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+  <span class="nf">#dialog</span> <span class="p">{</span>
+    <span class="k">width</span><span class="o">:</span>      <span class="m">200px</span><span class="p">;</span>
+    <span class="k">margin</span><span class="o">:</span>     <span class="k">auto</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span>    <span class="m">10px</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">:</span>     <span class="k">thin</span> <span class="k">solid</span> <span class="nb">black</span><span class="p">;</span>
+    <span class="k">background</span><span class="o">:</span> <span class="nb">lightgreen</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nc">.hidden</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;dialog&quot;</span> <span class="na">class=</span><span class="s">&quot;hidden&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;message&quot;</span><span class="nt">&gt;</span>foobar<span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">&quot;ok&quot;</span><span class="nt">&gt;</span>Ok<span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">&quot;cancel&quot;</span><span class="nt">&gt;</span>Cancel<span class="nt">&lt;/button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>
+<p>We will want to keep the same API so our change will be only to the
+<code>promisePrompt</code>. It will find the dialog DOM elements, attach events to the
+elements, show the dialog box, return a promise that is resolved based on the
+attached events, and finally detaches the events and cleans up after itself
+(hiding the dialog box for another use later).</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">promptPromise</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">dialog</span>       <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;dialog&#39;</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">input</span>        <span class="o">=</span> <span class="nx">dialog</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">okButton</span>     <span class="o">=</span> <span class="nx">dialog</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.ok&#39;</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">cancelButton</span> <span class="o">=</span> <span class="nx">dialog</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.cancel&#39;</span><span class="p">);</span>
+
+  <span class="nx">dialog</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.message&#39;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="nx">dialog</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">dialog</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">handleButtonClicks</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">!==</span> <span class="s1">&#39;BUTTON&#39;</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span><span class="p">;</span> <span class="p">}</span>
+      <span class="nx">dialog</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="nx">handleButtonClicks</span><span class="p">);</span>
+      <span class="nx">dialog</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;hidden&#39;</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span> <span class="o">===</span> <span class="nx">okButton</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">resolve</span><span class="p">(</span><span class="nx">input</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;User cancelled&#39;</span><span class="p">));</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><a href='http://jsbin.com/fucofu/edit?js,output' title=''>Run example on JSBin</a></p>
+
+<p>Now when the user presses the <strong>Set Name</strong> button the clock continues to update
+while the dialog is visible.</p>
+
+<p>Because the <code>removeEventListener</code> requires a reference to the original function
+that was used with the <code>addEventListener</code> it makes it difficult to clean up
+after itself without storing the references in a scope higher then the handler
+itself. Using a named function we can reference it when a user clicks the
+button. To help with performance and to avoid duplicating code the example uses
+<a href='https://davidwalsh.name/event-delegate' title=''>event delegation</a> to capture both buttons in one <em>click</em> handler.</p>
+
+<p>The same thing can be done with less code using jQuery&#39;s <a href='https://api.jquery.com/on/#event-names' title=''>event
+namespacing</a>.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#okButton&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click.promptDialog&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">resolve</span><span class="p">(</span><span class="nx">input</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+  <span class="p">});</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#cancelButton&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click.promptDialog&#39;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#okButton&#39;</span><span class="p">).</span><span class="nx">off</span><span class="p">(</span><span class="s1">&#39;click.promptDialog&#39;</span><span class="p">);</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#cancelButton&#39;</span><span class="p">).</span><span class="nx">off</span><span class="p">(</span><span class="s1">&#39;click.promptDialog&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>There are still a few problems with the earlier code example. It feels like it
+is doing too much. A <em>squint</em> test reveals behavior for showing the dialog, set
+the dialog&#39;s message, attach two DOM events, construct a promise, event
+delegation, hide the dialog, and finally detach DOM events. That is a lot for
+one little function. A refactoring can help.</p>
+
+<p>Abstraction is the key here. We will make an <em>object</em> (or class) that is
+responsible for managing the dialog box. Its interface will manage only two
+function references (callbacks): when the user clicks ok and when user clicks
+cancel. And it will offer the value when asked.</p>
+
+<p>Using an abstraction like this the <code>promisePrompt</code> no longer needs to know
+anything about the DOM and concentrates on just providing a promise. This will
+also make things easier to create a promised version of a progress bar or
+confirmation dialog or any other type of UI that we want to have a value for.
+All we will need to do is write a class for that dialog type with the same
+interface and just pass that class into our promise making method.</p>
+
+<p>The dialog interface might look like this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">noop</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">function</span> <span class="nx">Dialog</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">setCallbacks</span><span class="p">(</span><span class="nx">noop</span><span class="p">,</span> <span class="nx">noop</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">setCallbacks</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">okCallback</span><span class="p">,</span> <span class="nx">cancelCallback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">_okCallback</span>     <span class="o">=</span> <span class="nx">okCallback</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">_cancelCallback</span> <span class="o">=</span> <span class="nx">cancelCallback</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">waitForUser</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">setCallbacks</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+<span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="nx">noop</span><span class="p">;</span>
+<span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hide</span> <span class="o">=</span> <span class="nx">noop</span><span class="p">;</span>
+</code></pre></div>
+<p>Initially the Dialog class sets the two callbacks to <em>noop</em> functions. It is up
+to the child class to call them when necessary. We break down the promise
+creation to one function <code>waitForUser()</code> that sets the callbacks and returns a
+promise. At this level the <code>show()</code> and <code>hide()</code> are just <em>noop</em> functions as
+well and will be implemented by the child classes.</p>
+
+<p>Our <code>PromptDialog</code> class is responsible for inheriting from <code>Dialog</code> and setting
+up the required DOM scaffolding and eventually call <code>this._okCallback</code> or
+<code>this._cancelCallback</code> as appropriate.</p>
+
+<p>It might look like this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">PromptDialog</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">Dialog</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span>           <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;dialog&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">inputEl</span>      <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span>    <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.message&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">okButton</span>     <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.ok&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">cancelButton</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.cancel&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">attachDomEvents</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="nx">PromptDialog</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">PromptDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">attachDomEvents</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">okButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">_okCallback</span><span class="p">(</span><span class="nx">_this</span><span class="p">.</span><span class="nx">inputEl</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+  <span class="p">});</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">cancelButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">_cancelCallback</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+<span class="nx">PromptDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">PromptDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hide</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;hidden&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Notice that use of <code>return this;</code> in most of the functions? That pattern will
+allow method chaining as you&#39;ll see shortly.</p>
+
+<p>This inherits from <code>Dialog</code> and stores references to the required DOM elements
+that this dialog uses. It then attaches the require DOM events
+(<code>attachDomEvents()</code>) which eventually call the callbacks. Then it implements
+the <code>show()</code> and <code>hide()</code> methods. Its usage is more flexible and verbose:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">output</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;prompt&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">prompt</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PromptDialog</span><span class="p">();</span>
+
+<span class="nx">prompt</span><span class="p">.</span><span class="nx">show</span><span class="p">(</span><span class="s1">&#39;What is your name?&#39;</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">waitForUser</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;¯\\_(ツ)_/¯&#39;</span><span class="p">;</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">prompt</span><span class="p">.</span><span class="nx">hide</span><span class="p">();</span>
+  <span class="p">});</span>
+</code></pre></div>
+<p><a href='http://jsbin.com/wupixi/edit?js,output' title=''>Run example on JSBin</a></p>
+
+<p>This abstraction can be expanded on in other ways. For example a notification
+dialog:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">NotifyDialog</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">Dialog</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">_this</span>      <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span>        <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;notify-dialog&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.message&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">okButton</span>  <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.ok&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">okButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">_okCallback</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+<span class="nx">NotifyDialog</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">NotifyDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">NotifyDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;hidden&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="exercises-for-the-student"
+                    aria-hidden="true"
+                    href="#exercises-for-the-student"><i class="fa fa-link"></i></a>
+                Exercises for the student
+            </h4>
+
+<ol>
+<li> Write a function that takes a <code>Dialog</code> instance and a default value. Have it
+return a promise that resolves to the default value if the user clicks
+cancel.</li>
+<li> With the use of abstract classes can the similarities between <code>PromptDialog</code>
+and <code>NotifyDialog</code> be abstracted? Make a sub class of <code>Dialog</code> that
+abstracts the common DOM code (<code>DOMDialog</code>). Then refactor the
+<code>PromptDialog</code> and <code>NotifyDialog</code> to inherate from <code>DOMDialog</code> but
+references the correct DOM selectors.</li>
+</ol>
+            <h2>
+                <a class="header-anchor"
+                    name="cancellation"
+                    aria-hidden="true"
+                    href="#cancellation"><i class="fa fa-link"></i></a>
+                Cancellation
+            </h2>
+
+<p>Something missing from the above example is proper error handling. When it comes
+to promises it is a best practise to always <em>reject a promise with an Error</em> and
+not with plain data such as an object, string, number, or null/undefined. The
+reasoning for this is promises are best used as a way to regain some of the
+syntax you have with the standard <code>try {} catch() {}</code> blocks with asynchronous
+code.</p>
+
+<p>An advantage of using <code>Error</code>s is the ability to test why a promise was rejected
+and make decisions on that. This ability is also baked into how Bluebird works.
+You can pass in a predicate to the <code>catch()</code> block allowing you to have more
+than one block based on what <code>Error</code> it was rejected with. For example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">doSomething</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Do something with value or fail with an error.</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;testing errors&#39;</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">ArgumentError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;You buggered up something with the arguments.&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">SyntaxError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Check your syntax!&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// e is an Error object.</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Well something genaric happened.&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>In our dialog example perhaps we want to differentiate between a rejected
+promise because of some problem (bad AJAX, programming error, etc.) or because
+the user pressed the cancel button.</p>
+
+<p>To do this we will have two <code>catch()</code> functions one for <code>UserCanceledError</code> and
+one for any other <code>Error</code>. We can make a custom error like so:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">UserCanceledError</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;UserCanceledError&#39;</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="s1">&#39;Dialog cancelled&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">UserCanceledError</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nb">Error</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+</code></pre></div>
+<p>See <a href='http://stackoverflow.com/a/17891099/227176' title=''>this StackOverflow answer</a> for
+a more detailed and feature complete way to make custom errors.</p>
+
+<p>Now we can add a <code>cancel()</code> reject with this in our event listener:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">cancel</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">_cancelCallback</span><span class="p">(</span><span class="k">new</span> <span class="nx">UserCanceledError</span><span class="p">());</span>
+<span class="p">};</span>
+
+<span class="err">…</span>
+
+<span class="nx">PromptDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">attachDomEvents</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">okButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">_okCallback</span><span class="p">(</span><span class="nx">_this</span><span class="p">.</span><span class="nx">inputEl</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+  <span class="p">});</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">cancelButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>And in our usage case we can test for it:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// Timeout the dialog in five seconds.</span>
+<span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="nx">prompt</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span> <span class="p">},</span> <span class="mi">5000</span><span class="p">);</span>
+
+<span class="nx">prompt</span><span class="p">.</span><span class="nx">show</span><span class="p">(</span><span class="s1">&#39;What is your name?&#39;</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">waitForUser</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">UserCanceledError</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;¯\\_(ツ)_/¯&#39;</span><span class="p">;</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Something bad happened!&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">prompt</span><span class="p">.</span><span class="nx">hide</span><span class="p">();</span>
+  <span class="p">});</span>
+</code></pre></div>
+<p><a href='http://jsbin.com/yaropo/edit?js,output' title=''>Run example on JSBin</a></p>
+
+<p><strong>NOTE:</strong> Bluebird supports <a href='api/cancellation.html' title=''>cancellation</a> as an optional
+feature that is turned off by default. However, its implementation (since
+version 3.0) is meant to stop the then and catch callbacks from firing. It is
+not helpful in the example of a user cancellation as described here.</p>
+            <h2>
+                <a class="header-anchor"
+                    name="progress-bar"
+                    aria-hidden="true"
+                    href="#progress-bar"><i class="fa fa-link"></i></a>
+                Progress bar
+            </h2>
+
+<p>When there are asynchronous tasks that have the ability to notify progress as
+they complete it can be tempting to want that in the promise that represents
+that task. Unfortunately this is a bit of an anti-pattern. That is because the
+point of promises is to represent a value as if it was natural (like it is in
+normal synchronous code) and not to be over glorified callback management.</p>
+
+<p>So how then could we represent a progress bar like dialog? Well the answer is to
+manage the progress through callbacks outside the promise API. Bluebird has
+since <a href='deprecated-apis.html#progression' title=''>deprecated the progression feature</a> and
+offers an alternative which I hope to illustrate here.</p>
+
+<p>Another key difference between a <em>progress bar</em> dialog and any other dialog
+we&#39;ve discussed here is that a progress bar represents information on another
+task and <em>not</em> user import. Instead of the program waiting for the user to
+provide a value the dialog box is waiting on the program to provide a value
+(resolved: 100% complete, rejected: aborted half way through). Because of this
+the <em>progress bar</em> dialog would have a different interface then the previous
+dialogs we&#39;ve covered. However, there can still be some user interaction so in
+essence we are dealing with two promises.</p>
+
+<p>Bluebird has a way to manage more than one promise simultaneously. When you want
+to know if more then one promise completes there is a <code>Promise.all()</code> function
+that takes an array of promises and returns a new promise waiting for them all
+to resolve. But if any one is rejected the returned promise is immediately
+rejected.</p>
+
+<p>Bluebird also has a <code>Promise.race()</code> function which does the same thing but
+doesn&#39;t wait for all of them to finish. That is what we want. An example how
+this might look:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">showProgress</span><span class="p">(</span><span class="nx">otherPromise</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">progress</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ProgressbarDialog</span><span class="p">().</span><span class="nx">show</span><span class="p">(</span><span class="s1">&#39;Uploading…&#39;</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">race</span><span class="p">([</span><span class="nx">otherPromise</span><span class="p">,</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">waitForUser</span><span class="p">()])</span>
+    <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">progress</span><span class="p">.</span><span class="nx">hide</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Here is some example HTML for the Progress Dialog:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;style </span><span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+  <span class="nf">#progress-dialog</span> <span class="p">{</span>
+    <span class="k">width</span><span class="o">:</span>      <span class="m">200px</span><span class="p">;</span>
+    <span class="k">margin</span><span class="o">:</span>     <span class="k">auto</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">:</span>     <span class="k">thin</span> <span class="k">solid</span> <span class="nb">black</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span>    <span class="m">10px</span><span class="p">;</span>
+    <span class="k">background</span><span class="o">:</span> <span class="nb">lightgreen</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nf">#progress-dialog</span> <span class="nc">.progress-bar</span> <span class="p">{</span>
+    <span class="k">border</span><span class="o">:</span>  <span class="m">1px</span> <span class="k">solid</span> <span class="nb">black</span><span class="p">;</span>
+    <span class="k">margin</span><span class="o">:</span>  <span class="m">10px</span> <span class="k">auto</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+    <span class="k">height</span><span class="o">:</span>  <span class="m">20px</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nf">#progress-dialog</span> <span class="nc">.progress-bar</span><span class="o">&gt;</span><span class="nt">div</span> <span class="p">{</span>
+    <span class="k">background-color</span><span class="o">:</span> <span class="nb">blue</span><span class="p">;</span>
+    <span class="k">margin</span><span class="o">:</span>           <span class="m">0</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span>          <span class="m">0</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">:</span>           <span class="k">none</span><span class="p">;</span>
+    <span class="k">height</span><span class="o">:</span>           <span class="m">20px</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;progress-dialog&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;message&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;progress-bar&quot;</span><span class="nt">&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">class=</span><span class="s">&quot;cancel&quot;</span><span class="nt">&gt;</span>Cancel<span class="nt">&lt;/button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>
+<p>The JavaScript is the same as the <code>PromptDialog</code> only we will add a
+<code>setProgress()</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">ProgressDialog</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">Dialog</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span>           <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;progress-dialog&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span>    <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.message&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">progressBar</span>  <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.progress-bar&gt;div&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">cancelButton</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;button.cancel&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">attachDomEvents</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="nx">ProgressDialog</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Dialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nx">ProgressDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">attachDomEvents</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">cancelButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_this</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+  <span class="p">});</span>
+
+<span class="p">};</span>
+<span class="nx">ProgressDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">messageEl</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">ProgressDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hide</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s1">&#39;hidden&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="nx">ProgressDialog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">setProgress</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">percent</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">progressBar</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>A common misconception is that a promises a form of callback management. This
+is not the case and is why the idea of having a progress callback is not part of
+the Promise spec. However, much like the Promise library passes in a <code>resolve</code>
+and <code>reject</code> callback when you create a new promise (<code>new Promise(…)</code>) we can do
+the same patter for a progress callback.</p>
+
+<p>Now to the fun part. For this tutorial we will <em>fake</em> a lengthy file upload by
+using <code>setTimeout</code>. The intent is to provide a promise and to allow a progress
+to be periodically ticked away. We will expect a function to be passed which
+is called whenever the progress needs updating. And it returns a promise.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">delayedPromise</span><span class="p">(</span><span class="nx">progressCallback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">step</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">progress</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">-</span> <span class="nx">step</span><span class="p">;</span> <span class="c1">// So first run of nextTick will set progress to 0</span>
+    <span class="kd">function</span> <span class="nx">nextTick</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">progress</span> <span class="o">&gt;=</span> <span class="mi">100</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;done&#39;</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">progress</span> <span class="o">+=</span> <span class="nx">step</span><span class="p">;</span>
+        <span class="nx">progressCallback</span><span class="p">(</span><span class="nx">progress</span><span class="p">);</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">nextTick</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">nextTick</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>When we construct our <code>ProgressDialog</code> we use the <code>waitForUser()</code> method to
+capture the user interaction promise and then use <code>delayedPromise()</code> to capture
+the fake network promise and finally <code>Promise.reace()</code> to manage the two
+simultaneously and end with a single promise as usual.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">button</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">output</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">);</span>
+
+  <span class="kd">var</span> <span class="nx">prompt</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ProgressDialog</span><span class="p">();</span>
+
+  <span class="nx">button</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">pendingProgress</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">waitForPromise</span> <span class="o">=</span> <span class="nx">delayedPromise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">progress</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">pendingProgress</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">prompt</span><span class="p">.</span><span class="nx">setProgress</span><span class="p">(</span><span class="nx">progress</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+
+    <span class="c1">// Prevent user from pressing button while dialog is visible.</span>
+    <span class="nx">button</span><span class="p">.</span><span class="nx">disabled</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+    <span class="nx">prompt</span><span class="p">.</span><span class="nx">show</span><span class="p">(</span><span class="s1">&#39;Simulating a file upload.&#39;</span><span class="p">);</span>
+
+    <span class="nx">Promise</span><span class="p">.</span><span class="nx">race</span><span class="p">([</span><span class="nx">waitForPromise</span><span class="p">,</span> <span class="nx">prompt</span><span class="p">.</span><span class="nx">waitForUser</span><span class="p">()])</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;Progress completed&#39;</span><span class="p">;</span>
+      <span class="p">})</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">UserCanceledError</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">output</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;Progress canceled by user&#39;</span><span class="p">;</span>
+      <span class="p">})</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>
+      <span class="p">})</span>
+      <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">pendingProgress</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="nx">button</span><span class="p">.</span><span class="nx">disabled</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="nx">prompt</span><span class="p">.</span><span class="nx">hide</span><span class="p">();</span>
+      <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href='http://jsbin.com/bipeve/edit?js,output' title=''>Run example on JSBin</a></p>
+
+<p>I hope this helps illustrate some concepts available with Promises and a
+different perspective on how promises can represent more then just AJAX data.</p>
+
+<p>Although the code may look verbose it does provide the benefit that it is
+modular and can be easily changed. A trait difficult to achieve with a more
+procedural style.</p>
+
+<p>Happy coding, <a href='https://github.com/sukima' title=''>@sukima</a>.</p>
+
   </article>
 
 </div>
@@ -131,7 +705,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -41,8 +41,11 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
+                     
+                        
                     
 
+                    <li class=""><a href="/docs/api-reference.html">API</a></li>
                     <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
                     <li class=""><a href="/docs/support.html">Support</a></li>
                     <li class=""><a href="/docs/install.html">Install</a></li>
@@ -103,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 17 Jun 2016</i>
+                <i>Updated 24 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -134,7 +137,7 @@
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// 123</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// undefined</span>
 </code></pre></div>
-<p><code>Promise</code> is independent to <code>Promise</code>. Any changes to <code>Promise2</code> do not affect the copy of Bluebird returned by <code>require(&#39;bluebird&#39;)</code>.</p>
+<p><code>Promise2</code> is independent to <code>Promise</code>. Any changes to <code>Promise2</code> do not affect the copy of Bluebird returned by <code>require(&#39;bluebird&#39;)</code>.</p>
 
 <p>In practice:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">).</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
@@ -173,7 +176,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

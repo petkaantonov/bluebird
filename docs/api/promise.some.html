@@ -41,8 +41,11 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
+                     
+                        
                     
 
+                    <li class=""><a href="/docs/api-reference.html">API</a></li>
                     <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
                     <li class=""><a href="/docs/support.html">Support</a></li>
                     <li class=""><a href="/docs/install.html">Install</a></li>
@@ -103,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 24 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -123,7 +126,7 @@
     <span class="kr">int</span> <span class="nx">count</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and return a promise that is fulfilled as soon <code>count</code> promises are fulfilled in the array. The fulfillment value is an array with <code>count</code> values in the order they were fulfilled.</p>
+<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and return a promise that is fulfilled as soon as <code>count</code> promises are fulfilled in the array. The fulfillment value is an array with <code>count</code> values in the order they were fulfilled.</p>
 
 <p>This example pings 4 nameservers, and logs the fastest 2 on console:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">([</span>
@@ -171,7 +174,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

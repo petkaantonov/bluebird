@@ -41,8 +41,11 @@
             </div>
             <div id="navbar" class="navbar-collapse navbar-bluebird navbar-right collapse">
                 <ul class="nav navbar-nav bb-nav">
+                     
+                        
                     
 
+                    <li class=""><a href="/docs/api-reference.html">API</a></li>
                     <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
                     <li class=""><a href="/docs/support.html">Support</a></li>
                     <li class=""><a href="/docs/install.html">Install</a></li>
@@ -103,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 24 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -123,7 +126,7 @@
     <span class="p">[</span><span class="nx">any</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">value</span><span class="o">=</span><span class="kc">undefined</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Returns a promise that will be resolved with <code>value</code> (or <code>undefined</code>) after given <code>ms</code> milliseconds. If <code>value</code> is a promise, the delay will start counting down when it is fulfilled and the returned promise will be fulfilled with the fulfillment value of the <code>value</code> promise.</p>
+<p>Returns a promise that will be resolved with <code>value</code> (or <code>undefined</code>) after given <code>ms</code> milliseconds. If <code>value</code> is a promise, the delay will start counting down when it is fulfilled and the returned promise will be fulfilled with the fulfillment value of the <code>value</code> promise. If <code>value</code> is a rejected promise, the resulting promise will be rejected immediately. </p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;500 ms passed&quot;</span><span class="p">);</span>
     <span class="k">return</span> <span class="s2">&quot;Hello world&quot;</span><span class="p">;</span>
@@ -157,7 +160,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.1/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
