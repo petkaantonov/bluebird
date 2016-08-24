@@ -414,7 +414,7 @@ function checkForgottenReturns(returnValue, promiseCreated, name, promise,
 
         if (name) name = name + " ";
         var msg = "a promise was created in a " + name +
-            "handler but was not returned from it";
+            "handler but was not returned from it. http://goo.gl/rRqMUw";
         promise._warn(msg, true, promiseCreated);
     }
 }
