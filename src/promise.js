@@ -95,7 +95,7 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             if (util.isObject(item)) {
                 catchInstances[j++] = item;
             } else {
-                return apiRejection(OBJECT_ERROR + 
+                return apiRejection(OBJECT_ERROR +
                     "A catch statement predicate " + util.classString(item));
             }
         }
@@ -776,5 +776,5 @@ require("./synchronous_inspection")(Promise);
 require("./join")(
     Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
 Promise.Promise = Promise;
-Promise.version = "3.4.0";
+Promise.version = "__VERSION__";
 };

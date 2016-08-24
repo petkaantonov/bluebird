@@ -271,13 +271,14 @@ function build(options) {
     options = Object(options);
     var clean = (typeof options.clean !== "boolean" ? true : options.clean);
     var npmPackage = fs.readFileAsync("./package.json").then(JSON.parse);
+    var version = npmPackage.get("version");
     var sourceFileNames = getSourcePaths(options.features);
     var license = utils.getLicense();
     var releaseDir = ensureDirectory(dirs.release, options.release, clean);
     var debugDir = ensureDirectory(dirs.debug, options.debug, clean);
     var browserDir = ensureDirectory(dirs.browser, options.browser, clean);
     var browserTmpDir = ensureDirectory(dirs.browserTmp, options.browser, clean);
-    return license.then(function(license) {
+    return Promise.join(license, version, function(license, version) {
         return sourceFileNames.map(function(sourceFileName) {
             return jobRunner.run(function() {
                 var sourcePath = path.join("./src", sourceFileName);
@@ -289,6 +290,7 @@ function build(options) {
                         deps = utils.parseDeps(source);
                     }
                     source = astPasses.removeComments(source, sourceFileName);
+                    source = source.replace(/__VERSION__/g, version);
                     return {
                         sourceFileName: sourceFileName,
                         source: source,
@@ -299,7 +301,8 @@ function build(options) {
                 context: {
                     sourceFileName: sourceFileName,
                     optionalModuleRequireMap: optionalModuleRequireMap,
-                    license: license
+                    license: license,
+                    version: version
                 }
             });
         });
