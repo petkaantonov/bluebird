@@ -56,7 +56,8 @@ Promise.prototype.asCallback = Promise.prototype.nodeify = function (nodeback,
             this,
             nodeback
         );
+    } else {
+        return this;
     }
-    return this;
 };
 };

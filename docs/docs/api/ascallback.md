@@ -13,18 +13,18 @@ title: .asCallback
 .asCallback(
     [function(any error, any value) callback],
     [Object {spread: boolean=false} options]
-) -> this
+) -> this|undefined
 ```
 ```js
 .nodeify(
     [function(any error, any value) callback],
     [Object {spread: boolean=false} options]
-) -> this
+) -> this|undefined
 ```
 
 Register a node-style callback on this promise. When this promise is either fulfilled or rejected, the node callback will be called back with the node.js convention where error reason is the first argument and success value is the second argument. The error argument will be `null` in case of success.
 
-Returns back this promise instead of creating a new one. If the `callback` argument is not a function, this method does not do anything.
+If the `callback` argument is not a function, this method does not do anything and returns back this promise. If the `callback` argument is a function, this method returns undefined.
 
 This can be used to create APIs that both accept node-style callbacks and return promises:
 
