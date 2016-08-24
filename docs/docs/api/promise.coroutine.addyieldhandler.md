@@ -96,13 +96,26 @@ Promise.coroutine.addYieldHandler(function(yieldedValue) {
 });
 
 var readFiles = Promise.coroutine(function* (fileNames) {
-   var promises = [];
-
-   fileNames.forEach(function (fileName) {
-      promises.push(fs.readFileAsync(fileName, "utf8"));
+   return yield fileNames.map(function (fileName) {
+      return fs.readFileAsync(fileName, "utf8");
    });
+});
+```
 
-   return yield promises;
+A custom yield handler can also be used just for a single call to `Promise.coroutine()`:
+
+```js
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require("fs"));
+
+var readFiles = Promise.coroutine(function* (fileNames) {
+   return yield fileNames.map(function (fileName) {
+      return fs.readFileAsync(fileName, "utf8");
+   });
+}, {
+   yieldHandler: function(yieldedValue) {
+      if (Array.isArray(yieldedValue)) return Promise.all(yieldedValue);
+   }
 });
 ```
 </markdown></div>
