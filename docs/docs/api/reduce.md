@@ -11,7 +11,7 @@ title: .reduce
 
 ```js
 .reduce(
-    function(any previousValue, any currentValue, int index, int length) reducer,
+    function(any accumulator, any item, int index, int length) reducer,
     [any initialValue]
 ) -> Promise
 ```
