@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 24 Aug 2016</i>
+                <i>Updated 25 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -116,6 +116,23 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.4.3"
+                    aria-hidden="true"
+                    href="#3.4.3"><i class="fa fa-link"></i></a>
+                3.4.3 (2016-08-25)
+            </h2>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>The &quot;a promise was created in a handler but not returned from it&quot; warning now highlights the file, line and column where the return statement is missing.
+
+<ul>
+<li>The &quot;a promise was created in a handler but not returned from it&quot; warning now adds the bluebird API method used to create the non-returned promise at the top of the warning stack</li>
+</ul></li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.4.2"
                     aria-hidden="true"
@@ -3934,7 +3951,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.2/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
