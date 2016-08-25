@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.3 (2016-08-25)
+
+Bugfixes:
+
+ - The "a promise was created in a handler but not returned from it" warning now highlights the file, line and column where the return statement is missing.
+  - The "a promise was created in a handler but not returned from it" warning now adds the bluebird API method used to create the non-returned promise at the top of the warning stack
+
 ## 3.4.2 (2016-08-24)
 
 
