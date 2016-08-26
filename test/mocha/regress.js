@@ -101,6 +101,7 @@ describe("regressions", function() {
                     enumerable: true,
                     configurable: true,
                     value: {
+                        emit: function() {},
                         bind: function(fn) {
                             bindCalls++;
                             // Ensure non-strict mode.

@@ -12,7 +12,7 @@ var tryCatch = util.tryCatch;
 function ReductionPromiseArray(promises, fn, initialValue, _each) {
     this.constructor$(promises);
     var domain = getDomain();
-    this._fn = domain === null ? fn : domain.bind(fn);
+    this._fn = domain === null ? fn : util.domainBind(domain, fn);
     if (initialValue !== undefined) {
         initialValue = Promise.resolve(initialValue);
         initialValue._attachCancellationCallback(this);

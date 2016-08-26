@@ -336,6 +336,31 @@ function getNativePromise() {
     }
 }
 
+function domainBind(self, cb) {
+    function runBound() {
+        if (self._disposed) return;
+        INLINE_SLICE(args, arguments);
+        var ret;
+
+        self.enter();
+        try {
+            if (args.length > 0) {
+                ret = cb.apply(this, args);
+            } else {
+                ret = cb.call(this);
+            }
+            self.exit();
+        } catch (e) {
+            self.emit("error", e);
+            self.exit();
+        }
+
+        return ret;
+    }
+    runBound.domain = self;
+    return runBound;
+}
+
 var ret = {
     isClass: isClass,
     isIdentifier: isIdentifier,
@@ -368,7 +393,8 @@ var ret = {
     isNode: isNode,
     env: env,
     global: globalObject,
-    getNativePromise: getNativePromise
+    getNativePromise: getNativePromise,
+    domainBind: domainBind
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);

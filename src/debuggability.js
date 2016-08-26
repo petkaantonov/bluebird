@@ -102,14 +102,16 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace, promise) {
 Promise.onPossiblyUnhandledRejection = function (fn) {
     var domain = getDomain();
     possiblyUnhandledRejection =
-        typeof fn === "function" ? (domain === null ? fn : domain.bind(fn))
+        typeof fn === "function" ? (domain === null ?
+                                            fn : util.domainBind(domain, fn))
                                  : undefined;
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
     var domain = getDomain();
     unhandledRejectionHandled =
-        typeof fn === "function" ? (domain === null ? fn : domain.bind(fn))
+        typeof fn === "function" ? (domain === null ?
+                                            fn : util.domainBind(domain, fn))
                                  : undefined;
 };
 

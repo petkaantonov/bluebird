@@ -149,7 +149,7 @@ Promise.join = function () {
                     if (holder.asyncNeeded) {
                         var domain = getDomain();
                         if (domain !== null) {
-                            holder.fn = domain.bind(holder.fn);
+                            holder.fn = util.domainBind(domain, holder.fn);
                         }
                     }
                     ret._setAsyncGuaranteed();
