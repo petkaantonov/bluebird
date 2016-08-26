@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(Promise, tryConvertToPromise) {
+module.exports = function(Promise) {
 function returner() {
     return this.value;
 }
