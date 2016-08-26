@@ -357,7 +357,6 @@ function domainBind(self, cb) {
 
         return ret;
     }
-    runBound.domain = self;
     return runBound;
 }
 
