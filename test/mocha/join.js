@@ -109,4 +109,11 @@ describe("Promise.join-test", function () {
         });
     });
 
+    specify("should ensure asynchronity", function() {
+        var sync = false;
+        Promise.join(Promise.resolve(1), Promise.resolve(2), function() {
+            sync = true;
+        });
+        assert.strictEqual(false, sync);
+    })
 });

@@ -774,7 +774,7 @@ require("./cancel")(Promise, PromiseArray, apiRejection, debug);
 require("./direct_resolve")(Promise);
 require("./synchronous_inspection")(Promise);
 require("./join")(
-    Promise, PromiseArray, tryConvertToPromise, INTERNAL, debug);
+    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getDomain);
 Promise.Promise = Promise;
 Promise.version = "__VERSION__";
 };
