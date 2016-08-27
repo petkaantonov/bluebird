@@ -157,6 +157,18 @@ var fireDomEvent = (function() {
                 });
                 return !util.global.dispatchEvent(domEvent);
             };
+        // In Firefox < 48 CustomEvent is not available in workers but
+        // Event is.
+        } else if (typeof Event === "function") {
+            var event = new Event("CustomEvent");
+            util.global.dispatchEvent(event);
+            return function(name, event) {
+                var domEvent = new Event(name.toLowerCase(), {
+                    cancelable: true
+                });
+                domEvent.detail = event;
+                return !util.global.dispatchEvent(domEvent);
+            };
         } else {
             var event = document.createEvent("CustomEvent");
             event.initCustomEvent("testingtheevent", false, true, {});
