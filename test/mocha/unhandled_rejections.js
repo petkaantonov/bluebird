@@ -677,6 +677,48 @@ if (windowDomEventSupported) {
 
         })
     });
+
+    if (typeof Worker !== "undefined") {
+        describe("dom events in a worker", function() {
+            var worker;
+            beforeEach(function () {
+                worker = new Worker("./worker.js");
+            });
+
+            afterEach(function () {
+                worker.terminate();
+            });
+
+            specify("are fired", function() {
+                var order = [];
+                return new Promise(function(resolve, reject) {
+                    worker.onmessage = function (message) {
+                        try {
+                            switch(message.data) {
+                            case "unhandledrejection":
+                                order.push(1);
+                                break;
+                            case "rejectionhandled":
+                                order.push(2);
+                                resolve();
+                                break;
+                            default:
+                                throw new Error("unexpected message: " + message);
+                            }
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    };
+
+                    worker.postMessage("reject");
+                }).then(function () {
+                    assert.deepEqual(order, [1, 2]);
+                }).timeout(500);
+            });
+        });
+    }
+
 }
 
 describe("Unhandled rejection when joining chains with common rejected parent", function testFunction() {

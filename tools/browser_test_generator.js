@@ -33,13 +33,20 @@ module.exports = function(tests, options) {
     return Promise.join(promiseExport, main, function(promiseExport, main) {
         var browserify = require("browserify");
         var contents = promiseExport + "\n" + main + "\n" + testRequires;
-        var b = browserify({
+        var complete = browserify({
             basedir: baseDir,
             entries: stringToStream(contents)
         });
-        return Promise.promisify(b.bundle, b)().then(function(src) {
-            return writeFile(path.join(baseDir, "bundle.js"), src);
+        var worker = browserify({
+            basedir: baseDir,
+            entries: stringToStream(promiseExport),
         });
+        return Promise.join(
+            Promise.promisify(complete.bundle, complete)().then(function(src) {
+                return writeFile(path.join(baseDir, "bundle.js"), src);
+            }), Promise.promisify(worker.bundle, worker)().then(function (src) {
+                return writeFile(path.join(baseDir, "worker_bundle.js"), src);
+            }));
     }).then(function() {
         if (options.executeBrowserTests) {
             return require("./browser_test_runner.js")(options);
