@@ -44,6 +44,8 @@ function makeCancellableRequest(url) {
 
 Note that the `onCancel` hook is really an optional disconnected optimization, there is no real requirement to register any cancellation hooks for cancellation to work. As such, any errors that may occur while inside the `onCancel` callback are not caught and turned into rejections.
 
+While `cancel().` is synchronous - `onCancel()` is called asynchronously (in the next turn) just like `then` handlers.
+
 Example:
 
 ```js
