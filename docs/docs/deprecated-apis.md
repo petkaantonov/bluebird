@@ -14,7 +14,6 @@ For every use case that the methods below solve there exists a better alternativ
     - [`.progressed(Function handler)`](#progressedfunction-handler---promise)
     - [`.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
     - [`.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
-    - [`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])`](#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise)
 
 - [Promise resolution](#promise-resolution)
     - [`.resolve(dynamic value)`](#resolvedynamic-value---undefined)
@@ -22,7 +21,8 @@ For every use case that the methods below solve there exists a better alternativ
     - [`.progress(dynamic value)`](#progressdynamic-value---undefined)
     - [`.callback`](#callback---function)
 
-
+ - [Old Promise Cancellation](#old-promise-cancellation)
+  
 
 ##Progression
 
@@ -50,12 +50,6 @@ Like `.then()`, but any unhandled rejection that ends up here will be thrown as 
 
 <hr>
 
-
-#####`.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])` -> `Promise`
-
-Like `.then()`, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise's ancestors. Again, only the variant with the progression handler is deprecated here. `.fork` is still fully supported.
-
-<hr>
 
 
 ##Promise resolution
@@ -103,4 +97,7 @@ delay(500).then(function(ms){
 
 <hr>
 
+##Old Promise Cancellation
+
+In 2.x, promise cancellation looked very differently. Promise cancellation received a major overhaul for version 3 in order to create a sound variant of cancellable promises. You can still use 2.x cancellation with bluebird 2.x (which is still supported - but not recommended). See [Cancellation](/cancellation.html) for more details. The 2.x docs are [still accessible under the 2.x branch](https://github.com/petkaantonov/bluebird/blob/2.x/API.md).
 
