@@ -9,6 +9,7 @@ title: Warning Explanations
  - [Warning: a promise was rejected with a non-error](#warning-a-promise-was-rejected-with-a-non-error)
  - [Warning: a promise was created in a handler but was not returned from it](#warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it)
 
+Note - in order to get full stack traces with warnings in Node 6.x+ you need to enable to `--trace-warnings` flag which will give you a full stack trace of where the warning is coming from.
 
 ##Warning: .then() only accepts functions
 

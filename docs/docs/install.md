@@ -44,7 +44,7 @@ var Promise = require("bluebird");
 // Configure
 Promise.config({
     longStackTraces: true,
-    warnings: true
+    warnings: true // note, run node with --trace-warnings to see full stack traces for warnings
 })
 ```
 
