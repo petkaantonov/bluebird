@@ -152,7 +152,8 @@ var fireDomEvent = (function() {
             util.global.dispatchEvent(event);
             return function(name, event) {
                 var domEvent = new CustomEvent(name.toLowerCase(), {
-                    detail: event
+                    detail: event,
+                    cancelable: true
                 });
                 return !util.global.dispatchEvent(domEvent);
             };
