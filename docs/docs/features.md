@@ -241,6 +241,8 @@ Promises can have a steep learning curve and it doesn't help that promise standa
 
 See [installation](install.html) on how to enable warnings in your environment.
 
+Note - in order to get full stack traces with warnings in Node 6.x+ you need to enable to `--trace-warnings` flag which will give you a full stack trace of where the warning is coming from.
+
 ###Promise monitoring
 
 This feature enables subscription to promise lifecycle events via standard global events mechanisms in browsers and Node.js.
