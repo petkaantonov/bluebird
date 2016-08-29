@@ -54,7 +54,7 @@ function directorySizeInfo(root) {
                 return stat;
             });
         }).then(_.flatten);
-    })(root).then(_);
+    })(root).then(_.chain);
 
     var smallest = stats.call("min", "size").call("pick", "size", "filePath").call("value");
     var largest = stats.call("max", "size").call("pick", "size", "filePath").call("value");
