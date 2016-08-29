@@ -10,7 +10,6 @@ var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
-var EMPTY_ARRAY = [];
 
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
@@ -22,7 +21,7 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
         : null;
     this._limit = limit;
     this._inFlight = 0;
-    this._queue = limit >= 1 ? [] : EMPTY_ARRAY;
+    this._queue = [];
     this._init$(undefined, RESOLVE_ARRAY);
 }
 util.inherits(MappingPromiseArray, PromiseArray);
