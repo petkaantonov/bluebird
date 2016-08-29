@@ -26,11 +26,12 @@ if (util.isNode && typeof MutationObserver === "undefined") {
     };
 // Outside of Node, we're using MutationObservers because they provide low
 // latency. The second check is to guard against iOS standalone apps which
-// do not fire DOM mutation events for some reason on iOS 8.3+.
+// do not fire DOM mutation events for some reason on iOS 8.3+ and cordova
+// apps which have the same bug but are not `.navigator.standalone`
 } else if ((typeof MutationObserver !== "undefined") &&
           !(typeof window !== "undefined" &&
             window.navigator &&
-            window.navigator.standalone)) {
+            (window.navigator.standalone || window.cordova))) {
     schedule = (function() {
         // Using 2 mutation observers to batch multiple updates into one.
         var div = document.createElement("div");
