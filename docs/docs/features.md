@@ -305,9 +305,7 @@ var p = Promise.resolve('./config.json')
  .timeout(2000)
  .catch(console.error.bind(console, 'Failed to load config!'))
  .then(fs.readFileAsync)
- .then(function(data) {
-  return JSON.parse(data);
- });
+ .then(JSON.parse);
 // Listen for exception event to trigger promise cancellation
 process.on('unhandledException', function(event) {
  // cancel config loading
