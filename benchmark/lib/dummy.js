@@ -2,7 +2,7 @@
 // with the callback at the Nth position
 exports.dummy = function dummy(n) {
     return function dummy_n() {
-        var cb = arguments[n - 1];
+        var cb = arguments[n - 1] || function(){};
         if (global.asyncTime)
             setTimeout(cb, global.asyncTime || 100);
         else
