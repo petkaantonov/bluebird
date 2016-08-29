@@ -294,6 +294,27 @@ window.onpromisechained = function(promise, child) {
 
 ##Cancellation and timeouts
 
+See [`Cancellation`](.) for how to use cancellation.
+
+```js
+// Enable cancellation
+Promise.config({cancellation: true});
+
+var fs = Promise.promisifyAll(require("fs"));
+
+// In 2000ms or less, load & parse a file 'config.json'
+var p = Promise.resolve('./config.json')
+ .timeout(2000)
+ .catch(console.error.bind(console, 'Failed to load config!'))
+ .then(fs.readFileAsync)
+ .then(JSON.parse);
+// Listen for exception event to trigger promise cancellation
+process.on('unhandledException', function(event) {
+ // cancel config loading
+ p.cancel();
+});
+```
+
 ##Scoped prototypes
 
 Building a library that depends on bluebird? You should know about the "scoped prototype" feature.
