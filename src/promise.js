@@ -54,6 +54,7 @@ var PromiseResolver = require("./promise_resolver.js");
 var nodebackForPromise = PromiseResolver._nodebackForPromise;
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
+
 function Promise(resolver) {
     if (typeof resolver !== "function") {
         throw new TypeError(CONSTRUCT_ERROR_ARG);
@@ -764,6 +765,7 @@ Promise.prototype._settlePromises = function () {
     }
 };
 
+
 util.notEnumerableProp(Promise,
                        "_makeSelfResolutionError",
                        makeSelfResolutionError);
@@ -775,5 +777,6 @@ require("./finally.js")(Promise, NEXT_FILTER, tryConvertToPromise);
 require("./direct_resolve.js")(Promise);
 require("./synchronous_inspection.js")(Promise);
 require("./join.js")(Promise, PromiseArray, tryConvertToPromise, INTERNAL);
+Promise.version = "2.11.0";
 Promise.Promise = Promise;
 };
