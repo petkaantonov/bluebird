@@ -3,6 +3,19 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.4 (2016-08-30)
+
+Bugfixes:
+
+ - Fix benchmark parallel in node 6 [#1165](.)
+ - Fix memory leak with Promise.each [#1057](.)
+ - Fix thenable passed to .return being evaluated too early [#1210](.)
+ - Fix "unhandledrejection" event not having .detail field when using DOM3 event listener api [#1209](.)
+ - Fix [Promise.join](.) not ensuring asynchronous callback [#1153](.)
+ - Fix domains leaking when synchronous error is thrown while a domain is active [#1125](.)
+
+
+
 ## 3.4.3 (2016-08-25)
 
 Bugfixes:
