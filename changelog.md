@@ -1,3 +1,10 @@
+## 2.11.0 (2016-08-30)
+
+Features:
+
+ - Add Promise.version
+ - Add Promise.getNewLibraryCopy
+
 ## 2.10.2 (2015-10-01)
 
 Features:
