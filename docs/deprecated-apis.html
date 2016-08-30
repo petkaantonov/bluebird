@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 24 Aug 2016</i>
+                <i>Updated 30 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -134,7 +134,6 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <li><a href='#progressedfunction-handler---promise' title=''><code>.progressed(Function handler)</code></a></li>
 <li><a href='#thenfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.then([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
 <li><a href='#donefunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.done([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
-<li><a href='#forkfunction-fulfilledhandler--function-rejectedhandler---function-progresshandler----promise' title=''><code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code></a></li>
 </ul></li>
 <li><p><a href='#promise-resolution' title=''>Promise resolution</a></p>
 
@@ -143,6 +142,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <li><a href='#rejectdynamic-reason---undefined' title=''><code>.reject(dynamic reason)</code></a></li>
 <li><a href='#progressdynamic-value---undefined' title=''><code>.progress(dynamic value)</code></a></li>
 <li><a href='#callback---function' title=''><code>.callback</code></a></li>
+<li><a href='#old-promise-cancellation' title=''>Old Promise Cancellation</a></li>
 </ul></li>
 </ul>
             <h2>
@@ -187,17 +187,6 @@ These APIs still work in Bluebird but will be removed at a future version of the
             </h5>
 
 <p>Like <code>.then()</code>, but any unhandled rejection that ends up here will be thrown as an error. Again, only the variant with the progression handler is deprecated here. <code>.done</code> is still fully supported.</p>
-
-<p><hr></p>
-            <h5>
-                <a class="header-anchor"
-                    name="fork"
-                    aria-hidden="true"
-                    href="#fork"><i class="fa fa-link"></i></a>
-                <code>.fork([Function fulfilledHandler] [, Function rejectedHandler ] [, Function progressHandler ])</code> -&gt; <code>Promise</code>
-            </h5>
-
-<p>Like <code>.then()</code>, but cancellation of the the returned promise or any of its descendant will not propagate cancellation to this promise or this promise&#39;s ancestors. Again, only the variant with the progression handler is deprecated here. <code>.fork</code> is still fully supported.</p>
 
 <p><hr></p>
             <h2>
@@ -262,6 +251,15 @@ These APIs still work in Bluebird but will be removed at a future version of the
 <span class="p">});</span>
 </code></pre></div>
 <p><hr></p>
+            <h2>
+                <a class="header-anchor"
+                    name="old-promise-cancellation"
+                    aria-hidden="true"
+                    href="#old-promise-cancellation"><i class="fa fa-link"></i></a>
+                Old Promise Cancellation
+            </h2>
+
+<p>In 2.x, promise cancellation looked very differently. Promise cancellation received a major overhaul for version 3 in order to create a sound variant of cancellable promises. You can still use 2.x cancellation with bluebird 2.x (which is still supported - but not recommended). See <a href='/cancellation.html' title=''>Cancellation</a> for more details. The 2.x docs are <a href='https://github.com/petkaantonov/bluebird/blob/2.x/API.md' title=''>still accessible under the 2.x branch</a>.</p>
 
   </article>
 
@@ -273,7 +271,7 @@ These APIs still work in Bluebird but will be removed at a future version of the
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.3/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.4/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

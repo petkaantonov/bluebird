@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 25 Aug 2016</i>
+                <i>Updated 30 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -116,6 +116,24 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.4.4"
+                    aria-hidden="true"
+                    href="#3.4.4"><i class="fa fa-link"></i></a>
+                3.4.4 (2016-08-30)
+            </h2>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix benchmark parallel in node 6 <a href='https://github.com/petkaantonov/bluebird/issues/1165'><code>#1165</code></a></li>
+<li>Fix memory leak with Promise.each <a href='https://github.com/petkaantonov/bluebird/issues/1057'><code>#1057</code></a></li>
+<li>Fix thenable passed to .return being evaluated too early <a href='https://github.com/petkaantonov/bluebird/issues/1210'><code>#1210</code></a></li>
+<li>Fix &quot;unhandledrejection&quot; event not having .detail field when using DOM3 event listener api <a href='https://github.com/petkaantonov/bluebird/issues/1209'><code>#1209</code></a></li>
+<li>Fix <a href='/docs/api/promise.join.html'><code>Promise.join</code></a> not ensuring asynchronous callback <a href='https://github.com/petkaantonov/bluebird/issues/1153'><code>#1153</code></a></li>
+<li>Fix domains leaking when synchronous error is thrown while a domain is active <a href='https://github.com/petkaantonov/bluebird/issues/1125'><code>#1125</code></a></li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.4.3"
                     aria-hidden="true"
@@ -3951,7 +3969,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.3/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.4/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

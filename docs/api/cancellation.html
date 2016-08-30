@@ -104,7 +104,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 12 Feb 2016</i>
+                <i>Updated 30 Aug 2016</i>
             </div>
             <div class="clearfix"></div>
             
@@ -153,6 +153,8 @@
 <span class="p">}</span>
 </code></pre></div>
 <p>Note that the <code>onCancel</code> hook is really an optional disconnected optimization, there is no real requirement to register any cancellation hooks for cancellation to work. As such, any errors that may occur while inside the <code>onCancel</code> callback are not caught and turned into rejections.</p>
+
+<p>While <code>cancel().</code> is synchronous - <code>onCancel()</code> is called asynchronously (in the next turn) just like <code>then</code> handlers.</p>
 
 <p>Example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">searchPromise</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>  <span class="c1">// Dummy promise to avoid null check.</span>
@@ -227,7 +229,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.3/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.4.4/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
