@@ -3,6 +3,8 @@ module.exports = function(Promise, tryConvertToPromise) {
 var util = require("./util");
 var CancellationError = Promise.CancellationError;
 var errorObj = util.errorObj;
+var NEXT_FILTER = {};
+var catchFilter = require("./catch_filter")(NEXT_FILTER);
 
 function PassThroughHandlerContext(promise, type, handler) {
     this.promise = promise;
@@ -103,8 +105,26 @@ Promise.prototype["finally"] = function (handler) {
                              finallyHandler);
 };
 
+
 Promise.prototype.tap = function (handler) {
     return this._passThrough(handler, TAP_TYPE, finallyHandler);
+};
+
+Promise.prototype.tapError = function (handlerOrPredicate) {
+    if(arguments.length === 1) {
+        return this._passThrough(handlerOrPredicate,
+                                 TAP_TYPE,
+                                 undefined,
+                                 finallyHandler);
+    } else {
+        var predicate = arguments[0];
+        var handler = arguments[1];
+        return this._passThrough(handler,
+                                 TAP_TYPE,
+                                 undefined,
+                                 catchFilter(predicate, handler, this));
+    }
+
 };
 
 return PassThroughHandlerContext;
