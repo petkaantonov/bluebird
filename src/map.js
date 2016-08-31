@@ -10,6 +10,7 @@ var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
+var async = Promise._async;
 
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
@@ -22,9 +23,13 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._limit = limit;
     this._inFlight = 0;
     this._queue = [];
-    this._init$(undefined, RESOLVE_ARRAY);
+    async.invoke(this._asyncInit, this, undefined);
 }
 util.inherits(MappingPromiseArray, PromiseArray);
+
+MappingPromiseArray.prototype._asyncInit = function() {
+    this._init$(undefined, RESOLVE_ARRAY);
+};
 
 // The following hack is required because the super constructor
 // might call promiseFulfilled before this.callback = fn is set
