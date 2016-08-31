@@ -67,6 +67,7 @@ redirect_from: "/docs/api/index.html"
     - [Promise.coroutine.addYieldHandler](api/promise.coroutine.addyieldhandler.html)
 - [Utility](api/utility.html)
     - [.tap](api/tap.html)
+    - [.tapError](api/tapError.html)
     - [.call](api/call.html)
     - [.get](api/get.html)
     - [.return](api/return.html)
