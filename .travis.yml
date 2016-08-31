@@ -6,9 +6,10 @@ matrix:
     - node_js: "0.12"
     - node_js: "4"
     - node_js: "5"
+    - node_js: "6"
   fast_finish: true
 env:
-  - "NODE_FLAGS='' SCRIPT_FLAGS=''"  
+  - "NODE_FLAGS='' SCRIPT_FLAGS=''"
 before_script:
 - git submodule update --init --recursive
 script: "node $NODE_FLAGS tools/test.js $SCRIPT_FLAGS"
