@@ -108,8 +108,14 @@ if (canEvaluate) {
     };
 }}
 
+function makeJoinArgumentsError() {
+    return new TypeError(PROMISE_JOIN_TYPE_ERROR);
+}
 Promise.join = function () {
     var last = arguments.length - 1;
+    if(arguments.length === 1) {
+        return Promise.reject(makeJoinArgumentsError());
+    }
     var fn;
     if (last > 0 && typeof arguments[last] === "function") {
         fn = arguments[last];

@@ -148,3 +148,4 @@ CONSTANT(SUFFIX_NOT_IDENTIFIER, "suffix must be a valid identifier\n\n\
     See http://goo.gl/MqrFmX\n");
 CONSTANT(NO_ASYNC_SCHEDULER, "No async scheduler available\n\n\
     See http://goo.gl/MqrFmX\n");
+CONSTANT(PROMISE_JOIN_TYPE_ERROR, "Promise.join must becalled with at least one promise. It was called with only a function.");

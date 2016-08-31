@@ -96,6 +96,16 @@ describe("Promise.join-test", function () {
 
         return a().then(assert.fail, function(e) {});
     });
+    
+    specify("gh-1218", function() {
+        function a() {
+            return Promise.join(function () {
+                
+            });
+        }
+        return a().then(assert.fail, function(e) {});
+    });
+    
 
     specify("should not pass the callback as argument, <5 arguments", function() {
         return Promise.join(1, 2, 3, function() {
