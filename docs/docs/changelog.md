@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.5 (2016-08-31)
+
+Bugfixes:
+
+ - Fix unhandled error regression introduced in 3.4.3 [#1217](.)
+
 ## 3.4.4 (2016-08-30)
 
 Bugfixes:
