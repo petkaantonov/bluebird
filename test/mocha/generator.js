@@ -338,13 +338,14 @@ describe("Promise.coroutine", function() {
             var a = new MyClass();
             var b = new MyClass();
 
-            return Promise.join(a.spawnGoblins().then(function(){
-                return a.spawnGoblins()
-            }), b.spawnGoblins()).then(function(){
+            return Promise.all([a.spawnGoblins().then(function(){
+                return a.spawnGoblins();
+            }), 
+            b.spawnGoblins()
+            ]).then(function(){
                 assert.equal(a.goblins, 5);
                 assert.equal(b.goblins, 4);
             });
-
         });
     });
 });
@@ -367,7 +368,7 @@ describe("Spawn", function() {
 describe("custom yield handlers", function() {
     specify("should work with timers", function() {
         var n = 0;
-        return Promise.coroutine.addYieldHandler(function(v) {
+        Promise.coroutine.addYieldHandler(function(v) {
             if (typeof v === "number") {
                 n = 1;
                 return Promise.resolve(n);

@@ -31,46 +31,25 @@ var testUtils = require("./helpers/util.js");
 
 describe("Promise.join-test", function () {
 
-
-
-    specify("should resolve empty input", function() {
-        return Promise.join().then(
-            function(result) {
-                assert.deepEqual(result, []);
-            },
-            assert.fail
-        );
+    specify("should reject on empty input", function() {
+        return Promise.join().then(assert.fail, function() {});
     });
 
-    specify("should join values", function() {
-        return Promise.join(1, 2, 3).then(
-            function(results) {
-                assert.deepEqual(results, [1, 2, 3]);
-            },
-            assert.fail
-        );
+    specify("should reject on no function passed", function() {
+        return Promise.join(1,2,3).then(assert.fail, function() {})
     });
 
-    specify("should join promises array", function() {
-        return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)).then(
-            function(results) {
-                assert.deepEqual(results, [1, 2, 3]);
-            },
-            assert.fail
-        );
+    specify("should reject on promises array", function() {
+        return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)).then(assert.fail, function() {}); 
+       
     });
 
-    specify("should join mixed array", function() {
-        return Promise.join(Promise.resolve(1), 2, Promise.resolve(3), 4).then(
-            function(results) {
-                assert.deepEqual(results, [1, 2, 3, 4]);
-            },
-            assert.fail
-        );
+    specify("should reject on  mixed array", function() {
+        return Promise.join(Promise.resolve(1), 2, Promise.resolve(3), 4).then(assert.fail, function() {}); 
     });
 
     specify("should reject if any input promise rejects", function() {
-        return Promise.join(Promise.resolve(1), Promise.reject(2), Promise.resolve(3)).then(
+        return Promise.join(Promise.resolve(1), Promise.reject(2), Promise.resolve(3), function() {}).then(
             assert.fail,
             function(err) {
                 assert.deepEqual(err, 2);
@@ -86,6 +65,13 @@ describe("Promise.join-test", function () {
         });
     });
 
+    specify("should call last argument as a spread function on mixed values ", function() {
+        return Promise.join(Promise.resolve(1), 2, Promise.resolve(3), function(a, b, c) {
+            assert(a === 1);
+            assert(b === 2);
+            assert(c === 3);
+        });
+    });
 
     specify("gh-227", function() {
         function a() {
@@ -125,5 +111,13 @@ describe("Promise.join-test", function () {
             sync = true;
         });
         assert.strictEqual(false, sync);
-    })
+    });
+
+    specify("should ensure asynchronity with plain values", function() {
+        var sync = false;
+        Promise.join(1, 2, function() {
+            sync = true;
+        });
+        assert.strictEqual(false, sync);
+    });
 });

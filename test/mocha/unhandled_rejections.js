@@ -732,15 +732,11 @@ describe("Unhandled rejection when joining chains with common rejected parent", 
             throw new Error('Something went wrong here as well');
         });
 
-        var c = Promise
-            .join(a, b)
-            .spread(function( a, b ){
+        var c = Promise.join(a, b, function( a, b ) {
                 return a+b;
             });
 
-        var test1 = Promise
-            .join(a, c)
-            .spread(function( a, product ){
+        var test1 = Promise.join(a, c, function( a, product ) {
                 // ...
             })
             .caught(Error, function(e) {

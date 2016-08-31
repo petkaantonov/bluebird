@@ -197,47 +197,22 @@ describe("Using collection methods with thenables", function() {
 });
 
 describe("Using collection methods with thenables", function() {
-    var name = "join";
-    testFulfillSync(name, function(promise) {
-        return promise.then(function(v){
-            assert(v[0][0].value === 1);
-            assert(v[0][1].value === 2);
-            assert(v[0][2].value === 3);
-            assert(v[1] === 1);
-            assert(v[2] === 2);
-            assert(v[3] === 3);
+    
+    specify("Promise.join thenables that fulfill synchronously", function() {
+        return Promise.join(new Thenable(1), new Thenable(2), new Thenable(3), function(v1, v2, v3) {
+            assert(v1 === 1);
+            assert(v2 === 2);
+            assert(v3 === 3);
         });
-    }, 1, 2, 3);
-    testFulfillAsync(name, function(promise) {
-        return promise.then(function(v){
-            assert(v[0][0].value === 1);
-            assert(v[0][1].value === 2);
-            assert(v[0][2].value === 3);
-            assert(v[1] === 1);
-            assert(v[2] === 2);
-            assert(v[3] === 3);
+    });
+    specify("Promise.join thenables that fulfill asynchronously", function() {
+        return Promise.join(new Thenable(1, true), new Thenable(2, true), new Thenable(3, true), function(v1, v2, v3) {
+            assert(v1 === 1);
+            assert(v2 === 2);
+            assert(v3 === 3);
         });
-    }, 1, 2, 3);
-    testRejectSync(name, function(promise) {
-        return promise.then(function(v){
-            assert(v[0][0].value === 1);
-            assert(v[0][1].value === 2);
-            assert(v[0][2].value === 3);
-            assert(v[1] === 1);
-            assert(v[2] === 2);
-            assert(v[3] === 3);
-        });
-    }, 1, 2, 3);
-    testRejectAsync(name, function(promise) {
-        return promise.then(function(v){
-            assert(v[0][0].value === 1);
-            assert(v[0][1].value === 2);
-            assert(v[0][2].value === 3);
-            assert(v[1] === 1);
-            assert(v[2] === 2);
-            assert(v[3] === 3);
-        });
-    }, 1, 2, 3);
+    });
+
 });
 
 function mapper(v) {

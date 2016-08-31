@@ -113,62 +113,61 @@ function makeJoinArgumentsError() {
 }
 Promise.join = function () {
     var last = arguments.length - 1;
-    if (arguments.length === 1) {
+    if (arguments.length <= 1) {
         return Promise.reject(makeJoinArgumentsError());
     }
-    var fn;
-    if (last > 0 && typeof arguments[last] === "function") {
-        fn = arguments[last];
-        if (!__BROWSER__) {
-            if (last <= GENERATED_CLASS_COUNT && canEvaluate) {
-                var ret = new Promise(INTERNAL);
-                ret._captureStackTrace();
-                var HolderClass = holderClasses[last - 1];
-                var holder = new HolderClass(fn);
-                var callbacks = thenCallbacks;
+    if(typeof arguments[last] !== "function") {
+        return Promise.reject(makeJoinArgumentsError());   
+    }
 
-                for (var i = 0; i < last; ++i) {
-                    var maybePromise = tryConvertToPromise(arguments[i], ret);
-                    if (maybePromise instanceof Promise) {
-                        maybePromise = maybePromise._target();
-                        var bitField = maybePromise._bitField;
-                        USE(bitField);
-                        if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
-                            maybePromise._then(callbacks[i], reject,
-                                               undefined, ret, holder);
-                            promiseSetters[i](maybePromise, holder);
-                            holder.asyncNeeded = false;
-                        } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
-                            callbacks[i].call(ret,
-                                              maybePromise._value(), holder);
-                        } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
-                            ret._reject(maybePromise._reason());
-                        } else {
-                            ret._cancel();
-                        }
-                    } else {
-                        callbacks[i].call(ret, maybePromise, holder);
-                    }
-                }
+    var fn = arguments[last];
+    if (!__BROWSER__ && last <= GENERATED_CLASS_COUNT && canEvaluate) {
+        var ret = new Promise(INTERNAL);
+        ret._captureStackTrace();
+        var HolderClass = holderClasses[last - 1];
+        var holder = new HolderClass(fn);
+        var callbacks = thenCallbacks;
 
-                if (!ret._isFateSealed()) {
-                    if (holder.asyncNeeded) {
-                        var domain = getDomain();
-                        if (domain !== null) {
-                            holder.fn = util.domainBind(domain, holder.fn);
-                        }
-                    }
-                    ret._setAsyncGuaranteed();
-                    ret._setOnCancel(holder);
+        for (var i = 0; i < last; ++i) {
+            var maybePromise = tryConvertToPromise(arguments[i], ret);
+            if (maybePromise instanceof Promise) {
+                maybePromise = maybePromise._target();
+                var bitField = maybePromise._bitField;
+                USE(bitField);
+                if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+                    maybePromise._then(callbacks[i], reject,
+                                       undefined, ret, holder);
+                    promiseSetters[i](maybePromise, holder);
+                    holder.asyncNeeded = false;
+                } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+                    callbacks[i].call(ret,
+                                      maybePromise._value(), holder);
+                } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
+                    ret._reject(maybePromise._reason());
+                } else {
+                    ret._cancel();
                 }
-                return ret;
+            } else {
+                callbacks[i].call(ret, maybePromise, holder);
             }
         }
+
+        if (!ret._isFateSealed()) {
+            if (holder.asyncNeeded) {
+                var domain = getDomain();
+                if (domain !== null) {
+                    holder.fn = util.domainBind(domain, holder.fn);
+                }
+            }
+            ret._setAsyncGuaranteed();
+            ret._setOnCancel(holder);
+        }
+        return ret;
+        
     }
     INLINE_SLICE(args, arguments);
-    if (fn) args.pop();
-    var ret = new PromiseArray(args).promise();
-    return fn !== undefined ? ret.spread(fn) : ret;
+    args.pop();
+    var all = new PromiseArray(args).promise();
+    return all.spread(fn);
 };
-
 };
