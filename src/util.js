@@ -337,27 +337,7 @@ function getNativePromise() {
 }
 
 function domainBind(self, cb) {
-    function runBound() {
-        if (self._disposed) return;
-        INLINE_SLICE(args, arguments);
-        var ret;
-
-        self.enter();
-        try {
-            if (args.length > 0) {
-                ret = cb.apply(this, args);
-            } else {
-                ret = cb.call(this);
-            }
-            self.exit();
-        } catch (e) {
-            self.emit("error", e);
-            self.exit();
-        }
-
-        return ret;
-    }
-    return runBound;
+    return self.bind(cb);
 }
 
 var ret = {
