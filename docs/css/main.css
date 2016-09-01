@@ -179,3 +179,8 @@ h6:hover .header-anchor {
     border: 1px dashed #8a6d3b;
     border-radius: 4px;
 }
+
+.supporter.reaktor {
+    width: 200px;
+    margin: 0px auto;
+}
