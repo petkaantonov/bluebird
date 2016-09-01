@@ -1,9 +1,8 @@
 "use strict";
-module.exports = function(Promise, tryConvertToPromise) {
+module.exports = function(Promise, tryConvertToPromise, NEXT_FILTER) {
 var util = require("./util");
 var CancellationError = Promise.CancellationError;
 var errorObj = util.errorObj;
-var NEXT_FILTER = {};
 var catchFilter = require("./catch_filter")(NEXT_FILTER);
 
 function PassThroughHandlerContext(promise, type, handler) {
