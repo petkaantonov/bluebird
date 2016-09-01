@@ -111,6 +111,48 @@ describe("Promise.map-test", function () {
             }
         );
     });
+
+    specify("should call mapper asynchronously on values array", function() {
+        var calls = 0;
+        function mapper(val) {
+            calls++;
+        }
+
+        var input = [1, 2, 3];
+        var p = Promise.map(input, mapper);
+        assert(calls === 0);
+        return p.then(function() {
+            assert(calls === 3);
+        });
+    });
+
+    specify("should call mapper asynchronously on promises array", function() {
+        var calls = 0;
+        function mapper(val) {
+            calls++;
+        }
+
+        var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
+        var p = Promise.map(input, mapper);
+        assert(calls === 0);
+        return p.then(function() {
+            assert(calls === 3);
+        });
+    });
+
+    specify("should call mapper asynchronously on mixed array", function() {
+        var calls = 0;
+        function mapper(val) {
+            calls++;
+        }
+
+        var input = [1, Promise.resolve(2), 3];
+        var p = Promise.map(input, mapper);
+        assert(calls === 0);
+        return p.then(function() {
+            assert(calls === 3);
+        });
+    });
 });
 
 describe("Promise.map-test with concurrency", function () {
