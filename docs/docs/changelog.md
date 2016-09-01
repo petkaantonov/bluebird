@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.6 (2016-09-01)
+
+Bugfixes:
+
+- Fix [Promise.map](.) and [.map](.) not always calling the callback asynchronously \([#1148](.)\)
+
 ## 3.4.5 (2016-08-31)
 
 Bugfixes:
