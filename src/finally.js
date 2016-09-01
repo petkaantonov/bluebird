@@ -55,7 +55,9 @@ function finallyHandler(reasonOrValue) {
         var ret = this.isFinallyHandler()
             ? handler.call(promise._boundValue())
             : handler.call(promise._boundValue(), reasonOrValue);
-        if (ret !== undefined) {
+        if (ret === NEXT_FILTER) {
+            return ret;
+        } else if (ret !== undefined) {
             promise._setReturnedNonUndefined();
             var maybePromise = tryConvertToPromise(ret, promise);
             if (maybePromise instanceof Promise) {
@@ -118,10 +120,10 @@ Promise.prototype.tapError = function (handlerOrPredicate) {
     } else {
         var predicate = arguments[0];
         var handler = arguments[1];
-        return this._passThrough(handler,
+       return this._passThrough(catchFilter(predicate, handler, this),
                                  TAP_TYPE,
                                  undefined,
-                                 catchFilter(predicate, handler, this));
+                                 finallyHandler);
     }
 
 };
