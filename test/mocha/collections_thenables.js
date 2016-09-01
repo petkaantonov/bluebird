@@ -212,6 +212,16 @@ describe("Using collection methods with thenables", function() {
             assert(v3 === 3);
         });
     });
+    specify("Promise.join thenables that reject synchronously", function() {
+        return Promise.join(new Thenable(1, false, true), new Thenable(2, false, true), new Thenable(3, false, true), function(v1, v2, v3) {
+           assert.fail();
+        }).catch(function() {});
+    });
+    specify("Promise.join thenables that reject asynchronously", function() {
+        return Promise.join(new Thenable(1, true, true), new Thenable(2, true, true), new Thenable(3, true, true), function(v1, v2, v3) {
+            assert.fail();
+        }).catch(function() {});
+    });
 
 });
 

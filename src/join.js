@@ -113,10 +113,10 @@ function makeJoinArgumentsError() {
 }
 Promise.join = function () {
     var last = arguments.length - 1;
-    if (arguments.length <= 1) {
+    if (last < 1) {
         return Promise.reject(makeJoinArgumentsError());
     }
-    if(typeof arguments[last] !== "function") {
+    if (typeof arguments[last] !== "function") {
         return Promise.reject(makeJoinArgumentsError());   
     }
 
