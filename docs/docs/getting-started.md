@@ -35,22 +35,32 @@ When using script tags the global variables `Promise` and `P` (alias for `Promis
 
 ## Quick start
 
-How to define a function that returns a promise.
+An example function that performs an AJAX request and returns a promise.
 ```javascript
-function doSomething() {
+function doGet() {
   return new Promise(function(resolve, reject) {
-    // Do asynchronous things here, such as an AJAX request or a database look up
-    var result = "Hello world";
+    var xhr = new XMLHttpRequest();
     
-    return resolve(result);
+    xhr.addEventListener("load", function() {
+      resolve(xhr);
+    }, false);
+    
+    xhr.addEventListener("error", function(ev) {
+      resolve(ev.error);
+    });
+    
+    xhr.open("GET", url);
+    xhr.send(null);
   });
 }
 ```
 
 How to use your newly created function.
 ```javascript
-doSomething().then(function(result) {
-  // result is now "Hello world"
+doGet().then(function(xhr) {
+  // Do something with the result
+}).error(function(error) {
+  // Handle the error
 });
 ```
 
