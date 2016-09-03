@@ -32,3 +32,26 @@ There are many ways to use bluebird in browsers:
 - You may use the [bower](http://bower.io) package.
 
 When using script tags the global variables `Promise` and `P` (alias for `Promise`) become available. Bluebird runs on a wide variety of browsers including older versions. We'd like to thank BrowserStack for giving us a free account which helps us test that. 
+
+## Quick start
+
+How to define a function that returns a promise.
+```javascript
+function doSomething() {
+  return new Promise(function(resolve, reject) {
+    // Do asynchronous things here, such as an AJAX request or a database look up
+    var result = "Hello world";
+    
+    return resolve(result);
+  });
+}
+```
+
+How to use your newly created function.
+```javascript
+doSomething().then(function(result) {
+  // result is now "Hello world"
+});
+```
+
+For more information, please read the [API Reference](api-reference.html).
