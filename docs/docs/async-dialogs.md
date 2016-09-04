@@ -27,7 +27,7 @@ our own DOM based prompt. To begin, here is a template for a simple HTML page:
       clockTick();
       setInterval(clockTick, 1000);
       function clockTick() {
-        time.innerHTML = new Date().toLocalTimeString();
+        time.innerHTML = new Date().toLocaleTimeString();
       }
     });
   </script>
