@@ -15,7 +15,8 @@
     "promise": "^7.0.4",
     "q": "^1.4.1",
     "rsvp": "^3.1.0",
-    "streamline": "^1.0.7",
+    "streamline": "^2.0.10",
+    "streamline-runtime": "^1.0.30",
     "text-table": "^0.2.0",
     "vow": "^0.4.11",
     "when": "^3.7.4"
