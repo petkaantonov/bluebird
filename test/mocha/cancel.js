@@ -712,14 +712,14 @@ describe("Cancellation", function() {
     });
 
     specify("isCancelled() synchronously returns true after calling cancel() on pending promise", function() {
-        var resolver = Promise.pending();
-        resolver.promise.cancel();
-        assert(resolver.promise.isCancelled());
+        var promise = new Promise(function () {});
+        promise.cancel();
+        assert(promise.isCancelled());
     });
 
     specify("isCancelled() synchronously returns true after calling cancel() on promise created from .then()", function() {
-        var resolver = Promise.pending();
-        var thenPromise = resolver.promise.then();
+        var promise = new Promise(function () {});
+        var thenPromise = promise.then();
         thenPromise.cancel();
         assert(thenPromise.isCancelled());
     });
