@@ -254,8 +254,8 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
 
 var root = process.cwd();
 // Since rm -rf is called, better be sure...
-if (path.basename(root).toLowerCase() !== "bluebird") {
-    throw new Error("cwd must be se to bluebird project root. Cwd is currently\n\n" +
+if (path.basename(root).toLowerCase().indexOf("bluebird") !== 0) {
+    throw new Error("cwd must be set to bluebird project root. cwd is currently\n\n" +
         "         " + process.cwd() + "\n");
 }
 var dirs = {
