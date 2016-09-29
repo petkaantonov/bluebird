@@ -76,7 +76,7 @@ If you know what you're doing and don't want to silence all warnings, you can cr
 
 ```js
 getUser().then(function(user) {
-    // Perform this in the "background" and don't care about it's result at all
+    // Perform this in the "background" and don't care about its result at all
     saveAnalytics(user);
     // return a non-undefined value to signal that we didn't forget to return
     return null;
