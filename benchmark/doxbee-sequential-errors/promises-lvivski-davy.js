@@ -9,8 +9,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
     var fileP = self.byUuidOrPath(idOrPath).get();
     var version, fileId, file;
 
-    davy.all([blobIdP, fileP]).spread(function(all) {
-        var blobId = all[0], fileV = all[1];
+    davy.all([blobIdP, fileP]).spread(function(blobId, fileV) {
         file = fileV;
         var previousId = file ? file.version : null;
         version = {
