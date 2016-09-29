@@ -1,6 +1,6 @@
-global.useLiar = true;
+global.useLie = true;
 
-var promise = require("liar");
+var promise = require("lie");
 
 require('../lib/fakesP');
 
