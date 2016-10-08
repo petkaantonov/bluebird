@@ -13,6 +13,7 @@ This page describes parallels of using promises in other languages. Promises as 
  - [Java](#java)
  - [Android Java](#android-java)
  - [Objective-C](#objective-c)
+ - [Swift](#swift)
 
 
 ## C&#35;
@@ -83,4 +84,8 @@ Several popular Android libraries use promises - for example the Parse Java API 
 
 ##Objective-C
 
-If you're familiar with PromiseKit, it is based on a same specification bluebird is based on so the API should feel familiar right away.
+If you're familiar with [PromiseKit](https://github.com/mxcl/PromiseKit), it is based on a same specification bluebird is based on so the API should feel familiar right away.
+
+##Swift
+
+Both [PromiseKit](https://github.com/mxcl/PromiseKit) and [Bluebird.swift](https://github.com/AndrewBarba/Bluebird.swift) are based on the Promise/A+ specification. [Bluebird.swift](https://github.com/AndrewBarba/Bluebird.swift) aims to closely match our API when appropriate. 
