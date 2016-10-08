@@ -80,7 +80,7 @@ Real example 2:
 
 ```js
 var mysql = require("mysql");
-// Uncomment if pg has not been properly promisified yet
+// Uncomment if mysql has not been properly promisified yet
 // var Promise = require("bluebird");
 // Promise.promisifyAll(mysql);
 // Promise.promisifyAll(require("mysql/lib/Connection").prototype);
