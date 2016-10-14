@@ -475,6 +475,18 @@ describe("Promisify with custom suffix", function() {
     });
 })
 
+describe("Promisify with custom nameTranslator", function() {
+    it.only("should define methods with custom name translation", function() {
+        function Test() {}
+        Test.prototype.$method = function _method() {};
+        Promise.promisifyAll(Test.prototype, {
+            nameTranslator: function(name) { return name.substring(1); }
+        });
+
+        assert(typeof Test.prototype.method == "function");
+    });
+})
+
 describe("Module promisification", function() {
     it("should promisify module with direct property classes", function() {
         function RedisClient() {}
