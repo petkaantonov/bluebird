@@ -24,11 +24,11 @@ if (isES5) {
                 return true;
             }
 
-            if (descriptor.writable !== true) {
+            if (!descriptor.writable) {
                 return false;
             }
 
-            if (descriptor.configurable !== true) {
+            if (!descriptor.configurable) {
                 return false;
             }
 
