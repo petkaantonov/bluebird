@@ -20,10 +20,6 @@ if (isES5) {
                 return true;
             }
 
-            if (descriptor.set) {
-                return true;
-            }
-
             if (!descriptor.writable) {
                 return false;
             }
