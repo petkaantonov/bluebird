@@ -142,7 +142,7 @@ var jobRunner = (function() {
                 resolve = arguments[0];
                 reject = arguments[1];
             });
-            var task = {
+            task = {
                 isolated: isolated,
                 task: {
                     code: task + "",

@@ -6,7 +6,7 @@ module.exports = function mochaRun(progress) {
     function checkTimers() {
         var keys = Object.keys(timers);
         for (var i = 0; i < keys.length; ++i) {
-            key = keys[i];
+            var key = keys[i];
             var timer = timers[key];
             if (!timer) continue;
             if (currentTime >= (timer.started + timer.time)) {
@@ -127,7 +127,7 @@ module.exports = function mochaRun(progress) {
                 error = failures[0].error;
             }
             else {
-                message = "\u001b[31mSome tests failed: \u001b[m\n"
+                var message = "\u001b[31mSome tests failed: \u001b[m\n"
                 failures.forEach(function(failResult) {
                     message += "    " + failResult.name + " " + failAdvice(failResult.name) + "\n";
                 });
