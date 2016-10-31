@@ -95,7 +95,6 @@ function parseDeps(src) {
 
 var tableLogger = (function() {
     var metaKeyCodeReAnywhere = /(?:\x1b)([a-zA-Z0-9])/;
-    var metaKeyCodeRe = new RegExp('^' + metaKeyCodeReAnywhere.source + '$');
     var functionKeyCodeReAnywhere = new RegExp('(?:\x1b+)(O|N|\\[|\\[\\[)(?:' + [
       '(\\d+)(?:;(\\d+))?([~^$])',
       '(?:M([@ #!a`])(.)(.))', // mouse
@@ -108,7 +107,6 @@ var tableLogger = (function() {
     }
 
     var ROWS = 35;
-    var prevLog = new Array(ROWS);
     var log = new Array(ROWS);
     for (var i = 0; i < ROWS; ++i) log[i] = [];
     var tableOpts = {
