@@ -25,23 +25,6 @@ Queue.prototype._pushOne = function (arg) {
     this._length = length + 1;
 };
 
-Queue.prototype._unshiftOne = function(value) {
-    var capacity = this._capacity;
-    this._checkCapacity(this.length() + 1);
-    var front = this._front;
-    var i = (((( front - 1 ) &
-                    ( capacity - 1) ) ^ capacity ) - capacity );
-    this[i] = value;
-    this._front = i;
-    this._length = this.length() + 1;
-};
-
-Queue.prototype.unshift = function(fn, receiver, arg) {
-    this._unshiftOne(arg);
-    this._unshiftOne(receiver);
-    this._unshiftOne(fn);
-};
-
 Queue.prototype.push = function (fn, receiver, arg) {
     ASSERT(arguments.length === 3);
     ASSERT(typeof fn === "function");
