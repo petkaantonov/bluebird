@@ -132,12 +132,6 @@ if (!util.hasDevTools) {
     };
 }
 
-Async.prototype.invokeFirst = function (fn, receiver, arg) {
-    ASSERT(arguments.length === 3);
-    this._normalQueue.unshift(fn, receiver, arg);
-    this._queueTick();
-};
-
 Async.prototype._drainQueue = function(queue) {
     while (queue.length() > 0) {
         var fn = queue.shift();
