@@ -860,6 +860,20 @@ var captureStackTrace = (function stackDetection() {
         };
     }
 
+    //Edge
+    if (typeof err.stack === "string" &&
+        typeof Error.stackTraceLimit === "number" &&
+        v8stackFramePattern.test(err.stack.split("\n")[1])) {
+        stackFramePattern = v8stackFramePattern;
+        formatStack = v8stackFormatter;
+        return function captureStackTrace(o)
+        {
+            Error.stackTraceLimit += 6;
+            o.stack = new Error().stack;
+            Error.stackTraceLimit -= 6;
+        };
+    }
+
     var hasStackAfterThrow;
     try { throw new Error(); }
     catch(e) {
