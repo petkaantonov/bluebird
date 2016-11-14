@@ -574,7 +574,7 @@ function stackFramesAsArray(error) {
             break;
         }
     }
-    if (i > 0 && error.name != 'SyntaxError') {
+    if (i > 0 && error.name != "SyntaxError") {
         stack = stack.slice(i);
     }
     return stack;
@@ -587,7 +587,7 @@ function parseStackAndMessage(error) {
                 ? stackFramesAsArray(error) : [NO_STACK_TRACE];
     return {
         message: message,
-        stack: error.name == 'SyntaxError' ? stack : cleanStack(stack)
+        stack: error.name == "SyntaxError" ? stack : cleanStack(stack)
     };
 }
 
