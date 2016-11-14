@@ -574,8 +574,7 @@ function stackFramesAsArray(error) {
             break;
         }
     }
-    // Chrome and IE include the error message in the stack
-    if (i > 0) {
+    if (i > 0 && error.name != 'SyntaxError') {
         stack = stack.slice(i);
     }
     return stack;
@@ -588,7 +587,7 @@ function parseStackAndMessage(error) {
                 ? stackFramesAsArray(error) : [NO_STACK_TRACE];
     return {
         message: message,
-        stack: cleanStack(stack)
+        stack: error.name == 'SyntaxError' ? stack : cleanStack(stack)
     };
 }
 
