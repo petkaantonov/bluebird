@@ -46,11 +46,11 @@ if (util.isNode && typeof MutationObserver === "undefined") {
 
         var scheduleToggle = function() {
             if (toggleScheduled) return;
-                toggleScheduled = true;
-                div2.classList.toggle("foo");
-            };
+            toggleScheduled = true;
+            div2.classList.toggle("foo");
+        };
 
-            return function schedule(fn) {
+        return function schedule(fn) {
             var o = new MutationObserver(function() {
                 o.disconnect();
                 fn();
