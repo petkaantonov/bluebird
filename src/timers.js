@@ -56,6 +56,7 @@ Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
     var ret = this.then().cancellable();
     ret._cancellationParent = this;
+    message = message + ", call stack: "  + (new Error().stack);
     var handle = setTimeout(function timeoutTimeout() {
         afterTimeout(ret, message);
     }, ms);
