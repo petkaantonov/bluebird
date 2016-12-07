@@ -321,8 +321,11 @@ if (typeof Symbol !== "undefined" && Symbol.iterator) {
 var isNode = typeof process !== "undefined" &&
         classString(process).toLowerCase() === "[object process]";
 
-function env(key, def) {
-    return isNode ? process.env[key] : def;
+var hasEnvVariables = typeof process !== "undefined" &&
+    typeof process.env !== "undefined";
+
+function env(key) {
+    return hasEnvVariables ? process.env[key] : undefined;
 }
 
 function getNativePromise() {
@@ -370,6 +373,7 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: isNode,
+    hasEnvVariables: hasEnvVariables,
     env: env,
     global: globalObject,
     getNativePromise: getNativePromise,
