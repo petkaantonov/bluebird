@@ -15,7 +15,7 @@ title: .disposer
 
 A meta method used to specify the disposer method that cleans up a resource when using [`Promise.using`](/docs/api/promise.using.html).
 
-Returns a Disposer object which encapsulates both the resource as well as the method to clean it up. The user can pass this object to `Promise.using` to get access to the resource when it becomes available, as well as to ensure its automatically cleaned up.
+Returns a Disposer object which encapsulates both the resource as well as the method to clean it up. The user can pass this object to `Promise.using` to get access to the resource when it becomes available, as well as to ensure it's automatically cleaned up.
 
 The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.
 
@@ -103,11 +103,11 @@ module.exports = getSqlConnection;
 
 #### Note about disposers in node
 
-If a disposer method throws or returns a rejected promise, its highly likely that it failed to dispose of the resource. In that case, Bluebird has two options - it can either ignore the error and continue with program execution or throw an exception (crashing the process in node.js).
+If a disposer method throws or returns a rejected promise, it's highly likely that it failed to dispose of the resource. In that case, Bluebird has two options - it can either ignore the error and continue with program execution or throw an exception (crashing the process in node.js).
 
 In bluebird we've chosen to do the latter because resources are typically scarce. For example, if a database connection cannot be disposed of and Bluebird ignores that, the connection pool will be quickly depleted and the process will become unusable (all requests that query the database will wait forever). Since Bluebird doesn't know how to handle that, the only sensible default is to crash the process. That way, rather than getting a useless process that cannot fulfill more requests, we can swap the faulty worker with a new one letting the OS clean up the resources for us.
 
-As a result, if you anticipate thrown errors or promise rejections while disposing of the resource you should use a `try..catch` block (or Promise.try) and write the appropriate catch code to handle the errors. If its not possible to sensibly handle the error, letting the process crash is the next best option.
+As a result, if you anticipate thrown errors or promise rejections while disposing of the resource you should use a `try..catch` block (or Promise.try) and write the appropriate catch code to handle the errors. If it's not possible to sensibly handle the error, letting the process crash is the next best option.
 
 This also means that disposers should not contain code that does anything other than resource disposal. For example, you cannot write code inside a disposer to commit or rollback a transaction, because there is no mechanism for the disposer to signal a failure of the commit or rollback action without crashing the process.
 
