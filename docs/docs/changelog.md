@@ -3,6 +3,14 @@ id: changelog
 title: Changelog
 ---
 
+## 3.4.7 (2016-12-22)
+
+- Promise config returns reference to Bluebird library
+- Updated logo
+- Benchmark fix
+- Don't drop syntaxerror context from stack traces
+- Fix environment variables sometimes causing long stack traces  to be enabled
+
 ## 3.4.6 (2016-09-01)
 
 Bugfixes:
@@ -221,6 +229,16 @@ See [New in 3.0](new-in-bluebird-3.html).
 ## 3.0.0 (2015-10-27)
 
 See [New in 3.0](new-in-bluebird-3.html).
+
+## 2.11.0 (2016-08-30)
+
+Features:
+
+ - feature
+
+Bugfixes:
+
+ - bugfix
 
 ## 2.10.2 (2015-10-01)
 
