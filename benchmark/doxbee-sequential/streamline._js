@@ -8,7 +8,7 @@ module.exports = function upload(stream, idOrPath, tag, _) {
         var file = self.byUuidOrPath(idOrPath).get(_);
 
         var previousId = file ? file.version : null;
-        version = {
+        var version = {
             userAccountId: userAccount.id,
             date: new Date(),
             blobId: blobId,
