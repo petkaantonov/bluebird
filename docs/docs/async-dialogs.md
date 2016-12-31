@@ -41,7 +41,7 @@ our own DOM based prompt. To begin, here is a template for a simple HTML page:
 ```
 
 `window.prompt` blocks the web page from processing while it waits for the user
-to enter in data. I has to block because the input is returned and the next
+to enter in data. It has to block because the input is returned and the next
 line of code needs that result. But for sake of this tutorial we are going to
 convert the typical conditional code into a promise API using a [promise
 constructor](api/new-promise.html).
@@ -82,7 +82,7 @@ to `promptPromise()` doesn't care. This makes a change to an *asynchronous*
 dialog a little more future proof.
 
 To drive home the synchronous nature of the `window.prompt` notice that the time
-stops ticking when the prompt dialog is displayed. Lets fix that by making our
+stops ticking when the prompt dialog is displayed. Let's fix that by making our
 own prompt. Since our dialog is just DOM manipulation the page won't be blocked
 while waiting for user input.
 
@@ -530,7 +530,7 @@ ProgressDialog.prototype.setProgress = function(percent) {
 };
 ```
 
-A common misconception is that a promises a form of callback management. This
+A common misconception is that promises are a form of callback management. This
 is not the case and is why the idea of having a progress callback is not part of
 the Promise spec. However, much like the Promise library passes in a `resolve`
 and `reject` callback when you create a new promise (`new Promise(…)`) we can do
