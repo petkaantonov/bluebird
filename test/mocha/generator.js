@@ -82,6 +82,22 @@ describe("yielding", function() {
             assert.equal(val, 4);
         });
     });
+
+    specify("yielding a function should not call the function", function() {
+        let functionWasCalled = false;
+        return Promise.coroutine(function*(){
+            try {
+                yield (function() {functionWasCalled = true;});
+            } 
+            catch(e){
+                assert(e instanceof TypeError);
+                assert.equal(functionWasCalled, false);
+                return 4;
+            }
+        })().then(function(val){
+            assert.equal(val, 4);
+        });
+    });
 });
 
 describe("thenables", function(){
@@ -367,7 +383,7 @@ describe("Spawn", function() {
 describe("custom yield handlers", function() {
     specify("should work with timers", function() {
         var n = 0;
-        return Promise.coroutine.addYieldHandler(function(v) {
+        Promise.coroutine.addYieldHandler(function(v) {
             if (typeof v === "number") {
                 n = 1;
                 return Promise.resolve(n);
@@ -417,18 +433,18 @@ describe("custom yield handlers", function() {
         });
     });
 
-    Promise.coroutine.addYieldHandler(function(v) {
-        if (typeof v === "function") {
-            var cb;
-            var promise = Promise.fromNode(function(callback) {
-                cb = callback;
-            });
-            try { v(cb); } catch (e) { cb(e); }
-            return promise;
-        }
-    });
-
     specify("should work with thunks", function(){
+        Promise.coroutine.addYieldHandler(function(v) {
+            if (typeof v === "function") {
+                var cb;
+                var promise = Promise.fromNode(function(callback) {
+                    cb = callback;
+                });
+                try { v(cb); } catch (e) { cb(e); }
+                return promise;
+            }
+        });
+
         var thunk = function(a) {
             return function(callback) {
                 setTimeout(function(){

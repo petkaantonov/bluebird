@@ -160,7 +160,8 @@ PromiseSpawn.prototype._continue = function (result) {
             if (maybePromise === null) {
                 this._promiseRejected(
                     new TypeError(
-                        YIELDED_NON_PROMISE_ERROR.replace("%s", value) +
+                        YIELDED_NON_PROMISE_ERROR.replace("%s", 
+                            value == null ? value : value.toString()) +
                         FROM_COROUTINE_CREATED_AT +
                         this._stack.split("\n").slice(1, -7).join("\n")
                     )
