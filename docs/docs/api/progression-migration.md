@@ -56,7 +56,7 @@ function returnsPromiseWithProgress(progressHandler) {
 }
 
 returnsPromiseWithProgress(function(progress) {
-    ui.progressbar.setWidth((progress * 200) + "px"); // update with on client side
+    ui.progressbar.setWidth((progress * 200) + "px"); // update width on client side
 }).then(function(value) { // action complete
    // entire chain is complete.
 }).catch(function(e) {
