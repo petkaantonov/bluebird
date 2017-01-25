@@ -16,9 +16,9 @@
     "flow control",
     "dsl",
     "fluent interface",
-	"bluebird",
-	"browserstack",
-	"library"
+    "bluebird",
+    "browserstack",
+    "library"
   ],
   "scripts": {
     "lint": "node scripts/jshint.js",
