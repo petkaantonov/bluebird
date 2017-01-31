@@ -34,7 +34,7 @@ f.dummyt = function dummyt(n) {
 //Currently promisifies only Node style callbacks
 //var lifter = require('bluebird').promisify;
 
-var Promise = require('bluebird');
+var Promise = require('../../js/release/bluebird.js');
 
 function nodeback(err, result) {
     if (err == null) this.fulfill(result);
