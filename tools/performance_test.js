@@ -67,7 +67,7 @@ exec("git remote add perf_origin https://github.com/petkaantonov/bluebird.git").
     if (!combinedResult) {
         console.error("\n\nPerformance regression!\n\n");
     } else {
-        console.error("OK");
+        console.log("OK");
     }
     return exec("git checkout -", {});
 });
