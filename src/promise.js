@@ -95,8 +95,8 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
             if (util.isObject(item)) {
                 catchInstances[j++] = item;
             } else {
-                return apiRejection(OBJECT_ERROR +
-                    "A catch statement predicate " + util.classString(item));
+                return apiRejection("Catch statement predicate: " +
+                    OBJECT_ERROR + util.classString(item));
             }
         }
         catchInstances.length = j;
