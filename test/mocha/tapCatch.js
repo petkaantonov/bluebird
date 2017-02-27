@@ -8,10 +8,10 @@ function rejection() {
     return rejection;
 }
 
-describe("tapError", function () {
+describe("tapCatch", function () {
 
     specify("passes through rejection reason", function() {
-        return rejection().tapError(function() {
+        return rejection().tapCatch(function() {
             return 3;
         }).caught(function(value) {
             assert.equal(value.message, "test");
@@ -20,7 +20,7 @@ describe("tapError", function () {
 
     specify("passes through reason after returned promise is fulfilled", function() {
         var async = false;
-        return rejection().tapError(function() {
+        return rejection().tapCatch(function() {
             return new Promise(function(r) {
                 setTimeout(function(){
                     async = true;
@@ -35,7 +35,7 @@ describe("tapError", function () {
 
     specify("is not called on fulfilled promise", function() {
         var called = false;
-        return Promise.resolve("test").tapError(function() {
+        return Promise.resolve("test").tapCatch(function() {
             called = true;
         }).then(function(value){
             assert(!called);
@@ -44,7 +44,7 @@ describe("tapError", function () {
 
     specify("passes immediate rejection", function() {
         var err = new Error();
-        return rejection().tapError(function() {
+        return rejection().tapCatch(function() {
             throw err;
         }).tap(assert.fail).then(assert.fail, function(e) {
             assert(err === e);
@@ -53,7 +53,7 @@ describe("tapError", function () {
 
     specify("passes eventual rejection", function() {
         var err = new Error();
-        return rejection().tapError(function() {
+        return rejection().tapCatch(function() {
             return new Promise(function(_, rej) {
                 setTimeout(function(){
                     rej(err);
@@ -65,14 +65,14 @@ describe("tapError", function () {
     });
 
     specify("passes reason", function() {
-        return rejection().tapError(function(a) {
+        return rejection().tapCatch(function(a) {
             assert(a === rejection);
         }).then(assert.fail, function() {});
     });
 
     specify("Works with predicates", function() {
         var called = false;
-        return Promise.reject(new TypeError).tapError(TypeError, function(a) {
+        return Promise.reject(new TypeError).tapCatch(TypeError, function(a) {
             called = true;
         }).then(assert.fail, function(err) {
             assert(called === true);
@@ -81,7 +81,7 @@ describe("tapError", function () {
     });
     specify("Does not get called on predicates that don't match ", function() {
         var called = false;
-        return Promise.reject(new TypeError).tapError(ReferenceError, function(a) {
+        return Promise.reject(new TypeError).tapCatch(ReferenceError, function(a) {
             called = true;
         }).then(assert.fail, function(err) {
             assert(called === false);

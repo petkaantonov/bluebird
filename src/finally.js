@@ -111,7 +111,7 @@ Promise.prototype.tap = function (handler) {
     return this._passThrough(handler, TAP_TYPE, finallyHandler);
 };
 
-Promise.prototype.tapError = function (handlerOrPredicate) {
+Promise.prototype.tapCatch = function (handlerOrPredicate) {
     if(arguments.length === 1) {
         return this._passThrough(handlerOrPredicate,
                                  TAP_TYPE,
