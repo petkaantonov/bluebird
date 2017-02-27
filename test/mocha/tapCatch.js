@@ -89,4 +89,42 @@ describe("tapCatch", function () {
             assert(err instanceof TypeError);
         });
     });
+
+    specify("Supports multiple predicates", function() {
+        var calledA = false;
+        var calledB = false;
+        var calledC = false;
+
+        var promiseA = Promise.reject(new ReferenceError).tapCatch(
+            ReferenceError,
+            TypeError,
+            function (e) {
+                assert(e instanceof ReferenceError);
+                calledA = true;
+            }
+        ).catch(function () {});
+
+        var promiseB = Promise.reject(new TypeError).tapCatch(
+            ReferenceError,
+            TypeError,
+            function (e) {
+                assert(e instanceof TypeError);
+                calledB = true;
+            }
+        ).catch(function () {});
+
+        var promiseC = Promise.reject(new SyntaxError).tapCatch(
+            ReferenceError,
+            TypeError,
+            function (e) {
+                calledC = true;
+            }
+        ).catch(function () {});
+
+        return Promise.join(promiseA, promiseB, promiseC, function () {
+            assert(calledA === true);
+            assert(calledB === true);
+            assert(calledC === false);
+        });
+    })
 });

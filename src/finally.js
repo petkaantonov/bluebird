@@ -112,15 +112,29 @@ Promise.prototype.tap = function (handler) {
 };
 
 Promise.prototype.tapCatch = function (handlerOrPredicate) {
-    if(arguments.length === 1) {
+    var len = arguments.length;
+    if(len === 1) {
         return this._passThrough(handlerOrPredicate,
                                  TAP_TYPE,
                                  undefined,
                                  finallyHandler);
     } else {
-        var predicate = arguments[0];
-        var handler = arguments[1];
-        return this._passThrough(catchFilter([predicate], handler, this),
+         var catchInstances = new Array(len - 1),
+            j = 0, i;
+        for (i = 0; i < len - 1; ++i) {
+            var item = arguments[i];
+            if (util.isObject(item)) {
+                catchInstances[j++] = item;
+            } else {
+                return Promise.reject(new TypeError(
+                    "tapCatch statement predicate: "
+                    + OBJECT_ERROR + util.classString(item)
+                ));
+            }
+        }
+        catchInstances.length = j;
+        var handler = arguments[i];
+        return this._passThrough(catchFilter(catchInstances, handler, this),
                                  TAP_TYPE,
                                  undefined,
                                  finallyHandler);
