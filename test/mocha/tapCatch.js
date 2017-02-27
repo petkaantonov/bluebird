@@ -74,16 +74,16 @@ describe("tapError", function () {
         var called = false;
         return Promise.reject(new TypeError).tapError(TypeError, function(a) {
             called = true;
-        }).then(assert.fail, function(err) { 
+        }).then(assert.fail, function(err) {
             assert(called === true);
             assert(err instanceof TypeError);
         });
     });
     specify("Does not get called on predicates that don't match ", function() {
         var called = false;
-        return Promise.reject(new TypeError).tapError(ReferneceError, function(a) {
+        return Promise.reject(new TypeError).tapError(ReferenceError, function(a) {
             called = true;
-        }).then(assert.fail, function(err) { 
+        }).then(assert.fail, function(err) {
             assert(called === false);
             assert(err instanceof ReferenceError);
         });
