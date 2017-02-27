@@ -53,7 +53,7 @@ redirect_from: "/docs/api/index.html"
     - [Promise.using](api/promise.using.html)
     - [.disposer](api/disposer.html)
 - [Promisification](api/promisification.html)
-    - [Promise.promisify](api/promsie.promisify.html)
+    - [Promise.promisify](api/promise.promisify.html)
     - [Promise.promisifyAll](api/promise.promisifyall.html)
     - [Promise.fromCallback](api/promise.fromcallback.html)
     - [.asCallback](api/ascallback.html)
