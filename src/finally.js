@@ -120,7 +120,7 @@ Promise.prototype.tapCatch = function (handlerOrPredicate) {
     } else {
         var predicate = arguments[0];
         var handler = arguments[1];
-       return this._passThrough(catchFilter(predicate, handler, this),
+        return this._passThrough(catchFilter([predicate], handler, this),
                                  TAP_TYPE,
                                  undefined,
                                  finallyHandler);
