@@ -153,34 +153,44 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Common case includes adding logging to an existing promise chain:</p>
-
-<p><strong>Rate Limiting</strong>
-<code>
-Promise.
-  try(logIn).
-  then(respondWithSuccess).
-  tapCatch(countFailuresForRateLimitingPurposes).
-  catch(respondWithError);
-</code></p>
-
-<p><strong>Circuit Breakers</strong>
-<code>
-Promise.
-  try(makeRequest).
-  then(respondWithSuccess).
-  tapCatch(adjustCircuitBreakerState).
-  catch(respondWithError);
-</code></p>
-
-<p><strong>Logging</strong>
-<code>
-Promise.
-  try(doAThing).
-  tapCatch(logErrorsRelatedToThatThing).
-  then(respondWithSuccess).
-  catch(respondWithError);
-</code>
-<em>Note: in browsers it is necessary to call <code>.tapCatch</code> with <code>console.log.bind(console)</code> because console methods can not be called as stand-alone functions.</em></p>
+            <h4>
+                <a class="header-anchor"
+                    name="rate-limiting"
+                    aria-hidden="true"
+                    href="#rate-limiting"><i class="fa fa-link"></i></a>
+                Rate Limiting
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">logIn</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">countFailuresForRateLimitingPurposes</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="circuit-breakers"
+                    aria-hidden="true"
+                    href="#circuit-breakers"><i class="fa fa-link"></i></a>
+                Circuit Breakers
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">makeRequest</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">adjustCircuitBreakerState</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="logging"
+                    aria-hidden="true"
+                    href="#logging"><i class="fa fa-link"></i></a>
+                Logging
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">doAThing</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">logErrorsRelatedToThatThing</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>
+<p><em>Note: in browsers it is necessary to call <code>.tapCatch</code> with <code>console.log.bind(console)</code> because console methods can not be called as stand-alone functions.</em></p>
             <h3>
                 <a class="header-anchor"
                     name="filtered-tapcatch"
@@ -200,40 +210,49 @@ Promise.
 <p>This is an extension to <a href='/docs/api/tapcatch.html'><code><code>.tapCatch</code></code></a> to filter exceptions similarly to languages like Java or C#. Instead of manually checking <code>instanceof</code> or <code>.name === &quot;SomeError&quot;</code>, you may specify a number of error constructors which are eligible for this tapCatch handler. The tapCatch handler that is first met that has eligible constructors specified, is the one that will be called.</p>
 
 <p>Usage examples include:</p>
-
-<p><strong>Rate Limiting</strong>
-<code>
-Bluebird.
-  try(logIn).
-  then(respondWithSuccess).
-  tapCatch(InvalidCredentialsError, countFailuresForRateLimitingPurposes).
-  catch(respondWithError);
-</code></p>
-
-<p><strong>Circuit Breakers</strong>
-<code>
-Bluebird.
-  try(makeRequest).
-  then(respondWithSuccess).
-  tapCatch(RequestError, adjustCircuitBreakerState).
-  catch(respondWithError);
-</code></p>
-
-<p><strong>Logging</strong>
-<code>
-Bluebird.
-  try(doAThing).
-  tapCatch(logErrorsRelatedToThatThing).
-  then(respondWithSuccess).
-  catch(respondWithError);
-</code></p>
-
+            <h4>
+                <a class="header-anchor"
+                    name="rate-limiting"
+                    aria-hidden="true"
+                    href="#rate-limiting"><i class="fa fa-link"></i></a>
+                Rate Limiting
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">logIn</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">InvalidCredentialsError</span><span class="p">,</span> <span class="nx">countFailuresForRateLimitingPurposes</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="circuit-breakers"
+                    aria-hidden="true"
+                    href="#circuit-breakers"><i class="fa fa-link"></i></a>
+                Circuit Breakers
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">makeRequest</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">RequestError</span><span class="p">,</span> <span class="nx">adjustCircuitBreakerState</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>            <h4>
+                <a class="header-anchor"
+                    name="logging"
+                    aria-hidden="true"
+                    href="#logging"><i class="fa fa-link"></i></a>
+                Logging
+            </h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span>
+  <span class="k">try</span><span class="p">(</span><span class="nx">doAThing</span><span class="p">).</span>
+  <span class="nx">tapCatch</span><span class="p">(</span><span class="nx">logErrorsRelatedToThatThing</span><span class="p">).</span>
+  <span class="nx">then</span><span class="p">(</span><span class="nx">respondWithSuccess</span><span class="p">).</span>
+  <span class="k">catch</span><span class="p">(</span><span class="nx">respondWithError</span><span class="p">);</span>
+</code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = ".tap";
+    var disqus_title = ".tapCatch";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-tap";
+    var disqus_identifier = "disqus-id-tapCatch";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
