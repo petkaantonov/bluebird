@@ -3,6 +3,21 @@ id: changelog
 title: Changelog
 ---
 
+## 3.5.0 (2017-03-03)
+
+Features:
+
+ - Added new method: [.tapCatch](.) \([#1220](.)\)
+
+Bugfixes:
+
+ - Fixed streamline benchmarks \([#1233](.)\)
+ - Fixed yielding a function calling the function \([#1314](.), [#1315](.)\)
+ - Fixed confusing error message when calling [.catch](.) with non function predicate \([#1350](.)\)
+ - Fixed [.props](.) resolving to empty object when called with empty `Map` \([#1338](.)\)
+ - Fixed confusing error message when invoking `Promise` directly without `new` \([#1320](.)\)
+ - Added dedicated webpack entry point \([#1318](.)\)
+
 ## 3.4.7 (2016-12-22)
 
 - Promise config returns reference to Bluebird library
