@@ -14,7 +14,7 @@ title: .tap
 ```
 
 
-Like [`.finally`](.) that is not called for rejections.
+Unlike [`.finally`](.) this is not called for rejections.
 
 ```js
 getUser().tap(function(user) {
