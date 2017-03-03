@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 22 Dec 2016</i>
+                <i>Updated 03 Mar 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -146,7 +146,7 @@ our own DOM based prompt. To begin, here is a template for a simple HTML page:</
 <span class="nt">&lt;head&gt;</span>
   <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;title&gt;</span>Async Dislogs Example<span class="nt">&lt;/title&gt;</span>
-  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/bluebird/3.4.7/bluebird.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
   <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
     <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
       <span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;time-stamp&#39;</span><span class="p">);</span>
@@ -166,7 +166,7 @@ our own DOM based prompt. To begin, here is a template for a simple HTML page:</
 <span class="nt">&lt;/html&gt;</span>
 </code></pre></div>
 <p><code>window.prompt</code> blocks the web page from processing while it waits for the user
-to enter in data. I has to block because the input is returned and the next
+to enter in data. It has to block because the input is returned and the next
 line of code needs that result. But for sake of this tutorial we are going to
 convert the typical conditional code into a promise API using a <a href='api/new-promise.html' title=''>promise
 constructor</a>.</p>
@@ -204,7 +204,7 @@ to <code>promptPromise()</code> doesn&#39;t care. This makes a change to an <em>
 dialog a little more future proof.</p>
 
 <p>To drive home the synchronous nature of the <code>window.prompt</code> notice that the time
-stops ticking when the prompt dialog is displayed. Lets fix that by making our
+stops ticking when the prompt dialog is displayed. Let&#39;s fix that by making our
 own prompt. Since our dialog is just DOM manipulation the page won&#39;t be blocked
 while waiting for user input.</p>
 
@@ -625,7 +625,7 @@ this might look:</p>
   <span class="k">this</span><span class="p">.</span><span class="nx">progressBar</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">percent</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<p>A common misconception is that a promises a form of callback management. This
+<p>A common misconception is that promises are a form of callback management. This
 is not the case and is why the idea of having a progress callback is not part of
 the Promise spec. However, much like the Promise library passes in a <code>resolve</code>
 and <code>reject</code> callback when you create a new promise (<code>new Promise(…)</code>) we can do
@@ -714,7 +714,7 @@ procedural style.</p>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.7/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 03 Mar 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -142,9 +142,9 @@
             </div>
 </p>
 
-<p>Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given <code>iterator</code> function with the signature <code>(value, index, length)</code> where <code>value</code> is the resolved value of a respective promise in the input array. Iteration happens serially. If any promise in the input array is rejected the returned promise is rejected as well.</p>
+<p>Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given <code>iterator</code> function with the signature <code>(value, index, length)</code> where <code>value</code> is the resolved value of a respective promise in the input array. <strong>Iteration happens serially</strong>. If the iterator function returns a promise or a thenable, then the result of the promise is awaited before continuing with next iteration. If any promise in the input array is rejected, then the returned promise is rejected as well.</p>
 
-<p>Resolves to the original array unmodified, this method is meant to be used for side effects. If the iterator function returns a promise or a thenable, then the result of the promise is awaited, before continuing with next iteration.</p>
+<p>Resolves to the original array unmodified. This method is meant to be used for side effects. </p>
 
 <p><hr>
 </markdown></div></p>
@@ -171,7 +171,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.7/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

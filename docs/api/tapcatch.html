@@ -11,13 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,200,700,500,100,800,600,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <title>Core | bluebird</title>
+    <title>.tapCatch | bluebird</title>
     <meta name="description" content="Bluebird is a fully featured JavaScript promises library with unmatched performance.">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/mono-blue.css" type='text/css' />
     <link rel="stylesheet" href="/css/hover-min.css" media="all">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://bluebirdjs.com/docs/api/core.html">
+    <link rel="canonical" href="http://bluebirdjs.com/docs/api/tapcatch.html">
     <link rel="icon" href="/img/favicon.png" type="image/png" />
   </head>
 
@@ -111,11 +111,11 @@
         <div class="col-sm-9">
             
             <div class="post-info">
-                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/core.md">
+                <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/api/tapcatch.md">
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 03 Mar 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -125,20 +125,116 @@
 <div class="api-code-section"><markdown></p>
             <h2>
                 <a class="header-anchor"
-                    name="core"
+                    name="tapcatch"
                     aria-hidden="true"
-                    href="#core"><i class="fa fa-link"></i></a>
-                Core
+                    href="#tapcatch"><i class="fa fa-link"></i></a>
+                .tapCatch
             </h2>
 
-<p>Core methods of <code>Promise</code> instances and core static methods of the Promise class.
-</markdown></div></p>
+<p><code>.tapCatch</code> is a convenience method for reacting to errors without handling them with promises - similar to <code>finally</code> but only called on rejections. Useful for logging errors.</p>
+
+<p>It comes in two variants.
+ - A tapCatch-all variant similar to <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> block. This variant is compatible with native promises.
+ - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. <strong>This variant is usually preferable</strong>.</p>
+            <h3>
+                <a class="header-anchor"
+                    name="tapcatch-all"
+                    aria-hidden="true"
+                    href="#tapcatch-all"><i class="fa fa-link"></i></a>
+                <code>tapCatch</code> all
+            </h3>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">tapCatch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div>
+<p>Like <a href='/docs/api/finally.html'><code><code>.finally</code></code></a> that is not called for fulfillments.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">tapCatch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">logErrorToDatabase</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//user is the user from getUser(), not logErrorToDatabase()</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Common case includes adding logging to an existing promise chain:</p>
+
+<p><strong>Rate Limiting</strong>
+<code>
+Promise.
+  try(logIn).
+  then(respondWithSuccess).
+  tapCatch(countFailuresForRateLimitingPurposes).
+  catch(respondWithError);
+</code></p>
+
+<p><strong>Circuit Breakers</strong>
+<code>
+Promise.
+  try(makeRequest).
+  then(respondWithSuccess).
+  tapCatch(adjustCircuitBreakerState).
+  catch(respondWithError);
+</code></p>
+
+<p><strong>Logging</strong>
+<code>
+Promise.
+  try(doAThing).
+  tapCatch(logErrorsRelatedToThatThing).
+  then(respondWithSuccess).
+  catch(respondWithError);
+</code>
+<em>Note: in browsers it is necessary to call <code>.tapCatch</code> with <code>console.log.bind(console)</code> because console methods can not be called as stand-alone functions.</em></p>
+            <h3>
+                <a class="header-anchor"
+                    name="filtered-tapcatch"
+                    aria-hidden="true"
+                    href="#filtered-tapcatch"><i class="fa fa-link"></i></a>
+                Filtered <code>tapCatch</code>
+            </h3>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">tapCatch</span><span class="p">(</span>
+    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">),</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">tapCatch</span><span class="p">(</span>
+    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">),</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+</code></pre></div>
+<p>This is an extension to <a href='/docs/api/tapcatch.html'><code><code>.tapCatch</code></code></a> to filter exceptions similarly to languages like Java or C#. Instead of manually checking <code>instanceof</code> or <code>.name === &quot;SomeError&quot;</code>, you may specify a number of error constructors which are eligible for this tapCatch handler. The tapCatch handler that is first met that has eligible constructors specified, is the one that will be called.</p>
+
+<p>Usage examples include:</p>
+
+<p><strong>Rate Limiting</strong>
+<code>
+Bluebird.
+  try(logIn).
+  then(respondWithSuccess).
+  tapCatch(InvalidCredentialsError, countFailuresForRateLimitingPurposes).
+  catch(respondWithError);
+</code></p>
+
+<p><strong>Circuit Breakers</strong>
+<code>
+Bluebird.
+  try(makeRequest).
+  then(respondWithSuccess).
+  tapCatch(RequestError, adjustCircuitBreakerState).
+  catch(respondWithError);
+</code></p>
+
+<p><strong>Logging</strong>
+<code>
+Bluebird.
+  try(doAThing).
+  tapCatch(logErrorsRelatedToThatThing).
+  then(respondWithSuccess).
+  catch(respondWithError);
+</code></p>
+
+<p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = "Core";
+    var disqus_title = ".tap";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-core";
-    
+    var disqus_identifier = "disqus-id-tap";
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";

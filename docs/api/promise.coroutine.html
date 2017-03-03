@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 03 Mar 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -140,15 +140,15 @@
 <span class="p">}</span>
 
 <span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">ping</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Ping?&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
-    <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">pong</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Ping?&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">);</span>
+    <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">pong</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">pong</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Pong!&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Pong!&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">);</span>
     <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PingPong</span><span class="p">();</span>
@@ -198,7 +198,7 @@ Ping? 8
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.7/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

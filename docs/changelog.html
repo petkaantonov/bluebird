@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 22 Dec 2016</i>
+                <i>Updated 03 Mar 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -127,6 +127,30 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.5.0"
+                    aria-hidden="true"
+                    href="#3.5.0"><i class="fa fa-link"></i></a>
+                3.5.0 (2017-03-03)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Added new method: <a href='/docs/api/tapcatch.html'><code>.tapCatch</code></a> (<a href='https://github.com/petkaantonov/bluebird/issues/1220'><code>#1220</code></a>)</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fixed streamline benchmarks (<a href='https://github.com/petkaantonov/bluebird/issues/1233'><code>#1233</code></a>)</li>
+<li>Fixed yielding a function calling the function (<a href='https://github.com/petkaantonov/bluebird/issues/1314'><code>#1314</code></a>, <a href='https://github.com/petkaantonov/bluebird/issues/1315'><code>#1315</code></a>)</li>
+<li>Fixed confusing error message when calling <a href='/docs/api/catch.html'><code>.catch</code></a> with non function predicate (<a href='https://github.com/petkaantonov/bluebird/issues/1350'><code>#1350</code></a>)</li>
+<li>Fixed <a href='/docs/api/props.html'><code>.props</code></a> resolving to empty object when called with empty <code>Map</code> (<a href='https://github.com/petkaantonov/bluebird/issues/1338'><code>#1338</code></a>)</li>
+<li>Fixed confusing error message when invoking <code>Promise</code> directly without <code>new</code> (<a href='https://github.com/petkaantonov/bluebird/issues/1320'><code>#1320</code></a>)</li>
+<li>Added dedicated webpack entry point (<a href='https://github.com/petkaantonov/bluebird/issues/1318'><code>#1318</code></a>)</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.4.7"
                     aria-hidden="true"
@@ -4040,7 +4064,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.4.7/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
