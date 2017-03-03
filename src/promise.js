@@ -59,24 +59,25 @@ var nodebackForPromise = require("./nodeback");
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 function check(self, executor) {
+    if (self == null || self.constructor !== Promise) {
+        throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
+    }
     if (typeof executor !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(executor));
     }
-    if (self.constructor !== Promise) {
-        throw new TypeError(CONSTRUCT_ERROR_INVOCATION);
-    }
+
 }
 
 function Promise(executor) {
+    if (executor !== INTERNAL) {
+        check(this, executor);
+    }
     this._bitField = NO_STATE;
     this._fulfillmentHandler0 = undefined;
     this._rejectionHandler0 = undefined;
     this._promise0 = undefined;
     this._receiver0 = undefined;
-    if (executor !== INTERNAL) {
-        check(this, executor);
-        this._resolveFromExecutor(executor);
-    }
+    this._resolveFromExecutor(executor);
     this._promiseCreated();
     this._fireEvent("promiseCreated", this);
 }
@@ -504,6 +505,7 @@ function(reason, synchronous, ignoreNonErrorWarnings) {
 };
 
 Promise.prototype._resolveFromExecutor = function (executor) {
+    if (executor === INTERNAL) return;
     ASSERT(typeof executor === "function");
     var promise = this;
     this._captureStackTrace();
