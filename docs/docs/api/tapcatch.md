@@ -35,8 +35,9 @@ getUser().tapCatch(function(err) {
 
 Common case includes adding logging to an existing promise chain:
 
-**Rate Limiting**
-```
+#### Rate Limiting
+
+```js
 Promise.
   try(logIn).
   then(respondWithSuccess).
@@ -44,8 +45,9 @@ Promise.
   catch(respondWithError);
 ```
 
-**Circuit Breakers**
-```
+#### Circuit Breakers
+
+```js
 Promise.
   try(makeRequest).
   then(respondWithSuccess).
@@ -53,14 +55,16 @@ Promise.
   catch(respondWithError);
 ```
 
-**Logging**
-```
+#### Logging
+
+```js
 Promise.
   try(doAThing).
   tapCatch(logErrorsRelatedToThatThing).
   then(respondWithSuccess).
   catch(respondWithError);
 ```
+
 *Note: in browsers it is necessary to call `.tapCatch` with `console.log.bind(console)` because console methods can not be called as stand-alone functions.*
 
 ### Filtered `tapCatch`
@@ -84,27 +88,30 @@ This is an extension to [`.tapCatch`](.) to filter exceptions similarly to langu
 
 Usage examples include:
 
-**Rate Limiting**
-```
-Bluebird.
+#### Rate Limiting
+
+```js
+Promise.
   try(logIn).
   then(respondWithSuccess).
   tapCatch(InvalidCredentialsError, countFailuresForRateLimitingPurposes).
   catch(respondWithError);
 ```
 
-**Circuit Breakers**
-```
-Bluebird.
+#### Circuit Breakers
+
+```js
+Promise.
   try(makeRequest).
   then(respondWithSuccess).
   tapCatch(RequestError, adjustCircuitBreakerState).
   catch(respondWithError);
 ```
 
-**Logging**
-```
-Bluebird.
+#### Logging
+
+```js
+Promise.
   try(doAThing).
   tapCatch(logErrorsRelatedToThatThing).
   then(respondWithSuccess).
@@ -115,9 +122,9 @@ Bluebird.
 
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = ".tap";
+    var disqus_title = ".tapCatch";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-tap";
+    var disqus_identifier = "disqus-id-tapCatch";
 
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
