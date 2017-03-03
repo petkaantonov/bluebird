@@ -1,8 +1,9 @@
 "use strict";
-module.exports = function(Promise, tryConvertToPromise) {
+module.exports = function(Promise, tryConvertToPromise, NEXT_FILTER) {
 var util = require("./util");
 var CancellationError = Promise.CancellationError;
 var errorObj = util.errorObj;
+var catchFilter = require("./catch_filter")(NEXT_FILTER);
 
 function PassThroughHandlerContext(promise, type, handler) {
     this.promise = promise;
@@ -54,7 +55,9 @@ function finallyHandler(reasonOrValue) {
         var ret = this.isFinallyHandler()
             ? handler.call(promise._boundValue())
             : handler.call(promise._boundValue(), reasonOrValue);
-        if (ret !== undefined) {
+        if (ret === NEXT_FILTER) {
+            return ret;
+        } else if (ret !== undefined) {
             promise._setReturnedNonUndefined();
             var maybePromise = tryConvertToPromise(ret, promise);
             if (maybePromise instanceof Promise) {
@@ -103,8 +106,40 @@ Promise.prototype["finally"] = function (handler) {
                              finallyHandler);
 };
 
+
 Promise.prototype.tap = function (handler) {
     return this._passThrough(handler, TAP_TYPE, finallyHandler);
+};
+
+Promise.prototype.tapCatch = function (handlerOrPredicate) {
+    var len = arguments.length;
+    if(len === 1) {
+        return this._passThrough(handlerOrPredicate,
+                                 TAP_TYPE,
+                                 undefined,
+                                 finallyHandler);
+    } else {
+         var catchInstances = new Array(len - 1),
+            j = 0, i;
+        for (i = 0; i < len - 1; ++i) {
+            var item = arguments[i];
+            if (util.isObject(item)) {
+                catchInstances[j++] = item;
+            } else {
+                return Promise.reject(new TypeError(
+                    "tapCatch statement predicate: "
+                    + OBJECT_ERROR + util.classString(item)
+                ));
+            }
+        }
+        catchInstances.length = j;
+        var handler = arguments[i];
+        return this._passThrough(catchFilter(catchInstances, handler, this),
+                                 TAP_TYPE,
+                                 undefined,
+                                 finallyHandler);
+    }
+
 };
 
 return PassThroughHandlerContext;

@@ -53,7 +53,7 @@ var createContext = Context.create;
 var debug = require("./debuggability")(Promise, Context);
 var CapturedTrace = debug.CapturedTrace;
 var PassThroughHandlerContext =
-    require("./finally")(Promise, tryConvertToPromise);
+    require("./finally")(Promise, tryConvertToPromise, NEXT_FILTER);
 var catchFilter = require("./catch_filter")(NEXT_FILTER);
 var nodebackForPromise = require("./nodeback");
 var errorObj = util.errorObj;
