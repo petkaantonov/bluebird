@@ -11,6 +11,7 @@ function toResolutionValue(val) {
     switch(val) {
     case RESOLVE_ARRAY: return [];
     case RESOLVE_OBJECT: return {};
+    case RESOLVE_MAP: return new Map();
     }
     ASSERT(false);
 }

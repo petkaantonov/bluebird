@@ -180,6 +180,7 @@ describe("Promise.props", function () {
         });
     });
 
+
     if (typeof Map !== "undefined") {
         specify("works with es6 maps", function() {
             return Promise.props(new Map([
@@ -206,6 +207,12 @@ describe("Promise.props", function () {
                 assert.strictEqual(result.get(a), 1);
                 assert.strictEqual(result.get(b), 2);
                 assert.strictEqual(result.get(c), 3);
+            });
+        });
+
+        specify("empty map should resolve to empty map", function() {
+            return Promise.props(new Map()).then(function(result) {
+                assert(result instanceof Map);
             });
         });
     }

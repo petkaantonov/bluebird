@@ -56,7 +56,7 @@ function PropertiesPromiseArray(obj) {
     }
     this.constructor$(entries);
     this._isMap = isMap;
-    this._init$(undefined, RESOLVE_OBJECT);
+    this._init$(undefined, isMap ? RESOLVE_MAP : RESOLVE_OBJECT);
 }
 util.inherits(PropertiesPromiseArray, PromiseArray);
 

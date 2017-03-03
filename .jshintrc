@@ -118,6 +118,7 @@
         "RESOLVE_OBJECT": false,
         "RESOLVE_FOREVER_PENDING": false,
         "RESOLVE_CALL_METHOD": false,
+        "RESOLVE_MAP": false,
         "QUEUE_MAX_CAPACITY": false,
         "QUEUE_MIN_CAPACITY": false,
         "FROM_PREVIOUS_EVENT": false,
