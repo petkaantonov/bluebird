@@ -501,7 +501,8 @@ function(reason, synchronous, ignoreNonErrorWarnings) {
         this._warn(message, true);
     }
     if (BIT_FIELD_CHECK(IS_FULFILLED, this._bitField)) {
-        var message = "a promise was rejected after resolve";
+        var message = "a promise was rejected after resolve: " +
+            util.classString(reason);
         this._warn(message, true);
     }
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
