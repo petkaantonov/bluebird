@@ -232,47 +232,30 @@ using(getSqlConnection(), function(conn) {
 });
 ```
 
-It's also possible to use disposers for transaction management:
+It's also possible to use a disposer pattern (but not actual disposers) for transaction management:
 
 ```js
-var pg = require('pg');
-// uncomment if necessary
-//var Promise = require("bluebird");
-//Promise.promisifyAll(pg, {
-//    filter: function(methodName) {
-//        return methodName === "connect"
-//    },
-//    multiArgs: true
-//});
-// Promisify rest of pg normally
-//Promise.promisifyAll(pg);
 
-function getTransaction(connectionString) {
-    var close;
-    return pg.connectAsync(connectionString).spread(function(client, done) {
-        close = done;
-        return client.queryAsync('BEGIN').then(function () {
-            return client;
-        });
-    }).disposer(function(client, promise) {
-        if (promise.isFulfilled()) {
-            return client.queryAsync('COMMIT').then(closeClient);
-        } else {
-            return client.queryAsync('ROLLBACK').then(closeClient);
-        }
-        function closeClient() {
-            if (close) close(client);
-        }
-    });
+function withTransaction(fn) {
+  return Promise.using(pool.acquireConnection(), function(connection) {
+    var tx = connection.beginTransaction()
+    return Promise
+      .try(fn, tx)
+      .then(function(res) { return connection.commit().thenReturn(res) },
+            function(err) {
+              return connection.rollback()
+                     .catch(function(e) {/* maybe add the rollback error to err */})
+                     .thenThrow(err);
+            });
+  });
 }
-
-exports.getTransaction = getTransaction;
+exports.withTransaction = withTransaction;
 ```
 
 Which would let you do:
 
 ```js
-using(getTransaction(), function(tx) {
+withTransaction(tx => {
     return tx.queryAsync(...).then(function() {
         return tx.queryAsync(...)
     }).then(function() {
@@ -308,26 +291,7 @@ function getSqlConnection() {
 module.exports = getSqlConnection;
 ```
 
-The usage pattern is similar to the PostgreSQL example above. You can also create a disposer for transactions and use it safely:
-
-```js
-function getTransaction() {
-    return db.getTransactionAsync().disposer(function(tx, promise) {
-        return promise.isFulfilled() ? tx.commitAsync() : tx.rollbackAsync();
-    });
-}
-
-
-// If the using block completes successfully, the transaction is automatically committed
-// Any error or rejection will automatically roll it back
-using(getTransaction(), function(tx) {
-    return tx.queryAsync(...).then(function() {
-        return tx.queryAsync(...)
-    }).then(function() {
-        return tx.queryAsync(...)
-    });
-});
-```
+The usage pattern is similar to the PostgreSQL example above. You can also use a disposer pattern (but not an actual .disposer). See the PostgreSQL example above for instructions.
 
 ###More common examples
 
