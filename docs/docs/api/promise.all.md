@@ -10,7 +10,7 @@ title: Promise.all
 ##Promise.all
 
 ```js
-Promise.all(Iterable<any>|Promise<Iterable<any>> input) -> Promise
+Promise.all(Iterable<any>|Promise<Iterable<any>> input) -> Promise<Array<any>>
 ```
 
 This method is useful for when you want to wait for more than one promise to complete.
