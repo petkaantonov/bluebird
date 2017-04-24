@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 24 Apr 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -392,42 +392,24 @@
 
 <span class="p">});</span>
 </code></pre></div>
-<p>It&#39;s also possible to use disposers for transaction management:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;pg&#39;</span><span class="p">);</span>
-<span class="c1">// uncomment if necessary</span>
-<span class="c1">//var Promise = require(&quot;bluebird&quot;);</span>
-<span class="c1">//Promise.promisifyAll(pg, {</span>
-<span class="c1">//    filter: function(methodName) {</span>
-<span class="c1">//        return methodName === &quot;connect&quot;</span>
-<span class="c1">//    },</span>
-<span class="c1">//    multiArgs: true</span>
-<span class="c1">//});</span>
-<span class="c1">// Promisify rest of pg normally</span>
-<span class="c1">//Promise.promisifyAll(pg);</span>
-
-<span class="kd">function</span> <span class="nx">getTransaction</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">close</span><span class="p">;</span>
-    <span class="k">return</span> <span class="nx">pg</span><span class="p">.</span><span class="nx">connectAsync</span><span class="p">(</span><span class="nx">connectionString</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">close</span> <span class="o">=</span> <span class="nx">done</span><span class="p">;</span>
-        <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;BEGIN&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="nx">client</span><span class="p">;</span>
-        <span class="p">});</span>
-    <span class="p">}).</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">promise</span><span class="p">.</span><span class="nx">isFulfilled</span><span class="p">())</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;COMMIT&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">closeClient</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="s1">&#39;ROLLBACK&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">closeClient</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="kd">function</span> <span class="nx">closeClient</span><span class="p">()</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">close</span><span class="p">)</span> <span class="nx">close</span><span class="p">(</span><span class="nx">client</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">});</span>
+<p>It&#39;s also possible to use a disposer pattern (but not actual disposers) for transaction management:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">withTransaction</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span><span class="nx">pool</span><span class="p">.</span><span class="nx">acquireConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">beginTransaction</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nx">Promise</span>
+      <span class="p">.</span><span class="k">try</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">tx</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">commit</span><span class="p">().</span><span class="nx">thenReturn</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">},</span>
+            <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">rollback</span><span class="p">()</span>
+                     <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span><span class="cm">/* maybe add the rollback error to err */</span><span class="p">})</span>
+                     <span class="p">.</span><span class="nx">thenThrow</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+            <span class="p">});</span>
+  <span class="p">});</span>
 <span class="p">}</span>
-
-<span class="nx">exports</span><span class="p">.</span><span class="nx">getTransaction</span> <span class="o">=</span> <span class="nx">getTransaction</span><span class="p">;</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">withTransaction</span> <span class="o">=</span> <span class="nx">withTransaction</span><span class="p">;</span>
 </code></pre></div>
 <p>Which would let you do:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getTransaction</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">withTransaction</span><span class="p">(</span><span class="nx">tx</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
     <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -464,24 +446,8 @@
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">getSqlConnection</span><span class="p">;</span>
 </code></pre></div>
-<p>The usage pattern is similar to the PostgreSQL example above. You can also create a disposer for transactions and use it safely:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getTransaction</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">db</span><span class="p">.</span><span class="nx">getTransactionAsync</span><span class="p">().</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">isFulfilled</span><span class="p">()</span> <span class="o">?</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">commitAsync</span><span class="p">()</span> <span class="o">:</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">rollbackAsync</span><span class="p">();</span>
-    <span class="p">});</span>
-<span class="p">}</span>
-
-
-<span class="c1">// If the using block completes successfully, the transaction is automatically committed</span>
-<span class="c1">// Any error or rejection will automatically roll it back</span>
-<span class="nx">using</span><span class="p">(</span><span class="nx">getTransaction</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
-    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(...)</span>
-    <span class="p">});</span>
-<span class="p">});</span>
-</code></pre></div>            <h3>
+<p>The usage pattern is similar to the PostgreSQL example above. You can also use a disposer pattern (but not an actual .disposer). See the PostgreSQL example above for instructions.</p>
+            <h3>
                 <a class="header-anchor"
                     name="more-common-examples"
                     aria-hidden="true"

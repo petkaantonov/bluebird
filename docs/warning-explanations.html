@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Mar 2017</i>
+                <i>Updated 24 Apr 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -171,11 +171,11 @@
 
 <p>Due to a historic mistake in JavaScript, the <code>throw</code> statement is allowed to be used with any value, not just errors, and Promises/A+ choosing to inherit this mistake, it is possible to reject a promise with a value that is not an error.</p>
 
-<p>An error is an object that is a <code>instanceof Error</code>. It will at minimum have the properties <code>.stack</code> and <code>.message</code>, which are an absolute must to have for any value that is being used in an automatic propagation mechanism such as exceptions and rejections. This is because errors are usually handled many levels above from where they actually originated from - the error object must have sufficient metadata about it so that its ultimate handler many levels above will have all the information needed for creating a useful high level error report.</p>
+<p>An error is an object that is a <code>instanceof Error</code>. It will at minimum have the properties <code>.stack</code> and <code>.message</code>, which are an absolute <em>must</em> have for any value that is being used in an automatic propagation mechanism, such as exceptions and rejections. This is because errors are usually handled many levels above where they actually originate - the error object must have sufficient metadata about it so that its ultimate handler (possibly many levels above) will have all the information needed for creating a useful high level error report.</p>
 
-<p>Since all objects support having properties you might still wonder why exactly does it have to be an error object and not just any object. In addition to supporting properties, an equally important feature necessary for values that are automatically propagated is the stack trace property (<code>.stack</code>). A stack trace allows you easily find where an error originated from.</p>
+<p>Since all objects support having properties you might still wonder why exactly does it have to be an error object and not just any object. In addition to supporting properties, an equally important feature necessary for values that are automatically propagated is the stack trace property (<code>.stack</code>). A stack trace allows you easily find where an error originated from as it gives the code&#39;s call stack - along with line numbers for reference in code files.</p>
 
-<p>You should heed this warning because rejecting a promise with a non-error makes debugging extremely hard and costly. Additionally, if you reject with simple primitives such as <code>undefined</code> (commonly caused by simple calling <code>reject()</code>) you cannot handle errors at all because it&#39;s impossible to tell from <code>undefined</code> what exactly went wrong. All you can tell the user is that &quot;something went wrong&quot; and lose them forever.</p>
+<p>You should heed this warning because rejecting a promise with a non-error makes debugging extremely hard and costly. Additionally, if you reject with simple primitives such as <code>undefined</code> (commonly caused by simply calling <code>reject()</code>) you cannot handle errors at all because it&#39;s impossible to tell from <code>undefined</code> what exactly went wrong. All you can tell the user is that &quot;something went wrong&quot; and lose them forever.</p>
             <h2>
                 <a class="header-anchor"
                     name="warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it"
@@ -184,7 +184,7 @@
                 Warning: a promise was created in a handler but was not returned from it
             </h2>
 
-<p>This usually means that you simply forgot a <code>return</code> statement somewhere which will cause a runaway promise that is not connected to any promise chain.</p>
+<p>This usually means that you simply forgot a <code>return</code> statement somewhere, which will cause a runaway promise that is not connected to any promise chain.</p>
 
 <p>For example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
