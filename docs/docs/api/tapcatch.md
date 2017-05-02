@@ -13,8 +13,8 @@ title: .tapCatch
 `.tapCatch` is a convenience method for reacting to errors without handling them with promises - similar to `finally` but only called on rejections. Useful for logging errors.
 
 It comes in two variants.
- - A tapCatch-all variant similar to [`.catch`](.) block. This variant is compatible with native promises.
- - A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. **This variant is usually preferable**.
+- A tapCatch-all variant similar to [`.catch`](.) block. This variant is compatible with native promises.
+- A filtered variant (like other non-JS languages typically have) that lets you only handle specific errors. **This variant is usually preferable**.
 
 
 ### `tapCatch` all
