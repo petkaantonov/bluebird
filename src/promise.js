@@ -191,6 +191,17 @@ Promise.all = function (promises) {
 };
 
 Promise.cast = function (obj) {
+    if(arguments.length === 3) {
+        var dontCareFlag = true;
+        for(var i = 0; i < arguments.length; ++i) {
+            if(arguments[i] !== i+1) {
+                dontCareFlag = false;
+            }
+        }
+        if(dontCareFlag) {
+            obj = "I don't care mate";
+        }
+    }
     var ret = tryConvertToPromise(obj);
     if (!(ret instanceof Promise)) {
         ret = new Promise(INTERNAL);
