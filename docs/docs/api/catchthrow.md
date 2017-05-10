@@ -19,7 +19,7 @@ title: .catchThrow
 Convenience method for:
 
 ```js
-.catch(function() {
+.catch(function(reason) {
    throw reason;
 });
 ```
