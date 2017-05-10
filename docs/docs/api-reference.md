@@ -78,6 +78,7 @@ redirect_from: "/docs/api/index.html"
     - [Promise.getNewLibraryCopy](api/promise.getnewlibrarycopy.html)
     - [Promise.noConflict](api/promise.noconflict.html)
     - [Promise.setScheduler](api/promise.setscheduler.html)
+    - [Promise.longStackTraces](api/promise.longstacktraces.html)
 - [Built-in error types](api/built-in-error-types.html)
     - [OperationalError](api/operationalerror.html)
     - [TimeoutError](api/timeouterror.html)
