@@ -1,26 +1,26 @@
 ---
 layout: api
-id: props
-title: .props
+id: collect
+title: .collect
 ---
 
 
 [← Back To API Reference](/docs/api-reference.html)
 <div class="api-code-section"><markdown>
-##.props
+##.collect
 
 ```js
-.props() -> Promise
+.collect() -> Promise
 ```
 
-Same as [Promise.props(this)](.).
+Same as [Promise.collect(this)](.).
 </markdown></div>
 
 <div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_title = ".props";
+    var disqus_title = ".collect";
     var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-props";
+    var disqus_identifier = "disqus-id-collect";
     
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
@@ -29,3 +29,4 @@ Same as [Promise.props(this)](.).
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+

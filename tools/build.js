@@ -25,12 +25,12 @@ jobRunner.init(path.join(__dirname, ".."), function() {
 
 var optionalModuleRequireMap = {
     "race.js": true,
+    "collect.js": true,
     "call_get.js": true,
     "generators.js": true,
     "map.js": true,
     "nodeify.js": true,
     "promisify.js": true,
-    "props.js": true,
     "reduce.js": true,
     "settle.js": true,
     "some.js": true,
