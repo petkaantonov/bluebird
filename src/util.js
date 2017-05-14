@@ -198,18 +198,12 @@ function isClass(fn) {
     }
 }
 
-function toFastProperties(obj) {
-    /*jshint -W027,-W055,-W031*/
-    function FakeConstructor() {}
-    FakeConstructor.prototype = obj;
-    var l = 8;
-    while (l--) new FakeConstructor();
-    ASSERT("%HasFastProperties", true, obj);
-    return obj;
-    // Prevent the function from being optimized through dead code elimination
-    // or further optimizations. This code is never reached but even using eval
-    // in unreachable code causes v8 to not optimize functions.
-    eval(obj);
+function toFastProperties(o) {
+  const s = {__proto__: o};
+  const ic = () => s.foo;
+  ic();
+  ic();
+  return o;
 }
 
 var rident = /^[a-z$_][a-z$_0-9]*$/i;
