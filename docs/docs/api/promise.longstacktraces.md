@@ -23,7 +23,7 @@ Promise.config({
 Promise.longStackTraces() -> undefined
 ```
 
-Call this right after the library is loaded to enable long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have alread been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.
+Call this right after the library is loaded to enable long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have already been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.
 
 Long stack traces are enabled by default in the debug build.
 
