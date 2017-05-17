@@ -44,5 +44,16 @@ describe("schedule", function () {
                 assert.fail();
             });
         });
+
+        describe("Promise.setTimeoutScheduler", function() {
+            it("should throw for non function", function() {
+                try {
+                    Promise.setTimeoutScheduler({});
+                } catch (e) {
+                    return Promise.resolve();
+                }
+                assert.fail();
+            });
+        });
     }
 });

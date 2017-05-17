@@ -2,6 +2,7 @@
 module.exports = function(Promise, INTERNAL, debug) {
 var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
+var async = Promise._async;
 
 function HandleWrapper(handle)  {
     this.handle = handle;
@@ -23,6 +24,8 @@ var delay = Promise.delay = function (ms, value) {
         }
     } else {
         ret = new Promise(INTERNAL);
+
+        var setTimeout = async.getTimeoutFn();
         handle = setTimeout(function() { ret._fulfill(); }, +ms);
         if (debug.cancellation()) {
             ret._setOnCancel(new HandleWrapper(handle));
@@ -71,6 +74,7 @@ Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
     var ret, parent;
 
+    var setTimeout = async.getTimeoutFn();
     var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {
         if (ret.isPending()) {
             afterTimeout(ret, message, parent);

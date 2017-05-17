@@ -210,11 +210,21 @@ Promise.reject = Promise.rejected = function (reason) {
     return ret;
 };
 
-Promise.setScheduler = function(fn) {
+Promise.setScheduler = function(fn, setTimeoutFn) {
     if (typeof fn !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
-    return async.setScheduler(fn);
+    if (setTimeoutFn !== undefined && typeof setTimeoutFn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(setTimeoutFn));
+    }
+    return async.setScheduler(fn, setTimeoutFn);
+};
+
+Promise.setTimeoutScheduler = function(setTimeoutFn) {
+    if (setTimeoutFn !== undefined && typeof setTimeoutFn !== "function") {
+        throw new TypeError(FUNCTION_ERROR + util.classString(setTimeoutFn));
+    }
+    return async.setTimeoutScheduler(setTimeoutFn);
 };
 
 Promise.prototype._then = function (
@@ -757,12 +767,21 @@ function deferResolve(v) {this.promise._resolveCallback(v);}
 function deferReject(v) {this.promise._rejectCallback(v, false);}
 
 Promise.defer = Promise.pending = function() {
-    debug.deprecated("Promise.defer", "new Promise");
+    // TODO HAD-15960 remove shim for deprecated APIs,
+    //      and update callers  to use recommended API
+    // will fix the defer instances with new promise later.
+    // debug.deprecated("Promise.defer", "new Promise");
     var promise = new Promise(INTERNAL);
     return {
         promise: promise,
         resolve: deferResolve,
-        reject: deferReject
+        reject: deferReject,
+        // TODO HAD-15960 remove shim for deprecated APIs,
+        //      and update callers  to use recommended API
+        fulfill: deferResolve,
+        cancel: function () {
+            return this.promise.cancel();
+        }
     };
 };
 
