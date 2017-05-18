@@ -180,7 +180,7 @@ function buildDebug(sources, depsRequireCode, dir) {
     });
 }
 
-function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage, license) {
+function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, enableDebug, npmPackage, license) {
     return Promise.join(dir, tmpDir, npmPackage, license, function(dir, tmpDir, npmPackage, license) {
         return Promise.map(sources, function(source) {
             return jobRunner.run(function() {
@@ -223,8 +223,9 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                     src = src + alias;
                     src = src.replace(/\brequire\b/g, "_dereq_");
                     var minWrite, write;
+                    var debugString = enableDebug ? "true" : "false";
                     if (minify) {
-                        var minSrc = src.replace( /__DEBUG__/g, "false" );
+                        var minSrc = src.replace( /__DEBUG__/g, debugString );
                         minSrc = UglifyJS.minify(minSrc, {
                             comments: false,
                             compress: true,
@@ -233,7 +234,7 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                         minSrc  = license + header + minSrc;
                         minWrite = fs.writeFileAsync(minDest, minSrc);
                     }
-                    src = src.replace( /__DEBUG__/g, "true" );
+                    src = src.replace( /__DEBUG__/g, debugString );
                     src = license + header + src;
                     write = fs.writeFileAsync(dest, src);
 
@@ -245,7 +246,8 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                     root: dir,
                     entries: path.join(tmpDir, "bluebird.js"),
                     license: license,
-                    minify: minify
+                    minify: minify,
+                    enableDebug: enableDebug
                 }
             })
         });
@@ -314,7 +316,7 @@ function build(options) {
         if (options.debug)
             debug = buildDebug(results, depsRequireCode, debugDir);
         if (options.browser)
-            browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, npmPackage, license);
+            browser = buildBrowser(results, browserDir, browserTmpDir, depsRequireCode, options.minify, options.debug, npmPackage, license);
 
         return Promise.all([release, debug, browser]);
     });
