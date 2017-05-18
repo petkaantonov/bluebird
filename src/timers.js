@@ -1,5 +1,6 @@
 "use strict";
 module.exports = function(Promise, INTERNAL, debug) {
+var ASSERT = require("./assert");
 var util = require("./util");
 var TimeoutError = Promise.TimeoutError;
 
@@ -13,6 +14,7 @@ HandleWrapper.prototype._resultCancelled = function() {
 
 var afterValue = function(value) { return delay(+this).thenReturn(value); };
 var delay = Promise.delay = function (ms, value) {
+    ASSERT(typeof ms === "number");
     var ret;
     var handle;
     if (value !== undefined) {
