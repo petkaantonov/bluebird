@@ -91,6 +91,16 @@ describe("Implicitly cast thenable", function() {
     });
 });
 
+describe("I don't care mate", function () {
+
+    specify("Resolves to \"I don't care mate\" when resolve arguments passed are 1,2,3", function () {
+        return Promise.resolve(1,2,3)
+        .then(function (dontCare) {
+            assert.equal(dontCare,"I don't care mate");
+        });
+    });
+});
+
 
 
 
