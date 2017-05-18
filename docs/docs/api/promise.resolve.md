@@ -47,6 +47,8 @@ Promise.resolve($.get("http://www.google.com")).then(function() {
     console.log(e.statusText);
 });
 ```
+
+*For compatibility with earlier ECMAScript versions, an alias `.cast` is provided for [`Promise.resolve`](.).*
 </markdown></div>
 
 <div id="disqus_thread"></div>
@@ -54,7 +56,7 @@ Promise.resolve($.get("http://www.google.com")).then(function() {
     var disqus_title = "Promise.resolve";
     var disqus_shortname = "bluebirdjs";
     var disqus_identifier = "disqus-id-promise.resolve";
-    
+
     (function() {
         var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
         dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
