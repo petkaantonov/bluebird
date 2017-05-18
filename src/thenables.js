@@ -75,12 +75,14 @@ function doThenable(x, then, context) {
         if (!promise) return;
         promise._resolveCallback(value);
         promise = null;
+        return value;
     }
 
     function reject(reason) {
         if (!promise) return;
         promise._rejectCallback(reason, synchronous, true);
         promise = null;
+        return reason;
     }
     return ret;
 }
