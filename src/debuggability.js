@@ -253,9 +253,11 @@ var activeFireEvent = function (name) {
 Promise.config = function(opts) {
     opts = Object(opts);
     if ("longStackTraces" in opts) {
-        if (opts.longStackTraces) {
+        var longStackTracesOption = opts.longStackTraces;
+        config.longStackTraces = !!longStackTracesOption;
+        if (longStackTraces) {
             Promise.longStackTraces();
-        } else if (!opts.longStackTraces && Promise.hasLongStackTraces()) {
+        } else if (!longStackTraces && Promise.hasLongStackTraces()) {
             disableLongStackTraces();
         }
     }
