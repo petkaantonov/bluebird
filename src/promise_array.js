@@ -88,7 +88,14 @@ PromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {
 PromiseArray.prototype._iterate = function(values) {
     var len = this.getActualLength(values.length);
     this._length = len;
-    this._values = this.shouldCopyValues() ? new Array(len) : this._values;
+    if (this.shouldCopyValues()) {
+         this._values = new Array(len);
+         for (var property in values) {
+             if (values.hasOwnProperty(property)) {
+                 this._values[property] = values[property];
+             }
+         }
+    }
     var result = this._promise;
     var isResolved = false;
     var bitField = null;
