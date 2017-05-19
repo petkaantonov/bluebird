@@ -457,6 +457,9 @@ function checkForgottenReturns(returnValue, promiseCreated, name, promise,
                     if (traceLines[i] === firstUserLine) {
                         if (i > 0) {
                             creatorLine = "\n" + traceLines[i - 1];
+                             if(traceLines[i]){
+                                creatorLine += "\n" + traceLines[i];
+                            }
                         }
                         break;
                     }
