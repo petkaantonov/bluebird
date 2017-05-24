@@ -28,7 +28,7 @@ Note that the original methods on the object are not overwritten but new methods
 Example:
 
 ```js
-Promise.promisifyAll(require("redis"));
+var redisClient = Promise.promisifyAll(require("redis"));
 
 //Later on, all redis client instances have promise returning functions:
 
