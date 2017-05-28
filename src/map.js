@@ -62,7 +62,7 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
     } else {
         if (limit >= 1 && this._inFlight >= limit) {
             values[index] = value;
-            this._queue.push(index);
+            this._queue.push(length+limit-index-1);
             return false;
         }
         if (preservedValues !== null) preservedValues[index] = value;
