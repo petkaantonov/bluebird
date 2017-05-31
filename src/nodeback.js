@@ -34,6 +34,12 @@ function wrapAsOperationalError(obj) {
 function nodebackForPromise(promise, multiArgs) {
     return function(err, value) {
         if (promise === null) return;
+
+        if (arguments.length < 1) {
+            err = new Error("Promisified function invoked callback with too " +
+                            "few arguments");
+        }
+
         if (err) {
             var wrapped = wrapAsOperationalError(maybeWrapAsError(err));
             promise._attachExtraTrace(wrapped);
@@ -44,6 +50,7 @@ function nodebackForPromise(promise, multiArgs) {
             INLINE_SLICE(args, arguments, 1);
             promise._fulfill(args);
         }
+
         promise = null;
     };
 }

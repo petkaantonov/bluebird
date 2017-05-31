@@ -830,6 +830,20 @@ describe("Custom promisifier", function() {
 
     });
 
+    specify("multiArgs option enabled zero args", function() {
+        var o = {
+            get: function(cb) {
+                cb()
+            }
+        };
+        Promise.promisifyAll(o, {multiArgs: true});
+        return o.getAsync()
+        .then(assert.fail)
+        .catch(function(err) {
+            assert(err instanceof OperationalError);
+            assert.equal(err.toString(), "Error: Promisified function invoked callback with too few arguments");
+        })
+    });
     specify("multiArgs option enabled single value", function() {
         var o = {
             get: function(cb) {
