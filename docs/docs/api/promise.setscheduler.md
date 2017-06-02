@@ -35,7 +35,7 @@ Promise.setScheduler(function(fn) {
 });
 ```
 
-> **Danger** - in order to keep bluebird promises [Promises/A+](http://www.promisesaplus) compliant a scheduler that executes the function asynchronously (like the examples in this page) must be used. 
+> **Danger** - in order to keep bluebird promises [Promises/A+](https://promisesaplus.com/) compliant a scheduler that executes the function asynchronously (like the examples in this page) must be used. 
 
 </markdown></div>
 
