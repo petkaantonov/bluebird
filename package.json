@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "acorn": "~0.6.0",
-    "baconjs": "^0.7.43",
+    "baconjs": "^0.7.93",
     "bluebird": "^2.9.2",
     "body-parser": "^1.10.2",
     "browserify": "^8.1.1",
