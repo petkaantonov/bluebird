@@ -107,7 +107,7 @@ loaded.then(function() {
 });
 ```
 
-Here is another example with an API that lets us know when when a connection is ready. The attempt here is imperfect and we'll describe why soon:
+Here is another example with an API that lets us know when a connection is ready. The attempt here is imperfect and we'll describe why soon:
 
 ```js
 function connect() {
