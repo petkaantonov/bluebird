@@ -332,3 +332,42 @@ Your library can then use `var Promise = require("bluebird-extended");` and do w
 
 ##Async/Await
 
+ES2017 brings the async/await concept - which was previously only available as a polyfill - to the Javascript standard. With it, promises are now easier to use than ever: try/catch now works far better and the dreaded 'pyramid code' can be avoided. Bluebird's featureset still helps; two examples are below.
+
+[`Promisification`](.) still makes it very easy to wrap callback-style asynchronous code as a Promise, which can then cleanly be used in clean async functions: 
+
+```js
+var fs = Promise.promisifyAll(require("fs"));
+
+const readDataFile = async function(dataFilePath) {
+    try {
+        var dataFileRaw = await fs.readFileAsync(dataFilePath, "utf8");
+        return JSON.parse(dataFileRaw);
+    } catch (error) {
+        console.error(error);
+    }
+};
+```
+
+[`Promise.map`](.) still allows you to perform promises on arrays of objects:
+
+```js
+// Using Promise.map alone...
+Promise.map(fileNames, function(fileName) {
+    // Promise.map awaits for returned promises as well.
+    return fs.readFileAsync(fileName);
+}).then(function() {
+    console.log("done");
+});
+
+// Using Promise.map with await/async
+var readFiles = async function(fileNames) {
+    await Promise.map(fileNames, function(fileName) {
+        // Promise.map awaits for returned promises as well.
+        return fs.readFileAsync(fileName);
+    });
+    console.log("done");
+};
+```
+
+Note that bluebird doesn't change the core requirements for using await/async; await must be contained in a function marked async (and therefore await cannot be used in top-level code).
