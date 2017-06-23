@@ -7,6 +7,8 @@ matrix:
     - node_js: "4"
     - node_js: "5"
     - node_js: "6"
+    - node_js: "7"
+    - node_js: "8"
   fast_finish: true
 env:
   - "NODE_FLAGS='' SCRIPT_FLAGS=''"
