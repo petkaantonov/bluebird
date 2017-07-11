@@ -14,7 +14,7 @@ title: .tap
 ```
 
 
-Unlike [`.finally`](.) this is not called for rejections.
+Unlike [`.finally`](.) this is not called for rejections. `.tap()` is similar to `.then()` except it always returns the value it started with, even after returned promise is fulfilled.  It also passes both immediate and eventual rejection.
 
 ```js
 getUser().tap(function(user) {
