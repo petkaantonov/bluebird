@@ -37,9 +37,12 @@ Promise.prototype.suppressUnhandledRejections = function() {
 };
 
 Promise.prototype._ensurePossibleRejectionHandled = function () {
-    if ((this._bitField & IS_REJECTION_IGNORED) !== 0) return;
-    this._setRejectionIsUnhandled();
-    async.invokeLater(this._notifyUnhandledRejection, this, undefined);
+    var promise = this;
+    if ((promise._bitField & IS_REJECTION_IGNORED) !== 0) return;
+    promise._setRejectionIsUnhandled();
+    async.throwLater(function() {
+        promise._notifyUnhandledRejection();
+    }, undefined);
 };
 
 Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
