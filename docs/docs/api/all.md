@@ -13,7 +13,9 @@ title: .all
 .all() -> Promise
 ```
 
-Same as [Promise.all(this)](.).
+Consume the resolved [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) and wait for all items to fulfill similar to [Promise.all()](.).
+
+[Promise.resolve(iterable).all()](.) is the same as [Promise.all(iterable)](.).
 </markdown></div>
 
 <div id="disqus_thread"></div>
