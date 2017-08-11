@@ -23,7 +23,7 @@ title: Error Explanations
  - [Error: No async scheduler available](#error-no-async-scheduler-available)
 
 
-##Error: Promise.promisify called on an object
+## Error: Promise.promisify called on an object
 
 
 You got this this error because you've used `Promise.promisify` on an object, for example:
@@ -38,7 +38,7 @@ Instead, use [`Promise.promisifyAll`](.) :
 var fs = Promise.promisifyAll(require("fs"));
 ```
 
-##Error: the promise constructor requires a resolver function
+## Error: the promise constructor requires a resolver function
 
 You got this error because you used `new Promise()` or `new Promise(something)` without passing a function as the parameter.
 
@@ -57,11 +57,11 @@ function wrapWithPromise(parameter) {
 
 Please consider reading about [new Promise](.) and also consider checking out automatic [promisification](.) as well as [Promise.method](.)
 
-##Error: the promise constructor cannot be invoked directly
+## Error: the promise constructor cannot be invoked directly
 
 You can get this error for several reasons:
 
-####1. You forgot to use `new` when creating a new promise using `new Promise(resolver)` syntax.
+#### 1. You forgot to use `new` when creating a new promise using `new Promise(resolver)` syntax.
 
 This can happen when you tried to do something like:
 
@@ -77,11 +77,11 @@ You can correct this by doing:
 
 Please consider reading about [new Promise](.) and also consider checking out automatic [promisification](.) as well as [Promise.method](.)
 
-####2. You are trying to subclass `Promise`
+#### 2. You are trying to subclass `Promise`
 
 Bluebird does not support extending promises this way. Instead, see [scoped prototypes](features.html#scoped-prototypes).
 
-##Error: expecting an array, a promise or a thenable
+## Error: expecting an array, a promise or a thenable
 
 The function being called expects a Promise, but is given something different. There are two main reasons why this may occur.
 
@@ -148,7 +148,7 @@ myFunction().then(result => {
 ```
 
 
-##Error: generatorFunction must be a function
+## Error: generatorFunction must be a function
 
 You are getting this error when trying to use [Promise.coroutine](.) and not passing it a generator function as a parameter.  For example:
 
@@ -170,11 +170,11 @@ Please refer to the relevant section in the documentation about [Generators](.) 
 
 [Promise.coroutine](.) is built to work with generators to form C# like `async/await`
 
-##Error: fn must be a function
+## Error: fn must be a function
 
 You passed a non-function where a function was expected.
 
-##Error: cannot enable long stack traces after promises have been created
+## Error: cannot enable long stack traces after promises have been created
 
 You are getting this error because you are enabling long stack traces after a promise has already been created.
 
@@ -188,7 +188,7 @@ Promise.config({
 
 See the API page about [Promise.longStackTraces](.)
 
-##Error: cannot get fulfillment value of a non-fulfilled promise
+## Error: cannot get fulfillment value of a non-fulfilled promise
 
 You can get this error when you're trying to call `.value` or `.error` when inspecting a promise where the promise has not been fulfilled or rejected yet.
 
@@ -203,7 +203,7 @@ Consider using [.isPending()](.) [.isFulfilled()](.) and [.isRejected()](.) in o
 
 Please consider reading more about [synchronous inspection](.)
 
-##Error: cannot get rejection reason of a non-rejected promise
+## Error: cannot get rejection reason of a non-rejected promise
 
 You can get this error when you're trying to call `.value` or `.error` when inspecting a promise where the promise has not been fulfilled or rejected yet.
 
@@ -227,7 +227,7 @@ In general, the usage of [Promise.promisifyAll](.) is along the lines of `var fs
 
 Consider reading the section about [promisification](.)
 
-##Error: circular promise resolution chain
+## Error: circular promise resolution chain
 
 This usually happens when you have a promise that resolves or rejects with itself.
 
@@ -241,7 +241,7 @@ Promises do not aim to solve such live updating problems directly. One option wo
 
 resolving it with itself tells it "it is done when it is done"
 
-##Error: cannot await properties of a non-object
+## Error: cannot await properties of a non-object
 
 The `.props` method expects to receive an object.
 
@@ -259,7 +259,7 @@ Promise.props({
 
 This happens when a non object value or a promise that resolves with something that is not an object is being passed instead.
 
-##Error: expecting a positive integer
+## Error: expecting a positive integer
 
 This happens when you call `.some` passing it a negative value or a non-integer.
 
@@ -267,7 +267,7 @@ One possible cause is using `.indexOf` which returns `-1` when it doesn't find t
 
 Please consider reading the API docs for [`.some`](.)
 
-##Error: A value was yielded that could not be treated as a promise
+## Error: A value was yielded that could not be treated as a promise
 
 You are getting this error because you have tried to `yield` something in a coroutine without a yield handler, for example:
 
@@ -289,7 +289,7 @@ var coroutine = Promise.coroutine(function*(){
 
 Or to use [Promise.coroutine.addYieldHandler`](.) to teach [Promise.coroutine](.) to accept these sort of values.
 
-##Error: cannot await properties of a non object
+## Error: cannot await properties of a non object
 
 The `.props` method expects to receive an object.
 
@@ -308,7 +308,7 @@ Promise.props({
 This happens when a non object value or a promise that resolves with something that is not an object is being passed instead.
 
 
-##Error: Cannot promisify an API that has normal methods
+## Error: Cannot promisify an API that has normal methods
 
 This error indicates you have tried to call [Promise.promisifyAll](.) on an object that already has a property with the `Async` suffix:
 
@@ -322,7 +322,7 @@ You may also use the custom suffix option to choose another suffix that doesn't 
 
 If you find this issue in a common library please [open an issue](https://github.com/petkaantonov/bluebird/issues/new).
 
-##Error: Catch filter must inherit from Error or be a simple predicate function
+## Error: Catch filter must inherit from Error or be a simple predicate function
 
 Bluebird supports typed and predicate [.catch()](.) calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.
 
@@ -340,7 +340,7 @@ Alternatively, if you provide it a predicate be sure it's a simple function:
 
 Please see the API docs of [.catch()](.) on how to use predicate catches.
 
-##Error: No async scheduler available
+## Error: No async scheduler available
 
 Async scheduler is a function that takes a callback function and calls the callback function as soon as possible, but asynchronously. For example `setTimeout`.
 
