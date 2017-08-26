@@ -127,6 +127,7 @@
         "UNHANDLED_REJECTION_HEADER": false,
         "FINALLY_TYPE": false,
         "TAP_TYPE": false,
+        "SPREAD_TAP_TYPE": false,
         "THROW": false,
         "RETURN": false,
         "MAX_PARAM_COUNT": false,

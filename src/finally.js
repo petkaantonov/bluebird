@@ -17,6 +17,10 @@ PassThroughHandlerContext.prototype.isFinallyHandler = function() {
     return this.type === FINALLY_TYPE;
 };
 
+PassThroughHandlerContext.prototype.isSpreadAndTapHandler = function() {
+    return this.type === SPREAD_TAP_TYPE;
+};
+
 function FinallyHandlerCancelReaction(finallyHandler) {
     this.finallyHandler = finallyHandler;
 }
@@ -52,9 +56,15 @@ function finallyHandler(reasonOrValue) {
 
     if (!this.called) {
         this.called = true;
-        var ret = this.isFinallyHandler()
-            ? handler.call(promise._boundValue())
-            : handler.call(promise._boundValue(), reasonOrValue);
+        var ret;
+        if (this.isFinallyHandler()) {
+          ret = handler.call(promise._boundValue());
+        }
+        else if (this.isSpreadAndTapHandler()) {
+          ret = handler.apply(promise._boundValue(), reasonOrValue);
+        } else {
+          ret = handler.call(promise._boundValue(), reasonOrValue);
+        }
         if (ret === NEXT_FILTER) {
             return ret;
         } else if (ret !== undefined) {
@@ -109,6 +119,16 @@ Promise.prototype["finally"] = function (handler) {
 
 Promise.prototype.tap = function (handler) {
     return this._passThrough(handler, TAP_TYPE, finallyHandler);
+};
+
+Promise.prototype.taps = function (handler) {
+    if (typeof handler !== "function") {
+        return Promise.reject(new TypeError(
+            FUNCTION_ERROR +
+            util.classString(handler)
+        ));
+    }
+    return this._passThrough(handler, SPREAD_TAP_TYPE, finallyHandler);
 };
 
 Promise.prototype.tapCatch = function (handlerOrPredicate) {
