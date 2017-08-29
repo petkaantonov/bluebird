@@ -46,7 +46,7 @@ readFile("myfile.js", "utf8").then(function(contents) {
 });
 ```
 
-In this promise chain, `readFile()` reads the contents of the Javascript file given to it in it the arguments, and passes the results to the [`.then`](.) call, which contains an anonymous function. Inside the anonymous function, the results are passed as an argument to the `eval()` function. Note the `return` inside the [`.then`](.) call. This is an important step, otherwise the results of the function called inside the anonymous function will not be passed to the next function in the chain.
+In this promise chain, `readFile()` reads the contents of the Javascript file given to it in the arguments, and passes the results to the [`.then`](.) call, which contains an anonymous function. Inside the anonymous function, the results are passed as an argument to the `eval()` function. Note the `return` inside the [`.then`](.) call. This is an important step, otherwise the results of the function called inside the anonymous function will not be passed to the next function in the chain.
 
 After finishing your sequence of [`.then`](.) calls, you must complete the chain by using [`.catch`](.). Note that you can specify individual errors by passing them as an argument to the [`.catch`](.). This allows for more concise error logging, albeit at the expense of some code readability.
 
