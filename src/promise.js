@@ -34,6 +34,7 @@ var async = new Async();
 es5.defineProperty(Promise, "_async", {value: async});
 var errors = require("./errors");
 var TypeError = Promise.TypeError = errors.TypeError;
+
 Promise.RangeError = errors.RangeError;
 var CancellationError = Promise.CancellationError = errors.CancellationError;
 Promise.TimeoutError = errors.TimeoutError;
@@ -215,6 +216,37 @@ Promise.setScheduler = function(fn) {
         throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
     return async.setScheduler(fn);
+};
+
+Promise.breakPoint = function (pointName, returnedValue) {
+    var pointName = pointName;
+    var returnedValue = returnedValue;
+};
+
+/**
+ * Allows us to create a break point in a Promise chain.
+ *
+ * @param pointName
+ * @param returnedValue
+ */
+Promise.skipTo = function(pointName, returnedValue) {
+    var err = new errors.BreakPointError();
+    err.pointName = pointName;
+    err.returnedValue = returnedValue;
+    throw err;
+};
+
+Promise.prototype.resume = function (pointName, resolve) {
+    return this.caught(errors.BreakPointError, function(error) {
+        if(error.pointName === pointName) {
+            return resolve(error.returnedValue);
+        } else {
+            return Promise.reject(error);
+        }
+    });
+};
+Promise.prototype.resumeOrContinue = function (pointName, resolve) {
+    return this.then(resolve).resume(pointName, resolve);
 };
 
 Promise.prototype._then = function (
