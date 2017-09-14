@@ -1,5 +1,4 @@
 "use strict";
-/* jshint -W098 */
 
 module.exports = function _conditionals(Promise) {
   Promise.prototype.thenIf = thenIf;
@@ -29,10 +28,8 @@ module.exports = function _conditionals(Promise) {
       return this.then(function(value) {
         return _thenIf(cond, ifTrue, ifFalse)(value);
       });
-      //    } else if (cond instanceof Function) {
-      //      return _thenIf(cond, ifTrue, ifFalse)
     } else {
-      throw new Error("Error calling `thenIf` - Try `this` must be a Promise");
+      return _thenIf(cond, ifTrue, ifFalse);
     }
   }
 
