@@ -12,9 +12,6 @@ module.exports = function _conditionals(Promise) {
         : function(x) {
             return x;
           };
-
-    var _this = this;
-
     var ifTrue =
       arguments.length > 1 && arguments[1] !== undefined
         ? arguments[1]
@@ -24,38 +21,38 @@ module.exports = function _conditionals(Promise) {
     var ifFalse =
       arguments.length > 2 && arguments[2] !== undefined
         ? arguments[2]
-        : function(x) {
+        : function() {
             return null;
           };
 
     if (this instanceof Promise) {
       return this.then(function(value) {
-        return _thenIf(_this, cond, ifTrue, ifFalse)(value);
+        return _thenIf(cond, ifTrue, ifFalse)(value);
       });
-    } else if (cond instanceof Function) {
-      return _thenIf(this, cond, ifTrue, ifFalse);
+      //    } else if (cond instanceof Function) {
+      //      return _thenIf(cond, ifTrue, ifFalse)
     } else {
       throw new Error("Error calling `thenIf` - Try `this` must be a Promise");
     }
   }
 
-  function _thenIf(promise) {
+  function _thenIf() {
     var cond =
+      arguments.length > 0 && arguments[0] !== undefined
+        ? arguments[0]
+        : function(x) {
+            return x;
+          };
+    var ifTrue =
       arguments.length > 1 && arguments[1] !== undefined
         ? arguments[1]
         : function(x) {
             return x;
           };
-    var ifTrue =
+    var ifFalse =
       arguments.length > 2 && arguments[2] !== undefined
         ? arguments[2]
-        : function(x) {
-            return x;
-          };
-    var ifFalse =
-      arguments.length > 3 && arguments[3] !== undefined
-        ? arguments[3]
-        : function(x) {
+        : function() {
             return null;
           };
 

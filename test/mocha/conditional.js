@@ -21,9 +21,31 @@ describe("thenIf", function () {
 
     specify("passes through truthy value", function() {
         return Promise.resolve("test")
-        .thenIf(x => x).then(function(value){
+        .thenIf(x => x).then(function(value) {
             assert.equal(value, "test");
         });
+    });
+
+    specify("override with truthy path", function() {
+        return Promise.resolve(150)
+        .thenIf(x => x >= 100,
+        value => {
+            assert.equal(value, 150);
+            return value * 2;
+        },
+        failHandler)
+        .then(x => assert.equal(x, 300));
+    });
+
+    specify("check Promise.thenIf utility method", function() {
+        return Promise.resolve(150)
+        .then(Promise.thenIf(x => x >= 100,
+        value => {
+            assert.equal(value, 150);
+            return value * 2;
+        },
+        failHandler))
+        .then(x => assert.equal(x, 300));
     });
 
     specify("passes through value after returned promise is fulfilled", function() {
