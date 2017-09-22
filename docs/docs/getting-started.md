@@ -16,6 +16,10 @@ Then:
 ```js
 var Promise = require("bluebird");
 ```
+Alternatively in ES6 
+```js
+import * as Promise from 'bluebird';
+```
 
 ## Browsers
 
