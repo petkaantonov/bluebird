@@ -14,24 +14,24 @@ describe("Promise.skip/resume", function () {
           .then(assert.fail)//should be skip
           .then(assert.fail)//should be skip
           .then(assert.fail)//should be skip
-        .resume("point1", (res) => {
+        .resume("point1", function(res){
             assert.equal(2, res);
             return Promise.resolve(3);
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(3, res);
             return null;
         }).catch(assert.fail);
     });
 
     specify("Should ignore a resume point if there is no skip point", function() {
-        return Promise.resolve(1).then(res =>{
+        return Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             return 2;//should be ignored
-        }).then(res =>{
+        }).then(function(res){
             assert.equal(2, res);
             return 3;//should be ignored
         }).resume("point1",assert.fail)
-        .then((res) => {
+        .then(function(res) {
             assert.equal(3, res);
             return null;
         }).catch(assert.fail);
@@ -40,32 +40,32 @@ describe("Promise.skip/resume", function () {
     specify("Should execute a resumeOrContinue point even with no skip point", function() {
 
         //without SKIP
-        Promise.resolve(1).then(res =>{
+        Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             return 2;//should be ignored
         }).then(res =>{
             assert.equal(2, res);
             return 3;//should be ignored
-        }).resumeOrContinue("point1",res =>{
+        }).resumeOrContinue("point1",function(res){
             assert.equal(3, res);
             return 4;//should be ignored
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(4, res);
             return null;
         }).catch(assert.fail);
 
         //Skiping!
-        Promise.resolve(1).then(res =>{
+        Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             Promise.skipTo("point1", 2);
             return 3;//should be ignored
         }).then(res =>{
             assert.fail();
             return 4;//should be ignored
-        }).resumeOrContinue("point1",res =>{
+        }).resumeOrContinue("point1",function(res){
             assert.equal(2, res);
             return 4;//should be ignored
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(4, res);
             return null;
         }).catch(assert.fail);
@@ -81,20 +81,20 @@ describe("Promise.skip/resume", function () {
         }).then(assert.fail)//should be skip
         .then(assert.fail)//should be skip
         .then(assert.fail)//should be skip
-        .resume("point1", (res) => {
+        .resume("point1", function(res) {
             assert.equal(2, res);
             return Promise.resolve(3);
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(3, res);
             return 4;
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(4, res);
             Promise.skipTo("point2", 5);
             return null;
         }).then(assert.fail)//should be skip
         .then(assert.fail)//should be skip
         .then(assert.fail)//should be skip
-        .resume("point2", (res) => {
+        .resume("point2", function(res) {
             assert.equal(5, res);
             return null;
         })
@@ -112,10 +112,10 @@ describe("Promise.skip/resume", function () {
         .resume("point2", assert.fail)
         .then(assert.fail)//should be skip
         .then(assert.fail)//should be skip
-        .resume("point1", (res) => {
+        .resume("point1", function(res) {
             assert.equal(2, res);
             return 3;
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(3, res);
             return null;
         })
@@ -126,7 +126,7 @@ describe("Promise.skip/resume", function () {
     specify("Should execute a resumeOrContinue point even after a catch", function() {
 
         //without SKIP
-        Promise.resolve(1).then(res =>{
+        Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             return 2;//should be ignored
         }).then(res =>{
@@ -138,10 +138,10 @@ describe("Promise.skip/resume", function () {
             return 5;//should be ignored
         }).catch(res =>{
             return 6;//should be ignored
-        }).resumeOrContinue("point1",res =>{
+        }).resumeOrContinue("point1",function(res){
             assert.equal(6, res);
             return 7;//should be ignored
-        }).then((res) => {
+        }).then(function(res) {
             assert.equal(7, res);
             return null;
         });
