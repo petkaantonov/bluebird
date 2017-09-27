@@ -43,7 +43,7 @@ describe("Promise.skip/resume", function () {
         Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             return 2;//should be ignored
-        }).then(res =>{
+        }).then(function(res){
             assert.equal(2, res);
             return 3;//should be ignored
         }).resumeOrContinue("point1",function(res){
@@ -59,7 +59,7 @@ describe("Promise.skip/resume", function () {
             assert.equal(1, res);
             Promise.skipTo("point1", 2);
             return 3;//should be ignored
-        }).then(res =>{
+        }).then(function(res){
             assert.fail();
             return 4;//should be ignored
         }).resumeOrContinue("point1",function(res){
@@ -129,14 +129,14 @@ describe("Promise.skip/resume", function () {
         Promise.resolve(1).then(function(res){
             assert.equal(1, res);
             return 2;//should be ignored
-        }).then(res =>{
+        }).then(function(res){
             throw new Error('A terrible error');
             return 3;//should be ignored
-        }).then(res =>{
+        }).then(function(res){
             Promise.skipTo("point1", 4);
             assert.fail();
             return 5;//should be ignored
-        }).catch(res =>{
+        }).catch(function(res){
             return 6;//should be ignored
         }).resumeOrContinue("point1",function(res){
             assert.equal(6, res);
