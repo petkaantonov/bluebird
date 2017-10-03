@@ -1,16 +1,16 @@
-##Tools
+## Tools
 
 Tools that can be run from command line:
 
-###test.js
+### test.js
 
 For running tests. See [Testing](../#testing).
 
-###build.js
+### build.js
 
 For building the library. See [Custom builds](../#custom-builds).
 
-###jshintrc_generator.js
+### jshintrc_generator.js
 
 Generates a .jshintrc file in the project root.
 
