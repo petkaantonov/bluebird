@@ -752,3 +752,25 @@ describe("Unhandled rejection when joining chains with common rejected parent", 
          return Promise.all([test1, test2]);
     });
 });
+
+var asyncAwaitSupported = (function() {
+    try {
+        new Function("async function abc() {}");
+        return true;
+    } catch (e) {
+        return false;
+    }
+})();
+
+if (asyncAwaitSupported) {
+    describe("No unhandled rejection from async await", function () {
+        setupCleanUps();
+        specify("gh-1404", function testFunction() {
+            var ret = onUnhandledFail(testFunction);
+            Promise.using(Promise.resolve(),
+                (new Function("Bluebird", "return async function() { await Bluebird.reject(new Error('foo')); }"))(Promise))
+            .caught(function() {});
+            return ret;
+        });
+    });
+}

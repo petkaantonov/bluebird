@@ -39,7 +39,10 @@ Promise.prototype.suppressUnhandledRejections = function() {
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     if ((this._bitField & IS_REJECTION_IGNORED) !== 0) return;
     this._setRejectionIsUnhandled();
-    async.invokeLater(this._notifyUnhandledRejection, this, undefined);
+    var self = this;
+    setTimeout(function() {
+        self._notifyUnhandledRejection();
+    }, 1);
 };
 
 Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
