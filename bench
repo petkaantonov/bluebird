@@ -5,6 +5,8 @@ nodepath=${2:-node}
 shift 2;
 cwd=${PWD}
 
+export NODE_ENV=production
+
 trap 'cd "$cwd"' EXIT
 
 if [ "$benchmark" = "doxbee" ]; then

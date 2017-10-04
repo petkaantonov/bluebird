@@ -10,7 +10,7 @@ module.exports = function upload(stream, idOrPath, tag, done) {
     var fileP = self.byUuidOrPath(idOrPath).get();
     var version, fileId, file;
 
-    bluebird.all([blobIdP, fileP]).spread(function(blobId, fileV) {
+    bluebird.join(blobIdP, fileP, function(blobId, fileV) {
         file = fileV;
         var previousId = file ? file.version : null;
         version = {
