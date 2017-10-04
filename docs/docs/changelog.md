@@ -3,6 +3,13 @@ id: changelog
 title: Changelog
 ---
 
+## 3.5.1 (2017-10-04)
+
+Bugfixes:
+
+ - Fix false positive unhandled rejection when using async await \([#1404](.)\)
+ - Fix false positive when reporting error as non-error \([#990](.)\)
+
 ## 3.5.0 (2017-03-03)
 
 Features:
