@@ -154,12 +154,17 @@ var fireDomEvent = (function() {
             var event = new CustomEvent("CustomEvent");
             util.global.dispatchEvent(event);
             return function(name, event) {
-                var domEvent = new CustomEvent(name.toLowerCase(), {
+                var promise = event.promise;
+                var reason = event.reason;
+                var eventData = {
                     detail: event,
-                    cancelable: true,
-                    reason: event.reason,
-                    promise: event.promise
+                    cancelable: true
+                };
+                Object.defineProperties(eventData, {
+                    promise: { get: function() { return promise; } },
+                    reason: { get: function() { return reason; } }
                 });
+                var domEvent = new CustomEvent(name.toLowerCase(), eventData);
                 return !util.global.dispatchEvent(domEvent);
             };
         // In Firefox < 48 CustomEvent is not available in workers but
@@ -172,6 +177,10 @@ var fireDomEvent = (function() {
                     cancelable: true
                 });
                 domEvent.detail = event;
+                Object.defineProperties(domEvent, {
+                    promise: { get: function() { return event.promise; } },
+                    reason: { get: function() { return event.reason; } }
+                });
                 return !util.global.dispatchEvent(domEvent);
             };
         } else {
