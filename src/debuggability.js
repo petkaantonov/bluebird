@@ -4,6 +4,7 @@ var getDomain = Promise._getDomain;
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
+var es5 = require("./es5");
 var ASSERT = require("./assert");
 var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
@@ -154,16 +155,13 @@ var fireDomEvent = (function() {
             var event = new CustomEvent("CustomEvent");
             util.global.dispatchEvent(event);
             return function(name, event) {
-                var promise = event.promise;
-                var reason = event.reason;
                 var eventData = {
                     detail: event,
                     cancelable: true
                 };
-                Object.defineProperties(eventData, {
-                    promise: { get: function() { return promise; } },
-                    reason: { get: function() { return reason; } }
-                });
+                es5.defineProperty(
+                    eventData, "promise", {value: event.promise});
+                es5.defineProperty(eventData, "reason", {value: event.reason});
                 var domEvent = new CustomEvent(name.toLowerCase(), eventData);
                 return !util.global.dispatchEvent(domEvent);
             };
@@ -177,10 +175,8 @@ var fireDomEvent = (function() {
                     cancelable: true
                 });
                 domEvent.detail = event;
-                Object.defineProperties(domEvent, {
-                    promise: { get: function() { return event.promise; } },
-                    reason: { get: function() { return event.reason; } }
-                });
+                es5.defineProperty(domEvent, "promise", {value: event.promise});
+                es5.defineProperty(domEvent, "reason", {value: event.reason});
                 return !util.global.dispatchEvent(domEvent);
             };
         } else {
