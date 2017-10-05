@@ -156,7 +156,9 @@ var fireDomEvent = (function() {
             return function(name, event) {
                 var domEvent = new CustomEvent(name.toLowerCase(), {
                     detail: event,
-                    cancelable: true
+                    cancelable: true,
+                    reason: event.reason,
+                    promise: event.promise
                 });
                 return !util.global.dispatchEvent(domEvent);
             };
