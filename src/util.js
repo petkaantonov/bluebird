@@ -344,8 +344,25 @@ function getNativePromise() {
     }
 }
 
-function domainBind(self, cb) {
-    return self.bind(cb);
+function contextBind(ctx, cb) {
+    if (typeof cb !== "function")
+        return cb;
+
+    if (ctx != null && ctx.domain != null) {
+        cb = ctx.domain.bind(cb);
+    }
+
+    if (ctx != null && ctx.async != null) {
+        var old = cb;
+        cb = function() {
+            INLINE_SLICE(args, arguments);
+            return ctx.async.runInAsyncScope(function() {
+                return old.apply(this, args);
+            }, this);
+        };
+        cb[ret.wrappedSymbol] = old;
+    }
+    return cb;
 }
 
 var ret = {
@@ -382,17 +399,25 @@ var ret = {
     env: env,
     global: globalObject,
     getNativePromise: getNativePromise,
-    domainBind: domainBind
+    contextBind: contextBind
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version;
-    if (process.versions && process.versions.node) {    
+    if (process.versions && process.versions.node) {
         version = process.versions.node.split(".").map(Number);
     } else if (process.version) {
         version = process.version.split(".").map(Number);
     }
     return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
 })();
+ret.nodeSupportsAsyncResource = ret.isNode && (function() {
+    var version = process.versions.node.split(".").map(Number);
+    return (version[0] === 9 && version[1] >= 6) || (version[0] > 9);
+})();
+
+if (ret.nodeSupportsAsyncResource) {
+    ret.wrappedSymbol = Symbol();
+}
 
 if (ret.isNode) ret.toFastProperties(process);
 

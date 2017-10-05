@@ -14,19 +14,32 @@ var UNDEFINED_BINDING = {};
 var ASSERT = require("./assert");
 var util = require("./util");
 
-var getDomain;
+var getContext;
 if (util.isNode) {
-    getDomain = function() {
-        var ret = process.domain;
-        if (ret === undefined) ret = null;
-        return ret;
-    };
+    if (util.nodeSupportsAsyncResource) {
+        var AsyncResource = require("async_hooks").AsyncResource;
+        getContext = function() {
+            if (!debug.asyncHooks()) {
+                return { domain: process.domain };
+            }
+            return {
+                domain: process.domain,
+                async: new AsyncResource("Bluebird::Promise")
+            };
+        };
+    } else {
+        getContext = function() {
+            return {
+                domain: process.domain
+            };
+        };
+    }
 } else {
-    getDomain = function() {
-        return null;
+    getContext = function() {
+        return {};
     };
 }
-util.notEnumerableProp(Promise, "_getDomain", getDomain);
+util.notEnumerableProp(Promise, "_getContext", getContext);
 
 var es5 = require("./es5");
 var Async = require("./async");
@@ -249,7 +262,7 @@ Promise.prototype._then = function (
         this._fireEvent("promiseChained", this, promise);
     }
 
-    var domain = getDomain();
+    var context = getContext();
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var handler, value, settler = target._settlePromiseCtx;
         if (BIT_FIELD_CHECK(IS_FULFILLED)) {
@@ -267,15 +280,14 @@ Promise.prototype._then = function (
         }
 
         async.invoke(settler, target, {
-            handler: domain === null ? handler
-                : (typeof handler === "function" &&
-                    util.domainBind(domain, handler)),
+            handler: util.contextBind(context, handler),
             promise: promise,
             receiver: receiver,
             value: value
         });
     } else {
-        target._addCallbacks(didFulfill, didReject, promise, receiver, domain);
+        target._addCallbacks(didFulfill, didReject, promise,
+                receiver, context);
     }
 
     return promise;
@@ -401,9 +413,9 @@ Promise.prototype._addCallbacks = function (
     reject,
     promise,
     receiver,
-    domain
+    context
 ) {
-    ASSERT(typeof domain === "object");
+    ASSERT(typeof context === "object");
     ASSERT(!this._isFateSealed());
     ASSERT(!this._isFollowing());
     var index = this._length();
@@ -422,12 +434,10 @@ Promise.prototype._addCallbacks = function (
         this._promise0 = promise;
         this._receiver0 = receiver;
         if (typeof fulfill === "function") {
-            this._fulfillmentHandler0 =
-                domain === null ? fulfill : util.domainBind(domain, fulfill);
+            this._fulfillmentHandler0 = util.contextBind(context, fulfill);
         }
         if (typeof reject === "function") {
-            this._rejectionHandler0 =
-                domain === null ? reject : util.domainBind(domain, reject);
+            this._rejectionHandler0 = util.contextBind(context, reject);
         }
     } else {
         ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
@@ -439,11 +449,11 @@ Promise.prototype._addCallbacks = function (
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         if (typeof fulfill === "function") {
             this[base + CALLBACK_FULFILL_OFFSET] =
-                domain === null ? fulfill : util.domainBind(domain, fulfill);
+                util.contextBind(context, fulfill);
         }
         if (typeof reject === "function") {
             this[base + CALLBACK_REJECT_OFFSET] =
-                domain === null ? reject : util.domainBind(domain, reject);
+                util.contextBind(context, reject);
         }
     }
     this._setLength(index + 1);
@@ -595,7 +605,8 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);
             }
-        } else if (handler === reflectHandler) {
+        } else if (handler === reflectHandler || (handler &&
+                handler[util.wrappedSymbol] === reflectHandler)) {
             promise._fulfill(reflectHandler.call(receiver));
         } else if (receiver instanceof Proxyable) {
             receiver._promiseCancelled(promise);
@@ -791,7 +802,7 @@ require("./cancel")(Promise, PromiseArray, apiRejection, debug);
 require("./direct_resolve")(Promise);
 require("./synchronous_inspection")(Promise);
 require("./join")(
-    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getDomain);
+    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getContext);
 Promise.Promise = Promise;
 Promise.version = "__VERSION__";
 };
