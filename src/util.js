@@ -344,8 +344,27 @@ function getNativePromise() {
     }
 }
 
-function domainBind(self, cb) {
-    return self.bind(cb);
+function contextBind(ctx, cb) {
+    if (typeof cb !== "function")
+        return cb;
+
+    if (ctx.domain != null) {
+        cb = ctx.domain.bind(cb);
+    }
+
+    if (ctx.async != null) {
+        var old = cb;
+        cb = function () {
+            ctx.async.emitBefore();
+            try {
+                return old.apply(this, arguments);
+            } finally {
+                ctx.async.emitAfter();
+            }
+        };
+    }
+
+    return cb;
 }
 
 var ret = {
@@ -382,7 +401,7 @@ var ret = {
     env: env,
     global: globalObject,
     getNativePromise: getNativePromise,
-    domainBind: domainBind
+    contextBind: contextBind
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version;
@@ -392,6 +411,10 @@ ret.isRecentNode = ret.isNode && (function() {
         version = process.version.split(".").map(Number);
     }
     return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+})();
+ret.nodeSupportsAsyncResource = ret.isNode && (function() {
+    var version = process.versions.node.split(".").map(Number);
+    return (version[0] === 8 && version[1] > 1) || (version[0] > 8);
 })();
 
 if (ret.isNode) ret.toFastProperties(process);
