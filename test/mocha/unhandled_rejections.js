@@ -644,11 +644,15 @@ if (windowDomEventSupported) {
                     e.preventDefault();
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, err);
+                    assert.strictEqual(e.promise, promise);
+                    assert.strictEqual(e.reason, err);
                     order.push(1);
                 });
                 attachEvent("unhandledrejection", function(e) {
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, err);
+                    assert.strictEqual(e.promise, promise);
+                    assert.strictEqual(e.reason, err);
                     assert.strictEqual(e.defaultPrevented, true);
                     order.push(2);
                 });
@@ -656,11 +660,15 @@ if (windowDomEventSupported) {
                     e.preventDefault();
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, undefined);
+                    assert.strictEqual(e.promise, promise);
+                    assert.strictEqual(e.reason, err);
                     order.push(3);
                 });
                 attachEvent("rejectionhandled", function(e) {
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, undefined);
+                    assert.strictEqual(e.promise, promise);
+                    assert.strictEqual(e.reason, err);
                     assert.strictEqual(e.defaultPrevented, true);
                     order.push(4);
                     resolve();
