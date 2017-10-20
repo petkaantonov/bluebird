@@ -21,7 +21,9 @@ Promise.each(
 
 Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `iterator` function with the signature `(value, index, length)` where `value` is the resolved value of a respective promise in the input array. **Iteration happens serially**. If the iterator function returns a promise or a thenable, then the result of the promise is awaited before continuing with next iteration. If any promise in the input array is rejected, then the returned promise is rejected as well.
 
-Resolves to the original array unmodified. This method is meant to be used for side effects. 
+If all of the iterations resolve successfully, Promise.each resolves to the original array unmodified.  However, if one iteration rejects or errors, Promise.each ceases execution immediately and does not process any further iterations.  The error or rejected value is returned in this case instead of the original array.
+
+This method is meant to be used for side effects. 
 
 <hr>
 </markdown></div>
