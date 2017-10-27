@@ -354,7 +354,7 @@ function contextBind(ctx, cb) {
 
     if (ctx.async != null) {
         var old = cb;
-        cb = function () {
+        cb = function() {
             ctx.async.emitBefore();
             try {
                 return old.apply(this, arguments);
@@ -362,8 +362,8 @@ function contextBind(ctx, cb) {
                 ctx.async.emitAfter();
             }
         };
+        cb[ret.wrappedSymbol] = old;
     }
-
     return cb;
 }
 
@@ -416,6 +416,10 @@ ret.nodeSupportsAsyncResource = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
     return (version[0] === 8 && version[1] > 1) || (version[0] > 8);
 })();
+
+if (ret.nodeSupportsAsyncResource) {
+    ret.wrappedSymbol = Symbol();
+}
 
 if (ret.isNode) ret.toFastProperties(process);
 

@@ -599,7 +599,8 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);
             }
-        } else if (handler === reflectHandler) {
+        } else if (handler === reflectHandler || (handler &&
+                handler[util.wrappedSymbol] === reflectHandler)) {
             promise._fulfill(reflectHandler.call(receiver));
         } else if (receiver instanceof Proxyable) {
             receiver._promiseCancelled(promise);
