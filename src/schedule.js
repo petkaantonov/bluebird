@@ -4,6 +4,13 @@ var schedule;
 var noAsyncScheduler = function() {
     throw new Error(NO_ASYNC_SCHEDULER);
 };
+var msie;
+if ( window && window.navigator ) {
+  msie = parseInt((/msie (\d+)/.exec(window.navigator.userAgent.toLowerCase()) || [])[1]);
+  if (isNaN(msie)) {
+    msie = parseInt((/trident\/.*; rv:(\d+)/.exec(window.navigator.userAgent.toLowerCase()) || [])[1]);
+  }
+}
 var NativePromise = util.getNativePromise();
 // This file figures out which scheduler to use for Bluebird. It normalizes
 // async task scheduling across target platforms. Note that not all JS target
@@ -28,7 +35,8 @@ if (util.isNode && typeof MutationObserver === "undefined") {
 // latency. The second check is to guard against iOS standalone apps which
 // do not fire DOM mutation events for some reason on iOS 8.3+ and cordova
 // apps which have the same bug but are not `.navigator.standalone`
-} else if ((typeof MutationObserver !== "undefined") &&
+} else if (!msie &&
+           (typeof MutationObserver !== "undefined") &&
           !(typeof window !== "undefined" &&
             window.navigator &&
             (window.navigator.standalone || window.cordova))) {
