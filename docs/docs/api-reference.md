@@ -58,6 +58,7 @@ redirect_from: "/docs/api/index.html"
     - [Promise.fromCallback](api/promise.fromcallback.html)
     - [.asCallback](api/ascallback.html)
 - [Timers](api/timers.html)
+    - [Promise.delay](api/promise.delay.html)
     - [.delay](api/delay.html)
     - [.timeout](api/timeout.html)
 - [Cancellation](api/cancellation.html)
