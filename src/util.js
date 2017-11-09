@@ -414,7 +414,7 @@ ret.isRecentNode = ret.isNode && (function() {
 })();
 ret.nodeSupportsAsyncResource = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
-    return (version[0] === 8 && version[1] > 1) || (version[0] > 8);
+    return (version[0] === 8 && version[1] >= 1) || (version[0] > 8);
 })();
 
 if (ret.nodeSupportsAsyncResource) {

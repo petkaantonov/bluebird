@@ -426,12 +426,10 @@ Promise.prototype._addCallbacks = function (
         this._promise0 = promise;
         this._receiver0 = receiver;
         if (typeof fulfill === "function") {
-            this._fulfillmentHandler0 =
-                domain === null ? fulfill : util.contextBind(domain, fulfill);
+            this._fulfillmentHandler0 = util.contextBind(domain, fulfill);
         }
         if (typeof reject === "function") {
-            this._rejectionHandler0 =
-                domain === null ? reject : util.contextBind(domain, reject);
+            this._rejectionHandler0 = util.contextBind(domain, reject);
         }
     } else {
         ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
@@ -443,11 +441,11 @@ Promise.prototype._addCallbacks = function (
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         if (typeof fulfill === "function") {
             this[base + CALLBACK_FULFILL_OFFSET] =
-                domain === null ? fulfill : util.contextBind(domain, fulfill);
+                util.contextBind(domain, fulfill);
         }
         if (typeof reject === "function") {
             this[base + CALLBACK_REJECT_OFFSET] =
-                domain === null ? reject : util.contextBind(domain, reject);
+                util.contextBind(domain, reject);
         }
     }
     this._setLength(index + 1);
