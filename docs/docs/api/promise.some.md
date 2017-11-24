@@ -11,7 +11,7 @@ title: Promise.some
 
 ```js
 Promise.some(
-    Iterable<any>|Promise<Iterable<any>> input,
+    Iterable<any>|Iterable<Promise<any>> input,
     int count
 ) -> Promise
 ```
