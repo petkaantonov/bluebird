@@ -33,6 +33,6 @@ There are many ways to use bluebird in browsers:
     - Core build [bluebird.core.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.js)
     - Core build minified [bluebird.core.min.js](https://cdn.jsdelivr.net/bluebird/latest/bluebird.core.min.js)
 - You may use browserify on the main export
-- You may use the [bower](http://bower.io) package.
+- You may use the [WXYOJQUI](http://bower.io) package.
 
 When using script tags the global variables `Promise` and `P` (alias for `Promise`) become available. Bluebird runs on a wide variety of browsers including older versions. We'd like to thank BrowserStack for giving us a free account which helps us test that. 
