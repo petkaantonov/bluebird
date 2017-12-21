@@ -23,13 +23,14 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._limit = limit;
     this._inFlight = 0;
     this._queue = [];
-    async.invoke(this._asyncInit, this, undefined);
+    this._asyncQueue = [];
+    this._init$(undefined, RESOLVE_ARRAY);
+    if (!this._isResolved() && this._asyncQueue.length > 0) {
+        async.invoke(this._drainAsyncQueue, this, this._asyncQueue);
+    }
+    this._asyncQueue = undefined;
 }
 util.inherits(MappingPromiseArray, PromiseArray);
-
-MappingPromiseArray.prototype._asyncInit = function() {
-    this._init$(undefined, RESOLVE_ARRAY);
-};
 
 // The following hack is required because the super constructor
 // might call promiseFulfilled before this.callback = fn is set
@@ -60,6 +61,12 @@ MappingPromiseArray.prototype._promiseFulfilled = function (value, index) {
             if (this._isResolved()) return true;
         }
     } else {
+        if (this._asyncQueue !== undefined) {
+            values[index] = value;
+            this._asyncQueue.push(index);
+            return false;
+        }
+
         if (limit >= 1 && this._inFlight >= limit) {
             values[index] = value;
             this._queue.push(index);
@@ -142,6 +149,16 @@ MappingPromiseArray.prototype._filter = function (booleans, values) {
     }
     ret.length = j;
     this._resolve(ret);
+};
+
+MappingPromiseArray.prototype._drainAsyncQueue = function (queue) {
+    var values = this._values;
+    var len = queue.length;
+    var index;
+    for (var i = 0; i < len && !this._isResolved(); ++i) {
+        index = queue[i];
+        this._promiseFulfilled(values[index], index);
+    }
 };
 
 MappingPromiseArray.prototype.preservedValues = function () {
