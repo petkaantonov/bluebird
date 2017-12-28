@@ -103,8 +103,13 @@ describe("Promise.map-test", function () {
     });
 
     specify("should reject when input contains rejection", function() {
-        var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        return Promise.map(input, mapper).then(
+        var input = [Promise.resolve(1), Promise.reject(2), Promise.reject(3)];
+        var promise = Promise.map(input, mapper);
+
+        assert(!input[1]._isRejectionUnhandled());
+        assert(!input[2]._isRejectionUnhandled());
+
+        return promise.then(
             assert.fail,
             function(result) {
                 assert(result === 2);
@@ -232,8 +237,13 @@ describe("Promise.map-test with concurrency", function () {
     });
 
     specify("should reject when input contains rejection with concurrency", function() {
-        var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
-        return Promise.map(input, mapper, concurrency).then(
+        var input = [Promise.resolve(1), Promise.reject(2), Promise.reject(3)];
+        var promise = Promise.map(input, mapper, concurrency);
+
+        assert(!input[1]._isRejectionUnhandled());
+        assert(!input[2]._isRejectionUnhandled());
+
+        return promise.then(
             assert.fail,
             function(result) {
                 assert(result === 2);
