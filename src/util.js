@@ -348,11 +348,11 @@ function contextBind(ctx, cb) {
     if (typeof cb !== "function")
         return cb;
 
-    if (ctx.domain != null) {
+    if (ctx != null && ctx.domain != null) {
         cb = ctx.domain.bind(cb);
     }
 
-    if (ctx.async != null) {
+    if (ctx != null && ctx.async != null) {
         var old = cb;
         cb = function() {
             ctx.async.emitBefore();
