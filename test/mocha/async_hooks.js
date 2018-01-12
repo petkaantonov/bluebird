@@ -22,6 +22,14 @@ if (supportsAsyncHooks) {
 
     var currentId = async_hooks.executionAsyncId || async_hooks.currentId;
 
+    function getAsyncPromise() {
+        return new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                setTimeout(resolve, 1);
+            }, 1);
+        });
+    }
+
     describe("async_hooks", function() {
         afterEach(function()  {
             tree.clear();
@@ -54,11 +62,7 @@ if (supportsAsyncHooks) {
         it('should preserve async context when using .map', function() {
             hook.enable()
             tree.add(currentId());
-            var d1 = new Promise(function(resolve, reject) {
-                setTimeout(function() {
-                    setTimeout(resolve, 1);
-                }, 1);
-            });
+            var d1 = getAsyncPromise();
 
             return new Promise(function(resolve, reject) {
                 resolve(Promise.map([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
@@ -74,11 +78,7 @@ if (supportsAsyncHooks) {
         it('should preserve async context when using .filter', function() {
             hook.enable()
             tree.add(currentId());
-            var d1 = new Promise(function(resolve, reject) {
-                setTimeout(function() {
-                    setTimeout(resolve, 1);
-                }, 1);
-            });
+            var d1 = getAsyncPromise();
 
             return new Promise(function(resolve, reject) {
                 resolve(Promise.filter([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
@@ -90,11 +90,7 @@ if (supportsAsyncHooks) {
         it('should preserve async context when using .reduce', function() {
             hook.enable()
             tree.add(currentId());
-            var d1 = new Promise(function(resolve, reject) {
-                setTimeout(function() {
-                    setTimeout(resolve, 1);
-                }, 1);
-            });
+            var d1 = getAsyncPromise();
 
             return new Promise(function(resolve, reject) {
                 resolve(Promise.reduce([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
@@ -106,11 +102,7 @@ if (supportsAsyncHooks) {
         it('should preserve async context when using .each', function() {
             hook.enable()
             tree.add(currentId());
-            var d1 = new Promise(function(resolve, reject) {
-                setTimeout(function() {
-                    setTimeout(resolve, 1);
-                }, 1);
-            });
+            var d1 = getAsyncPromise();
 
             return new Promise(function(resolve, reject) {
                 resolve(Promise.each([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
