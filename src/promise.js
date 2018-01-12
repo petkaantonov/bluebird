@@ -24,7 +24,7 @@ if (util.isNode) {
             }
             return {
                 domain: process.domain,
-                async: new AsyncResource("Promise")
+                async: new AsyncResource("Bluebird::Promise")
             };
         };
     } else {
