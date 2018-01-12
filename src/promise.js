@@ -19,6 +19,9 @@ if (util.isNode) {
     if (util.nodeSupportsAsyncResource) {
         var AsyncResource = require("async_hooks").AsyncResource;
         getContext = function() {
+            if (!debug.asyncHooks()) {
+                return { domain: process.domain };
+            }
             return {
                 domain: process.domain,
                 async: new AsyncResource("Promise")

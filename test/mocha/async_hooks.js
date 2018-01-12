@@ -31,9 +31,13 @@ if (supportsAsyncHooks) {
     }
 
     describe("async_hooks", function() {
+        beforeEach(function() {
+            Promise.config({ asyncHooks: true });
+        })
         afterEach(function()  {
             tree.clear();
             hook.disable();
+            Promise.config({ asyncHooks: false });
         });
 
         it('should preserve async context when using fromNode', function() {
@@ -107,6 +111,19 @@ if (supportsAsyncHooks) {
             return new Promise(function(resolve, reject) {
                 resolve(Promise.each([d1, null, Promise.resolve(1), Promise.delay(1)], function() {
                     assert.ok(tree.has(currentId()));
+                }));
+            });
+        });
+
+        it('should be able to disable AsyncResource usage', function() {
+            Promise.config({ asyncHooks: false });
+            hook.enable()
+            tree.add(currentId());
+            var d1 = getAsyncPromise();
+
+            return new Promise(function(resolve, reject) {
+                resolve(d1.then(function() {
+                    assert.ok(!tree.has(currentId()));
                 }));
             });
         });
