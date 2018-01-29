@@ -2,22 +2,26 @@
 
 var assert = require("assert");
 
-var supportsAsyncHooks = false;
+var supportsAsync = false;
 try {
   require('async_hooks');
-  supportsAsyncHooks = true;
-} catch (e) {}
+  supportsAsync = true;
+} catch (e) { }
 
-if (supportsAsyncHooks) {
+if (supportsAsync) {
+    runTests();
+}
+
+function runTests() {
     var async_hooks = require('async_hooks');
 
     var tree = new Set();
     var hook = async_hooks.createHook({
-      init: function(asyncId, type, triggerId) {
-        if (tree.has(triggerId)) {
-          tree.add(asyncId);
+        init: function(asyncId, type, triggerId) {
+            if (tree.has(triggerId)) {
+                tree.add(asyncId);
+            }
         }
-      }
     });
 
     var currentId = async_hooks.executionAsyncId || async_hooks.currentId;
