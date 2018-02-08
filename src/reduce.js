@@ -95,6 +95,15 @@ ReductionPromiseArray.prototype._iterate = function (values) {
 
     this._currentCancellable = value;
 
+    var promise = this._promise;
+    var maybePromise;
+    for (var j = i; j < length; ++j) {
+        maybePromise = values[j] = tryConvertToPromise(values[j], promise);
+        if (maybePromise instanceof Promise) {
+            maybePromise.suppressUnhandledRejections();
+        }
+    }
+
     if (!value.isRejected()) {
         for (; i < length; ++i) {
             var ctx = {
@@ -142,7 +151,7 @@ function reduce(promises, fn, initialValue, _each) {
 function gotAccum(accum) {
     this.accum = accum;
     this.array._gotAccum(accum);
-    var value = tryConvertToPromise(this.value, this.array._promise);
+    var value = this.value;
     if (value instanceof Promise) {
         this.array._currentCancellable = value;
         return value._then(gotValue, undefined, undefined, this, undefined);
