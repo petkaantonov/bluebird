@@ -18,55 +18,66 @@
 
 bench doxbee-sequential
 
-    results for 10000 parallel executions, 1 ms per I/O op
+results for 10000 parallel executions, 1 ms per I/O op
 
-    file                                     time(ms)  memory(MB)
-    callbacks-baseline.js                         232       35.86
-    promises-bluebird-generator.js                235       38.04
-    promises-bluebird.js                          335       52.08
-    promises-cujojs-when.js                       405       75.77
-    promises-tildeio-rsvp.js                      468       87.56
-    promises-dfilatov-vow.js                      578      125.98
-    callbacks-caolan-async-waterfall.js           634       88.64
-    promises-lvivski-davy.js                      653      109.64
-    promises-calvinmetcalf-lie.js                 732      165.41
-    promises-obvious-kew.js                      1346      261.69
-    promises-ecmascript6-native.js               1348      189.29
-    generators-tj-co.js                          1419      164.03
-    promises-then-promise.js                     1571      294.45
-    promises-medikoo-deferred.js                 2091      262.18
-    observables-Reactive-Extensions-RxJS.js      3201      356.76
-    observables-caolan-highland.js               7429      616.78
-    promises-kriskowal-q.js                      9952      694.23
-    observables-baconjs-bacon.js.js             25805      885.55
+    file                                       time(ms)  memory(MB)
+    callbacks-baseline.js                           158       31.64
+    callbacks-suguru03-neo-async-waterfall.js       211       37.13
+    promises-suguru03-aigle.js                      235       49.95
+    promises-bluebird.js                            244       49.81
+    promises-bluebird-generator.js                  246       41.18
+    promises-cujojs-when.js                         356       64.14
+    promises-lvivski-davy.js                        407       91.98
+    promises-then-promise.js                        414       72.04
+    promises-tildeio-rsvp.js                        437       82.75
+    promises-native-async-await.js                  458       99.32
+    promises-ecmascript6-native.js                  485       96.76
+    generators-tj-co.js                             515       86.04
+    callbacks-caolan-async-waterfall.js             643       80.82
+    promises-dfilatov-vow.js                        766      138.96
+    promises-obvious-kew.js                         826      101.72
+    streamline-generators.js                        878       81.83
+    promises-calvinmetcalf-lie.js                   956      107.17
+    promises-medikoo-deferred.js                    956      118.96
+    observables-pozadi-kefir.js                    1237      130.79
+    streamline-callbacks.js                        1399      101.71
+    observables-Reactive-Extensions-RxJS.js        2905      228.29
+    promises-kriskowal-q.js                        8857      299.12
+    observables-caolan-highland.js                10591      531.43
+    observables-baconjs-bacon.js.js               30588      747.59
 
     Platform info:
-    Windows_NT 6.1.7601 x64
-    Node.JS 1.1.0
-    V8 4.1.0.14
-    Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
+    Darwin 17.3.0 x64
+    Node.JS 8.9.4
+    V8 6.1.534.50
+    Intel(R) Core(TM) i7-7567U CPU @ 3.50GHz × 4
 
 bench parallel (`--p 25`)
 
 results for 10000 parallel executions, 1 ms per I/O op
 
-    file                                time(ms)  memory(MB)
-    callbacks-baseline.js                    211       25.57
-    promises-bluebird.js                     389       53.49
-    promises-bluebird-generator.js           491       55.52
-    promises-tildeio-rsvp.js                 785      108.14
-    promises-dfilatov-vow.js                 798      102.08
-    promises-cujojs-when.js                  851       60.46
-    promises-calvinmetcalf-lie.js           1065      187.69
-    promises-lvivski-davy.js                1298      135.43
-    callbacks-caolan-async-parallel.js      1780      101.11
-    promises-then-promise.js                2438      338.91
-    promises-ecmascript6-native.js          3532      301.96
-    promises-medikoo-deferred.js            4207      357.60
-    promises-obvious-kew.js                 8311      559.24
+    file                                      time(ms)  memory(MB)
+    callbacks-baseline.js                          336       74.69
+    callbacks-suguru03-neo-async-parallel.js       417       87.24
+    promises-suguru03-aigle.js                     461      106.64
+    promises-bluebird.js                           478      106.84
+    promises-bluebird-generator.js                 521      108.04
+    promises-lvivski-davy.js                       702      178.45
+    callbacks-caolan-async-parallel.js             755      155.43
+    promises-cujojs-when.js                        861      165.05
+    promises-tildeio-rsvp.js                      1528      349.84
+    promises-ecmascript6-native.js                1585      310.93
+    promises-native-async-await.js                1737      318.35
+    promises-medikoo-deferred.js                  1904      291.44
+    promises-then-promise.js                      2182      314.76
+    promises-calvinmetcalf-lie.js                 2577      378.43
+    promises-obvious-kew.js                       2884      602.00
+    promises-dfilatov-vow.js                      3583      544.10
+    streamline-generators.js                     14805      888.93
+    streamline-callbacks.js                      28102     1205.80
 
     Platform info:
-    Windows_NT 6.1.7601 ia32
-    Node.JS 0.11.14
-    V8 3.26.33
-    Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz × 4
+    Darwin 17.3.0 x64
+    Node.JS 8.9.4
+    V8 6.1.534.50
+    Intel(R) Core(TM) i7-7567U CPU @ 3.50GHz × 4

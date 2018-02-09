@@ -5,6 +5,9 @@ if (global.useQ)
 else if (global.useBluebird)
     //Currently promisifies only Node style callbacks
     var lifter = require('../../js/release/bluebird.js').promisify;
+else if (global.useAigle)
+    //Currently promisifies only Node style callbacks
+    var lifter = require('aigle').promisify;
 else if (global.useKew) {
     var q = require('kew');
     var slicer = [].slice;

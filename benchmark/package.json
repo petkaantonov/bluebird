@@ -4,6 +4,7 @@
   "description": "Compare the performance and code of multiple async patterns",
   "main": "perf.js",
   "dependencies": {
+    "aigle": "^1.8.1",
     "async": "^1.5.0",
     "babel": "^5.8.29",
     "davy": "^1.0.1",
