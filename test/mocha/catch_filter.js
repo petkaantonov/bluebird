@@ -413,5 +413,17 @@ describe("object property predicates", function() {
                 assert.equal(e, err);
             });
     });
+})
+describe("differences in error thrown", function () {
+
+    specify("doesn't call non-function filters", function () {
+        var filter = "string";
+        var p1 = Promise.reject(10);
+        return p1.catch(function () {
+            return true;
+        },filter);
+
+    })
 });
+
 
