@@ -13,14 +13,14 @@ function catchFilter(instances, cb, promise) {
 
             if (item === Error ||
                 (item != null && item.prototype instanceof Error)) {
-                if (e instanceof item) {
+                if (e instanceof item && typeof cb === "function") {
                     return tryCatch(cb).call(boundTo, e);
                 }
             } else if (typeof item === "function") {
                 var matchesPredicate = tryCatch(item).call(boundTo, e);
                 if (matchesPredicate === errorObj) {
                     return matchesPredicate;
-                } else if (matchesPredicate) {
+                } else if (matchesPredicate && typeof cb === "function") {
                     return tryCatch(cb).call(boundTo, e);
                 }
             } else if (util.isObject(e)) {
