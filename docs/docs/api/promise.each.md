@@ -25,6 +25,18 @@ If all of the iterations resolve successfully, Promise.each resolves to the orig
 
 This method is meant to be used for side effects. 
 
+```js
+var fileNames = ["1.txt", "2.txt", "3.txt"];
+
+Promise.each(fileNames, function(fileName) {
+    return fs.readFileAsync(fileName).then(function(val){
+            // do stuff with 'val' here.  
+        });
+}).then(function() {
+    console.log("done");
+});
+```
+
 <hr>
 </markdown></div>
 
