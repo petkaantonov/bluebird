@@ -10,6 +10,9 @@ matrix:
     - node_js: "7"
     - node_js: "8"
   fast_finish: true
+cache:
+  directories:
+    - node_modules
 env:
   - "NODE_FLAGS='' SCRIPT_FLAGS=''"
 before_script:
