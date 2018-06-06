@@ -19,7 +19,7 @@ For bluebird 2.x documentation and files, see the [2.x tree](https://github.com/
 
 ### Note 
 
-Promises in Node.js 10 are significantly faster than before. Bluebird still includes a lot of features like cancellation, iteration methods and warnings that native promises don't. If you are using Bluebird for performance rathe than for those - please consider giving native promises a shot and running the benchmarks yourself.
+Promises in Node.js 10 are significantly faster than before. Bluebird still includes a lot of features like cancellation, iteration methods and warnings that native promises don't. If you are using Bluebird for performance rather than for those - please consider giving native promises a shot and running the benchmarks yourself.
 
 # Questions and issues
 
