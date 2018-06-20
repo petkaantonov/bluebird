@@ -61,4 +61,4 @@ Warnings have been added to report usages which are very likely to be programmer
 
 ##3.0.1 update
 
-Note that the 3.0.1 update is strictly speaking backward-incompatible with 3.0.0. Version 3.0.0 changed the previous behavior of the `.each` method and made it work more same as the new `.mapSeries` - 3.0.1 unrolls this change by reverting to the `.tap`-like behavior found in 2.x However, this would only affect users who updated to 3.0.0 during the short time that it wasn't deprecated and started relying on the new `.each` behavior. This seems unlikely, and therefore the major version was not changed.
+Note that the 3.0.1 update is strictly speaking backward-incompatible with 3.0.0. Version 3.0.0 changed the previous behavior of the `.each` method and made it work the same as the new `.mapSeries` - 3.0.1 unrolls this change by reverting to the `.tap`-like behavior found in 2.x However, this would only affect users who updated to 3.0.0 during the short time that it wasn't deprecated and started relying on the new `.each` behavior. This seems unlikely, and therefore the major version was not changed.
