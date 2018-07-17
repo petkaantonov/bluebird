@@ -199,7 +199,7 @@ var tableLogger = (function() {
 function stringToStream(str) {
     var Readable = require('stream').Readable;
     var readable = new Readable()
-    readable.push(str + "");
+    readable.push(String(str));
     readable.push(null);
     return readable;
 }
