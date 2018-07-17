@@ -11,7 +11,9 @@ HandleWrapper.prototype._resultCancelled = function() {
     clearTimeout(this.handle);
 };
 
-var afterValue = function(value) { return delay(Number(this)).thenReturn(value); };
+var afterValue = function(value) {
+    return delay(Number(this)).thenReturn(value);
+};
 var delay = Promise.delay = function (ms, value) {
     var ret;
     var handle;

@@ -185,7 +185,8 @@ function isClass(fn) {
             var hasMethodsOtherThanConstructor = keys.length > 0 &&
                 !(keys.length === 1 && keys[0] === "constructor");
             var hasThisAssignmentAndStaticMethods =
-                thisAssignmentPattern.test(String(fn)) && es5.names(fn).length > 0;
+                thisAssignmentPattern.test(String(fn))
+                    && es5.names(fn).length > 0;
 
             if (hasMethods || hasMethodsOtherThanConstructor ||
                 hasThisAssignmentAndStaticMethods) {
