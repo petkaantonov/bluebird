@@ -32,7 +32,7 @@ adapter.defer = adapter.pending = function() {
 
     function setInterval(fn, time) {
         var id = currentId++;
-        time = (+time || 0) | 0;
+        time = (Number(time) || 0) | 0;
         if (time < 0) time = 0;
         timers[id] = {
             fn: fn,
@@ -45,7 +45,7 @@ adapter.defer = adapter.pending = function() {
 
     function setTimeout(fn, time) {
         var id = currentId++;
-        time = (+time || 0) | 0;
+        time = (Number(time) || 0) | 0;
         if (time < 0) time = 0;
         timers[id] = {
             fn: fn,
