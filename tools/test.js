@@ -140,7 +140,7 @@ function combineTests(tests) {
 
 var testName = "all";
 if ("run" in argv) {
-    testName = (argv.run + "");
+    testName = String(argv.run);
     if (testName.indexOf("*") === -1) {
         testName = testName.toLowerCase()
             .replace( /\.js$/, "" )
@@ -293,7 +293,7 @@ Promise.all([testResults, jsHint]).spread(function(_, jsHintResponse) {
     }
 
     if (!e || !e.stack) {
-        console.error(e + "");
+        console.error(String(e));
     } else {
         console.error(e.noStackPrint ? e.message : e.stack);
     }
