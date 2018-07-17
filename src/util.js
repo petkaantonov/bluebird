@@ -185,7 +185,7 @@ function isClass(fn) {
             var hasMethodsOtherThanConstructor = keys.length > 0 &&
                 !(keys.length === 1 && keys[0] === "constructor");
             var hasThisAssignmentAndStaticMethods =
-                thisAssignmentPattern.test(fn + "") && es5.names(fn).length > 0;
+                thisAssignmentPattern.test(String(fn)) && es5.names(fn).length > 0;
 
             if (hasMethods || hasMethodsOtherThanConstructor ||
                 hasThisAssignmentAndStaticMethods) {
@@ -231,7 +231,7 @@ function filledRange(count, prefix, suffix) {
 
 function safeToString(obj) {
     try {
-        return obj + "";
+        return String(obj);
     } catch (e) {
         return "[no string representation]";
     }
