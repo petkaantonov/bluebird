@@ -57,7 +57,7 @@ AggregateError.prototype.toString = function() {
     level++;
     indent = Array(level * 4 + 1).join(" ");
     for (var i = 0; i < this.length; ++i) {
-        var str = this[i] === this ? "[Circular AggregateError]" : this[i] + "";
+        var str = this[i] === this ? "[Circular AggregateError]" : String(this[i]);
         var lines = str.split("\n");
         for (var j = 0; j < lines.length; ++j) {
             lines[j] = indent + lines[j];
