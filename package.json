@@ -18,7 +18,7 @@
     "fluent interface"
   ],
   "scripts": {
-    "lint": "node scripts/jshint.js",
+    "lint": "node tools/jshint.js",
     "test": "node tools/test.js",
     "istanbul": "istanbul",
     "prepublish": "npm run generate-browser-core && npm run generate-browser-full",
