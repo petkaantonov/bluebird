@@ -67,9 +67,7 @@ results for 10000 parallel executions, 1 ms per I/O op `ls ./madeup-parallel/*.j
     promises-medikoo-deferred                  1923      334.75
     promises-dfilatov-vow                      2534      534.80
     promises-obvious-kew                       2623      306.68
-    streamline-generators                      6296      988.88
-    streamline-callbacks                       9269     1131.71
-    
+
     Platform info:
     Darwin 17.7.0 x64
     Node.JS 10.6.0
