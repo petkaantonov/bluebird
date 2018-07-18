@@ -245,7 +245,7 @@ var makeNodePromisified = canEvaluate
     ? makeNodePromisifiedEval
     : makeNodePromisifiedClosure;
 
-function promisifyAll(obj, suffix, filter, promisifier, multiArgs) {
+function promisifyAll(obj, suffix, filter, promisifier, multiArgs, translator) {
     ASSERT(typeof suffix === "string");
     ASSERT(typeof filter === "function");
     var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + "$");
@@ -255,7 +255,7 @@ function promisifyAll(obj, suffix, filter, promisifier, multiArgs) {
     for (var i = 0, len = methods.length; i < len; i+= 2) {
         var key = methods[i];
         var fn = methods[i+1];
-        var promisifiedKey = key + suffix;
+        var promisifiedKey = !!translator ? translator(key) : key + suffix;
         if (promisifier === makeNodePromisified) {
             obj[promisifiedKey] =
                 makeNodePromisified(key, THIS, key, fn, suffix, multiArgs);
@@ -304,6 +304,8 @@ Promise.promisifyAll = function (target, options) {
     if (typeof filter !== "function") filter = defaultFilter;
     var promisifier = options.promisifier;
     if (typeof promisifier !== "function") promisifier = makeNodePromisified;
+    var nameTranslator = options.nameTranslator;
+    if (typeof nameTranslator !== "function") nameTranslator = undefined;
 
     if (!util.isIdentifier(suffix)) {
         throw new RangeError(SUFFIX_NOT_IDENTIFIER);
@@ -315,12 +317,14 @@ Promise.promisifyAll = function (target, options) {
         if (keys[i] !== "constructor" &&
             util.isClass(value)) {
             promisifyAll(value.prototype, suffix, filter, promisifier,
-                multiArgs);
-            promisifyAll(value, suffix, filter, promisifier, multiArgs);
+                multiArgs, nameTranslator);
+            promisifyAll(value, suffix, filter, promisifier, multiArgs,
+                nameTranslator);
         }
     }
 
-    return promisifyAll(target, suffix, filter, promisifier, multiArgs);
+    return promisifyAll(target, suffix, filter, promisifier, multiArgs,
+        nameTranslator);
 };
 };
 
