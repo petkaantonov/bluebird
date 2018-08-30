@@ -134,11 +134,17 @@ if (!util.hasDevTools) {
 
 Async.prototype._drainQueue = function(queue) {
     while (queue.length() > 0) {
-        var fn = queue.shift();
-        if (typeof fn !== "function") {
-            fn._settlePromises();
-            continue;
-        }
+        this._drainQueueStep(queue);
+    }
+};
+
+// Shift the queue in a separate function to allow
+// garbage collection after each step
+Async.prototype._drainQueueStep = function (queue) {
+    var fn = queue.shift();
+    if (typeof fn !== "function") {
+        fn._settlePromises();
+    } else {
         var receiver = queue.shift();
         var arg = queue.shift();
         fn.call(receiver, arg);
