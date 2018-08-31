@@ -152,4 +152,98 @@ describe("Async requirement", function() {
             });
         });
     }
+
+    if (testUtils.isRecentNode) {
+        describe("Frees memory of old values in promise chains", function () {
+            if (typeof global.gc !== "function") {
+                var v8 = require("v8");
+                var vm = require("vm");
+                v8.setFlagsFromString("--expose_gc");
+                global.gc = vm.runInNewContext("gc");
+            }
+
+            function getHeapUsed() {
+                global.gc();
+                return process.memoryUsage().heapUsed;
+            }
+
+            var initialHeapUsed;
+
+            beforeEach(function () {
+                initialHeapUsed = getHeapUsed();
+            });
+
+            specify(".then", function () {
+                return Promise.resolve()
+                    .then(function () {
+                        assert.ok(
+                            getHeapUsed() < initialHeapUsed * 1.1,
+                            "Promise.resolve uses minimal memory"
+                        );
+                        var rows = [];
+                        for (var i = 0; i < 1e6; i++) {
+                            rows.push(["Example " + i, i, i * 2]);
+                        }
+                        return rows;
+                    })
+                    .then(function (rows) {
+                        assert.ok(
+                            getHeapUsed() > initialHeapUsed * 12,
+                            "large array uses a large amount of memory"
+                        );
+                        return { len: rows.length };
+                    })
+                    .then(function (x) {
+                        // work around cancellation retaining previous result
+                        return x;
+                    })
+                    .then(function (summaryResult) {
+                        assert.ok(
+                            getHeapUsed() < initialHeapUsed * 1.1,
+                            "memory used by large array is freed"
+                        );
+                        assert.strictEqual(summaryResult.len, 1e6, "result");
+                    });
+            });
+
+            specify(".catch", function () {
+                return Promise.reject(new Error("error 1"))
+                    .catch(function () {
+                        assert.ok(
+                            getHeapUsed() < initialHeapUsed * 1.1,
+                            "Promise.reject uses minimal memory"
+                        );
+                        var rows = [];
+                        for (var i = 0; i < 1e6; i++) {
+                            rows.push(["Example " + i, i, i * 2]);
+                        }
+                        var error = new Error("error 2");
+                        error.result = rows;
+                        throw error;
+                    })
+                    .catch(function (err) {
+                        assert.ok(
+                            getHeapUsed() > initialHeapUsed * 12,
+                            "large array uses a large amount of memory"
+                        );
+                        var rows = err.result;
+                        var error = new Error("error 3");
+                        error.result = { len: rows.length };
+                        throw error;
+                    })
+                    .catch(function (err) {
+                        // work around cancellation retaining previous result
+                        throw err;
+                    })
+                    .catch(function (err) {
+                        assert.ok(
+                            getHeapUsed() < initialHeapUsed * 1.1,
+                            "memory used by large array is freed"
+                        );
+                        var summaryResult = err.result;
+                        assert.strictEqual(summaryResult.len, 1e6, "result");
+                    });
+            });
+        });
+    }
 });

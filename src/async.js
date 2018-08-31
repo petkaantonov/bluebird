@@ -132,15 +132,15 @@ if (!util.hasDevTools) {
     };
 }
 
-Async.prototype._drainQueue = function(queue) {
+function _drainQueue(queue) {
     while (queue.length() > 0) {
-        this._drainQueueStep(queue);
+        _drainQueueStep(queue);
     }
-};
+}
 
 // Shift the queue in a separate function to allow
 // garbage collection after each step
-Async.prototype._drainQueueStep = function (queue) {
+function _drainQueueStep(queue) {
     var fn = queue.shift();
     if (typeof fn !== "function") {
         fn._settlePromises();
@@ -149,14 +149,14 @@ Async.prototype._drainQueueStep = function (queue) {
         var arg = queue.shift();
         fn.call(receiver, arg);
     }
-};
+}
 
 Async.prototype._drainQueues = function () {
     ASSERT(this._isTickUsed);
-    this._drainQueue(this._normalQueue);
+    _drainQueue(this._normalQueue);
     this._reset();
     this._haveDrainedQueues = true;
-    this._drainQueue(this._lateQueue);
+    _drainQueue(this._lateQueue);
 };
 
 Async.prototype._queueTick = function () {
