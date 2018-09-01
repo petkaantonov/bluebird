@@ -155,13 +155,6 @@ describe("Async requirement", function() {
 
     if (testUtils.isRecentNode) {
         describe("Frees memory of old values in promise chains", function () {
-            if (typeof global.gc !== "function") {
-                var v8 = require("v8");
-                var vm = require("vm");
-                v8.setFlagsFromString("--expose_gc");
-                global.gc = vm.runInNewContext("gc");
-            }
-
             function getHeapUsed() {
                 global.gc();
                 return process.memoryUsage().heapUsed;
@@ -169,7 +162,10 @@ describe("Async requirement", function() {
 
             var initialHeapUsed;
 
-            beforeEach(function () {
+            before(function () {
+                if (typeof global.gc !== "function") {
+                    throw new Error("These tests require the --expose-gc flag");
+                }
                 initialHeapUsed = getHeapUsed();
             });
 
