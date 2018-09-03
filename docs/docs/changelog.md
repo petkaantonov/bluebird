@@ -1,3 +1,10 @@
+## 3.5.2 (2018-09-03)
+
+Bugfixes:
+
+ - Fix `PromiseRejectionEvent` to contain `.reason` and `.promise` properties. \([#1509](.), [#1464](.)\)
+ - Fix promise chain retaining memory until the entire chain is resolved  \([#1544](.), [#1529](.)\)
+
 ---
 id: changelog
 title: Changelog
