@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Mar 2017</i>
+                <i>Updated 03 Sep 2018</i>
             </div>
             <div class="clearfix"></div>
             
@@ -144,7 +144,40 @@
 
 <p>Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given <code>iterator</code> function with the signature <code>(value, index, length)</code> where <code>value</code> is the resolved value of a respective promise in the input array. <strong>Iteration happens serially</strong>. If the iterator function returns a promise or a thenable, then the result of the promise is awaited before continuing with next iteration. If any promise in the input array is rejected, then the returned promise is rejected as well.</p>
 
-<p>Resolves to the original array unmodified. This method is meant to be used for side effects. </p>
+<p>If all of the iterations resolve successfully, Promise.each resolves to the original array unmodified.  However, if one iteration rejects or errors, Promise.each ceases execution immediately and does not process any further iterations.  The error or rejected value is returned in this case instead of the original array.</p>
+
+<p>This method is meant to be used for side effects. </p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fileNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;2.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;3.txt&quot;</span><span class="p">];</span>
+
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
+            <span class="c1">// do stuff with &#39;val&#39; here.  </span>
+        <span class="p">});</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>A simple usage example 
+```js
+const Promise = require(&#39;bluebird&#39;);
+const path = require(&#39;path&#39;);
+const fs = Promise.promisifyAll(require(&#39;fs&#39;));
+let fileNames = [&#39;a.txt&#39;,&#39;b.txt&#39;,&#39;c.txt&#39;,&#39;d.txt&#39;]</p>
+
+<p>// All promises will be executed serrialy the next 
+// iteration will start only after the previous promise is fulfilled
+return Promise.each(fileNames, file =&gt; {
+    return fs.readFileAsync(path.resolve(__dirname, file)).then(data =&gt; {
+        console.log(data.toString());
+    }) // If you use then or catch here it&#39;ll be called after each iteration </p>
+
+<p>}).then(arr =&gt; { // Will be called after all promises are resolved 
+    // arr will just include the original array 
+    // so resolt hanle should be inside each iteration
+}).catch(err =&gt; { // Get here if one of the promises was rejected and stop all others</p>
+
+<p>})
+```</p>
 
 <p><hr>
 </markdown></div></p>
@@ -171,7 +204,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

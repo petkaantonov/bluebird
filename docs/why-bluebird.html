@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 04 Oct 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -126,7 +126,7 @@
   </header>
 
   <article class="post-content">
-    <p>There are many third party promise libraries available for JavaScript and even the standard library contains a promise implementation in newer versions of browsers and node/io.js. This page will explore why one might use bluebird promises over other third party or the standard library implementations. For reasons why to use promises in general, see the <a href='why-promises.html' title=''>Why Promises?</a> article.</p>
+    <p>There are many third party promise libraries available for JavaScript and even the standard library contains a promise implementation in newer versions of browsers and node/io.js. This page will explore why one might use bluebird promises over other third party or the standard library implementations. For reasons to use promises in general, see the <a href='why-promises.html' title=''>Why Promises?</a> article.</p>
             <h3>
                 <a class="header-anchor"
                     name="bluebird-design-principles"
@@ -139,16 +139,16 @@
 
 <ul>
 <li><strong>Pragmatic and not theoretical.</strong> - Bluebird will always pick the pragmatic route vs the theoretically elegant one when there is a conflict. The library&#39;s API was created based on real-life use cases and after a lot of consideration.</li>
-<li><strong>Fully featured without bloat</strong> - Bluebird provides all the tools and utilities needed to realize a highly expressive and fluent DSL for asynchronous JavaScript without suffering from bloat by avoiding incorporating features that are solely motivated by theoretical arguments, have extremely narrow applicability or have limited synergy and composability with existing features.</li>
-<li><strong>Easy to debug</strong> - A major consequence of choosing pragmatism over theoretical elegancy, a property that among promise libraries taken to this extent is unique to bluebird.
+<li><strong>Fully featured without bloat</strong> - Bluebird provides all the tools and utilities needed to realize a highly expressive and fluent DSL for asynchronous JavaScript without suffering from bloat by avoiding incorporating features that are solely motivated by theoretical arguments, have extremely narrow applicability, or have limited synergy and composability with existing features.</li>
+<li><strong>Easy to debug</strong> - A major consequence of choosing pragmatism over theoretical elegance, a property that is unique to bluebird among promise libraries taken to this extent.
 
 <ul>
 <li>Bluebird ships with the best cross-platform long stack traces out there and a warning system. This helps you recognize common and devastating promise usage mistakes early before they lead to hard to debug code later.</li>
 <li>Unhandled errors are not silently swallowed by default but reported along with helpful stack traces where applicable. All of this is of course configurable.</li>
 </ul></li>
-<li><strong>Zero overhead abstraction</strong> - In server-side applications the performance of a promise implementation matters. Bluebird&#39;s server side performance is measured with highly relevant realistic end-to-end macro <a href='benchmarks.html' title=''>benchmarks</a> and consistently comes out on top. We understand that if bluebird is as close to a zero cost abstraction as possible, developers won&#39;t be tempted to short-circuit and absorb complexity themselves.</li>
+<li><strong>Zero overhead abstraction</strong> - In server-side applications the performance of a promise implementation matters. Bluebird&#39;s server-side performance is measured with highly relevant and realistic end-to-end macro <a href='benchmarks.html' title=''>benchmarks</a>, and consistently comes out on top. We understand that if bluebird is as close to a zero cost abstraction as possible, developers won&#39;t be tempted to short-circuit and absorb complexity themselves.</li>
 <li><strong>Runs everywhere</strong> - Bluebird runs on pretty much every platform. This makes bluebird ideal for projects who care about providing consistent cross-platform and cross-version experience. It runs on old IE, it has even been known to run on Netscape 7.</li>
-<li><strong>Spec compatible</strong> - bluebird can work as a drop-in replacement for native promises for an instant performance boost. It passes the Promises/A+ test suite and is fully spec compliant.</li>
+<li><strong>Spec compatible</strong> - Bluebird can work as a drop-in replacement for native promises for an instant performance boost. It passes the Promises/A+ test suite and is fully spec compliant.</li>
 </ul>
 
   </article>
@@ -161,7 +161,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

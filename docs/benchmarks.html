@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Mar 2017</i>
+                <i>Updated 04 Oct 2017</i>
             </div>
             <div class="clearfix"></div>
             
@@ -163,33 +163,34 @@
 <div class="highlight"><pre><code class="language-text" data-lang="text">results for 10000 parallel executions, 1 ms per I/O op
 
 file                                       time(ms)  memory(MB)
-callbacks-baseline.js                            87       24.27
-callbacks-suguru03-neo-async-waterfall.js       116       35.96
-promises-bluebird-generator.js                  180       38.39
-promises-bluebird.js                            209       52.41
-promises-cujojs-when.js                         287       70.73
-promises-then-promise.js                        293       78.07
-promises-tildeio-rsvp.js                        366       91.94
-callbacks-caolan-async-waterfall.js             428      103.80
-promises-dfilatov-vow.js                        491      135.49
-promises-lvivski-davy.js                        503      128.99
-generators-tj-co.js                             565      113.61
-promises-calvinmetcalf-lie.js                   567      159.27
-promises-ecmascript6-native.js                  658      157.39
-promises-obvious-kew.js                         676      213.68
-promises-medikoo-deferred.js                    850      183.01
-observables-pozadi-kefir.js                     975      188.22
-observables-Reactive-Extensions-RxJS.js        1208      265.21
-streamline-generators.js                       2216      126.47
-observables-caolan-highland.js                 4844      537.79
-promises-kriskowal-q.js                        4950      380.89
-observables-baconjs-bacon.js.js               14924      802.07
-streamline-callbacks.js                       38855      197.81
+callbacks-baseline.js                           116       33.98
+callbacks-suguru03-neo-async-waterfall.js       145       43.81
+promises-bluebird-generator.js                  183       42.35
+promises-bluebird.js                            214       43.41
+promises-cujojs-when.js                         312       64.37
+promises-then-promise.js                        396       74.33
+promises-tildeio-rsvp.js                        414       84.80
+promises-native-async-await.js                  422      104.23
+promises-ecmascript6-native.js                  424       92.12
+generators-tj-co.js                             444       90.98
+promises-lvivski-davy.js                        480      114.46
+callbacks-caolan-async-waterfall.js             520      109.01
+promises-dfilatov-vow.js                        612      134.38
+promises-obvious-kew.js                         725      208.63
+promises-calvinmetcalf-lie.js                   730      164.96
+streamline-generators.js                        809      154.36
+promises-medikoo-deferred.js                    913      178.51
+observables-pozadi-kefir.js                     991      194.00
+streamline-callbacks.js                        1127      196.54
+observables-Reactive-Extensions-RxJS.js        1906      268.41
+observables-caolan-highland.js                 6887      662.08
+promises-kriskowal-q.js                        8533      435.51
+observables-baconjs-bacon.js.js               21282      882.61
 
 Platform info:
-Linux 4.4.0-64-generic x64
-Node.JS 7.7.1
-V8 5.5.372.41
+Linux 4.4.0-79-generic x64
+Node.JS 8.6.0
+V8 6.0.287.53
 Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz × 4
 </code></pre></div>            <h3>
                 <a class="header-anchor"
@@ -211,27 +212,28 @@ Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz × 4
 <div class="highlight"><pre><code class="language-text" data-lang="text">results for 10000 parallel executions, 1 ms per I/O op
 
 file                                      time(ms)  memory(MB)
-callbacks-baseline.js                          200       71.39
-callbacks-suguru03-neo-async-parallel.js       289       89.80
-promises-bluebird.js                           390      102.95
-promises-bluebird-generator.js                 422      110.15
-callbacks-caolan-async-parallel.js             502      151.99
-promises-cujojs-when.js                        615      166.69
-promises-lvivski-davy.js                       863      282.39
-promises-then-promise.js                       942      309.98
-promises-calvinmetcalf-lie.js                 1272      367.50
-promises-tildeio-rsvp.js                      1473      397.67
-promises-ecmascript6-native.js                1575      395.60
-promises-medikoo-deferred.js                  1839      358.26
-promises-dfilatov-vow.js                      2101      551.81
-promises-obvious-kew.js                       3562      728.36
-streamline-generators.js                     14661     1097.45
-streamline-callbacks.js                      28902     1204.92
+callbacks-baseline.js                          274       75.11
+callbacks-suguru03-neo-async-parallel.js       320       88.84
+promises-bluebird.js                           407      107.25
+promises-bluebird-generator.js                 432      113.19
+callbacks-caolan-async-parallel.js             550      154.27
+promises-cujojs-when.js                        648      168.65
+promises-ecmascript6-native.js                1145      308.87
+promises-lvivski-davy.js                      1153      257.36
+promises-native-async-await.js                1260      323.68
+promises-then-promise.js                      1372      313.24
+promises-tildeio-rsvp.js                      1435      398.73
+promises-medikoo-deferred.js                  1626      306.02
+promises-calvinmetcalf-lie.js                 1805      351.21
+promises-dfilatov-vow.js                      2492      558.25
+promises-obvious-kew.js                       3403      784.61
+streamline-generators.js                     13068      919.24
+streamline-callbacks.js                      25509     1141.57
 
 Platform info:
-Linux 4.4.0-64-generic x64
-Node.JS 7.7.1
-V8 5.5.372.41
+Linux 4.4.0-79-generic x64
+Node.JS 8.6.0
+V8 6.0.287.53
 Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz × 4
 </code></pre></div>            <h3>
                 <a class="header-anchor"
@@ -253,7 +255,7 @@ Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz × 4
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.2/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
