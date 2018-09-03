@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "lint": "node scripts/jshint.js",
-    "test": "node tools/test.js",
+    "test": "node --expose-gc tools/test.js",
     "istanbul": "istanbul",
     "prepublish": "npm run generate-browser-core && npm run generate-browser-full",
     "generate-browser-full": "node tools/build.js --no-clean --no-debug --release --browser --minify",

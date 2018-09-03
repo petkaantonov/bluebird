@@ -127,6 +127,7 @@ Promise.longStackTraces = function () {
     if (!config.longStackTraces && longStackTracesIsSupported()) {
         var Promise_captureStackTrace = Promise.prototype._captureStackTrace;
         var Promise_attachExtraTrace = Promise.prototype._attachExtraTrace;
+        var Promise_dereferenceTrace = Promise.prototype._dereferenceTrace;
         config.longStackTraces = true;
         disableLongStackTraces = function() {
             if (async.haveItemsQueued() && !config.longStackTraces) {
@@ -134,12 +135,14 @@ Promise.longStackTraces = function () {
             }
             Promise.prototype._captureStackTrace = Promise_captureStackTrace;
             Promise.prototype._attachExtraTrace = Promise_attachExtraTrace;
+            Promise.prototype._dereferenceTrace = Promise_dereferenceTrace;
             Context.deactivateLongStackTraces();
             async.enableTrampoline();
             config.longStackTraces = false;
         };
         Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
         Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
+        Promise.prototype._dereferenceTrace = longStackTracesDereferenceTrace;
         Context.activateLongStackTraces();
         async.disableTrampolineIfNecessary();
     }
@@ -325,6 +328,7 @@ Promise.prototype._attachCancellationCallback = function(onCancel) {
 };
 Promise.prototype._captureStackTrace = function () {};
 Promise.prototype._attachExtraTrace = function () {};
+Promise.prototype._dereferenceTrace = function () {};
 Promise.prototype._clearCancellationData = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
@@ -433,6 +437,10 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
             util.notEnumerableProp(error, "__stackCleaned__", true);
         }
     }
+}
+
+function longStackTracesDereferenceTrace() {
+    this._trace = undefined;
 }
 
 function checkForgottenReturns(returnValue, promiseCreated, name, promise,
