@@ -6,7 +6,7 @@ module.exports = function() {
     return utils.run("node_modules/jshint/bin/jshint", [
         "--verbose",
         "--reporter",
-        "node_modules/jshint-stylish/stylish.js",
+        "node_modules/jshint-stylish/index.js",
         "src/"
     ], wd);
 };
