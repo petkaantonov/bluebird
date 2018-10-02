@@ -121,6 +121,7 @@ Promise.prototype.then = function (didFulfill, didReject) {
         if (arguments.length > 1) {
             msg += ", " + util.classString(didReject);
         }
+        msg += new Error().stack;
         this._warn(msg);
     }
     return this._then(didFulfill, didReject, undefined, undefined, undefined);
@@ -158,7 +159,8 @@ Promise.prototype.toJSON = function () {
 
 Promise.prototype.all = function () {
     if (arguments.length > 0) {
-        this._warn(".all() was passed arguments but it does not take any");
+        this._warn(".all() was passed arguments but it does not take any "
+            + new Error().stack);
     }
     return new PromiseArray(this).promise();
 };
@@ -498,6 +500,7 @@ function(reason, synchronous, ignoreNonErrorWarnings) {
     if (!hasStack && !ignoreNonErrorWarnings && debug.warnings()) {
         var message = "a promise was rejected with a non-error: " +
             util.classString(reason);
+        message += new Error().stack;
         this._warn(message, true);
     }
     this._attachExtraTrace(trace, synchronous ? hasStack : false);
