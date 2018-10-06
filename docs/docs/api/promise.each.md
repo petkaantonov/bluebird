@@ -38,6 +38,7 @@ Promise.each(fileNames, function(fileName) {
 ```
 
 A simple usage example 
+
 ```js
 const Promise = require('bluebird');
 const path = require('path');
@@ -54,7 +55,7 @@ return Promise.each(fileNames, file => {
 
 }).then(arr => { // Will be called after all promises are resolved 
     // arr will just include the original array 
-    // so resolt hanle should be inside each iteration
+    // so result handle should be inside each iteration
 }).catch(err => { // Get here if one of the promises was rejected and stop all others
 
 })
