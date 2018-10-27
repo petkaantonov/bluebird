@@ -1,6 +1,6 @@
 //All kinds of conversion passes over the source code
 var jsp = require("acorn");
-var walk = require("acorn/util/walk.js");
+var walk = require("acorn-walk");
 var rnonIdentMember = /[.\-_$a-zA-Z0-9]/g;
 var global = new Function("return this")();
 
