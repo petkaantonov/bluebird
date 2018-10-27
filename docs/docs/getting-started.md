@@ -5,21 +5,44 @@ redirect_from: "/index.html"
 redirect_from: "/docs/index.html"
 ---
 
-[getting-started](unfinished-article)
+[getting-started]
 
 ## Node.js
+Install Bluebird:
+```
+npm install bluebird --save
+```
+or
+```
+yarn add bluebird
+```
 
-    npm install bluebird
-
-Then:
-
+Then import it in your code and use as you like:
 ```js
-var Promise = require("bluebird");
+const Promise = require('bluebird');
+
+export default class Cat {
+  meow(currentMood) {
+    return new Promise((resolve) => {
+      const desiredTreats = 10;
+      const meowLevel = desiredTreats * -currentMood;
+      resolve(meowLevel);
+    });
+  }
+
+  getOwnerAttention() {
+    const actions = [this.meow(0), this.meow(-100), this.meow(-1000)];
+    return Promise.all(actions);
+  }
+}
 ```
 Alternatively in ES6 
 ```js
 import * as Promise from 'bluebird';
 ```
+
+Caveat: if you are using ES7 `await`/`async` constructs, they will still return a native Promise, not a
+Bluebird promise.
 
 ## Browsers
 
