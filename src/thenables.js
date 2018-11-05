@@ -27,7 +27,7 @@ function tryConvertToPromise(obj, context) {
                 );
                 return ret;
             }
-            return doThenable(obj, then, context);
+            return doThenableAsync(obj, then, context);
         }
     }
     return obj;
@@ -53,6 +53,25 @@ function isAnyBluebirdPromise(obj) {
     } catch (e) {
         return false;
     }
+}
+
+function doThenableAsync(x, then, context) {
+    ASSERT(typeof then === "function");
+    var root = Promise.resolve(undefined);
+    var promise = root.then(resolve, reject);
+    var ret = promise;
+
+    function resolve() {
+        if (!promise) return;
+        promise = null;
+        return doThenable(x, then, context);
+    }
+    function reject(reason) {
+        if (!promise) return;
+        promise = null;
+        promise._rejectCallback(reason, false, true);
+    }
+    return ret;
 }
 
 function doThenable(x, then, context) {

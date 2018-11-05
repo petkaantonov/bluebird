@@ -685,28 +685,30 @@ describe("Cancellation", function() {
     });
 
     specify("if onCancel callback causes synchronous rejection, it is ignored and cancellation wins", function() {
+        var cancel;
         var promisifiedXhr = function() {
             var xhrReject;
             var xhr = {
-                then: function(resolve, reject) {
-                    xhrReject = reject;
+                then: function(_, __) {
+                    cancel();
                 },
                 abort: function() {
                     xhrReject(new Error(""));
                 }
             };
-            return new Promise(function(resolve, _, onCancel) {
-                resolve(xhr);
+            return new Promise(function(resolve, reject, onCancel) {
+                xhrReject = reject;
                 onCancel(function() {
                     xhr.abort();
                 });
+                Promise.resolve(xhr);
             });
         };
 
         var req = promisifiedXhr().lastly(function() {
             resolve();
         });
-        req.cancel();
+        cancel = function() {req.cancel()};
         var resolve;
         return new Promise(function(_, __, onCancel) {resolve = arguments[0]});
     });
