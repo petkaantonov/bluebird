@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Sep 2018</i>
+                <i>Updated 06 Nov 2018</i>
             </div>
             <div class="clearfix"></div>
             
@@ -157,28 +157,27 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-<p>A simple usage example 
-```js
-const Promise = require(&#39;bluebird&#39;);
-const path = require(&#39;path&#39;);
-const fs = Promise.promisifyAll(require(&#39;fs&#39;));
-let fileNames = [&#39;a.txt&#39;,&#39;b.txt&#39;,&#39;c.txt&#39;,&#39;d.txt&#39;]</p>
+<p>A simple usage example </p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kr">const</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
+<span class="kd">let</span> <span class="nx">fileNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a.txt&#39;</span><span class="p">,</span><span class="s1">&#39;b.txt&#39;</span><span class="p">,</span><span class="s1">&#39;c.txt&#39;</span><span class="p">,</span><span class="s1">&#39;d.txt&#39;</span><span class="p">]</span>
 
-<p>// All promises will be executed serrialy the next 
-// iteration will start only after the previous promise is fulfilled
-return Promise.each(fileNames, file =&gt; {
-    return fs.readFileAsync(path.resolve(__dirname, file)).then(data =&gt; {
-        console.log(data.toString());
-    }) // If you use then or catch here it&#39;ll be called after each iteration </p>
+<span class="c1">// All promises will be executed serrialy the next </span>
+<span class="c1">// iteration will start only after the previous promise is fulfilled</span>
+<span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="nx">file</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="nx">file</span><span class="p">)).</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+    <span class="p">})</span> <span class="c1">// If you use then or catch here it&#39;ll be called after each iteration </span>
 
-<p>}).then(arr =&gt; { // Will be called after all promises are resolved 
-    // arr will just include the original array 
-    // so resolt hanle should be inside each iteration
-}).catch(err =&gt; { // Get here if one of the promises was rejected and stop all others</p>
 
-<p>})
-```</p>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">arr</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="c1">// Will be called after all promises are resolved </span>
+    <span class="c1">// arr will just include the original array </span>
+    <span class="c1">// so result handle should be inside each iteration</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="c1">// Get here if one of the promises was rejected and stop all others</span>
 
+<span class="p">})</span>
+</code></pre></div>
 <p><hr>
 </markdown></div></p>
 <div id="disqus_thread"></div>
@@ -204,7 +203,7 @@ return Promise.each(fileNames, file =&gt; {
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.2/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

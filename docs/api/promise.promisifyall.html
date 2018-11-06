@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 31 Aug 2016</i>
+                <i>Updated 06 Nov 2018</i>
             </div>
             <div class="clearfix"></div>
             
@@ -168,7 +168,7 @@
 
 <p>The entire prototype chain of the object is promisified on the object. Only enumerable are considered. If the object already has a promisified version of the method, it will be skipped. The target methods are assumed to conform to node.js callback convention of accepting a callback as last argument and calling that callback with error as the first argument and success value on the second argument. If the node method calls its callback with multiple success values, the fulfillment value will be an array of them.</p>
 
-<p>If a method name already has an <code>&quot;Async&quot;</code>-suffix, it will be duplicated. E.g. <code>getAsync</code>&#39;s promisified name is <code>getAsyncAsync</code>.</p>
+<p>If a method name already has an <code>&quot;Async&quot;</code>-suffix, an exception will be thrown.</p>
             <h4>
                 <a class="header-anchor"
                     name="option-suffix"
@@ -382,7 +382,7 @@ promisification:</p>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.2/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.3/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
