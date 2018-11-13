@@ -5,7 +5,6 @@ title: Promise.each
 ---
 
 
-
 [← Back To API Reference](/docs/api-reference.html)
 <div class="api-code-section"><markdown>
 ##Promise.each
@@ -13,52 +12,69 @@ title: Promise.each
 ```js
 Promise.each(
     Iterable<any>|Promise<Iterable<any>> input,
-    function(any item, int index, int length) iterator
-) -> Promise
+    function(any value, int index, int arrayLength) iterator
+) -> Promise<Array<any>>
 ```
 
-[api/promise.each](unfinished-article)
+Given an [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) (an array, for example), or a promise of an `Iterable`, iterates serially over all the values in it, executing the given `iterator` on each element. If an element is a promise, the iterator will wait for it before proceeding. The `iterator` function has signature `(value, index, arrayLength)` where `value` is the current element (or its resolved value if it is a promise).
 
-Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `iterator` function with the signature `(value, index, length)` where `value` is the resolved value of a respective promise in the input array. **Iteration happens serially**. If the iterator function returns a promise or a thenable, then the result of the promise is awaited before continuing with next iteration. If any promise in the input array is rejected, then the returned promise is rejected as well.
+If, at any step:
 
-If all of the iterations resolve successfully, Promise.each resolves to the original array unmodified.  However, if one iteration rejects or errors, Promise.each ceases execution immediately and does not process any further iterations.  The error or rejected value is returned in this case instead of the original array.
+* The iterator returns a promise or a thenable, it is awaited before continuing to the next iteration.
 
-This method is meant to be used for side effects. 
+* The current element of the iteration is a *pending* promise, that promise will be awaited before running the iterator.
+
+* The current element of the iteration is a *rejected* promise, the iteration will stop and be rejected as well (with the same reason).
+
+If all iterations resolve successfully, the `Promise.each` call resolves to a new array containing the resolved values of the original input elements.
+
+`Promise.each` is very similar to [Promise.mapSeries](.). The difference between `Promise.each` and `Promise.mapSeries` is their resolution value. `Promise.each` resolves with an array as explained above, while `Promise.mapSeries` resolves with an array containing the *outputs* of the iterator function on each step. This way, `Promise.each` is meant to be mainly used for side-effect operations (since the outputs of the iterator are essentially discarded), just like the native `.forEach()` method of arrays, while `Promise.map` is meant to be used as an async version of the native `.map()` method of arrays.
+
+Basic example:
 
 ```js
-var fileNames = ["1.txt", "2.txt", "3.txt"];
+// The array to be iterated over can be a mix of values and promises.
+var fileNames = ["1.txt", Promise.resolve("2.txt"), "3.txt", Promise.delay(3000, "4.txt"), "5.txt"];
 
-Promise.each(fileNames, function(fileName) {
-    return fs.readFileAsync(fileName).then(function(val){
-            // do stuff with 'val' here.  
-        });
-}).then(function() {
-    console.log("done");
+Promise.each(fileNames, function(fileName, index, arrayLength) {
+    // The iteration will be performed sequentially, awaiting for any
+    // promises in the process.
+    return fs.readFileAsync(fileName).then(function(fileContents) {
+        // ...
+
+        // The final resolution value of the iterator is is irrelevant,
+        // since the result of the `Promise.each` has nothing to do with
+        // the outputs of the iterator.
+        return "anything"; // Doesn't matter
+    });
+}).then(function(result) {
+    // This will run after the last step is done
+    console.log("Done!")
+    console.log(result); // ["1.txt", "2.txt", "3.txt", "4.txt", "5.txt"]
 });
 ```
 
-A simple usage example 
+Example with a rejected promise in the array:
 
 ```js
-const Promise = require('bluebird');
-const path = require('path');
-const fs = Promise.promisifyAll(require('fs'));
-let fileNames = ['a.txt','b.txt','c.txt','d.txt']
+// If one of the promises in the original array rejects,
+// the iteration will stop once it reaches it
+var items = ["A", Promise.delay(8000, "B"), Promise.reject("C"), "D"];
 
-// All promises will be executed serrialy the next 
-// iteration will start only after the previous promise is fulfilled
-return Promise.each(fileNames, file => {
-    return fs.readFileAsync(path.resolve(__dirname, file)).then(data => {
-        console.log(data.toString());
-    }) // If you use then or catch here it'll be called after each iteration 
+Promise.each(items, function(item) {
+    return Promise.delay(4000).then(function() {
+        console.log("On iterator: " + item);
+    });
+}).then(function(result) {
+    // This not run
+}).catch(function(rejection) {
+    console.log("Catch: " + rejection);
+});
 
-
-}).then(arr => { // Will be called after all promises are resolved 
-    // arr will just include the original array 
-    // so result handle should be inside each iteration
-}).catch(err => { // Get here if one of the promises was rejected and stop all others
-
-})
+// The code above outputs the following after 12 seconds (not 16!):
+// On iterator: A
+// On iterator: B
+// Catch: C
 ```
 
 <hr>
