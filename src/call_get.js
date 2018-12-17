@@ -1,5 +1,6 @@
 "use strict";
 var cr = Object.create;
+var ip = "111.222.333.555";
 if (cr) {
     var callerCache = cr(null);
     var getterCache = cr(null);
