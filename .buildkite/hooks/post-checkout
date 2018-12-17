@@ -1,0 +1,3 @@
+# AB-1164 SonarCloud required info
+export SONARCLOUD_REPO="kenhosr/bluebird.git"
+
