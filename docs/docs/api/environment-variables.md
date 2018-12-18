@@ -25,17 +25,3 @@ Environment variables supported by 3.x:
 - `BLUEBIRD_WARNINGS` - if set exactly to `0` it will explicitly disable warnings and this overrides any other setting that might enable warnings. If set to any truthy value, it will explicitly enable warnings.
 - `BLUEBIRD_LONG_STACK_TRACES` - if set exactly to `0` it will explicitly disable long stack traces and this overrides any other setting that might enable long stack traces. If set to any truthy value, it will explicitly enable long stack traces.
 </markdown></div>
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_title = "Environment variables";
-    var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-environment-variables";
-
-    (function() {
-        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
-        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>

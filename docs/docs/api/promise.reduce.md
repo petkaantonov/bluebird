@@ -37,17 +37,3 @@ Promise.reduce(["file1.txt", "file2.txt", "file3.txt"], function(total, fileName
 
 `Promise.reduce` will start calling the reducer as soon as possible, this is why you might want to use it over `Promise.all` (which awaits for the entire array before you can call [`Array#reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) on it).
 </markdown></div>
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_title = "Promise.reduce";
-    var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.reduce";
-
-    (function() {
-        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
-        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>

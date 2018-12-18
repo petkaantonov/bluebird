@@ -72,16 +72,3 @@ join(fContents, fStat, fSqlClient, function(contents, stat, sqlClient) {
 *Note: In 1.x and 0.x `Promise.join` used to be a `Promise.all` that took the values in as arguments instead of an array. This behavior has been deprecated but is still supported partially - when the last argument is an immediate function value the new semantics will apply*
 </markdown></div>
 
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_title = "Promise.join";
-    var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.join";
-    
-    (function() {
-        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
-        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>

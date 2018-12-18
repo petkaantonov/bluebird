@@ -122,17 +122,3 @@ reading files: 9ms
 
 The order `map` calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it'll execute the `map`er on the elements. For order guarantee in sequential execution - see [Promise.mapSeries](.).
 </markdown></div>
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_title = "Promise.map";
-    var disqus_shortname = "bluebirdjs";
-    var disqus_identifier = "disqus-id-promise.map";
-
-    (function() {
-        var dsq = document.createElement("script"); dsq.type = "text/javascript"; dsq.async = true;
-        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-        (document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
