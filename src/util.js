@@ -385,8 +385,12 @@ var ret = {
     domainBind: domainBind
 };
 ret.isRecentNode = ret.isNode && (function() {
-    var version = process.versions.node.split(".").map(Number);
-    return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+    if (process.versions) {
+        var version = process.versions.node.split(".").map(Number);
+        return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+    }
+
+    return false
 })();
 
 if (ret.isNode) ret.toFastProperties(process);
