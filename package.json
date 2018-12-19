@@ -1,7 +1,7 @@
 {
   "name": "bluebird",
   "description": "Full featured Promises/A+ implementation with exceptionally good performance",
-  "version": "3.5.1",
+  "version": "3.5.3",
   "keywords": [
     "promise",
     "performance",
@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "lint": "node scripts/jshint.js",
-    "test": "node tools/test.js",
+    "test": "node --expose-gc tools/test.js",
     "istanbul": "istanbul",
     "prepublish": "npm run generate-browser-core && npm run generate-browser-full",
     "generate-browser-full": "node tools/build.js --no-clean --no-debug --release --browser --minify",
@@ -40,7 +40,8 @@
     "url": "http://github.com/petkaantonov/"
   },
   "devDependencies": {
-    "acorn": "~0.6.0",
+    "acorn": "^6.0.2",
+    "acorn-walk": "^6.1.0",
     "baconjs": "^0.7.43",
     "bluebird": "^2.9.2",
     "body-parser": "^1.10.2",
@@ -54,6 +55,7 @@
     "istanbul": "^0.3.5",
     "jshint": "^2.6.0",
     "jshint-stylish": "~0.2.0",
+    "kefir": "^2.4.1",
     "mkdirp": "~0.5.0",
     "mocha": "~2.1",
     "open": "~0.0.5",
@@ -62,8 +64,7 @@
     "rx": "^2.3.25",
     "serve-static": "^1.7.1",
     "sinon": "~1.7.3",
-    "uglify-js": "~2.4.16",
-    "kefir": "^2.4.1"
+    "uglify-js": "~2.4.16"
   },
   "readmeFilename": "README.md",
   "main": "./js/release/bluebird.js",

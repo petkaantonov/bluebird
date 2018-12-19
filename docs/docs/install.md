@@ -9,20 +9,20 @@ title: Installation
 
 ##Browser installation
 
-Download <a href="https://cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.js">bluebird {{ site.version }} (development)</a>
+Download <a href="https://cdn.jsdelivr.net/npm/bluebird@{{ site.version }}/js/browser/bluebird.js">bluebird {{ site.version }} (development)</a>
 
 Unminified source file meant to be used in development. Warnings and long stack traces are enabled which are taxing on performance.
 
 ```html
-<script src="//cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bluebird@{{ site.version }}/js/browser/bluebird.js"></script>
 ```
 
-Download <a href="https://cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.min.js">bluebird {{ site.version }} (production)</a>
+Download <a href="https://cdn.jsdelivr.net/npm/bluebird@{{ site.version }}/js/browser/bluebird.min.js">bluebird {{ site.version }} (production)</a>
 
 Minified source file meant to be used in production. Warnings and long straces are disabled. The gzipped size is 17.76KB.
 
 ```html
-<script src="//cdn.jsdelivr.net/bluebird/{{ site.version }}/bluebird.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bluebird@{{ site.version }}/js/browser/bluebird.min.js"></script>
 ```
 
 Unless an AMD loader is installed, the script tag installation exposes the library in the `Promise` and `P` namespaces. If you want to restore the `Promise` namespace, use `var Bluebird = Promise.noConflict()`.

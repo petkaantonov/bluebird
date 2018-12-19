@@ -3,6 +3,20 @@ id: changelog
 title: Changelog
 ---
 
+## 3.5.3 (2018-11-06)
+
+Bugfixes:
+
+ - Update acorn dependency
+
+## 3.5.2 (2018-09-03)
+
+Bugfixes:
+
+ - Fix `PromiseRejectionEvent` to contain `.reason` and `.promise` properties. \([#1509](.), [#1464](.)\)
+ - Fix promise chain retaining memory until the entire chain is resolved  \([#1544](.), [#1529](.)\)
+
+
 ## 3.5.1 (2017-10-04)
 
 Bugfixes:

@@ -25,6 +25,42 @@ If all of the iterations resolve successfully, Promise.each resolves to the orig
 
 This method is meant to be used for side effects. 
 
+```js
+var fileNames = ["1.txt", "2.txt", "3.txt"];
+
+Promise.each(fileNames, function(fileName) {
+    return fs.readFileAsync(fileName).then(function(val){
+            // do stuff with 'val' here.  
+        });
+}).then(function() {
+    console.log("done");
+});
+```
+
+A simple usage example 
+
+```js
+const Promise = require('bluebird');
+const path = require('path');
+const fs = Promise.promisifyAll(require('fs'));
+let fileNames = ['a.txt','b.txt','c.txt','d.txt']
+
+// All promises will be executed serrialy the next 
+// iteration will start only after the previous promise is fulfilled
+return Promise.each(fileNames, file => {
+    return fs.readFileAsync(path.resolve(__dirname, file)).then(data => {
+        console.log(data.toString());
+    }) // If you use then or catch here it'll be called after each iteration 
+
+
+}).then(arr => { // Will be called after all promises are resolved 
+    // arr will just include the original array 
+    // so result handle should be inside each iteration
+}).catch(err => { // Get here if one of the promises was rejected and stop all others
+
+})
+```
+
 <hr>
 </markdown></div>
 

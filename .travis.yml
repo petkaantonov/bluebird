@@ -9,9 +9,12 @@ matrix:
     - node_js: "6"
     - node_js: "7"
     - node_js: "8"
+    - node_js: "10"
   fast_finish: true
+git:
+  depth: 5
 env:
-  - "NODE_FLAGS='' SCRIPT_FLAGS=''"
+  - "NODE_FLAGS='--expose-gc' SCRIPT_FLAGS=''"
 before_script:
 - git submodule update --init --recursive
 script: "node $NODE_FLAGS tools/test.js $SCRIPT_FLAGS"
