@@ -1,0 +1,3 @@
+steps:
+  - label: ":cloud: Sonarcloud Sonar Scanner"
+    command: "buildkite-scripts/mars/wrap/sonar-scanner.sh -Dsonar.pullrequest.branch=$BUILDKITE_BRANCH -Dsonar.pullrequest.key=$BUILDKITE_PULL_REQUEST -Dsonar.pullrequest.github.repository=$SONARCLOUD_REPO -Dsonar.pullrequest.base=master -Dsonar.pullrequest.provider=GitHub"
