@@ -17,6 +17,21 @@ Promise.each(
 ) -> Promise
 ```
 
+##Example
+```js
+let stories = [ '8952', '8884'];
+Promise.each(stories, (item, idx, length) => {
+   return request.getAsync(`https://hacker-news.firebaseio.com/v0/item/${item}.json?print=pretty`)
+   .then(res => {
+      // need to do explicit operations here
+   })
+})
+.then(result => {
+ console.log('ALL done', result);//['8952', '8884']
+})
+
+```
+
 [api/promise.each](unfinished-article)
 
 Iterate over an array, or a promise of an array, which contains promises (or a mix of promises and values) with the given `iterator` function with the signature `(value, index, length)` where `value` is the resolved value of a respective promise in the input array. **Iteration happens serially**. If the iterator function returns a promise or a thenable, then the result of the promise is awaited before continuing with next iteration. If any promise in the input array is rejected, then the returned promise is rejected as well.
