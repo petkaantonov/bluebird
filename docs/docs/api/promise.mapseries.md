@@ -12,31 +12,65 @@ title: Promise.mapSeries
 ```js
 Promise.mapSeries(
     Iterable<any>|Promise<Iterable<any>> input,
-    function(any item, int index, int length) mapper
-) -> Promise
+    function(any value, int index, int arrayLength) mapper
+) -> Promise<Array<any>>
 ```
 
-Given an [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)\(arrays are `Iterable`\), or a promise of an `Iterable`, which produces promises (or a mix of promises and values), iterate over all the values in the `Iterable` into an array and iterate over the array serially, in-order.
+Given an [`Iterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) (an array, for example), or a promise of an `Iterable`, iterates serially over all the values in it, executing the given `mapper` on each element. If an element is a promise, the mapper will wait for it before proceeding. The `mapper` function has signature `(value, index, arrayLength)` where `value` is the current element (or its resolved value if it is a promise).
 
-Returns a promise for an array that contains the values returned by the `iterator` function in their respective positions. The iterator won't be called for an item until its previous item, and the promise returned by the iterator for that item are fulfilled. This results in a `mapSeries` kind of utility but it can also be used simply as a side effect iterator similar to [`Array#forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach).
+If, at any step:
 
-If any promise in the input array is rejected or any promise returned by the iterator function is rejected, the result will be rejected as well.
+* The mapper returns a promise or a thenable, it is awaited before continuing to the next iteration.
 
-Example where [.mapSeries](.)\(the instance method\) is used for iterating with side effects:
+* The current element of the iteration is a *pending* promise, that promise will be awaited before running the mapper.
+
+* The current element of the iteration is a *rejected* promise, the iteration will stop and be rejected as well (with the same reason).
+
+If all iterations resolve successfully, the `Promise.mapSeries` call resolves to a new array containing the results of each `mapper` execution, in order.
+
+`Promise.mapSeries` is very similar to [Promise.each](.). The difference between `Promise.each` and `Promise.mapSeries` is their resolution value. `Promise.mapSeries` resolves with an array as explained above, while `Promise.each` resolves with an array containing the *resolved values of the input elements* (ignoring the outputs of the iteration steps). This way, `Promise.each` is meant to be mainly used for side-effect operations (since the outputs of the iterator are essentially discarded), just like the native `.forEach()` method of arrays, while `Promise.map` is meant to be used as an async version of the native `.map()` method of arrays.
+
+Basic example:
 
 ```js
-// Source: http://jakearchibald.com/2014/es7-async-functions/
-function loadStory() {
-  return getJSON('story.json')
-    .then(function(story) {
-      addHtmlToPage(story.heading);
-      return story.chapterURLs.map(getJSON);
-    })
-    .mapSeries(function(chapter) { addHtmlToPage(chapter.html); })
-    .then(function() { addTextToPage("All done"); })
-    .catch(function(err) { addTextToPage("Argh, broken: " + err.message); })
-    .then(function() { document.querySelector('.spinner').style.display = 'none'; });
-}
+// The array to be mapped over can be a mix of values and promises.
+var fileNames = ["1.txt", Promise.resolve("2.txt"), "3.txt", Promise.delay(3000, "4.txt"), "5.txt"];
+
+Promise.mapSeries(fileNames, function(fileName, index, arrayLength) {
+    // The iteration will be performed sequentially, awaiting for any
+    // promises in the process.
+    return fs.readFileAsync(fileName).then(function(fileContents) {
+        // ...
+        return fileName + "!";
+    });
+}).then(function(result) {
+    // This will run after the last step is done
+    console.log("Done!")
+    console.log(result); // ["1.txt!", "2.txt!", "3.txt!", "4.txt!", "5.txt!"]
+});
+```
+
+Example with a rejected promise in the array:
+
+```js
+// If one of the promises in the original array rejects,
+// the iteration will stop once it reaches it
+var items = ["A", Promise.delay(8000, "B"), Promise.reject("C"), "D"];
+
+Promise.each(items, function(item) {
+    return Promise.delay(4000).then(function() {
+        console.log("On mapper: " + item);
+    });
+}).then(function(result) {
+    // This not run
+}).catch(function(rejection) {
+    console.log("Catch: " + rejection);
+});
+
+// The code above outputs the following after 12 seconds (not 16!):
+// On mapper: A
+// On mapper: B
+// Catch: C
 ```
 
 <hr>
