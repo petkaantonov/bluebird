@@ -165,7 +165,7 @@ module.exports = function(options) {
       ];
 
     if (port) {
-      return supportedPorts.indexOf(port) === -1;
+      return !supportedPorts.includes(port);
     }
 
     return false;
