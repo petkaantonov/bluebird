@@ -465,7 +465,7 @@ var astPasses = module.exports = {
             var name = node.expression.callee.name;
 
             if(typeof inlinedFunctions[ name ] === "function" &&
-                expr.indexOf(node.expression) === -1) {
+                !expr.includes(node.expression)) {
                 expr.push(node.expression);
                 try {
                     results.push( inlinedFunctions[ name ]( node, isBrowser ) );
