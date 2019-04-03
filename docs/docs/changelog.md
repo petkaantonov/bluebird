@@ -1,7 +1,19 @@
+Features:
+
+ - feature
+
+Bugfixes:
+
+ - bugfix
+
 ---
 id: changelog
 title: Changelog
 ---
+
+## 3.5.4 (2019-04-03)
+
+- Proper version check supporting VSCode\([#1576](.)\)
 
 ## 3.5.3 (2018-11-06)
 
