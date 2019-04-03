@@ -36,7 +36,7 @@ $ bower install --save bluebird
 ###Browserify and Webpack
 
 ```
-$ npm install --save bluebird
+$ npm install bluebird
 ```
 
 ```js
@@ -51,7 +51,7 @@ Promise.config({
 ##Node installation
 
 ```
-$ npm install --save bluebird
+$ npm install bluebird
 ```
 
 ```js
