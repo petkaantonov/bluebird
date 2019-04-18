@@ -29,6 +29,7 @@ if (util.isNode && typeof MutationObserver === "undefined") {
 // do not fire DOM mutation events for some reason on iOS 8.3+ and cordova
 // apps which have the same bug but are not `.navigator.standalone`
 } else if ((typeof MutationObserver !== "undefined") &&
+          ("classList" in document.documentElement)
           !(typeof window !== "undefined" &&
             window.navigator &&
             (window.navigator.standalone || window.cordova))) {
