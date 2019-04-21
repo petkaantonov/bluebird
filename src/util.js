@@ -355,12 +355,10 @@ function contextBind(ctx, cb) {
     if (ctx != null && ctx.async != null) {
         var old = cb;
         cb = function() {
-            ctx.async.emitBefore();
-            try {
-                return old.apply(this, arguments);
-            } finally {
-                ctx.async.emitAfter();
-            }
+            INLINE_SLICE(args, arguments);
+            return ctx.async.runInAsyncScope(function() {
+                return old.apply(this, args);
+            }, this);
         };
         cb[ret.wrappedSymbol] = old;
     }
@@ -405,7 +403,7 @@ var ret = {
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version;
-    if (process.versions && process.versions.node) {    
+    if (process.versions && process.versions.node) {
         version = process.versions.node.split(".").map(Number);
     } else if (process.version) {
         version = process.version.split(".").map(Number);
@@ -414,7 +412,7 @@ ret.isRecentNode = ret.isNode && (function() {
 })();
 ret.nodeSupportsAsyncResource = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
-    return (version[0] === 9 && version[1] >= 3) || (version[0] > 9);
+    return (version[0] === 9 && version[1] >= 6) || (version[0] > 9);
 })();
 
 if (ret.nodeSupportsAsyncResource) {
