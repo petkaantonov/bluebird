@@ -24,7 +24,7 @@ function runTests() {
         }
     });
 
-    var currentId = async_hooks.executionAsyncId || async_hooks.currentId;
+    var currentId = async_hooks.executionAsyncId;
 
     function getAsyncPromise() {
         return new Promise(function(resolve, reject) {
