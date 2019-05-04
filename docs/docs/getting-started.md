@@ -20,7 +20,7 @@ var Promise = require("bluebird");
 Alternatively in ES6 
 
 ```js
-import * as Promise from 'bluebird';
+import {Promise} from "bluebird";
 ```
 
 ## Browsers
