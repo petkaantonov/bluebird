@@ -20,6 +20,12 @@ var Promise = require("bluebird");
 Alternatively in ES6 
 
 ```js
+import * as Promise from "bluebird";
+```
+
+If that ES6 import [doesn't work](https://github.com/petkaantonov/bluebird/pull/1594)
+
+```js
 import {Promise} from "bluebird";
 ```
 
