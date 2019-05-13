@@ -105,18 +105,24 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace, promise) {
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
     var domain = getDomain();
-    possiblyUnhandledRejection =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    if (typeof fn === "function") {
+      possiblyUnhandledRejection = domain === null
+                                   ? fn 
+                                   : util.domainBind(domain, fn);
+    } else {
+      possiblyUnhandledRejection = undefined;
+    }
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
     var domain = getDomain();
-    unhandledRejectionHandled =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    if (typeof fn === "function") {
+      unhandledRejectionHandled = domain === null
+                                  ? fn 
+                                  : util.domainBind(domain, fn);
+    } else {
+      unhandledRejectionHandled = undefined;
+    }
 };
 
 var disableLongStackTraces = function() {};
