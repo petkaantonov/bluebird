@@ -32,7 +32,7 @@ function assertLongTrace(error, expectedJumpCount, expectedFramesForJumpsMap) {
                 if (jumpIndex < expectedFramesForJumpsMap.length) {
                     var expectedFrames = expectedFramesForJumpsMap[jumpIndex];
                     var expectedMessage = typeof expectedFrames === "number"
-                        ? String(expectedFrames)
+                        ? (expectedFrames + "")
                         : (expectedFrames[0] + "-" + expectedFrames[1]);
                     var message = "Expected " + (jumpIndex+1) + "th jump to contain " +
                         expectedMessage + " frames " +

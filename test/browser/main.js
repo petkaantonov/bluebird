@@ -32,7 +32,7 @@ adapter.defer = adapter.pending = function() {
 
     function setInterval(fn, time) {
         var id = currentId++;
-        time = (Number(time) || 0) | 0;
+        time = (+time || 0) | 0;
         if (time < 0) time = 0;
         timers[id] = {
             fn: fn,
@@ -45,7 +45,7 @@ adapter.defer = adapter.pending = function() {
 
     function setTimeout(fn, time) {
         var id = currentId++;
-        time = (Number(time) || 0) | 0;
+        time = (+time || 0) | 0;
         if (time < 0) time = 0;
         timers[id] = {
             fn: fn,
@@ -135,7 +135,7 @@ window.onload = function(){
 function postCoverage() {
     var json = JSON.stringify(window.__coverage__);
     var xhr = new XMLHttpRequest();
-    var browser = String(navigator.userAgent).replace(/[^a-zA-Z0-9]/g, "");
+    var browser = (navigator.userAgent + "").replace(/[^a-zA-Z0-9]/g, "");
     var data = "json=" + encodeURIComponent(json) + "&browser=" + encodeURIComponent(browser);
     xhr.open("POST", "/coverdata", true);
     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");

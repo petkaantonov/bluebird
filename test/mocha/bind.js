@@ -1028,8 +1028,8 @@ describe("Promised thisArg", function() {
         var thisPromise = Promise.delay(1, 1);
         var promise = thisPromise.delay(1).thenReturn(2);
         promise.bind(thisPromise).then(function(val) {
-            assert(Number(this) === 1);
-            assert(Number(val) === 2);
+            assert(+this === 1);
+            assert(+val === 2);
             done();
         });
     });
@@ -1048,8 +1048,8 @@ describe("Promised thisArg", function() {
         var promise = Promise.delay(1, 2);
         var thisPromise = promise.thenReturn(1);
         return promise.bind(thisPromise).then(function(val) {
-            assert.strictEqual(Number(this), 1);
-            assert.strictEqual(Number(val), 2);
+            assert.strictEqual(+this, 1);
+            assert.strictEqual(+val, 2);
         });
     });
 

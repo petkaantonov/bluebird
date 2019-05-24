@@ -25,7 +25,7 @@ module.exports = function mochaRun(progress) {
 
     function setInterval(fn, time) {
         var id = currentId++;
-        time = (Number(time) || 0) | 0;
+        time = (+time || 0) | 0;
         if (time < 0) time = 0;
         timers[id] = {
             fn: fn,
@@ -39,7 +39,7 @@ module.exports = function mochaRun(progress) {
 
     function setTimeout(fn, time) {
         var id = currentId++;
-        time = (Number(time) || 0) | 0;
+        time = (+time || 0) | 0;
         if (time < 11) time = 11;
         timers[id] = {
             fn: fn,

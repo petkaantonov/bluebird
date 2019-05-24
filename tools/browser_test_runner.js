@@ -55,7 +55,7 @@ module.exports = function(options) {
                             res.end('404\n');
                             return;
                         }
-                        var browser = String(req.body.browser).replace(/[^a-zA-Z0-9]/g, "");
+                        var browser = (req.body.browser + "").replace(/[^a-zA-Z0-9]/g, "");
                         var fileName = path.join(build.dirs.coverage, "coverage-" + browser + ".json");
                         fs.writeFileAsync(fileName, JSON.stringify(json), "utf8").then(function() {
                             res.writeHead(200, {'Content-Type': 'text/plain'});
