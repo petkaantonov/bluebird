@@ -354,13 +354,14 @@ describe("Promise.coroutine", function() {
             var a = new MyClass();
             var b = new MyClass();
 
-            return Promise.join(a.spawnGoblins().then(function(){
-                return a.spawnGoblins()
-            }), b.spawnGoblins()).then(function(){
+            return Promise.all([a.spawnGoblins().then(function(){
+                return a.spawnGoblins();
+            }), 
+            b.spawnGoblins()
+            ]).then(function(){
                 assert.equal(a.goblins, 5);
                 assert.equal(b.goblins, 4);
             });
-
         });
     });
 });

@@ -95,6 +95,7 @@
         "IS_REJECTED": false,
         "WILL_BE_CANCELLED": false,
         "IS_FINAL": false,
+        "PROMISE_JOIN_TYPE_ERROR": false,
         "IS_BOUND": false,
         "IS_REJECTION_UNHANDLED": false,
         "IS_REJECTION_IGNORED": false,
