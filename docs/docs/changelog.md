@@ -1,15 +1,19 @@
-Features:
-
- - feature
-
-Bugfixes:
-
- - bugfix
-
 ---
 id: changelog
 title: Changelog
 ---
+
+## 3.5.5 (2019-05-24)
+
+Features:
+
+ - Added Symbol.toStringTag support to Promise \([#1421](.)\)
+
+Bugfixes:
+
+ - Fix error in IE9 \([#1591](.), [#1592](.)\)
+ - Fix error with undefined stack trace \([#1537](.)\)
+ - Fix [.catch](.) throwing an error later rather than immediately when passed non-function handler \([#1517](.)\)
 
 ## 3.5.4 (2019-04-03)
 
