@@ -288,6 +288,20 @@ describe("A promise handler that is caught in a filter", function() {
          });
 
     });
+
+    specify("should throw type error for not passing function", function() {
+        try {
+            var a = Promise.reject(new Error("asd"));
+            a.caught(Promise.TypeError, "string");
+            throw new Error("fail");
+        } catch (e) {
+            if (e instanceof Promise.TypeError) {
+                return true;
+            } else {
+                throw new Error("fail");
+            }
+        }
+    });
 });
 
 describe("A promise handler with a predicate filter", function() {
