@@ -21,3 +21,6 @@ script: "node $NODE_FLAGS tools/test.js $SCRIPT_FLAGS"
 branches:
   only:
     - master
+cache:
+  directories:
+  - "$HOME/.npm"
