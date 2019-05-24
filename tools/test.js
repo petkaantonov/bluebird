@@ -140,8 +140,8 @@ function combineTests(tests) {
 
 var testName = "all";
 if ("run" in argv) {
-    testName = (argv.run + "");
-    if (testName.indexOf("*") === -1) {
+    testName = String(argv.run);
+    if (!testName.includes("*")) {
         testName = testName.toLowerCase()
             .replace( /\.js$/, "" )
             .replace( /[^a-zA-Z0-9_\-.]/g, "" );
@@ -198,7 +198,7 @@ if (options.cover) {
         return fs.readdirAsync(build.dirs.coverage);
     }).map(function(fileName) {
         var filePath = path.join(build.dirs.coverage, fileName);
-        if (path.extname(fileName).indexOf("json") === -1) {
+        if (!path.extname(fileName).includes("json")) {
             return rimraf(filePath);
         }
     });
@@ -293,7 +293,7 @@ Promise.all([testResults, jsHint]).spread(function(_, jsHintResponse) {
     }
 
     if (!e || !e.stack) {
-        console.error(e + "");
+        console.error(String(e));
     } else {
         console.error(e.noStackPrint ? e.message : e.stack);
     }

@@ -30,7 +30,7 @@ function successAdapter(val, nodeback) {
 function errorAdapter(reason, nodeback) {
     var promise = this;
     if (!reason) {
-        var newReason = new Error(reason + "");
+        var newReason = new Error(String(reason));
         newReason.cause = reason;
         reason = newReason;
         ASSERT(!!reason);

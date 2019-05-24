@@ -101,7 +101,7 @@ function namedGetter(obj) {
     return obj[this];
 }
 function indexedGetter(obj) {
-    var index = +this;
+    var index = Number(this);
     if (index < 0) index = Math.max(0, index + obj.length);
     return obj[index];
 }

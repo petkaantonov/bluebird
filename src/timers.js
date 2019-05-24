@@ -11,7 +11,9 @@ HandleWrapper.prototype._resultCancelled = function() {
     clearTimeout(this.handle);
 };
 
-var afterValue = function(value) { return delay(+this).thenReturn(value); };
+var afterValue = function(value) {
+    return delay(Number(this)).thenReturn(value);
+};
 var delay = Promise.delay = function (ms, value) {
     var ret;
     var handle;
@@ -23,7 +25,7 @@ var delay = Promise.delay = function (ms, value) {
         }
     } else {
         ret = new Promise(INTERNAL);
-        handle = setTimeout(function() { ret._fulfill(); }, +ms);
+        handle = setTimeout(function() { ret._fulfill(); }, Number(ms));
         if (debug.cancellation()) {
             ret._setOnCancel(new HandleWrapper(handle));
         }
@@ -68,7 +70,7 @@ function failureClear(reason) {
 }
 
 Promise.prototype.timeout = function (ms, message) {
-    ms = +ms;
+    ms = Number(ms);
     var ret, parent;
 
     var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {
