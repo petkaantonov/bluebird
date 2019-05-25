@@ -1,6 +1,6 @@
 "use strict";
-module.exports = function(Promise, Context) {
-var getDomain = Promise._getDomain;
+module.exports = function(Promise, Context,
+    enableAsyncHooks, disableAsyncHooks) {
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
@@ -104,19 +104,13 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace, promise) {
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
-    var domain = getDomain();
-    possiblyUnhandledRejection =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    var context = Promise._getContext();
+    possiblyUnhandledRejection = util.contextBind(context, fn);
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
-    var domain = getDomain();
-    unhandledRejectionHandled =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    var context = Promise._getContext();
+    unhandledRejectionHandled = util.contextBind(context, fn);
 };
 
 var disableLongStackTraces = function() {};
@@ -306,6 +300,18 @@ Promise.config = function(opts) {
         } else if (!opts.monitoring && config.monitoring) {
             config.monitoring = false;
             Promise.prototype._fireEvent = defaultFireEvent;
+        }
+    }
+    if ("asyncHooks" in opts && util.nodeSupportsAsyncResource) {
+        var prev = config.asyncHooks;
+        var cur = !!opts.asyncHooks;
+        if (prev !== cur) {
+            config.asyncHooks = cur;
+            if (cur) {
+                enableAsyncHooks();
+            } else {
+                disableAsyncHooks();
+            }
         }
     }
     return Promise;
@@ -933,12 +939,16 @@ var config = {
     warnings: warnings,
     longStackTraces: false,
     cancellation: false,
-    monitoring: false
+    monitoring: false,
+    asyncHooks: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
 
 return {
+    asyncHooks: function() {
+        return config.asyncHooks;
+    },
     longStackTraces: function() {
         return config.longStackTraces;
     },

@@ -344,11 +344,35 @@ function getNativePromise() {
     }
 }
 
-function domainBind(self, cb) {
-    return self.bind(cb);
+var reflectHandler;
+function contextBind(ctx, cb) {
+    if (ctx === null ||
+        typeof cb !== "function" ||
+        cb === reflectHandler) {
+        return cb;
+    }
+
+    if (ctx.domain !== null) {
+        cb = ctx.domain.bind(cb);
+    }
+
+    var async = ctx.async;
+    if (async !== null) {
+        var old = cb;
+        cb = function() {
+            INLINE_SLICE_LEFT_PADDED(2, args, arguments);
+            args[0] = old;
+            args[1] = this;
+            return async.runInAsyncScope.apply(async, args);
+        };
+    }
+    return cb;
 }
 
 var ret = {
+    setReflectHandler: function(fn) {
+        reflectHandler = fn;
+    },
     isClass: isClass,
     isIdentifier: isIdentifier,
     inheritedDataKeys: inheritedDataKeys,
@@ -382,16 +406,26 @@ var ret = {
     env: env,
     global: globalObject,
     getNativePromise: getNativePromise,
-    domainBind: domainBind
+    contextBind: contextBind
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version;
-    if (process.versions && process.versions.node) {    
+    if (process.versions && process.versions.node) {
         version = process.versions.node.split(".").map(Number);
     } else if (process.version) {
         version = process.version.split(".").map(Number);
     }
     return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+})();
+ret.nodeSupportsAsyncResource = ret.isNode && (function() {
+    var supportsAsync = false;
+    try {
+        var res = require("async_hooks").AsyncResource;
+        supportsAsync = typeof res.prototype.runInAsyncScope === "function";
+    } catch (e) {
+        supportsAsync = false;
+    }
+    return supportsAsync;
 })();
 
 if (ret.isNode) ret.toFastProperties(process);
