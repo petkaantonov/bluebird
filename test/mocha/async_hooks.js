@@ -107,6 +107,18 @@ function runTests() {
             });
         });
 
+        it('should preserve async context when using .join', function() {
+            hook.enable()
+            tree.add(currentId());
+            var d1 = getAsyncPromise();
+
+            return new Promise(function(resolve, reject) {
+                resolve(Promise.join(d1, Promise.delay(1), function() {
+                    assert.ok(tree.has(currentId()));
+                }));
+            });
+        });
+
         it('should preserve async context when using .each', function() {
             hook.enable()
             tree.add(currentId());

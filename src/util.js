@@ -344,28 +344,35 @@ function getNativePromise() {
     }
 }
 
+var reflectHandler;
 function contextBind(ctx, cb) {
-    if (typeof cb !== "function")
+    if (ctx === null ||
+        typeof cb !== "function" ||
+        cb === reflectHandler) {
         return cb;
+    }
 
-    if (ctx != null && ctx.domain != null) {
+    if (ctx.domain !== null) {
         cb = ctx.domain.bind(cb);
     }
 
-    if (ctx != null && ctx.async != null) {
+    var async = ctx.async;
+    if (async !== null) {
         var old = cb;
         cb = function() {
-            INLINE_SLICE(args, arguments);
-            return ctx.async.runInAsyncScope(function() {
-                return old.apply(this, args);
-            }, this);
+            INLINE_SLICE_LEFT_PADDED(2, args, arguments);
+            args[0] = old;
+            args[1] = this;
+            return async.runInAsyncScope.apply(async, args);
         };
-        cb[ret.wrappedSymbol] = old;
     }
     return cb;
 }
 
 var ret = {
+    setReflectHandler: function(fn) {
+        reflectHandler = fn;
+    },
     isClass: isClass,
     isIdentifier: isIdentifier,
     inheritedDataKeys: inheritedDataKeys,
@@ -414,10 +421,6 @@ ret.nodeSupportsAsyncResource = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
     return (version[0] === 9 && version[1] >= 6) || (version[0] > 9);
 })();
-
-if (ret.nodeSupportsAsyncResource) {
-    ret.wrappedSymbol = Symbol();
-}
 
 if (ret.isNode) ret.toFastProperties(process);
 

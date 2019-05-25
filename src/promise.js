@@ -13,33 +13,42 @@ function Proxyable() {}
 var UNDEFINED_BINDING = {};
 var ASSERT = require("./assert");
 var util = require("./util");
+util.setReflectHandler(reflectHandler);
 
-var getContext;
-if (util.isNode) {
-    if (util.nodeSupportsAsyncResource) {
-        var AsyncResource = require("async_hooks").AsyncResource;
-        getContext = function() {
-            if (!debug.asyncHooks()) {
-                return { domain: process.domain };
-            }
-            return {
-                domain: process.domain,
-                async: new AsyncResource("Bluebird::Promise")
-            };
-        };
-    } else {
-        getContext = function() {
-            return {
-                domain: process.domain
-            };
-        };
+var getDomain = function() {
+    var domain = process.domain;
+    if (domain === undefined) {
+        return null;
     }
-} else {
-    getContext = function() {
-        return {};
+    return domain;
+};
+var getContextDefault = function() {
+    return null;
+};
+var getContextDomain = function() {
+    return {
+        domain: getDomain(),
+        async: null
     };
-}
+};
+var AsyncResource = util.isNode && util.nodeSupportsAsyncResource ?
+    require("async_hooks").AsyncResource : null;
+var getContextAsyncHooks = function() {
+    return {
+        domain: getDomain(),
+        async: new AsyncResource("Bluebird::Promise")
+    };
+};
+var getContext = util.isNode ? getContextDomain : getContextDefault;
 util.notEnumerableProp(Promise, "_getContext", getContext);
+var enableAsyncHooks = function() {
+    getContext = getContextAsyncHooks;
+    util.notEnumerableProp(Promise, "_getContext", getContextAsyncHooks);
+};
+var disableAsyncHooks = function() {
+    getContext = getContextDomain;
+    util.notEnumerableProp(Promise, "_getContext", getContextDomain);
+};
 
 var es5 = require("./es5");
 var Async = require("./async");
@@ -63,7 +72,9 @@ var PromiseArray =
 var Context = require("./context")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
-var debug = require("./debuggability")(Promise, Context);
+
+var debug = require("./debuggability")(Promise, Context,
+    enableAsyncHooks, disableAsyncHooks);
 var CapturedTrace = debug.CapturedTrace;
 var PassThroughHandlerContext =
     require("./finally")(Promise, tryConvertToPromise, NEXT_FILTER);
@@ -605,8 +616,7 @@ Promise.prototype._settlePromise = function(promise, handler, receiver, value) {
             if (tryCatch(handler).call(receiver, value) === errorObj) {
                 promise._reject(errorObj.e);
             }
-        } else if (handler === reflectHandler || (handler &&
-                handler[util.wrappedSymbol] === reflectHandler)) {
+        } else if (handler === reflectHandler) {
             promise._fulfill(reflectHandler.call(receiver));
         } else if (receiver instanceof Proxyable) {
             receiver._promiseCancelled(promise);
@@ -802,7 +812,7 @@ require("./cancel")(Promise, PromiseArray, apiRejection, debug);
 require("./direct_resolve")(Promise);
 require("./synchronous_inspection")(Promise);
 require("./join")(
-    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getContext);
+    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async);
 Promise.Promise = Promise;
 Promise.version = "__VERSION__";
 };

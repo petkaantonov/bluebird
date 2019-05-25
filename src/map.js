@@ -6,7 +6,6 @@ module.exports = function(Promise,
                           INTERNAL,
                           debug) {
 var ASSERT = require("./assert");
-var getContext = Promise._getContext;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -15,7 +14,7 @@ var async = Promise._async;
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
     this._promise._captureStackTrace();
-    var context = getContext();
+    var context = Promise._getContext();
     this._callback = util.contextBind(context, fn);
     this._preservedValues = _filter === INTERNAL
         ? new Array(this.length())

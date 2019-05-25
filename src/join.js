@@ -1,7 +1,6 @@
 "use strict";
 module.exports =
-function(Promise, PromiseArray, tryConvertToPromise, INTERNAL, async,
-         getContext) {
+function(Promise, PromiseArray, tryConvertToPromise, INTERNAL, async) {
 var util = require("./util");
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
@@ -147,7 +146,7 @@ Promise.join = function () {
 
                 if (!ret._isFateSealed()) {
                     if (holder.asyncNeeded) {
-                        var context = getContext();
+                        var context = Promise._getContext();
                         holder.fn = util.contextBind(context, holder.fn);
                     }
                     ret._setAsyncGuaranteed();
