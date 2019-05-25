@@ -782,3 +782,31 @@ if (asyncAwaitSupported) {
         });
     });
 }
+
+describe("issues", function () {
+    setupCleanUps();
+
+    specify("GH-1501-1", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        Promise.reduce([Promise.resolve("foo"), Promise.reject(new Error("reason"), Promise.resolve("bar"))],
+            function() {},
+            {}).caught(function() {});
+        return ret;
+    });
+
+    specify("GH-1501-2", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        Promise.reduce([Promise.delay(100), Promise.reject(new Error("reason"))],
+            function() {},
+            {}).caught(function() {});
+        return ret;
+    });
+
+    specify("GH-1501-3", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        Promise.reduce([Promise.reject(new Error("reason"))],
+            function() {},
+            Promise.reject(new Error("reason2"))).caught(function() {});
+        return ret;
+    });
+})
