@@ -809,4 +809,62 @@ describe("issues", function () {
             Promise.reject(new Error("reason2"))).caught(function() {});
         return ret;
     });
+
+    specify("GH-1487-1", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var p = Promise.reject( new Error('foo') );
+        Promise.map( p, function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-2", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var arr = [ Promise.reject( new Error('foo') ) ];
+        Promise.map( arr, function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-3", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var p = Promise.reject( new Error('foo') );
+        p.map( function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-4", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var arr = [ Promise.reject( new Error('foo') ) ];
+        var p = Promise.resolve( arr );
+        p.map( function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-5", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var p = Promise.reject( new Error('foo') );
+        Promise.filter( p, function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-6", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var arr = [ Promise.reject( new Error('foo') ) ];
+        Promise.filter( arr, function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-7", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var p = Promise.reject( new Error('foo') );
+        p.filter( function() {} ).caught( function() {} );
+        return ret;
+    });
+
+    specify("GH-1487-8", function testFunction() {
+        var ret = onUnhandledFail(testFunction);
+        var arr = [ Promise.reject( new Error('foo') ) ];
+        var p = Promise.resolve( arr );
+        p.filter( function() {} ).caught( function() {} );
+        return ret;
+    });
 })
