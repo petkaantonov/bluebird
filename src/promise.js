@@ -489,6 +489,7 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
 
     if (shouldBind) this._propagateFrom(maybePromise, PROPAGATE_BIND);
 
+
     var promise = maybePromise._target();
 
     if (promise === this) {
@@ -505,7 +506,7 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
         }
         this._setFollowing();
         this._setLength(0);
-        this._setFollowee(promise);
+        this._setFollowee(maybePromise);
     } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
         this._fulfill(promise._value());
     } else if (BIT_FIELD_CHECK(IS_REJECTED)) {

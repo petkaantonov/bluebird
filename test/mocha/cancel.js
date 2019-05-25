@@ -281,6 +281,35 @@ describe("Cancellation", function() {
         });
     });
 
+    specify("cancels the followee, calling all onCancel callbacks", function() {
+        var called = 0;
+
+        var promise = new Promise(function(_, __, onCancel) {
+            onCancel(function() {
+                called++;
+            });
+        })
+
+        var promise2 = new Promise(function(resolve, reject, onCancel) {
+            resolve(promise);
+            onCancel(function() {
+                called++;
+            });
+        });
+
+        var promise3 = new Promise(function(resolve, reject, onCancel) {
+            resolve(promise2);
+            onCancel(function() {
+                called++;
+            });
+        });
+
+        promise3.cancel();
+        return awaitLateQueue(function() {
+            assert.equal(3, called);
+        });
+    });
+
     specify("can be used for breaking chains early", function() {
         var called = false;
         var p = Promise.resolve(1)
