@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 24 May 2019</i>
+                <i>Updated 25 May 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -166,11 +166,21 @@
                 Browserify and Webpack
             </h3>
 <div class="highlight"><pre><code class="language-text" data-lang="text">$ npm install bluebird
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="c1">// Configure</span>
+</code></pre></div>
+<p>Using webpack for development/debugging:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// Configure webpack and browserify for development/debugging</span>
 <span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span> <span class="c1">// note, run node with --trace-warnings to see full stack traces for warnings</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>Using webpack for production/performance:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="c1">// Configure webpack and browserify for production/performance</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">warnings</span><span class="o">:</span> <span class="kc">false</span>
 <span class="p">})</span>
 </code></pre></div>            <h2>
                 <a class="header-anchor"
