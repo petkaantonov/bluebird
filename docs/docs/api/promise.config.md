@@ -14,11 +14,12 @@ Promise.config(Object {
     warnings: boolean=false,
     longStackTraces: boolean=false,
     cancellation: boolean=false,
-    monitoring: boolean=false
+    monitoring: boolean=false,
+    asyncHooks: boolean=false
 } options) -> Object;
 ```
 
-Configure long stack traces, warnings, monitoring and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For **webpack** and **browserify** *development* environment is *always* enabled. See [installation](/docs/install.html#browserify-and-webpack) on how to configure webpack and browserify for production.
+Configure long stack traces, warnings, monitoring, [async hooks](https://nodejs.org/api/async_hooks.html) and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For **webpack** and **browserify** *development* environment is *always* enabled. See [installation](/docs/install.html#browserify-and-webpack) on how to configure webpack and browserify for production.
 
 ```js
 Promise.config({
@@ -29,7 +30,9 @@ Promise.config({
     // Enable cancellation
     cancellation: true,
     // Enable monitoring
-    monitoring: true
+    monitoring: true,
+    // Enable async hooks
+    asyncHooks: true,
 });
 ```
 
@@ -66,6 +69,10 @@ NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
 ```
 
 Cancellation is always configured separately per bluebird instance.
+
+# Async hooks
+
+Bluebird supports [async hooks](https://nodejs.org/api/async_hooks.html) in node versions 9.6.0 and later. After it is enabled promises from the bluebird instance track async hook context.
 
 </markdown></div>
 
