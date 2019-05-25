@@ -2,12 +2,10 @@
 
 var assert = require("assert");
 
-var supportsAsync = false;
-try {
-  require('async_hooks');
-  supportsAsync = true;
-} catch (e) { }
-
+var getContextFn = Promise._getContext;
+Promise.config({ asyncHooks: true });
+var supportsAsync = Promise._getContext !== getContextFn;
+Promise.config({ asyncHooks: false });
 if (supportsAsync) {
     runTests();
 }

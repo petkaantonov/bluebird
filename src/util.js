@@ -418,8 +418,14 @@ ret.isRecentNode = ret.isNode && (function() {
     return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
 })();
 ret.nodeSupportsAsyncResource = ret.isNode && (function() {
-    var version = process.versions.node.split(".").map(Number);
-    return (version[0] === 9 && version[1] >= 6) || (version[0] > 9);
+    var supportsAsync = false;
+    try {
+        var res = require("async_hooks").AsyncResource;
+        supportsAsync = typeof res.prototype.runInAsyncScope === "function";
+    } catch (e) {
+        supportsAsync = false;
+    }
+    return supportsAsync;
 })();
 
 if (ret.isNode) ret.toFastProperties(process);
