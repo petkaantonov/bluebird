@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 24 May 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -127,6 +127,38 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.5.5"
+                    aria-hidden="true"
+                    href="#3.5.5"><i class="fa fa-link"></i></a>
+                3.5.5 (2019-05-24)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Added Symbol.toStringTag support to Promise (<a href='https://github.com/petkaantonov/bluebird/issues/1421'><code>#1421</code></a>)</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix error in IE9 (<a href='https://github.com/petkaantonov/bluebird/issues/1591'><code>#1591</code></a>, <a href='https://github.com/petkaantonov/bluebird/issues/1592'><code>#1592</code></a>)</li>
+<li>Fix error with undefined stack trace (<a href='https://github.com/petkaantonov/bluebird/issues/1537'><code>#1537</code></a>)</li>
+<li>Fix <a href='/docs/api/catch.html'><code>.catch</code></a> throwing an error later rather than immediately when passed non-function handler (<a href='https://github.com/petkaantonov/bluebird/issues/1517'><code>#1517</code></a>)</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="3.5.4"
+                    aria-hidden="true"
+                    href="#3.5.4"><i class="fa fa-link"></i></a>
+                3.5.4 (2019-04-03)
+            </h2>
+
+<ul>
+<li>Proper version check supporting VSCode(<a href='https://github.com/petkaantonov/bluebird/issues/1576'><code>#1576</code></a>)</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.5.3"
                     aria-hidden="true"
@@ -4105,7 +4137,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.3/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/bluebird@3.5.5/js/browser/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

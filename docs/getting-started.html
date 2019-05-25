@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 24 May 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -145,7 +145,10 @@
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>Alternatively in ES6 </p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">Promise</span> <span class="nx">from</span> <span class="s1">&#39;bluebird&#39;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">Promise</span> <span class="nx">from</span> <span class="s2">&quot;bluebird&quot;</span><span class="p">;</span>
+</code></pre></div>
+<p>If that ES6 import <a href='https://github.com/petkaantonov/bluebird/pull/1594' title=''>doesn&#39;t work</a></p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kr">import</span> <span class="p">{</span><span class="nx">Promise</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">&quot;bluebird&quot;</span><span class="p">;</span>
 </code></pre></div>            <h2>
                 <a class="header-anchor"
                     name="browsers"
@@ -183,7 +186,7 @@
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bluebird/3.5.3/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/bluebird@3.5.5/js/browser/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
