@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 25 May 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -137,7 +137,7 @@
     <span class="nx">monitoring</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span>
 <span class="p">}</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Object</span><span class="p">;</span>
 </code></pre></div>
-<p>Configure long stack traces, warnings, monitoring and cancellation. Note that even though <code>false</code> is the default here, a development environment might be detected which automatically enables long stack traces and warnings.</p>
+<p>Configure long stack traces, warnings, monitoring and cancellation. Note that even though <code>false</code> is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For <strong>webpack</strong> and <strong>browserify</strong> <em>development</em> environment is <em>always</em> enabled. See <a href='docs/install.html#browserify-and-webpack' title=''>installation</a> on how to configure webpack and browserify for production.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="c1">// Enable warnings</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
