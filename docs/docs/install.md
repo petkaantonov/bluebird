@@ -39,12 +39,26 @@ $ bower install --save bluebird
 $ npm install bluebird
 ```
 
+Using webpack for development/debugging:
+
 ```js
 var Promise = require("bluebird");
-// Configure
+// Configure webpack and browserify for development/debugging
 Promise.config({
     longStackTraces: true,
     warnings: true // note, run node with --trace-warnings to see full stack traces for warnings
+})
+```
+
+Using webpack for production/performance:
+
+
+```js
+var Promise = require("bluebird");
+// Configure webpack and browserify for production/performance
+Promise.config({
+    longStackTraces: false,
+    warnings: false
 })
 ```
 
