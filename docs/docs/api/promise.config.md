@@ -72,7 +72,28 @@ Cancellation is always configured separately per bluebird instance.
 
 # Async hooks
 
-Bluebird supports [async hooks](https://nodejs.org/api/async_hooks.html) in node versions 9.6.0 and later. After it is enabled promises from the bluebird instance track async hook context.
+Bluebird supports [async hooks](https://nodejs.org/api/async_hooks.html) in node versions 9.6.0 and later. After it is enabled promises from the bluebird instance are assigned unique asyncIds:
+
+```js
+// Async hooks disabled for bluebird
+const ah = require('async_hooks');
+const Promise = require("bluebird");
+Promise.resolve().then(() => {
+    console.log(`eid ${ah.executionAsyncId()} tid ${ah.triggerAsyncId()}`);
+    //
+});
+```
+
+```js
+// Async hooks enabled for bluebird
+const ah = require('async_hooks');
+const Promise = require("bluebird");
+Promise.config({asyncHooks: true});
+Promise.resolve().then(() => {
+    console.log(`eid ${ah.executionAsyncId()} tid ${ah.triggerAsyncId()}`);
+    //
+});
+```
 
 </markdown></div>
 
