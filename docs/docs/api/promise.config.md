@@ -18,7 +18,7 @@ Promise.config(Object {
 } options) -> Object;
 ```
 
-Configure long stack traces, warnings, monitoring and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings.
+Configure long stack traces, warnings, monitoring and cancellation. Note that even though `false` is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For **webpack** and **browserify** *development* environment is *always* enabled. See [installation](/docs/install.html#browserify-and-webpack) on how to configure webpack and browserify for production.
 
 ```js
 Promise.config({
