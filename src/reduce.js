@@ -110,7 +110,14 @@ ReductionPromiseArray.prototype._iterate = function (values) {
                 length: length,
                 array: this
             };
+
             value = value._then(gotAccum, undefined, undefined, ctx, undefined);
+
+            // Too many promises chained with asyncGuaranteed will result in
+            // stack overflow. Break up long chains to reset stack.
+            if ((i & 127) === 0) {
+                value._setNoAsyncGuarantee();
+            }
         }
     }
 

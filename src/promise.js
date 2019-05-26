@@ -360,7 +360,15 @@ Promise.prototype._setWillBeCancelled = function() {
 
 Promise.prototype._setAsyncGuaranteed = function() {
     if (async.hasCustomScheduler()) return;
-    this._bitField = this._bitField | IS_ASYNC_GUARANTEED;
+    var bitField = this._bitField;
+    this._bitField = bitField |
+        (((bitField & NO_ASYNC_GUARANTEE) >> ASYNC_GUARANTEE_SHIFT) ^
+        IS_ASYNC_GUARANTEED);
+};
+
+Promise.prototype._setNoAsyncGuarantee = function() {
+    this._bitField = (this._bitField | NO_ASYNC_GUARANTEE) &
+        (~IS_ASYNC_GUARANTEED);
 };
 
 Promise.prototype._receiverAt = function (index) {
