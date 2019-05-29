@@ -154,10 +154,11 @@ var fireDomEvent = (function() {
                     detail: event,
                     cancelable: true
                 };
-                es5.defineProperty(
-                    eventData, "promise", {value: event.promise});
-                es5.defineProperty(eventData, "reason", {value: event.reason});
                 var domEvent = new CustomEvent(name.toLowerCase(), eventData);
+                es5.defineProperty(
+                    domEvent, "promise", {value: event.promise});
+                es5.defineProperty(
+                    domEvent, "reason", {value: event.reason});
                 return !util.global.dispatchEvent(domEvent);
             };
         // In Firefox < 48 CustomEvent is not available in workers but
