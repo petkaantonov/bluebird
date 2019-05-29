@@ -57,6 +57,10 @@ if (isNodeJS) {
             setTimeout(function(){
                 d1.fulfill();
                 d2.fulfill();
+                setTimeout(function() {
+                    Promise1._unhandledRejectionCheck();
+                    Promise2._unhandledRejectionCheck();
+                }, 100);
             }, 1);
             return Promise.all([spy1.promise, spy2.promise]);
         });

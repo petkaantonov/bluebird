@@ -517,9 +517,11 @@ describe("Promise.onUnhandledRejectionHandled", function() {
         var a = new Promise(function(){
             throw reason;
         });
-        setTimeout(function(){
+
+        setTimeout(function() {
+            Promise._unhandledRejectionCheck();
             a.then(assert.fail, function(){});
-        }, 200);
+        }, 1);
 
         return Promise.all([spy1.promise, spy2.promise]);
     });
@@ -564,9 +566,10 @@ describe("global events", function() {
 
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
+                Promise._unhandledRejectionCheck();
                 promise.then(assert.fail, function(){});
-            }, 150);
-        }).timeout(500);
+            }, 1);
+        });
     });
 
     specify("are fired with local events", function() {
@@ -603,9 +606,10 @@ describe("global events", function() {
 
             var promise = new Promise(function() {throw err;});
             setTimeout(function() {
+                Promise._unhandledRejectionCheck();
                 promise.then(assert.fail, function(){});
-            }, 150);
-        }).timeout(500);
+            }, 1);
+        });
 
     });
 });
@@ -661,27 +665,28 @@ if (windowDomEventSupported) {
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, undefined);
                     assert.strictEqual(e.promise, promise);
-                    assert.strictEqual(e.reason, err);
+                    assert.strictEqual(e.reason, undefined);
                     order.push(3);
                 });
                 attachEvent("rejectionhandled", function(e) {
                     assert.strictEqual(e.detail.promise, promise);
                     assert.strictEqual(e.detail.reason, undefined);
                     assert.strictEqual(e.promise, promise);
-                    assert.strictEqual(e.reason, err);
+                    assert.strictEqual(e.reason, undefined);
                     assert.strictEqual(e.defaultPrevented, true);
                     order.push(4);
                     resolve();
                 });
 
                 setTimeout(function() {
+                    Promise._unhandledRejectionCheck();
                     promise.then(assert.fail, function(r) {
                         order.push(5);
                         assert.strictEqual(r, err);
                         assert.deepEqual(order, [1,2,3,4,5]);
                     });
-                }, 150);
-            }).timeout(500);
+                }, 1);
+            });
 
         })
     });
@@ -722,7 +727,7 @@ if (windowDomEventSupported) {
                     worker.postMessage("reject");
                 }).then(function () {
                     assert.deepEqual(order, [1, 2]);
-                }).timeout(500);
+                });
             });
         });
     }
@@ -796,7 +801,7 @@ describe("issues", function () {
 
     specify("GH-1501-2", function testFunction() {
         var ret = onUnhandledFail(testFunction);
-        Promise.reduce([Promise.delay(100), Promise.reject(new Error("reason"))],
+        Promise.reduce([Promise.delay(1), Promise.reject(new Error("reason"))],
             function() {},
             {}).caught(function() {});
         return ret;

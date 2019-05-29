@@ -4215,7 +4215,7 @@ function Runnable(title, fn) {
   this.fn = fn;
   this.async = fn && fn.length;
   this.sync = ! this.async;
-  this._timeout = 2000;
+  this._timeout = 1000 * 60 * 5;
   this._slow = 75;
   this._enableTimeouts = true;
   this.timedOut = false;
@@ -4331,6 +4331,7 @@ Runnable.prototype.resetTimeout = function(){
 
   if (!this._enableTimeouts) return;
   this.clearTimeout();
+
   this.timer = setTimeout(function(){
     if (!self._enableTimeouts) return;
     self.callback(new Error('timeout of ' + ms + 'ms exceeded'));
@@ -5185,7 +5186,7 @@ function Suite(title, parentContext) {
   this._afterEach = [];
   this._afterAll = [];
   this.root = !title;
-  this._timeout = 2000;
+  this._timeout = 1000 * 60 * 5;
   this._enableTimeouts = true;
   this._slow = 75;
   this._bail = false;

@@ -94,8 +94,8 @@ module.exports = function mochaRun(progress) {
     return Promise.each(testGroup, function(test, index, length) {
         var mocha = new Mocha({
             reporter: "spec",
-            timeout: 50000, //200 caused non-deterministic test failures
-                    //when a test uses timeouts just barely under 200 ms
+            timeout: "300s",
+            enableTimeouts: true,
             slow: Infinity,
             bail: true
         });
