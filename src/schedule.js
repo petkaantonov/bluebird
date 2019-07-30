@@ -9,7 +9,7 @@ var NativePromise = util.getNativePromise();
 // async task scheduling across target platforms. Note that not all JS target
 // platforms come supported. The scheduler is overridable with `setScheduler`.
 
-// Our scheduler for NodeJS/io.js is setImmediate for recent
+// Our scheduler for Node.js/io.js is setImmediate for recent
 // versions of node because of macrotask semantics.
 // The `typeof` check is for an edge case with nw.js.
 if (util.isNode && typeof MutationObserver === "undefined") {
