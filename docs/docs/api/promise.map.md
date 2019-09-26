@@ -42,6 +42,13 @@ Promise.map(fileNames, function(fileName) {
     console.log("done");
 });
 
+// Using Promise.map and async/await:
+await Promise.map(fileNames, function(fileName) {
+    // Promise.map awaits for returned promises as well.
+    return fs.readFileAsync(fileName);
+});
+console.log("done");
+
 ```
 
 A more involved example:
