@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.7.0 (2019-10-01)
+
+Features:
+
+ - Add [Promise.allSettled](.) method \([#1606](.)\)
+
 ## 3.6.0 (2019-10-01)
 
 Features:
