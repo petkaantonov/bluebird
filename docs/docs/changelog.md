@@ -3,6 +3,24 @@ id: changelog
 title: Changelog
 ---
 
+## 3.6.0 (2019-10-01)
+
+Features:
+
+ - Add support for AsyncResource \([#1403](.)\)
+
+Bugfixes:
+
+ - Fix [.reduce](.) generating unhandled rejection events \([#1501](.)\)
+ - Fix [Promise.reduce](.) generating unhandled rejction events \([#1502](.)\)
+ - Fix [.map](.) and [.filter](.) generating unhandled rejection events \([#1487](.)\)
+ - Fix [Promise.map](.) unhandled rejection events \([#1489](.)\)
+ - Fix cancel skipping upward propagation \([#1459](.)\)
+ - Fix loadTimes deprecation \([#1505](.)\)
+ - Fix [Promise.each](.) maximum stack exceeded error \([#1326](.)\)
+ - Make PromiseRejectionEvent confrom to spec \([#1509](.)\)
+ - Fix false unhandled rejection events \([#1468](.)\)
+
 ## 3.5.5 (2019-05-24)
 
 Features:
