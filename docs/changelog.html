@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 25 May 2019</i>
+                <i>Updated 01 Oct 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -127,6 +127,46 @@
 
   <article class="post-content">
                 <h2>
+                <a class="header-anchor"
+                    name="3.7.0"
+                    aria-hidden="true"
+                    href="#3.7.0"><i class="fa fa-link"></i></a>
+                3.7.0 (2019-10-01)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Add <a href='/docs/api/promise.allsettled.html'><code>Promise.allSettled</code></a> method (<a href='https://github.com/petkaantonov/bluebird/issues/1606'><code>#1606</code></a>)</li>
+</ul>
+            <h2>
+                <a class="header-anchor"
+                    name="3.6.0"
+                    aria-hidden="true"
+                    href="#3.6.0"><i class="fa fa-link"></i></a>
+                3.6.0 (2019-10-01)
+            </h2>
+
+<p>Features:</p>
+
+<ul>
+<li>Add support for AsyncResource (<a href='https://github.com/petkaantonov/bluebird/issues/1403'><code>#1403</code></a>)</li>
+</ul>
+
+<p>Bugfixes:</p>
+
+<ul>
+<li>Fix <a href='/docs/api/reduce.html'><code>.reduce</code></a> generating unhandled rejection events (<a href='https://github.com/petkaantonov/bluebird/issues/1501'><code>#1501</code></a>)</li>
+<li>Fix <a href='/docs/api/promise.reduce.html'><code>Promise.reduce</code></a> generating unhandled rejction events (<a href='https://github.com/petkaantonov/bluebird/issues/1502'><code>#1502</code></a>)</li>
+<li>Fix <a href='/docs/api/map.html'><code>.map</code></a> and <a href='/docs/api/filter.html'><code>.filter</code></a> generating unhandled rejection events (<a href='https://github.com/petkaantonov/bluebird/issues/1487'><code>#1487</code></a>)</li>
+<li>Fix <a href='/docs/api/promise.map.html'><code>Promise.map</code></a> unhandled rejection events (<a href='https://github.com/petkaantonov/bluebird/issues/1489'><code>#1489</code></a>)</li>
+<li>Fix cancel skipping upward propagation (<a href='https://github.com/petkaantonov/bluebird/issues/1459'><code>#1459</code></a>)</li>
+<li>Fix loadTimes deprecation (<a href='https://github.com/petkaantonov/bluebird/issues/1505'><code>#1505</code></a>)</li>
+<li>Fix <a href='/docs/api/promise.each.html'><code>Promise.each</code></a> maximum stack exceeded error (<a href='https://github.com/petkaantonov/bluebird/issues/1326'><code>#1326</code></a>)</li>
+<li>Make PromiseRejectionEvent confrom to spec (<a href='https://github.com/petkaantonov/bluebird/issues/1509'><code>#1509</code></a>)</li>
+<li>Fix false unhandled rejection events (<a href='https://github.com/petkaantonov/bluebird/issues/1468'><code>#1468</code></a>)</li>
+</ul>
+            <h2>
                 <a class="header-anchor"
                     name="3.5.5"
                     aria-hidden="true"
@@ -4137,7 +4177,7 @@ where the <code>reject</code> callback is called explicitly</li>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/bluebird@3.5.5/js/browser/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/bluebird@3.7.0/js/browser/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

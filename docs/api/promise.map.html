@@ -115,7 +115,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 01 Oct 2019</i>
             </div>
             <div class="clearfix"></div>
             
@@ -136,7 +136,7 @@
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">concurrency</span><span class="o">:</span> <span class="kr">int</span><span class="o">=</span><span class="kc">Infinity</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
 </code></pre></div>
-<p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and <a href='http://en.wikipedia.org/wiki/Map_(higher-order_function)' title=''>map the array to another</a> using the given <code>mapper</code> function.</p>
+<p>Given a finite <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and <a href='http://en.wikipedia.org/wiki/Map_(higher-order_function)' title=''>map the array to another</a> using the given <code>mapper</code> function.</p>
 
 <p>Promises returned by the <code>mapper</code> function are awaited for and the returned promise doesn&#39;t fulfill until all mapped promises have fulfilled as well. If any promise in the array is rejected, or any promise returned by the <code>mapper</code> function is rejected, the returned promise is rejected as well.</p>
 
@@ -158,6 +158,13 @@
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
 <span class="p">});</span>
+
+<span class="c1">// Using Promise.map and async/await:</span>
+<span class="nx">await</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Promise.map awaits for returned promises as well.</span>
+    <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>A more involved example:</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
@@ -253,7 +260,7 @@ reading files: 9ms
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/bluebird@3.5.5/js/browser/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/bluebird@3.7.0/js/browser/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

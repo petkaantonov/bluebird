@@ -134,10 +134,11 @@
     <span class="nx">warnings</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
     <span class="nx">cancellation</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
-    <span class="nx">monitoring</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span>
+    <span class="nx">monitoring</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
+    <span class="nx">asyncHooks</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span>
 <span class="p">}</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Object</span><span class="p">;</span>
 </code></pre></div>
-<p>Configure long stack traces, warnings, monitoring and cancellation. Note that even though <code>false</code> is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For <strong>webpack</strong> and <strong>browserify</strong> <em>development</em> environment is <em>always</em> enabled. See <a href='/docs/install.html#browserify-and-webpack' title=''>installation</a> on how to configure webpack and browserify for production.</p>
+<p>Configure long stack traces, warnings, monitoring, <a href='https://nodejs.org/api/async_hooks.html' title=''>async hooks</a> and cancellation. Note that even though <code>false</code> is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For <strong>webpack</strong> and <strong>browserify</strong> <em>development</em> environment is <em>always</em> enabled. See <a href='/docs/install.html#browserify-and-webpack' title=''>installation</a> on how to configure webpack and browserify for production.</p>
 <div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="c1">// Enable warnings</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
@@ -146,7 +147,9 @@
     <span class="c1">// Enable cancellation</span>
     <span class="nx">cancellation</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="c1">// Enable monitoring</span>
-    <span class="nx">monitoring</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="nx">monitoring</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="c1">// Enable async hooks</span>
+    <span class="nx">asyncHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>You can configure the warning for checking forgotten return statements with <code>wForgottenReturn</code>:</p>
@@ -171,7 +174,31 @@
 NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
 </code></pre></div>
 <p>Cancellation is always configured separately per bluebird instance.</p>
+            <h1>
+                <a class="header-anchor"
+                    name="async-hooks"
+                    aria-hidden="true"
+                    href="#async-hooks"><i class="fa fa-link"></i></a>
+                Async hooks
+            </h1>
 
+<p>Bluebird supports <a href='https://nodejs.org/api/async_hooks.html' title=''>async hooks</a> in node versions 9.6.0 and later. After it is enabled promises from the bluebird instance are assigned unique asyncIds:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Async hooks disabled for bluebird</span>
+<span class="kr">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">eid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()}</span> <span class="nx">tid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()}</span><span class="err">`</span><span class="p">);</span>
+    <span class="c1">//</span>
+<span class="p">});</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Async hooks enabled for bluebird</span>
+<span class="kr">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="nx">asyncHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">eid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()}</span> <span class="nx">tid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()}</span><span class="err">`</span><span class="p">);</span>
+    <span class="c1">//</span>
+<span class="p">});</span>
+</code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -196,7 +223,7 @@ NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
     <footer></footer>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/bluebird@3.5.5/js/browser/bluebird.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/bluebird@3.7.0/js/browser/bluebird.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
