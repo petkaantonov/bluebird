@@ -46,23 +46,7 @@ var deferUnhandledRejectionCheck;
         promises.length = 0;
     }
 
-    if (util.isNode) {
-        deferUnhandledRejectionCheck = (function() {
-            var timers = require("timers");
-            var timerSetTimeout = timers.setTimeout;
-            var timer = timerSetTimeout(unhandledRejectionCheck, 1);
-            timer.unref();
-
-            return function(promise) {
-                promises.push(promise);
-                if (typeof timer.refresh === "function") {
-                    timer.refresh();
-                } else {
-                    timerSetTimeout(unhandledRejectionCheck, 1).unref();
-                }
-            };
-        })();
-    } else if (typeof document === "object" && document.createElement) {
+    if (typeof document === "object" && document.createElement) {
         deferUnhandledRejectionCheck = (function() {
             var iframeSetTimeout;
 
