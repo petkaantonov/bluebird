@@ -3,6 +3,19 @@ id: changelog
 title: Changelog
 ---
 
+
+## 3.7.1 (2019-10-15)
+
+Features:
+
+ - feature
+
+Bugfixes:
+
+ - Fix \([#1614](.)\)
+ - Fix \([#1613](.)\)
+ - Fix \([#1616](.)\)
+
 ## 3.7.0 (2019-10-01)
 
 Features:
