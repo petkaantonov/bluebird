@@ -53,12 +53,24 @@ var deferUnhandledRejectionCheck;
             function checkIframe() {
                 if (document.body) {
                     var iframe = document.createElement("iframe");
+                    var iframeClearTimeout;
                     document.body.appendChild(iframe);
                     if (iframe.contentWindow &&
-                        iframe.contentWindow.setTimeout) {
+                        iframe.contentWindow.setTimeout &&
+                        iframe.contentWindow.clearTimeout) {
                         iframeSetTimeout = iframe.contentWindow.setTimeout;
+                        iframeClearTimeout = iframe.contentWindow.clearTimeout;
                     }
                     document.body.removeChild(iframe);
+
+                    // Verify that we're allowed to use a dead iframe's
+                    // setTimeout(). Firefox throws NS_ERROR_NOT_INITIALIZED,
+                    // see #1623.
+                    try {
+                        iframeClearTimeout(iframeSetTimeout(function () {}, 1));
+                    } catch (ex) {
+                        iframeSetTimeout = setTimeout;
+                    }
                 }
             }
             checkIframe();
