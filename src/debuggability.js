@@ -46,8 +46,13 @@ var deferUnhandledRejectionCheck;
         promises.length = 0;
     }
 
+    function fallbackDeferUnhandledRejectionCheck(promise) {
+        promises.push(promise);
+        setTimeout(unhandledRejectionCheck, 1);
+    }
+
     if (typeof document === "object" && document.createElement) {
-        deferUnhandledRejectionCheck = (function() {
+        (function() {
             var iframeSetTimeout;
 
             function checkIframe() {
@@ -69,25 +74,42 @@ var deferUnhandledRejectionCheck;
                     try {
                         iframeClearTimeout(iframeSetTimeout(function () {}, 1));
                     } catch (ex) {
-                        iframeSetTimeout = setTimeout;
+                        deferUnhandledRejectionCheck =
+                            fallbackDeferUnhandledRejectionCheck;
                     }
+                    return true;
                 }
+                return false;
             }
-            checkIframe();
-            return function(promise) {
-                promises.push(promise);
-                if (iframeSetTimeout) {
-                    iframeSetTimeout(unhandledRejectionCheck, 1);
+
+            deferUnhandledRejectionCheck = function(promise) {
+                if (checkIframe()) {
+                    deferUnhandledRejectionCheck = function(promise) {
+                        var checkScheduled = false;
+                        // Verify that we're allowed to use a dead iframe's
+                        // setTimeout(). IE/Edge starts throwing 0x800a1393 a
+                        // nondeterministic amount of time after its removal,
+                        // see #1620.
+                        try {
+                            iframeSetTimeout(unhandledRejectionCheck, 1);
+                            checkScheduled = true;
+                        } catch (ex) {
+                            deferUnhandledRejectionCheck =
+                                fallbackDeferUnhandledRejectionCheck;
+                            deferUnhandledRejectionCheck(promise);
+                        }
+                        if (checkScheduled) {
+                            promises.push(promise);
+                        }
+                    };
+                    deferUnhandledRejectionCheck(promise);
                 } else {
-                    checkIframe();
+                    promises.push(promise);
                 }
             };
         })();
     } else {
-        deferUnhandledRejectionCheck = function(promise) {
-            promises.push(promise);
-            setTimeout(unhandledRejectionCheck, 1);
-        };
+        deferUnhandledRejectionCheck = fallbackDeferUnhandledRejectionCheck;
     }
 
     es5.defineProperty(Promise, "_unhandledRejectionCheck", {
