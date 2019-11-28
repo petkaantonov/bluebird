@@ -3,6 +3,12 @@ id: changelog
 title: Changelog
 ---
 
+## 3.7.2 (2019-11-28)
+
+Bugfixes:
+
+ - Fixes firefox settimeout not initialized error \([#1623](.)\)
+
 
 ## 3.7.1 (2019-10-15)
 
