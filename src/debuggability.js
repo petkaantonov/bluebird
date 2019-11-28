@@ -46,37 +46,10 @@ var deferUnhandledRejectionCheck;
         promises.length = 0;
     }
 
-    if (typeof document === "object" && document.createElement) {
-        deferUnhandledRejectionCheck = (function() {
-            var iframeSetTimeout;
-
-            function checkIframe() {
-                if (document.body) {
-                    var iframe = document.createElement("iframe");
-                    document.body.appendChild(iframe);
-                    if (iframe.contentWindow &&
-                        iframe.contentWindow.setTimeout) {
-                        iframeSetTimeout = iframe.contentWindow.setTimeout;
-                    }
-                    document.body.removeChild(iframe);
-                }
-            }
-            checkIframe();
-            return function(promise) {
-                promises.push(promise);
-                if (iframeSetTimeout) {
-                    iframeSetTimeout(unhandledRejectionCheck, 1);
-                } else {
-                    checkIframe();
-                }
-            };
-        })();
-    } else {
-        deferUnhandledRejectionCheck = function(promise) {
-            promises.push(promise);
-            setTimeout(unhandledRejectionCheck, 1);
-        };
-    }
+    deferUnhandledRejectionCheck = function(promise) {
+        promises.push(promise);
+        setTimeout(unhandledRejectionCheck, 1);
+    };
 
     es5.defineProperty(Promise, "_unhandledRejectionCheck", {
         value: unhandledRejectionCheck
