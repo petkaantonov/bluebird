@@ -168,49 +168,49 @@ describe("Promise.map-test with concurrency", function () {
     }
 
     specify("should map input values array with concurrency", function() {
-        var input = [1, 2, 3];
+        var input = [1, 2, 3, 4];
         return Promise.map(input, mapper, concurrency).then(
             function(results) {
-                assert.deepEqual(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6,8]);
             },
             assert.fail
         );
     });
 
     specify("should map input promises array with concurrency", function() {
-        var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
+        var input = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), Promise.resolve(4)];
         return Promise.map(input, mapper, concurrency).then(
             function(results) {
-                assert.deepEqual(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6,8]);
             },
             assert.fail
         );
     });
 
     specify("should map mixed input array with concurrency", function() {
-        var input = [1, Promise.resolve(2), 3];
+        var input = [1, Promise.resolve(2), 3, 4];
         return Promise.map(input, mapper, concurrency).then(
             function(results) {
-                assert.deepEqual(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6,8]);
             },
             assert.fail
         );
     });
 
     specify("should map input when mapper returns a promise with concurrency", function() {
-        var input = [1,2,3];
+        var input = [1,2,3,4];
         return Promise.map(input, deferredMapper, concurrency).then(
             function(results) {
-                assert.deepEqual(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6,8]);
             },
             assert.fail
         );
     });
 
     specify("should accept a promise for an array with concurrency", function() {
-        return Promise.map(Promise.resolve([1, Promise.resolve(2), 3]), mapper, concurrency).then(
+        return Promise.map(Promise.resolve([1, Promise.resolve(2), 3, 4]), mapper, concurrency).then(
             function(result) {
-                assert.deepEqual(result, [2,4,6]);
+                assert.deepEqual(result, [2,4,6,8]);
             },
             assert.fail
         );
@@ -222,17 +222,17 @@ describe("Promise.map-test with concurrency", function () {
     });
 
     specify("should map input promises when mapper returns a promise with concurrency", function() {
-        var input = [Promise.resolve(1),Promise.resolve(2),Promise.resolve(3)];
+        var input = [Promise.resolve(1),Promise.resolve(2),Promise.resolve(3),Promise.resolve(4)];
         return Promise.map(input, mapper, concurrency).then(
             function(results) {
-                assert.deepEqual(results, [2,4,6]);
+                assert.deepEqual(results, [2,4,6,8]);
             },
             assert.fail
         );
     });
 
     specify("should reject when input contains rejection with concurrency", function() {
-        var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)];
+        var input = [Promise.resolve(1), Promise.reject(2), Promise.resolve(3), Promise.resolve(4)];
         return Promise.map(input, mapper, concurrency).then(
             assert.fail,
             function(result) {
