@@ -198,22 +198,28 @@ function isClass(fn) {
     }
 }
 
+var fastProto = null;
+var kInlineCacheCutoff = 10;
+function FastObject(o) {
+	if (fastProto !== null && typeof fastProto.property) {
+		const result = fastProto;
+		fastProto = FastObject.prototype = null;
+		return result;
+	}
+	fastProto = FastObject.prototype = o == null ? Object.create(null) : o;
+	return new FastObject;
+}
+
+// Initialize the inline property cache of FastObject
+for(var i = 0; i <= kInlineCacheCutoff; i++) {
+	FastObject();
+}
+
+
 function toFastProperties(obj) {
-    /*jshint -W027,-W055,-W031*/
-    function FakeConstructor() {}
-    FakeConstructor.prototype = obj;
-    var receiver = new FakeConstructor();
-    function ic() {
-        return typeof receiver.foo;
-    }
-    ic();
-    ic();
+    return FastObject(o);
     ASSERT("%HasFastProperties", true, obj);
     return obj;
-    // Prevent the function from being optimized through dead code elimination
-    // or further optimizations. This code is never reached but even using eval
-    // in unreachable code causes v8 to not optimize functions.
-    eval(obj);
 }
 
 var rident = /^[a-z$_][a-z$_0-9]*$/i;
