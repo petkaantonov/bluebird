@@ -202,7 +202,7 @@ var fastProto = null;
 var kInlineCacheCutoff = 10;
 function FastObject(o) {
 	if (fastProto !== null && typeof fastProto.property) {
-		const result = fastProto;
+		var result = fastProto;
 		fastProto = FastObject.prototype = null;
 		return result;
 	}
