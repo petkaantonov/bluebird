@@ -212,12 +212,12 @@ function FastObject(o) {
 
 // Initialize the inline property cache of FastObject
 for(var i = 0; i <= kInlineCacheCutoff; i++) {
-    FastObject();
+    FastObject({});
 }
 
 
 function toFastProperties(obj) {
-    return FastObject(o);
+    FastObject(obj);
     ASSERT("%HasFastProperties", true, obj);
     return obj;
 }
