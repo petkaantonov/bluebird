@@ -1214,7 +1214,7 @@ if (
 
 
 // ECMA-262, 3rd B.2.3
-// Note an ECMAScript standart, although ECMAScript 3rd Edition has a
+// Note an ECMAScript standard, although ECMAScript 3rd Edition has a
 // non-normative section suggesting uniform semantics and it should be
 // normalized across all browsers
 // [bugfix, IE lt 9] IE < 9 substr() with negative value not working in IE
