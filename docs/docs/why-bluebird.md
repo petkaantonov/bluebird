@@ -9,7 +9,7 @@ There are many third party promise libraries available for JavaScript and even t
 
 Bluebird is built with the following design principles in mind:
 
- - **Pragmatic and not theoretical.** - Bluebird will always pick the pragmatic route vs the theoretically elegant one when there is a conflict. The library's API was created based on real-life use cases and after a lot of consideration.
+ - **Pragmatic and not theoretical** - Bluebird will always pick the pragmatic route vs the theoretically elegant one when there is a conflict. The library's API was created based on real-life use cases and after a lot of consideration.
  - **Fully featured without bloat** - Bluebird provides all the tools and utilities needed to realize a highly expressive and fluent DSL for asynchronous JavaScript without suffering from bloat by avoiding incorporating features that are solely motivated by theoretical arguments, have extremely narrow applicability, or have limited synergy and composability with existing features.
  - **Easy to debug** - A major consequence of choosing pragmatism over theoretical elegance, a property that is unique to bluebird among promise libraries taken to this extent.
     - Bluebird ships with the best cross-platform long stack traces out there and a warning system. This helps you recognize common and devastating promise usage mistakes early before they lead to hard to debug code later.
