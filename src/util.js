@@ -207,7 +207,7 @@ function FastObject(o) {
         return result;
     }
     fastProto = FastObject.prototype = o == null ? Object.create(null) : o;
-    return new FastObject;
+    return new FastObject();
 }
 
 // Initialize the inline property cache of FastObject
