@@ -88,7 +88,7 @@ request("foo.bar").then(function(result) {
 
 ###Working with one time events
 
-Sometimes we want to find out when a single one time event has finished. For example - a stream is done. For this we can use [new Promise](.). Note that this option should be considered only if [automatic conversion](#working-with-callback-apis-using-the-node-convention) isn't possible.
+Sometimes, we want to find out when a single one time event has finished. For example - a stream is done. For this we can use [new Promise](.). Note that this option should be considered only if [automatic conversion](#working-with-callback-apis-using-the-node-convention) isn't possible.
 
 Note that promises model a _single value through time_, they only resolve _once_ - so while they're a good fit for a single event, they are not recommended for multiple event APIs.
 
