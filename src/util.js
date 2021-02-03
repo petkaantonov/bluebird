@@ -434,5 +434,5 @@ ret.nodeSupportsAsyncResource = ret.isNode && (function() {
 
 if (ret.isNode) ret.toFastProperties(process);
 
-try {throw new Error(); } catch (e) {ret.lastLineError = e;}
+ret.lastLineError = new Error();
 module.exports = ret;
