@@ -10,3 +10,4 @@ coverage/*
 .vscode
 .idea
 .jekyll-cache/*
+_site
