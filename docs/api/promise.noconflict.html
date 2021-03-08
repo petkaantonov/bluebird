@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,21 +121,21 @@
                     href="#promise.noconflict"><i class="fa fa-link"></i></a>
                 Promise.noConflict
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Object</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Object</span>
 </code></pre></div>
 <p>This is relevant to browser environments with no module loader.</p>
 
 <p>Release control of the <code>Promise</code> namespace to whatever it was before this library was loaded. Returns a reference to the library namespace so you can attach it to something else.</p>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="c">&lt;!-- the other promise library must be loaded first --&gt;</span>
-<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/scripts/other_promise.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/scripts/bluebird_debug.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="c">&lt;!-- the other promise library must be loaded first --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/scripts/other_promise.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/scripts/bluebird_debug.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span>
 <span class="c1">//Release control right after</span>
-<span class="kd">var</span> <span class="nx">Bluebird</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">Bluebird</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">();</span>
 
 <span class="c1">//Cast a promise from some other Promise library using the Promise namespace to Bluebird:</span>
-<span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">Bluebird</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nx">Promise</span><span class="p">());</span>
-<span class="nt">&lt;/script&gt;</span>
+<span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">Bluebird</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nb">Promise</span><span class="p">());</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>

@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 25 May 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,7 +121,7 @@
                     href="#promise.config"><i class="fa fa-link"></i></a>
                 Promise.config
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="nb">Object</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="nb">Object</span> <span class="p">{</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
     <span class="nx">cancellation</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
@@ -139,7 +130,7 @@
 <span class="p">}</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Object</span><span class="p">;</span>
 </code></pre></div>
 <p>Configure long stack traces, warnings, monitoring, <a href='https://nodejs.org/api/async_hooks.html' title=''>async hooks</a> and cancellation. Note that even though <code>false</code> is the default here, a development environment might be detected which automatically enables long stack traces and warnings. For <strong>webpack</strong> and <strong>browserify</strong> <em>development</em> environment is <em>always</em> enabled. See <a href='/docs/install.html#browserify-and-webpack' title=''>installation</a> on how to configure webpack and browserify for production.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="c1">// Enable warnings</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="c1">// Enable long stack traces</span>
@@ -153,7 +144,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>You can configure the warning for checking forgotten return statements with <code>wForgottenReturn</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="c1">// Enables all warnings except forgotten return statements.</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="p">{</span>
         <span class="nx">wForgottenReturn</span><span class="o">:</span> <span class="kc">false</span>
@@ -165,12 +156,12 @@
 <p><hr></p>
 
 <p>In Node.js you may configure warnings and long stack traces for the entire process using environment variables:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 node app.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>BLUEBIRD_LONG_STACK_TRACES=1 BLUEBIRD_WARNINGS=1 node app.js
 </code></pre></div>
 <p>Both features are automatically enabled if the <code>BLUEBIRD_DEBUG</code> environment variable has been set or if the <code>NODE_ENV</code> environment variable is equal to <code>&quot;development&quot;</code>.</p>
 
 <p>Using the value <code>0</code> will explicitly disable a feature despite debug environment otherwise activating it:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text"># Warnings are disabled despite being in development environment
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span># Warnings are disabled despite being in development environment
 NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
 </code></pre></div>
 <p>Cancellation is always configured separately per bluebird instance.</p>
@@ -183,19 +174,19 @@ NODE_ENV=development BLUEBIRD_WARNINGS=0 node app.js
             </h1>
 
 <p>Bluebird supports <a href='https://nodejs.org/api/async_hooks.html' title=''>async hooks</a> in node versions 9.6.0 and later. After it is enabled promises from the bluebird instance are assigned unique asyncIds:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Async hooks disabled for bluebird</span>
-<span class="kr">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
-<span class="kr">const</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">eid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()}</span> <span class="nx">tid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()}</span><span class="err">`</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Async hooks disabled for bluebird</span>
+<span class="kd">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`eid </span><span class="si">${</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()</span><span class="si">}</span><span class="sb"> tid </span><span class="si">${</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
     <span class="c1">//</span>
 <span class="p">});</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Async hooks enabled for bluebird</span>
-<span class="kr">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
-<span class="kr">const</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="nx">asyncHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">eid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()}</span> <span class="nx">tid</span> <span class="nx">$</span><span class="p">{</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()}</span><span class="err">`</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Async hooks enabled for bluebird</span>
+<span class="kd">const</span> <span class="nx">ah</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async_hooks&#39;</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="nx">asyncHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`eid </span><span class="si">${</span><span class="nx">ah</span><span class="p">.</span><span class="nx">executionAsyncId</span><span class="p">()</span><span class="si">}</span><span class="sb"> tid </span><span class="si">${</span><span class="nx">ah</span><span class="p">.</span><span class="nx">triggerAsyncId</span><span class="p">()</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
     <span class="c1">//</span>
 <span class="p">});</span>
 </code></pre></div>

@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 25 May 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -142,12 +133,12 @@
 <p>Download <a href="https://cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.js">bluebird 3.7.2 (development)</a></p>
 
 <p>Unminified source file meant to be used in development. Warnings and long stack traces are enabled which are taxing on performance.</p>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;//cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </code></pre></div>
 <p>Download <a href="https://cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.min.js">bluebird 3.7.2 (production)</a></p>
 
 <p>Minified source file meant to be used in production. Warnings and long straces are disabled. The gzipped size is 17.76KB.</p>
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;//cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </code></pre></div>
 <p>Unless an AMD loader is installed, the script tag installation exposes the library in the <code>Promise</code> and <code>P</code> namespaces. If you want to restore the <code>Promise</code> namespace, use <code>var Bluebird = Promise.noConflict()</code>.</p>
             <h3>
@@ -157,7 +148,7 @@
                     href="#bower"><i class="fa fa-link"></i></a>
                 Bower
             </h3>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ bower install --save bluebird
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ bower install --save bluebird
 </code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="browserify-and-webpack"
@@ -165,20 +156,20 @@
                     href="#browserify-and-webpack"><i class="fa fa-link"></i></a>
                 Browserify and Webpack
             </h3>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ npm install bluebird
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ npm install bluebird
 </code></pre></div>
 <p>Using webpack for development/debugging:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// Configure webpack and browserify for development/debugging</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">true</span> <span class="c1">// note, run node with --trace-warnings to see full stack traces for warnings</span>
 <span class="p">})</span>
 </code></pre></div>
 <p>Using webpack for production/performance:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// Configure webpack and browserify for production/performance</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nx">warnings</span><span class="o">:</span> <span class="kc">false</span>
 <span class="p">})</span>
@@ -189,14 +180,14 @@
                     href="#node-installation"><i class="fa fa-link"></i></a>
                 Node installation
             </h2>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ npm install bluebird
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ npm install bluebird
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>To enable long stack traces and warnings in node development:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ NODE_ENV=development node server.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ NODE_ENV=development node server.js
 </code></pre></div>
 <p>To enable long stack traces and warnings in node production:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ BLUEBIRD_DEBUG=1 node server.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ BLUEBIRD_DEBUG=1 node server.js
 </code></pre></div>
 <p>See <a href='/docs/api/environment-variables.html'><code>Environment Variables</code></a>.</p>
             <h2>

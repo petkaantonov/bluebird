@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 01 Oct 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,11 +121,11 @@
                     href="#promise.map"><i class="fa fa-link"></i></a>
                 Promise.map
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
-    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
+    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">mapper</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">concurrency</span><span class="o">:</span> <span class="kr">int</span><span class="o">=</span><span class="kc">Infinity</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Given a finite <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and <a href='http://en.wikipedia.org/wiki/Map_(higher-order_function)' title=''>map the array to another</a> using the given <code>mapper</code> function.</p>
 
@@ -143,16 +134,16 @@
 <p>The mapper function for a given item is called as soon as possible, that is, when the promise for that item&#39;s index in the input array is fulfilled. This doesn&#39;t mean that the result array has items in random order, it means that <code>.map</code> can be used for concurrency coordination unlike <code>.all</code>.</p>
 
 <p>A common use of <code>Promise.map</code> is to replace the <code>.push</code>+<code>Promise.all</code> boilerplate:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">promises</span> <span class="o">=</span> <span class="p">[];</span>
-<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">fileNames</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">promises</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">fileNames</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">promises</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">[</span><span class="nx">i</span><span class="p">]));</span>
 <span class="p">}</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="c1">// Using Promise.map:</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Promise.map awaits for returned promises as well.</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -160,16 +151,16 @@
 <span class="p">});</span>
 
 <span class="c1">// Using Promise.map and async/await:</span>
-<span class="nx">await</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Promise.map awaits for returned promises as well.</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
 <span class="p">});</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;done&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>A more involved example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readdirAsync</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">stat</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="nx">ignore</span><span class="p">()</span> <span class="p">{});</span>
@@ -199,15 +190,15 @@
             </h4>
 
 <p>You may optionally specify a concurrency limit:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">...</span><span class="nx">map</span><span class="p">(...,</span> <span class="p">{</span><span class="nx">concurrency</span><span class="o">:</span> <span class="mi">3</span><span class="p">});</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">...</span><span class="nx">map</span><span class="p">(...,</span> <span class="p">{</span><span class="nx">concurrency</span><span class="o">:</span> <span class="mf">3</span><span class="p">});</span>
 </code></pre></div>
 <p>The concurrency limit applies to Promises returned by the mapper function and it basically limits the number of Promises created. For example, if <code>concurrency</code> is <code>3</code> and the mapper callback has been called enough so that there are three returned Promises currently pending, no further callbacks are called until one of the pending Promises resolves. So the mapper function will be called three times and it will be called again only after at least one of the Promises resolves.</p>
 
 <p>Playing with the first example with and without limits, and seeing how it affects the duration when reading 20 files:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
-<span class="kd">var</span> <span class="nx">concurrency</span> <span class="o">=</span> <span class="nb">parseFloat</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;Infinity&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">concurrency</span> <span class="o">=</span> <span class="nb">parseFloat</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;Infinity&quot;</span><span class="p">);</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">time</span><span class="p">(</span><span class="s2">&quot;reading files&quot;</span><span class="p">);</span>
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readdirAsync</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">stat</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">);</span>
@@ -228,11 +219,11 @@
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">timeEnd</span><span class="p">(</span><span class="s2">&quot;reading files&quot;</span><span class="p">);</span>
 <span class="p">});</span>
-</code></pre></div><div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>sync <span class="o">&amp;&amp;</span> <span class="nb">echo </span><span class="m">3</span> &gt; /proc/sys/vm/drop_caches
-<span class="nv">$ </span>node test.js 1
+</code></pre></div><div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>$ sync <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="m">3</span> &gt; /proc/sys/vm/drop_caches
+$ node test.js <span class="m">1</span>
 reading files 35ms
-<span class="nv">$ </span>sync <span class="o">&amp;&amp;</span> <span class="nb">echo </span><span class="m">3</span> &gt; /proc/sys/vm/drop_caches
-<span class="nv">$ </span>node test.js Infinity
+$ sync <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="m">3</span> &gt; /proc/sys/vm/drop_caches
+$ node test.js Infinity
 reading files: 9ms
 </code></pre></div>
 <p>The order <code>map</code> calls the mapper function on the array elements is not specified, there is no guarantee on the order in which it&#39;ll execute the <code>map</code>er on the elements. For order guarantee in sequential execution - see <a href='/docs/api/promise.mapseries.html'><code>Promise.mapSeries</code></a>.

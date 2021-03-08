@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -155,10 +146,10 @@
             </h2>
 
 <p>You got this this error because you&#39;ve used <code>Promise.promisify</code> on an object, for example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>
 <p>Instead, use <a href='/docs/api/promise.promisifyall.html'><code><code>Promise.promisifyAll</code></code></a> :</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 </code></pre></div>            <h2>
                 <a class="header-anchor"
                     name="error-the-promise-constructor-requires-a-resolver-function"
@@ -170,8 +161,8 @@
 <p>You got this error because you used <code>new Promise()</code> or <code>new Promise(something)</code> without passing a function as the parameter.</p>
 
 <p>If you want to wrap an API with a promise manually, the correct syntax is:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">wrapWithPromise</span><span class="p">(</span><span class="nx">parameter</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">wrapWithPromise</span><span class="p">(</span><span class="nx">parameter</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">doSomethingAsync</span><span class="p">({</span>
               <span class="nx">error</span><span class="o">:</span><span class="nx">reject</span><span class="p">,</span>
               <span class="nx">success</span><span class="o">:</span><span class="nx">resolve</span>
@@ -198,12 +189,12 @@
             </h4>
 
 <p>This can happen when you tried to do something like:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">return Promise(function(resolve,reject){
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>return Promise(function(resolve,reject){
        //...
 })
 </code></pre></div>
 <p>You can correct this by doing:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">return new Promise(function(resolve,reject){
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>return new Promise(function(resolve,reject){
        //...
 })
 </code></pre></div>
@@ -230,16 +221,16 @@
 <p><strong>1. Working with collections (like arrays) but pass a single, non-collection element instead</strong></p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mi">3</span><span class="p">;}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mf">3</span><span class="p">;}</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mf">5</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span> 
 <span class="p">});</span>
 </code></pre></div>
 <p>The <code>map</code> operation is expecting an array here (or a promise on one) and instead gets the number <code>5</code>.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mi">3</span><span class="p">;}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">returnThree</span><span class="p">(){</span> <span class="k">return</span> <span class="mf">3</span><span class="p">;}</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mi">5</span><span class="p">]).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mf">5</span><span class="p">]).</span><span class="nx">map</span><span class="p">(</span><span class="nx">returnThree</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">){</span>
      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello Value!&quot;</span><span class="p">,</span><span class="nx">val</span><span class="p">);</span> 
 <span class="p">});</span>
 </code></pre></div>
@@ -252,15 +243,15 @@
 <p>When debugging or performing a one-time operation on a variable before passing it to a function, a return variable is forgotten.</p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mf">3</span><span class="p">);</span> <span class="p">}</span>
 
 <span class="nx">myFunction</span><span class="p">()</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// We are implicitly returning a Promise</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// We are implicitly returning a Promise</span>
 </code></pre></div>
 <p>Debugging, we want to see the value of result, so we add a <code>console.log()</code> line:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mf">3</span><span class="p">);</span> <span class="p">}</span>
 
-<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Debug:&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
     <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// The chain is broken! We don&#39;t return anything to the .then() call</span>
 <span class="p">});</span>
@@ -268,9 +259,9 @@
 <p>As this is an anonymous function call, we need to <strong>return</strong> something, which is not currently happening.</p>
 
 <p>To fix, simply remember to add <code>return</code> in front of your promise-complying function:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span> <span class="p">}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">something</span><span class="p">){</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">something</span><span class="o">*</span><span class="mf">3</span><span class="p">);</span> <span class="p">}</span>
 
-<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="nx">myFunction</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Debug:&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
     <span class="k">return</span> <span class="nx">nextFunction</span><span class="p">(</span><span class="nx">result</span><span class="p">));</span> <span class="c1">// The anonymous function returns the function which returns the promise .then() needs</span>
 <span class="p">});</span>
@@ -283,11 +274,11 @@
             </h2>
 
 <p>You are getting this error when trying to use <a href='/docs/api/promise.coroutine.html'><code>Promise.coroutine</code></a> and not passing it a generator function as a parameter.  For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// Note the *</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// Note the *</span>
     <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.example.com&quot;</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">moreUrls</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;\n&quot;</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="k">for</span><span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">moreUrls</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">moreUrls</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span> <span class="p">)</span> <span class="p">{</span>
         <span class="nx">contents</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">yield</span> <span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">moreUrls</span><span class="p">[</span><span class="nx">i</span><span class="p">]));</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="nx">contents</span><span class="p">;</span>
@@ -318,7 +309,7 @@
 <p>You are getting this error because you are enabling long stack traces after a promise has already been created.</p>
 
 <p>When using <code>longStackTraces</code> the first line in your code after requiring Bluebird should be:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
     <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -334,7 +325,7 @@
 <p>You can get this error when you&#39;re trying to call <code>.value</code> or <code>.error</code> when inspecting a promise where the promise has not been fulfilled or rejected yet.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
 <p>Consider using <a href='/docs/api/ispending.html'><code>.isPending()</code></a> <a href='/docs/api/isfulfilled.html'><code>.isFulfilled()</code></a> and <a href='/docs/api/isrejected.html'><code>.isRejected()</code></a> in order to inspect the promise for status.</p>
@@ -351,7 +342,7 @@
 <p>You can get this error when you&#39;re trying to call <code>.value</code> or <code>.error</code> when inspecting a promise where the promise has not been fulfilled or rejected yet.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">1000</span><span class="p">);</span>
 <span class="nx">p</span><span class="p">.</span><span class="nx">inspect</span><span class="p">().</span><span class="nx">value</span><span class="p">();</span>
 </code></pre></div>
 <p>Consider using <a href='/docs/api/ispending.html'><code>.isPending()</code></a> <a href='/docs/api/isfulfilled.html'><code>.isFulfilled()</code></a> and <a href='/docs/api/isrejected.html'><code>.isRejected()</code></a> in order to inspect the promise for status.</p>
@@ -400,7 +391,7 @@
 <p>The <code>.props</code> method expects to receive an object.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
     <span class="nx">pictures</span><span class="o">:</span> <span class="nx">getPictures</span><span class="p">(),</span>
     <span class="nx">comments</span><span class="o">:</span> <span class="nx">getComments</span><span class="p">(),</span>
     <span class="nx">tweets</span><span class="o">:</span> <span class="nx">getTweets</span><span class="p">()</span>
@@ -431,14 +422,14 @@
             </h2>
 
 <p>You are getting this error because you have tried to <code>yield</code> something in a coroutine without a yield handler, for example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
     <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="k">yield</span> <span class="s2">&quot;Foo&quot;</span><span class="p">;</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>The solution is to either convert it to a promise by calling <code>Promise.resolve</code> on it or <code>Promise.promisify</code> if it&#39;s a callback:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
-    <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;Foo&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">coroutine</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="k">yield</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;Foo&quot;</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -454,7 +445,7 @@
 <p>The <code>.props</code> method expects to receive an object.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">({</span>
     <span class="nx">pictures</span><span class="o">:</span> <span class="nx">getPictures</span><span class="p">(),</span>
     <span class="nx">comments</span><span class="o">:</span> <span class="nx">getComments</span><span class="p">(),</span>
     <span class="nx">tweets</span><span class="o">:</span> <span class="nx">getTweets</span><span class="p">()</span>
@@ -472,7 +463,7 @@
             </h2>
 
 <p>This error indicates you have tried to call <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> on an object that already has a property with the <code>Async</code> suffix:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">myApi</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">foo</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">fooAsync</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">myApi</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">foo</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">fooAsync</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
 </code></pre></div>
 <p>This is because Bluebird adds the <code>Async</code> suffix to distinguish the original method from the promisified one, so <code>fooAsync</code> would have been overridden. In order to avoid this - either rename <code>fooAsync</code> before promisifying the API, or call <a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> manually on select properties.</p>
 
@@ -490,13 +481,13 @@
 <p>Bluebird supports typed and predicate <a href='/docs/api/catch.html'><code>.catch()</code></a> calls]. However in order to use the typed/predicate catch syntax for error handling you must do one of two things.</p>
 
 <p>Pass it a constructor that inherits from <code>Error</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(ReferenceError, function(e) { // this is fine
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>}).catch(ReferenceError, function(e) { // this is fine
 }).catch(Array, function(e) { // arrays don&#39;t capture stack traces
 </code></pre></div>
 <p>This is to enable better stack trace support and to have more consistent and logical code.</p>
 
 <p>Alternatively, if you provide it a predicate be sure it&#39;s a simple function:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">}).catch(function(e){ return false; }, function(e) { // this catches nothing
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>}).catch(function(e){ return false; }, function(e) { // this catches nothing
 }).catch(function(e){ return e.someProp = 5; }, function(e) { // this is fine
 </code></pre></div>
 <p>Please see the API docs of <a href='/docs/api/catch.html'><code>.catch()</code></a> on how to use predicate catches.</p>
@@ -513,9 +504,9 @@
 <p>By default bluebird only tries a few common async schedulers, such as <code>setTimeout</code>, <code>process.nextTick</code> and <code>MutationObserver</code>. However if your JavaScript runtime environment doesn&#39;t expose any of these, you will see this error.</p>
 
 <p>You may use <a href='/docs/api/promise.setscheduler.html'><code>Promise.setScheduler</code></a> to pass a custom scheduler that your environment supports. For example in DukTape:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">){</span> <span class="c1">// fn is what to execute</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">){</span> <span class="c1">// fn is what to execute</span>
     <span class="kd">var</span> <span class="nx">timer</span> <span class="o">=</span> <span class="nx">uv</span><span class="p">.</span><span class="nx">new_timer</span><span class="p">.</span><span class="nx">call</span><span class="p">({});</span>
-    <span class="nx">uv</span><span class="p">.</span><span class="nx">timer_start</span><span class="p">(</span><span class="nx">timer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">fn</span><span class="p">);</span> <span class="c1">// add the function as a callback to the timer</span>
+    <span class="nx">uv</span><span class="p">.</span><span class="nx">timer_start</span><span class="p">(</span><span class="nx">timer</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">fn</span><span class="p">);</span> <span class="c1">// add the function as a callback to the timer</span>
 <span class="p">});</span>
 </code></pre></div>
   </article>

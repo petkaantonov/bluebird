@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,33 +121,33 @@
                     href="#promise.getnewlibrarycopy"><i class="fa fa-link"></i></a>
                 Promise.getNewLibraryCopy
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Object</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Object</span>
 </code></pre></div>
 <p>Returns a new independent copy of the Bluebird library.</p>
 
 <p>This method should be used before you use any of the methods which would otherwise alter the global <code>Bluebird</code> object - to avoid polluting global state.</p>
 
 <p>A basic example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">Promise2</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Promise2</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
 
-<span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="mi">123</span><span class="p">;</span>
+<span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="mf">123</span><span class="p">;</span>
 
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span> <span class="o">==</span> <span class="nx">Promise</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span> <span class="o">==</span> <span class="nb">Promise</span><span class="p">);</span> <span class="c1">// false</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise2</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// 123</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// undefined</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">Promise</span><span class="p">.</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// undefined</span>
 </code></pre></div>
 <p><code>Promise2</code> is independent to <code>Promise</code>. Any changes to <code>Promise2</code> do not affect the copy of Bluebird returned by <code>require(&#39;bluebird&#39;)</code>.</p>
 
 <p>In practice:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">).</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">).</span><span class="nx">getNewLibraryCopy</span><span class="p">();</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* */</span> <span class="p">}</span> <span class="p">);</span> <span class="c1">// alters behavior of `Promise.coroutine()`</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* */</span> <span class="p">}</span> <span class="p">);</span> <span class="c1">// alters behavior of `Promise.coroutine()`</span>
 
 <span class="c1">// somewhere in another file or module in same app</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;bluebird&#39;</span><span class="p">);</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// this code is unaffected by the yieldHandler defined above</span>
     <span class="c1">// because it was defined on an independent copy of Bluebird</span>
 <span class="p">});</span>

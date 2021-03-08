@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -129,7 +120,7 @@
     <p>Promises are a concurrency primitive with a proven track record and language integration in most modern programming languages. They have been extensively studied since the 80s and will make your life much easier.</p>
 
 <p>You should use promises to turn this:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;unable to read file&quot;</span><span class="p">);</span>
     <span class="p">}</span>
@@ -145,7 +136,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Into this:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
 <span class="p">})</span>
 <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">SyntaxError</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
@@ -158,7 +149,7 @@
 <p><em>If you&#39;re thinking, &quot;There&#39;s no <code>readFileAsync</code> method on <code>fs</code> that returns a promise!&quot; see <a href='api/promisification.html' title=''>promisification</a></em></p>
 
 <p>You might notice that the promise approach looks very similar to using synchronous I/O:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">try</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="k">try</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">));</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
 <span class="p">}</span>
@@ -173,7 +164,7 @@
 <p>This is the point—to have something that works like <code>return</code> and <code>throw</code> in synchronous code.</p>
 
 <p>You can also use promises to improve code that was written with callbacks:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//Copyright Plato http://stackoverflow.com/a/19385911/995876</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">//Copyright Plato http://stackoverflow.com/a/19385911/995876</span>
 <span class="c1">//CC BY-SA 2.5</span>
 <span class="nx">mapSeries</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
@@ -206,17 +197,17 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>This is far more readable when done with promises:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">needle</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">needle</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
 
-<span class="kd">var</span> <span class="nx">current</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">URL</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">current</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">URLs</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">URL</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">current</span> <span class="o">=</span> <span class="nx">current</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">getAsync</span><span class="p">(</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
     <span class="p">});</span>
     <span class="k">return</span> <span class="nx">current</span><span class="p">;</span>
 <span class="p">}).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">responseAndBody</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseAndBody</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseAndBody</span><span class="p">[</span><span class="mf">1</span><span class="p">]);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">processAndSaveAllInDB</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>

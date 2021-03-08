@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,20 +121,20 @@
                     href="#finally"><i class="fa fa-link"></i></a>
                 .finally
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">lastly</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">lastly</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Pass a handler that will be called regardless of this promise&#39;s fate. Returns a new promise chained from this promise. There are special semantics for <a href='/docs/api/finally.html'><code><code>.finally</code></code></a> in that the final value cannot be modified from the handler.</p>
 
 <p><em>Note: using <a href='/docs/api/finally.html'><code><code>.finally</code></code></a> for resource management has better alternatives, see <a href='/docs/api/resource-management.html' title=''>resource management</a></em></p>
 
 <p>Consider the example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">anyway</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">anyway</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#ajax-loader-animation&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
 <span class="p">}</span>
 
 <span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
@@ -155,8 +146,8 @@
 <p>This example doesn&#39;t work as intended because the <code>then</code> handler actually swallows the exception and returns <code>undefined</code> for any further chainers.</p>
 
 <p>The situation can be fixed with <code>.finally</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
@@ -170,16 +161,16 @@
 <p>Now the animation is hidden but, unless it throws an exception, the function has no effect on the fulfilled or rejected value of the returned promise.  This is similar to how the synchronous <code>finally</code> keyword behaves.</p>
 
 <p>If the handler function passed to <code>.finally</code> returns a promise, the promise returned by <code>.finally</code> will not be settled until the promise returned by the handler is settled.  If the handler fulfills its promise, the returned promise will be fulfilled or rejected with the original value.  If the handler rejects its promise, the returned promise will be rejected with the handler&#39;s value.  This is similar to throwing an exception in a synchronous <code>finally</code> block, causing the original value or exception to be forgotten.  This delay can be useful if the actions performed by the handler are done asynchronously.  For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nx">url</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
     <span class="p">}).</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#ajax-loader-animation&quot;</span><span class="p">).</span><span class="nx">fadeOut</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#ajax-loader-animation&quot;</span><span class="p">).</span><span class="nx">fadeOut</span><span class="p">(</span><span class="mf">1000</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
         <span class="p">});</span>
     <span class="p">});</span>
 <span class="p">}</span>

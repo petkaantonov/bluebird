@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,15 +121,15 @@
                     href="#suppressunhandledrejections"><i class="fa fa-link"></i></a>
                 .suppressUnhandledRejections
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">suppressUnhandledRejections</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">suppressUnhandledRejections</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
 <p>Basically sugar for doing:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(){});</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">somePromise</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(){});</span>
 </code></pre></div>
 <p>Which is needed in case error handlers are attached asynchronously to the promise later, which would otherwise result in premature unhandled rejection reporting.</p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">tweets</span> <span class="o">=</span> <span class="nx">fetchTweets</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">tweets</span> <span class="o">=</span> <span class="nx">fetchTweets</span><span class="p">();</span>
 <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">tweets</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="c1">// Render tweets</span>
@@ -148,7 +139,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>If fetching tweets fails before the document is ready the rejection is reported as unhandled even though it will be eventually handled when the document is ready. This is of course impossible to determine automatically, but you can explicitly do so using <code>.suppressUnhandledRejections()</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">tweets</span> <span class="o">=</span> <span class="nx">fetchTweets</span><span class="p">();</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">tweets</span> <span class="o">=</span> <span class="nx">fetchTweets</span><span class="p">();</span>
 <span class="nx">tweets</span><span class="p">.</span><span class="nx">suppressUnhandledRejections</span><span class="p">();</span>
 <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">tweets</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -159,7 +150,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>It should be noted that there is no real need to attach the handlers asynchronously. Exactly the same effect can be achieved with:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fetchTweets</span><span class="p">()</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">fetchTweets</span><span class="p">()</span>
     <span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ready</span><span class="p">.</span><span class="nx">promise</span><span class="p">();</span>
     <span class="p">})</span>

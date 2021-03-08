@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,7 +121,7 @@
                     href="#disposer"><i class="fa fa-link"></i></a>
                 .disposer
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">,</span> <span class="nx">Promise</span> <span class="nx">usingOutcomePromise</span><span class="p">)</span> <span class="nx">disposer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Disposer</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">,</span> <span class="nb">Promise</span> <span class="nx">usingOutcomePromise</span><span class="p">)</span> <span class="nx">disposer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Disposer</span>
 </code></pre></div>
 <p>A meta method used to specify the disposer method that cleans up a resource when using <a href='/docs/api/promise.using.html' title=''><code>Promise.using</code></a>.</p>
 
@@ -139,7 +130,7 @@
 <p>The second argument passed to a disposer is the result promise of the using block, which you can inspect synchronously.</p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// This function doesn&#39;t return a promise but a Disposer</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// This function doesn&#39;t return a promise but a Disposer</span>
 <span class="c1">// so it&#39;s very hard to use it wrong (not passing it to `using`)</span>
 <span class="kd">function</span> <span class="nx">getConnection</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">db</span><span class="p">.</span><span class="nx">connect</span><span class="p">().</span><span class="nx">disposer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
@@ -149,8 +140,8 @@
 </code></pre></div>
 <p>In the above example, the connection returned by <code>getConnection</code> can only be 
 used via <code>Promise.using</code>, like so:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">useConnection</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">useConnection</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">sendQuery</span><span class="p">(</span><span class="nx">query</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">return</span> <span class="nx">process</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
     <span class="p">})</span>
@@ -162,7 +153,7 @@ from the <code>Promise.using</code> closure is resolved or if an exception was t
 body.</p>
 
 <p>Real example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
 <span class="c1">// Uncomment if pg has not been properly promisified yet</span>
 <span class="c1">//var Promise = require(&quot;bluebird&quot;);</span>
 <span class="c1">//Promise.promisifyAll(pg, {</span>
@@ -187,14 +178,14 @@ body.</p>
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">getSqlConnection</span><span class="p">;</span>
 </code></pre></div>
 <p>Real example 2:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">mysql</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">mysql</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql&quot;</span><span class="p">);</span>
 <span class="c1">// Uncomment if mysql has not been properly promisified yet</span>
 <span class="c1">// var Promise = require(&quot;bluebird&quot;);</span>
 <span class="c1">// Promise.promisifyAll(mysql);</span>
 <span class="c1">// Promise.promisifyAll(require(&quot;mysql/lib/Connection&quot;).prototype);</span>
 <span class="c1">// Promise.promisifyAll(require(&quot;mysql/lib/Pool&quot;).prototype);</span>
 <span class="kd">var</span> <span class="nx">pool</span>  <span class="o">=</span> <span class="nx">mysql</span><span class="p">.</span><span class="nx">createPool</span><span class="p">({</span>
-    <span class="nx">connectionLimit</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="nx">connectionLimit</span><span class="o">:</span> <span class="mf">10</span><span class="p">,</span>
     <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;example.org&#39;</span><span class="p">,</span>
     <span class="nx">user</span><span class="o">:</span> <span class="s1">&#39;bob&#39;</span><span class="p">,</span>
     <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;secret&#39;</span>
@@ -224,10 +215,10 @@ body.</p>
 <p>This also means that disposers should not contain code that does anything other than resource disposal. For example, you cannot write code inside a disposer to commit or rollback a transaction, because there is no mechanism for the disposer to signal a failure of the commit or rollback action without crashing the process.</p>
 
 <p>For transactions, you can use the following similar pattern instead:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">withTransaction</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span><span class="nx">pool</span><span class="p">.</span><span class="nx">acquireConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">withTransaction</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span><span class="nx">pool</span><span class="p">.</span><span class="nx">acquireConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">beginTransaction</span><span class="p">()</span>
-    <span class="k">return</span> <span class="nx">Promise</span>
+    <span class="k">return</span> <span class="nb">Promise</span>
       <span class="p">.</span><span class="k">try</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">tx</span><span class="p">)</span>
       <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">commit</span><span class="p">().</span><span class="nx">thenReturn</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">},</span>
             <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>

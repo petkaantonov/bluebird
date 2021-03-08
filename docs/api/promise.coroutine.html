@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,32 +121,32 @@
                     href="#promise.coroutine"><i class="fa fa-link"></i></a>
                 Promise.coroutine
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="nx">GeneratorFunction</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">)</span> <span class="nx">generatorFunction</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="nx">GeneratorFunction</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">)</span> <span class="nx">generatorFunction</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
 </code></pre></div>
 <p>Returns a function that can use <code>yield</code> to yield promises. Control is returned back to the generator when the yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Requires node.js 0.12+, io.js 1.0+ or Google Chrome 40+.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 
 <span class="kd">function</span> <span class="nx">PingPong</span><span class="p">()</span> <span class="p">{</span>
 
 <span class="p">}</span>
 
-<span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">ping</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">ping</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Ping?&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">);</span>
-    <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">pong</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">yield</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">500</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">pong</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mf">1</span><span class="p">);</span>
 <span class="p">});</span>
 
-<span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">pong</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">PingPong</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">pong</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Pong!&quot;</span><span class="p">,</span> <span class="nx">val</span><span class="p">);</span>
-    <span class="k">yield</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">yield</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">500</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="nx">val</span><span class="o">+</span><span class="mf">1</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PingPong</span><span class="p">();</span>
-<span class="nx">a</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="nx">a</span><span class="p">.</span><span class="nx">ping</span><span class="p">(</span><span class="mf">0</span><span class="p">);</span>
 </code></pre></div>
 <p>Running the example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ node test.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>$ node test.js
 Ping? 0
 Pong! 1
 Ping? 2

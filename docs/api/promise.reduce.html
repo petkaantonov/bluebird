@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,22 +121,22 @@
                     href="#promise.reduce"><i class="fa fa-link"></i></a>
                 Promise.reduce
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span>
-    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span>
+    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">accumulator</span><span class="p">,</span> <span class="nx">any</span> <span class="nx">item</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">length</span><span class="p">)</span> <span class="nx">reducer</span><span class="p">,</span>
     <span class="p">[</span><span class="nx">any</span> <span class="nx">initialValue</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and <a href='http://en.wikipedia.org/wiki/Fold_(higher-order_function)' title=''>reduce the array to a value</a> using the given <code>reducer</code> function.</p>
 
 <p>If the reducer function returns a promise, then the result of the promise is awaited, before continuing with next iteration. If any promise in the array is rejected or a promise returned by the reducer function is rejected, the result is rejected as well.</p>
 
 <p>Read given files sequentially while summing their contents as an integer. Each file contains just the text <code>10</code>.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">reduce</span><span class="p">([</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file3.txt&quot;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">total</span><span class="p">,</span> <span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reduce</span><span class="p">([</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file3.txt&quot;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">total</span><span class="p">,</span> <span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">total</span> <span class="o">+</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">contents</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">total</span> <span class="o">+</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">contents</span><span class="p">,</span> <span class="mf">10</span><span class="p">);</span>
     <span class="p">});</span>
-<span class="p">},</span> <span class="mi">0</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">total</span><span class="p">)</span> <span class="p">{</span>
+<span class="p">},</span> <span class="mf">0</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">total</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//Total is 30</span>
 <span class="p">});</span>
 </code></pre></div>

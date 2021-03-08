@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,20 +121,20 @@
                     href="#promise.using"><i class="fa fa-link"></i></a>
                 Promise.using
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span>
-    <span class="nx">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">,</span>
-    <span class="nx">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">...,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span>
+    <span class="nb">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">,</span>
+    <span class="nb">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">any</span> <span class="nx">resource</span><span class="p">...,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">resources</span><span class="p">...)</span> <span class="nx">handler</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span>
-    <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">Any</span><span class="o">&gt;</span> <span class="nx">resources</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">(</span>
+    <span class="nb">Array</span><span class="o">&lt;</span><span class="nb">Promise</span><span class="o">|</span><span class="nx">Disposer</span><span class="o">|</span><span class="nx">Any</span><span class="o">&gt;</span> <span class="nx">resources</span><span class="p">,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">resources</span><span class="p">)</span> <span class="nx">handler</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>In conjunction with <a href='/docs/api/disposer.html'><code><code>.disposer</code></code></a>, <code>using</code> will make sure that no matter what, the specified disposer will be called when the promise returned by the callback passed to <code>using</code> has settled. The disposer is necessary because there is no standard interface in node for disposing resources.</p>
 
 <p>Here is a simple example (where <code>getConnection()</code> has been defined to return a proper Disposer object)</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
    <span class="c1">// Don&#39;t leak the `connection` variable anywhere from here</span>
    <span class="c1">// it is only guaranteed to be open while the promise returned from</span>
    <span class="c1">// this callback is still pending</span>
@@ -156,7 +147,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Using multiple resources:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn1</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn1</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn2</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// use conn1 and conn 2 here</span>
     <span class="p">});</span>
@@ -165,7 +156,7 @@
 <span class="p">})</span>
 </code></pre></div>
 <p>The above can also be written as (with a caveat, see below)</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn1</span><span class="p">,</span> <span class="nx">conn2</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">conn1</span><span class="p">,</span> <span class="nx">conn2</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// use conn1 and conn2</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// Both connections closed by now</span>
@@ -175,7 +166,7 @@
 when using APIs through bluebird promisified methods though. You can wrap functions that could throw in <a href='/docs/api/promise.method.html'><code><code>Promise.method</code></code></a> which will turn synchronous rejections into rejected promises.</p>
 
 <p>Note that you can mix promises and disposers, so that you can acquire all the things you need in parallel instead of sequentially</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The files don&#39;t need resource management but you should</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// The files don&#39;t need resource management but you should</span>
 <span class="c1">// still start the process of reading them even before you have the connection</span>
 <span class="c1">// instead of waiting for the connection</span>
 
@@ -187,11 +178,11 @@ when using APIs through bluebird promisified methods though. You can wrap functi
 <p><hr></p>
 
 <p>You can also pass the resources in an array in the first argument. In this case the handler function will only be called with one argument that is the array containing the resolved resources in respective positions in the array. Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">connectionPromises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">()];</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">connectionPromises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getConnection</span><span class="p">(),</span> <span class="nx">getConnection</span><span class="p">()];</span>
 
 <span class="nx">using</span><span class="p">(</span><span class="nx">connectionPromises</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connections</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">conn1</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-    <span class="kd">var</span> <span class="nx">conn2</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">conn1</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mf">0</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">conn2</span> <span class="o">=</span> <span class="nx">connections</span><span class="p">[</span><span class="mf">1</span><span class="p">];</span>
     <span class="c1">// use conn1 and conn2</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// Both connections closed by now</span>

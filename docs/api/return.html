@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,18 +121,18 @@
                     href="#return"><i class="fa fa-link"></i></a>
                 .return
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">return</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">thenReturn</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="k">return</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">thenReturn</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Convenience method for:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
    <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>in the case where <code>value</code> doesn&#39;t change its value because its binding time is different than when using a closure.</p>
 
 <p>That means <code>value</code> is bound at the time of calling <a href='/docs/api/return.html'><code><code>.return</code></code></a> so this will not work as expected:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getData</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getData</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">data</span><span class="p">;</span>
 
     <span class="k">return</span> <span class="nx">query</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
@@ -152,9 +143,9 @@
 <p>because <code>data</code> is <code>undefined</code> at the time <code>.return</code> is called.</p>
 
 <p>Function that returns the full path of the written file:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
-<span class="kd">var</span> <span class="nx">baseDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;.&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">baseDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;.&quot;</span><span class="p">;</span>
 
 <span class="kd">function</span> <span class="nx">writeFile</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">fullpath</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="nx">baseDir</span><span class="p">,</span> <span class="nx">path</span><span class="p">);</span>

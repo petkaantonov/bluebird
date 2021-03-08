@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,14 +121,14 @@
                     href="#promise.fromcallback"><i class="fa fa-link"></i></a>
                 Promise.fromCallback
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span>
     <span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span> <span class="nx">resolver</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">fromNode</span><span class="p">(</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">fromNode</span><span class="p">(</span>
     <span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span> <span class="nx">resolver</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Returns a promise that is resolved by a node style callback function. This is the most fitting way to do on the fly promisification when libraries don&#39;t expose classes for automatic promisification by undefined.</p>
 
@@ -147,14 +138,14 @@
 some callback API&#39;s have multiple success value. The default is to ignore all but the first success value of a callback function.</p>
 
 <p>Using manual resolver:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// &quot;email-templates&quot; doesn&#39;t expose prototypes for promisification</span>
-<span class="kd">var</span> <span class="nx">emailTemplates</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;email-templates&#39;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">emailTemplates</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;email-templates&#39;</span><span class="p">));</span>
 <span class="kd">var</span> <span class="nx">templatesDir</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">);</span>
 
 
 <span class="nx">emailTemplates</span><span class="p">(</span><span class="nx">templatesDir</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">template</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">template</span><span class="p">(</span><span class="s2">&quot;newsletter&quot;</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
     <span class="p">},</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span><span class="p">}).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">);</span>
@@ -162,14 +153,14 @@ some callback API&#39;s have multiple success value. The default is to ignore al
 <span class="p">});</span>
 </code></pre></div>
 <p>The same can also be written more concisely with <code>Function.prototype.bind</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// &quot;email-templates&quot; doesn&#39;t expose prototypes for promisification</span>
-<span class="kd">var</span> <span class="nx">emailTemplates</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;email-templates&#39;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">emailTemplates</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;email-templates&#39;</span><span class="p">));</span>
 <span class="kd">var</span> <span class="nx">templatesDir</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">);</span>
 
 
 <span class="nx">emailTemplates</span><span class="p">(</span><span class="nx">templatesDir</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">template</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="nx">template</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;newsletter&quot;</span><span class="p">),</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span><span class="p">})</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="nx">template</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;newsletter&quot;</span><span class="p">),</span> <span class="p">{</span><span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span><span class="p">})</span>
         <span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span> <span class="nx">text</span><span class="p">);</span>
         <span class="p">});</span>

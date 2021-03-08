@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Apr 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -129,7 +120,7 @@
     <p>For development tasks such as contributing, running benchmarks or testing, you need to clone the repository and install dev-dependencies.</p>
 
 <p>Install <a href='http://nodejs.org/' title=''>node</a></p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">git clone git@github.com:petkaantonov/bluebird.git
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>git clone git@github.com:petkaantonov/bluebird.git
 cd bluebird
 npm install
 </code></pre></div>
@@ -223,7 +214,7 @@ npm install
                     href="#building"><i class="fa fa-link"></i></a>
                 Building
             </h2>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/build --debug --release --zalgo --browser --minify
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node tools/build --debug --release --zalgo --browser --minify
 </code></pre></div>            <h3>
                 <a class="header-anchor"
                     name="supported-options-by-the-build-tool"
@@ -250,16 +241,16 @@ npm install
             </h2>
 
 <p>To run all tests, run</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node --expose-gc tools/test
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node --expose-gc tools/test
 </code></pre></div>
 <p>If you need to run generator tests in older versions of NodeJS run the <code>tool/test.js</code> script with <code>--harmony</code> argument and 0.11+:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node-dev --harmony tools/test
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node-dev --harmony tools/test
 </code></pre></div>
 <p>In recent versions of NodeJS where generators are enabled by default:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node tools/test
 </code></pre></div>
 <p>You may specify an individual test file to run with the <code>--run</code> script flag:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test --run=cancel.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node tools/test --run=cancel.js
 </code></pre></div>
 <p>This enables output from the test and may give a better idea where the test is failing. The paramter to <code>--run</code> can be any file name located in <code>test/mocha</code> folder.</p>
             <h3>
@@ -271,7 +262,7 @@ npm install
             </h3>
 
 <p>To run the test in a browser instead of node, pass the flag <code>--browser</code> to the test tool</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">node tools/test --run=cancel.js --browser
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>node tools/test --run=cancel.js --browser
 </code></pre></div>
 <p>This will automatically create a server (default port 9999) and open it in your default browser once the tests have been compiled.</p>
 

@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -136,7 +127,7 @@
 <p><strong>Note</strong>: In recent versions of Bluebird a design choice was made to expose <a href='/docs/api/reason.html'><code>.reason()</code></a> and <a href='/docs/api/value.html'><code>.value()</code></a> as well as other inspection methods on promises directly in order to make the below use case easier to work with. Every promise implements the <a href='/docs/api/promiseinspection.html'><code>PromiseInspection</code></a> interface.</p>
 
 <p>For example, if you need to use values of earlier promises in the chain, you could nest:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// From Q Docs https://github.com/kriskowal/q/#chaining</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// From Q Docs https://github.com/kriskowal/q/#chaining</span>
 <span class="c1">// MIT License Copyright 2009–2014 Kristopher Michael Kowal.</span>
 <span class="kd">function</span> <span class="nx">authenticate</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">getUsername</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">username</span><span class="p">)</span> <span class="p">{</span>
@@ -153,7 +144,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <p>Or you could take advantage of the fact that if we reach password validation, then the user promise must be fulfilled:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">authenticate</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">authenticate</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">getUsername</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">username</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">getUser</span><span class="p">(</span><span class="nx">username</span><span class="p">);</span>
     <span class="p">});</span>

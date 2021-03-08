@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,30 +121,30 @@
                     href="#promise.some"><i class="fa fa-link"></i></a>
                 Promise.some
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span>
-    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span>
+    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
     <span class="kr">int</span> <span class="nx">count</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a>(arrays are <code>Iterable</code>), or a promise of an <code>Iterable</code>, which produces promises (or a mix of promises and values), iterate over all the values in the <code>Iterable</code> into an array and return a promise that is fulfilled as soon as <code>count</code> promises are fulfilled in the array. The fulfillment value is an array with <code>count</code> values in the order they were fulfilled.</p>
 
 <p>This example pings 4 nameservers, and logs the fastest 2 on console:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">([</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">([</span>
     <span class="nx">ping</span><span class="p">(</span><span class="s2">&quot;ns1.example.com&quot;</span><span class="p">),</span>
     <span class="nx">ping</span><span class="p">(</span><span class="s2">&quot;ns2.example.com&quot;</span><span class="p">),</span>
     <span class="nx">ping</span><span class="p">(</span><span class="s2">&quot;ns3.example.com&quot;</span><span class="p">),</span>
     <span class="nx">ping</span><span class="p">(</span><span class="s2">&quot;ns4.example.com&quot;</span><span class="p">)</span>
-<span class="p">],</span> <span class="mi">2</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">)</span> <span class="p">{</span>
+<span class="p">],</span> <span class="mf">2</span><span class="p">).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>If too many promises are rejected so that the promise can never become fulfilled, it will be immediately rejected with an <a href='/docs/api/aggregateerror.html'><code>AggregateError</code></a> of the rejection reasons in the order they were thrown in.</p>
 
 <p>You can get a reference to <a href='/docs/api/aggregateerror.html'><code>AggregateError</code></a> from <code>Promise.AggregateError</code>.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">(...)</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">some</span><span class="p">(...)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
-    <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">AggregateError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nb">Promise</span><span class="p">.</span><span class="nx">AggregateError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">err</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">stack</span><span class="p">);</span>
         <span class="p">});</span>

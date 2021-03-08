@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -132,8 +123,8 @@
             </h2>
 
 <p>Managing resources properly without leaks can be challenging. Simply using <code>.finally</code> is not enough as the following example demonstrates:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">doStuff</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">doStuff</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
         <span class="nx">connectionPool</span><span class="p">.</span><span class="nx">getConnectionAsync</span><span class="p">(),</span>
         <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
     <span class="p">]).</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">,</span> <span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
@@ -157,7 +148,7 @@ this would lose a lot of the benefits of using asynchronity and we might almost 
 <li><a href='disposer.html' title=''>disposers</a>, objects that wrap a resource and a method to release that resource, together with<br></li>
 <li><a href='promise.using.html' title=''><code>Promise.using</code></a>, a function to safely use disposers in a way that automatically calls their release method</li>
 </ul>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">using</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">using</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">using</span><span class="p">;</span>
 
 <span class="nx">using</span><span class="p">(</span><span class="nx">getConnection</span><span class="p">(),</span>
       <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">,</span> <span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>

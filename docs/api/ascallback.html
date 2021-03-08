@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,11 +121,11 @@
                     href="#ascallback"><i class="fa fa-link"></i></a>
                 .asCallback
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">asCallback</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">asCallback</span><span class="p">(</span>
     <span class="p">[</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="nx">callback</span><span class="p">],</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">spread</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="k">this</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">nodeify</span><span class="p">(</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">nodeify</span><span class="p">(</span>
     <span class="p">[</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="nx">callback</span><span class="p">],</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span><span class="nx">spread</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">}</span> <span class="nx">options</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="k">this</span>
@@ -144,19 +135,19 @@
 <p>Returns back this promise instead of creating a new one. If the <code>callback</code> argument is not a function, this method does not do anything.</p>
 
 <p>This can be used to create APIs that both accept node-style callbacks and return promises:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getDataFor</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getDataFor</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">dataFromDataBase</span><span class="p">(</span><span class="nx">input</span><span class="p">).</span><span class="nx">asCallback</span><span class="p">(</span><span class="nx">callback</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>The above function can then make everyone happy.</p>
 
 <p>Promises:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getDataFor</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">dataForMe</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getDataFor</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">dataForMe</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">dataForMe</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Normal callbacks:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getDataFor</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">dataForMe</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getDataFor</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">dataForMe</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span> <span class="nx">err</span> <span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span> <span class="nx">err</span> <span class="p">);</span>
     <span class="p">}</span>
@@ -166,7 +157,7 @@
 <p>Promises can be rejected with falsy values (or no value at all, equal to rejecting with <code>undefined</code>), however <code>.asCallback</code> will call the callback with an <code>Error</code> object if the promise&#39;s rejection reason is a falsy value. You can retrieve the original falsy value from the error&#39;s <code>.cause</code> property.</p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="kc">null</span><span class="p">).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="kc">null</span><span class="p">).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// If is executed</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// Logs &#39;null&#39;</span>
@@ -184,19 +175,19 @@
             </h4>
 
 <p>Some nodebacks expect more than 1 success value but there is no mapping for this in the promise world. You may specify the option <code>spread</code> to call the nodeback with multiple values when the fulfillment value is an array:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mf">1</span><span class="p">,</span><span class="mf">2</span><span class="p">,</span><span class="mf">3</span><span class="p">]).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// err == null</span>
     <span class="c1">// result is the array [1,2,3]</span>
 <span class="p">});</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="mf">1</span><span class="p">,</span><span class="mf">2</span><span class="p">,</span><span class="mf">3</span><span class="p">]).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// err == null</span>
     <span class="c1">// a == 1</span>
     <span class="c1">// b == 2</span>
     <span class="c1">// c == 3</span>
 <span class="p">},</span> <span class="p">{</span><span class="nx">spread</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mi">123</span><span class="p">).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="mf">123</span><span class="p">).</span><span class="nx">asCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// err == null</span>
     <span class="c1">// a == 123</span>
     <span class="c1">// b == undefined</span>

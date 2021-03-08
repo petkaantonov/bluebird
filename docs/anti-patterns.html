@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -145,7 +136,7 @@
 <p>In the explicit construction anti-pattern, promise objects are created for no reason, complicating code.</p>
 
 <p>First example is creating deferred object when you already have a promise or thenable:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//Code copyright by Twisternha http://stackoverflow.com/a/19486699/995876 CC BY-SA 2.5</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">//Code copyright by Twisternha http://stackoverflow.com/a/19486699/995876 CC BY-SA 2.5</span>
 <span class="nx">myApp</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;Configurations&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Restangular</span><span class="p">,</span> <span class="nx">MotorRestangular</span><span class="p">,</span> <span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">getConfigurations</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">$q</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
@@ -156,8 +147,8 @@
             <span class="c1">//Map values</span>
             <span class="kd">var</span> <span class="nx">mapped</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
                 <span class="k">return</span> <span class="p">{</span>
-                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
-                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
                     <span class="nx">sizes</span><span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
                         <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">sizeMm</span>
                     <span class="p">})</span>
@@ -177,7 +168,7 @@
 <p>This superfluous wrapping is also dangerous, any kind of errors and rejections are swallowed and not propagated to the caller of this function.</p>
 
 <p>Instead of using the Deferred anti-pattern, the code should simply return the promise it already has and propagate values using <code>return</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">myApp</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;Configurations&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Restangular</span><span class="p">,</span> <span class="nx">MotorRestangular</span><span class="p">,</span> <span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">myApp</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;Configurations&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Restangular</span><span class="p">,</span> <span class="nx">MotorRestangular</span><span class="p">,</span> <span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">getConfigurations</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="c1">//Just return the promise we already have!</span>
         <span class="k">return</span> <span class="nx">MotorRestangular</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="s1">&#39;Motors&#39;</span><span class="p">).</span><span class="nx">getList</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">Motors</span><span class="p">)</span> <span class="p">{</span>
@@ -186,8 +177,8 @@
             <span class="c1">//Return the mapped array as the value of this promise</span>
             <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
                 <span class="k">return</span> <span class="p">{</span>
-                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
-                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">id</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
+                    <span class="nx">configuration</span><span class="o">:</span> <span class="nx">m</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">configuration</span><span class="p">,</span>
                     <span class="nx">sizes</span><span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
                         <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">sizeMm</span>
                     <span class="p">})</span>
@@ -205,8 +196,8 @@
 <p>Not only is the code shorter but more importantly, if there is any error it will propagate properly to the final consumer.</p>
 
 <p>Second example is creating a function that does nothing but manually wrap a callback API and doing a poor job at that:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">applicationFunction</span><span class="p">(</span><span class="nx">arg1</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">){</span> <span class="c1">//Or Q.defer() in Q</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">applicationFunction</span><span class="p">(</span><span class="nx">arg1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">){</span> <span class="c1">//Or Q.defer() in Q</span>
       <span class="nx">libraryFunction</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
           <span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
@@ -217,7 +208,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <p>This is reinventing the square wheel because any callback API wrapping can and should be done immediately using the promise library&#39;s promisification methods:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">applicationFunction</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">libraryFunction</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">applicationFunction</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">libraryFunction</span><span class="p">);</span>
 </code></pre></div>
 <p>The generic promisification is likely to be faster because it can use internals directly but also handles edge cases like <code>libraryFunction</code> throwing synchronously or using multiple success values.</p>
 
@@ -226,9 +217,9 @@
 <p>Well simply, when you have to.</p>
 
 <p>You might have to use a deferred object when wrapping a callback API that doesn&#39;t follow the standard convention. Like <code>setTimeout</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">//setTimeout that returns a promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">//setTimeout that returns a promise</span>
 <span class="kd">function</span> <span class="nx">delay</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span> <span class="c1">// warning, defer is deprecated, use the promise constructor</span>
+    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span> <span class="c1">// warning, defer is deprecated, use the promise constructor</span>
     <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
         <span class="nx">deferred</span><span class="p">.</span><span class="nx">fulfill</span><span class="p">();</span>
     <span class="p">},</span> <span class="nx">ms</span><span class="p">);</span>
@@ -251,7 +242,7 @@
 <p><em>Almost</em> a sure sign of using promises as glorified callbacks. Instead of <code>doThat(function(err, success))</code> you do <code>doThat().then(success, err)</code> and rationalize to yourself that at least the code is &quot;less coupled&quot; or something.</p>
 
 <p>The <code>.then</code> signature is mostly about interop, there is <em>almost</em> never a reason to use <code>.then(success, fail)</code> in application code. It is even awkward to express it in the sync parallel:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">t0</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">t0</span><span class="p">;</span>
 <span class="k">try</span> <span class="p">{</span>
     <span class="nx">t0</span> <span class="o">=</span> <span class="nx">doThat</span><span class="p">();</span>
 <span class="p">}</span>
@@ -262,7 +253,7 @@
 <span class="kd">var</span> <span class="nx">stuff</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">t0</span><span class="p">);</span>
 </code></pre></div>
 <p>It is more likely that you would write this instead in the sync world:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">try</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="k">try</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">stuff</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">doThat</span><span class="p">());</span>
 <span class="p">}</span>
 <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
@@ -270,7 +261,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <p>So please write the same when using promises too:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">doThat</span><span class="p">()</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">doThat</span><span class="p">()</span>
 <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="p">);</span>
 <span class="p">})</span>

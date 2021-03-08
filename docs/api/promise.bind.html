@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,9 +121,9 @@
                     href="#promise.bind"><i class="fa fa-link"></i></a>
                 Promise.bind
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span>
-    <span class="nx">any</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">thisArg</span><span class="p">,</span>
-    <span class="p">[</span><span class="nx">any</span><span class="o">|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">value</span><span class="o">=</span><span class="kc">undefined</span><span class="p">]</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span>
+    <span class="nx">any</span><span class="o">|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">thisArg</span><span class="p">,</span>
+    <span class="p">[</span><span class="nx">any</span><span class="o">|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;</span> <span class="nx">value</span><span class="o">=</span><span class="kc">undefined</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">BoundPromise</span>
 </code></pre></div>
 <p>Create a promise that follows this promise or in the static method is resolved with the given <code>value</code>, but is bound to the given <code>thisArg</code> value. A bound promise will call its handlers with the bound value set to <code>this</code>. Additionally promises derived from a bound promise will also be bound promises with the same <code>thisArg</code> binding as the original promise.</p>
@@ -145,7 +136,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <p>Without arrow functions that provide lexical <code>this</code>, the correspondence between async and sync code breaks down when writing object-oriented code. <a href='/docs/api/bind.html'><code><code>.bind</code></code></a> alleviates this.</p>
 
 <p>Consider:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">try</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">);</span>
         <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
@@ -159,7 +150,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <span class="p">};</span>
 </code></pre></div>
 <p>The above has a direct translation:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
@@ -177,7 +168,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <p><hr></p>
 
 <p><code>.bind</code> also has a useful side purpose - promise handlers don&#39;t need to share a function to use shared state:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somethingAsync</span><span class="p">().</span><span class="nx">bind</span><span class="p">({})</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">somethingAsync</span><span class="p">().</span><span class="nx">bind</span><span class="p">({})</span>
 <span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">=</span> <span class="nx">aValue</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">bValue</span> <span class="o">=</span> <span class="nx">bValue</span><span class="p">;</span>
@@ -188,7 +179,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <span class="p">});</span>
 </code></pre></div>
 <p>The above without <a href='/docs/api/bind.html'><code><code>.bind</code></code></a> could be achieved with:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">scope</span> <span class="o">=</span> <span class="p">{};</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">scope</span> <span class="o">=</span> <span class="p">{};</span>
 <span class="nx">somethingAsync</span><span class="p">()</span>
 <span class="p">.</span><span class="nx">spread</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">aValue</span><span class="p">,</span> <span class="nx">bValue</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">scope</span><span class="p">.</span><span class="nx">aValue</span> <span class="o">=</span> <span class="nx">aValue</span><span class="p">;</span>
@@ -210,9 +201,9 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <p><hr></p>
 
 <p>Note that bind is only propagated with promise transformation. If you create new promise chains inside a handler, those chains are not bound to the &quot;upper&quot; <code>this</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//`this` is var1 here</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">getStuff</span><span class="p">()).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">getStuff</span><span class="p">()).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">//`this` is undefined here</span>
         <span class="c1">//refine results here etc</span>
     <span class="p">});</span>
@@ -221,7 +212,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <span class="p">});</span>
 </code></pre></div>
 <p>However, if you are utilizing the full bluebird API offering, you will <em>almost never</em> need to resort to nesting promises in the first place. The above should be written more like:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">something</span><span class="p">().</span><span class="nx">bind</span><span class="p">(</span><span class="nx">var1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//`this` is var1 here</span>
     <span class="k">return</span> <span class="nx">getStuff</span><span class="p">();</span>
 <span class="p">}).</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
@@ -236,7 +227,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <p><hr></p>
 
 <p>If you don&#39;t want to return a bound promise to the consumers of a promise, you can rebind the chain at the end:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">file</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">urlParse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
@@ -250,7 +241,7 @@ then the returned promise is rejected with the <code>thisArg&#39;s</code> reject
 <span class="p">};</span>
 </code></pre></div>
 <p>Rebinding can also be abused to do something gratuitous like this:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;my-element&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;my-element&quot;</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nb">document</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)</span>

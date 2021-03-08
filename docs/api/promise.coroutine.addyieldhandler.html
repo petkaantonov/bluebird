@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,13 +121,13 @@
                     href="#promise.coroutine.addyieldhandler"><i class="fa fa-link"></i></a>
                 Promise.coroutine.addYieldHandler
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
 <p>By default you can only yield Promises and Thenables inside coroutines. You can use this function to add yielding support for arbitrary types.</p>
 
 <p>For example, if you wanted <code>yield 500</code> to be same as <code>yield Promise.delay</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
-     <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">===</span> <span class="s2">&quot;number&quot;</span><span class="p">)</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">===</span> <span class="s2">&quot;number&quot;</span><span class="p">)</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Yield handlers are called when you yield something that is not supported by default. The first yield handler to return a promise or a thenable will be used.
@@ -145,26 +136,26 @@ If no yield handler returns a promise or a thenable then an error is raised.</p>
 <p>An example of implementing callback support with <code>addYieldHandler</code>:</p>
 
 <p><em>This is a demonstration of how powerful the feature is and not the recommended usage. For best performance you need to use <code>promisifyAll</code> and yield promises directly.</em></p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 
 <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-    <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="nx">v</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">promise</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">return</span> <span class="nx">promise</span><span class="p">;</span>
         <span class="p">}</span>
         <span class="nx">promise</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
     <span class="p">});</span>
     <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">def</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">def</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
         <span class="nx">promise</span> <span class="o">=</span> <span class="nx">def</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
         <span class="k">return</span> <span class="nx">def</span><span class="p">.</span><span class="nx">callback</span><span class="p">;</span>
     <span class="p">};</span>
 <span class="p">})();</span>
 
 
-<span class="kd">var</span> <span class="nx">readFileJSON</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">readFileJSON</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
    <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">,</span> <span class="nx">_</span><span class="p">());</span>
    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
 <span class="p">});</span>
@@ -172,12 +163,12 @@ If no yield handler returns a promise or a thenable then an error is raised.</p>
 <p>An example of implementing thunks support with <code>addYieldHandler</code>:</p>
 
 <p><em>This is a demonstration of how powerful the feature is and not the recommended usage. For best performance you need to use <code>promisifyAll</code> and yield promises directly.</em></p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">v</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">fromCallback</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">v</span><span class="p">(</span><span class="nx">cb</span><span class="p">);</span>
         <span class="p">});</span>
     <span class="p">}</span>
@@ -189,36 +180,36 @@ If no yield handler returns a promise or a thenable then an error is raised.</p>
     <span class="p">};</span>
 <span class="p">};</span>
 
-<span class="kd">var</span> <span class="nx">readFileJSON</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">readFileJSON</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
    <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">readFileThunk</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">);</span>
    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>An example of handling promises in parallel by adding an <code>addYieldHandler</code> for arrays :</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">))</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">.</span><span class="nx">addYieldHandler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">))</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">);</span>
 <span class="p">});</span>
 
-<span class="kd">var</span> <span class="nx">readFiles</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileNames</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">readFiles</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileNames</span><span class="p">)</span> <span class="p">{</span>
    <span class="k">return</span> <span class="k">yield</span> <span class="nx">fileNames</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">);</span>
    <span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>A custom yield handler can also be used just for a single call to <code>Promise.coroutine()</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 
-<span class="kd">var</span> <span class="nx">readFiles</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileNames</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">readFiles</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">fileNames</span><span class="p">)</span> <span class="p">{</span>
    <span class="k">return</span> <span class="k">yield</span> <span class="nx">fileNames</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">);</span>
    <span class="p">});</span>
 <span class="p">},</span> <span class="p">{</span>
    <span class="nx">yieldHandler</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">))</span> <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">))</span> <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">yieldedValue</span><span class="p">);</span>
    <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>

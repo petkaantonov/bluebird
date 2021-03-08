@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,21 +121,21 @@
                     href="#call"><i class="fa fa-link"></i></a>
                 .call
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">call</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">call</span><span class="p">(</span>
     <span class="nb">String</span> <span class="nx">methodName</span><span class="p">,</span>
     <span class="p">[</span><span class="nx">any</span> <span class="nx">args</span><span class="p">...]</span>
 <span class="p">)</span>
 </code></pre></div>
 <p>This is a convenience method for doing:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">promise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">promise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">methodName</span><span class="p">].</span><span class="nx">call</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">arg</span><span class="p">...);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>For example (<a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/some' title=''><code>some</code> is a built-in array method</a>):</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 <span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">thisPath</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;.&quot;</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">thisPath</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span> <span class="o">||</span> <span class="s2">&quot;.&quot;</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
 
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readdirAsync</span><span class="p">(</span><span class="nx">thisPath</span><span class="p">)</span>
@@ -152,30 +143,30 @@
         <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">thisPath</span><span class="p">,</span> <span class="nx">fileName</span><span class="p">));</span>
     <span class="p">})</span>
     <span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;some&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">stat</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nx">now</span> <span class="o">-</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">stat</span><span class="p">.</span><span class="nx">mtime</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nx">now</span> <span class="o">-</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">stat</span><span class="p">.</span><span class="nx">mtime</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">10000</span><span class="p">;</span>
     <span class="p">})</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">someFilesHaveBeenModifiedLessThanTenSecondsAgo</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">someFilesHaveBeenModifiedLessThanTenSecondsAgo</span><span class="p">)</span> <span class="p">;</span>
     <span class="p">});</span>
 </code></pre></div>
 <p>Chaining lo-dash or underscore methods (Copy-pasteable example):</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">pmap</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">;</span>
-<span class="kd">var</span> <span class="nx">props</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">pmap</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">map</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">props</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;lodash&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 
 <span class="kd">function</span> <span class="nx">getTotalSize</span><span class="p">(</span><span class="nx">paths</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">pmap</span><span class="p">(</span><span class="nx">paths</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">);</span>
     <span class="p">}).</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">;</span>
-    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="p">},</span> <span class="mf">0</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readdirAsync</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">_</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;groupBy&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">fileName</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">fileName</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="mf">0</span><span class="p">);</span>
     <span class="p">})</span>
     <span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="nx">firstCh</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">props</span><span class="p">({</span>

@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,20 +121,20 @@
                     href="#promise.method"><i class="fa fa-link"></i></a>
                 Promise.method
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">method</span><span class="p">(</span><span class="kd">function</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">)</span> <span class="nx">fn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">method</span><span class="p">(</span><span class="kd">function</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">)</span> <span class="nx">fn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
 </code></pre></div>
 <p>Returns a new function that wraps the given function <code>fn</code>. The new function will always return a promise that is fulfilled with the original functions return values or rejected with thrown exceptions from the original function.</p>
 
 <p>This method is convenient when a function can sometimes return synchronously or throw synchronously.</p>
 
 <p>Example without using <code>Promise.method</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isValid</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;input is not valid&quot;</span><span class="p">));</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;input is not valid&quot;</span><span class="p">));</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">cache</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">someCachedValue</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">someCachedValue</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="nx">db</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">(</span><span class="nx">input</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
@@ -153,7 +144,7 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Using the same function <code>Promise.method</code>, there is no need to manually wrap direct return or throw values into a promise:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">method</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">method</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isValid</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;input is not valid&quot;</span><span class="p">);</span>
     <span class="p">}</span>

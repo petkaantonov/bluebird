@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -149,7 +140,7 @@
             </h2>
 
 <p>If you see this warning your code is probably not doing what you expect it to, the most common reason is passing the <em>result</em> of calling a function to <a href='/docs/api/then.html'><code>.then()</code></a> instead of the function <em>itself</em>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">processImage</span><span class="p">(</span><span class="nx">image</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">processImage</span><span class="p">(</span><span class="nx">image</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Code that processes image</span>
 <span class="p">}</span>
 
@@ -158,7 +149,7 @@
 <p>The above calls the function <code>processImage()</code> <em>immediately</em> and passes the result to <a href='/docs/api/then.html'><code>.then()</code></a> (which is most likely <code>undefined</code> - the default return value when a function doesn&#39;t return anything).</p>
 
 <p>To fix it, simply pass the function reference to <a href='/docs/api/then.html'><code>.then()</code></a> as is:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getImage</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">processImage</span><span class="p">)</span>
 </code></pre></div>
 <p><em>If you are wondering why this is a warning and not a simple TypeError it is because the due to historic reasons Promises/A+ specification requires that incorrect usage is silently ignored.</em></p>
             <h2>
@@ -187,7 +178,7 @@
 <p>This usually means that you simply forgot a <code>return</code> statement somewhere, which will cause a runaway promise that is not connected to any promise chain.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">getUserData</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">userData</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// userData is undefined</span>
@@ -196,7 +187,7 @@
 <p>Because the result of <code>getUserData()</code> is not returned from the first then handler, it becomes a runaway promise that is not awaited for by the second then. The second <a href='/docs/api/then.html'><code>.then()</code></a> simply gets immediately called with <code>undefined</code> (because <code>undefined</code> is the default return value when you don&#39;t return anything).</p>
 
 <p>To fix it, you need to <code>return</code> the promise:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">getUserData</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">userData</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// userData is the user&#39;s data</span>
@@ -205,7 +196,7 @@
 <p><hr></p>
 
 <p>If you know what you&#39;re doing and don&#39;t want to silence all warnings, you can create runaway promises without causing this warning by returning e.g. <code>null</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">getUser</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Perform this in the &quot;background&quot; and don&#39;t care about its result at all</span>
     <span class="nx">saveAnalytics</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
     <span class="c1">// return a non-undefined value to signal that we didn&#39;t forget to return</span>

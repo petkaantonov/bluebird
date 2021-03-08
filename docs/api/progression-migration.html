@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -136,7 +127,7 @@
 <p>For old code that still uses it, see <a href='/docs/deprecated-apis.html#progression' title=''>the progression docs in the deprecated API documentation</a>.</p>
 
 <p>Using jQuery before:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(...))</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(...))</span>
     <span class="p">.</span><span class="nx">progressed</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="c1">// ...</span>
     <span class="p">})</span>
@@ -148,7 +139,7 @@
     <span class="p">})</span>
 </code></pre></div>
 <p>Using jQuery after:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(...).</span><span class="nx">progress</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(...).</span><span class="nx">progress</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="c1">// ...</span>
     <span class="p">}))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -159,7 +150,7 @@
     <span class="p">})</span>
 </code></pre></div>
 <p>Implementing general progress interfaces like in C#:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">returnsPromiseWithProgress</span><span class="p">(</span><span class="nx">progressHandler</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">returnsPromiseWithProgress</span><span class="p">(</span><span class="nx">progressHandler</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">doFirstAction</span><span class="p">().</span><span class="nx">tap</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">progressHandler</span><span class="p">(</span><span class="mf">0.33</span><span class="p">);</span>
     <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">doSecondAction</span><span class="p">).</span><span class="nx">tap</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -170,7 +161,7 @@
 <span class="p">}</span>
 
 <span class="nx">returnsPromiseWithProgress</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">progress</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">ui</span><span class="p">.</span><span class="nx">progressbar</span><span class="p">.</span><span class="nx">setWidth</span><span class="p">((</span><span class="nx">progress</span> <span class="o">*</span> <span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">);</span> <span class="c1">// update width on client side</span>
+    <span class="nx">ui</span><span class="p">.</span><span class="nx">progressbar</span><span class="p">.</span><span class="nx">setWidth</span><span class="p">((</span><span class="nx">progress</span> <span class="o">*</span> <span class="mf">200</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">);</span> <span class="c1">// update width on client side</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// action complete</span>
    <span class="c1">// entire chain is complete.</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
@@ -178,8 +169,8 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Another example using <code>coroutine</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doNothing</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">progressSupportingCoroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">progress</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">doNothing</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span>
+<span class="kd">var</span> <span class="nx">progressSupportingCoroutine</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">(</span><span class="nx">progress</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">progress</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">progress</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span> <span class="o">?</span> <span class="nx">progress</span> <span class="o">:</span> <span class="nx">doNothing</span><span class="p">;</span>
         <span class="kd">var</span> <span class="nx">first</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">getFirstValue</span><span class="p">();</span>
         <span class="c1">// 33% done</span>
@@ -187,15 +178,15 @@
         <span class="kd">var</span> <span class="nx">second</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">getSecondValue</span><span class="p">();</span>
         <span class="nx">progress</span><span class="p">(</span><span class="mf">0.67</span><span class="p">);</span>
         <span class="kd">var</span> <span class="nx">third</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">getThirdValue</span><span class="p">();</span>
-        <span class="nx">progress</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="nx">progress</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
         <span class="k">return</span> <span class="p">[</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">,</span> <span class="nx">third</span><span class="p">];</span>
 <span class="p">});</span>
 
-<span class="kd">var</span> <span class="nx">progressConsumingCoroutine</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">progressConsumingCoroutine</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">coroutine</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">allValues</span> <span class="o">=</span> <span class="k">yield</span> <span class="nx">progressSupportingCoroutine</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
-         <span class="nx">ui</span><span class="p">.</span><span class="nx">progressbar</span><span class="p">.</span><span class="nx">setWidth</span><span class="p">((</span><span class="nx">p</span> <span class="o">*</span> <span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">);</span>
+         <span class="nx">ui</span><span class="p">.</span><span class="nx">progressbar</span><span class="p">.</span><span class="nx">setWidth</span><span class="p">((</span><span class="nx">p</span> <span class="o">*</span> <span class="mf">200</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">);</span>
     <span class="p">});</span>
-    <span class="kd">var</span> <span class="nx">second</span> <span class="o">=</span> <span class="nx">allValues</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">second</span> <span class="o">=</span> <span class="nx">allValues</span><span class="p">[</span><span class="mf">1</span><span class="p">];</span>
     <span class="c1">// ...</span>
 <span class="p">});</span>
 </code></pre></div>

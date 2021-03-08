@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,31 +121,31 @@
                     href="#promise.join"><i class="fa fa-link"></i></a>
                 Promise.join
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span>
-    <span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">any</span> <span class="nx">values</span><span class="p">...,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span>
+    <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">any</span> <span class="nx">values</span><span class="p">...,</span>
     <span class="kd">function</span> <span class="nx">handler</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>For coordinating multiple concurrent discrete promises. While <a href='/docs/api/all.html'><code><code>.all</code></code></a> is good for handling a dynamically sized list of uniform promises, <code>Promise.join</code> is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently. The final parameter, handler function, will be invoked with the result values of all of the fufilled promises. For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
 
 <span class="nx">join</span><span class="p">(</span><span class="nx">getPictures</span><span class="p">(),</span> <span class="nx">getComments</span><span class="p">(),</span> <span class="nx">getTweets</span><span class="p">(),</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">pictures</span><span class="p">,</span> <span class="nx">comments</span><span class="p">,</span> <span class="nx">tweets</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;in total: &quot;</span> <span class="o">+</span> <span class="nx">pictures</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="nx">comments</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="nx">tweets</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
 <span class="p">});</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 <span class="kd">var</span> <span class="nx">pg</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">pg</span><span class="p">,</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">pg</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">filter</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">methodName</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="nx">methodName</span> <span class="o">===</span> <span class="s2">&quot;connect&quot;</span>
     <span class="p">},</span>
     <span class="nx">multiArgs</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 <span class="c1">// Promisify rest of pg normally</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">pg</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">pg</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">join</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">join</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">connectionString</span> <span class="o">=</span> <span class="s2">&quot;postgres://username:password@localhost/database&quot;</span><span class="p">;</span>
 
 <span class="kd">var</span> <span class="nx">fContents</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">);</span>

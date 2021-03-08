@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,16 +121,16 @@
                     href="#promise.resolve"><i class="fa fa-link"></i></a>
                 Promise.resolve
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">any</span> <span class="nx">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Create a promise that is resolved with the given value. If <code>value</code> is already a trusted <code>Promise</code>, it is returned as is. If <code>value</code> is not a thenable, a fulfilled Promise is returned with <code>value</code> as its fulfillment value. If <code>value</code> is a thenable (Promise-like object, like those returned by jQuery&#39;s <code>$.ajax</code>), returns a trusted Promise that assimilates the state of the thenable.</p>
 
 <p>This can be useful if a function returns a promise (say into a chain) but can optionally return a static value. Say, for a lazy-loaded value. Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">someCachedValue</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">someCachedValue</span><span class="p">;</span>
 
 <span class="kd">var</span> <span class="nx">getValue</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">someCachedValue</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">someCachedValue</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">someCachedValue</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="nx">db</span><span class="p">.</span><span class="nx">queryAsync</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
@@ -149,7 +140,7 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Another example with handling jQuery castable objects (<code>$</code> is jQuery)</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.google.com&quot;</span><span class="p">)).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;http://www.google.com&quot;</span><span class="p">)).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//Returning a thenable from a handler is automatically</span>
     <span class="c1">//cast to a trusted Promise as per Promises/A+ specification</span>
     <span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s2">&quot;http://www.yahoo.com&quot;</span><span class="p">);</span>

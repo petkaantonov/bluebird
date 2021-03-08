@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,7 +121,7 @@
                     href="#promise.onunhandledrejectionhandled"><i class="fa fa-link"></i></a>
                 Promise.onUnhandledRejectionHandled
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">onUnhandledRejectionHandled</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">Promise</span> <span class="nx">promise</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">onUnhandledRejectionHandled</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nb">Promise</span> <span class="nx">promise</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
 <p><em>Note: this hook is specific to the bluebird instance its called on, application developers should use <a href='/docs/api/error-management-configuration.html#global-rejection-events' title=''>global rejection events</a></em></p>
 
@@ -140,15 +131,15 @@
 of unhandled promise rejections updated in real time as promises become handled.</p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">unhandledPromises</span> <span class="o">=</span> <span class="p">[];</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">onPossiblyUnhandledRejection</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">unhandledPromises</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">onPossiblyUnhandledRejection</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">unhandledPromises</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">promise</span><span class="p">);</span>
     <span class="c1">//Update some debugger UI</span>
 <span class="p">});</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">onUnhandledRejectionHandled</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">onUnhandledRejectionHandled</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">unhandledPromises</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">promise</span><span class="p">);</span>
-    <span class="nx">unhandledPromises</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nx">unhandledPromises</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">index</span><span class="p">,</span> <span class="mf">1</span><span class="p">);</span>
     <span class="c1">//Update the debugger UI</span>
 <span class="p">});</span>
 </code></pre></div>

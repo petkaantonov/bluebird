@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,15 +121,15 @@
                     href="#new-promise"><i class="fa fa-link"></i></a>
                 new Promise
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">resolve</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">reject</span><span class="p">)</span> <span class="nx">resolver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">resolve</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">reject</span><span class="p">)</span> <span class="nx">resolver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Create a new promise. The passed in function will receive functions <code>resolve</code> and <code>reject</code> as its arguments which can be called to seal the fate of the created promise.</p>
 
 <p><em>Note: See <a href='/docs/anti-patterns.html#the-explicit-construction-anti-pattern' title=''>explicit construction anti-pattern</a> before creating promises yourself</em></p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">ajaxGetAsync</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reject</span><span class="p">);</span>
         <span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">);</span>
@@ -152,8 +143,8 @@
 <p><hr></p>
 
 <p>To make sure a function that returns a promise is following the implicit but critically important contract of promises, you can start a function with <code>new Promise</code> if you cannot start a chain immediately:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getConnection</span><span class="p">(</span><span class="nx">urlString</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getConnection</span><span class="p">(</span><span class="nx">urlString</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">//Without new Promise, this throwing will throw an actual exception</span>
         <span class="kd">var</span> <span class="nx">params</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">urlString</span><span class="p">);</span>
         <span class="nx">resolve</span><span class="p">(</span><span class="nx">getAdapter</span><span class="p">(</span><span class="nx">params</span><span class="p">).</span><span class="nx">getConnection</span><span class="p">());</span>
@@ -163,9 +154,9 @@
 <p>The above ensures <code>getConnection</code> fulfills the contract of a promise-returning function of never throwing a synchronous exception. Also see <a href='/docs/api/promise.try.html'><code><code>Promise.try</code></code></a> and <a href='/docs/api/promise.method.html'><code><code>Promise.method</code></code></a></p>
 
 <p>The resolver is called synchronously (the following is for documentation purposes and not idiomatic code):</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getPromiseResolveFn</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getPromiseResolveFn</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">res</span><span class="p">;</span>
-    <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">res</span> <span class="o">=</span> <span class="nx">resolve</span><span class="p">;</span>
     <span class="p">});</span>
     <span class="c1">// res is guaranteed to be set</span>

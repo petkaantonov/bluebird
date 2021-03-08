@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -164,7 +155,7 @@
 </ul>
 
 <p>Attaching global rejection event handlers in <strong>node.js</strong>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// NOTE: event name is camelCase as per node convention</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// NOTE: event name is camelCase as per node convention</span>
 <span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;unhandledRejection&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// See Promise.onPossiblyUnhandledRejection for parameter documentation</span>
 <span class="p">});</span>
@@ -177,7 +168,7 @@
 <p>Attaching global rejection event handlers in <strong>browsers</strong>:</p>
 
 <p>Using DOM3 <code>addEventListener</code> APIs (support starting from IE9+):</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// NOTE: event name is all lower case as per DOM convention</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// NOTE: event name is all lower case as per DOM convention</span>
 <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;unhandledrejection&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// NOTE: e.preventDefault() must be manually called to prevent the default</span>
     <span class="c1">// action which is currently to log the stack trace to console.warn</span>
@@ -201,7 +192,7 @@
 <p>In Web Workers you may use <code>self.addEventListener</code>.</p>
 
 <p>Using legacy APIs (support starting from IE6+):</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// NOTE: event name is all lower case as per legacy convention</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// NOTE: event name is all lower case as per legacy convention</span>
 <span class="nb">window</span><span class="p">.</span><span class="nx">onunhandledrejection</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// See Promise.onPossiblyUnhandledRejection for parameter documentation</span>
 <span class="p">};</span>

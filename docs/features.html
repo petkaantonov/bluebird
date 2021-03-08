@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -177,8 +168,8 @@
 <p>Promisification means converting an existing promise-unaware API to a promise-returning API.</p>
 
 <p>The usual way to use promises in node is to <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a> some API and start exclusively calling promise returning versions of the APIs methods. E.g.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">fs</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">fs</span><span class="p">);</span>
 <span class="c1">// Now you can use fs as if it was designed to use bluebird promises from the beginning</span>
 
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;file.js&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(...)</span>
@@ -188,62 +179,62 @@
 <p>As a notable exception in <code>fs</code>, <code>fs.existsAsync</code> doesn&#39;t work as expected, because Node&#39;s <code>fs.exists</code> doesn&#39;t call back with error as first argument.  More at <a href='https://github.com/petkaantonov/bluebird/issues/418'><code>#418</code></a>.  One possible workaround is using <code>fs.statAsync</code>.</p>
 
 <p>Some examples of the above practice applied to some popular libraries:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular redis module</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;redis&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mongodb module</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The most popular mysql module</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// The most popular redis module</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;redis&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// The most popular mongodb module</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// The most popular mysql module</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// Note that the library&#39;s classes are not properties of the main export</span>
 <span class="c1">// so we require and promisifyAll them manually</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Connection&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Pool&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Mongoose</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongoose&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Request</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Connection&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mysql/lib/Pool&quot;</span><span class="p">).</span><span class="nx">prototype</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Mongoose</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mongoose&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Request</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
 <span class="c1">// Use request.getAsync(...) not request(..), it will not return a promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// mkdir</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mkdirp&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// mkdir</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;mkdirp&quot;</span><span class="p">));</span>
 <span class="c1">// Use mkdirp.mkdirpAsync not mkdirp(..), it will not return a promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// winston</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;winston&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// rimraf</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// winston</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;winston&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// rimraf</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 <span class="c1">// The module isn&#39;t promisified but the function returned is</span>
-<span class="kd">var</span> <span class="nx">rimrafAsync</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;rimraf&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// xml2js</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;xml2js&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// jsdom</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// fs-extra</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs-extra&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// prompt</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Nodemailer</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;nodemailer&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// ncp</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ncp&quot;</span><span class="p">));</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// pg</span>
-<span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">rimrafAsync</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;rimraf&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// xml2js</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;xml2js&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// jsdom</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// fs-extra</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs-extra&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// prompt</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Nodemailer</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;nodemailer&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// ncp</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ncp&quot;</span><span class="p">));</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// pg</span>
+<span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">));</span>
 </code></pre></div>
 <p>In all of the above cases the library made its classes available in one way or another. If this is not the case, you can still promisify by creating a throwaway instance:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">ParanoidLib</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">ParanoidLib</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">throwAwayInstance</span> <span class="o">=</span> <span class="nx">ParanoidLib</span><span class="p">.</span><span class="nx">createInstance</span><span class="p">();</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">getPrototypeOf</span><span class="p">(</span><span class="nx">throwAwayInstance</span><span class="p">));</span>
 <span class="c1">// Like before, from this point on, all new instances + even the throwAwayInstance suddenly support promises</span>
 </code></pre></div>
 <p>See also <a href='/docs/api/promise.promisifyall.html'><code><code>Promise.promisifyAll</code></code></a>.</p>
@@ -293,28 +284,28 @@
             </h3>
 
 <p>Normally stack traces don&#39;t go beyond asynchronous boundaries so their utility is greatly reduced in asynchronous code:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
             <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">;</span>
-        <span class="p">},</span> <span class="mi">1</span><span class="p">);</span>
-    <span class="p">},</span> <span class="mi">1</span><span class="p">)</span>
-<span class="p">},</span> <span class="mi">1</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">ReferenceError: a is not defined
+        <span class="p">},</span> <span class="mf">1</span><span class="p">);</span>
+    <span class="p">},</span> <span class="mf">1</span><span class="p">)</span>
+<span class="p">},</span> <span class="mf">1</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>ReferenceError: a is not defined
     at null._onTimeout file.js:4:13
     at Timer.listOnTimeout (timers.js:90:15)
 </code></pre></div>
 <p>Of course you could use hacks like monkey patching or domains but these break down when something can&#39;t be monkey patched or new apis are introduced.</p>
 
 <p>Since in bluebird <a href='/docs/api/promisification.html'><code>promisification</code></a> is made trivial, you can get long stack traces all the time:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">;</span>
     <span class="p">});</span>
-</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">Unhandled rejection ReferenceError: a is not defined
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>Unhandled rejection ReferenceError: a is not defined
     at file.js:6:9
     at processImmediate [as _immediateCallback] (timers.js:321:17)
 From previous event:
@@ -378,21 +369,21 @@ From previous event:
 <p>The actual subscription API depends on the environment.</p>
 
 <p>1. In Node.js, use <code>process.on</code>:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event name is in camelCase, as per Node.js convention.</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Note the event name is in camelCase, as per Node.js convention.</span>
 <span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;promiseChained&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// promise - The parent promise the child was chained from</span>
     <span class="c1">// child - The created child promise.</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>2. In modern browsers use <code>window.addEventListener</code> (window context) or <code>self.addEventListener()</code> (web worker or window context) method:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event names are in mashedtogetherlowercase, as per DOM convention.</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Note the event names are in mashedtogetherlowercase, as per DOM convention.</span>
 <span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;promisechained&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// event.details.promise - The parent promise the child was chained from</span>
     <span class="c1">// event.details.child - The created child promise.</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>3. In legacy browsers use <code>window.oneventname = handlerFunction;</code>.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Note the event names are in mashedtogetherlowercase, as per legacy convention.</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Note the event names are in mashedtogetherlowercase, as per legacy convention.</span>
 <span class="nb">window</span><span class="p">.</span><span class="nx">onpromisechained</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">,</span> <span class="nx">child</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// event.details.promise - The parent promise the child was chained from</span>
     <span class="c1">// event.details.child - The created child promise.</span>
@@ -413,14 +404,14 @@ From previous event:
             </h2>
 
 <p>See <a href='/docs/api/cancellation.html'><code><code>Cancellation</code></code></a> for how to use cancellation.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Enable cancellation</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="nx">cancellation</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Enable cancellation</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="nx">cancellation</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
 
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 
 <span class="c1">// In 2000ms or less, load &amp; parse a file &#39;config.json&#39;</span>
-<span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;./config.json&#39;</span><span class="p">)</span>
- <span class="p">.</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;./config.json&#39;</span><span class="p">)</span>
+ <span class="p">.</span><span class="nx">timeout</span><span class="p">(</span><span class="mf">2000</span><span class="p">)</span>
  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">,</span> <span class="s1">&#39;Failed to load config!&#39;</span><span class="p">))</span>
  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">)</span>
  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">);</span>
@@ -441,7 +432,7 @@ From previous event:
 
 <p>If your library needs to do something obtrusive like adding or modifying methods on the <code>Promise</code> prototype, uses long stack traces or uses a custom unhandled rejection handler then... that&#39;s totally ok as long as you don&#39;t use <code>require(&quot;bluebird&quot;)</code>. Instead you should create a file
 that creates an isolated copy. For example, creating a file called <code>bluebird-extended.js</code> that contains:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">                <span class="c1">//NOTE the function call right after</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span>                <span class="c1">//NOTE the function call right after</span>
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird/js/main/promise&quot;</span><span class="p">)();</span>
 </code></pre></div>
 <p>Your library can then use <code>var Promise = require(&quot;bluebird-extended&quot;);</code> and do whatever it wants with it. Then if the application or other library uses their own bluebird promises they will all play well together because of Promises/A+ thenable assimilation magic.</p>

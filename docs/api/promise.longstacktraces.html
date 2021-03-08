@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -132,27 +123,27 @@
             </h2>
 
 <p>This method is deprecated. Use <a href='/docs/api/promise.config.html' title=''>Promise.config</a> instead.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
   <span class="nx">longStackTraces</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">})</span>
 </code></pre></div>
 <hr>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">longStackTraces</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">longStackTraces</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">undefined</span>
 </code></pre></div>
 <p>Call this right after the library is loaded to enable long stack traces. Long stack traces cannot be disabled after being enabled, and cannot be enabled after promises have already been created. Long stack traces imply a substantial performance penalty, around 4-5x for throughput and 0.5x for latency.</p>
 
 <p>Long stack traces are enabled by default in the debug build.</p>
 
 <p>To enable them in all instances of bluebird in node.js, use the environment variable <code>BLUEBIRD_DEBUG</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">BLUEBIRD_DEBUG=1 node server.js
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>BLUEBIRD_DEBUG=1 node server.js
 </code></pre></div>
 <p>Setting the environment variable <code>NODE_ENV</code> to <code>&quot;development&quot;</code> also automatically enables long stack traces.</p>
 
 <p>You should enabled long stack traces if you want better debugging experience. For example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">longStackTraces</span><span class="p">();</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">outer</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">inner</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">evenMoreInner</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">longStackTraces</span><span class="p">();</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">outer</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">inner</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">evenMoreInner</span><span class="p">()</span> <span class="p">{</span>
             <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">()</span>
         <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="nx">catcher</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">stack</span><span class="p">);</span>
@@ -161,7 +152,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Gives</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ReferenceError: a is not defined
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>ReferenceError: a is not defined
     at evenMoreInner (&lt;anonymous&gt;:6:13)
 From previous event:
     at inner (&lt;anonymous&gt;:5:24)
@@ -174,7 +165,7 @@ From previous event:
     at Object.InjectedScript.evaluate (&lt;anonymous&gt;:459:21)
 </code></pre></div>
 <p>While with long stack traces disabled, you would get:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ReferenceError: a is not defined
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>ReferenceError: a is not defined
     at evenMoreInner (&lt;anonymous&gt;:6:13)
     at tryCatch1 (&lt;anonymous&gt;:41:19)
     at Promise$_resolvePromise [as _resolvePromise] (&lt;anonymous&gt;:1739:13)

@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,13 +121,13 @@
                     href="#reflect"><i class="fa fa-link"></i></a>
                 .reflect
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">reflect</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">PromiseInspection</span><span class="o">&gt;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">reflect</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">PromiseInspection</span><span class="o">&gt;</span>
 </code></pre></div>
 <p>The <a href='/docs/api/reflect.html'><code><code>.reflect</code></code></a> method returns a promise that is always successful when this promise is settled. Its fulfillment value is an object that implements the <a href='/docs/api/promiseinspection.html'><code>PromiseInspection</code></a> interface and reflects the resolution of this promise.</p>
 
 <p>Using <code>.reflect()</code> to implement <code>settleAll</code> (wait until all promises in an array are either rejected or fulfilled) functionality</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">promises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getPromise</span><span class="p">(),</span> <span class="nx">getPromise</span><span class="p">(),</span> <span class="nx">getPromise</span><span class="p">()];</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">promises</span> <span class="o">=</span> <span class="p">[</span><span class="nx">getPromise</span><span class="p">(),</span> <span class="nx">getPromise</span><span class="p">(),</span> <span class="nx">getPromise</span><span class="p">()];</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">reflect</span><span class="p">();</span>
 <span class="p">})).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">inspection</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">inspection</span><span class="p">.</span><span class="nx">isFulfilled</span><span class="p">())</span> <span class="p">{</span>
@@ -147,11 +138,11 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Using <code>.reflect()</code> to implement <code>settleProps</code> (like settleAll for an object&#39;s properties) functionality</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nx">first</span><span class="o">:</span> <span class="nx">getPromise1</span><span class="p">(),</span>
     <span class="nx">second</span><span class="o">:</span> <span class="nx">getPromise2</span><span class="p">()</span>
 <span class="p">};</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">object</span><span class="p">).</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">newObject</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">props</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">object</span><span class="p">).</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">newObject</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">newObject</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">object</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">reflect</span><span class="p">();</span>
     <span class="k">return</span> <span class="nx">newObject</span><span class="p">;</span>
 <span class="p">},</span> <span class="p">{})).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>

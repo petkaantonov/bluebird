@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Apr 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -211,7 +202,7 @@
             </h2>
 
 <p>A promise is a monadic construct with <code>.then</code> filling the role of <code>&gt;&gt;=</code> (bind). The major difference is that <code>.then</code> performs recursive assimilation which acts like a <code>flatMap</code> or a map. The type signature of <code>then</code> is quote complicated. If we omit the error argument and not throw - it&#39;s similar to:</p>
-<div class="highlight"><pre><code class="language-hs" data-lang="hs"><span class="kr">then</span><span class="ow">::</span><span class="kt">Promise</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Either</span> <span class="p">(</span><span class="kt">Promise</span> <span class="n">b</span><span class="p">)</span> <span class="n">b</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="kt">Promise</span> <span class="n">b</span>
+<div class="highlight"><pre><code class="language-hs" data-lang="hs"><span></span><span class="kr">then</span><span class="ow">::</span><span class="kt">Promise</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Either</span> <span class="p">(</span><span class="kt">Promise</span> <span class="n">b</span><span class="p">)</span> <span class="n">b</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="kt">Promise</span> <span class="n">b</span>
 </code></pre></div>
 <p>That is, you can return either a promise <em>or a plain value</em> from a <code>then</code> without wrapping it.</p>
 

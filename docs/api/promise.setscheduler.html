@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,20 +121,20 @@
                     href="#promise.setscheduler"><i class="fa fa-link"></i></a>
                 Promise.setScheduler
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">fn</span><span class="p">)</span> <span class="nx">scheduler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="kd">function</span> <span class="nx">fn</span><span class="p">)</span> <span class="nx">scheduler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">function</span>
 </code></pre></div>
 <p>Scheduler should be a function that asynchronously schedules the calling of the passed in function:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// This is just an example of how to use the api, there is no reason to do this</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// This is just an example of how to use the api, there is no reason to do this</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="mf">0</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Setting a custom scheduler could be necessary when you need a faster way to schedule functions than bluebird does by default. It also makes bluebird possible to use in platforms where normal timing constructs like <code>setTimeout</code> and <code>process.nextTick</code> are not available (like Nashhorn).</p>
 
 <p>You can also use it as a hook:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// This will synchronize bluebird promise queue flushing with angulars queue flushing</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// This will synchronize bluebird promise queue flushing with angulars queue flushing</span>
 <span class="c1">// Angular is also now responsible for choosing the actual scheduler</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">setScheduler</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$evalAsync</span><span class="p">(</span><span class="nx">fn</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>

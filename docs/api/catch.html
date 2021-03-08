@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -144,7 +135,7 @@ It comes in two variants
             </h3>
 
 <p>Promise exception handling mirrors native exception handling in JavaScript. A synchronous function <code>throw</code>ing is similar to a promise rejecting. Here is an example to illustrate it:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">try</span> <span class="p">{</span> 
         <span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="nx">getItemsSync</span><span class="p">();</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">items</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">InvalidItemsError</span><span class="p">();</span>  
@@ -156,11 +147,11 @@ It comes in two variants
 <span class="p">}</span>
 </code></pre></div>
 <p>Similarly, with promises:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">getItemsAsync</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">items</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">getItems</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getItemsAsync</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">items</span> <span class="p">=&gt;</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">items</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">InvalidItemsError</span><span class="p">();</span> 
         <span class="k">return</span> <span class="nx">items</span><span class="p">;</span>
-    <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
         <span class="c1">// can address the error here and recover from it, from getItemsAsync rejects or returns a falsey value</span>
         <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span> <span class="c1">// Need to rethrow unless we actually recovered, just like in the synchronous version</span>
     <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">process</span><span class="p">);</span>
@@ -172,8 +163,8 @@ It comes in two variants
                     href="#catch-all"><i class="fa fa-link"></i></a>
                 Catch-all
             </h3>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">caught</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">caught</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>This is a catch-all exception handler, shortcut for calling <a href='/docs/api/then.html'><code><code>.then(null, handler)</code></code></a> on this promise. Any exception happening in a <code>.then</code>-chain will propagate to nearest <code>.catch</code> handler.</p>
 
@@ -185,19 +176,19 @@ It comes in two variants
                     href="#filtered-catch"><i class="fa fa-link"></i></a>
                 Filtered Catch
             </h3>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="k">catch</span><span class="p">(</span>
-    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="k">catch</span><span class="p">(</span>
+    <span class="kd">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">caught</span><span class="p">(</span>
-    <span class="kr">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">caught</span><span class="p">(</span>
+    <span class="kd">class</span> <span class="nx">ErrorClass</span><span class="o">|</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span><span class="o">|</span><span class="nb">Object</span> <span class="nx">predicate</span><span class="p">...,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">handler</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>This is an extension to <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> to work more like catch-clauses in languages like Java or C#. Instead of manually checking <code>instanceof</code> or <code>.name === &quot;SomeError&quot;</code>, you may specify a number of error constructors which are eligible for this catch handler. The catch handler that is first met that has eligible constructors specified, is the one that will be called.</p>
 
 <p>Example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">();</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">TypeError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//If it is a TypeError, will end up here because</span>
@@ -210,7 +201,7 @@ It comes in two variants
 <span class="p">});</span>
 </code></pre></div>
 <p>You may also add multiple filters for a catch handler:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">somePromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">b</span><span class="p">.</span><span class="nx">c</span><span class="p">.</span><span class="nx">d</span><span class="p">();</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">TypeError</span><span class="p">,</span> <span class="nx">ReferenceError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//Will end up here on programmer error</span>
@@ -223,11 +214,11 @@ It comes in two variants
 <p>For a parameter to be considered a type of error that you want to filter, you need the constructor to have its <code>.prototype</code> property be <code>instanceof Error</code>.</p>
 
 <p>Such a constructor can be minimally created like so:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">()</span> <span class="p">{}</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">()</span> <span class="p">{}</span>
 <span class="nx">MyCustomError</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nb">Error</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
 </code></pre></div>
 <p>Using it:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">throw</span> <span class="k">new</span> <span class="nx">MyCustomError</span><span class="p">();</span>
 <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">MyCustomError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">//will end up here now</span>
@@ -236,7 +227,7 @@ It comes in two variants
 <p>However if you  want stack traces and cleaner string output, then you should do:</p>
 
 <p><em>in Node.js and other V8 environments, with support for <code>Error.captureStackTrace</code></em></p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">function</span> <span class="nx">MyCustomError</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="nx">message</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;MyCustomError&quot;</span><span class="p">;</span>
     <span class="nb">Error</span><span class="p">.</span><span class="nx">captureStackTrace</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">MyCustomError</span><span class="p">);</span>
@@ -245,7 +236,7 @@ It comes in two variants
 <span class="nx">MyCustomError</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">MyCustomError</span><span class="p">;</span>
 </code></pre></div>
 <p>Using CoffeeScript&#39;s <code>class</code> for the same:</p>
-<div class="highlight"><pre><code class="language-coffee" data-lang="coffee"><span class="k">class</span> <span class="nx">MyCustomError</span> <span class="k">extends</span> <span class="nb">Error</span>
+<div class="highlight"><pre><code class="language-coffee" data-lang="coffee"><span></span><span class="k">class</span> <span class="nx">MyCustomError</span> <span class="k">extends</span> <span class="nb">Error</span>
   <span class="nv">constructor: </span><span class="nf">(@message) -&gt;</span>
     <span class="vi">@name = </span><span class="s">&quot;MyCustomError&quot;</span>
     <span class="nb">Error</span><span class="p">.</span><span class="nx">captureStackTrace</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">MyCustomError</span><span class="p">)</span>
@@ -260,11 +251,11 @@ pattern matching, error-type sets with set operations and many other techniques
 can be implemented on top of them.</p>
 
 <p>Example of using a predicate-based filter:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;request&quot;</span><span class="p">));</span>
 
 <span class="kd">function</span> <span class="nx">ClientError</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">400</span> <span class="o">&amp;&amp;</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mf">400</span> <span class="o">&amp;&amp;</span> <span class="nx">e</span><span class="p">.</span><span class="nx">code</span> <span class="o">&lt;</span> <span class="mf">500</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="nx">request</span><span class="p">(</span><span class="s2">&quot;http://www.google.com&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
@@ -274,7 +265,7 @@ can be implemented on top of them.</p>
 <span class="p">});</span>
 </code></pre></div>
 <p>Predicate functions that only check properties have a handy shorthand. In place of a predicate function, you can pass an object, and its properties will be checked against the error object for a match:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(...)</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(...)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(...)</span>
     <span class="p">.</span><span class="k">catch</span><span class="p">({</span><span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;ENOENT&#39;</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;file not found: &quot;</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">path</span><span class="p">);</span>
@@ -286,17 +277,17 @@ can be implemented on top of them.</p>
 </markdown></div></p>
 
 <p>By not returning a rejected value or <code>throw</code>ing from a catch, you &quot;recover from failure&quot; and continue the chain:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;fail!&#39;</span><span class="p">))</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;fail!&#39;</span><span class="p">))</span>
   <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// fallback with &quot;recover from failure&quot;</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;success!&#39;</span><span class="p">);</span> <span class="c1">// promise or value</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;success!&#39;</span><span class="p">);</span> <span class="c1">// promise or value</span>
   <span class="p">})</span>
   <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span> <span class="c1">// will print &quot;success!&quot;</span>
   <span class="p">});</span>
 </code></pre></div>
 <p>This is exactly like the synchronous code:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
 <span class="k">try</span> <span class="p">{</span>
   <span class="k">throw</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;fail&#39;</span><span class="p">);</span>
 <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>

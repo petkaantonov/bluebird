@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 03 Apr 2019</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,10 +121,10 @@
                     href="#promise.mapseries"><i class="fa fa-link"></i></a>
                 Promise.mapSeries
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span>
-    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nx">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span>
+    <span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;|</span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Iterable</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span> <span class="nx">input</span><span class="p">,</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">value</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kr">int</span> <span class="nx">arrayLength</span><span class="p">)</span> <span class="nx">mapper</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">any</span><span class="o">&gt;&gt;</span>
 </code></pre></div>
 <p>Given an <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols' title=''><code>Iterable</code></a> (an array, for example), or a promise of an <code>Iterable</code>, iterates serially over all the values in it, executing the given <code>mapper</code> on each element. If an element is a promise, the mapper will wait for it before proceeding. The <code>mapper</code> function has signature <code>(value, index, arrayLength)</code> where <code>value</code> is the current element (or its resolved value if it is a promise).</p>
 
@@ -150,10 +141,10 @@
 <p><code>Promise.mapSeries</code> is very similar to <a href='/docs/api/promise.each.html'><code>Promise.each</code></a>. The difference between <code>Promise.each</code> and <code>Promise.mapSeries</code> is their resolution value. <code>Promise.mapSeries</code> resolves with an array as explained above, while <code>Promise.each</code> resolves with an array containing the <em>resolved values of the input elements</em> (ignoring the outputs of the iteration steps). This way, <code>Promise.each</code> is meant to be mainly used for side-effect operations (since the outputs of the iterator are essentially discarded), just like the native <code>.forEach()</code> method of arrays, while <code>Promise.map</code> is meant to be used as an async version of the native <code>.map()</code> method of arrays.</p>
 
 <p>Basic example:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// The array to be mapped over can be a mix of values and promises.</span>
-<span class="kd">var</span> <span class="nx">fileNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1.txt&quot;</span><span class="p">,</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;2.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;3.txt&quot;</span><span class="p">,</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">3000</span><span class="p">,</span> <span class="s2">&quot;4.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;5.txt&quot;</span><span class="p">];</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// The array to be mapped over can be a mix of values and promises.</span>
+<span class="kd">var</span> <span class="nx">fileNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1.txt&quot;</span><span class="p">,</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s2">&quot;2.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;3.txt&quot;</span><span class="p">,</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">3000</span><span class="p">,</span> <span class="s2">&quot;4.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;5.txt&quot;</span><span class="p">];</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">arrayLength</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">mapSeries</span><span class="p">(</span><span class="nx">fileNames</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fileName</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">arrayLength</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// The iteration will be performed sequentially, awaiting for any</span>
     <span class="c1">// promises in the process.</span>
     <span class="k">return</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">fileName</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
@@ -167,12 +158,12 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Example with a rejected promise in the array:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// If one of the promises in the original array rejects,</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// If one of the promises in the original array rejects,</span>
 <span class="c1">// the iteration will stop once it reaches it</span>
-<span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">),</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">),</span> <span class="s2">&quot;D&quot;</span><span class="p">];</span>
+<span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">8000</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">),</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">),</span> <span class="s2">&quot;D&quot;</span><span class="p">];</span>
 
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">items</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mi">4000</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">items</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">delay</span><span class="p">(</span><span class="mf">4000</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;On mapper: &quot;</span> <span class="o">+</span> <span class="nx">item</span><span class="p">);</span>
     <span class="p">});</span>
 <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>

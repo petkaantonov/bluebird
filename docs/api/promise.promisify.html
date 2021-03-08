@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,7 +121,7 @@
                     href="#promise.promisify"><i class="fa fa-link"></i></a>
                 Promise.promisify
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span>
     <span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">arguments</span><span class="p">...,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span> <span class="nx">nodeFunction</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">Object</span> <span class="p">{</span>
         <span class="nx">multiArgs</span><span class="o">:</span> <span class="kr">boolean</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
@@ -147,7 +138,7 @@
 <p>If you pass a <code>context</code>, the <code>nodeFunction</code> will be called as a method on the <code>context</code>.</p>
 
 <p>Example of promisifying the asynchronous <code>readFile</code> of node.js <code>fs</code>-module:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">readFile</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">).</span><span class="nx">readFile</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">readFile</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">).</span><span class="nx">readFile</span><span class="p">);</span>
 
 <span class="nx">readFile</span><span class="p">(</span><span class="s2">&quot;myfile.js&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nb">eval</span><span class="p">(</span><span class="nx">contents</span><span class="p">);</span>
@@ -161,13 +152,13 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Note that if the node function is a method of some object, you can pass the object as the second argument like so:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">redisGet</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">redisClient</span><span class="p">.</span><span class="nx">get</span><span class="p">,</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">redisClient</span><span class="p">});</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">redisGet</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">redisClient</span><span class="p">.</span><span class="nx">get</span><span class="p">,</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">redisClient</span><span class="p">});</span>
 <span class="nx">redisGet</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//...</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>But this will also work:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">getAsync</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">redisClient</span><span class="p">.</span><span class="nx">get</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">getAsync</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">redisClient</span><span class="p">.</span><span class="nx">get</span><span class="p">);</span>
 <span class="nx">getAsync</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">redisClient</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//...</span>
 <span class="p">});</span>

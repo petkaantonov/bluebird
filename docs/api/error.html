@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,14 +121,14 @@
                     href="#error"><i class="fa fa-link"></i></a>
                 .error
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">error</span><span class="p">([</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">rejectedHandler</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">error</span><span class="p">([</span><span class="kd">function</span><span class="p">(</span><span class="nx">any</span> <span class="nx">error</span><span class="p">)</span> <span class="nx">rejectedHandler</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Like <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> but instead of catching all types of exceptions, it only catches operational errors.</p>
 
 <p><em>Note, &quot;errors&quot; mean errors, as in objects that are <code>instanceof Error</code> - not strings, numbers and so on. See <a href='http://www.devthought.com/2011/12/22/a-string-is-not-an-error/' title=''>a string is not an error</a>.</em></p>
 
 <p>It is equivalent to the following <a href='/docs/api/catch.html'><code><code>.catch</code></code></a> pattern:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Assumes OperationalError has been made global</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// Assumes OperationalError has been made global</span>
 <span class="kd">function</span> <span class="nx">isOperationalError</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">e</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
     <span class="k">return</span> <span class="p">(</span><span class="nx">e</span> <span class="k">instanceof</span> <span class="nx">OperationalError</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">isOperational</span> <span class="o">===</span> <span class="kc">true</span><span class="p">);</span>
@@ -157,7 +148,7 @@
 <p>For example, if a promisified function errbacks the node-style callback with an error, that could be caught with <a href='/docs/api/error.html'><code><code>.error</code></code></a>. However if the node-style callback <strong>throws</strong> an error, only <code>.catch</code> would catch that.</p>
 
 <p>In the following example you might want to handle just the <code>SyntaxError</code> from JSON.parse and Filesystem errors from <code>fs</code> but let programmer errors bubble as unhandled rejections:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">));</span>
 
 <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;myfile.json&quot;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">json</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Successful json&quot;</span><span class="p">)</span>
@@ -168,7 +159,7 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>Now, because there is no catch-all handler, if you typed <code>console.lag</code> (causes an error you don&#39;t expect), you will see:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Possibly unhandled TypeError: Object #&lt;Console&gt; has no method &#39;lag&#39;
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>Possibly unhandled TypeError: Object #&lt;Console&gt; has no method &#39;lag&#39;
     at application.js:8:13
 From previous event:
     at Object.&lt;anonymous&gt; (application.js:7:4)
@@ -183,10 +174,10 @@ From previous event:
 <p><em>( If you don&#39;t get the above - you need to enable <a href='/docs/api/promise.config.html' title=''>long stack traces</a> )</em></p>
 
 <p>And if the file contains invalid JSON:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">file contains invalid json
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>file contains invalid json
 </code></pre></div>
 <p>And if the <code>fs</code> module causes an error like file not found:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">unable to read file, because:  ENOENT, open &#39;not_there.txt&#39;
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>unable to read file, because:  ENOENT, open &#39;not_there.txt&#39;
 </code></pre></div>
 <p></markdown></div></p>
 <div id="disqus_thread"></div>

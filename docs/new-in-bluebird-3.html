@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -146,10 +137,10 @@
 <p>Both promisification (<a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> and <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a>) methods and <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> now by default ignore multiple arguments passed to the callback adapter and instead only the first argument is used to resolve the promise. The behavior in 2.x is to construct an array of the arguments and resolve the promise with it when more than one argument is passed to the callback adapter. The problems with this approach and reasons for the change are discussed in <a href='https://github.com/petkaantonov/bluebird/issues/307'><code>#307</code></a>.</p>
 
 <p><a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a>&#39;s second argument is now an options object, so any code using the second argument needs to change:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// 2.x</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="c1">// 2.x</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">);</span>
 <span class="c1">// 3.0</span>
-<span class="nx">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">ctx</span><span class="p">});</span>
+<span class="nb">Promise</span><span class="p">.</span><span class="nx">promisify</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">ctx</span><span class="p">});</span>
 </code></pre></div>
 <p>Both promisification (<a href='/docs/api/promise.promisify.html'><code>Promise.promisify</code></a> and <a href='/docs/api/promise.promisifyall.html'><code>Promise.promisifyAll</code></a>) methods and <a href='/docs/api/promise.fromcallback.html'><code>Promise.fromCallback</code></a> all take a new boolean option <code>multiArgs</code> which defaults to <code>false</code>. Enabling this option will make the adapter callback <em>always</em> construct an array of the passed arguments regardless of amount of arguments. This can be used to reliably get access to all arguments rather than just the first one.</p>
             <h2>

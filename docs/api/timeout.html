@@ -96,15 +96,6 @@
                     </ul>
                 </li>
                 <li><hr></li>
-                <li>
-                    <div class="supporters">
-                        <div class="reaktor supporter">
-                            <a href="https://reaktor.com">
-                                <img src="/img/supportlogo.png" alt="Supported by reaktor" title="Supported by Reaktor">
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
             </ul>
         </div>
@@ -115,7 +106,7 @@
                     <i class="fa fa-edit"></i>
                     Edit on Github</a>
                 <br>
-                <i>Updated 06 Nov 2018</i>
+                <i>Updated 08 Mar 2021</i>
             </div>
             <div class="clearfix"></div>
             
@@ -130,23 +121,23 @@
                     href="#timeout"><i class="fa fa-link"></i></a>
                 .timeout
             </h2>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
     <span class="kr">int</span> <span class="nx">ms</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">String</span> <span class="nx">message</span><span class="o">=</span><span class="s2">&quot;operation timed out&quot;</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
-</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span>
     <span class="kr">int</span> <span class="nx">ms</span><span class="p">,</span>
     <span class="p">[</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nx">Promise</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">Promise</span>
 </code></pre></div>
 <p>Returns a promise that will be fulfilled with this promise&#39;s fulfillment value or rejection reason. However, if this promise is not fulfilled or rejected within <code>ms</code> milliseconds, the returned promise is rejected with a <a href='/docs/api/timeouterror.html'><code><code>TimeoutError</code></code></a> or the <code>error</code> as the reason.</p>
 
 <p>When using the first signature, you may specify a custom error message with the <code>message</code> parameter.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
-<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;huge-file.txt&quot;</span><span class="p">).</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">100</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span></span><span class="kd">var</span> <span class="nb">Promise</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;bluebird&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">promisifyAll</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">));</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s2">&quot;huge-file.txt&quot;</span><span class="p">).</span><span class="nx">timeout</span><span class="p">(</span><span class="mf">100</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fileContents</span><span class="p">)</span> <span class="p">{</span>
 
-<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">Promise</span><span class="p">.</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nb">Promise</span><span class="p">.</span><span class="nx">TimeoutError</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;could not read file within 100ms&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
