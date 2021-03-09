@@ -61,7 +61,7 @@ describe("nodeify", function () {
     });
 
     it("returns undefined when a callback is passed", function () {
-        return 'undefined' === typeof Promise.resolve(10).nodeify(function () {});
+        return assert('undefined' === typeof Promise.resolve(10).nodeify(function () {}));
     });
 
 });
