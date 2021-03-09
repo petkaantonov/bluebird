@@ -26,6 +26,7 @@ var Warning = subError("Warning", "warning");
 var CancellationError = subError("CancellationError", "cancellation error");
 var TimeoutError = subError("TimeoutError", "timeout error");
 var AggregateError = subError("AggregateError", "aggregate error");
+var BreakPointError = subError("BreakPointError", "breakPointError error");
 try {
     _TypeError = TypeError;
     _RangeError = RangeError;
@@ -110,6 +111,7 @@ module.exports = {
     TypeError: _TypeError,
     RangeError: _RangeError,
     CancellationError: errorTypes.CancellationError,
+    BreakPointError: BreakPointError,
     OperationalError: errorTypes.OperationalError,
     TimeoutError: errorTypes.TimeoutError,
     AggregateError: errorTypes.AggregateError,
