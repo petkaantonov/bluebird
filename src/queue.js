@@ -38,7 +38,6 @@ Queue.prototype.push = function (fn, receiver, arg) {
         return;
     }
     var j = this._front + length - 3;
-    this._checkCapacity(length);
     var wrapMask = this._capacity - 1;
     this[(j + 0) & wrapMask] = fn;
     this[(j + 1) & wrapMask] = receiver;
