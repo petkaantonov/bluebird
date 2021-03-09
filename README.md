@@ -27,9 +27,12 @@ The [github issue tracker](https://github.com/petkaantonov/bluebird/issues) is *
 
 
 
-## Thanks
+## Testing powered by 
+<a target="_blank" href="https://www.browserstack.com/"><img width="200" src="https://www.browserstack.com/images/layout/browserstack-logo-600x315.png"></a><br>
 
-Thanks to BrowserStack for providing us with a free account which lets us support old browsers like IE8. 
+Thanks to [BrowserStack Open-Source Program](https://www.browserstack.com/open-source) for providing us with a free account which lets us support old browsers like IE8. 
+
+
 
 # License
 
