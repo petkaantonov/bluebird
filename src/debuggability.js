@@ -241,6 +241,7 @@ var fireDomEvent = (function() {
                 return dispatch(legacyHandlers[name], domEvent);
             };
         } else {
+            if (typeof document === 'undefined') return false;
             var event = document.createEvent("CustomEvent");
             event.initCustomEvent("testingtheevent", false, true, {});
             util.global.dispatchEvent(event);

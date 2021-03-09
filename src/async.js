@@ -1,6 +1,5 @@
 "use strict";
-var firstLineError;
-try {throw new Error(); } catch (e) {firstLineError = e;}
+var firstLineError = new Error();
 var ASSERT = require("./assert");
 var schedule = require("./schedule");
 var Queue = require("./queue");
