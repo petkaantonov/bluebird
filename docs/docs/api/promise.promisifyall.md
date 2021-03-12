@@ -210,7 +210,7 @@ promisification:
 
 ```js
 var fs = Promise.promisifyAll(require("fs"), {
-    promisifier: function(originalFunction, defaultPromisifer) {
+    promisifier: function(originalFunction, defaultPromisifier) {
         var promisified = defaultPromisifier(originalFunction);
 
         return function() {
