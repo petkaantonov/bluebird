@@ -17,14 +17,19 @@ See the [**bluebird website**](http://bluebirdjs.com/docs/getting-started.html) 
 
 For bluebird 2.x documentation and files, see the [2.x tree](https://github.com/petkaantonov/bluebird/tree/2.x).
 
-### Note 
+## ⚠️Note⚠️ 
 
-Promises in Node.js 10 are significantly faster than before. Bluebird still includes a lot of features like cancellation, iteration methods and warnings that native promises don't. If you are using Bluebird for performance rather than for those - please consider giving native promises a shot and running the benchmarks yourself.
+**Please use native promises instead if at all possible**. Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
+
+This is a good thing, the people working on Bluebird and promises have been able to help incorporate most of the useful things from Bluebird into JavaScript itself and platforms/engines. There are still missing things (.map/.filter are on their way with the iteration helpers proposal and async iterators!).
+
+If there is a feature that keeps you using bluebird. Please let us know so we can try and upstream it :)
+
+Currently - it is only recommended to use Bluebird if you need to support old browsers or EoL Node.js or as an intermediate step to use warnings/monitoring to find bugs.
 
 # Questions and issues
 
 The [github issue tracker](https://github.com/petkaantonov/bluebird/issues) is **_only_** for bug reports and feature requests. Anything else, such as questions for help in using the library, should be posted in [StackOverflow](http://stackoverflow.com/questions/tagged/bluebird) under tags `promise` and `bluebird`.
-
 
 
 ## Thanks
@@ -35,7 +40,7 @@ Thanks to BrowserStack for providing us with a free account which lets us suppor
 
 The MIT License (MIT)
 
-Copyright (c) 2013-2020 Petka Antonov
+Copyright (c) 2013-2021 Petka Antonov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
