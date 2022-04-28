@@ -4,7 +4,7 @@
   "description": "Compare the performance and code of multiple async patterns",
   "main": "perf.js",
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^2.6.4",
     "davy": "^1.3.0",
     "deferred": "^0.7.9",
     "kew": "^0.7.0",
