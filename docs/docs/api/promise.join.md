@@ -17,7 +17,7 @@ Promise.join(
 ```
 
 
-For coordinating multiple concurrent discrete promises. While [`.all`](.) is good for handling a dynamically sized list of uniform promises, `Promise.join` is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently. The final parameter, handler function, will be invoked with the result values of all of the fufilled promises. For example:
+For coordinating multiple concurrent discrete promises. While [`.all`](.) is good for handling a dynamically sized list of uniform promises, `Promise.join` is much easier (and more performant) to use when you have a fixed amount of discrete promises that you want to coordinate concurrently. The final parameter, handler function, will be invoked with the result values of all of the fulfilled promises. For example:
 
 ```js
 var Promise = require("bluebird");
