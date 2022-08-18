@@ -99,7 +99,7 @@ module.exports = {
         var promise = new Promise(function() {
             resolve = arguments[0];
             reject = arguments[1];
-        }).timeout(500);
+        });
         var ret = function(fn) {
             ret.callback = fn;
             return ret.node;
@@ -122,7 +122,7 @@ module.exports = {
         var promise = new Promise(function() {
             resolve = arguments[0];
             reject = arguments[1];
-        }).timeout(500);
+        });
         domain = require('domain').create();
         domain.on("error", function(e) {
             try {
@@ -136,18 +136,18 @@ module.exports = {
         return promise;
     },
 
-    //Since there is only a single handler possible at a time, older
-    //tests that are run just before this file could affect the results
-    //that's why there is 500ms limit in grunt file between each test
-    //beacuse the unhandled rejection handler will run within 100ms right now
     onUnhandledFail: function(testFunction) {
+        Promise._unhandledRejectionClear();
         return new Promise(function(resolve, reject) {
             var err = new Error("Reporting handled rejection as unhandled from: " +
                     testFunction);
             Promise.onPossiblyUnhandledRejection(function() {
                 reject(err);
             });
-            Promise.delay(25).then(resolve);
+            Promise.delay(150).then(function() {
+                Promise._unhandledRejectionCheck();
+                resolve();
+            });
         }).lastly(function() {
             Promise.onPossiblyUnhandledRejection(null);
         });
@@ -183,7 +183,10 @@ module.exports = {
                     resolve(e);
                  }
             });
-            Promise.delay(200).then(function() {
+            Promise.delay(50).then(function() {
+                Promise._unhandledRejectionCheck();
+                return Promise.delay(1);
+            }).then(function() {
                 var message = "Expected onPossiblyUnhandledRejection to be called " +
                     total + " times but it was only called " + cur + " times";
                 reject(new Error(message));

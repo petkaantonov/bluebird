@@ -198,22 +198,28 @@ function isClass(fn) {
     }
 }
 
-function toFastProperties(obj) {
-    /*jshint -W027,-W055,-W031*/
-    function FakeConstructor() {}
-    FakeConstructor.prototype = obj;
-    var receiver = new FakeConstructor();
-    function ic() {
-        return typeof receiver.foo;
+var fastProto = null;
+var kInlineCacheCutoff = 10;
+function FastObject(o) {
+    if (fastProto !== null && typeof fastProto.property) {
+        var result = fastProto;
+        fastProto = FastObject.prototype = null;
+        return result;
     }
-    ic();
-    ic();
+    fastProto = FastObject.prototype = o == null ? Object.create(null) : o;
+    return new FastObject();
+}
+
+// Initialize the inline property cache of FastObject
+for(var i = 0; i <= kInlineCacheCutoff; i++) {
+    FastObject({});
+}
+
+
+function toFastProperties(obj) {
+    FastObject(obj);
     ASSERT("%HasFastProperties", true, obj);
     return obj;
-    // Prevent the function from being optimized through dead code elimination
-    // or further optimizations. This code is never reached but even using eval
-    // in unreachable code causes v8 to not optimize functions.
-    eval(obj);
 }
 
 var rident = /^[a-z$_][a-z$_0-9]*$/i;
@@ -337,18 +343,42 @@ function getNativePromise() {
     if (typeof Promise === "function") {
         try {
             var promise = new Promise(function(){});
-            if ({}.toString.call(promise) === "[object Promise]") {
+            if (classString(promise) === "[object Promise]") {
                 return Promise;
             }
         } catch (e) {}
     }
 }
 
-function domainBind(self, cb) {
-    return self.bind(cb);
+var reflectHandler;
+function contextBind(ctx, cb) {
+    if (ctx === null ||
+        typeof cb !== "function" ||
+        cb === reflectHandler) {
+        return cb;
+    }
+
+    if (ctx.domain !== null) {
+        cb = ctx.domain.bind(cb);
+    }
+
+    var async = ctx.async;
+    if (async !== null) {
+        var old = cb;
+        cb = function() {
+            INLINE_SLICE_LEFT_PADDED(2, args, arguments);
+            args[0] = old;
+            args[1] = this;
+            return async.runInAsyncScope.apply(async, args);
+        };
+    }
+    return cb;
 }
 
 var ret = {
+    setReflectHandler: function(fn) {
+        reflectHandler = fn;
+    },
     isClass: isClass,
     isIdentifier: isIdentifier,
     inheritedDataKeys: inheritedDataKeys,
@@ -375,18 +405,31 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
-    hasDevTools: typeof chrome !== "undefined" && chrome &&
-                 typeof chrome.loadTimes === "function",
     isNode: isNode,
     hasEnvVariables: hasEnvVariables,
     env: env,
     global: globalObject,
     getNativePromise: getNativePromise,
-    domainBind: domainBind
+    contextBind: contextBind
 };
 ret.isRecentNode = ret.isNode && (function() {
-    var version = process.versions.node.split(".").map(Number);
+    var version;
+    if (process.versions && process.versions.node) {
+        version = process.versions.node.split(".").map(Number);
+    } else if (process.version) {
+        version = process.version.split(".").map(Number);
+    }
     return (version[0] === 0 && version[1] > 10) || (version[0] > 0);
+})();
+ret.nodeSupportsAsyncResource = ret.isNode && (function() {
+    var supportsAsync = false;
+    try {
+        var res = require("async_hooks").AsyncResource;
+        supportsAsync = typeof res.prototype.runInAsyncScope === "function";
+    } catch (e) {
+        supportsAsync = false;
+    }
+    return supportsAsync;
 })();
 
 if (ret.isNode) ret.toFastProperties(process);

@@ -6,7 +6,6 @@ module.exports = function(Promise,
                           INTERNAL,
                           debug) {
 var ASSERT = require("./assert");
-var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -15,8 +14,8 @@ var async = Promise._async;
 function MappingPromiseArray(promises, fn, limit, _filter) {
     this.constructor$(promises);
     this._promise._captureStackTrace();
-    var domain = getDomain();
-    this._callback = domain === null ? fn : util.domainBind(domain, fn);
+    var context = Promise._getContext();
+    this._callback = util.contextBind(context, fn);
     this._preservedValues = _filter === INTERNAL
         ? new Array(this.length())
         : null;
@@ -24,6 +23,14 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._inFlight = 0;
     this._queue = [];
     async.invoke(this._asyncInit, this, undefined);
+    if (util.isArray(promises)) {
+        for (var i = 0; i < promises.length; ++i) {
+            var maybePromise = promises[i];
+            if (maybePromise instanceof Promise) {
+                maybePromise.suppressUnhandledRejections();
+            }
+        }
+    }
 }
 util.inherits(MappingPromiseArray, PromiseArray);
 

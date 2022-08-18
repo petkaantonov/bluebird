@@ -3,6 +3,79 @@ id: changelog
 title: Changelog
 ---
 
+## 3.7.2 (2019-11-28)
+
+Bugfixes:
+
+ - Fixes firefox settimeout not initialized error \([#1623](.)\)
+
+
+## 3.7.1 (2019-10-15)
+
+Features:
+
+ - feature
+
+Bugfixes:
+
+ - Fix \([#1614](.)\)
+ - Fix \([#1613](.)\)
+ - Fix \([#1616](.)\)
+
+## 3.7.0 (2019-10-01)
+
+Features:
+
+ - Add [Promise.allSettled](.) method \([#1606](.)\)
+
+## 3.6.0 (2019-10-01)
+
+Features:
+
+ - Add support for AsyncResource \([#1403](.)\)
+
+Bugfixes:
+
+ - Fix [.reduce](.) generating unhandled rejection events \([#1501](.)\)
+ - Fix [Promise.reduce](.) generating unhandled rejction events \([#1502](.)\)
+ - Fix [.map](.) and [.filter](.) generating unhandled rejection events \([#1487](.)\)
+ - Fix [Promise.map](.) unhandled rejection events \([#1489](.)\)
+ - Fix cancel skipping upward propagation \([#1459](.)\)
+ - Fix loadTimes deprecation \([#1505](.)\)
+ - Fix [Promise.each](.) maximum stack exceeded error \([#1326](.)\)
+ - Make PromiseRejectionEvent confrom to spec \([#1509](.)\)
+ - Fix false unhandled rejection events \([#1468](.)\)
+
+## 3.5.5 (2019-05-24)
+
+Features:
+
+ - Added Symbol.toStringTag support to Promise \([#1421](.)\)
+
+Bugfixes:
+
+ - Fix error in IE9 \([#1591](.), [#1592](.)\)
+ - Fix error with undefined stack trace \([#1537](.)\)
+ - Fix [.catch](.) throwing an error later rather than immediately when passed non-function handler \([#1517](.)\)
+
+## 3.5.4 (2019-04-03)
+
+- Proper version check supporting VSCode\([#1576](.)\)
+
+## 3.5.3 (2018-11-06)
+
+Bugfixes:
+
+ - Update acorn dependency
+
+## 3.5.2 (2018-09-03)
+
+Bugfixes:
+
+ - Fix `PromiseRejectionEvent` to contain `.reason` and `.promise` properties. \([#1509](.), [#1464](.)\)
+ - Fix promise chain retaining memory until the entire chain is resolved  \([#1544](.), [#1529](.)\)
+
+
 ## 3.5.1 (2017-10-04)
 
 Bugfixes:

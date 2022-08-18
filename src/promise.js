@@ -13,20 +13,42 @@ function Proxyable() {}
 var UNDEFINED_BINDING = {};
 var ASSERT = require("./assert");
 var util = require("./util");
+util.setReflectHandler(reflectHandler);
 
-var getDomain;
-if (util.isNode) {
-    getDomain = function() {
-        var ret = process.domain;
-        if (ret === undefined) ret = null;
-        return ret;
-    };
-} else {
-    getDomain = function() {
+var getDomain = function() {
+    var domain = process.domain;
+    if (domain === undefined) {
         return null;
+    }
+    return domain;
+};
+var getContextDefault = function() {
+    return null;
+};
+var getContextDomain = function() {
+    return {
+        domain: getDomain(),
+        async: null
     };
-}
-util.notEnumerableProp(Promise, "_getDomain", getDomain);
+};
+var AsyncResource = util.isNode && util.nodeSupportsAsyncResource ?
+    require("async_hooks").AsyncResource : null;
+var getContextAsyncHooks = function() {
+    return {
+        domain: getDomain(),
+        async: new AsyncResource("Bluebird::Promise")
+    };
+};
+var getContext = util.isNode ? getContextDomain : getContextDefault;
+util.notEnumerableProp(Promise, "_getContext", getContext);
+var enableAsyncHooks = function() {
+    getContext = getContextAsyncHooks;
+    util.notEnumerableProp(Promise, "_getContext", getContextAsyncHooks);
+};
+var disableAsyncHooks = function() {
+    getContext = getContextDomain;
+    util.notEnumerableProp(Promise, "_getContext", getContextDomain);
+};
 
 var es5 = require("./es5");
 var Async = require("./async");
@@ -50,7 +72,9 @@ var PromiseArray =
 var Context = require("./context")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
-var debug = require("./debuggability")(Promise, Context);
+
+var debug = require("./debuggability")(Promise, Context,
+    enableAsyncHooks, disableAsyncHooks);
 var CapturedTrace = debug.CapturedTrace;
 var PassThroughHandlerContext =
     require("./finally")(Promise, tryConvertToPromise, NEXT_FILTER);
@@ -102,6 +126,11 @@ Promise.prototype.caught = Promise.prototype["catch"] = function (fn) {
         }
         catchInstances.length = j;
         fn = arguments[i];
+
+        if (typeof fn !== "function") {
+            throw new TypeError("The last argument to .catch() " +
+                "must be a function, got " + util.toString(fn));
+        }
         return this.then(undefined, catchFilter(catchInstances, fn, this));
     }
     return this.then(undefined, fn);
@@ -244,7 +273,7 @@ Promise.prototype._then = function (
         this._fireEvent("promiseChained", this, promise);
     }
 
-    var domain = getDomain();
+    var context = getContext();
     if (!BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
         var handler, value, settler = target._settlePromiseCtx;
         if (BIT_FIELD_CHECK(IS_FULFILLED)) {
@@ -262,15 +291,14 @@ Promise.prototype._then = function (
         }
 
         async.invoke(settler, target, {
-            handler: domain === null ? handler
-                : (typeof handler === "function" &&
-                    util.domainBind(domain, handler)),
+            handler: util.contextBind(context, handler),
             promise: promise,
             receiver: receiver,
             value: value
         });
     } else {
-        target._addCallbacks(didFulfill, didReject, promise, receiver, domain);
+        target._addCallbacks(didFulfill, didReject, promise,
+                receiver, context);
     }
 
     return promise;
@@ -332,7 +360,15 @@ Promise.prototype._setWillBeCancelled = function() {
 
 Promise.prototype._setAsyncGuaranteed = function() {
     if (async.hasCustomScheduler()) return;
-    this._bitField = this._bitField | IS_ASYNC_GUARANTEED;
+    var bitField = this._bitField;
+    this._bitField = bitField |
+        (((bitField & NO_ASYNC_GUARANTEE) >> ASYNC_GUARANTEE_SHIFT) ^
+        IS_ASYNC_GUARANTEED);
+};
+
+Promise.prototype._setNoAsyncGuarantee = function() {
+    this._bitField = (this._bitField | NO_ASYNC_GUARANTEE) &
+        (~IS_ASYNC_GUARANTEED);
 };
 
 Promise.prototype._receiverAt = function (index) {
@@ -396,9 +432,9 @@ Promise.prototype._addCallbacks = function (
     reject,
     promise,
     receiver,
-    domain
+    context
 ) {
-    ASSERT(typeof domain === "object");
+    ASSERT(typeof context === "object");
     ASSERT(!this._isFateSealed());
     ASSERT(!this._isFollowing());
     var index = this._length();
@@ -417,12 +453,10 @@ Promise.prototype._addCallbacks = function (
         this._promise0 = promise;
         this._receiver0 = receiver;
         if (typeof fulfill === "function") {
-            this._fulfillmentHandler0 =
-                domain === null ? fulfill : util.domainBind(domain, fulfill);
+            this._fulfillmentHandler0 = util.contextBind(context, fulfill);
         }
         if (typeof reject === "function") {
-            this._rejectionHandler0 =
-                domain === null ? reject : util.domainBind(domain, reject);
+            this._rejectionHandler0 = util.contextBind(context, reject);
         }
     } else {
         ASSERT(this[base + CALLBACK_PROMISE_OFFSET] === undefined);
@@ -434,11 +468,11 @@ Promise.prototype._addCallbacks = function (
         this[base + CALLBACK_RECEIVER_OFFSET] = receiver;
         if (typeof fulfill === "function") {
             this[base + CALLBACK_FULFILL_OFFSET] =
-                domain === null ? fulfill : util.domainBind(domain, fulfill);
+                util.contextBind(context, fulfill);
         }
         if (typeof reject === "function") {
             this[base + CALLBACK_REJECT_OFFSET] =
-                domain === null ? reject : util.domainBind(domain, reject);
+                util.contextBind(context, reject);
         }
     }
     this._setLength(index + 1);
@@ -463,6 +497,7 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
 
     if (shouldBind) this._propagateFrom(maybePromise, PROPAGATE_BIND);
 
+
     var promise = maybePromise._target();
 
     if (promise === this) {
@@ -479,7 +514,7 @@ Promise.prototype._resolveCallback = function(value, shouldBind) {
         }
         this._setFollowing();
         this._setLength(0);
-        this._setFollowee(promise);
+        this._setFollowee(maybePromise);
     } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
         this._fulfill(promise._value());
     } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
@@ -681,6 +716,7 @@ Promise.prototype._fulfill = function (value) {
         } else {
             async.settlePromises(this);
         }
+        this._dereferenceTrace();
     }
 };
 
@@ -753,6 +789,14 @@ Promise.prototype._settledValue = function() {
     // Implicit undefined for cancelled promise.
 };
 
+if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+    es5.defineProperty(Promise.prototype, Symbol.toStringTag, {
+        get: function () {
+            return "Object";
+        }
+    });
+}
+
 function deferResolve(v) {this.promise._resolveCallback(v);}
 function deferReject(v) {this.promise._rejectCallback(v, false);}
 
@@ -777,7 +821,7 @@ require("./cancel")(Promise, PromiseArray, apiRejection, debug);
 require("./direct_resolve")(Promise);
 require("./synchronous_inspection")(Promise);
 require("./join")(
-    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getDomain);
+    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async);
 Promise.Promise = Promise;
 Promise.version = "__VERSION__";
 };

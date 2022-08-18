@@ -1,6 +1,6 @@
 "use strict";
-module.exports = function(Promise, Context) {
-var getDomain = Promise._getDomain;
+module.exports = function(Promise, Context,
+    enableAsyncHooks, disableAsyncHooks) {
 var async = Promise._async;
 var Warning = require("./errors").Warning;
 var util = require("./util");
@@ -31,6 +31,34 @@ var longStackTraces = !!(util.env("BLUEBIRD_LONG_STACK_TRACES") != 0 &&
 var wForgottenReturn = util.env("BLUEBIRD_W_FORGOTTEN_RETURN") != 0 &&
     (warnings || !!util.env("BLUEBIRD_W_FORGOTTEN_RETURN"));
 
+var deferUnhandledRejectionCheck;
+(function() {
+    var promises = [];
+
+    function unhandledRejectionCheck() {
+        for (var i = 0; i < promises.length; ++i) {
+            promises[i]._notifyUnhandledRejection();
+        }
+        unhandledRejectionClear();
+    }
+
+    function unhandledRejectionClear() {
+        promises.length = 0;
+    }
+
+    deferUnhandledRejectionCheck = function(promise) {
+        promises.push(promise);
+        setTimeout(unhandledRejectionCheck, 1);
+    };
+
+    es5.defineProperty(Promise, "_unhandledRejectionCheck", {
+        value: unhandledRejectionCheck
+    });
+    es5.defineProperty(Promise, "_unhandledRejectionClear", {
+        value: unhandledRejectionClear
+    });
+})();
+
 Promise.prototype.suppressUnhandledRejections = function() {
     var target = this._target();
     target._bitField = ((target._bitField & (~IS_REJECTION_UNHANDLED)) |
@@ -40,10 +68,7 @@ Promise.prototype.suppressUnhandledRejections = function() {
 Promise.prototype._ensurePossibleRejectionHandled = function () {
     if ((this._bitField & IS_REJECTION_IGNORED) !== 0) return;
     this._setRejectionIsUnhandled();
-    var self = this;
-    setTimeout(function() {
-        self._notifyUnhandledRejection();
-    }, 1);
+    deferUnhandledRejectionCheck(this);
 };
 
 Promise.prototype._notifyUnhandledRejectionIsHandled = function () {
@@ -104,19 +129,13 @@ Promise.prototype._warn = function(message, shouldUseOwnTrace, promise) {
 };
 
 Promise.onPossiblyUnhandledRejection = function (fn) {
-    var domain = getDomain();
-    possiblyUnhandledRejection =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    var context = Promise._getContext();
+    possiblyUnhandledRejection = util.contextBind(context, fn);
 };
 
 Promise.onUnhandledRejectionHandled = function (fn) {
-    var domain = getDomain();
-    unhandledRejectionHandled =
-        typeof fn === "function" ? (domain === null ?
-                                            fn : util.domainBind(domain, fn))
-                                 : undefined;
+    var context = Promise._getContext();
+    unhandledRejectionHandled = util.contextBind(context, fn);
 };
 
 var disableLongStackTraces = function() {};
@@ -127,6 +146,7 @@ Promise.longStackTraces = function () {
     if (!config.longStackTraces && longStackTracesIsSupported()) {
         var Promise_captureStackTrace = Promise.prototype._captureStackTrace;
         var Promise_attachExtraTrace = Promise.prototype._attachExtraTrace;
+        var Promise_dereferenceTrace = Promise.prototype._dereferenceTrace;
         config.longStackTraces = true;
         disableLongStackTraces = function() {
             if (async.haveItemsQueued() && !config.longStackTraces) {
@@ -134,14 +154,14 @@ Promise.longStackTraces = function () {
             }
             Promise.prototype._captureStackTrace = Promise_captureStackTrace;
             Promise.prototype._attachExtraTrace = Promise_attachExtraTrace;
+            Promise.prototype._dereferenceTrace = Promise_dereferenceTrace;
             Context.deactivateLongStackTraces();
-            async.enableTrampoline();
             config.longStackTraces = false;
         };
         Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;
         Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;
+        Promise.prototype._dereferenceTrace = longStackTracesDereferenceTrace;
         Context.activateLongStackTraces();
-        async.disableTrampolineIfNecessary();
     }
 };
 
@@ -149,21 +169,61 @@ Promise.hasLongStackTraces = function () {
     return config.longStackTraces && longStackTracesIsSupported();
 };
 
+
+var legacyHandlers = {
+    unhandledrejection: {
+        before: function() {
+            var ret = util.global.onunhandledrejection;
+            util.global.onunhandledrejection = null;
+            return ret;
+        },
+        after: function(fn) {
+            util.global.onunhandledrejection = fn;
+        }
+    },
+    rejectionhandled: {
+        before: function() {
+            var ret = util.global.onrejectionhandled;
+            util.global.onrejectionhandled = null;
+            return ret;
+        },
+        after: function(fn) {
+            util.global.onrejectionhandled = fn;
+        }
+    }
+};
+
 var fireDomEvent = (function() {
+    var dispatch = function(legacy, e) {
+        if (legacy) {
+            var fn;
+            try {
+                fn = legacy.before();
+                return !util.global.dispatchEvent(e);
+            } finally {
+                legacy.after(fn);
+            }
+        } else {
+            return !util.global.dispatchEvent(e);
+        }
+    };
     try {
         if (typeof CustomEvent === "function") {
             var event = new CustomEvent("CustomEvent");
             util.global.dispatchEvent(event);
             return function(name, event) {
+                name = name.toLowerCase();
                 var eventData = {
                     detail: event,
                     cancelable: true
                 };
+                var domEvent = new CustomEvent(name, eventData);
                 es5.defineProperty(
-                    eventData, "promise", {value: event.promise});
-                es5.defineProperty(eventData, "reason", {value: event.reason});
-                var domEvent = new CustomEvent(name.toLowerCase(), eventData);
-                return !util.global.dispatchEvent(domEvent);
+                    domEvent, "promise", {value: event.promise});
+                es5.defineProperty(
+                    domEvent, "reason", {value: event.reason});
+
+                return dispatch(legacyHandlers[name], domEvent);
             };
         // In Firefox < 48 CustomEvent is not available in workers but
         // Event is.
@@ -171,23 +231,25 @@ var fireDomEvent = (function() {
             var event = new Event("CustomEvent");
             util.global.dispatchEvent(event);
             return function(name, event) {
-                var domEvent = new Event(name.toLowerCase(), {
+                name = name.toLowerCase();
+                var domEvent = new Event(name, {
                     cancelable: true
                 });
                 domEvent.detail = event;
                 es5.defineProperty(domEvent, "promise", {value: event.promise});
                 es5.defineProperty(domEvent, "reason", {value: event.reason});
-                return !util.global.dispatchEvent(domEvent);
+                return dispatch(legacyHandlers[name], domEvent);
             };
         } else {
             var event = document.createEvent("CustomEvent");
             event.initCustomEvent("testingtheevent", false, true, {});
             util.global.dispatchEvent(event);
             return function(name, event) {
+                name = name.toLowerCase();
                 var domEvent = document.createEvent("CustomEvent");
-                domEvent.initCustomEvent(name.toLowerCase(), false, true,
+                domEvent.initCustomEvent(name, false, true,
                     event);
-                return !util.global.dispatchEvent(domEvent);
+                return dispatch(legacyHandlers[name], domEvent);
             };
         }
     } catch (e) {}
@@ -305,6 +367,18 @@ Promise.config = function(opts) {
             Promise.prototype._fireEvent = defaultFireEvent;
         }
     }
+    if ("asyncHooks" in opts && util.nodeSupportsAsyncResource) {
+        var prev = config.asyncHooks;
+        var cur = !!opts.asyncHooks;
+        if (prev !== cur) {
+            config.asyncHooks = cur;
+            if (cur) {
+                enableAsyncHooks();
+            } else {
+                disableAsyncHooks();
+            }
+        }
+    }
     return Promise;
 };
 
@@ -325,6 +399,7 @@ Promise.prototype._attachCancellationCallback = function(onCancel) {
 };
 Promise.prototype._captureStackTrace = function () {};
 Promise.prototype._attachExtraTrace = function () {};
+Promise.prototype._dereferenceTrace = function () {};
 Promise.prototype._clearCancellationData = function() {};
 Promise.prototype._propagateFrom = function (parent, flags) {
     USE(parent);
@@ -433,6 +508,10 @@ function longStackTracesAttachExtraTrace(error, ignoreSelf) {
             util.notEnumerableProp(error, "__stackCleaned__", true);
         }
     }
+}
+
+function longStackTracesDereferenceTrace() {
+    this._trace = undefined;
 }
 
 function checkForgottenReturns(returnValue, promiseCreated, name, promise,
@@ -697,8 +776,8 @@ function parseLineInfo(line) {
 
 function setBounds(firstLineError, lastLineError) {
     if (!longStackTracesIsSupported()) return;
-    var firstStackLines = firstLineError.stack.split("\n");
-    var lastStackLines = lastLineError.stack.split("\n");
+    var firstStackLines = (firstLineError.stack || "").split("\n");
+    var lastStackLines = (lastLineError.stack || "").split("\n");
     var firstIndex = -1;
     var lastIndex = -1;
     var firstFileName;
@@ -925,12 +1004,16 @@ var config = {
     warnings: warnings,
     longStackTraces: false,
     cancellation: false,
-    monitoring: false
+    monitoring: false,
+    asyncHooks: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
 
 return {
+    asyncHooks: function() {
+        return config.asyncHooks;
+    },
     longStackTraces: function() {
         return config.longStackTraces;
     },

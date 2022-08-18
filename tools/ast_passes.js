@@ -1,6 +1,6 @@
 //All kinds of conversion passes over the source code
 var jsp = require("acorn");
-var walk = require("acorn/util/walk.js");
+var walk = require("acorn-walk");
 var rnonIdentMember = /[.\-_$a-zA-Z0-9]/g;
 var global = new Function("return this")();
 
@@ -212,7 +212,8 @@ BitFieldCheck.prototype.toString = function() {
     return "((" + fieldExpr + " & " + this.value + ") " + equality + " 0)";
 };
 
-function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end, isBrowser) {
+function InlineSlice(varExpr, collectionExpression, startExpression, endExpression, start, end, isBrowser,
+                    pad) {
     this.varExpr = varExpr;
     this.collectionExpression = collectionExpression;
     this.startExpression = startExpression;
@@ -220,6 +221,7 @@ function InlineSlice(varExpr, collectionExpression, startExpression, endExpressi
     this.start = start;
     this.end = end;
     this.isBrowser = isBrowser;
+    this.pad = typeof pad === "number" ? pad : 0;
 }
 
 InlineSlice.prototype.hasSimpleStartExpression =
@@ -239,6 +241,8 @@ InlineSlice.prototype.hasSimpleCollection = function InlineSlice$hasSimpleCollec
 };
 
 InlineSlice.prototype.toString = function InlineSlice$toString() {
+    var pad = this.pad;
+
     var init = this.hasSimpleCollection()
         ? ""
         : "var $_collection = " + nodeToString(this.collectionExpression) + ";";
@@ -247,19 +251,34 @@ InlineSlice.prototype.toString = function InlineSlice$toString() {
         ? nodeToString(this.collectionExpression)
         : "$_collection";
 
+    init += "var $_len = " + collectionExpression + ".length";
 
-    init += "var $_len = " + collectionExpression + ".length;";
+    if (pad !== 0) {
+        init += " + " + Math.abs(pad) + ";";
+    } else {
+        init += ";";
+    }
 
     var varExpr = nodeToString(this.varExpr);
 
     //No offset arguments at all
     if( this.startExpression === firstElement ) {
         if (this.isBrowser) {
-            return "var " + varExpr + " = [].slice.call("+collectionExpression+");";
+            if (pad > 0) {
+                return "var " + varExpr + " = (new Array("+pad+")).concat([].slice.call("+collectionExpression+"));";
+            } else if (pad < 0) {
+                return "var " + varExpr + " = ([].slice.call("+collectionExpression+")).concat(new Array("+Math.abs(pad)+"));";
+            } else {
+                return "var " + varExpr + " = [].slice.call("+collectionExpression+");";
+            }
         } else {
+            var startVal = pad > 0 ? String(pad) : "0";
+            var collectionExpressionVal = pad > 0 ? " - " + pad : "";
+            var lenVal = pad < 0 ? "- " + Math.abs(pad) : "";
+
             return init + "var " + varExpr + " = new Array($_len); " +
-            "for(var $_i = 0; $_i < $_len; ++$_i) {" +
-                    varExpr + "[$_i] = " + collectionExpression + "[$_i];" +
+            "for(var $_i = " + startVal + "; $_i < $_len " + lenVal + "; ++$_i) {" +
+                    varExpr + "[$_i] = " + collectionExpression + "[$_i " + collectionExpressionVal + "];" +
             "}";
         }
 
@@ -384,6 +403,7 @@ var inlinedFunctions = Object.create(null);
 
 var lastElement = jsp.parse("___input.length").body[0].expression;
 var firstElement = jsp.parse("0").body[0].expression;
+
 inlinedFunctions.INLINE_SLICE = function( node, isBrowser ) {
     var statement = node;
     node = node.expression;
@@ -404,6 +424,25 @@ inlinedFunctions.INLINE_SLICE = function( node, isBrowser ) {
     return new InlineSlice(varExpression, collectionExpression,
         startExpression, endExpression, statement.start, statement.end, isBrowser);
 };
+
+inlinedFunctions.INLINE_SLICE_LEFT_PADDED = function( node, isBrowser ) {
+    var statement = node;
+    node = node.expression;
+    var args = node.arguments;
+
+    if(args.length !== 3) {
+        throw new Error("INLINE_SLICE_LEFT_PADDED must have exactly 3 arguments");
+    }
+
+    var padCount = Number(nodeToString(args[0]));
+    var varExpression = args[1];
+    var collectionExpression = args[2];
+    var startExpression = firstElement;
+    var endExpression = lastElement;
+    return new InlineSlice(varExpression, collectionExpression,
+        startExpression, endExpression, statement.start, statement.end, isBrowser, padCount);
+};
+
 inlinedFunctions.BIT_FIELD_READ = function(node) {
     var statement = node;
     var args = node.expression.arguments;

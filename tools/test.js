@@ -18,7 +18,8 @@ jobRunner.setVerbose(0);
 // Random slowness after tests complete
 function getTests(options) {
     var g;
-    if (options.testName === "all") {
+
+    if (options.testName === "all" || options.testName.indexOf("no") === 0) {
         g = "./test/mocha/*.js";
     } else if (options.testName === "aplus") {
         g = "./test/mocha/[0-9].[0-9].[0-9].js";
@@ -28,11 +29,24 @@ function getTests(options) {
         var testName = options.testName.replace(/^(\d)(\d)(\d)$/, "$1.$2.$3");
         g = "./test/mocha/" + testName + ".js";
     }
+
+    var excludes = [];
+    if (options.testName.indexOf("no") === 0) {
+        excludes = options.testName.slice(2).split(",");
+    }
+
     return glob(g).then(function(matches) {
         return matches.filter(function(match) {
             if (match.indexOf("generator") >= 0) {
                 return options.generators;
             }
+
+            for (var i = 0; i < excludes.length; ++i) {
+                if (match.indexOf(excludes[i]) >= 0) {
+                    return false;
+                }
+            }
+
             return true;
         })
     }).tap(function(m) {
@@ -144,7 +158,7 @@ if ("run" in argv) {
     if (testName.indexOf("*") === -1) {
         testName = testName.toLowerCase()
             .replace( /\.js$/, "" )
-            .replace( /[^a-zA-Z0-9_\-.]/g, "" );
+            .replace( /[^,a-zA-Z0-9_\-.]/g, "" );
     }
 }
 

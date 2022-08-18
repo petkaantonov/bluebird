@@ -7,7 +7,8 @@ title: Promise.resolve
 
 [← Back To API Reference](/docs/api-reference.html)
 <div class="api-code-section"><markdown>
-##Promise.resolve
+    
+## Promise.resolve
 
 ```js
 Promise.resolve(Promise<any>|any value) -> Promise

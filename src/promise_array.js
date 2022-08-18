@@ -21,6 +21,7 @@ function PromiseArray(values) {
     var promise = this._promise = new Promise(INTERNAL);
     if (values instanceof Promise) {
         promise._propagateFrom(values, PROPAGATE_ALL);
+        values.suppressUnhandledRejections();
     }
     promise._setOnCancel(this);
     this._values = values;

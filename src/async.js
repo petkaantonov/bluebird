@@ -4,7 +4,6 @@ try {throw new Error(); } catch (e) {firstLineError = e;}
 var ASSERT = require("./assert");
 var schedule = require("./schedule");
 var Queue = require("./queue");
-var util = require("./util");
 
 function Async() {
     this._customScheduler = false;
@@ -12,7 +11,6 @@ function Async() {
     this._lateQueue = new Queue(LATE_QUEUE_CAPACITY);
     this._normalQueue = new Queue(NORMAL_QUEUE_CAPACITY);
     this._haveDrainedQueues = false;
-    this._trampolineEnabled = true;
     var self = this;
     this.drainQueues = function () {
         self._drainQueues();
@@ -29,16 +27,6 @@ Async.prototype.setScheduler = function(fn) {
 
 Async.prototype.hasCustomScheduler = function() {
     return this._customScheduler;
-};
-
-Async.prototype.enableTrampoline = function() {
-    this._trampolineEnabled = true;
-};
-
-Async.prototype.disableTrampolineIfNecessary = function() {
-    if (util.hasDevTools) {
-        this._trampolineEnabled = false;
-    }
 };
 
 Async.prototype.haveItemsQueued = function () {
@@ -94,63 +82,36 @@ function AsyncSettlePromises(promise) {
     this._queueTick();
 }
 
-if (!util.hasDevTools) {
-    Async.prototype.invokeLater = AsyncInvokeLater;
-    Async.prototype.invoke = AsyncInvoke;
-    Async.prototype.settlePromises = AsyncSettlePromises;
-} else {
-    Async.prototype.invokeLater = function (fn, receiver, arg) {
-        if (this._trampolineEnabled) {
-            AsyncInvokeLater.call(this, fn, receiver, arg);
-        } else {
-            this._schedule(function() {
-                setTimeout(function() {
-                    fn.call(receiver, arg);
-                }, 100);
-            });
-        }
-    };
+Async.prototype.invokeLater = AsyncInvokeLater;
+Async.prototype.invoke = AsyncInvoke;
+Async.prototype.settlePromises = AsyncSettlePromises;
 
-    Async.prototype.invoke = function (fn, receiver, arg) {
-        if (this._trampolineEnabled) {
-            AsyncInvoke.call(this, fn, receiver, arg);
-        } else {
-            this._schedule(function() {
-                fn.call(receiver, arg);
-            });
-        }
-    };
 
-    Async.prototype.settlePromises = function(promise) {
-        if (this._trampolineEnabled) {
-            AsyncSettlePromises.call(this, promise);
-        } else {
-            this._schedule(function() {
-                promise._settlePromises();
-            });
-        }
-    };
+function _drainQueue(queue) {
+    while (queue.length() > 0) {
+        _drainQueueStep(queue);
+    }
 }
 
-Async.prototype._drainQueue = function(queue) {
-    while (queue.length() > 0) {
-        var fn = queue.shift();
-        if (typeof fn !== "function") {
-            fn._settlePromises();
-            continue;
-        }
+// Shift the queue in a separate function to allow
+// garbage collection after each step
+function _drainQueueStep(queue) {
+    var fn = queue.shift();
+    if (typeof fn !== "function") {
+        fn._settlePromises();
+    } else {
         var receiver = queue.shift();
         var arg = queue.shift();
         fn.call(receiver, arg);
     }
-};
+}
 
 Async.prototype._drainQueues = function () {
     ASSERT(this._isTickUsed);
-    this._drainQueue(this._normalQueue);
+    _drainQueue(this._normalQueue);
     this._reset();
     this._haveDrainedQueues = true;
-    this._drainQueue(this._lateQueue);
+    _drainQueue(this._lateQueue);
 };
 
 Async.prototype._queueTick = function () {

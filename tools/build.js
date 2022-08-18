@@ -212,7 +212,7 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                     entries: entries,
                     detectGlobals: false,
                     standalone: "Promise"
-                });
+                }).exclude('async_hooks').exclude("timers");
                 return Promise.promisify(b.bundle, b)().then(function(src) {
                     var alias = "\
                     ;if (typeof window !== 'undefined' && window !== null) {       \

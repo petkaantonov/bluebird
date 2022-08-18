@@ -76,7 +76,7 @@ The value of boolean flags is determined by presence, if you want to pass false 
 
 To run all tests, run
 
-    node tools/test
+    node --expose-gc tools/test
 
 If you need to run generator tests in older versions of NodeJS run the `tool/test.js` script with `--harmony` argument and 0.11+:
 

@@ -5,14 +5,13 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL,
                           debug) {
-var getDomain = Promise._getDomain;
 var util = require("./util");
 var tryCatch = util.tryCatch;
 
 function ReductionPromiseArray(promises, fn, initialValue, _each) {
     this.constructor$(promises);
-    var domain = getDomain();
-    this._fn = domain === null ? fn : util.domainBind(domain, fn);
+    var context = Promise._getContext();
+    this._fn = util.contextBind(context, fn);
     if (initialValue !== undefined) {
         initialValue = Promise.resolve(initialValue);
         initialValue._attachCancellationCallback(this);
@@ -32,8 +31,8 @@ function ReductionPromiseArray(promises, fn, initialValue, _each) {
 util.inherits(ReductionPromiseArray, PromiseArray);
 
 ReductionPromiseArray.prototype._gotAccum = function(accum) {
-    if (this._eachValues !== undefined && 
-        this._eachValues !== null && 
+    if (this._eachValues !== undefined &&
+        this._eachValues !== null &&
         accum !== INTERNAL) {
         this._eachValues.push(accum);
     }
@@ -95,6 +94,13 @@ ReductionPromiseArray.prototype._iterate = function (values) {
 
     this._currentCancellable = value;
 
+    for (var j = i; j < length; ++j) {
+        var maybePromise = values[j];
+        if (maybePromise instanceof Promise) {
+            maybePromise.suppressUnhandledRejections();
+        }
+    }
+
     if (!value.isRejected()) {
         for (; i < length; ++i) {
             var ctx = {
@@ -104,7 +110,14 @@ ReductionPromiseArray.prototype._iterate = function (values) {
                 length: length,
                 array: this
             };
+
             value = value._then(gotAccum, undefined, undefined, ctx, undefined);
+
+            // Too many promises chained with asyncGuaranteed will result in
+            // stack overflow. Break up long chains to reset stack.
+            if ((i & 127) === 0) {
+                value._setNoAsyncGuarantee();
+            }
         }
     }
 
