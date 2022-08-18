@@ -54,7 +54,26 @@ Promise.each(fileNames, function(fileName, index, arrayLength) {
 });
 ```
 
+
+##Example
+```js
+let stories = [ '8952', '8884'];
+Promise.each(stories, (item, idx, length) => {
+   return request.getAsync(`https://hacker-news.firebaseio.com/v0/item/${item}.json?print=pretty`)
+   .then(res => {
+      // need to do explicit operations here
+   })
+})
+.then(result => {
+ console.log('ALL done', result);//['8952', '8884']
+})
+
+```
+
+[api/promise.each](unfinished-article)
+=======
 Example with a rejected promise in the array:
+
 
 ```js
 // If one of the promises in the original array rejects,
