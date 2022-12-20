@@ -1,25 +1,13 @@
-
-<a href="http://promisesaplus.com/">
-    <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
-         title="Promises/A+ 1.1 compliant" align="right" />
-</a>
-
-
-[![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
-[![coverage-98%](https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)
-
-**Got a question?** Join us on [stackoverflow](http://stackoverflow.com/questions/tagged/bluebird), the [mailing list](https://groups.google.com/forum/#!forum/bluebird-js) or chat on [IRC](https://webchat.freenode.net/?channels=#promises)
-
-
 # ⚠️Please use native promises instead if at all possible. ⚠️ 
+
+**Currently - it is only recommended to use Bluebird if you need to support old browsers or EoL Node.js or as an intermediate step to use warnings/monitoring to find bugs.**
+
 
 Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
 
 This is a good thing, the people working on Bluebird and promises have been able to help incorporate most of the useful things from Bluebird into JavaScript itself and platforms/engines. There are still missing things (.map/.filter are on their way with the iteration helpers proposal and async iterators!).
 
 If there is a feature that keeps you using bluebird. Please let us know so we can try and upstream it :)
-
-Currently - it is only recommended to use Bluebird if you need to support old browsers or EoL Node.js or as an intermediate step to use warnings/monitoring to find bugs.
 
 # Introduction
 
@@ -39,6 +27,14 @@ The [github issue tracker](https://github.com/petkaantonov/bluebird/issues) is *
 ## Thanks
 
 Thanks to BrowserStack for providing us with a free account which lets us support old browsers like IE8. 
+
+
+
+[![Build Status](https://travis-ci.org/petkaantonov/bluebird.svg?branch=master)](https://travis-ci.org/petkaantonov/bluebird)
+[![coverage-98%](https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat)](http://petkaantonov.github.io/bluebird/coverage/debug/index.html)
+
+**Got a question?** Join us on [stackoverflow](http://stackoverflow.com/questions/tagged/bluebird), the [mailing list](https://groups.google.com/forum/#!forum/bluebird-js) or chat on [IRC](https://webchat.freenode.net/?channels=#promises)
+
 
 # License
 
