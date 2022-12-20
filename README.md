@@ -1,3 +1,13 @@
+# ⚠️USE NATIVE PROMISES INSTEAD⚠️ 
+
+**Seriously, just dont use this library anymore.**. Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
+
+This is a good thing, the people working on Bluebird and promises have been able to help incorporate most of the useful things from Bluebird into JavaScript itself and platforms/engines. There are still missing things (.map/.filter are on their way with the iteration helpers proposal and async iterators!).
+
+If there is a feature that keeps you using bluebird. Please let us know so we can try and upstream it :)
+
+Currently - it is only recommended to use Bluebird if you need to support old browsers or EoL Node.js or as an intermediate step to use warnings/monitoring to find bugs.
+
 <a href="http://promisesaplus.com/">
     <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
          title="Promises/A+ 1.1 compliant" align="right" />
@@ -17,15 +27,7 @@ See the [**bluebird website**](http://bluebirdjs.com/docs/getting-started.html) 
 
 For bluebird 2.x documentation and files, see the [2.x tree](https://github.com/petkaantonov/bluebird/tree/2.x).
 
-## ⚠️Note⚠️ 
 
-**Please use native promises instead if at all possible**. Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
-
-This is a good thing, the people working on Bluebird and promises have been able to help incorporate most of the useful things from Bluebird into JavaScript itself and platforms/engines. There are still missing things (.map/.filter are on their way with the iteration helpers proposal and async iterators!).
-
-If there is a feature that keeps you using bluebird. Please let us know so we can try and upstream it :)
-
-Currently - it is only recommended to use Bluebird if you need to support old browsers or EoL Node.js or as an intermediate step to use warnings/monitoring to find bugs.
 
 # Questions and issues
 
