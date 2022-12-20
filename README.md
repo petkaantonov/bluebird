@@ -1,6 +1,6 @@
-# ⚠️USE NATIVE PROMISES INSTEAD⚠️ 
+# ⚠️Please use native promises instead if at all possible. ⚠️ 
 
-**Seriously, just dont use this library anymore.**. Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
+Native Promises have been stable in Node.js and browsers for around 6 years now and they have been fast for around 3. Bluebird still offers some useful utility methods and you can use it - but please consider native promises first.
 
 This is a good thing, the people working on Bluebird and promises have been able to help incorporate most of the useful things from Bluebird into JavaScript itself and platforms/engines. There are still missing things (.map/.filter are on their way with the iteration helpers proposal and async iterators!).
 
