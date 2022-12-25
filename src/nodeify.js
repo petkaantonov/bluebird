@@ -59,4 +59,18 @@ Promise.prototype.asCallback = Promise.prototype.nodeify = function (nodeback,
     }
     return this;
 };
+
+Promise.asCallback = Promise.nodeify = function(promise) {
+    return function() {
+      var last = arguments.length - 1;
+      var fn;
+      if (last > 0 && typeof arguments[last] === "function") {
+          fn = arguments[last];
+      }
+      INLINE_SLICE(args, arguments);
+      if (fn) args.pop();
+      var ret = Promise.resolve(promise.apply(promise, args));
+      return fn ? ret.asCallback(fn) : ret;
+    };
+};
 };
