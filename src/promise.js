@@ -70,6 +70,7 @@ var PromiseArray =
     require("./promise_array")(Promise, INTERNAL,
                                tryConvertToPromise, apiRejection, Proxyable);
 var Context = require("./context")(Promise);
+var Conditional = require("./conditional")(Promise);
  /*jshint unused:false*/
 var createContext = Context.create;
 
