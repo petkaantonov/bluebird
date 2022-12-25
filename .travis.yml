@@ -10,6 +10,19 @@ matrix:
     - node_js: "7"
     - node_js: "8"
     - node_js: "10"
+    - node_js: "4"
+      arch: ppc64le
+    - node_js: "5"
+      arch: ppc64le
+    - node_js: "6"
+      arch: ppc64le
+    - node_js: "7"
+      arch: ppc64le
+    - node_js: "8"
+      arch: ppc64le
+    - node_js: "10"
+      arch: ppc64le
+
   fast_finish: true
 git:
   depth: 5
