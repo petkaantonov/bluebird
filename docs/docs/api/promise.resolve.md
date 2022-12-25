@@ -34,6 +34,16 @@ var getValue = function() {
 };
 ```
 
+The function `getValue` could then be used as follows:
+
+```js
+someCachedValue = 3;
+
+getValue().then(function(value) {
+  console.log(value) // Logs 3
+});
+```
+
 Another example with handling jQuery castable objects (`$` is jQuery)
 
 ```js
