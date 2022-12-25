@@ -285,10 +285,10 @@ describe("Promise.map-test with concurrency", function () {
             assert.deepEqual(b, [0, 1, 2, 3, 4]);
             lates.forEach(resolve);
         }).delay(100).then(function() {
-            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6 ]);
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]);
             lates.forEach(resolve);
         }).thenReturn(ret1).then(function() {
-            assert.deepEqual(b, [0, 1, 2, 3, 4, 10, 9, 8, 7, 6, 5]);
+            assert.deepEqual(b, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
         });
         return Promise.all([ret1, ret2]);
     });
