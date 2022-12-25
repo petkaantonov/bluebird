@@ -1,4 +1,4 @@
-**2018-07-16** Latest results, using latest versions of modules:
+**2018-10-25** Latest results, using latest versions of modules:
 
     ├── async@2.6.1
     ├── davy@1.3.0
@@ -14,62 +14,70 @@
 
 bench doxbee-sequential `ls ./doxbee-sequential/*.js | sed -e 's|\.js||' | xargs node ./performance.js --p 1 --t 1 --n 10000`
 
-    file                                    time(ms)  memory(MB)
-    callbacks-baseline                           162       28.12
-    callbacks-suguru03-neo-async-waterfall       195       42.39
-    promises-bluebird-generator                  199       40.23
-    callbacks-caolan-async-waterfall             225       46.36
-    promises-native-async-await                  245       57.39
-    promises-bluebird                            257       47.03
-    promises-lvivski-davy                        313       87.59
-    promises-cujojs-when                         318       64.34
-    promises-then-promise                        323       64.49
-    generators-tj-co                             334       58.03
-    promises-ecmascript6-native                  335       65.40
-    promises-tildeio-rsvp                        420       86.79
-    promises-calvinmetcalf-lie                   514      138.58
-    promises-dfilatov-vow                        629      135.28
-    promises-obvious-kew                         693      190.43
-    streamline-generators                        762       90.18
-    promises-medikoo-deferred                    781      149.33
-    observables-pozadi-kefir                     824      180.54
-    streamline-callbacks                        1088      114.73
-    observables-Reactive-Extensions-RxJS        1208      243.74
-    observables-caolan-highland                 3094      424.63
-    promises-kriskowal-q                        3505      367.13
-    observables-baconjs-bacon.js                5224      660.07
+```
+results for 10000 parallel executions, 1 ms per I/O op
 
-    Platform info:
-    Darwin 17.7.0 x64
-    Node.JS 10.6.0
-    V8 6.7.288.46-node.13
-    Intel(R) Core(TM) i5-7360U CPU @ 2.30GHz × 4
+file                                    time(ms)  memory(MB)
+callbacks-baseline                           174       25.95
+callbacks-suguru03-neo-async-waterfall       199       41.78
+promises-bluebird-generator                  209       37.74
+callbacks-caolan-async-waterfall             244       44.87
+promises-bluebird                            257       46.92
+promises-native-async-await                  267       66.71
+promises-lvivski-davy                        281       86.89
+promises-cujojs-when                         287       63.08
+promises-then-promise                        318       63.08
+promises-ecmascript6-native                  325       78.17
+generators-tj-co                             336       61.55
+promises-tildeio-rsvp                        377       79.04
+promises-calvinmetcalf-lie                   410      126.13
+promises-dfilatov-vow                        601      130.13
+observables-pozadi-kefir                     678      154.31
+promises-obvious-kew                         742      108.07
+promises-medikoo-deferred                    748      132.32
+streamline-generators                        762       91.52
+observables-Reactive-Extensions-RxJS         925      237.50
+streamline-callbacks                        1036      108.14
+promises-kriskowal-q                        2351      251.68
+observables-caolan-highland                 2914      462.32
+observables-baconjs-bacon.js                4895      672.91
+
+Platform info:
+Linux 4.18.0-8-generic x64
+Node.JS 10.12.0
+V8 6.8.275.32-node.35
+Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz × 8
+```
 
 bench parallel (`--p 25`)
 
 results for 10000 parallel executions, 1 ms per I/O op `ls ./madeup-parallel/*.js | sed -e 's|\.js||' | xargs node ./performance.js --p 25 --t 1 --n 10000`
 
-    results for 10000 parallel executions, 1 ms per I/O op
+```
+results for 10000 parallel executions, 1 ms per I/O op
 
-    file                                   time(ms)  memory(MB)
-    callbacks-baseline                          309       74.47
-    callbacks-suguru03-neo-async-parallel       374       84.18
-    promises-bluebird-generator                 455      106.49
-    promises-bluebird                           472       98.00
-    callbacks-caolan-async-parallel             510      119.34
-    promises-lvivski-davy                       671      163.84
-    promises-cujojs-when                        701      168.99
-    promises-native-async-await                1087      242.02
-    promises-tildeio-rsvp                      1237      344.17
-    promises-calvinmetcalf-lie                 1401      370.65
-    promises-ecmascript6-native                1509      242.91
-    promises-then-promise                      1533      303.89
-    promises-medikoo-deferred                  1923      334.75
-    promises-dfilatov-vow                      2534      534.80
-    promises-obvious-kew                       2623      306.68
+file                                   time(ms)  memory(MB)
+callbacks-baseline                          263       72.20
+callbacks-suguru03-neo-async-parallel       365       87.33
+promises-lvivski-davy                       416      156.54
+promises-bluebird                           417       95.94
+promises-bluebird-generator                 474      105.20
+promises-cujojs-when                        480      168.63
+callbacks-caolan-async-parallel             484      113.35
+promises-native-async-await                 691      230.16
+promises-ecmascript6-native                 816      224.61
+promises-tildeio-rsvp                       985      335.68
+promises-calvinmetcalf-lie                 1242      368.93
+promises-then-promise                      1273      288.39
+promises-medikoo-deferred                  1342      317.04
+promises-dfilatov-vow                      2095      533.83
+promises-obvious-kew                       2758      531.72
+streamline-generators                      6732      779.98
+streamline-callbacks                       9912     1157.42
 
-    Platform info:
-    Darwin 17.7.0 x64
-    Node.JS 10.6.0
-    V8 6.7.288.46-node.13
-    Intel(R) Core(TM) i5-7360U CPU @ 2.30GHz × 4
+Platform info:
+Linux 4.18.0-8-generic x64
+Node.JS 10.12.0
+V8 6.8.275.32-node.35
+Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz × 8
+```
