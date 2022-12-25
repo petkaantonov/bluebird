@@ -10,9 +10,9 @@ title: .then
 ##.then
 
 ```js
-.then(
-    [function(any value) fulfilledHandler],
-    [function(any error) rejectedHandler]
+Promise1.then(
+    [function(any value) fulfilledHandler],  //if the arguement 'value' exists, the first value is the value that the Promise1 returned 
+    [function(any error) rejectedHandler]    //if the arguement 'error' exists, the first error is the reason of the Promise1
 ) -> Promise
 ```
 
