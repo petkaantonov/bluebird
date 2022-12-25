@@ -15,9 +15,7 @@ var NativePromise = util.getNativePromise();
 if (util.isNode && typeof MutationObserver === "undefined") {
     var GlobalSetImmediate = global.setImmediate;
     var ProcessNextTick = process.nextTick;
-    schedule = util.isRecentNode
-                ? function(fn) { GlobalSetImmediate.call(global, fn); }
-                : function(fn) { ProcessNextTick.call(process, fn); };
+    schedule = function(fn) { ProcessNextTick.call(process, fn); };
 } else if (typeof NativePromise === "function" &&
            typeof NativePromise.resolve === "function") {
     var nativePromise = NativePromise.resolve();
