@@ -15,7 +15,20 @@ if (isES5) {
         isES5: isES5,
         propertyIsWritable: function(obj, prop) {
             var descriptor = Object.getOwnPropertyDescriptor(obj, prop);
-            return !!(!descriptor || descriptor.writable || descriptor.set);
+
+            if (!descriptor) {
+                return true;
+            }
+
+            if (!descriptor.writable) {
+                return false;
+            }
+
+            if (!descriptor.configurable) {
+                return false;
+            }
+
+            return true;
         }
     };
 } else {
