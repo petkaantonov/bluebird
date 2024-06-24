@@ -219,7 +219,7 @@ Promise.all = function (promises) {
     return new PromiseArray(promises).promise();
 };
 
-Promise.cast = function (obj) {
+Promise.resolve = function (obj) {
     var ret = tryConvertToPromise(obj);
     if (!(ret instanceof Promise)) {
         ret = new Promise(INTERNAL);
@@ -230,7 +230,12 @@ Promise.cast = function (obj) {
     return ret;
 };
 
-Promise.resolve = Promise.fulfilled = Promise.cast;
+Promise.cast = function (obj) {
+  debug.deprecated("Promise.cast", "Promise.resolve");
+  return Promise.resolve(obj);
+};
+
+Promise.fulfilled = Promise.resolve;
 
 Promise.reject = Promise.rejected = function (reason) {
     var ret = new Promise(INTERNAL);
