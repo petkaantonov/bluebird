@@ -27,6 +27,21 @@ IN THE SOFTWARE.
 
 describe("nodeify", function () {
 
+    it("converts a promise to a callback", function () {
+        var spy = sinon.spy();
+        var promise = function(value) {
+            return new Promise(function(resolve, reject) {
+                resolve(value);
+            });
+        };
+        var node = Promise.nodeify(promise);
+        node(10, spy)
+        setTimeout(function(){
+            sinon.assert.calledOnce(spy);
+            sinon.assert.calledWith(spy, null, 10);
+        }, 10);
+    });
+
     it("calls back with a resolution", function () {
         var spy = sinon.spy();
         Promise.resolve(10).nodeify(spy);
