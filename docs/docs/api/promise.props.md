@@ -17,7 +17,7 @@ Like [`.all`](.) but for object properties or `Map`s\* entries instead of iterat
 
 If `object` is a trusted `Promise`, then it will be treated as a promise for object rather than for its properties. All other objects (except `Map`s) are treated for their properties as is returned by `Object.keys` - the object's own enumerable properties.
 
-*\*Only the native [ECMAScript 6 `Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) implementation that is provided by the environment as is is supported*
+*\*Only the native [ECMAScript 6 `Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) implementation that is provided by the environment is supported*
 
 *\*\*If the map's keys happen to be `Promise`s, they are not awaited for and the resulting `Map` will still have those same `Promise` instances as keys*
 
