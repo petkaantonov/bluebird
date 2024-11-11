@@ -13,6 +13,7 @@ class Redcarpet::Render::HTML
                     name="#{anchor}"
                     aria-hidden="true"
                     href="##{anchor}"><i class="fa fa-link"></i></a>
+                    tabindex="-1"
                 #{title}
             </h#{level}>
         eos
@@ -31,7 +32,7 @@ class Redcarpet::Render::HTML
             return <<-eos
             <div class="info-box">
                 This article is partially or completely unfinished.
-                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/#{content}.md">pull requests</a>
+                You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/#{content}.md" style="text-decoration: underline; ">pull requests</a>
                 to help completing this article.
             </div>
             eos
