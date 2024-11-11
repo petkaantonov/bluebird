@@ -169,4 +169,4 @@ doThat()
 });
 ```
 
-`.catch` is specified for built-in Javascript promises and is "sugar" for `.then(null, function(){})`. Since the way errors work in promises is almost the entire point (and the only thing jQuery never got right, even if it used `.pipe` as a `.then`), I really hope the implementation you are using provides this method for readability.
+`.catch` is specified for built-in Javascript promises and is "sugar" for `.then(null, function(){})`. Since the way errors work in promises is almost the entire point (and the only thing jQuery took five years to get right, even if it used `.pipe` as a `.then` as early as mid-2011), I really hope the implementation you are using provides this method for readability.
