@@ -13,7 +13,9 @@ title: Promise.coroutine
 Promise.coroutine(GeneratorFunction(...arguments) generatorFunction, Object options) -> function
 ```
 
-Returns a function that can use `yield` to yield promises. Control is returned back to the generator when the yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Requires node.js 0.12+, io.js 1.0+ or Google Chrome 40+.
+In a typical use case, the parameter `generatorFunction` should be a `GeneratorFunction` producing a generator that yields one or more `Promise`s. (Also see the Tips section below.)
+
+This method returns a function that returns a `Promise`(TODO: Elaborate this). When the returned function (e.g. the `ping` function in the example below) is called, it will start the generator (by calling its `next()`) and return immediately. Control is returned back to the generator when each yielded promise settles. This can lead to less verbose code when doing lots of sequential async calls with minimal processing in between. Requires node.js 0.12+, io.js 1.0+ or Google Chrome 40+.
 
 ```js
 var Promise = require("bluebird");
@@ -51,8 +53,6 @@ Running the example:
     Pong! 7
     Ping? 8
     ...
-
-When called, the coroutine function will start an instance of the generator and returns a promise for its final value.
 
 Doing `Promise.coroutine` is almost like using the C# `async` keyword to mark the function, with `yield` working as the `await` keyword. Promises are somewhat like `Task`s.
 
