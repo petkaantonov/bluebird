@@ -179,7 +179,7 @@ Promise.prototype.toJSON = function () {
         ret.fulfillmentValue = this.value();
         ret.isFulfilled = true;
     } else if (this.isRejected()) {
-        ret.rejectionReason = this.reason();
+        ret.rejectionReason = this._settledValue();
         ret.isRejected = true;
     }
     return ret;
