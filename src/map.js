@@ -22,6 +22,7 @@ function MappingPromiseArray(promises, fn, limit, _filter) {
     this._limit = limit;
     this._inFlight = 0;
     this._queue = [];
+    this._queuePosition = 0;
     async.invoke(this._asyncInit, this, undefined);
     if (util.isArray(promises)) {
         for (var i = 0; i < promises.length; ++i) {
@@ -133,9 +134,11 @@ MappingPromiseArray.prototype._drainQueue = function () {
     var queue = this._queue;
     var limit = this._limit;
     var values = this._values;
-    while (queue.length > 0 && this._inFlight < limit) {
+    while (queue.length > this._queuePosition && this._inFlight < limit) {
         if (this._isResolved()) return;
-        var index = queue.pop();
+        var index = queue[this._queuePosition];
+        delete queue[this._queuePosition];
+        ++this._queuePosition;
         this._promiseFulfilled(values[index], index);
     }
 };
