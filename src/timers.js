@@ -71,8 +71,9 @@ Promise.prototype.timeout = function (ms, message) {
     ms = +ms;
     var ret, parent;
 
+    var originalPromise = this;
     var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {
-        if (ret.isPending()) {
+        if (originalPromise.isPending()) {
             afterTimeout(ret, message, parent);
         }
     }, ms));
