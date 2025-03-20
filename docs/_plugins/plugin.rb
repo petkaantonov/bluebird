@@ -32,7 +32,7 @@ class Redcarpet::Render::HTML
             <div class="info-box">
                 This article is partially or completely unfinished.
                 You are welcome to create <a href="https://github.com/petkaantonov/bluebird/edit/master/docs/docs/#{content}.md">pull requests</a>
-                to help completing this article.
+                to help complete this article.
             </div>
             eos
         elsif link == "."
