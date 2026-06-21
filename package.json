@@ -28,10 +28,10 @@
   "homepage": "https://github.com/petkaantonov/bluebird",
   "repository": {
     "type": "git",
-    "url": "git://github.com/petkaantonov/bluebird.git"
+    "url": "git+https://github.com/petkaantonov/bluebird.git"
   },
   "bugs": {
-    "url": "http://github.com/petkaantonov/bluebird/issues"
+    "url": "https://github.com/petkaantonov/bluebird/issues"
   },
   "license": "MIT",
   "author": {
