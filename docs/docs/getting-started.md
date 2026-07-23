@@ -17,17 +17,13 @@ Then:
 var Promise = require("bluebird");
 ```
 
-Alternatively in ES6 
+Alternatively with ES modules, use the default import so methods like `Promise.config` are available:
 
 ```js
-import * as Promise from "bluebird";
+import Promise from "bluebird";
 ```
 
-If that ES6 import [doesn't work](https://github.com/petkaantonov/bluebird/pull/1594)
-
-```js
-import {Promise} from "bluebird";
-```
+Avoid `import * as Promise from "bluebird"` and `import {Promise} from "bluebird"`. Bluebird is a CommonJS module, so those forms do not expose the API on modern Node.js.
 
 ## Browsers
 
