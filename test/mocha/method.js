@@ -131,4 +131,13 @@ describe("Promise.method", function(){
             assert.strictEqual(1, value);
         });
     });
+    specify("should retain custom properties", function() {
+        var fn = function() {};
+        fn.foo = "bar";
+        var wrapped = Promise.method(fn);
+        assert.strictEqual(wrapped.foo, "bar");
+        return wrapped().then(function() {
+            assert.strictEqual(wrapped.foo, "bar");
+        });
+    });
 });

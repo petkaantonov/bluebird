@@ -5,11 +5,27 @@ var util = require("./util");
 var ASSERT = require("./assert");
 var tryCatch = util.tryCatch;
 
+// Same own-property skip list as Promise.promisify (src/promisify.js).
+var noCopyProps = [
+    "arity",
+    "length",
+    "name",
+    "arguments",
+    "caller",
+    "callee",
+    "prototype"
+];
+var noCopyPropsPattern = new RegExp("^(?:" + noCopyProps.join("|") + ")$");
+
+function propsFilter(key) {
+    return !noCopyPropsPattern.test(key);
+}
+
 Promise.method = function (fn) {
     if (typeof fn !== "function") {
         throw new Promise.TypeError(FUNCTION_ERROR + util.classString(fn));
     }
-    return function () {
+    var method = function () {
         var ret = new Promise(INTERNAL);
         ret._captureStackTrace();
         ret._pushContext();
@@ -20,6 +36,8 @@ Promise.method = function (fn) {
         ret._resolveFromSyncValue(value);
         return ret;
     };
+    util.copyDescriptors(fn, method, propsFilter);
+    return method;
 };
 
 Promise.attempt = Promise["try"] = function (fn) {
