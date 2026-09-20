@@ -20,10 +20,13 @@ function ReductionPromiseArray(promises, fn, initialValue, _each) {
     this._currentCancellable = null;
     if(_each === INTERNAL) {
         this._eachValues = Array(this._length);
+        this._preservedValues = null;
     } else if (_each === 0) {
         this._eachValues = null;
+        this._preservedValues = [];
     } else {
         this._eachValues = undefined;
+        this._preservedValues = null;
     }
     this._promise._captureStackTrace();
     this._init$(undefined, RESOLVE_CALL_METHOD);
@@ -39,6 +42,10 @@ ReductionPromiseArray.prototype._gotAccum = function(accum) {
 };
 
 ReductionPromiseArray.prototype._eachComplete = function(value) {
+    var preserved = this._preservedValues;
+    if (preserved != null) {
+        return preserved;
+    }
     if (this._eachValues !== null) {
         this._eachValues.push(value);
     }
@@ -50,6 +57,11 @@ ReductionPromiseArray.prototype._init = function() {};
 
 // Override
 ReductionPromiseArray.prototype._resolveEmptyArray = function() {
+    var preserved = this._preservedValues;
+    if (preserved != null) {
+        this._resolve(preserved);
+        return;
+    }
     this._resolve(this._eachValues !== undefined ? this._eachValues
                                                  : this._initialValue);
 };
@@ -166,6 +178,10 @@ function gotAccum(accum) {
 
 function gotValue(value) {
     var array = this.array;
+    var preserved = array._preservedValues;
+    if (preserved != null) {
+        preserved.push(value);
+    }
     var promise = array._promise;
     var fn = tryCatch(array._fn);
     promise._pushContext();

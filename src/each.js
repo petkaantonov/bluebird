@@ -1,19 +1,13 @@
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var PromiseReduce = Promise.reduce;
-var PromiseAll = Promise.all;
-
-function promiseAllThis() {
-    return PromiseAll(this);
-}
 
 function PromiseMapSeries(promises, fn) {
     return PromiseReduce(promises, fn, INTERNAL, INTERNAL);
 }
 
 Promise.prototype.each = function (fn) {
-    return PromiseReduce(this, fn, INTERNAL, 0)
-              ._then(promiseAllThis, undefined, undefined, this, undefined);
+    return PromiseReduce(this, fn, INTERNAL, 0);
 };
 
 Promise.prototype.mapSeries = function (fn) {
@@ -21,8 +15,7 @@ Promise.prototype.mapSeries = function (fn) {
 };
 
 Promise.each = function (promises, fn) {
-    return PromiseReduce(promises, fn, INTERNAL, 0)
-              ._then(promiseAllThis, undefined, undefined, promises, undefined);
+    return PromiseReduce(promises, fn, INTERNAL, 0);
 };
 
 Promise.mapSeries = PromiseMapSeries;
