@@ -528,7 +528,9 @@ if (Promise.hasLongStackTraces()) {
             return Promise.coroutine(function* () {
                 yield secondLevel();
             })().then(assert.fail, function(e) {
-                assertLongTrace(e, 4+1, [2, 2, 2, 2]);
+                // fourthLevel throws synchronously, so thirdLevel's
+                // yield site stays on the same hop (#1488).
+                assertLongTrace(e, 3+1, [4, 2, 2]);
             });
         });
     });
