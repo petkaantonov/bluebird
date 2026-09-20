@@ -52,6 +52,7 @@ function PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {
         : yieldHandlers;
     this._yieldedPromise = null;
     this._cancellationPhase = false;
+    this._synchronous = true;
 }
 util.inherits(PromiseSpawn, Proxyable);
 
@@ -137,7 +138,7 @@ PromiseSpawn.prototype._continue = function (result) {
         if (this._cancellationPhase) {
             return promise.cancel();
         } else {
-            return promise._rejectCallback(result.e, false);
+            return promise._rejectCallback(result.e, this._synchronous);
         }
     }
 
@@ -172,13 +173,16 @@ PromiseSpawn.prototype._continue = function (result) {
         var bitField = maybePromise._bitField;
         USE(bitField);
         if (BIT_FIELD_CHECK(IS_PENDING_AND_WAITING_NEG)) {
+            this._synchronous = false;
             this._yieldedPromise = maybePromise;
             maybePromise._proxy(this, null);
         } else if (BIT_FIELD_CHECK(IS_FULFILLED)) {
+            this._synchronous = false;
             Promise._async.invoke(
                 this._promiseFulfilled, this, maybePromise._value()
             );
         } else if (BIT_FIELD_CHECK(IS_REJECTED)) {
+            this._synchronous = false;
             Promise._async.invoke(
                 this._promiseRejected, this, maybePromise._reason()
             );
