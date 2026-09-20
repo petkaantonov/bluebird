@@ -514,12 +514,34 @@ function longStackTracesDereferenceTrace() {
     this._trace = undefined;
 }
 
+function checkEventuallyFinal(promise) {
+    if (!(promise instanceof Promise)) {
+        return false;
+    }
+    if (promise._isFinal()) return true;
+    if (promise._isFollowing()) {
+        return checkEventuallyFinal(promise._followee());
+    }
+    if (promise._promise0 == null) return false;
+    if (!checkEventuallyFinal(promise._promise0)) {
+        return false;
+    }
+    var len = BIT_FIELD_READ(LENGTH_MASK, promise._bitField);
+    for (var i = 1; i < len; ++i) {
+        if (!checkEventuallyFinal(promise._promiseAt(i))) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function checkForgottenReturns(returnValue, promiseCreated, name, promise,
                                parent) {
     if (returnValue === undefined && promiseCreated !== null &&
         wForgottenReturn) {
         if (parent !== undefined && parent._returnedNonUndefined()) return;
         if (BIT_FIELD_READ(LENGTH_MASK, promise._bitField) === 0) return;
+        if (checkEventuallyFinal(promiseCreated)) return;
 
         if (name) name = name + " ";
         var handlerLine = "";
