@@ -97,13 +97,19 @@ if (!errorTypes) {
         RejectionError: OperationalError,
         AggregateError: AggregateError
     });
-    es5.defineProperty(Error, BLUEBIRD_ERRORS, {
-        value: errorTypes,
-        writable: false,
-        enumerable: false,
-        configurable: false
-    });
+    try {
+        es5.defineProperty(Error, BLUEBIRD_ERRORS, {
+            value: errorTypes,
+            writable: false,
+            enumerable: false,
+            configurable: false
+        });
+    } catch (ignore) {
+        // A frozen Error constructor cannot share types between modules.
+    }
 }
+
+util.errorTypes = errorTypes;
 
 module.exports = {
     Error: Error,

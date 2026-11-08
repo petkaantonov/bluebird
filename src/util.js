@@ -260,7 +260,7 @@ function markAsOriginatingFromRejection(e) {
 
 function originatesFromRejection(e) {
     if (e == null) return false;
-    return ((e instanceof Error[BLUEBIRD_ERRORS].OperationalError) ||
+    return ((e instanceof ret.errorTypes.OperationalError) ||
         e[OPERATIONAL_ERROR_KEY] === true);
 }
 
@@ -376,6 +376,7 @@ function contextBind(ctx, cb) {
 }
 
 var ret = {
+    errorTypes: undefined,
     setReflectHandler: function(fn) {
         reflectHandler = fn;
     },
